@@ -14,6 +14,15 @@
     <!-- CSS -->
     <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="../css/dashboard.css">
+
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
 </head>
 
 <body class="dashboard-body">
@@ -22,14 +31,14 @@
         <!-- Sidebar -->
         <aside class="sidebar glass-card">
             <div class="sidebar-header">
-                <span class="logo-text">Smart<span class="highlight">OS</span></span>
+                <span class="logo-text font-heading">Smart<span class="highlight">OS</span></span>
             </div>
             <nav class="sidebar-nav">
                 <a href="#" class="nav-item active" data-tab="overview">
                     <span class="icon">🏠</span> Dashboard
                 </a>
                 <a href="#" class="nav-item" data-tab="notes">
-                    <span class="icon">📚</span> Notes
+                    <span class="icon">📚</span> Notes Hub
                 </a>
                 <a href="#" class="nav-item" data-tab="planner">
                     <span class="icon">📅</span> Study Planner
@@ -56,101 +65,29 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <header class="top-bar">
+            <header class="top-bar glass-card" style="margin-bottom: 1.5rem; border-radius: 16px;">
                 <div class="search-bar">
-                    <input type="text" placeholder="Search notes, tools, or topics...">
+                    <input type="text" placeholder="Global search for notes, colleges or topics...">
                     <span class="search-icon">🔍</span>
                 </div>
                 <div class="top-actions">
                     <button class="btn btn-ghost notification-btn">🔔</button>
-                    <button class="btn btn-primary upload-btn" onclick="handleGlobalUpload()">+ Upload Note</button>
+                    <button class="btn btn-primary upload-btn" style="border-radius: 12px; font-weight: 600;">+ Upload
+                        Note</button>
                 </div>
             </header>
 
             <div class="content-area" id="tab-content">
-                <!-- Overview Tab (Default) -->
-                <div class="tab-pane active" id="overview">
-                    <div class="welcome-header">
-                        <h1>Welcome back, <span class="gradient-text">Tanishq!</span></h1>
-                        <p>You have 3 exams coming up this week. Stay focused!</p>
-                    </div>
-
-                    <div class="stats-overview">
-                        <div class="glass-card stat-card">
-                            <span class="stat-icon">🔥</span>
-                            <div class="stat-data">
-                                <span class="val">85%</span>
-                                <span class="label">Course Progress</span>
-                            </div>
-                        </div>
-                        <div class="glass-card stat-card">
-                            <span class="stat-icon">⏱️</span>
-                            <div class="stat-data">
-                                <span class="val">12h</span>
-                                <span class="label">Study Time (Week)</span>
-                            </div>
-                        </div>
-                        <div class="glass-card stat-card">
-                            <span class="stat-icon">🏆</span>
-                            <div class="stat-data">
-                                <span class="val">9.2</span>
-                                <span class="label">Projected CGPA</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-grid">
-                        <!-- Upcoming Exams -->
-                        <div class="glass-card grid-item exams-list">
-                            <h3>Upcoming Exams</h3>
-                            <div class="list-content">
-                                <div class="list-item">
-                                    <div class="item-info">
-                                        <span class="title">Digital Electronics</span>
-                                        <span class="date">Feb 5, 2026</span>
-                                    </div>
-                                    <span class="priority high">High</span>
-                                </div>
-                                <div class="list-item">
-                                    <div class="item-info">
-                                        <span class="title">DBMS</span>
-                                        <span class="date">Feb 7, 2026</span>
-                                    </div>
-                                    <span class="priority medium">Medium</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Recommended Notes -->
-                        <div class="glass-card grid-item rec-notes">
-                            <h3>Recommended for You</h3>
-                            <div class="notes-grid-mini">
-                                <!-- Mini Note Cards -->
-                                <div class="note-card-mini">
-                                    <span class="subject">DE</span>
-                                    <span class="note-title">Unit 2 Review</span>
-                                </div>
-                                <div class="note-card-mini">
-                                    <span class="subject">OS</span>
-                                    <span class="note-title">Kernel Basics</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- AI Assistant Mini -->
-                        <div class="glass-card grid-item ai-mini">
-                            <h3>AI Study Assistant</h3>
-                            <div class="ai-chat-mini">
-                                <p class="ai-msg">"Hey! Based on your schedule, I recommend reviewing Unit 2 today."</p>
-                                <button class="btn btn-primary btn-sm">Start Session</button>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Content will be injected dynamically by dashboard.js -->
+                <div class="tab-pane active"
+                    style="display:flex; align-items:center; justify-content:center; height:100%;">
+                    <div class="loader-pro">Connecting to Secure Database...</div>
                 </div>
             </div>
         </main>
     </div>
 
+    <!-- Dynamic Dashboard Engine -->
     <script src="../js/dashboard.js"></script>
 </body>
 

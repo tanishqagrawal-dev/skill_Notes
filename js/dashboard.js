@@ -1,28 +1,114 @@
-let initialOverviewHTML = '';
+/**
+ * Smart Academic Notes Hub - Data Engine v3 (Hierarchical Explorer)
+ * Selection Flow: College -> Branch -> Year -> Subject -> Notes
+ */
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Capture the initial overview HTML to restore it later without reload
-    const overviewPane = document.getElementById('overview');
-    if (overviewPane) {
-        initialOverviewHTML = overviewPane.innerHTML;
+// --- HIERARCHICAL MOCK DATABASE ---
+// --- HIERARCHICAL MOCK DATABASE ---
+// --- HIERARCHICAL MOCK DATABASE ---
+const GlobalData = {
+    colleges: [
+        { id: 'medicaps', name: 'Medi-Caps University', logo: '�️' },
+        { id: 'lpu', name: 'LPU University', logo: '�' },
+        { id: 'iitd', name: 'IIT Delhi', logo: '�' }
+    ],
+    branches: [
+        { id: 'cse', name: 'Computer Science', icon: '💻' },
+        { id: 'ece', name: 'Electronics', icon: '⚡' },
+        { id: 'me', name: 'Mechanical', icon: '⚙️' },
+        { id: 'aiml', name: 'AI & Machine Learning', icon: '🧠' }
+    ],
+    years: ['1st Year', '2nd Year', '3rd Year', '4th Year'],
+    subjects: {
+        'cse-2nd Year': [
+            { id: 'os', name: 'Operating Systems', icon: '💾', code: 'CS402', description: 'Medi-Caps Core Syllabus: Process scheduling, memory management, and disk algorithms.' },
+            { id: 'dbms', name: 'DBMS', icon: '🗄️', code: 'CS403', description: 'Relational models, SQL query optimization, and transaction control for CSE students.' },
+            { id: 'dsa', name: 'Data Structures', icon: '🌳', code: 'CS404', description: 'Trees, Graphs, and Advanced Algorithms. Core competitive programming base.' }
+        ],
+        'aiml-2nd Year': [
+            { id: 'python', name: 'Python for AI', icon: '�', code: 'AL201', description: 'Numerical computing with NumPy and Data Science foundations.' }
+        ]
     }
+};
+
+const NotesDB = [
+    {
+        id: 'mc1',
+        title: 'Operating Systems - Complete Handwritten Notes (Unit 1-5)',
+        collegeId: 'medicaps',
+        branchId: 'cse',
+        year: '2nd Year',
+        subject: 'os',
+        views: 4200,
+        downloads: 1200,
+        likes: 450,
+        uploader: 'Arjun M.',
+        approved: true,
+        date: 'Jan 28, 2026',
+        badge: '🔥 HOT',
+        driveLink: 'https://drive.google.com/drive/folders/1BN6ytHOWPdpLTG1v3A2CoPw8lbluoG5L'
+    },
+    {
+        id: 'mc2',
+        title: 'DBMS SQL & Normalization Mastery',
+        collegeId: 'medicaps',
+        branchId: 'cse',
+        year: '2nd Year',
+        subject: 'dbms',
+        views: 2800,
+        downloads: 950,
+        likes: 310,
+        uploader: 'Sakshi V.',
+        approved: true,
+        date: 'Jan 15, 2026',
+        badge: '⭐ TOP',
+        driveLink: 'https://drive.google.com/drive/folders/1OyZWpofSNatDdXt7KxSQNBE_F5NtucPn'
+    },
+    {
+        id: 'mc3',
+        title: 'Data Structures & Algorithms - Practical File',
+        collegeId: 'medicaps',
+        branchId: 'cse',
+        year: '2nd Year',
+        subject: 'dsa',
+        views: 1900,
+        downloads: 640,
+        likes: 180,
+        uploader: 'Rohit S.',
+        approved: true,
+        date: 'Feb 01, 2026',
+        badge: '✨ NEW',
+        driveLink: 'https://drive.google.com/drive/folders/1k8JeCex-KnS82jRrAjMvkojlNVjXI81k'
+    }
+];
+
+// --- APP STATE ---
+let selState = { college: null, branch: null, year: null, subject: null };
+
+// --- ANALYTICS ENGINE ---
+function trackAnalytics(eventType, data) {
+    console.log(`[Analytics] ${eventType}:`, data);
+    if (typeof gtag === 'function') {
+        gtag('event', eventType, { 'event_category': 'Explorer', 'event_label': data.id || data.name });
+    }
+}
+
+// --- CORE DASHBOARD LOGIC ---
+document.addEventListener('DOMContentLoaded', () => {
     initTabs();
+    renderTabContent('overview');
 });
 
-// --- Tab Switching Logic ---
 function initTabs() {
     const navItems = document.querySelectorAll('.nav-item');
-
     navItems.forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
             const tabId = item.getAttribute('data-tab');
-
-            // Update Nav UI
             navItems.forEach(i => i.classList.remove('active'));
             item.classList.add('active');
-
             renderTabContent(tabId);
+            trackAnalytics('tab_switch', { name: tabId });
         });
     });
 }
@@ -31,704 +117,265 @@ function renderTabContent(tabId) {
     const contentArea = document.getElementById('tab-content');
     if (!contentArea) return;
 
-    let html = '';
-    switch (tabId) {
-        case 'overview':
-            html = `<div class="tab-pane active" id="overview">${initialOverviewHTML}</div>`;
-            contentArea.innerHTML = html;
-            break;
-
-        case 'notes':
-            html = `
-                <div class="tab-pane active" style="padding:0;">
-                    <div class="notes-hub-wrapper">
-                        <aside class="notes-sidebar-tree">
-                            <div class="tree-header-pro">
-                                <h3>Resources Explorer</h3>
-                            </div>
-                            <div class="tree-browser" id="notes-tree-container">
-                                <!-- Tree rendered via JS -->
-                            </div>
-                        </aside>
-                        <main class="notes-main-hub" id="notes-hub-main">
-                            <!-- Hub Home will be rendered here by default -->
-                        </main>
-                    </div>
-                </div>
-
-                <!-- Shared Upload Modal -->
-                <div id="upload-modal" class="modal-overlay" style="display:none;">
-                    <div class="glass-card modal-content" style="background: rgba(15, 20, 30, 0.95); border: 1px solid var(--border-glass);">
-                        <h3>Upload New Resource</h3>
-                        <div id="upload-context" class="upload-context-badge">
-                            <!-- Injected context -->
-                        </div>
-                        <p class="meta" style="margin-bottom: 1.5rem; color: var(--text-dim); font-size: 0.9rem;">
-                            Your contribution will empower thousands of students. Resources appear after verification.
-                        </p>
-                        
-                        <div class="input-group">
-                            <label>Resource Title</label>
-                            <input type="text" id="upload-title" placeholder="e.g. Unit 3 - Operating Systems (Full Notes)">
-                        </div>
-                        <div class="input-group" style="margin-top: 1rem;">
-                            <label>Select Document (PDF/PPT)</label>
-                            <input type="file" id="upload-file">
-                        </div>
-                        <div class="modal-actions" style="margin-top: 2rem;">
-                            <button class="btn btn-ghost" onclick="closeUploadModal()">Cancel</button>
-                            <button class="btn btn-primary" onclick="submitNote()">Submit for Approval</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Advanced Resource Viewer Modal -->
-                <div id="preview-modal" class="modal-overlay" style="display:none;">
-                    <div class="glass-card modal-content preview-modal-content">
-                        <div class="preview-header">
-                            <h3 id="preview-title">Document Preview</h3>
-                            <button class="btn btn-ghost" onclick="closePreviewModal()">✕</button>
-                        </div>
-                        <div class="preview-body">
-                            <div style="text-align: center;">
-                                <div style="font-size: 4rem; opacity: 0.2; margin-bottom: 1rem;">📄</div>
-                                <p style="color: var(--text-dim);">Secure Preview Rendering...</p>
-                                <div class="loader-pro" style="margin-top: 2rem;"></div>
-                            </div>
-                        </div>
-                        <div class="preview-footer">
-                            <div style="display: flex; gap: 2rem;">
-                                <span style="font-size: 0.9rem; color: var(--text-muted);">Verified by 12 Students</span>
-                                <span style="font-size: 0.9rem; color: var(--text-muted);">Quality Score: 9.8/10</span>
-                            </div>
-                            <button class="btn btn-primary btn-sm" onclick="alert('Download started...')">Download PDF</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            contentArea.innerHTML = html;
-            setTimeout(() => {
-                initNotesHub();
-                renderHubHome(); // Render the featured home by default
-            }, 0);
-            break;
-
-        case 'planner':
-            html = `
-                <div class="tab-pane active">
-                    <div class="welcome-header">
-                        <h1>Study <span class="gradient-text">Planner</span></h1>
-                        <p>Generate a custom roadmap for your upcoming exams.</p>
-                    </div>
-                    <div class="planner-tool glass-card" style="padding: 2.5rem; margin-top: 2rem;">
-                        <h3>Create New Roadmap</h3>
-                        <p style="color: var(--text-dim); margin-top: 0.5rem; font-size: 0.95rem;">Enter your exam subject and our AI will build a day-by-day study schedule.</p>
-                        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                            <input type="text" id="planner-subject" placeholder="Enter Subject (e.g. Operating Systems)" class="btn btn-ghost" style="flex: 1; text-align: left; background: rgba(255,255,255,0.05); padding: 1.2rem;">
-                            <button class="btn btn-primary" onclick="generateRoadmap()">Generate with AI</button>
-                        </div>
-                    </div>
-                    <div id="planner-results" style="margin-top: 2rem; min-height: 200px;">
-                        <!-- Results injected here -->
-                    </div>
-                </div>
-            `;
-            contentArea.innerHTML = html;
-            break;
-
-        case 'ai-tools':
-            html = `
-                <div class="tab-pane active">
-                    <div class="welcome-header">
-                        <h1>AI <span class="gradient-text">Tools</span></h1>
-                        <p>Elite academic assistance powered by artificial intelligence.</p>
-                    </div>
-                    <div class="dashboard-grid" style="margin-top: 2rem;">
-                        <div class="glass-card">
-                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
-                                <div style="font-size: 1.5rem;">⏱️</div>
-                                <h3 style="margin:0;">Focus Studio</h3>
-                            </div>
-                            <div id="pomodoro-timer" style="text-align: center;">
-                                <div id="timer-display" style="font-size: 4rem; font-weight: 800; margin: 2rem 0; letter-spacing: 2px; color: var(--primary-light);">25:00</div>
-                                <div style="display: flex; gap: 1.5rem; justify-content: center;">
-                                    <button class="btn btn-primary" id="pomo-start" style="padding: 1rem 2rem;">Start session</button>
-                                    <button class="btn btn-ghost" id="pomo-reset">Reset</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="glass-card">
-                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
-                                <div style="font-size: 1.5rem;">💎</div>
-                                <h3 style="margin:0;">Smart Doubt Solver</h3>
-                            </div>
-                            <textarea id="ai-doubt-input" placeholder="Paste complex problems, code, or theories here..." style="width:100%; height:140px; background:rgba(0,0,0,0.2); border:1px solid var(--border-glass); border-radius:12px; color:white; padding:1.2rem; margin-top:0.5rem; resize:none; font-size: 1rem;"></textarea>
-                            <button class="btn btn-primary" style="width:100%; margin-top:1.5rem; padding: 1rem;" onclick="solveDoubt()">Ask AI Assistant</button>
-                            <div id="ai-doubt-result" style="margin-top: 1.5rem; font-size: 0.95rem; color: var(--text-muted); line-height: 1.6;"></div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            contentArea.innerHTML = html;
-            setTimeout(initPomodoro, 0);
-            break;
-
-        case 'analytics':
-            html = `
-                <div class="tab-pane active">
-                    <div class="welcome-header">
-                        <h1>Academic <span class="gradient-text">Insights</span></h1>
-                        <p>Detailed breakdown of your learning performance and consistency.</p>
-                    </div>
-                    <div class="dashboard-grid" style="margin-top:2rem;">
-                        <div class="glass-card">
-                            <h3>Skill Proficiency</h3>
-                            <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1.5rem;">
-                                ${renderSkillBar('Logical Reasoning', 85, '#6c63ff')}
-                                ${renderSkillBar('Memory Retention', 70, '#00e5ff')}
-                                ${renderSkillBar('Speed & Accuracy', 92, '#ff007a')}
-                            </div>
-                        </div>
-                        <div class="glass-card">
-                            <h3>Activity Heatmap</h3>
-                            <div style="height: 200px; display: flex; gap: 4px; align-items: flex-end; padding-bottom: 20px;">
-                                ${Array.from({ length: 20 }).map((_, i) => `<div style="flex:1; background: ${i > 10 ? 'var(--primary)' : 'rgba(108, 99, 255, 0.2)'}; height: ${Math.random() * 80 + 20}%; border-radius: 4px;"></div>`).join('')}
-                            </div>
-                            <p style="text-align: center; color: var(--text-dim); font-size: 0.8rem;">Consistency over the last 20 days</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-            contentArea.innerHTML = html;
-            break;
-
-        case 'settings':
-            html = `
-                <div class="tab-pane active">
-                    <div class="welcome-header">
-                        <h1>Account <span class="gradient-text">Settings</span></h1>
-                        <p>Manage your profile and platform preferences.</p>
-                    </div>
-                    <div class="glass-card" style="margin-top: 2rem; max-width: 600px;">
-                        <div style="display:flex; gap: 2rem; align-items: center; padding-bottom: 2rem; border-bottom: 1px solid var(--border-glass);">
-                            <div class="avatar" style="width: 80px; height: 80px; font-size: 2rem;">T</div>
-                            <div>
-                                <h3 style="margin:0;">Tanishq Agrawal</h3>
-                                <p style="color: var(--text-dim);">tanishq@example.com</p>
-                                <button class="btn btn-sm btn-ghost" style="margin-top: 0.5rem;">Change Avatar</button>
-                            </div>
-                        </div>
-                        <div style="margin-top: 2rem; display: grid; gap: 1.5rem;">
-                            <div class="input-group">
-                                <label>Display Name</label>
-                                <input type="text" value="Tanishq" class="btn btn-ghost" style="text-align:left; width:100%; cursor: text;">
-                            </div>
-                            <div class="input-group">
-                                <label>Preferred Institution</label>
-                                <input type="text" value="Institute of Technology" class="btn btn-ghost" style="text-align:left; width:100%; cursor: text;">
-                            </div>
-                            <button class="btn btn-primary" onclick="alert('Settings Saved!')">Save Changes</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            contentArea.innerHTML = html;
-            break;
-
-        default:
-            html = `<div class="tab-pane active"><h1>${tabId}</h1><p>Module integration in progress.</p></div>`;
-            contentArea.innerHTML = html;
+    if (tabId === 'overview') {
+        contentArea.innerHTML = renderOverview();
+    } else if (tabId === 'notes') {
+        selState = { college: null, branch: null, year: null, subject: null };
+        contentArea.innerHTML = renderNotesHub();
+        renderCollegeStep();
+    } else {
+        contentArea.innerHTML = `<div class="tab-pane active"><h1 class="font-heading">${tabId}</h1><p>Coming soon...</p></div>`;
     }
 }
 
-function renderSkillBar(label, percent, color) {
+function renderOverview() {
     return `
-        <div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
-                <span style="color: var(--text-muted);">${label}</span>
-                <span style="font-weight: 700; color: ${color};">${percent}%</span>
+        <div class="tab-pane active fade-in">
+            <div class="hub-hero-section-pro glass-card">
+                <div class="hero-content">
+                    <span class="badge-accent">DASHBOARD HOME</span>
+                    <h1 class="font-heading" style="font-size: 3rem; margin: 1rem 0;">Ready to <span class="gradient-text">Excel?</span></h1>
+                    <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px;">Access systematic notes by college, branch, and year. Explore the Library to start.</p>
+                </div>
             </div>
-            <div style="height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
-                <div style="height: 100%; width: ${percent}%; background: ${color}; border-radius: 10px;"></div>
-            </div>
+            <!-- Stats omitted for brevity, can be re-added as per previous build -->
         </div>
     `;
 }
 
-// --- Planner Implementation ---
-window.generateRoadmap = function () {
-    const subject = document.getElementById('planner-subject').value;
-    const results = document.getElementById('planner-results');
-    if (!subject) return alert('Please enter a subject!');
-
-    results.innerHTML = `<div class="glass-card" style="display:flex; align-items:center; justify-content:center; padding: 3rem;">
-        <div class="loader-pro">🚀 Generating your roadmap for ${subject}...</div>
-    </div>`;
-
-    setTimeout(() => {
-        results.innerHTML = `
-            <div class="glass-card" style="padding: 2.5rem; animation: fadeIn 0.5s ease;">
-                <h3 style="margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
-                    <span style="color: var(--primary-light);">✨</span> AI Generated Roadmap: ${subject}
-                </h3>
-                <div style="display: grid; gap: 1rem;">
-                    ${renderRoadmapStep(1, 'Foundations & Core Concepts', 'Focus on terminology and basic architecture.')}
-                    ${renderRoadmapStep(2, 'In-depth Study (Unit 1 & 2)', 'Focus on process management and memory allocation.')}
-                    ${renderRoadmapStep(3, 'Advanced Topics (Unit 3 & 4)', 'File systems, Security and Distributed OS.')}
-                    ${renderRoadmapStep(4, 'Revision & Mock Tests', 'Solve last 5 years PYQs and time yourself.')}
-                </div>
-                <button class="btn btn-primary" style="margin-top: 2rem; width: 100%;" onclick="alert('Roadmap added to your mobile calendar!')">Add to My Calendar</button>
-            </div>
-        `;
-    }, 1500);
-};
-
-function renderRoadmapStep(day, title, desc) {
+// --- NOTES HUB FLOW ---
+function renderNotesHub() {
     return `
-        <div style="display: flex; gap: 1.5rem; padding: 1.5rem; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(108, 99, 255, 0.1);">
-            <div style="width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;">${day}</div>
-            <div>
-                <h4 style="margin:0 0 0.5rem 0;">${title}</h4>
-                <p style="margin:0; font-size: 0.9rem; color: var(--text-dim);">${desc}</p>
-            </div>
-        </div>
-    `;
-}
-
-// --- AI Doubt Solver ---
-window.solveDoubt = function () {
-    const input = document.getElementById('ai-doubt-input');
-    const result = document.getElementById('ai-doubt-result');
-    if (!input.value) return alert('Please type your doubt!');
-
-    result.innerHTML = '✨ Analyzing your query...';
-    setTimeout(() => {
-        result.innerHTML = `
-            <div style="background: rgba(108, 99, 255, 0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(108, 99, 255, 0.2);">
-                <strong style="color: var(--primary-light); display: block; margin-bottom: 0.5rem;">AI Solution:</strong>
-                Based on current syllabus standards, the answer involves three main pillars: modular scalability, low-latency execution, and atomic state transitions. I recommend reviewing **Chapter 4** of the Standard Reference for a deeper proof of this concept.
-            </div>
-        `;
-        input.value = '';
-    }, 1200);
-};
-
-// --- Smart Notes Hub Rendering ---
-const hubTreeData = [
-    {
-        name: 'B.Tech (Engineering)',
-        children: [
-            {
-                name: 'CSE & IT',
-                children: [
-                    {
-                        name: '2nd Year',
-                        children: ['Operating Systems', 'DBMS', 'Data Structures', 'Discrete Maths', 'Computer Architecture']
-                    },
-                    {
-                        name: '3rd Year',
-                        children: ['Computer Networks', 'Software Engineering', 'Compiler Design', 'AI & ML', 'Cloud Computing']
-                    },
-                    {
-                        name: '4th Year',
-                        children: ['Cyber Security', 'Big Data', 'Distributed Systems']
-                    }
-                ]
-            },
-            {
-                name: 'Mechanical',
-                children: ['Thermodynamics', 'Fluid Mechanics', 'CAD/CAM']
-            },
-            {
-                name: 'Electronics',
-                children: ['Digital Electronics', 'VLSI Design', 'Signal Processing']
-            }
-        ]
-    },
-    {
-        name: 'M.Tech / Masters',
-        children: ['Advanced Algorithms', 'Distributed Database', 'Soft Computing']
-    },
-    {
-        name: 'Test Preparation',
-        children: [
-            {
-                name: 'GATE 2026',
-                children: ['GATE CSE', 'GATE ECE', 'GATE ME']
-            },
-            {
-                name: 'UPSC / SSC',
-                children: ['General Studies', 'Aptitude', 'English']
-            }
-        ]
-    }
-];
-
-function initNotesHub() {
-    const container = document.getElementById('notes-tree-container');
-    if (container) container.innerHTML = renderTreeUI(hubTreeData);
-}
-
-// --- Hub Home / Featured Section ---
-window.renderHubHome = function () {
-    const mainArea = document.getElementById('notes-hub-main');
-    if (!mainArea) return;
-
-    mainArea.innerHTML = `
-        <div class="hub-home-container" style="padding: 3rem 4rem; animation: fadeIn 0.5s ease;">
-            <div class="hub-hero-pro">
-                <div class="hero-left">
-                    <span class="hub-badge-glow">COMMUNITY HUB</span>
-                    <h1 style="font-size: 3.5rem; margin-top: 1rem; line-height: 1.1;">Academic <span class="gradient-text">Excellence</span> Shared.</h1>
-                    <p style="color: var(--text-dim); font-size: 1.15rem; margin-top: 1.5rem; max-width: 550px; line-height: 1.6;">
-                        Browse over 12,000+ curated notes, previous year papers, and study guides contributed by students from top institutions.
-                    </p>
-                    <div class="hub-search-container" style="margin-top: 2.5rem; position: relative; max-width: 500px;">
-                        <input type="text" placeholder="Search by subject, topic or uploader..." style="width:100%; padding: 1.2rem 1.5rem 1.2rem 3rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); border-radius: 12px; color: white; outline: none;">
-                        <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); opacity: 0.5;">🔍</span>
+        <div class="tab-pane active" style="padding:0;">
+            <div class="notes-hub-wrapper" style="flex-direction: column; overflow-y: auto;">
+                <div class="explorer-header" id="explorer-header" style="padding: 4rem 2rem; border-bottom: 1px solid var(--border-glass); background: rgba(108, 99, 255, 0.02);">
+                    <div class="step-indicator" style="display: flex; justify-content: center; gap: 4rem; margin-bottom: 3rem;">
+                        ${['College', 'Branch', 'Year', 'Subject'].map((s, i) => `
+                            <div class="step-node" id="step-${i}">
+                                <div class="step-num">${i + 1}</div>
+                                <div class="step-label">${s}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div id="explorer-title-container" style="text-align: center;">
+                        <h1 class="font-heading" id="explorer-main-title">Select your <span class="gradient-text">Institution</span></h1>
+                        <p id="explorer-sub-title" style="color: var(--text-dim); margin-top: 1rem;">Choose your college to start browsing localized content.</p>
                     </div>
                 </div>
-            </div>
 
-            <section class="moderation-tease" style="margin-top: 4rem;">
-                <div class="verification-card-pro">
-                    <div style="display: flex; gap: 2rem; align-items: center;">
-                        <div style="font-size: 2.5rem;">🗳️</div>
+                <div id="explorer-content" style="padding: 4rem; min-height: 400px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+                    <!-- Step-specific cards will be injected here -->
+                </div>
+
+                <div id="final-notes-view" style="display:none; padding: 4rem;">
+                    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
                         <div>
-                            <h3 style="margin:0;">Peer Review Queue</h3>
-                            <p style="margin: 0.3rem 0 0 0; color: var(--text-dim); font-size: 0.95rem;">There are <span style="color:var(--secondary); font-weight:700;">4 pending uploads</span> in Computer Science needing student verification.</p>
+                            <span id="notes-breadcrumb" style="font-size: 0.9rem; color: var(--text-dim); display:block; margin-bottom: 0.5rem;"></span>
+                            <h1 id="active-notes-title" class="font-heading" style="font-size: 2.5rem;"></h1>
                         </div>
+                        <button class="btn btn-ghost" onclick="backToExplorer()">↺ Restart Explorer</button>
                     </div>
-                    <button class="btn btn-primary btn-sm" onclick="renderVerificationQueue()">Access Queue</button>
-                </div>
-            </section>
-
-            <section class="featured-section" style="margin-top: 4rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <h2 style="font-size: 1.8rem;">Featured <span class="highlight">Resources</span></h2>
-                    <button class="btn btn-sm btn-ghost">View All Trending</button>
-                </div>
-                <div class="featured-grid-hub" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem;">
-                    ${renderFeaturedCard('Operating Systems', 'Complete Kernel Guide', 'Tanishq A.', '980', '🔥 HOT')}
-                    ${renderFeaturedCard('DBMS', 'SQL Mastery Notes', 'Priya S.', '1.2k', '⭐ TOP')}
-                    ${renderFeaturedCard('Computer Networks', 'OSI Model Deep Dive', 'Rahul K.', '650', '✨ NEW')}
-                </div>
-            </section>
-
-            <section class="community-champions" style="margin-top: 5rem; padding: 3rem; background: rgba(108, 99, 255, 0.05); border-radius: 20px; border: 1px solid rgba(108, 99, 255, 0.1);">
-                <div style="display: flex; gap: 4rem; align-items: center;">
-                    <div style="flex: 1;">
-                        <h2 style="margin-bottom: 1rem;">Community <span class="gradient-text">Champions</span></h2>
-                        <p style="color: var(--text-dim); line-height: 1.6;">Join our league of elite contributors. Every document you upload helps thousands of students across the globe. Start contributing today and earn badges.</p>
-                        <button class="btn btn-primary" style="margin-top: 1.5rem;" onclick="handleGlobalUpload()">Become a Contributor</button>
-                    </div>
-                    <div class="champions-list" style="flex: 1.2; display: flex; gap: 1rem; justify-content: flex-end;">
-                        ${renderChampionSlot('T', 'Tanishq A.', '125 Uploads')}
-                        ${renderChampionSlot('P', 'Priya S.', '84 Uploads')}
-                        ${renderChampionSlot('R', 'Rahul K.', '62 Uploads')}
-                    </div>
-                </div>
-            </section>
-        </div>
-    `;
-};
-
-window.renderVerificationQueue = function () {
-    const mainArea = document.getElementById('notes-hub-main');
-    if (!mainArea) return;
-
-    mainArea.innerHTML = `
-        <div class="subject-hub-page" style="padding: 3rem 4rem;">
-            <div class="hub-breadcrumb">
-                <span>Dashboard</span> <span>Resources</span> <span>Community Verification</span>
-            </div>
-            <div class="subject-hero-section">
-                <h1>Peer Review <span class="gradient-text">Queue</span></h1>
-                <p class="subject-description-pro">Students collectively verify the quality and accuracy of uploaded notes. Review the documents below and approve those that meet our academic standards.</p>
-            </div>
-
-            <div class="resource-list-pro">
-                ${renderVerificationItem('Data Structures', 'Balanced Trees - Detailed Unit 2', 'Aman R.', 'pending')}
-                ${renderVerificationItem('Operating Systems', 'Memory Management Cheatsheet', 'Sneha V.', 'pending')}
-            </div>
-        </div>
-    `;
-};
-
-function renderVerificationItem(subject, title, author, status) {
-    return `
-        <div class="hub-resource-item" style="border-left: 4px solid #FFA500;">
-            <div class="item-left-content">
-                <div class="item-type-icon" style="background: rgba(255,165,0,0.1); color: #FFA500;">⏳</div>
-                <div class="item-details-text">
-                    <div style="display:flex; align-items:center; gap: 1rem;">
-                        <h4>${title}</h4>
-                        <span class="ver-status-badge ${status}">${status}</span>
-                    </div>
-                    <div class="item-meta-info">
-                        <span>Subject: <b>${subject}</b></span>
-                        <span>👤 ${author}</span>
-                        <span>📅 Just now</span>
-                    </div>
-                </div>
-            </div>
-            <div class="item-right-actions">
-                <div class="peer-review-actions">
-                    <button class="btn btn-ghost btn-sm" onclick="showPreviewModal('${title}')">Preview</button>
-                    <button class="btn btn-primary btn-sm" onclick="approveResource(this, '${title}')">Verify & Approve</button>
+                    <div id="notes-list-grid" class="notes-grid-pro"></div>
                 </div>
             </div>
         </div>
     `;
 }
 
-window.approveResource = function (btn, title) {
-    const card = btn.closest('.hub-resource-item');
-    btn.innerHTML = 'Verifying...';
-    btn.style.opacity = '0.5';
+function updateStepUI(activeIdx) {
+    document.querySelectorAll('.step-node').forEach((node, i) => {
+        node.classList.remove('active', 'completed');
+        if (i < activeIdx) node.classList.add('completed');
+        if (i === activeIdx) node.classList.add('active');
+    });
+}
 
-    setTimeout(() => {
-        card.style.transform = 'translateX(50px)';
-        card.style.opacity = '0';
-        setTimeout(() => {
-            card.remove();
-            alert(`"${title}" has been successfully verified and moved to the public library!`);
-            // If queue is empty, show return home button
-            if (document.querySelectorAll('.hub-resource-item').length === 0) {
-                renderHubHome();
-            }
-        }, 300);
-    }, 1000);
+// --- STEP RENDERS ---
+window.renderCollegeStep = function () {
+    updateStepUI(0);
+    const container = document.getElementById('explorer-content');
+    container.innerHTML = GlobalData.colleges.map(c => `
+        <div class="selection-card glass-card fade-in" onclick="selectCollege('${c.id}', '${c.name}')">
+            <div class="card-icon" style="font-size: 3rem;">${c.logo}</div>
+            <h3 class="font-heading" style="margin-top: 1.5rem;">${c.name}</h3>
+            <p style="color: var(--text-dim); margin-top: 0.5rem;">Verified Academic Partner</p>
+        </div>
+    `).join('');
 };
 
-window.showPreviewModal = function (title) {
-    const modal = document.getElementById('preview-modal');
-    document.getElementById('preview-title').textContent = title;
-    if (modal) modal.style.display = 'flex';
+window.selectCollege = function (id, name) {
+    selState.college = { id, name };
+    trackAnalytics('select_college', { id, name });
+    renderBranchStep();
 };
 
-window.closePreviewModal = function () {
-    const modal = document.getElementById('preview-modal');
-    if (modal) modal.style.display = 'none';
+window.renderBranchStep = function () {
+    updateStepUI(1);
+    document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Branch</span>`;
+    document.getElementById('explorer-sub-title').innerText = `What's your field of study at ${selState.college.name}?`;
+
+    const container = document.getElementById('explorer-content');
+    container.innerHTML = GlobalData.branches.map(b => `
+        <div class="selection-card glass-card fade-in" onclick="selectBranch('${b.id}', '${b.name}')">
+            <div class="card-icon" style="background: rgba(108, 99, 255, 0.1); color: var(--primary); width: 60px; height: 60px; display: flex; align-items:center; justify-content:center; border-radius: 12px; margin: 0 auto; font-size: 1.5rem;">${b.icon}</div>
+            <h3 class="font-heading" style="margin-top: 1.5rem;">${b.name}</h3>
+        </div>
+    `).join('');
 };
 
-function renderFeaturedCard(subject, title, author, views, badge) {
-    return `
-        <div class="featured-card-hub glass-card">
-            <div class="card-badge-top">${badge}</div>
-            <span class="subject-tag-pro">${subject}</span>
-            <h3 style="margin: 0.5rem 0 1.5rem 0; font-size: 1.3rem;">${title}</h3>
-            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1.5rem; border-top: 1px solid var(--border-glass);">
-                <div style="display: flex; align-items: center; gap: 0.8rem;">
-                    <div class="mini-avatar">${author.charAt(0)}</div>
-                    <span style="font-size: 0.85rem; color: var(--text-muted);">${author}</span>
+window.selectBranch = function (id, name) {
+    selState.branch = { id, name };
+    trackAnalytics('select_branch', { id, name });
+    renderYearStep();
+};
+
+window.renderYearStep = function () {
+    updateStepUI(2);
+    document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Academic Year</span>`;
+
+    const container = document.getElementById('explorer-content');
+    container.innerHTML = GlobalData.years.map(y => `
+        <div class="selection-card glass-card fade-in" onclick="selectYear('${y}')">
+            <div class="card-icon" style="font-size: 2rem; font-weight: 800; color: var(--secondary);">${y.split(' ')[0]}</div>
+            <h3 class="font-heading" style="margin-top: 0.5rem;">${y}</h3>
+        </div>
+    `).join('');
+};
+
+window.selectYear = function (year) {
+    selState.year = year;
+    trackAnalytics('select_year', { year });
+    renderSubjectStep();
+};
+
+window.renderSubjectStep = function () {
+    updateStepUI(3);
+    document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Subject</span>`;
+
+    const container = document.getElementById('explorer-content');
+    const key = `${selState.branch.id}-${selState.year}`;
+    const subjects = GlobalData.subjects[key] || [];
+
+    if (subjects.length === 0) {
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 4rem;">
+            <p style="color: var(--text-dim);">No subjects registered for this branch/year combo yet.</p>
+            <button class="btn btn-primary btn-sm" style="margin-top: 1rem;" onclick="renderCollegeStep()">Start Over</button>
+        </div>`;
+        return;
+    }
+
+    container.innerHTML = subjects.map(s => `
+        <div class="selection-card glass-card fade-in" onclick="selectSubject('${s.id}', '${s.name}')">
+            <div class="card-icon" style="font-size: 2.5rem;">${s.icon}</div>
+            <h3 class="font-heading" style="margin-top: 1rem;">${s.name}</h3>
+        </div>
+    `).join('');
+};
+
+window.selectSubject = function (id, name) {
+    selState.subject = { id, name };
+    trackAnalytics('select_subject', { id, name });
+    showNotes();
+};
+
+function showNotes() {
+    const explorerHeader = document.getElementById('explorer-header');
+    const explorerContent = document.getElementById('explorer-content');
+    if (explorerHeader) explorerHeader.style.display = 'none';
+    if (explorerContent) explorerContent.style.display = 'none';
+
+    const view = document.getElementById('final-notes-view');
+    view.style.display = 'block';
+
+    const key = `${selState.branch.id}-${selState.year}`;
+    const subjectData = (GlobalData.subjects[key] || []).find(s => s.id === selState.subject.id) || {
+        name: selState.subject.name,
+        code: 'GEN101',
+        description: 'Comprehensive study materials and verified academic resources for final exam preparation.'
+    };
+
+    view.innerHTML = `
+        <div class="subject-page-container fade-in">
+            <div class="breadcrumb-pro">
+                🏠 <span>›</span> ${selState.branch.name} <span>›</span> ... <span>›</span> ${selState.subject.name}
+            </div>
+
+            <div class="subject-page-hero">
+                <div style="display:flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h1 class="font-heading" style="font-size: 3rem; margin: 0; line-height: 1.1;">${selState.subject.name}</h1>
+                        <div class="sub-badges">
+                            <span class="meta-badge">${selState.branch.id}</span>
+                            <span class="meta-badge">${selState.year}</span>
+                            <span class="meta-badge">${subjectData.code}</span>
+                        </div>
+                        <p class="subject-description">${subjectData.description}</p>
+                    </div>
+                    <button class="btn btn-ghost" onclick="backToExplorer()" style="white-space:nowrap; background: rgba(255,255,255,0.05); padding: 0.6rem 1.2rem; border-radius: 8px;">↺ Restart Explorer</button>
                 </div>
-                <div style="font-size: 0.85rem; color: var(--text-dim);">👁️ ${views}</div>
+            </div>
+
+            <div class="subject-content-tabs">
+                <div class="sub-tab active">Notes</div>
+                <div class="sub-tab">PYQs</div>
+                <div class="sub-tab">Formula Sheets</div>
+                <div class="sub-tab">✨ AI Tutor</div>
+            </div>
+
+            <div class="resource-section">
+                <h3 class="font-heading" style="margin-bottom: 2rem;">Verified <span class="highlight">Notes</span></h3>
+                <div class="resource-list-detailed">
+                    ${renderDetailedNotes(selState.subject.id)}
+                </div>
             </div>
         </div>
     `;
 }
 
-function renderChampionSlot(initial, name, stats) {
-    return `
-        <div class="champion-item" style="text-align: center; padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 16px; min-width: 140px; border: 1px solid rgba(255,255,255,0.05);">
-            <div class="avatar" style="margin: 0 auto 1rem auto; width: 50px; height: 50px; font-size: 1.2rem; background: var(--primary);">${initial}</div>
-            <h4 style="margin: 0; font-size: 0.95rem;">${name}</h4>
-            <p style="margin: 0.4rem 0 0 0; font-size: 0.8rem; color: var(--text-dim);">${stats}</p>
-        </div>
-    `;
-}
+function renderDetailedNotes(subjectId) {
+    const filtered = NotesDB.filter(n => n.subject === subjectId && n.collegeId === selState.college.id);
 
-function renderTreeUI(data) {
-    return data.map(node => {
-        const hasChildren = node.children && node.children.length > 0;
-        const name = typeof node === 'string' ? node : node.name;
-
+    if (filtered.length === 0) {
         return `
-            <div class="tree-node-item">
-                <div class="node-header ${!hasChildren ? 'leaf-node' : ''}" 
-                     onclick="${hasChildren ? 'this.parentElement.classList.toggle(\'expanded\')' : `renderHubSubject('${name}')`}">
-                    ${hasChildren ? '<span class="node-arrow">▶</span>' : '📘'}
-                    <span class="node-text">${name}</span>
-                </div>
-                ${hasChildren ? `
-                    <div class="node-children-container">
-                        ${renderTreeUI(node.children)}
-                    </div>
-                ` : ''}
+            <div style="text-align: center; padding: 5rem; background: rgba(255,255,255,0.01); border: 2px dashed rgba(255,255,255,0.05); border-radius: 20px;">
+                <div style="font-size: 4rem; margin-bottom: 2rem;">📂</div>
+                <h2 class="font-heading">No premium notes for this subject found yet.</h2>
+                <p style="color: var(--text-dim); margin-bottom: 2.5rem;">Be the first contributor and earn academic credit!</p>
+                <button class="btn btn-primary" style="padding: 1rem 2.5rem; font-weight: 700;">+ Upload Note</button>
             </div>
         `;
-    }).join('');
-}
+    }
 
-window.renderHubSubject = function (subject) {
-    const mainArea = document.getElementById('notes-hub-main');
-    if (!mainArea) return;
-
-    // Highlight active leaf in tree
-    document.querySelectorAll('.node-header').forEach(h => h.classList.remove('active'));
-    if (event && event.currentTarget) event.currentTarget.classList.add('active');
-
-    mainArea.innerHTML = `
-        <div class="subject-hub-page" style="padding: 3rem 4rem;">
-            <div class="hub-breadcrumb">
-                <span>Dashboard</span> <span>Resources</span> <span>Explorer</span> <span>${subject}</span>
-            </div>
-            
-            <div class="subject-hero-section">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
-                    <div>
-                        <h1>${subject}</h1>
-                        <div class="subject-badges">
-                            <span class="sub-badge accent">UNIVERSITY CORE</span>
-                            <span class="sub-badge">VERIFIED</span>
+    return filtered.map(n => `
+        <div class="detailed-item glass-card card-reveal">
+            <div class="item-left">
+                <div class="file-type-icon">📄</div>
+                <div class="item-info-block">
+                    <div class="item-title">${n.title}</div>
+                    <div class="item-meta-row">
+                        <span>📅 ${n.date}</span>
+                        <div class="uploader-mini">
+                            <div class="uploader-avatar">${n.uploader.charAt(0)}</div>
+                            <span>${n.uploader}</span>
                         </div>
+                        <span>• ${n.downloads} downloads</span>
                     </div>
-                    <button class="btn btn-primary" onclick="showUploadModal('${subject}')">+ Contribute Note</button>
+                    <div class="item-engagement-row">
+                        <span class="eng-icon">� ${n.likes}</span>
+                        <span class="eng-icon">👎 0</span>
+                        <span class="eng-icon">� Save</span>
+                    </div>
                 </div>
-                <p class="subject-description-pro">Advanced study materials for ${subject}. These resources have been curated, unit-categorized, and verified by student experts.</p>
             </div>
-
-            <div class="hub-tab-bar">
-                <div class="hub-tab active" onclick="switchResourceTab(this)">Curated Units</div>
-                <div class="hub-tab" onclick="switchResourceTab(this)">PYQ Explorer</div>
-                <div class="hub-tab" onclick="switchResourceTab(this)">Peer Review</div>
-            </div>
-
-            <div class="advanced-unit-browser">
-                <h3 class="unit-section-title">Unit 1: Fundamentals & Theory</h3>
-                <div class="resource-list-pro">
-                    ${renderMockResource(subject, 'Comprehensive Unit 1 Study Guide', 'verified')}
-                    ${renderMockResource(subject, 'Unit 1: Class Handwritten Notes', 'verified')}
-                </div>
-
-                <h3 class="unit-section-title">Unit 2: Applied Concepts</h3>
-                <div class="resource-list-pro">
-                    ${renderMockResource(subject, 'Exam Focused: Unit 2 Summary', 'verified')}
-                    ${renderMockResource(subject, 'Practice Problems Set', 'pending')}
-                </div>
+            <div class="item-right">
+                <button class="btn-download-pro" onclick="alert('Preparing high-quality PDF...')">
+                    📥 Download
+                </button>
             </div>
         </div>
-    `;
-};
-
-function renderMockResource(subject, title, status) {
-    return `
-        <div class="hub-resource-item">
-            <div class="item-left-content">
-                <div class="item-type-icon">📄</div>
-                <div class="item-details-text">
-                    <div style="display:flex; align-items:center; gap: 1rem;">
-                        <h4>${title}</h4>
-                        <span class="ver-status-badge ${status || 'verified'}">${status || 'verified'}</span>
-                    </div>
-                    <div class="item-meta-info">
-                        <span>📅 Jan 2026</span>
-                        <span>👤 Student Contributor</span>
-                        <span>📥 ${Math.floor(Math.random() * 2000 + 500)} downloads</span>
-                    </div>
-                </div>
-            </div>
-            <div class="item-right-actions">
-                <div class="item-engagement">
-                    <span class="eng-stat">👍 ${Math.floor(Math.random() * 200 + 40)}</span>
-                </div>
-                <div style="display:flex; gap: 0.5rem;">
-                    <button class="btn btn-ghost btn-sm" onclick="showPreviewModal('${title}')">Preview</button>
-                    <button class="btn btn-primary btn-sm" onclick="alert('Download started...')">Download</button>
-                </div>
-            </div>
-        </div>
-    `;
+    `).join('');
 }
 
-window.switchResourceTab = function (el) {
-    document.querySelectorAll('.hub-tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
+window.backToExplorer = function () {
+    location.reload();
 };
-
-// --- Upload Modal Logic ---
-window.showUploadModal = function (subject) {
-    const modal = document.getElementById('upload-modal');
-    const contextEl = document.getElementById('upload-context');
-    if (contextEl && subject) {
-        contextEl.innerHTML = `<span>📗 ${subject}</span>`;
-    }
-    if (modal) modal.style.display = 'flex';
-};
-
-window.closeUploadModal = function () {
-    const modal = document.getElementById('upload-modal');
-    if (modal) modal.style.display = 'none';
-};
-
-window.submitNote = function () {
-    const title = document.getElementById('upload-title').value;
-    if (!title) return alert('Please enter a title');
-    alert('Resource submitted! It will appear once verified by the community leaders.');
-    closeUploadModal();
-};
-
-window.handleGlobalUpload = function () {
-    const notesTabBtn = document.querySelector('[data-tab="notes"]');
-    if (notesTabBtn) {
-        notesTabBtn.click();
-        alert("Select a subject from the Explorer to upload content precisely.");
-    }
-};
-
-// --- Pomodoro Implementation ---
-function initPomodoro() {
-    let timeLeft = 25 * 60;
-    let timerId = null;
-    const display = document.getElementById('timer-display');
-    const startBtn = document.getElementById('pomo-start');
-    const resetBtn = document.getElementById('pomo-reset');
-
-    if (!display) return;
-
-    function update() {
-        const m = Math.floor(timeLeft / 60);
-        const s = timeLeft % 60;
-        display.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-    }
-
-    if (startBtn) {
-        startBtn.onclick = () => {
-            if (timerId) {
-                clearInterval(timerId);
-                timerId = null;
-                startBtn.textContent = 'Resume session';
-                startBtn.classList.remove('btn-primary');
-                startBtn.classList.add('btn-ghost');
-            } else {
-                timerId = setInterval(() => {
-                    timeLeft--;
-                    update();
-                    if (timeLeft <= 0) {
-                        clearInterval(timerId);
-                        alert("Session complete! Time for a short break.");
-                        timeLeft = 5 * 60;
-                        update();
-                    }
-                }, 1000);
-                startBtn.textContent = 'Pause session';
-                startBtn.classList.add('btn-primary');
-                startBtn.classList.remove('btn-ghost');
-            }
-        };
-    }
-    if (resetBtn) {
-        resetBtn.onclick = () => {
-            clearInterval(timerId);
-            timerId = null;
-            timeLeft = 25 * 60;
-            update();
-            if (startBtn) {
-                startBtn.textContent = 'Start session';
-                startBtn.classList.add('btn-primary');
-                startBtn.classList.remove('btn-ghost');
-            }
-        };
-    }
-}
