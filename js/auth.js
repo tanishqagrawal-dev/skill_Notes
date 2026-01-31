@@ -67,7 +67,8 @@ onAuthStateChanged(auth, (user) => {
                     name: user.displayName || user.email.split('@')[0],
                     email: user.email,
                     photo: user.photoURL,
-                    role: 'student',
+                    photo: user.photoURL,
+                    role: (user.email === 'skilmatrix3@gmail.com') ? 'super_admin' : 'student',
                     college: 'medicaps'
                 }
             });

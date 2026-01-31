@@ -2,7 +2,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, onSnapshot, updateDoc, doc, increment, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, onSnapshot, updateDoc, doc, increment, query, where, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -19,6 +20,7 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 const provider = new GoogleAuthProvider();
 
 console.log("🔥 Firebase initialized successfully!");
@@ -27,6 +29,7 @@ console.log("🔥 Firebase initialized successfully!");
 window.firebaseServices = {
     auth,
     db,
+    storage,
     provider,
     signInWithPopup,
     signOut,
@@ -40,7 +43,11 @@ window.firebaseServices = {
     increment,
     query,
     where,
-    orderBy
+    orderBy,
+    deleteDoc,
+    ref,
+    uploadBytesResumable,
+    getDownloadURL
 };
 
-export { app, analytics, auth, db, provider };
+export { app, analytics, auth, db, storage, provider };
