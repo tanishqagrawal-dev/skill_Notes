@@ -824,3 +824,96 @@ input:checked+.toggle-slider:before {
 .float-animation {
     animation: float 6s ease-in-out infinite;
 }
+
+/* FAQ Section */
+.faq-section {
+    padding-bottom: 6rem;
+}
+
+.faq-container {
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0;
+    /* Remove padding to let items touch edges or handle internal padding */
+    border: 1px solid var(--border-glass);
+}
+
+.faq-item {
+    border-bottom: 1px solid var(--border-glass);
+}
+
+.faq-item:last-child {
+    border-bottom: none;
+}
+
+.faq-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.01);
+    transition: var(--transition-fast);
+}
+
+.faq-header:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.faq-header h3 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.faq-toggle {
+    font-size: 1.5rem;
+    color: var(--primary);
+    transition: var(--transition-smooth);
+    line-height: 1;
+}
+
+.faq-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s cubic-bezier(0, 1, 0, 1);
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.faq-body p {
+    padding: 1.5rem 2rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.faq-item.active .faq-toggle {
+    transform: rotate(45deg);
+    color: var(--secondary);
+}
+
+.faq-item.active .faq-body {
+    transition: max-height 0.3s cubic-bezier(1, 0, 1, 0);
+}
+
+/* Ensure scrollbar looks good inside the card */
+.faq-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.faq-container::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 10px 0;
+}
+
+.faq-container::-webkit-scrollbar-thumb {
+    background: var(--border-glass);
+    border-radius: 3px;
+}
+
+.faq-container::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
