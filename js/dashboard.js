@@ -378,18 +378,169 @@ function renderTabContent(tabId) {
     }
 }
 
+
 function renderPlanner() {
+    // 1. Get Subjects
+    const mySubjects = GlobalData.subjects['cse-2nd Year'].map(s => s.name);
+
     return `
         <div class="tab-pane active fade-in" style="padding: 2rem;">
-            <h1 class="font-heading">📅 Study <span class="gradient-text">Planner</span></h1>
-            <div class="glass-card" style="margin-top: 2rem; padding: 3rem; text-align: center;">
-                <div style="font-size: 4rem; margin-bottom: 1rem;">🚧</div>
-                <h3>Planner Engine Loading...</h3>
-                <p>We are integrating Google Calendar API for you. Check back soon!</p>
+            <div style="margin-bottom: 2rem;">
+                <h1 class="font-heading">📅 AI Exam <span class="gradient-text">Strategist</span></h1>
+                <p style="color: var(--text-dim);">Let Gemini create your perfect daily schedule based on exam proximity and weak topics.</p>
+            </div>
+
+            <div class="grid-2-col" style="display: grid; grid-template-columns: 350px 1fr; gap: 2rem; align-items: start;">
+                
+                <!-- CONFIG PANEL -->
+                <div class="glass-card" style="padding: 2rem;">
+                    <h3 class="font-heading" style="margin-bottom: 1.5rem;">⚙️ Plan Configuration</h3>
+                    
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label>Target Exam Date</label>
+                        <input type="date" id="p-exam-date" class="input-field" style="width: 100%; margin-top:0.5rem; color-scheme: dark;">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label>Daily Study Limit: <span id="p-hours-val" style="color:var(--primary);">4 Hours</span></label>
+                        <input type="range" id="p-hours" min="1" max="12" value="4" step="0.5" style="width: 100%; margin-top:0.5rem;" oninput="document.getElementById('p-hours-val').innerText = this.value + ' Hours'">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label>Weak Topics (Select multiple)</label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+                            ${mySubjects.map(sub => `
+                                <div class="chip" onclick="this.classList.toggle('active')" data-val="${sub}" style="padding: 0.5rem 1rem; border: 1px solid var(--border-glass); border-radius: 20px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s;">
+                                    ${sub}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="handleGeneratePlan()" id="btn-gen-plan" style="width: 100%;">
+                        ✨ Generate Daily Schedule
+                    </button>
+                    <p style="text-align:center; font-size: 0.75rem; color: var(--text-dim); margin-top: 1rem;">Powered by Gemini Pro</p>
+                </div>
+
+                <!-- TIMELINE VIEW -->
+                <div class="glass-card" style="padding: 2rem; min-height: 500px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h3 class="font-heading">📝 Your Daily Plan</h3>
+                        <div style="font-size: 0.8rem; color: var(--text-dim);" id="plan-meta">No plan generated yet.</div>
+                    </div>
+
+                    <div id="plan-timeline" class="timeline-wrapper">
+                        <!-- Empty State -->
+                        <div style="text-align: center; padding: 4rem; opacity: 0.5;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🗓️</div>
+                            <p>Configure your preferences and click Generate.</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     `;
 }
+
+window.handleGeneratePlan = async function () {
+    const btn = document.getElementById('btn-gen-plan');
+    const container = document.getElementById('plan-timeline');
+
+    // Gather Data
+    const examDate = document.getElementById('p-exam-date').value;
+    const hours = document.getElementById('p-hours').value;
+    const weakTopics = Array.from(document.querySelectorAll('.chip.active')).map(el => el.dataset.val);
+    const subjects = GlobalData.subjects['cse-2nd Year'].map(s => s.name);
+
+    if (!examDate) {
+        alert("⚠️ Please select an upcoming exam date.");
+        return;
+    }
+
+    // UI Loading
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spin-loader"></span> Strategizing...`;
+    container.innerHTML = `
+        <div style="text-align: center; padding: 4rem;">
+            <div class="loader-pro" style="margin: 0 auto 1rem;"></div>
+            <p>Gemini is analyzing your weak areas...</p>
+        </div>
+    `;
+
+    try {
+        const plan = await aiClient.generateStudyPlan({
+            subjects,
+            examDate,
+            weakTopics,
+            hoursAvailable: hours
+        });
+
+        renderTimeline(plan);
+        document.getElementById('plan-meta').innerText = `Target: ${new Date(examDate).toLocaleDateString()}`;
+
+    } catch (e) {
+        container.innerHTML = `
+            <div style="color: #ff4757; text-align: center;">
+                <h3>⚠️ Planning Failed</h3>
+                <p>${e.message}</p>
+            </div>
+        `;
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = `✨ Generate Daily Schedule`;
+    }
+};
+
+function renderTimeline(plan) {
+    const container = document.getElementById('plan-timeline');
+    if (!plan || plan.length === 0) {
+        container.innerHTML = "<p>No tasks generated.</p>";
+        return;
+    }
+
+    let html = '<div class="timeline">';
+    plan.forEach((task, idx) => {
+        const icons = { 'Learn': '📖', 'Practice': '📝', 'Revise': '⚡' };
+        const color = { 'Learn': '#3498db', 'Practice': '#e67e22', 'Revise': '#2ecc71' };
+
+        html += `
+            <div class="timeline-item glass-card" style="margin-bottom: 1.5rem; border-left: 4px solid ${color[task.type] || '#7B61FF'}; padding: 1.5rem; position: relative; animation: slideIn 0.3s ease forwards; animation-delay: ${idx * 0.1}s; opacity: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <div style="font-size: 0.8rem; color: var(--text-dim); font-family: var(--font-mono); margin-bottom: 0.3rem;">
+                            ${task.time}
+                        </div>
+                        <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem;">
+                            ${icons[task.type] || '📌'} ${task.activity}
+                        </h4>
+                        <div style="background: rgba(255,255,255,0.05); display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; color: var(--text-muted);">
+                            ${task.topic}
+                        </div>
+                    </div>
+                    
+                    <div class="tooltip-wrapper" style="position: relative; cursor: help;">
+                        <span style="font-size: 1.2rem; opacity: 0.5;">ℹ️</span>
+                        <div class="tooltip-content glass-card" style="position: absolute; right: 0; top: 30px; width: 200px; padding: 1rem; font-size: 0.8rem; display: none; z-index: 10;">
+                            <strong>Why AI chose this:</strong><br/>
+                            ${task.reasoning}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+
+    // Tooltip Logic
+    container.innerHTML = html;
+    container.querySelectorAll('.tooltip-wrapper').forEach(el => {
+        el.onmouseenter = () => el.querySelector('.tooltip-content').style.display = 'block';
+        el.onmouseleave = () => el.querySelector('.tooltip-content').style.display = 'none';
+    });
+}
+
 
 function renderAITools() {
     // Flatten subjects for the dropdown
@@ -402,140 +553,6 @@ function renderAITools() {
         });
     });
 
-    function renderOverview() {
-        // Phase 1: Personalization
-        const userName = currentUser.name.split(' ')[0];
-        const college = GlobalData.colleges.find(c => c.id === currentUser.college)?.name || 'Medi-Caps University';
-        const year = currentUser.year || '3rd Year';
-        const branch = currentUser.branch || 'CSE';
-
-        // Mock Readiness Data (Phase 1)
-        const subjects = [
-            { name: 'Digital Electronics', progress: 85, color: '#2ecc71' },
-            { name: 'Data Structures', progress: 60, color: '#f1c40f' },
-            { name: 'Mathematics-III', progress: 30, color: '#e74c3c' }
-        ];
-
-        setTimeout(initLiveCounters, 0); // Start animations
-
-        return `
-        <div class="tab-pane active fade-in" style="padding: 2rem;">
-            <!-- 1. Personalized Header -->
-            <div style="margin-bottom: 2.5rem;">
-                <h1 class="font-heading" style="font-size: 2.5rem;">Welcome back, <span class="gradient-text">${userName}</span> 👋</h1>
-                <p style="color: var(--text-dim); font-size: 1.1rem;">${year} • ${branch} • ${college}</p>
-            </div>
-
-            <!-- 2. Live Activity Widgets -->
-            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
-                <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #2ecc71;">
-                    <div style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.5rem;">🔴 Live Students</div>
-                    <div class="live-counter" id="live-students" style="font-size: 2rem; font-weight: 700;">124</div>
-                </div>
-                <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #3498db;">
-                    <div style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.5rem;">🔥 Trending Now</div>
-                    <div style="font-size: 2rem; font-weight: 700;">18 Notes</div>
-                </div>
-                <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #9b59b6;">
-                    <div style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.5rem;">⬇️ Global Downloads</div>
-                    <div class="live-counter" id="global-downloads" style="font-size: 2rem; font-weight: 700;">2,340</div>
-                </div>
-            </div>
-
-            <div class="grid-2-col" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;">
-                
-                <!-- Main Content: Quick Actions & Recently Viewed -->
-                <div style="display: flex; flex-direction: column; gap: 2rem;">
-                    
-                    <!-- 4. "What Next?" AI Card -->
-                    <div class="glass-card" style="background: linear-gradient(135deg, rgba(108, 99, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%); border: 1px solid rgba(108, 99, 255, 0.3); padding: 2rem; position: relative; overflow: hidden;">
-                        <div style="position: absolute; top: -10px; right: -10px; font-size: 8rem; opacity: 0.05; transform: rotate(15deg);">🤖</div>
-                        <h3 class="font-heading">🤖 AI Recommendation</h3>
-                        <p style="margin-bottom: 1.5rem; max-width: 80%;">Your retention in <strong>Mathematics-III</strong> is dropping. We recommend solving a model paper to boost confidence.</p>
-                        <div style="display: flex; gap: 1rem;">
-                            <button class="btn btn-primary" onclick="renderTabContent('ai-tools')">Generate Model Paper</button>
-                            <button class="btn btn-ghost" onclick="renderTabContent('planner')">Schedule Revision</button>
-                        </div>
-                    </div>
-
-                    <!-- Quick Actions -->
-                    <div>
-                        <h3 class="font-heading" style="margin-bottom: 1rem;">🚀 Quick Actions</h3>
-                        <div class="grid-2-col" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
-                           <div class="quick-action-card glass-card" onclick="renderNotesHub()" style="cursor: pointer; text-align: center; padding: 1.5rem; transition: transform 0.2s;">
-                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📚</div>
-                                <div>Notes Hub</div>
-                           </div>
-                           <div class="quick-action-card glass-card" onclick="renderTabContent('ai-tools')" style="cursor: pointer; text-align: center; padding: 1.5rem; transition: transform 0.2s;">
-                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">🤖</div>
-                                <div>AI Tools</div>
-                           </div>
-                           <div class="quick-action-card glass-card" onclick="renderTabContent('planner')" style="cursor: pointer; text-align: center; padding: 1.5rem; transition: transform 0.2s;">
-                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📅</div>
-                                <div>Planner</div>
-                           </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- 3. Exam Readiness Meter (Sidebar) -->
-                <div>
-                    <div class="glass-card" style="padding: 1.5rem;">
-                         <h3 class="font-heading" style="margin-bottom: 1.5rem;">📊 Exam Readiness</h3>
-                         <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                            ${subjects.map(sub => `
-                                <div>
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
-                                        <span>${sub.name}</span>
-                                        <span style="font-weight: 700; color: ${sub.color};">${sub.progress}%</span>
-                                    </div>
-                                    <div style="width: 100%; background: rgba(255,255,255,0.1); height: 8px; border-radius: 10px; overflow: hidden;">
-                                        <div style="width: ${sub.progress}%; background: ${sub.color}; height: 100%; border-radius: 10px; transition: width 1s ease;"></div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                         </div>
-                         <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-glass); text-align: center;">
-                            <button class="btn btn-sm btn-ghost" style="width: 100%;" onclick="renderTabContent('analytics')">View Full Analysis</button>
-                         </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    `;
-    }
-
-    // Live Counter Animation logic
-    window.initLiveCounters = function () {
-        // 1. Live Students (Fluctuate)
-        const liveEl = document.getElementById('live-students');
-        if (liveEl) {
-            let count = 124;
-            setInterval(() => {
-                const change = Math.floor(Math.random() * 5) - 2; // -2 to +2
-                count += change;
-                if (count < 100) count = 100;
-                liveEl.innerText = count;
-            }, 3000);
-        }
-
-        // 2. Global Downloads (Count up)
-        const dlEl = document.getElementById('global-downloads');
-        if (dlEl) {
-            let dlCount = 2340;
-            setInterval(() => {
-                if (Math.random() > 0.7) { // 30% chance to increment
-                    dlCount++;
-                    dlEl.innerText = dlCount.toLocaleString();
-                    // Flash effect
-                    dlEl.style.color = '#fff';
-                    setTimeout(() => dlEl.style.color = '', 200);
-                }
-            }, 2000);
-        }
-    }
     return `
         <div class="tab-pane active fade-in" style="padding: 2rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
@@ -619,6 +636,164 @@ function renderAITools() {
             </div>
         </div>
     `;
+}
+
+// Phase 1 Advanced Dashboard Implementation
+function renderOverview() {
+    // Phase 1: Personalization
+    const userName = currentUser.name.split(' ')[0];
+    const college = GlobalData.colleges.find(c => c.id === currentUser.college)?.name || 'Medi-Caps University';
+    const year = currentUser.year || '3rd Year';
+    const branch = currentUser.branch || 'CSE';
+
+    // Mock Readiness Data (Phase 1)
+    const subjects = [
+        { name: 'Digital Electronics', progress: 85, color: '#2ecc71' },
+        { name: 'Data Structures', progress: 60, color: '#f1c40f' },
+        { name: 'Mathematics-III', progress: 30, color: '#e74c3c' }
+    ];
+
+    // Mock Users for Role Switcher (Demo Mode)
+    const mockUsers = [
+        { id: 'u_student', name: 'Rohan (Student)', role: 'student' },
+        { id: 'u_uploader', name: 'Faculty (Uploader)', role: 'uploader' },
+        { id: 'u_admin', name: 'Dean (Admin)', role: 'college_admin' }
+    ];
+
+    setTimeout(initLiveCounters, 0); // Start animations
+
+    return `
+        <div class="tab-pane active fade-in" style="padding: 2rem;">
+            <!-- 1. Personalized Header -->
+            <div style="margin-bottom: 2.5rem;">
+                <h1 class="font-heading" style="font-size: 2.5rem;">Welcome back, <span class="gradient-text">${userName}</span> 👋</h1>
+                <p style="color: var(--text-dim); font-size: 1.1rem;">${year} • ${branch} • ${college}</p>
+            </div>
+
+            <!-- 2. Live Activity Widgets -->
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+                <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #2ecc71;">
+                    <div style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.5rem;">🔴 Live Students</div>
+                    <div class="live-counter" id="live-students" style="font-size: 2rem; font-weight: 700;">124</div>
+                </div>
+                <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #3498db;">
+                    <div style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.5rem;">🔥 Trending Now</div>
+                    <div style="font-size: 2rem; font-weight: 700;">18 Notes</div>
+                </div>
+                <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #9b59b6;">
+                    <div style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.5rem;">⬇️ Global Downloads</div>
+                    <div class="live-counter" id="global-downloads" style="font-size: 2rem; font-weight: 700;">2,340</div>
+                </div>
+            </div>
+
+            <div class="grid-2-col" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;">
+                
+                <!-- Main Content: Quick Actions & Recently Viewed -->
+                <div style="display: flex; flex-direction: column; gap: 2rem;">
+                    
+                    <!-- 4. "What Next?" AI Card -->
+                    <div class="glass-card" style="background: linear-gradient(135deg, rgba(108, 99, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%); border: 1px solid rgba(108, 99, 255, 0.3); padding: 2rem; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: -10px; right: -10px; font-size: 8rem; opacity: 0.05; transform: rotate(15deg);">🤖</div>
+                        <h3 class="font-heading">🤖 AI Recommendation</h3>
+                        <p style="margin-bottom: 1.5rem; max-width: 80%;">Your retention in <strong>Mathematics-III</strong> is dropping. We recommend solving a model paper to boost confidence.</p>
+                        <div style="display: flex; gap: 1rem;">
+                            <button class="btn btn-primary" onclick="renderTabContent('ai-tools')">Generate Model Paper</button>
+                            <button class="btn btn-ghost" onclick="renderTabContent('planner')">Schedule Revision</button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div>
+                        <h3 class="font-heading" style="margin-bottom: 1rem;">🚀 Quick Actions</h3>
+                        <div class="grid-2-col" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                           <div class="quick-action-card glass-card" onclick="renderNotesHub()" style="cursor: pointer; text-align: center; padding: 1.5rem; transition: transform 0.2s;">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📚</div>
+                                <div>Notes Hub</div>
+                           </div>
+                           <div class="quick-action-card glass-card" onclick="renderTabContent('ai-tools')" style="cursor: pointer; text-align: center; padding: 1.5rem; transition: transform 0.2s;">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">🤖</div>
+                                <div>AI Tools</div>
+                           </div>
+                           <div class="quick-action-card glass-card" onclick="renderTabContent('planner')" style="cursor: pointer; text-align: center; padding: 1.5rem; transition: transform 0.2s;">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📅</div>
+                                <div>Planner</div>
+                           </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 3. Exam Readiness Meter (Sidebar) -->
+                <div>
+                    <div class="glass-card" style="padding: 1.5rem;">
+                         <h3 class="font-heading" style="margin-bottom: 1.5rem;">📊 Exam Readiness</h3>
+                         <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                            ${subjects.map(sub => `
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                                        <span>${sub.name}</span>
+                                        <span style="font-weight: 700; color: ${sub.color};">${sub.progress}%</span>
+                                    </div>
+                                    <div style="width: 100%; background: rgba(255,255,255,0.1); height: 8px; border-radius: 10px; overflow: hidden;">
+                                        <div style="width: ${sub.progress}%; background: ${sub.color}; height: 100%; border-radius: 10px; transition: width 1s ease;"></div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                         </div>
+                         <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-glass); text-align: center;">
+                            <button class="btn btn-sm btn-ghost" style="width: 100%;" onclick="renderTabContent('analytics')">View Full Analysis</button>
+                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Role Switcher (Restored) -->
+             <div style="margin-top: 3rem; padding: 1.5rem; background: rgba(108, 99, 255, 0.05); border-radius: 16px; border: 1px dashed var(--border-glass);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+                    <h4 class="font-heading" style="font-size: 1rem;">🛠️ Quick Role Switcher (Demo)</h4>
+                </div>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    ${mockUsers.map(u => `
+                        <button class="btn btn-sm ${currentUser.id === u.id ? 'btn-primary' : 'btn-ghost'}" 
+                                onclick="switchRole('${u.id}', '${u.role}', '${u.name}')" 
+                                style="font-size: 0.75rem;">
+                            👤 ${u.name}
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Live Counter Animation logic
+window.initLiveCounters = function () {
+    // 1. Live Students (Fluctuate)
+    const liveEl = document.getElementById('live-students');
+    if (liveEl) {
+        let count = 124;
+        setInterval(() => {
+            const change = Math.floor(Math.random() * 5) - 2; // -2 to +2
+            count += change;
+            if (count < 100) count = 100;
+            liveEl.innerText = count;
+        }, 3000);
+    }
+
+    // 2. Global Downloads (Count up)
+    const dlEl = document.getElementById('global-downloads');
+    if (dlEl) {
+        let dlCount = 2340;
+        setInterval(() => {
+            if (Math.random() > 0.7) { // 30% chance to increment
+                dlCount++;
+                dlEl.innerText = dlCount.toLocaleString();
+                // Flash effect
+                dlEl.style.color = '#fff';
+                setTimeout(() => dlEl.style.color = '', 200);
+            }
+        }, 2000);
+    }
 }
 
 // File Handler
@@ -860,40 +1035,7 @@ window.processNote = function (noteId, newStatus) {
     renderTabContent('verification');
 };
 
-function renderOverview() {
-    return `
-        <div class="tab-pane active fade-in">
-            <div class="hub-hero-section-pro glass-card">
-                <div class="hero-content">
-                    <span class="badge-accent">DASHBOARD HOME</span>
-                    <h1 class="font-heading" style="font-size: 3rem; margin: 1rem 0;">Ready to <span class="gradient-text">Excel?</span></h1>
-                    <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px;">Access systematic notes by college, branch, and year. Explore the Library to start.</p>
-                </div>
-            </div>
-            
-            <!-- Developer Role Selection - Explained -->
-            <div style="margin-top: 3rem; padding: 2rem; background: rgba(108, 99, 255, 0.05); border-radius: 20px; border: 1px solid var(--border-glass);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem;">
-                    <h3 class="font-heading">🛠️ Developer Sandbox (Role Switcher)</h3>
-                    <span style="font-size: 0.7rem; color: var(--text-dim);">PROTOTYPE MODE: This bar allows you to test the UI as different users.</span>
-                </div>
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    ${MockUsers.map(u => `
-                        <button class="btn ${currentUser.id === u.id ? 'btn-primary' : 'btn-ghost'}" 
-                                onclick="switchRole('${u.id}')" 
-                                style="font-size: 0.8rem;">
-                            👤 ${u.name} (${u.role.replace('_', ' ')})
-                        </button>
-                    `).join('')}
-                </div>
-                <p style="margin-top:1rem; font-size: 0.8rem; color: var(--text-dim);">
-                    <strong>💡 Difference:</strong> <u>Students</u> can only view approved content. <u>Developers/Admins</u> have access to 
-                    the <strong>Verification Hub</strong> and <strong>System Analytics</strong> which are hidden from regular users.
-                </p>
-            </div>
-        </div>
-    `;
-}
+
 
 function renderAdminConsole() {
     return `

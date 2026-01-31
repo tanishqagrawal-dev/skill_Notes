@@ -1,11 +1,11 @@
 // AI Client Service (Talks to Local Node.js Backend)
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'http://localhost:3005/api';
 
 window.aiClient = {
     isServerAvailable: async () => {
         try {
-            const res = await fetch('http://localhost:3000/');
+            const res = await fetch('http://localhost:3005/');
             return res.status === 200;
         } catch (e) {
             return false;
@@ -34,6 +34,26 @@ window.aiClient = {
             // Friendly error message mapping
             if (error.message.includes('Failed to fetch')) {
                 throw new Error("Local AI Server is not running. Please run 'node server.js' in the server folder.");
+            }
+            throw error;
+        }
+    },
+
+    generateStudyPlan: async (data) => {
+        try {
+            const response = await fetch(`${API_URL}/generate-plan`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            if (!result.success) throw new Error(result.error);
+            return result.plan;
+        } catch (error) {
+            console.error("AI Planner Error:", error);
+            if (error.message.includes('Failed to fetch')) {
+                throw new Error("Local AI Server is not running. Please run 'node server.js'.");
             }
             throw error;
         }
