@@ -1,24 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Student OS | Next-Gen Learning Platform</title>
-    <meta name="description" content="Ultimate academic operating system for students. Smart notes, AI tools, study planner, and real-time progress tracking.">
-    
+    <meta name="description"
+        content="Ultimate academic operating system for students. Smart notes, AI tools, study planner, and real-time progress tracking.">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+
     <!-- CSS -->
     <link rel="stylesheet" href="css/main.css">
-    
+
     <!-- Libraries -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
 </head>
+
 <body>
 
     <!-- Navigation -->
@@ -30,9 +35,10 @@
             <div class="nav-links">
                 <a href="#features">Features</a>
                 <a href="#notes">Smart Notes</a>
-                <a href="#tools">Tools</a>
+                <a href="pages/dashboard.html">Dashboard</a>
                 <a href="#community">Community</a>
-                <button class="btn btn-primary">Get Started</button>
+                <button class="btn btn-primary" onclick="window.location.href='pages/dashboard.html'">Get
+                    Started</button>
             </div>
             <div class="mobile-toggle">
                 <span></span>
@@ -52,10 +58,14 @@
             <div class="hero-text" data-aos="fade-up">
                 <span class="badge">🔥 Next-Gen Learning Platform</span>
                 <h1>Master Your Academics with <span class="gradient-text">Smart Student OS</span></h1>
-                <p>The all-in-one platform for notes, AI-powered tools, and real-time progress tracking. Built by students, for students.</p>
+                <p>The all-in-one platform for notes, AI-powered tools, and real-time progress tracking. Built by
+                    students, for students.</p>
                 <div class="hero-cta">
-                    <button class="btn btn-primary btn-large">Explore Notes</button>
-                    <button class="btn btn-ghost btn-large">Learn More</button>
+                    <button class="btn btn-primary btn-large"
+                        onclick="document.getElementById('notes').scrollIntoView({behavior: 'smooth'})">Explore
+                        Notes</button>
+                    <button class="btn btn-ghost btn-large" onclick="window.location.href='pages/dashboard.html'">Open
+                        Dashboard</button>
                 </div>
                 <div class="trust-stats">
                     <div class="stat-item">
@@ -73,20 +83,9 @@
                 </div>
             </div>
             <div class="hero-visual" data-aos="fade-left">
-                <div class="glass-card main-dashboard-peek" data-tilt>
-                    <!-- Mockup of Dashboard -->
-                    <div class="mock-header">
-                        <div class="mock-dots"><span></span><span></span><span></span></div>
-                    </div>
-                    <div class="mock-body">
-                        <div class="mock-sidebar"></div>
-                        <div class="mock-content">
-                            <div class="mock-row"></div>
-                            <div class="mock-grid">
-                                <span></span><span></span><span></span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="hero-image-container" data-tilt>
+                    <img src="assets/hero.png" alt="Smart Student OS Dashboard" class="hero-image">
+                    <div class="glow-overlay"></div>
                 </div>
             </div>
         </div>
@@ -121,7 +120,7 @@
                 <h2>Explore Smart Notes</h2>
                 <p>Find the best resources curated for your curriculum.</p>
             </div>
-            
+
             <div class="filter-bar glass-card" data-aos="fade-up">
                 <div class="filter-group">
                     <label>College</label>
@@ -164,6 +163,30 @@
         </div>
     </section>
 
+    <!-- Real-time Stats Section -->
+    <section class="live-stats alternate-bg">
+        <div class="container">
+            <div class="glass-card stats-wrapper" data-aos="zoom-in">
+                <div class="stat-box">
+                    <h3 id="stat-views">1,245,670</h3>
+                    <p>Total Note Views</p>
+                </div>
+                <div class="stat-box">
+                    <h3 id="stat-downloads">85,432</h3>
+                    <p>Notes Downloaded</p>
+                </div>
+                <div class="stat-box">
+                    <h3 id="stat-active">12,890</h3>
+                    <p>Active Students</p>
+                </div>
+                <div class="stat-box">
+                    <h3 id="stat-score">9.8/10</h3>
+                    <p>Study Satisfaction</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container footer-content">
@@ -199,4 +222,5 @@
         });
     </script>
 </body>
+
 </html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Smart Student OS</title>
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body class="dashboard-body">
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar glass-card">
+            <div class="sidebar-header">
+                <span class="logo-text">Smart<span class="highlight">OS</span></span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-tab="overview">
+                    <span class="icon">🏠</span> Dashboard
+                </a>
+                <a href="#" class="nav-item" data-tab="notes">
+                    <span class="icon">📚</span> My Notes
+                </a>
+                <a href="#" class="nav-item" data-tab="planner">
+                    <span class="icon">📅</span> Study Planner
+                </a>
+                <a href="#" class="nav-item" data-tab="ai-tools">
+                    <span class="icon">🤖</span> AI Tools
+                </a>
+                <a href="#" class="nav-item" data-tab="analytics">
+                    <span class="icon">📈</span> Analytics
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-item" data-tab="settings">
+                    <span class="icon">⚙️</span> Settings
+                </a>
+            </nav>
+            <div class="user-profile-mini">
+                <div class="avatar">T</div>
+                <div class="user-info">
+                    <span class="name">Tanishq</span>
+                    <span class="meta">CSE • Sem 4</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="search-bar">
+                    <input type="text" placeholder="Search notes, tools, or topics...">
+                    <span class="search-icon">🔍</span>
+                </div>
+                <div class="top-actions">
+                    <button class="btn btn-ghost notification-btn">🔔</button>
+                    <button class="btn btn-primary upload-btn">+ Upload Note</button>
+                </div>
+            </header>
+
+            <div class="content-area" id="tab-content">
+                <!-- Overview Tab (Default) -->
+                <div class="tab-pane active" id="overview">
+                    <div class="welcome-header">
+                        <h1>Welcome back, <span class="gradient-text">Tanishq!</span></h1>
+                        <p>You have 3 exams coming up this week. Stay focused!</p>
+                    </div>
+
+                    <div class="stats-overview">
+                        <div class="glass-card stat-card">
+                            <span class="stat-icon">🔥</span>
+                            <div class="stat-data">
+                                <span class="val">85%</span>
+                                <span class="label">Course Progress</span>
+                            </div>
+                        </div>
+                        <div class="glass-card stat-card">
+                            <span class="stat-icon">⏱️</span>
+                            <div class="stat-data">
+                                <span class="val">12h</span>
+                                <span class="label">Study Time (Week)</span>
+                            </div>
+                        </div>
+                        <div class="glass-card stat-card">
+                            <span class="stat-icon">🏆</span>
+                            <div class="stat-data">
+                                <span class="val">9.2</span>
+                                <span class="label">Projected CGPA</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <!-- Upcoming Exams -->
+                        <div class="glass-card grid-item exams-list">
+                            <h3>Upcoming Exams</h3>
+                            <div class="list-content">
+                                <div class="list-item">
+                                    <div class="item-info">
+                                        <span class="title">Digital Electronics</span>
+                                        <span class="date">Feb 5, 2026</span>
+                                    </div>
+                                    <span class="priority high">High</span>
+                                </div>
+                                <div class="list-item">
+                                    <div class="item-info">
+                                        <span class="title">DBMS</span>
+                                        <span class="date">Feb 7, 2026</span>
+                                    </div>
+                                    <span class="priority medium">Medium</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recommended Notes -->
+                        <div class="glass-card grid-item rec-notes">
+                            <h3>Recommended for You</h3>
+                            <div class="notes-grid-mini">
+                                <!-- Mini Note Cards -->
+                                <div class="note-card-mini">
+                                    <span class="subject">DE</span>
+                                    <span class="note-title">Unit 2 Review</span>
+                                </div>
+                                <div class="note-card-mini">
+                                    <span class="subject">OS</span>
+                                    <span class="note-title">Kernel Basics</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AI Assistant Mini -->
+                        <div class="glass-card grid-item ai-mini">
+                            <h3>AI Study Assistant</h3>
+                            <div class="ai-chat-mini">
+                                <p class="ai-msg">"Hey! Based on your schedule, I recommend reviewing Unit 2 today."</p>
+                                <button class="btn btn-primary btn-sm">Start Session</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+</body>
+
+</html>
