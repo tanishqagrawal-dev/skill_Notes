@@ -143,8 +143,10 @@ window.updateNoteStat = async function (noteId, type) {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    // UI initializations that don't depend on user data can go here
-    // e.g., Global search listners
+    // Check for saved theme
+    if (localStorage.getItem('theme') === 'light') {
+        document.body.classList.add('light-mode');
+    }
 
     // Global listener for + Upload Note button in sidebar/header
     const uploadBtns = document.querySelectorAll('.upload-btn');
@@ -741,20 +743,57 @@ function renderAnalytics() {
 }
 
 function renderSettings() {
+    const roleDisplay = currentUser ? currentUser.role.replace('_', ' ').toUpperCase() : 'GUEST';
+    const initial = (currentUser && currentUser.name) ? currentUser.name.charAt(0) : 'U';
+
     return `
         <div class="tab-pane active fade-in" style="padding: 2rem;">
-            <h1 class="font-heading">⚙️ <span class="gradient-text">Settings</span></h1>
-            <div class="glass-card" style="margin-top: 2rem;">
-                <div style="padding: 1rem; border-bottom: 1px solid var(--border-glass); display:flex; justify-content:space-between; align-items:center;">
-                    <span>Wait for 2.0 </span>
+            <h1 class="font-heading" style="margin-bottom: 2rem;">⚙️ <span class="gradient-text">Settings</span></h1>
+            
+            <!-- Profile Section -->
+            <div class="glass-card" style="padding: 2rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 2rem;">
+                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 700; color: #000; box-shadow: var(--glow-primary);">
+                    ${currentUser && currentUser.photo ? `<img src="${currentUser.photo}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : initial}
+                </div>
+                <div style="flex: 1;">
+                    <h2 class="font-heading" style="margin-bottom: 0.5rem; font-size: 1.8rem;">${currentUser ? (currentUser.name || 'Guest User') : 'Guest User'}</h2>
+                    <div style="display: flex; gap: 1rem; color: var(--text-dim); font-size: 0.9rem;">
+                        <span>✉️ ${currentUser ? currentUser.email : 'guest@example.com'}</span>
+                        <span>🏛️ ${currentUser ? (currentUser.college || 'Medi-Caps').toUpperCase() : 'MEDI-CAPS'}</span>
+                        <span class="meta-badge">${roleDisplay}</span>
+                    </div>
+                </div>
+                <div>
+                    <button class="btn btn-ghost" onclick="alert('Profile editing coming soon!')">✏️ Edit Profile</button>
+                </div>
+            </div>
+
+            <!-- Application Settings -->
+            <div class="glass-card">
+                <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-glass); display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h4 style="margin-bottom: 0.25rem;">Dark Mode</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-dim);">Toggle light/dark theme</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="theme-toggle" onchange="window.toggleTheme()" ${document.body.classList.contains('light-mode') ? '' : 'checked'}>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                 <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-glass); display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h4 style="margin-bottom: 0.25rem;">Notifications</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-dim);">Manage email and push alerts</p>
+                    </div>
                     <button class="btn btn-sm btn-ghost">Coming Soon</button>
                 </div>
-                 <div style="padding: 1rem; border-bottom: 1px solid var(--border-glass); display:flex; justify-content:space-between; align-items:center;">
-                    <span>Dark Mode</span>
-                    <button class="btn btn-sm btn-primary">Active</button>
-                </div>
-                 <div style="padding: 1rem; display:flex; justify-content:space-between; align-items:center;">
-                    <span style="color:#ff4757;">Danger Zone</span>
+
+                 <div style="padding: 1.5rem; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h4 style="margin-bottom: 0.25rem; color:#ff4757;">Session</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-dim);">Log out of your account</p>
+                    </div>
                     <button class="btn btn-sm btn-ghost" onclick="window.handleLogout()" style="color:#ff4757; border:1px solid #ff4757;">Sign Out</button>
                 </div>
             </div>
@@ -1210,6 +1249,12 @@ function handleAuthReady(data) {
     } else {
         console.log("🔓 Dashboard: No active session. Waiting for auth...");
     }
+}
+
+window.toggleTheme = function () {
+    document.body.classList.toggle('light-mode');
+    const isLight = document.body.classList.contains('light-mode');
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
 }
 
 // Check for already dispatched auth
