@@ -1,7 +1,30 @@
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const admin = require('firebase-admin');
+
+// Initialize Firebase Admin SDK
+const serviceAccountPath = path.join(__dirname, 'service-account.json');
+
+try {
+    if (require('fs').existsSync(serviceAccountPath)) {
+        const serviceAccount = require(serviceAccountPath);
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount)
+        });
+        console.log("🔑 Authenticated using local service-account.json");
+    } else {
+        // Fallback to Application Default Credentials (matches your request)
+        admin.initializeApp({
+            credential: admin.credential.applicationDefault()
+        });
+        console.log("☁️  Authenticated using Google Application Default Credentials");
+    }
+} catch (e) {
+    console.error("Auth Init Error:", e);
+}
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -124,8 +147,11 @@ Constraint:
     }
 });
 
+// Serve frontend files
+app.use(express.static(path.join(__dirname, "..")));
+
 app.get('/', (req, res) => {
-    res.send('SkillMatrix AI Server is Running. 🤖');
+    res.sendFile(path.join(__dirname, "..", "index.html"));
 });
 
 app.listen(port, () => {
