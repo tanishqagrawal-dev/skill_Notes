@@ -815,6 +815,24 @@ document.addEventListener('auth-ready', (event) => {
     }
 });
 
+window.loginAsGuest = function () {
+    console.log("Logging in as Guest...");
+    currentUser = {
+        id: 'guest_' + Math.random().toString(36).substr(2, 9),
+        name: 'Guest Tester',
+        email: 'guest@example.com',
+        photo: null,
+        role: Roles.STUDENT,
+        college: 'medicaps',
+        isGuest: true
+    };
+
+    updateUserProfileUI();
+    initRealTimeDB();
+    initTabs();
+    renderTabContent('overview');
+};
+
 function initRealTimeDB() {
     if (unsubscribeNotes) unsubscribeNotes();
 
@@ -835,5 +853,33 @@ function initRealTimeDB() {
         }
     });
 }
+<<<<<<< HEAD
 // Removed redundant initAuthSystem, loginWithGoogle, logout, renderLoginScreen
 // as they are handled by auth.js and login.html now.
+=======
+
+function renderLoginScreen() {
+    const contentArea = document.getElementById('tab-content');
+    if (contentArea) {
+        contentArea.innerHTML = `
+            <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;" class="fade-in">
+                <div class="glass-card" style="padding: 4rem; max-width: 500px; border: 1px solid var(--primary);">
+                    <h1 class="font-heading" style="font-size: 2.5rem; margin-bottom: 1rem;">Welcome to <span class="gradient-text">SmartOS</span></h1>
+                    <p style="color: var(--text-dim); margin-bottom: 2rem;">
+                        Sign in to access your personalized academic dashboard, real-time notes, and AI tools.
+                    </p>
+                    <button class="btn btn-primary btn-large" onclick="loginWithGoogle()" style="padding: 1rem 2rem; font-size: 1.1rem; width: 100%;">
+                        <span style="margin-right: 10px;">🇬</span> Continue with Google
+                    </button>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-ghost" onclick="loginAsGuest()" style="width: 100%; border: 1px solid rgba(255,255,255,0.1);">
+                            👤 Continue as Guest (Testing)
+                        </button>
+                    </div>
+                    <p style="margin-top:1rem; font-size:0.8rem; color:var(--text-dim);">Secure access via Firebase Auth</p>
+                </div>
+            </div>
+        `;
+    }
+}
+>>>>>>> 60fb7d40cbffd79cf5e7c10f0ee5d71a9e602514
