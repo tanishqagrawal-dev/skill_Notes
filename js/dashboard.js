@@ -1,3 +1,4 @@
+import { initRealtimeStats, trackDownload } from './stats.js';
 // --- FIREBASE SERVICES ---
 // Fallback if firebaseServices failed to load (e.g. CORS or network error)
 if (!window.firebaseServices) {
@@ -147,6 +148,7 @@ window.updateNoteStat = async function (noteId, type) {
         await updateDoc(noteRef, {
             [type + 's']: increment(1)
         });
+        if (type === 'download') trackDownload();
         trackAnalytics(`note_${type}`, { id: noteId, title: note ? note.title : 'Unknown' });
     } catch (error) {
         console.error("Error updating stats:", error);
@@ -662,8 +664,14 @@ function renderOverview() {
     const year = currentUser.year || '3rd Year';
     const branch = currentUser.branch || 'CSE';
 
-    // Mock Readiness Data (Phase 1)
-    const subjects = [
+    // Real-time subjects based on user branch/year
+    const branchKey = `${branch.toLowerCase().replace(' ', '')}-${year}`;
+    const mySubjects = GlobalData.subjects[branchKey] || [];
+    const subjects = mySubjects.length > 0 ? mySubjects.slice(0, 3).map((s, idx) => ({
+        name: s.name,
+        progress: [85, 60, 30][idx] || 45,
+        color: ['#2ecc71', '#f1c40f', '#e74c3c'][idx] || '#3498db'
+    })) : [
         { name: 'Digital Electronics', progress: 85, color: '#2ecc71' },
         { name: 'Data Structures', progress: 60, color: '#f1c40f' },
         { name: 'Mathematics-III', progress: 30, color: '#e74c3c' }
@@ -694,7 +702,7 @@ function renderOverview() {
                 </div>
                 <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #3498db;">
                     <div style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.5rem;">🔥 Trending Now</div>
-                    <div style="font-size: 2rem; font-weight: 700;">18 Notes</div>
+                    <div style="font-size: 2rem; font-weight: 700;" id="trending-notes">${NotesDB.length} Notes</div>
                 </div>
                 <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #9b59b6;">
                     <div style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.5rem;">⬇️ Global Downloads</div>
@@ -711,7 +719,7 @@ function renderOverview() {
                     <div class="glass-card" style="background: linear-gradient(135deg, rgba(108, 99, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%); border: 1px solid rgba(108, 99, 255, 0.3); padding: 2rem; position: relative; overflow: hidden;">
                         <div style="position: absolute; top: -10px; right: -10px; font-size: 8rem; opacity: 0.05; transform: rotate(15deg);">🤖</div>
                         <h3 class="font-heading">🤖 AI Recommendation</h3>
-                        <p style="margin-bottom: 1.5rem; max-width: 80%;">Your retention in <strong>Mathematics-III</strong> is dropping. We recommend solving a model paper to boost confidence.</p>
+                        <p style="margin-bottom: 1.5rem; max-width: 80%;">Your retention in <strong>${subjects[0]?.name || 'Core Subjects'}</strong> is dropping. We recommend solving a model paper to boost confidence.</p>
                         <div style="display: flex; gap: 1rem;">
                             <button class="btn btn-primary" onclick="renderTabContent('ai-tools')">Generate Model Paper</button>
                             <button class="btn btn-ghost" onclick="renderTabContent('planner')">Schedule Revision</button>
@@ -784,32 +792,19 @@ function renderOverview() {
 
 // Live Counter Animation logic
 window.initLiveCounters = function () {
-    // 1. Live Students (Fluctuate)
+    // 1. Live Students (Slight Fluctuation Around Real Baseline if available)
     const liveEl = document.getElementById('live-students');
     if (liveEl) {
-        let count = 124;
+        let baseCount = parseInt(liveEl.innerText) || 124;
         setInterval(() => {
-            const change = Math.floor(Math.random() * 5) - 2; // -2 to +2
-            count += change;
-            if (count < 100) count = 100;
-            liveEl.innerText = count;
-        }, 3000);
+            const change = Math.floor(Math.random() * 3) - 1; // -1 to +1
+            baseCount += change;
+            if (baseCount < 5) baseCount = 5;
+            liveEl.innerText = baseCount;
+        }, 5000);
     }
 
-    // 2. Global Downloads (Count up)
-    const dlEl = document.getElementById('global-downloads');
-    if (dlEl) {
-        let dlCount = 2340;
-        setInterval(() => {
-            if (Math.random() > 0.7) { // 30% chance to increment
-                dlCount++;
-                dlEl.innerText = dlCount.toLocaleString();
-                // Flash effect
-                dlEl.style.color = '#fff';
-                setTimeout(() => dlEl.style.color = '', 200);
-            }
-        }, 2000);
-    }
+    // Global Downloads is handled by stats.js real-time listener
 }
 
 // File Handler
@@ -1610,6 +1605,8 @@ function handleAuthReady(data) {
             window.SettingsModule.init();
         }
 
+        initRealtimeStats();
+        trackStudent();
         renderTabContent('overview');
     } else {
         console.log("🔓 Dashboard: No active session. Waiting for auth...");
@@ -1666,8 +1663,40 @@ function initRealTimeDB() {
         snapshot.forEach((doc) => {
             NotesDB.push({ id: doc.id, ...doc.data() });
         });
+        window.NotesDB = NotesDB; // Expose globally
         console.log(`Synced ${NotesDB.length} notes from Firestore`);
+
+        // Update Trending Notes UI if present
+        const trendingEl = document.getElementById('trending-notes');
+        if (trendingEl) trendingEl.innerText = `${NotesDB.length} Notes`;
+
+        // Update Leaderboard if on that tab
+        const lbList = document.getElementById('lb-list-container');
+        if (lbList) {
+            const activeType = document.querySelector('.lb-tab.active')?.dataset.type || 'student';
+            const activeTime = document.querySelector('.time-filter.active')?.dataset.time || 'all';
+            updateLeaderboardUI(activeType, activeTime);
+        }
     });
+}
+
+async function trackStudent() {
+    const { db, doc, setDoc, serverTimestamp } = getFirebase();
+    if (!db || !currentUser || currentUser.isGuest) return;
+
+    try {
+        const userRef = doc(db, "users", currentUser.id);
+        await setDoc(userRef, {
+            name: currentUser.name,
+            email: currentUser.email,
+            lastSeen: serverTimestamp(),
+            role: currentUser.role,
+            college: currentUser.college
+        }, { merge: true });
+        console.log("👤 User session heart-beat updated.");
+    } catch (e) {
+        console.warn("Could not track user session:", e);
+    }
 }
 // Removed redundant initAuthSystem, loginWithGoogle, logout, renderLoginScreen
 // as they are handled by auth.js and login.html now.
@@ -1812,21 +1841,83 @@ window.initLeaderboardListeners = function () {
     // Initial Render
     updateLeaderboardUI('student', 'today');
     startActivityFeed();
+    initLeaderboardRealtime();
 };
+
+function initLeaderboardRealtime() {
+    const { db, collection, onSnapshot, query, orderBy } = getFirebase();
+    if (!db) return;
+
+    // Listen to users for student leaderboard
+    const usersQ = query(collection(db, "users"));
+    onSnapshot(usersQ, (snapshot) => {
+        const activeType = document.querySelector('.lb-tab.active')?.dataset.type;
+        if (activeType === 'student') {
+            updateLeaderboardUI('student', document.querySelector('.time-filter.active')?.dataset.time || 'all');
+        }
+    });
+}
 
 function updateLeaderboardUI(type, timeframe) {
     const list = document.getElementById('lb-list-container');
     if (!list) return;
 
-    // Get Data
-    let data = LeaderboardData[type] || [];
+    let data = [];
 
-    // Simulate Score Variation based on time filter
-    if (timeframe === 'today') data = data.map(d => ({ ...d, score: Math.round(d.score * 0.1) }));
-    if (timeframe === 'week') data = data.map(d => ({ ...d, score: Math.round(d.score * 0.5) }));
+    if (type === 'student') {
+        // Real logic: Aggregating stats from NotesDB for contributors
+        // But for "Student" rank usually based on their own activity or points
+        // Let's use NotesDB to find top contributors as "Students" for now since we don't have a points system yet
+        const contributors = {};
+        NotesDB.forEach(note => {
+            if (!contributors[note.uploader]) {
+                contributors[note.uploader] = { name: note.uploader, score: 0, views: 0, avatar: null };
+            }
+            contributors[note.uploader].score += (note.likes * 10) + (note.downloads * 5) + note.views;
+            contributors[note.uploader].views += note.views;
+        });
+        data = Object.values(contributors);
+    } else if (type === 'contributor') {
+        const uploaderStats = {};
+        NotesDB.forEach(note => {
+            if (!uploaderStats[note.uploader]) {
+                uploaderStats[note.uploader] = { name: note.uploader, score: 0, downloads: 0, avatar: null };
+            }
+            uploaderStats[note.uploader].score += note.likes + note.downloads;
+            uploaderStats[note.uploader].downloads += note.downloads;
+        });
+        data = Object.values(uploaderStats);
+    } else if (type === 'college') {
+        const collegeStats = {};
+        const colleges = GlobalData.colleges;
+        colleges.forEach(c => collegeStats[c.id] = { id: c.id, name: c.name, score: 0, views: 0, students: 0, logo: c.logo });
+
+        NotesDB.forEach(note => {
+            if (collegeStats[note.collegeId]) {
+                collegeStats[note.collegeId].views += note.views;
+                collegeStats[note.collegeId].score += note.views;
+            }
+        });
+        data = Object.values(collegeStats);
+    }
 
     // Sort
     data.sort((a, b) => b.score - a.score);
+
+    // --- NEW: Update "Your Standing" Widget ---
+    const myRank = data.findIndex(item => item.name === currentUser.name) + 1;
+    const myScore = data.find(item => item.name === currentUser.name)?.score || 0;
+
+    // Attempt to update the sidebar widget if it exists
+    const standingValue = document.querySelector('.personal-rank-card .value');
+    if (standingValue) {
+        if (type === 'student') {
+            document.querySelectorAll('.personal-rank-card .rank-stat .value')[0].innerText = myRank > 0 ? `#${myRank}` : 'N/A';
+        } else if (type === 'contributor') {
+            document.querySelectorAll('.personal-rank-card .rank-stat .value')[1].innerText = myRank > 0 ? `#${myRank}` : 'N/A';
+        }
+        document.querySelectorAll('.personal-rank-card .value')[2].innerText = `${myScore.toLocaleString()} ${type === 'student' ? 'XP' : 'pts'}`;
+    }
 
     list.innerHTML = data.map((item, index) => {
         const rankClass = index < 3 ? `top-3 rank-${index + 1}` : '';
@@ -1864,32 +1955,19 @@ function startActivityFeed() {
     const feed = document.getElementById('activity-feed');
     if (!feed) return;
 
-    const activities = [
-        { icon: '👁️', text: '<strong>Riya</strong> viewed Digital Electronics', time: 'Just now' },
-        { icon: '📤', text: '<strong>Ankit</strong> uploaded a new note', time: '2 mins ago' },
-        { icon: '🏆', text: '<strong>Tanishq</strong> reached Rank #1', time: '5 mins ago' },
-        { icon: '⬇️', text: '<strong>Rahul</strong> downloaded OS Unit 4', time: '12 mins ago' },
-        { icon: '🔥', text: 'New streak started by <strong>Sneha</strong>', time: '15 mins ago' }
-    ];
+    // Use actual NotesDB data for activity feed
+    const getRecentActivities = () => {
+        return NotesDB.slice(0, 5).map(note => ({
+            icon: note.type === 'pyq' ? '📝' : '📄',
+            text: `<strong>${note.uploader}</strong> uploaded ${note.title}`,
+            time: 'Recently'
+        }));
+    };
 
-    // Initial fill
-    feed.innerHTML = activities.map(act => createActivityHTML(act)).join('');
-
-    // Add new activity every few seconds
-    setInterval(() => {
-        const randomAct = activities[Math.floor(Math.random() * activities.length)];
-        const el = document.createElement('div');
-        el.className = 'activity-item';
-        el.innerHTML = `
-            <div class="activity-icon">${randomAct.icon}</div>
-            <div class="activity-text">
-                ${randomAct.text}
-                <span class="activity-meta">Just now</span>
-            </div>
-        `;
-        feed.insertBefore(el, feed.firstChild);
-        if (feed.children.length > 6) feed.lastChild.remove();
-    }, 4000);
+    const activities = getRecentActivities();
+    feed.innerHTML = activities.length > 0
+        ? activities.map(act => createActivityHTML(act)).join('')
+        : '<p style="font-size:0.8rem; color:var(--text-dim); text-align:center;">No recent activity</p>';
 }
 
 function createActivityHTML(act) {

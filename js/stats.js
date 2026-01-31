@@ -107,8 +107,8 @@ function updateUICounters(data) {
 
     // 2. Update items in the Live Stats section (by explicit IDs)
     const elViews = document.getElementById('stat-views');
-    const elDownloads = document.getElementById('stat-downloads');
-    const elActive = document.getElementById('stat-active');
+    const elDownloads = document.getElementById('stat-downloads') || document.getElementById('global-downloads');
+    const elActive = document.getElementById('stat-active') || document.getElementById('live-students');
 
     if (elViews) elViews.innerText = (data.views || 0).toLocaleString();
     if (elDownloads) elDownloads.innerText = (data.downloads || 0).toLocaleString();
@@ -134,6 +134,18 @@ async function updateStudentCount() {
     } catch (error) {
         // Silently fail if 'users' collection or permissions are missing
     }
+}
+
+// Expose to window for non-module scripts
+window.statServices = {
+    initRealtimeStats,
+    trackPageView,
+    trackDownload
+};
+
+// Auto-init if on dashboard or notes hub
+if (document.querySelector('.dashboard-body') || document.querySelector('.notes-page-container')) {
+    setTimeout(initRealtimeStats, 1000); // Small delay to ensure Firebase is ready
 }
 
 /**

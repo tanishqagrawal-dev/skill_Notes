@@ -359,6 +359,7 @@ window.updateNoteStat = async function (noteId, type) {
         await updateDoc(noteRef, {
             [type + 's']: increment(1)
         });
+        if (type === 'download' && window.statServices) window.statServices.trackDownload();
     } catch (error) {
         console.error("Error updating stats:", error);
     }
