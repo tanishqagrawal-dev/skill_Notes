@@ -174,6 +174,10 @@
     </footer>
 
     <script type="module" src="js/firebase-config.js"></script>
+    <script type="module">
+        import { initRealtimeStats } from './js/stats.js';
+        initRealtimeStats();
+    </script>
     <script src="js/main.js"></script>
     <script>
         AOS.init({
