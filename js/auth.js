@@ -12,6 +12,22 @@ const path = window.location.pathname;
 const isAuthPage = path.includes('auth.html') || path.includes('login.html');
 const isDashboardPage = path.includes('dashboard.html');
 
+// --- IMMEDIATE GUEST CHECK (FOR INSTANT LOADING) ---
+if (isDashboardPage) {
+    const guestData = localStorage.getItem('guest_session');
+    if (guestData) {
+        const guest = JSON.parse(guestData);
+        console.log("🚀 Auth Guard: Immediate guest session detected. Dispatching event...");
+        const event = new CustomEvent('auth-ready', {
+            detail: {
+                user: { uid: guest.id, email: guest.email, displayName: guest.name },
+                currentUser: guest
+            }
+        });
+        window.dispatchEvent(event);
+    }
+}
+
 onAuthStateChanged(auth, (user) => {
     if (user) {
         console.log("🔐 Auth Guard: User is logged in as", user.email);
@@ -25,7 +41,11 @@ onAuthStateChanged(auth, (user) => {
         // Signal dashboard that auth is ready
         if (isDashboardPage) {
             console.log("🚀 Signaling Dashboard: User is authenticated.");
+<<<<<<< HEAD
             // Dispatch immediately without artificial delay
+=======
+            // Removed timeout for instant loading
+>>>>>>> e1af02c1dfc07f3df6545dbe30ac69c669e60879
             const event = new CustomEvent('auth-ready', {
                 detail: {
                     user: user,
@@ -62,18 +82,18 @@ onAuthStateChanged(auth, (user) => {
             guestData = JSON.stringify(guest);
         }
 
+        // If we haven't already dispatched the event via immediate check, or if session just changed
         if (guestData && isDashboardPage) {
             const guest = JSON.parse(guestData);
             console.log("🚀 Signaling Dashboard: Guest session active.");
-            setTimeout(() => {
-                const event = new CustomEvent('auth-ready', {
-                    detail: {
-                        user: { uid: guest.id, email: guest.email, displayName: guest.name },
-                        currentUser: guest
-                    }
-                });
-                window.dispatchEvent(event);
-            }, 100);
+            // Removed timeout for instant loading
+            const event = new CustomEvent('auth-ready', {
+                detail: {
+                    user: { uid: guest.id, email: guest.email, displayName: guest.name },
+                    currentUser: guest
+                }
+            });
+            window.dispatchEvent(event);
         }
     }
 });
