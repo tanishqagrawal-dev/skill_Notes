@@ -25,22 +25,21 @@ onAuthStateChanged(auth, (user) => {
         // Signal dashboard that auth is ready
         if (isDashboardPage) {
             console.log("🚀 Signaling Dashboard: User is authenticated.");
-            setTimeout(() => {
-                const event = new CustomEvent('auth-ready', {
-                    detail: {
-                        user: user,
-                        currentUser: {
-                            id: user.uid,
-                            name: user.displayName || user.email.split('@')[0],
-                            email: user.email,
-                            photo: user.photoURL,
-                            role: 'student', // Default, would be fetched from Firestore in a real app
-                            college: 'medicaps'
-                        }
+            // Dispatch immediately without artificial delay
+            const event = new CustomEvent('auth-ready', {
+                detail: {
+                    user: user,
+                    currentUser: {
+                        id: user.uid,
+                        name: user.displayName || user.email.split('@')[0],
+                        email: user.email,
+                        photo: user.photoURL,
+                        role: 'student', // Default, would be fetched from Firestore in a real app
+                        college: 'medicaps'
                     }
-                });
-                window.dispatchEvent(event);
-            }, 100);
+                }
+            });
+            window.dispatchEvent(event);
         }
     } else {
         console.log("🔓 Auth Guard: No active Firebase session.");

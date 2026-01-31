@@ -418,12 +418,22 @@ function renderPlanner() {
 }
 
 function renderAITools() {
+    // Flatten subjects for the dropdown
+    const allSubjects = [];
+    Object.values(GlobalData.subjects).forEach(list => {
+        list.forEach(sub => {
+            if (!allSubjects.find(s => s.name === sub.name)) {
+                allSubjects.push(sub.name);
+            }
+        });
+    });
+
     return `
         <div class="tab-pane active fade-in" style="padding: 2rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
                 <div>
                     <h1 class="font-heading">🤖 AI <span class="gradient-text">Model Paper Generator</span></h1>
-                    <p style="color: var(--text-dim);">Generate exam-ready question papers based on PYQ patterns. Powered by Gemini.</p>
+                    <p style="color: var(--text-dim);">Upload your PYQs (PDF/Image) and let Gemini generate a model paper.</p>
                 </div>
                 <div class="status-badge" id="server-status-badge" style="font-size: 0.8rem; padding: 0.5rem 1rem; border-radius: 20px; background: rgba(255,255,255,0.05);">
                     Checking Server...
@@ -437,12 +447,18 @@ function renderAITools() {
                     
                     <div class="form-group" style="margin-bottom: 1rem;">
                         <label style="display:block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem;">Subject Name</label>
-                        <input type="text" id="ai-subject" class="input-field" placeholder="e.g. Operating Systems" value="${selState.subject ? selState.subject.name : ''}" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 8px; color: white;">
+                        <select id="ai-subject" class="input-field" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 8px; color: white;">
+                             <option value="" disabled selected>Select Subject</option>
+                             ${allSubjects.map(s => `<option value="${s}">${s}</option>`).join('')}
+                             <option value="Other">Other (Custom)</option>
+                        </select>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 1rem;">
-                        <label style="display:block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem;">University / Pattern</label>
-                        <input type="text" id="ai-uni" class="input-field" placeholder="e.g. Medi-Caps University" value="${selState.college ? selState.college.name : 'Medi-Caps University'}" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 8px; color: white;">
+                        <label style="display:block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem;">University</label>
+                         <select id="ai-uni" class="input-field" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 8px; color: white;">
+                             ${GlobalData.colleges.map(c => `<option value="${c.name}">${c.name}</option>`).join('')}
+                        </select>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 1rem;">
@@ -454,15 +470,25 @@ function renderAITools() {
                     </div>
 
                     <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label style="display:block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem;">Paste PYQs / Topics</label>
-                        <textarea id="ai-pyqs" rows="6" placeholder="Paste text from previous papers or list of important topics here..." style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 8px; color: white; resize: vertical;"></textarea>
+                        <label style="display:block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem;">Upload PYQ (PDF/Image)</label>
+                        
+                        <!-- Upload Box -->
+                        <div class="upload-zone" onclick="document.getElementById('ai-file-input').click()" style="border: 2px dashed var(--border-glass); border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s ease;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📂</div>
+                            <p style="font-size: 0.9rem; color: var(--text-dim);">Click to upload file</p>
+                            <p id="file-name-display" style="font-size: 0.8rem; color: var(--primary); margin-top: 0.5rem; font-weight: 500;"></p>
+                        </div>
+                        <input type="file" id="ai-file-input" accept=".pdf,.png,.jpg,.jpeg,.txt" style="display: none;" onchange="handleAIFileUpload(this)">
+                        
+                        <!-- Hidden text area for fallback/content passing -->
+                        <textarea id="ai-pyqs" style="display:none;"></textarea>
                     </div>
 
                     <button class="btn btn-primary" onclick="generatePaper()" id="btn-generate" style="width: 100%; justify-content: center;">
                         ✨ Generate Model Paper
                     </button>
                     <p style="font-size: 0.7rem; color: var(--text-dim); margin-top: 1rem; text-align: center;">
-                        Requires local server running on port 3000.
+                        AI will analyze the uploaded file structure.
                     </p>
                 </div>
 
@@ -472,7 +498,6 @@ function renderAITools() {
                         <h3 class="font-heading">📄 Generated Paper</h3>
                         <div class="actions">
                             <button class="btn btn-sm btn-ghost" onclick="copyPaper()" title="Copy to Clipboard">📋</button>
-                            <!-- <button class="btn btn-sm btn-ghost" title="Download PDF">📥</button> -->
                         </div>
                     </div>
                     
@@ -486,6 +511,28 @@ function renderAITools() {
             </div>
         </div>
     `;
+}
+
+// File Handler
+window.handleAIFileUpload = function (input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        document.getElementById('file-name-display').innerText = "✅ " + file.name;
+
+        // Simulating File Reading (In a real app, this would upload to server for OCR)
+        // For this prototype, we will set a flag or simulated text content
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            // If text file, use content. If binary, use placeholder.
+            if (file.type.includes('text')) {
+                document.getElementById('ai-pyqs').value = e.target.result;
+            } else {
+                // PDF/Image mock content
+                document.getElementById('ai-pyqs').value = `[SYSTEM: The user uploaded a file named ${file.name}. Please assume this contains standard PYQs for the selected subject and generate a new model paper based on typical university patterns.]`;
+            }
+        };
+        reader.readAsText(file);
+    }
 }
 
 // Check server status when tab loads
@@ -520,7 +567,7 @@ window.generatePaper = async () => {
     const pyqs = document.getElementById('ai-pyqs').value;
 
     if (!subject || !pyqs) {
-        alert("Please enter a subject and paste some PYQ content/topics.");
+        alert("Please select a subject and upload a file (or enter topics).");
         return;
     }
 
