@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication | SKiL MATRiX Notes</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/auth.css">
+</head>
+
+<body>
+    <!-- Star Background -->
+    <div class="stars-container" id="stars"></div>
+
+    <a href="../index.html" class="back-link">
+        <span class="icon">⇠</span> Back
+    </a>
+
+    <div class="auth-container">
+        <!-- LOGIN CARD -->
+        <div id="login-card" class="auth-card fade-in">
+            <header class="auth-header">
+                <div class="auth-logo">
+                    <img src="../assets/logo.jpg" alt="SKiL MATRiX">
+                    <span>SKiL <span class="highlight">MATRiX</span></span>
+                </div>
+                <h1>Welcome Back</h1>
+                <p>Login to your account dashboard</p>
+            </header>
+
+            <form id="login-form" class="auth-form">
+                <div class="input-group">
+                    <label>Email</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">✉️</span>
+                        <input type="email" id="login-email" placeholder="john@example.com" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="login-password" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-auth btn-login">LOG IN</button>
+            </form>
+
+            <div class="divider">OR</div>
+
+            <button class="btn-auth btn-secondary" onclick="toggleAuthMode('signup')">
+                <span class="icon">👤+</span> Create Account
+            </button>
+
+            <button class="btn-auth btn-secondary" id="google-login">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" alt="Google">
+                Continue with Google
+            </button>
+
+            <div class="auth-footer">
+                <a href="#" onclick="loginAsGuest()">Continue as Guest</a>
+            </div>
+        </div>
+
+        <!-- SIGNUP CARD (Hidden by default) -->
+        <div id="signup-card" class="auth-card fade-in hidden">
+            <header class="auth-header">
+                <div class="auth-logo">
+                    <img src="../assets/logo.jpg" alt="SKiL MATRiX">
+                    <span>SKiL <span class="highlight">MATRiX</span></span>
+                </div>
+                <h1>Join Success</h1>
+                <p>Create your SKiL MATRiX account</p>
+            </header>
+
+            <form id="signup-form" class="auth-form">
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="signup-name" placeholder="John Doe" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Email</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">✉️</span>
+                        <input type="email" id="signup-email" placeholder="john@example.com" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="signup-password" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-auth btn-login">CREATE ACCOUNT</button>
+            </form>
+
+            <div class="divider">OR</div>
+
+            <button class="btn-auth btn-secondary" onclick="toggleAuthMode('login')">
+                Already have an account? Log In
+            </button>
+
+            <div class="auth-footer">
+                <a href="#" onclick="loginAsGuest()">Continue as Guest</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="../js/auth.js"></script>
+    <script>
+        // Star Field Background Generator
+        const starsContainer = document.getElementById('stars');
+        const count = 150;
+        for (let i = 0; i < count; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            const size = Math.random() * 2 + 1;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
+            star.style.animationDelay = `${Math.random() * 5}s`;
+            starsContainer.appendChild(star);
+        }
+
+        function toggleAuthMode(mode) {
+            const loginCard = document.getElementById('login-card');
+            const signupCard = document.getElementById('signup-card');
+            if (mode === 'signup') {
+                loginCard.classList.add('hidden');
+                signupCard.classList.remove('hidden');
+            } else {
+                signupCard.classList.add('hidden');
+                loginCard.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+
+</html>
