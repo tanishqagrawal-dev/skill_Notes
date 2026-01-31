@@ -82,7 +82,7 @@
 }
 
 .sidebar-header {
-    margin-bottom: 3rem;
+    margin-bottom: 0.5rem;
     text-align: center;
 }
 
@@ -97,7 +97,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 1rem 1.25rem;
+    padding: 0.75rem 1rem;
     text-decoration: none;
     color: var(--text-muted);
     border-radius: 12px;
@@ -132,17 +132,18 @@
 .nav-divider {
     height: 1px;
     background: var(--border-glass);
-    margin: 1rem 0;
+    margin: 0.25rem 0;
 }
 
 .user-profile-mini {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem;
+    gap: 12px;
+    padding: 0.8rem 1rem;
     background: rgba(255, 255, 255, 0.03);
     border-radius: 12px;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
+    width: 100%;
 }
 
 .avatar {
@@ -156,15 +157,28 @@
     font-weight: 700;
 }
 
+.user-info {
+    overflow: hidden;
+}
+
 .user-info .name {
     display: block;
     font-weight: 600;
     font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .user-info .meta {
+    display: block;
     font-size: 0.75rem;
     color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Main Content Area */
