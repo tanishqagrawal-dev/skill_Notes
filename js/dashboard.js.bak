@@ -1,25 +1,5 @@
 // --- FIREBASE SERVICES ---
-// Fallback if firebaseServices failed to load (e.g. CORS or network error)
-if (!window.firebaseServices) {
-    console.error("Critical: window.firebaseServices is undefined. Check firebase-config.js loading.");
-    // Wait a brief moment in case of race condition, then alert
-    setTimeout(() => {
-        if (!window.firebaseServices) {
-            const contentArea = document.getElementById('tab-content');
-            if (contentArea) {
-                contentArea.innerHTML = `
-                    <div style="text-align:center; padding: 4rem; color: #ff4757;">
-                        <h1>Connection Error</h1>
-                        <p>Could not load Firebase Services. If you are opening this file locally, please use a local server (e.g. Live Server) instead of file://.</p>
-                        <button onclick="location.reload()" class="btn btn-primary" style="margin-top:1rem;">Retry</button>
-                    </div>
-                 `;
-            }
-        }
-    }, 2000);
-}
-
-const { auth, db, provider, signInWithPopup, signOut, onAuthStateChanged, collection, addDoc, onSnapshot, updateDoc, doc, increment, query, orderBy, where } = window.firebaseServices || {};
+const { auth, db, provider, signInWithPopup, signOut, onAuthStateChanged, collection, addDoc, onSnapshot, updateDoc, doc, increment, query, orderBy, where } = window.firebaseServices;
 
 // --- RBAC & USER SYSTEM ---
 const Roles = {
@@ -143,14 +123,13 @@ window.updateNoteStat = async function (noteId, type) {
 
 // --- CORE DASHBOARD LOGIC ---
 // Wait for Auth Guard to confirm user is logged in
-// Wait for Auth Guard to confirm user is logged in
 window.addEventListener('auth-ready', (event) => {
     console.log("Dashboard: Auth Ready signal received.");
     const user = event.detail.user;
 
     // Map Firebase user to App User
     let mappedRole = Roles.STUDENT;
-    if (user && (user.email.includes('skillhub') || user.email === 'admin@skillhub.com')) mappedRole = Roles.SUPER_ADMIN;
+    if (user.email.includes('skillhub') || user.email === 'admin@skillhub.com') mappedRole = Roles.SUPER_ADMIN;
 
     currentUser = {
         id: user.uid,
@@ -166,32 +145,6 @@ window.addEventListener('auth-ready', (event) => {
     initTabs();
     renderTabContent('overview');
 });
-
-// Failsafe: If Auth doesn't trigger in 8 seconds, show error or login
-setTimeout(() => {
-    const loader = document.querySelector('.loader-pro');
-    if (loader && !currentUser) { // If loader is still there and no user
-        console.warn("Auth timeout reached. Force checking auth state...");
-        // If auth guard failed to dispatch, maybe we are logged out? 
-        // Or maybe just show a button to manually login (Guest)
-        if (window.firebaseServices && window.firebaseServices.auth && window.firebaseServices.auth.currentUser) {
-            // User IS logged in but event was missed? Re-dispatch
-            window.dispatchEvent(new CustomEvent('auth-ready', { detail: { user: window.firebaseServices.auth.currentUser } }));
-        } else {
-            // Likely not logged in and redirect failed, OR script error
-            // Show manual login
-            document.getElementById('tab-content').innerHTML = `
-                <div style="text-align:center; padding:4rem;">
-                    <h2>Session Timeout</h2>
-                    <p>Please sign in again.</p>
-                    <a href="login.html" class="btn btn-primary" style="margin-top:1rem;">Go to Login</a>
-                    <br><br>
-                    <button class="btn btn-ghost" onclick="loginAsGuest()">Guest Mode</button>
-                </div>
-             `;
-        }
-    }
-}, 8000);
 
 document.addEventListener('DOMContentLoaded', () => {
     // UI initializations that don't depend on user data can go here
