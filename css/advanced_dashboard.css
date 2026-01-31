@@ -360,3 +360,119 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* --- Premium Notes Cards (Updated Design) --- */
+
+.detailed-item.glass-card {
+    background: rgba(23, 23, 23, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 1rem;
+}
+
+.detailed-item.glass-card:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(30, 30, 30, 0.6);
+    transform: translateY(-2px);
+}
+
+.item-left {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+}
+
+.file-type-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 194, 255, 0.1);
+    color: #00c2ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 1.25rem;
+}
+
+.item-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 0.25rem;
+}
+
+.item-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.9rem;
+}
+
+.uploader-mini {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.uploader-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.item-engagement-row {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.eng-icon {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    font-size: 0.9rem;
+}
+
+.eng-icon:hover {
+    color: white;
+}
+
+.btn-download-pro {
+    background: white;
+    color: black;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-download-pro:hover {
+    background: #f3f4f6;
+    transform: scale(1.02);
+}
+
+.btn-download-pro i {
+    font-size: 0.9rem;
+}
