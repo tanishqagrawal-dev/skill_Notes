@@ -941,6 +941,24 @@ function renderVerificationHub() {
         return n.status === 'pending' && n.collegeId === currentUser.college;
     });
 
+    setTimeout(() => {
+        const dropZone = document.getElementById('admin-drop-zone');
+        const fileInput = document.getElementById('admin-file-input');
+
+        if (dropZone && fileInput) {
+            dropZone.onclick = () => fileInput.click();
+            fileInput.onchange = (e) => handleAdminFileSelect(e.target.files[0]);
+
+            dropZone.ondragover = (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--primary)'; };
+            dropZone.ondragleave = (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--border-glass)'; };
+            dropZone.ondrop = (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = 'var(--border-glass)';
+                handleAdminFileSelect(e.dataTransfer.files[0]);
+            };
+        }
+    }, 500);
+
     return `
         <div class="tab-pane active fade-in" style="padding: 2rem;">
             <div style="margin-bottom: 2rem;">
@@ -948,6 +966,69 @@ function renderVerificationHub() {
                 <p style="color: var(--text-dim);">Quality control center for moderated academic content.</p>
             </div>
 
+            <!-- Admin Direct Upload -->
+            <div class="glass-card" style="padding: 2rem; margin-bottom: 3rem; background: rgba(108, 99, 255, 0.03);">
+                <h3 class="font-heading" style="margin-bottom: 1rem;">📤 Direct Upload</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    
+                    <!-- File Drop -->
+                    <div id="admin-drop-zone" style="border: 2px dashed var(--border-glass); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; cursor: pointer; transition: all 0.3s ease;">
+                        <input type="file" id="admin-file-input" accept=".pdf" style="display: none;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
+                        <p style="color: var(--text-dim);">Click or Drag PDF here</p>
+                        <p id="selected-filename" style="color: var(--primary); margin-top: 0.5rem; font-weight: 600;"></p>
+                    </div>
+
+                    <!-- Metadata Form -->
+                    <div class="upload-meta-form" style="display: flex; flex-direction: column; gap: 1rem;">
+                        <select id="up-college" class="search-input" style="width: 100%;"><option value="medicaps">Medi-Caps University</option></select>
+                        <div style="display: flex; gap: 1rem;">
+                            <select id="up-stream" class="search-input" style="width: 100%;" onchange="updateUpBranches()">
+                                <option value="btech">B.Tech</option>
+                                <option value="mtech">M.Tech</option>
+                                <option value="mba">MBA</option>
+                            </select>
+                            <select id="up-branch" class="search-input" style="width: 100%;">
+                                <option value="cse">CSE</option>
+                                <option value="ece">ECE</option>
+                                <option value="ee">EE</option>
+                                <option value="me">ME</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 1rem;">
+                            <select id="up-year" class="search-input" style="width: 100%;">
+                                <option value="1st Year">1st Year</option>
+                                <option value="2nd Year">2nd Year</option>
+                                <option value="3rd Year">3rd Year</option>
+                                <option value="4th Year">4th Year</option>
+                            </select>
+                            <select id="up-sem" class="search-input" style="width: 100%;">
+                                <option value="Semester 3">Semester 3</option>
+                                <option value="Semester 4">Semester 4</option>
+                            </select>
+                        </div>
+                         <select id="up-subject" class="search-input" style="width: 100%;">
+                                <option value="os">Operating Systems</option>
+                                <option value="dbms">DBMS</option>
+                                <option value="dsa">DSA</option>
+                        </select>
+                         <input type="text" id="up-title" class="search-input" placeholder="Title (e.g. Unit 1 Notes)" style="width: 100%;">
+                         <div style="display: flex; gap: 1rem;">
+                            <select id="up-type" class="search-input" style="width: 100%;">
+                                <option value="notes">Notes</option>
+                                <option value="pyq">PYQ</option>
+                                <option value="formula">Formula Sheet</option>
+                            </select>
+                             <button class="btn btn-primary" onclick="executeAdminUpload()" style="flex: 1;">🚀 Upload Now</button>
+                         </div>
+                         <div id="upload-progress-container" style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 10px; overflow: hidden; display: none;">
+                            <div id="upload-progress" style="width: 0%; height: 100%; background: var(--success); transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="font-heading" style="margin-bottom: 1.5rem;">User Submissions</h3>
             ${pending.length === 0 ? `
                 <div class="glass-card" style="padding: 4rem; text-align: center; border: 1px dashed rgba(255,255,255,0.1);">
                     <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
@@ -982,6 +1063,52 @@ function renderVerificationHub() {
     `;
 }
 
+let selectedAdminFile = null;
+
+window.handleAdminFileSelect = function (file) {
+    if (!file) return;
+    if (file.type !== 'application/pdf') {
+        alert("Please upload PDF files only.");
+        return;
+    }
+    selectedAdminFile = file;
+    document.getElementById('selected-filename').innerText = file.name;
+    document.getElementById('admin-drop-zone').style.borderColor = 'var(--success)';
+};
+
+window.executeAdminUpload = async function () {
+    if (!selectedAdminFile) {
+        alert("Please select a file first.");
+        return;
+    }
+
+    const metadata = {
+        title: document.getElementById('up-title').value || selectedAdminFile.name.replace('.pdf', ''),
+        collegeId: document.getElementById('up-college').value,
+        streamId: document.getElementById('up-stream').value,
+        branchId: document.getElementById('up-branch').value,
+        year: document.getElementById('up-year').value,
+        semester: document.getElementById('up-sem').value,
+        subjectId: document.getElementById('up-subject').value,
+        type: document.getElementById('up-type').value,
+        uploader: currentUser.name,
+        uploaded_by: currentUser.id
+    };
+
+    document.getElementById('upload-progress-container').style.display = 'block';
+
+    try {
+        await window.uploadNoteToFirebase(selectedAdminFile, metadata);
+        alert("✅ Upload Successful!");
+        selectedAdminFile = null;
+        document.getElementById('selected-filename').innerText = '';
+        document.getElementById('upload-progress').style.width = '0%';
+        document.getElementById('admin-drop-zone').style.borderColor = 'var(--border-glass)';
+    } catch (e) {
+        alert("Upload Failed: " + e.message);
+    }
+};
+
 window.processNote = function (noteId, newStatus) {
     const note = NotesDB.find(n => n.id === noteId);
     if (!note) return;
@@ -992,6 +1119,22 @@ window.processNote = function (noteId, newStatus) {
     trackAnalytics('note_moderation', { id: noteId, status: newStatus });
     alert(`Note ${newStatus.toUpperCase()} successfully!`);
     renderTabContent('verification');
+};
+
+window.updateUpBranches = function () {
+    const stream = document.getElementById('up-stream').value;
+    const branchSelect = document.getElementById('up-branch');
+
+    // Find branches for this stream from GlobalData
+    const streamObj = GlobalData.streams.find(s => s.id === stream);
+    let branches = [];
+    if (streamObj) {
+        branches = GlobalData.branches.filter(b => streamObj.branches.includes(b.id));
+    } else {
+        branches = GlobalData.branches;
+    }
+
+    branchSelect.innerHTML = branches.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
 };
 
 
