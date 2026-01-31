@@ -48,8 +48,17 @@ const GlobalData = {
     branches: [
         { id: 'cse', name: 'Computer Science', icon: '💻' },
         { id: 'ece', name: 'Electronics', icon: '⚡' },
+        { id: 'ee', name: 'Electrical Engineering', icon: '🔌' },
         { id: 'me', name: 'Mechanical', icon: '⚙️' },
-        { id: 'aiml', name: 'AI & Machine Learning', icon: '🧠' }
+        { id: 'aiml', name: 'AI & Machine Learning', icon: '🧠' },
+        { id: 'vlsi', name: 'VLSI Design', icon: '🔌' },
+        { id: 'finance', name: 'Finance', icon: '💰' },
+        { id: 'marketing', name: 'Marketing', icon: '📣' }
+    ],
+    streams: [
+        { id: 'btech', name: 'B.Tech', icon: '🎓', branches: ['cse', 'ece', 'ee', 'me'] },
+        { id: 'mtech', name: 'M.Tech', icon: '🔬', branches: ['cse', 'vlsi'] }, // Example branches for now
+        { id: 'mba', name: 'MBA', icon: '📊', branches: ['finance', 'marketing'] } // Example branches
     ],
     years: ['1st Year', '2nd Year', '3rd Year', '4th Year'],
     subjects: {
@@ -705,9 +714,9 @@ function renderOverview() {
                                 <div style="font-size: 2rem; margin-bottom: 0.5rem;">📚</div>
                                 <div>Notes Hub</div>
                            </div>
-                           <div class="quick-action-card glass-card" onclick="renderTabContent('ai-tools')" style="cursor: pointer; text-align: center; padding: 1.5rem; transition: transform 0.2s;">
+                           <div class="quick-action-card glass-card" onclick="renderTabContent('ai-paper')" style="cursor: pointer; text-align: center; padding: 1.5rem; transition: transform 0.2s;">
                                 <div style="font-size: 2rem; margin-bottom: 0.5rem;">🤖</div>
-                                <div>AI Tools</div>
+                                <div>AI Paper</div>
                            </div>
                            <div class="quick-action-card glass-card" onclick="renderTabContent('planner')" style="cursor: pointer; text-align: center; padding: 1.5rem; transition: transform 0.2s;">
                                 <div style="font-size: 2rem; margin-bottom: 0.5rem;">📅</div>
@@ -1079,9 +1088,14 @@ function renderNotesHub() {
     return `
         <div class="tab-pane active" style="padding:0;">
             <div class="notes-hub-wrapper" style="flex-direction: column; overflow-x: hidden; padding-bottom: 4rem;">
-                <div class="explorer-header" id="explorer-header" style="padding: 3rem 2rem; border-bottom: 1px solid var(--border-glass); background: rgba(108, 99, 255, 0.02);">
+                <div class="explorer-header" id="explorer-header" style="position: relative; padding: 3rem 2rem; border-bottom: 1px solid var(--border-glass); background: rgba(108, 99, 255, 0.02);">
+                    <div id="explorer-back-container" style="position: absolute; top: 2rem; left: 2rem; z-index: 10;">
+                         <button id="explorer-back-btn" class="btn btn-ghost" style="display: none; padding: 0.5rem 1rem; gap: 0.5rem;">
+                            <span>⬅</span> Back
+                         </button>
+                    </div>
                     <div class="step-indicator" style="display: flex; justify-content: center; gap: 3rem; margin-bottom: 3rem;">
-                        ${['College', 'Branch', 'Year', 'Semester', 'Subject'].map((s, i) => `
+                        ${['College', 'Stream', 'Branch', 'Sem', 'Subject'].map((s, i) => `
                             <div class="step-node" id="step-${i}">
                                 <div class="step-num">${i + 1}</div>
                                 <div class="step-label">${s}</div>
@@ -1124,6 +1138,9 @@ function updateStepUI(activeIdx) {
 // --- STEP RENDERS ---
 window.renderCollegeStep = function () {
     updateStepUI(0);
+    const backBtn = document.getElementById('explorer-back-btn');
+    if (backBtn) backBtn.style.display = 'none';
+
     const container = document.getElementById('explorer-content');
 
     // Helper to generate HTML for cards
@@ -1170,16 +1187,66 @@ window.renderCollegeStep = function () {
 window.selectCollege = function (id, name) {
     selState.college = { id, name };
     trackAnalytics('select_college', { id, name });
+    renderStreamStep();
+};
+
+window.renderStreamStep = function () {
+    updateStepUI(1);
+    const backBtn = document.getElementById('explorer-back-btn');
+    if (backBtn) {
+        backBtn.style.display = 'flex';
+        backBtn.onclick = renderCollegeStep;
+    }
+
+    document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Stream</span>`;
+    document.getElementById('explorer-sub-title').innerText = `Which program are you enrolled in at ${selState.college.name}?`;
+
+    const container = document.getElementById('explorer-content');
+    // For now, showing all streams. In future, can filter by college if needed.
+    container.innerHTML = GlobalData.streams.map(s => `
+        <div class="selection-card glass-card fade-in" onclick="selectStream('${s.id}', '${s.name}')">
+            <div class="card-icon" style="background: rgba(108, 99, 255, 0.1); color: var(--primary); width: 60px; height: 60px; display: flex; align-items:center; justify-content:center; border-radius: 12px; margin: 0 auto; font-size: 1.5rem;">${s.icon}</div>
+            <h3 class="font-heading" style="margin-top: 1.5rem;">${s.name}</h3>
+        </div>
+    `).join('');
+};
+
+window.selectStream = function (id, name) {
+    selState.stream = { id, name };
+    trackAnalytics('select_stream', { id, name });
     renderBranchStep();
 };
 
 window.renderBranchStep = function () {
-    updateStepUI(1);
+    updateStepUI(2);
+    const backBtn = document.getElementById('explorer-back-btn');
+    if (backBtn) {
+        backBtn.style.display = 'flex';
+        backBtn.onclick = renderStreamStep;
+    }
+
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Branch</span>`;
     document.getElementById('explorer-sub-title').innerText = `What's your field of study at ${selState.college.name}?`;
 
     const container = document.getElementById('explorer-content');
-    container.innerHTML = GlobalData.branches.map(b => `
+
+    // Filter branches based on selected stream logic
+    let flowBranches = GlobalData.branches;
+
+    // If a stream is selected and we have a definition for it, filter
+    const currentStreamId = selState.stream ? selState.stream.id : null;
+    const streamDef = GlobalData.streams.find(s => s.id === currentStreamId);
+
+    if (streamDef && streamDef.branches) {
+        flowBranches = GlobalData.branches.filter(b => streamDef.branches.includes(b.id));
+    }
+
+    // Default fallback if no branches match (e.g. MBA might not have matched branches in 'branches' array yet)
+    if (flowBranches.length === 0) {
+        flowBranches = GlobalData.branches; // Fallback or show empty message
+    }
+
+    container.innerHTML = flowBranches.map(b => `
         <div class="selection-card glass-card fade-in" onclick="selectBranch('${b.id}', '${b.name}')">
             <div class="card-icon" style="background: rgba(108, 99, 255, 0.1); color: var(--primary); width: 60px; height: 60px; display: flex; align-items:center; justify-content:center; border-radius: 12px; margin: 0 auto; font-size: 1.5rem;">${b.icon}</div>
             <h3 class="font-heading" style="margin-top: 1.5rem;">${b.name}</h3>
@@ -1190,50 +1257,61 @@ window.renderBranchStep = function () {
 window.selectBranch = function (id, name) {
     selState.branch = { id, name };
     trackAnalytics('select_branch', { id, name });
-    renderYearStep();
+    renderCombinedSemesterStep();
 };
 
-window.renderYearStep = function () {
-    updateStepUI(2);
-    document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Academic Year</span>`;
-
-    const container = document.getElementById('explorer-content');
-    container.innerHTML = GlobalData.years.map(y => `
-        <div class="selection-card glass-card fade-in" onclick="selectYear('${y}')">
-            <div class="card-icon" style="font-size: 2rem; font-weight: 800; color: var(--secondary);">${y.split(' ')[0]}</div>
-            <h3 class="font-heading" style="margin-top: 0.5rem;">${y}</h3>
-        </div>
-    `).join('');
-};
-
-window.selectYear = function (year) {
-    selState.year = year;
-    trackAnalytics('select_year', { year });
-    renderSemesterStep();
-};
-
-window.renderSemesterStep = function () {
+window.renderCombinedSemesterStep = function () {
     updateStepUI(3);
-    document.getElementById('explorer-main-title').innerHTML = `Select <span class="gradient-text">Semester</span>`;
+    const backBtn = document.getElementById('explorer-back-btn');
+    if (backBtn) {
+        backBtn.style.display = 'flex';
+        backBtn.onclick = renderBranchStep;
+    }
+
+    document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Semester</span>`;
+
     const container = document.getElementById('explorer-content');
-    const semesters = ['Semester 1', 'Semester 2', 'Semester 3', 'Semester 4', 'Semester 5', 'Semester 6', 'Semester 7', 'Semester 8'];
 
-    container.innerHTML = semesters.map(s => `
-        <div class="selection-card glass-card fade-in" onclick="selectSemester('${s}')">
-            <div class="card-icon" style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">${s.split(' ')[1]}</div>
-            <h3 class="font-heading" style="margin-top: 0.5rem;">${s}</h3>
+    // Group Semesters by Year
+    const yearGroups = [
+        { year: '1st Year', semesters: ['Semester 1', 'Semester 2'], icon: '1️⃣' },
+        { year: '2nd Year', semesters: ['Semester 3', 'Semester 4'], icon: '2️⃣' },
+        { year: '3rd Year', semesters: ['Semester 5', 'Semester 6'], icon: '3️⃣' },
+        { year: '4th Year', semesters: ['Semester 7', 'Semester 8'], icon: '4️⃣' }
+    ];
+
+    container.innerHTML = yearGroups.map(group => `
+        <div style="grid-column: 1 / -1; margin-top: 2rem; margin-bottom: 1rem;">
+            <h3 class="font-heading" style="color: var(--text-main); display: flex; align-items: center; gap: 0.5rem; font-size: 1.4rem;">
+                <span style="opacity:0.8;">${group.icon}</span> ${group.year}
+            </h3>
+            <div style="height: 1px; background: var(--border-glass); margin-top: 0.5rem; width: 100%;"></div>
         </div>
+        ${group.semesters.map(sem => `
+            <div class="selection-card glass-card fade-in" onclick="selectCombinedSemester('${sem}', '${group.year}')">
+                <div class="card-icon" style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">${sem.split(' ')[1]}</div>
+                <h3 class="font-heading" style="margin-top: 0.5rem;">${sem}</h3>
+            </div>
+        `).join('')}
     `).join('');
-}
+};
 
-window.selectSemester = function (sem) {
+window.selectCombinedSemester = function (sem, year) {
     selState.semester = sem;
-    trackAnalytics('select_semester', { sem });
+    selState.year = year; // Implicitly set year
+    trackAnalytics('select_semester', { sem, year });
     renderSubjectStep();
-}
+};
+
 
 window.renderSubjectStep = function () {
-    updateStepUI(4);
+    updateStepUI(5);
+    const backBtn = document.getElementById('explorer-back-btn');
+    if (backBtn) {
+        backBtn.style.display = 'flex';
+        backBtn.onclick = renderCombinedSemesterStep;
+    }
+
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Subject</span>`;
 
     const container = document.getElementById('explorer-content');
@@ -1295,7 +1373,9 @@ function showNotes(activeTab = 'notes') {
                         </div>
                         <p class="subject-description">${subjectData.description}</p>
                     </div>
-                    <button class="btn btn-ghost" onclick="backToExplorer()" style="white-space:nowrap; background: rgba(255,255,255,0.05); padding: 0.6rem 1.2rem; border-radius: 8px;">↺ Restart Explorer</button>
+                    <div style="display:flex; gap: 1rem;">
+                        <button class="btn btn-ghost" onclick="backToSubjectSelection()" style="white-space:nowrap; background: rgba(255,255,255,0.05); padding: 0.6rem 1.2rem; border-radius: 8px;">⬅ Back</button>
+                    </div>
                 </div>
             </div>
 
@@ -1303,7 +1383,6 @@ function showNotes(activeTab = 'notes') {
                 <div class="sub-tab ${activeTab === 'notes' ? 'active' : ''}" onclick="switchSubjectTab('notes')">Notes</div>
                 <div class="sub-tab ${activeTab === 'pyq' ? 'active' : ''}" onclick="switchSubjectTab('pyq')">PYQs</div>
                 <div class="sub-tab ${activeTab === 'formula' ? 'active' : ''}" onclick="switchSubjectTab('formula')">Formula Sheets</div>
-                <div class="sub-tab">✨ AI Tutor</div>
             </div>
 
             <div class="resource-section">
@@ -1395,6 +1474,18 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
 
 window.backToExplorer = function () {
     location.reload();
+};
+
+window.backToSubjectSelection = function () {
+    const explorerHeader = document.getElementById('explorer-header');
+    const explorerContent = document.getElementById('explorer-content');
+    const view = document.getElementById('final-notes-view');
+
+    if (view) view.style.display = 'none';
+    if (explorerHeader) explorerHeader.style.display = 'block'; // Or flex/grid depending on orig styles, but block usually works for div containers or use empty to revert
+    if (explorerContent) explorerContent.style.display = 'grid'; // Grid was the original display type
+
+    renderSubjectStep();
 };
 
 window.addEventListener('auth-ready', (event) => {
