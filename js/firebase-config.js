@@ -43,4 +43,4 @@ window.firebaseServices = {
     orderBy
 };
 
-export { app, analytics, auth, db };
+export { app, analytics, auth, db, provider };

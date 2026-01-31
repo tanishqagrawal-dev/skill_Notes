@@ -142,30 +142,7 @@ window.updateNoteStat = async function (noteId, type) {
 }
 
 // --- CORE DASHBOARD LOGIC ---
-// Wait for Auth Guard to confirm user is logged in
-// Wait for Auth Guard to confirm user is logged in
-window.addEventListener('auth-ready', (event) => {
-    console.log("Dashboard: Auth Ready signal received.");
-    const user = event.detail.user;
-
-    // Map Firebase user to App User
-    let mappedRole = Roles.STUDENT;
-    if (user && (user.email.includes('skillhub') || user.email === 'admin@skillhub.com')) mappedRole = Roles.SUPER_ADMIN;
-
-    currentUser = {
-        id: user.uid,
-        name: user.displayName || user.email,
-        email: user.email,
-        photo: user.photoURL,
-        role: mappedRole,
-        college: 'medicaps'
-    };
-
-    updateUserProfileUI();
-    initRealTimeDB();
-    initTabs();
-    renderTabContent('overview');
-});
+// Handled by consolidated listener at the bottom of the file
 
 // Failsafe: If Auth doesn't trigger in 8 seconds, show error or login
 setTimeout(() => {
@@ -1060,19 +1037,18 @@ window.backToExplorer = function () {
 
 // --- AUTH & DB FUNCTIONS ---
 
-document.addEventListener('auth-ready', (event) => {
+window.addEventListener('auth-ready', (event) => {
     const { user, currentUser: appCurrentUser } = event.detail;
     if (user) {
-        console.log("User logged in:", user.email);
+        console.log("🚀 Dashboard Session Active:", user.email || "Guest");
         currentUser = appCurrentUser; // Update the global currentUser
         updateUserProfileUI();
         initRealTimeDB();
         initTabs();
         renderTabContent('overview');
     } else {
-        console.log("User logged out");
+        console.log("🔓 Dashboard: No active session.");
         currentUser = null;
-        // The login screen is now handled by login.html or auth.js redirect.
     }
 });
 
