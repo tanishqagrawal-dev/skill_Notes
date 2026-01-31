@@ -34,7 +34,7 @@ const Roles = {
 
 const MockUsers = [
     { id: 'u_student', name: 'Tanishq Agrawal', role: 'student', college: 'medicaps', email: 'student@example.com', year: '2nd Year', branch: 'CSE' },
-    { id: 'u_admin', name: 'Dev Admin', role: 'super_admin', college: 'medicaps', email: 'admin@skillmatrix.com' },
+    { id: 'u_admin', name: 'Dev Admin', role: 'super_admin', college: 'medicaps', email: 'skilmatrix3@gmail.com' },
     { id: 'u_faculty', name: 'Dr. Mehta', role: 'uploader', college: 'medicaps', email: 'faculty@medicaps.ac.in' }
 ];
 
