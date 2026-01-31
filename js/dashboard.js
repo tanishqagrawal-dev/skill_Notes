@@ -32,7 +32,11 @@ const Roles = {
     STUDENT: 'student'
 };
 
-const MockUsers = []; // Deprecated but kept for refernece if needed
+const MockUsers = [
+    { id: 'u_student', name: 'Tanishq Agrawal', role: 'student', college: 'medicaps', email: 'student@example.com', year: '2nd Year', branch: 'CSE' },
+    { id: 'u_admin', name: 'Dev Admin', role: 'super_admin', college: 'medicaps', email: 'admin@skillmatrix.com' },
+    { id: 'u_faculty', name: 'Dr. Mehta', role: 'uploader', college: 'medicaps', email: 'faculty@medicaps.ac.in' }
+];
 
 // Current session
 let currentUser = null;
@@ -336,10 +340,18 @@ function updateUserProfileUI() {
 }
 
 window.switchRole = function (userId) {
-    currentUser = MockUsers.find(u => u.id === userId);
-    console.log("Logged in as:", currentUser.name);
-    initTabs();
-    renderTabContent('overview');
+    const user = MockUsers.find(u => u.id === userId);
+    if (!user) return;
+
+    // Simulate auth-ready event data structure
+    handleAuthReady({
+        user: { uid: user.id, email: user.email },
+        currentUser: { ...user }
+    });
+
+    // Switch to Overview
+    const overviewTab = document.querySelector('.nav-item[data-tab="overview"]');
+    if (overviewTab) overviewTab.click();
 };
 
 function renderTabContent(tabId) {
@@ -364,7 +376,7 @@ function renderTabContent(tabId) {
     } else if (tabId === 'analytics') {
         contentArea.innerHTML = renderAnalytics();
     } else if (tabId === 'settings') {
-        contentArea.innerHTML = renderSettings();
+        contentArea.innerHTML = window.renderSettings ? window.renderSettings() : 'Loading settings...';
     } else if (tabId === 'leaderboard') {
         contentArea.innerHTML = renderLeaderboard();
         setTimeout(initLeaderboardListeners, 100);
@@ -912,64 +924,7 @@ function renderAnalytics() {
     `;
 }
 
-function renderSettings() {
-    const roleDisplay = currentUser ? currentUser.role.replace('_', ' ').toUpperCase() : 'GUEST';
-    const initial = (currentUser && currentUser.name) ? currentUser.name.charAt(0) : 'U';
 
-    return `
-        <div class="tab-pane active fade-in" style="padding: 2rem;">
-            <h1 class="font-heading" style="margin-bottom: 2rem;">⚙️ <span class="gradient-text">Settings</span></h1>
-            
-            <!-- Profile Section -->
-            <div class="glass-card" style="padding: 2rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 2rem;">
-                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 700; color: #000; box-shadow: var(--glow-primary);">
-                    ${currentUser && currentUser.photo ? `<img src="${currentUser.photo}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : initial}
-                </div>
-                <div style="flex: 1;">
-                    <h2 class="font-heading" style="margin-bottom: 0.5rem; font-size: 1.8rem;">${currentUser ? (currentUser.name || 'Guest User') : 'Guest User'}</h2>
-                    <div style="display: flex; gap: 1rem; color: var(--text-dim); font-size: 0.9rem;">
-                        <span>✉️ ${currentUser ? currentUser.email : 'guest@example.com'}</span>
-                        <span>🏛️ ${currentUser ? (currentUser.college || 'Medi-Caps').toUpperCase() : 'MEDI-CAPS'}</span>
-                        <span class="meta-badge">${roleDisplay}</span>
-                    </div>
-                </div>
-                <div>
-                    <button class="btn btn-ghost" onclick="alert('Profile editing coming soon!')">✏️ Edit Profile</button>
-                </div>
-            </div>
-
-            <!-- Application Settings -->
-            <div class="glass-card">
-                <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-glass); display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <h4 style="margin-bottom: 0.25rem;">Dark Mode</h4>
-                        <p style="font-size: 0.8rem; color: var(--text-dim);">Toggle light/dark theme</p>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="theme-toggle" onchange="window.toggleTheme()" ${document.body.classList.contains('light-mode') ? '' : 'checked'}>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                
-                 <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-glass); display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <h4 style="margin-bottom: 0.25rem;">Notifications</h4>
-                        <p style="font-size: 0.8rem; color: var(--text-dim);">Manage email and push alerts</p>
-                    </div>
-                    <button class="btn btn-sm btn-ghost">Coming Soon</button>
-                </div>
-
-                 <div style="padding: 1.5rem; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <h4 style="margin-bottom: 0.25rem; color:#ff4757;">Session</h4>
-                        <p style="font-size: 0.8rem; color: var(--text-dim);">Log out of your account</p>
-                    </div>
-                    <button class="btn btn-sm btn-ghost" onclick="window.handleLogout()" style="color:#ff4757; border:1px solid #ff4757;">Sign Out</button>
-                </div>
-            </div>
-        </div>
-    `;
-}
 
 function renderVerificationHub() {
     const pending = NotesDB.filter(n => {
@@ -1415,14 +1370,25 @@ function handleAuthReady(data) {
         updateUserProfileUI();
         initRealTimeDB();
         initTabs();
+
+        // Initialize Settings Module
+        if (window.SettingsModule && window.SettingsModule.init) {
+            window.SettingsModule.init();
+        }
+
         renderTabContent('overview');
     } else {
         console.log("🔓 Dashboard: No active session. Waiting for auth...");
     }
 }
 
-window.toggleTheme = function () {
-    document.body.classList.toggle('light-mode');
+window.toggleTheme = function (forceLight) {
+    if (typeof forceLight === 'boolean') {
+        if (forceLight) document.body.classList.add('light-mode');
+        else document.body.classList.remove('light-mode');
+    } else {
+        document.body.classList.toggle('light-mode');
+    }
     const isLight = document.body.classList.contains('light-mode');
     localStorage.setItem('theme', isLight ? 'light' : 'dark');
 }
