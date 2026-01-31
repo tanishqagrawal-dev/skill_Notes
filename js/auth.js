@@ -9,22 +9,44 @@ import {
 
 // --- AUTH ROUTER/GUARD ---
 const path = window.location.pathname;
-const isAuthPage = path.includes('auth.html') || path.includes('login.html');
-const isDashboardPage = path.includes('dashboard.html');
+const isAuthPage = path.endsWith('auth.html') || path.endsWith('auth') || path.endsWith('login.html') || path.endsWith('login');
+const isDashboardPage = path.endsWith('dashboard.html') || path.endsWith('dashboard') || path.includes('dashboard#');
 
-// --- IMMEDIATE GUEST CHECK (FOR INSTANT LOADING) ---
+// --- IMMEDIATE GUEST INITIALIZATION ---
+// If on dashboard and no session exists, create a guest session immediately
+// This ensures the dashboard always has "someone" to show data for.
+if (isDashboardPage && !localStorage.getItem('guest_session')) {
+    console.log("👤 Auto-initializing Guest Session for direct access...");
+    const guest = {
+        id: 'guest_' + Math.random().toString(36).substr(2, 9),
+        name: 'Guest Tester',
+        email: 'guest@example.com',
+        role: 'student',
+        college: 'medicaps',
+        isGuest: true
+    };
+    localStorage.setItem('guest_session', JSON.stringify(guest));
+}
+
+// Expose a way to check if auth is already handled
+window.authStatus = { ready: false, data: null };
+
+function dispatchAuthReady(data) {
+    window.authStatus.ready = true;
+    window.authStatus.data = data;
+    console.log("🚀 Dispatching auth-ready:", data.currentUser.name);
+    window.dispatchEvent(new CustomEvent('auth-ready', { detail: data }));
+}
+
+// Check for Guest Session (Local Storage) immediately
 if (isDashboardPage) {
     const guestData = localStorage.getItem('guest_session');
     if (guestData) {
         const guest = JSON.parse(guestData);
-        console.log("🚀 Auth Guard: Immediate guest session detected. Dispatching event...");
-        const event = new CustomEvent('auth-ready', {
-            detail: {
-                user: { uid: guest.id, email: guest.email, displayName: guest.name },
-                currentUser: guest
-            }
+        dispatchAuthReady({
+            user: { uid: guest.id, email: guest.email, displayName: guest.name },
+            currentUser: guest
         });
-        window.dispatchEvent(event);
     }
 }
 
@@ -32,69 +54,27 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         console.log("🔐 Auth Guard: User is logged in as", user.email);
 
-        // If we're on the auth page, redirect to dashboard
         if (isAuthPage) {
             window.location.href = 'dashboard.html';
             return;
         }
 
-        // Signal dashboard that auth is ready
         if (isDashboardPage) {
-            console.log("🚀 Signaling Dashboard: User is authenticated.");
-<<<<<<< HEAD
-            // Dispatch immediately without artificial delay
-=======
-            // Removed timeout for instant loading
->>>>>>> e1af02c1dfc07f3df6545dbe30ac69c669e60879
-            const event = new CustomEvent('auth-ready', {
-                detail: {
-                    user: user,
-                    currentUser: {
-                        id: user.uid,
-                        name: user.displayName || user.email.split('@')[0],
-                        email: user.email,
-                        photo: user.photoURL,
-                        role: 'student', // Default, would be fetched from Firestore in a real app
-                        college: 'medicaps'
-                    }
+            dispatchAuthReady({
+                user: user,
+                currentUser: {
+                    id: user.uid,
+                    name: user.displayName || user.email.split('@')[0],
+                    email: user.email,
+                    photo: user.photoURL,
+                    role: 'student',
+                    college: 'medicaps'
                 }
             });
-            window.dispatchEvent(event);
         }
     } else {
         console.log("🔓 Auth Guard: No active Firebase session.");
-
-        // Check for Guest Session (Local Storage)
-        let guestData = localStorage.getItem('guest_session');
-
-        // AUTO-INITIALIZE GUEST for the dashboard if no user is found
-        if (isDashboardPage && !guestData) {
-            console.log("👤 Auto-initializing Guest Session for direct access...");
-            const guest = {
-                id: 'guest_' + Math.random().toString(36).substr(2, 9),
-                name: 'Guest Tester',
-                email: 'guest@example.com',
-                role: 'student',
-                college: 'medicaps',
-                isGuest: true
-            };
-            localStorage.setItem('guest_session', JSON.stringify(guest));
-            guestData = JSON.stringify(guest);
-        }
-
-        // If we haven't already dispatched the event via immediate check, or if session just changed
-        if (guestData && isDashboardPage) {
-            const guest = JSON.parse(guestData);
-            console.log("🚀 Signaling Dashboard: Guest session active.");
-            // Removed timeout for instant loading
-            const event = new CustomEvent('auth-ready', {
-                detail: {
-                    user: { uid: guest.id, email: guest.email, displayName: guest.name },
-                    currentUser: guest
-                }
-            });
-            window.dispatchEvent(event);
-        }
+        // If we are on dashboard, the immediate guest check above already handled the UI
     }
 });
 
