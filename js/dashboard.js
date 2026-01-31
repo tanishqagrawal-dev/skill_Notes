@@ -295,7 +295,7 @@ function initTabs() {
     }
 
     // Refresh nav items after dynamic addition
-    const allNavItems = document.querySelectorAll('.nav-item');
+    const allNavItems = document.querySelectorAll('.nav-item[data-tab]');
     allNavItems.forEach(item => {
         item.onclick = (e) => {
             e.preventDefault();
@@ -366,9 +366,78 @@ function renderTabContent(tabId) {
         selState = { college: null, branch: null, year: null, subject: null };
         contentArea.innerHTML = renderNotesHub();
         renderCollegeStep();
+    } else if (tabId === 'planner') {
+        contentArea.innerHTML = renderPlanner();
+    } else if (tabId === 'ai-tools') {
+        contentArea.innerHTML = renderAITools();
+    } else if (tabId === 'analytics') {
+        contentArea.innerHTML = renderAnalytics();
+    } else if (tabId === 'settings') {
+        contentArea.innerHTML = renderSettings();
     } else {
         contentArea.innerHTML = `<div class="tab-pane active"><h1 class="font-heading">${tabId}</h1><p>Coming soon...</p></div>`;
     }
+}
+
+function renderPlanner() {
+    return `
+        <div class="tab-pane active fade-in" style="padding: 2rem;">
+            <h1 class="font-heading">📅 Study <span class="gradient-text">Planner</span></h1>
+            <div class="glass-card" style="margin-top: 2rem; padding: 3rem; text-align: center;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">🚧</div>
+                <h3>Planner Engine Loading...</h3>
+                <p>We are integrating Google Calendar API for you. Check back soon!</p>
+            </div>
+        </div>
+    `;
+}
+
+function renderAITools() {
+    return `
+        <div class="tab-pane active fade-in" style="padding: 2rem;">
+            <h1 class="font-heading">🤖 AI <span class="gradient-text">Tutor</span></h1>
+            <div class="glass-card" style="margin-top: 2rem; padding: 3rem; text-align: center;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">🧠</div>
+                <h3>Fine-tuning Models...</h3>
+                <p>Our custom LLM is training on your syllabus. Stay tuned.</p>
+            </div>
+        </div>
+    `;
+}
+
+function renderAnalytics() {
+    return `
+        <div class="tab-pane active fade-in" style="padding: 2rem;">
+            <h1 class="font-heading">📈 Performance <span class="gradient-text">Analytics</span></h1>
+            <div class="glass-card" style="margin-top: 2rem; padding: 3rem; text-align: center;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">📊</div>
+                <h3>Gathering Data...</h3>
+                <p>Interact with more notes to generate your learning insights map.</p>
+            </div>
+        </div>
+    `;
+}
+
+function renderSettings() {
+    return `
+        <div class="tab-pane active fade-in" style="padding: 2rem;">
+            <h1 class="font-heading">⚙️ <span class="gradient-text">Settings</span></h1>
+            <div class="glass-card" style="margin-top: 2rem;">
+                <div style="padding: 1rem; border-bottom: 1px solid var(--border-glass); display:flex; justify-content:space-between; align-items:center;">
+                    <span>Wait for 2.0 </span>
+                    <button class="btn btn-sm btn-ghost">Coming Soon</button>
+                </div>
+                 <div style="padding: 1rem; border-bottom: 1px solid var(--border-glass); display:flex; justify-content:space-between; align-items:center;">
+                    <span>Dark Mode</span>
+                    <button class="btn btn-sm btn-primary">Active</button>
+                </div>
+                 <div style="padding: 1rem; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="color:#ff4757;">Danger Zone</span>
+                    <button class="btn btn-sm btn-ghost" onclick="window.handleLogout()" style="color:#ff4757; border:1px solid #ff4757;">Sign Out</button>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 function renderVerificationHub() {
