@@ -68,7 +68,7 @@ onAuthStateChanged(auth, (user) => {
                     email: user.email,
                     photo: user.photoURL,
                     photo: user.photoURL,
-                    role: (user.email === 'skilmatrix3@gmail.com') ? 'super_admin' : 'student',
+                    role: (user.email === 'yeashjain2006@gmail.com') ? 'super_admin' : 'student',
                     college: 'medicaps'
                 }
             });
