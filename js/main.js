@@ -68,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initFilters();
     renderNotes(notesData);
     animateCounters();
+    initFAQ();
 });
 
 // Animate Stats Counters (Disabled as stats are now handled by stats.js real-time listener)
@@ -86,6 +87,35 @@ function initNav() {
             nav.style.background = 'rgba(11, 15, 25, 0.7)';
             nav.style.padding = '1rem 0';
         }
+    });
+}
+
+// FAQ Logic
+function initFAQ() {
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const header = item.querySelector('.faq-header');
+        if (!header) return;
+
+        header.addEventListener('click', () => {
+            // Close other items
+            faqItems.forEach(otherItem => {
+                if (otherItem !== item && otherItem.classList.contains('active')) {
+                    otherItem.classList.remove('active');
+                    const otherBody = otherItem.querySelector('.faq-body');
+                    if (otherBody) otherBody.style.maxHeight = null;
+                }
+            });
+
+            // Toggle current
+            item.classList.toggle('active');
+            const body = item.querySelector('.faq-body');
+            if (item.classList.contains('active')) {
+                body.style.maxHeight = body.scrollHeight + "px";
+            } else {
+                body.style.maxHeight = null;
+            }
+        });
     });
 }
 
