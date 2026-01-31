@@ -127,7 +127,7 @@ function calculateExamScore(note) {
     return (note.views * 0.3) + (note.downloads * 0.5) + (note.likes * 0.2);
 }
 
-// Render Notes to Grid
+// Render Notes to grid
 function renderNotes(notes) {
     const grid = document.getElementById('notes-grid');
     if (!grid) return;
@@ -227,3 +227,8 @@ async function handleDownload(id) {
         }
     }
 }
+
+// --- PAYMENT LOGIC ---
+window.handlePayment = function () {
+    alert("🚀 Redirecting to SKiL MATRiX Premium Gateway...\n\n(This makes a placeholder request as no Payment API Key was provided.)");
+};

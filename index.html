@@ -124,6 +124,63 @@
         </div>
     </section>
 
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing container" style="margin-top: 4rem; margin-bottom: 4rem;">
+        <h2 class="section-title" data-aos="fade-up">Invest in Your Future</h2>
+        <p style="text-align: center; color: var(--text-muted); margin-bottom: 3rem;" data-aos="fade-up"
+            data-aos-delay="100">Choose the plan that fits your academic goals.</p>
+
+        <div class="pricing-grid"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 900px; margin: 0 auto;">
+
+            <!-- Free Plans -->
+            <div class="glass-card pricing-card" data-aos="zoom-in" data-aos-delay="100"
+                style="padding: 2.5rem; border: 1px solid var(--border-glass); position: relative;">
+                <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Admit Card</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Essential access for every student.</p>
+                <div class="price" style="font-size: 2.5rem; font-weight: 700; margin: 1.5rem 0;">₹0 <span
+                        style="font-size: 1rem; color: var(--text-muted); font-weight: 400;">/ mo</span></div>
+
+                <ul style="list-style: none; padding: 0; margin-bottom: 2rem; text-align: left;">
+                    <li style="margin-bottom: 0.8rem;">✅ Unlimited Note Views</li>
+                    <li style="margin-bottom: 0.8rem;">✅ Basic Dashboard Access</li>
+                    <li style="margin-bottom: 0.8rem;">⚠️ Limited AI Doubts (3/day)</li>
+                    <li style="margin-bottom: 0.8rem; color: var(--text-muted);">❌ Model Paper Generator</li>
+                    <li style="margin-bottom: 0.8rem; color: var(--text-muted);">❌ Ad-free Experience</li>
+                </ul>
+
+                <button class="btn btn-ghost" onclick="window.location.href='pages/auth.html'" style="width: 100%;">Get
+                    Started</button>
+            </div>
+
+            <!-- Pro Plan -->
+            <div class="glass-card pricing-card featured" data-aos="zoom-in" data-aos-delay="200"
+                style="padding: 2.5rem; border: 1px solid var(--primary); background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%); position: relative;">
+                <div class="badge-ribbon"
+                    style="position: absolute; top: 0; right: 0; background: var(--secondary); color: white; padding: 0.3rem 1rem; border-bottom-left-radius: 10px; font-size: 0.8rem; font-weight: 600;">
+                    MOST POPULAR</div>
+
+                <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Scholar <span
+                        style="color: var(--secondary);">PRO</span></h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Detailed insights & powerful AI tools.</p>
+                <div class="price" style="font-size: 2.5rem; font-weight: 700; margin: 1.5rem 0;">₹99 <span
+                        style="font-size: 1rem; color: var(--text-muted); font-weight: 400;">/ mo</span></div>
+
+                <ul style="list-style: none; padding: 0; margin-bottom: 2rem; text-align: left;">
+                    <li style="margin-bottom: 0.8rem;">✅ <strong>Everything in Free</strong></li>
+                    <li style="margin-bottom: 0.8rem;">✨ <strong>Unlimited</strong> AI Model Papers</li>
+                    <li style="margin-bottom: 0.8rem;">✨ Deep Performance Analytics</li>
+                    <li style="margin-bottom: 0.8rem;">✨ Verified "Scholar" Badge</li>
+                    <li style="margin-bottom: 0.8rem;">✨ 100% Ad-free Interface</li>
+                </ul>
+
+                <button class="btn btn-primary" onclick="handlePayment()"
+                    style="width: 100%; box-shadow: 0 4px 15px rgba(108, 99, 255, 0.4);">Upgrade to Scholar</button>
+            </div>
+
+        </div>
+    </section>
+
 
     <!-- Real-time Stats Section -->
     <section class="live-stats alternate-bg">
