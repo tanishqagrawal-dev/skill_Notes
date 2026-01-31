@@ -60,6 +60,116 @@
             justify-content: center;
             margin-bottom: 4rem;
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(23, 23, 23, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            width: 90%;
+            max-width: 500px;
+            padding: 2.5rem;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-modal:hover {
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            color: white;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.1);
+        }
+
+        .modal-footer {
+            margin-top: 2rem;
+        }
+
+        .modal-footer button {
+            width: 100%;
+            justify-content: center;
+            padding: 1rem;
+            font-size: 1rem;
+        }
     </style>
 </head>
 
@@ -197,6 +307,46 @@
         <!-- Back to Top -->
         <button id="back-to-top" class="btn-icon-round" aria-label="Back to Top">↑</button>
     </footer>
+
+    <!-- Add Note Modal -->
+    <div id="add-note-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" aria-label="Close Modal">&times;</button>
+            <div class="modal-header">
+                <h2>Add <span class="gradient-text">Manual Note</span></h2>
+                <p style="color: var(--text-dim); font-size: 0.9rem;">Submit a verified resource to the database.</p>
+            </div>
+
+            <form id="add-note-form">
+                <div class="form-group">
+                    <label for="note-title">Note Title</label>
+                    <input type="text" id="note-title" class="form-input" placeholder="e.g. OS Unit 3 Process Sync"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="note-type">Resource Type</label>
+                    <select id="note-type" class="form-input" required>
+                        <option value="notes">Notes</option>
+                        <option value="pyq">PYQs</option>
+                        <option value="formula">Formula Sheet</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="drive-link">Google Drive Link</label>
+                    <input type="url" id="drive-link" class="form-input" placeholder="https://drive.google.com/..."
+                        required>
+                    <p style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.4rem;">Make sure the link is set
+                        to "Anyone with the link can view".</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" id="submit-note-btn">✨ Add Resource Now</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Scripts -->
     <script type="module" src="../js/firebase-config.js"></script>

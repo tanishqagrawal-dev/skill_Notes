@@ -1,61 +1,99 @@
-// AI Client Service (Talks to Local Node.js Backend)
-
-const API_URL = 'http://localhost:3005/api';
+// AI Client Service (Talks to Firebase Cloud Functions)
 
 window.aiClient = {
     isServerAvailable: async () => {
-        try {
-            const res = await fetch('http://localhost:3005/');
-            return res.status === 200;
-        } catch (e) {
-            return false;
-        }
+        // Since we are using Cloud Functions, they are always "available" if the internet is up
+        return true;
     },
 
     generateModelPaper: async (data) => {
         try {
-            const response = await fetch(`${API_URL}/generate-paper`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
+            const { functions, httpsCallable, db, collection, addDoc, auth, doc, getDoc, updateDoc, increment } = window.firebaseServices;
+
+            if (!functions) throw new Error("Firebase Functions not initialized");
+            if (!auth.currentUser) throw new Error("Please login to use AI features.");
+
+            // Check Credits
+            const userRef = doc(db, "users", auth.currentUser.uid);
+            const userSnap = await getDoc(userRef);
+            const userData = userSnap.data();
+
+            const credits = userData?.aiCredits ?? 5;
+            if (credits <= 0) {
+                throw new Error("You have 0 AI credits left. Upgrade to Pro for unlimited access!");
+            }
+
+            const generatePaperFunc = httpsCallable(functions, "generateModelPaper");
+
+            // Format data for the function
+            const result = await generatePaperFunc({
+                subject: data.subject,
+                syllabus: data.syllabus || "Standard University Syllabus",
+                pyqs: data.pyqs
             });
 
-            const result = await response.json();
+            const paperContent = result.data.paper;
 
-            if (!result.success) {
-                throw new Error(result.error || "Failed to generate paper");
-            }
+            // Save result and decrement
+            await addDoc(collection(db, "ai_outputs"), {
+                type: "model_paper",
+                userId: auth.currentUser.uid,
+                subject: data.subject,
+                content: paperContent,
+                createdAt: new Date()
+            });
 
-            return result;
+            await updateDoc(userRef, { aiCredits: increment(-1) });
+
+            return { success: true, content: paperContent };
         } catch (error) {
-            console.error("AI Client Error:", error);
-            // Friendly error message mapping
-            if (error.message.includes('Failed to fetch')) {
-                throw new Error("Local AI Server is not running. Please run 'node server.js' in the server folder.");
-            }
-            throw error;
+            console.error("AI Cloud Client Error:", error);
+            throw new Error(error.message || "AI generation failed.");
         }
     },
 
     generateStudyPlan: async (data) => {
         try {
-            const response = await fetch(`${API_URL}/generate-plan`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+            const { functions, httpsCallable, db, collection, addDoc, auth, doc, getDoc, updateDoc, increment } = window.firebaseServices;
+
+            if (!functions) throw new Error("Firebase Functions not initialized");
+            if (!auth.currentUser) throw new Error("Please login to use AI features.");
+
+            // Check Credits
+            const userRef = doc(db, "users", auth.currentUser.uid);
+            const userSnap = await getDoc(userRef);
+            const userData = userSnap.data();
+
+            const credits = userData?.aiCredits ?? 5;
+            if (credits <= 0) {
+                throw new Error("You have 0 AI credits left. Upgrade to Pro for unlimited AI!");
+            }
+
+            const strategistFunc = httpsCallable(functions, "examStrategist");
+
+            const result = await strategistFunc({
+                subject: data.subject,
+                daysLeft: data.daysLeft || 7,
+                weakTopics: data.weakTopics || "Not specified"
             });
 
-            const result = await response.json();
-            if (!result.success) throw new Error(result.error);
-            return result.plan;
+            const strategyContent = result.data.strategy;
+
+            // Save and decrement
+            await addDoc(collection(db, "ai_outputs"), {
+                type: "exam_strategy",
+                userId: auth.currentUser.uid,
+                subject: data.subject,
+                content: strategyContent,
+                createdAt: new Date()
+            });
+
+            await updateDoc(userRef, { aiCredits: increment(-1) });
+
+            return strategyContent;
         } catch (error) {
             console.error("AI Planner Error:", error);
-            if (error.message.includes('Failed to fetch')) {
-                throw new Error("Local AI Server is not running. Please run 'node server.js'.");
-            }
-            throw error;
+            throw new Error(error.message || "Failed to generate plan.");
         }
     }
 };

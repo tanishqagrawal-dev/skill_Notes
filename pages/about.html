@@ -88,40 +88,103 @@
         }
 
         .founder-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 2rem;
+            background: rgba(13, 17, 23, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 32px;
+            padding: 3rem 2rem;
             text-align: center;
-            transition: all 0.3s ease;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
-            overflow: hidden;
+            overflow: visible;
+            /* To allow orbit dots to show */
+            backdrop-filter: blur(20px);
         }
 
         .founder-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--primary);
-            background: rgba(108, 99, 255, 0.05);
-            box-shadow: 0 10px 30px rgba(108, 99, 255, 0.15);
+            border-color: rgba(123, 97, 255, 0.3);
+            background: rgba(13, 17, 23, 0.6);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
         }
 
-        .founder-avatar {
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 50%;
-            margin: 0 auto 1.5rem;
+        /* Profile Image Container with Orbit */
+        .profile-orbit-container {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 2rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
-            color: white;
+        }
+
+        .profile-img-frame {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 3px solid #1a1e26;
+            padding: 4px;
+            position: relative;
+            z-index: 2;
+            background: linear-gradient(135deg, rgba(123, 97, 255, 0.2), rgba(0, 242, 255, 0.2));
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(123, 97, 255, 0.3);
+        }
+
+        .profile-img-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .profile-img-frame .initials {
+            font-size: 3rem;
             font-weight: 700;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        /* Orbiting Dots */
+        .orbit-dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .orbit-1 {
+            background: #7B61FF;
+            top: 10%;
+            left: 0;
+            box-shadow: 0 0 10px #7B61FF;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .orbit-2 {
+            background: #00F2FF;
+            bottom: 20%;
+            right: -5px;
+            box-shadow: 0 0 10px #00F2FF;
+            animation: float 4s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(5px, 10px);
+            }
         }
 
         .founder-name {
-            font-size: 1.25rem;
+            font-size: 1.75rem;
             font-weight: 700;
             color: white;
             margin-bottom: 0.5rem;
@@ -129,17 +192,199 @@
 
         .founder-role {
             font-size: 0.9rem;
-            color: var(--primary);
+            color: #00F2FF;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            margin-bottom: 1.5rem;
+        }
+
+        .view-profile-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .view-profile-btn:hover {
+            color: white;
+        }
+
+        /* Profile Modal Styles */
+        .profile-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .profile-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: #0D1117;
+            width: 100%;
+            max-width: 600px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .profile-modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            z-index: 10;
+            transition: background 0.3s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-header-bg {
+            height: 180px;
+            background: linear-gradient(to bottom, #05070A, #161B22);
+            position: relative;
+        }
+
+        .modal-body {
+            padding: 0 2.5rem 2.5rem;
+            margin-top: -60px;
+            position: relative;
+        }
+
+        .modal-profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 2rem;
+        }
+
+        .modal-profile-img {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            border: 4px solid #0D1117;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 3px;
+            box-shadow: 0 0 20px rgba(123, 97, 255, 0.4);
+        }
+
+        .modal-profile-img img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .modal-socials {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .social-btn {
+            width: 42px;
+            height: 42px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .social-btn:hover {
+            background: rgba(123, 97, 255, 0.2);
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .modal-info h2 {
+            font-size: 2.2rem;
+            color: white;
+            margin-bottom: 0.25rem;
+        }
+
+        .modal-info .role {
+            color: #00F2FF;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .modal-section {
+            margin-bottom: 2rem;
+        }
+
+        .modal-section h4 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            font-size: 1.1rem;
             margin-bottom: 1rem;
         }
 
-        .founder-bio {
-            font-size: 0.95rem;
-            color: var(--text-dim);
+        .modal-section p {
+            color: #A0AEC0;
+            font-size: 1rem;
             line-height: 1.6;
+            margin: 0;
+        }
+
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .skill-tag {
+            background: rgba(123, 97, 255, 0.05);
+            border: 1px solid rgba(123, 97, 255, 0.1);
+            color: #B2A4FF;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -182,38 +427,41 @@
                     <div class="founders-grid"
                         style="display: flex; justify-content: center; flex-wrap: wrap; gap: 3rem;">
                         <!-- Founder 1 -->
-                        <div class="founder-card" data-tilt data-aos="zoom-in" data-aos-delay="100"
-                            style="flex: 1; max-width: 350px;">
-                            <div class="founder-avatar"
-                                style="border: 2px solid var(--primary); width: 120px; height: 120px; font-size: 3rem;">
-                                TA</div>
-                            <h3 class="founder-name" style="font-size: 1.5rem;">Tanishq Agrawal</h3>
-                            <div class="founder-role">Frontend, UI/UX, Marketing</div>
-                            <p class="founder-bio">Visionary lead focusing on crafting world-class user experiences and
-                                driving the product's feature roadmap.</p>
-                            <div
-                                style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 1.5rem; opacity: 0.8;">
-                                <a href="#" style="text-decoration: none; font-size: 1.4rem;">🔗</a>
-                                <a href="#" style="text-decoration: none; font-size: 1.4rem;">🐦</a>
-                                <a href="#" style="text-decoration: none; font-size: 1.4rem;">💼</a>
+                        <div class="founder-card" data-tilt data-tilt-max="10" data-tilt-glare data-tilt-max-glare="0.5"
+                            data-aos="zoom-in" data-aos-delay="100"
+                            style="flex: 1; min-width: 320px; max-width: 400px;">
+                            <div class="profile-orbit-container">
+                                <div class="orbit-dot orbit-1"></div>
+                                <div class="orbit-dot orbit-2"></div>
+                                <div class="profile-img-frame">
+                                    <div class="initials">TA</div>
+                                </div>
+                            </div>
+                            <h3 class="founder-name">Tanishq Agrawal</h3>
+                            <div class="founder-role">Frontend, UI/UX, Marketing & Features</div>
+                            <div class="view-profile-btn" onclick="openFounderModal('tanishq')">
+                                <span style="font-size: 1.1rem;">🔗</span> View Full Profile
                             </div>
                         </div>
 
                         <!-- Founder 2 -->
-                        <div class="founder-card" data-tilt data-aos="zoom-in" data-aos-delay="200"
-                            style="flex: 1; max-width: 350px;">
-                            <div class="founder-avatar"
-                                style="border: 2px solid var(--secondary); width: 120px; height: 120px; font-size: 3rem;">
-                                YJ</div>
-                            <h3 class="founder-name" style="font-size: 1.5rem;">Yash Jain</h3>
+                        <div class="founder-card" data-tilt data-tilt-max="10" data-tilt-glare data-tilt-max-glare="0.5"
+                            data-aos="zoom-in" data-aos-delay="200"
+                            style="flex: 1; min-width: 320px; max-width: 400px;">
+                            <div class="profile-orbit-container">
+                                <div class="orbit-dot orbit-1"
+                                    style="background: #FF2D95; box-shadow: 0 0 10px #FF2D95;"></div>
+                                <div class="orbit-dot orbit-2"
+                                    style="background: #9D8AFF; box-shadow: 0 0 10px #9D8AFF;"></div>
+                                <div class="profile-img-frame"
+                                    style="border-color: #1a1e26; box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);">
+                                    <div class="initials">YJ</div>
+                                </div>
+                            </div>
+                            <h3 class="founder-name">Yash Jain</h3>
                             <div class="founder-role">Cloud, Backend & Security</div>
-                            <p class="founder-bio">Architectural mastermind ensuring scalability, security, and robust
-                                cloud infrastructure for the platform.</p>
-                            <div
-                                style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 1.5rem; opacity: 0.8;">
-                                <a href="#" style="text-decoration: none; font-size: 1.4rem;">🔗</a>
-                                <a href="#" style="text-decoration: none; font-size: 1.4rem;">🐦</a>
-                                <a href="#" style="text-decoration: none; font-size: 1.4rem;">💼</a>
+                            <div class="view-profile-btn" onclick="openFounderModal('yash')">
+                                <span style="font-size: 1.1rem;">🔗</span> View Full Profile
                             </div>
                         </div>
                     </div>
@@ -228,10 +476,103 @@
         </div>
     </div>
 
+    <div id="profile-modal" class="profile-modal">
+        <div class="modal-content">
+            <div class="modal-close" onclick="closeFounderModal()">&times;</div>
+            <div class="modal-header-bg"></div>
+            <div class="modal-body" id="modal-body-content">
+                <!-- Dynamically Filled -->
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
     <script>
+        const founderData = {
+            tanishq: {
+                name: "Tanishq Agrawal",
+                role: "Frontend, UI/UX, Marketing & Features",
+                initials: "TA",
+                image: "../assets/logo.jpg", // REPLACE with e.g., "../assets/tanishq.jpg"
+                socials: {
+                    github: "https://github.com/",
+                    linkedin: "https://linkedin.com/in/",
+                    instagram: "https://instagram.com/"
+                },
+                bio: "The driving force behind the platform's visual identity, user experience, and strategic growth. Tanishq leads Frontend Engineering and UI/UX Design, bridging the gap between complex code and beautiful interfaces. He also spearheads Digital Marketing strategies and oversees Feature Innovation to ensure the product constantly evolves.",
+                skills: ["Frontend Developer", "UI/UX Design", "React & Modern JS", "Digital Marketing", "Product Strategy"],
+                color: "#7B61FF"
+            },
+            yash: {
+                name: "Yash Jain",
+                role: "Cloud, Backend & Security",
+                initials: "YJ",
+                image: "../assets/logo.jpg", // REPLACE with e.g., "../assets/yash.jpg"
+                socials: {
+                    github: "https://github.com/",
+                    linkedin: "https://linkedin.com/in/",
+                    instagram: "https://instagram.com/"
+                },
+                bio: "Architectural mastermind ensuring scalability, security, and robust cloud infrastructure for the platform. Yash specializes in distributed systems and high-performance backend services. He leads the core development of the platform's foundation.",
+                skills: ["Backend Engineer", "Cloud Architecture", "Database Security", "System Optimization", "Scalability Specialist"],
+                color: "#00F2FF"
+            }
+        };
+
+        function openFounderModal(id) {
+            const data = founderData[id];
+            const modal = document.getElementById('profile-modal');
+            const body = document.getElementById('modal-body-content');
+
+            body.innerHTML = `
+                <div class="modal-profile-header">
+                    <div class="modal-profile-img" style="box-shadow: 0 0 20px ${data.color}66;">
+                        <img src="${data.image}" alt="${data.name}" onerror="this.outerHTML='<div style=\\'width:100%; height:100%; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#161B22; color:white; font-size:2.5rem; font-weight:700;\\'>${data.initials}</div>'">
+                    </div>
+                    <div class="modal-socials">
+                        <a href="${data.socials.github}" target="_blank" class="social-btn">🐙</a>
+                        <a href="${data.socials.linkedin}" target="_blank" class="social-btn">💼</a>
+                        <a href="${data.socials.instagram}" target="_blank" class="social-btn">📸</a>
+                    </div>
+                </div>
+                <div class="modal-info">
+                    <h2>${data.name}</h2>
+                    <p class="role">${data.role}</p>
+                </div>
+                <div class="modal-section">
+                    <h4>👤 About Me</h4>
+                    <p>${data.bio}</p>
+                </div>
+                <div class="modal-section">
+                    <h4>⚡ Skills</h4>
+                    <div class="skills-container">
+                        ${data.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeFounderModal() {
+            const modal = document.getElementById('profile-modal');
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }, 400);
+        }
+
+        // Close on backdrop click
+        window.onclick = function (event) {
+            const modal = document.getElementById('profile-modal');
+            if (event.target == modal) closeFounderModal();
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             AOS.init({ duration: 800, once: true });
         });

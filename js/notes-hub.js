@@ -216,6 +216,88 @@ window.selectSubject = function (id, name) {
     showNotes();
 };
 
+// --- MODAL LOGIC ---
+function openUploadModal() {
+    if (!currentUser) {
+        alert("Please login first.");
+        return;
+    }
+
+    // Role check: Only Admin and Co-Admin (College Admin)
+    const isAdmin = currentUser.role === Roles.SUPER_ADMIN;
+    const isCollegeAdmin = currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === selState.college.id;
+
+    if (!isAdmin && !isCollegeAdmin) {
+        alert(`🔒 Restricted Access: Only ${selState.college.name} Admins can add notes here.`);
+        return;
+    }
+
+    const modal = document.getElementById('add-note-modal');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeUploadModal() {
+    const modal = document.getElementById('add-note-modal');
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+    document.getElementById('add-note-form').reset();
+}
+
+async function handleNoteSubmit(e) {
+    e.preventDefault();
+    const { db, collection, addDoc } = getFirebase();
+    if (!db) return;
+
+    const btn = document.getElementById('submit-note-btn');
+    const title = document.getElementById('note-title').value;
+    const type = document.getElementById('note-type').value;
+    const driveLink = document.getElementById('drive-link').value;
+
+    btn.disabled = true;
+    btn.innerText = "Processing...";
+
+    const newNote = {
+        title: title,
+        type: type,
+        driveLink: driveLink,
+        collegeId: selState.college.id,
+        branchId: selState.branch.id,
+        year: selState.year,
+        subject: selState.subject.id,
+        uploader: currentUser.name,
+        uploaded_by: currentUser.id,
+        status: 'approved', // Direct upload for Admins
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        views: 0,
+        downloads: 0,
+        likes: 0,
+        created_at: new Date().toISOString()
+    };
+
+    try {
+        await addDoc(collection(db, "notes"), newNote);
+        alert("✅ Success! Note added directly to the database.");
+        closeUploadModal();
+        // UI will auto-refresh via Firebase onSnapshot
+    } catch (error) {
+        console.error("Error adding note:", error);
+        alert("Failed to add note. Check console.");
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "✨ Add Resource Now";
+    }
+}
+
+// Initializing UI Listeners
+document.addEventListener('DOMContentLoaded', () => {
+    const closeBtn = document.querySelector('.close-modal');
+    if (closeBtn) closeBtn.onclick = closeUploadModal;
+
+    const form = document.getElementById('add-note-form');
+    if (form) form.onsubmit = handleNoteSubmit;
+});
+
 // --- FINAL VIEW: NOTES LIST ---
 
 window.showNotes = function (activeTab = 'notes') {
@@ -249,7 +331,12 @@ window.showNotes = function (activeTab = 'notes') {
                         </div>
                         <p class="subject-description">${subjectData.description}</p>
                     </div>
-                    <button class="btn btn-ghost" onclick="renderCollegeStep()" style="white-space:nowrap; background: rgba(255,255,255,0.05); padding: 0.6rem 1.2rem; border-radius: 8px;">↺ Switch Subject</button>
+                    <div style="display:flex; gap: 1rem;">
+                        ${(currentUser && (currentUser.role === Roles.SUPER_ADMIN || (currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === selState.college.id)))
+            ? `<button class="btn btn-primary" onclick="openUploadModal()"><span style="margin-right:0.5rem;">+</span> Upload Notes</button>`
+            : ''}
+                        <button class="btn btn-ghost" onclick="renderCollegeStep()" style="white-space:nowrap; background: rgba(255,255,255,0.05); padding: 0.6rem 1.2rem; border-radius: 8px;">↺ Switch Subject</button>
+                    </div>
                 </div>
             </div>
 
@@ -284,12 +371,18 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
     }).sort((a, b) => calculateSmartScore(b) - calculateSmartScore(a));
 
     if (filtered.length === 0) {
+        const isAdmin = currentUser && (currentUser.role === Roles.SUPER_ADMIN || (currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === selState.college.id));
+
         return `
             <div style="text-align: center; padding: 5rem; background: rgba(255,255,255,0.01); border: 2px dashed rgba(255,255,255,0.05); border-radius: 20px;">
                 <div style="font-size: 4rem; margin-bottom: 2rem;">📂</div>
-                <h2 class="font-heading">No premium ${tabType} yet.</h2>
+                <h2 class="font-heading">No premium ${tabType} for this subject found yet.</h2>
+                <p style="color: var(--text-dim); margin-bottom: 2rem;">Be the first contributor and earn academic credit!</p>
                 <div style="display:flex; justify-content:center; gap:1rem;">
-                    <button class="btn btn-primary" onclick="window.location.href='dashboard.html?tab=notes'">+ Contribute Note</button>
+                    ${isAdmin
+                ? `<button class="btn btn-primary" onclick="openUploadModal()">+ Upload notes</button>`
+                : `<button class="btn btn-primary" onclick="window.location.href='dashboard.html?tab=notes'">+ Contribute Note</button>`
+            }
                 </div>
             </div>
         `;
