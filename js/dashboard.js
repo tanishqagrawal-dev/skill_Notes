@@ -155,71 +155,46 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Global Search Engine
-    const searchInput = document.querySelector('.search-bar input');
-    if (searchInput) {
-        searchInput.onkeyup = (e) => {
-            const query = e.target.value.toLowerCase();
-            if (query.length > 2) {
-                performGlobalSearch(query);
-            } else if (query.length === 0) {
-                renderTabContent('overview'); // Reset to default
+    // --- GLOBAL SEARCH IMPLEMENTATION ---
+    const globalSearchInput = document.querySelector('.search-bar input');
+    const searchIcon = document.querySelector('.search-bar .search-icon');
+
+    // Function to perform search
+    function performGlobalSearch(query) {
+        if (!query.trim()) return;
+
+        // 1. Switch to Notes Hub
+        const notesTab = document.querySelector('.nav-item[data-tab="notes"]');
+        if (notesTab) notesTab.click();
+
+        // 2. Wait for tab to render then search
+        setTimeout(() => {
+            const searchBox = document.getElementById('search-notes');
+            if (searchBox) {
+                searchBox.value = query;
+                searchBox.focus();
+                // Trigger input event to run the filter logic
+                searchBox.dispatchEvent(new Event('input', { bubbles: true }));
             }
-        };
+        }, 100);
     }
-});
 
-function performGlobalSearch(query) {
-    const contentArea = document.getElementById('tab-content');
-    const results = NotesDB.filter(n =>
-        n.title.toLowerCase().includes(query) ||
-        n.subject.toLowerCase().includes(query) ||
-        n.uploader.toLowerCase().includes(query)
-    );
+    if (globalSearchInput) {
+        // Search on Enter key
+        globalSearchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performGlobalSearch(e.target.value);
+            }
+        });
 
-    contentArea.innerHTML = `
-        <div class="tab-pane active fade-in" style="padding: 2rem;">
-            <h2 class="font-heading" style="margin-bottom: 2rem;">Search Results for "<span class="highlight">${query}</span>"</h2>
-            <div class="resource-list-detailed">
-                ${results.length > 0 ? results.map(n => renderSearchItem(n)).join('') : '<p>No matching notes found.</p>'}
-            </div>
-        </div>
-    `;
-}
+        // Search on Icon Click
+        if (searchIcon) {
+            searchIcon.style.cursor = 'pointer';
+            searchIcon.onclick = () => performGlobalSearch(globalSearchInput.value);
+        }
+    }
+}); // End DOMContentLoaded
 
-function renderSearchItem(n) {
-    return `
-        <div class="detailed-item glass-card" style="margin-bottom: 1rem;">
-            <div class="item-left">
-                <div class="file-type-icon">🔍</div>
-                <div class="item-info-block">
-                    <div class="item-title">${n.title}</div>
-                    <div class="item-meta-row">
-                        <span>${n.collegeId.toUpperCase()} • ${n.subject.toUpperCase()}</span>
-                        <span>👤 ${n.uploader}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="item-right">
-                <button class="btn btn-primary" onclick="jumpToNote('${n.id}')">View Details</button>
-            </div>
-        </div>
-    `;
-}
-
-window.jumpToNote = function (id) {
-    const note = NotesDB.find(n => n.id === id);
-    if (!note) return;
-
-    // Mock navigation state
-    selState = {
-        college: { id: note.collegeId },
-        branch: { id: note.branchId },
-        year: note.year,
-        subject: { id: note.subject }
-    };
-
-    showNotes(note.type);
-};
 
 window.openUploadModal = async function () {
     if (!currentUser) {
