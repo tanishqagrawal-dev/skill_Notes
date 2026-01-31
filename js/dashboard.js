@@ -144,31 +144,6 @@ window.updateNoteStat = async function (noteId, type) {
 // --- CORE DASHBOARD LOGIC ---
 // Handled by consolidated listener at the bottom of the file
 
-// Failsafe: If Auth doesn't trigger in 8 seconds, show error or login
-setTimeout(() => {
-    const loader = document.querySelector('.loader-pro');
-    if (loader && !currentUser) { // If loader is still there and no user
-        console.warn("Auth timeout reached. Force checking auth state...");
-        // If auth guard failed to dispatch, maybe we are logged out? 
-        // Or maybe just show a button to manually login (Guest)
-        if (window.firebaseServices && window.firebaseServices.auth && window.firebaseServices.auth.currentUser) {
-            // User IS logged in but event was missed? Re-dispatch
-            window.dispatchEvent(new CustomEvent('auth-ready', { detail: { user: window.firebaseServices.auth.currentUser } }));
-        } else {
-            // Likely not logged in and redirect failed, OR script error
-            // Show manual login
-            document.getElementById('tab-content').innerHTML = `
-                <div style="text-align:center; padding:4rem;">
-                    <h2>Session Timeout</h2>
-                    <p>Please sign in again.</p>
-                    <a href="login.html" class="btn btn-primary" style="margin-top:1rem;">Go to Login</a>
-                    <br><br>
-                    <button class="btn btn-ghost" onclick="loginAsGuest()">Guest Mode</button>
-                </div>
-             `;
-        }
-    }
-}, 8000);
 
 document.addEventListener('DOMContentLoaded', () => {
     // UI initializations that don't depend on user data can go here
