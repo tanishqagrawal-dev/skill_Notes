@@ -4,6 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GR784CDF73"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-GR784CDF73');
+    </script>
     <title>Dashboard | Smart Student OS</title>
 
     <!-- Fonts -->
@@ -14,15 +23,6 @@
     <!-- CSS -->
     <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="../css/dashboard.css">
-
-    <!-- Google Analytics (GA4) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-XXXXXXXXXX');
-    </script>
 </head>
 
 <body class="dashboard-body">
@@ -88,6 +88,7 @@
     </div>
 
     <!-- Dynamic Dashboard Engine -->
+    <script type="module" src="../js/firebase-config.js"></script>
     <script src="../js/dashboard.js"></script>
 </body>
 

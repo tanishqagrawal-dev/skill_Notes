@@ -79,11 +79,56 @@ const NotesDB = [
 // --- APP STATE ---
 let selState = { college: null, branch: null, year: null, subject: null };
 
-// --- ANALYTICS ENGINE ---
+// --- ANALYTICS & SMART RANKING ---
 function trackAnalytics(eventType, data) {
     console.log(`[Analytics] ${eventType}:`, data);
     if (typeof gtag === 'function') {
         gtag('event', eventType, { 'event_category': 'Explorer', 'event_label': data.id || data.name });
+    }
+}
+
+// Smart Ranking Logic: (views*0.25) + (downloads*0.5) + (likes*0.25)
+function calculateSmartScore(note) {
+    const viewsWeight = 0.25;
+    const downloadsWeight = 0.5;
+    const likesWeight = 0.25;
+    return (note.views * viewsWeight) + (note.downloads * downloadsWeight) + (note.likes * likesWeight);
+}
+
+// Google Drive Link Converter
+function convertDriveLink(link, format = 'preview') {
+    if (!link || !link.includes('drive.google.com')) return link;
+
+    // Extract ID using regex
+    const fileIdMatch = link.match(/\/file\/d\/([^\/]+)/) || link.match(/id=([^\&]+)/);
+    const folderIdMatch = link.match(/\/folders\/([^\/?]+)/);
+
+    if (folderIdMatch) return link; // Folders stay as is for now
+    if (!fileIdMatch) return link;
+
+    const fileId = fileIdMatch[1];
+    if (format === 'preview') return `https://drive.google.com/file/d/${fileId}/preview`;
+    if (format === 'download') return `https://drive.google.com/uc?export=download&id=${fileId}`;
+    return link;
+}
+
+// Real-time Database Stat Incrementor
+window.updateNoteStat = function (noteId, type) {
+    const note = NotesDB.find(n => n.id === noteId);
+    if (!note) return;
+
+    if (type === 'view') note.views++;
+    if (type === 'download') note.downloads++;
+    if (type === 'like') {
+        note.likes++;
+        alert("💖 Added to your liked resources!");
+    }
+
+    trackAnalytics(`note_${type}`, { id: noteId, title: note.title });
+
+    // Refresh UI if needed
+    if (document.getElementById('final-notes-view').style.display === 'block') {
+        showNotes();
     }
 }
 
@@ -97,7 +142,73 @@ document.addEventListener('DOMContentLoaded', () => {
     uploadBtns.forEach(btn => {
         btn.onclick = () => openUploadModal();
     });
+
+    // Global Search Engine
+    const searchInput = document.querySelector('.search-bar input');
+    if (searchInput) {
+        searchInput.onkeyup = (e) => {
+            const query = e.target.value.toLowerCase();
+            if (query.length > 2) {
+                performGlobalSearch(query);
+            } else if (query.length === 0) {
+                renderTabContent('overview'); // Reset to default
+            }
+        };
+    }
 });
+
+function performGlobalSearch(query) {
+    const contentArea = document.getElementById('tab-content');
+    const results = NotesDB.filter(n =>
+        n.title.toLowerCase().includes(query) ||
+        n.subject.toLowerCase().includes(query) ||
+        n.uploader.toLowerCase().includes(query)
+    );
+
+    contentArea.innerHTML = `
+        <div class="tab-pane active fade-in" style="padding: 2rem;">
+            <h2 class="font-heading" style="margin-bottom: 2rem;">Search Results for "<span class="highlight">${query}</span>"</h2>
+            <div class="resource-list-detailed">
+                ${results.length > 0 ? results.map(n => renderSearchItem(n)).join('') : '<p>No matching notes found.</p>'}
+            </div>
+        </div>
+    `;
+}
+
+function renderSearchItem(n) {
+    return `
+        <div class="detailed-item glass-card" style="margin-bottom: 1rem;">
+            <div class="item-left">
+                <div class="file-type-icon">🔍</div>
+                <div class="item-info-block">
+                    <div class="item-title">${n.title}</div>
+                    <div class="item-meta-row">
+                        <span>${n.collegeId.toUpperCase()} • ${n.subject.toUpperCase()}</span>
+                        <span>👤 ${n.uploader}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="item-right">
+                <button class="btn btn-primary" onclick="jumpToNote('${n.id}')">View Details</button>
+            </div>
+        </div>
+    `;
+}
+
+window.jumpToNote = function (id) {
+    const note = NotesDB.find(n => n.id === id);
+    if (!note) return;
+
+    // Mock navigation state
+    selState = {
+        college: { id: note.collegeId },
+        branch: { id: note.branchId },
+        year: note.year,
+        subject: { id: note.subject }
+    };
+
+    showNotes(note.type);
+};
 
 window.openUploadModal = function () {
     // Simple prompt-based mock for upload (since we are in dashboard.js)
@@ -357,8 +468,8 @@ function renderNotesHub() {
         <div class="tab-pane active" style="padding:0;">
             <div class="notes-hub-wrapper" style="flex-direction: column; overflow-y: auto;">
                 <div class="explorer-header" id="explorer-header" style="padding: 4rem 2rem; border-bottom: 1px solid var(--border-glass); background: rgba(108, 99, 255, 0.02);">
-                    <div class="step-indicator" style="display: flex; justify-content: center; gap: 4rem; margin-bottom: 3rem;">
-                        ${['College', 'Branch', 'Year', 'Subject'].map((s, i) => `
+                    <div class="step-indicator" style="display: flex; justify-content: center; gap: 3rem; margin-bottom: 3rem;">
+                        ${['College', 'Branch', 'Year', 'Semester', 'Subject'].map((s, i) => `
                             <div class="step-node" id="step-${i}">
                                 <div class="step-num">${i + 1}</div>
                                 <div class="step-label">${s}</div>
@@ -453,11 +564,31 @@ window.renderYearStep = function () {
 window.selectYear = function (year) {
     selState.year = year;
     trackAnalytics('select_year', { year });
-    renderSubjectStep();
+    renderSemesterStep();
 };
 
-window.renderSubjectStep = function () {
+window.renderSemesterStep = function () {
     updateStepUI(3);
+    document.getElementById('explorer-main-title').innerHTML = `Select <span class="gradient-text">Semester</span>`;
+    const container = document.getElementById('explorer-content');
+    const semesters = ['Semester 1', 'Semester 2', 'Semester 3', 'Semester 4', 'Semester 5', 'Semester 6', 'Semester 7', 'Semester 8'];
+
+    container.innerHTML = semesters.map(s => `
+        <div class="selection-card glass-card fade-in" onclick="selectSemester('${s}')">
+            <div class="card-icon" style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">${s.split(' ')[1]}</div>
+            <h3 class="font-heading" style="margin-top: 0.5rem;">${s}</h3>
+        </div>
+    `).join('');
+}
+
+window.selectSemester = function (sem) {
+    selState.semester = sem;
+    trackAnalytics('select_semester', { sem });
+    renderSubjectStep();
+}
+
+window.renderSubjectStep = function () {
+    updateStepUI(4);
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Subject</span>`;
 
     const container = document.getElementById('explorer-content');
@@ -546,9 +677,7 @@ window.switchSubjectTab = function (tab) {
 };
 
 function renderDetailedNotes(subjectId, tabType = 'notes') {
-    // Permission-based selection
-    // Students only see approved notes
-    // Admins see pending + approved for their college
+    // Advanced Filter + Smart Sorting
     const filtered = NotesDB.filter(n => {
         const isCorrectSubject = n.subject === subjectId && n.collegeId === selState.college.id && n.type === tabType;
         if (!isCorrectSubject) return false;
@@ -557,9 +686,9 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
         const isAdminOfCollege = (currentUser.role === Roles.SUPER_ADMIN) ||
             (currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === n.collegeId);
 
-        if (isAdminOfCollege) return n.status !== 'rejected'; // Show everything except rejected to admins
-        return isApproved; // Only approved to students/uploaders
-    });
+        if (isAdminOfCollege) return n.status !== 'rejected';
+        return isApproved;
+    }).sort((a, b) => calculateSmartScore(b) - calculateSmartScore(a)); // Sort by SmartScore (Highest first)
 
     if (filtered.length === 0) {
         return `
@@ -585,21 +714,21 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                             ${n.title}
                             ${n.status === 'pending' ? '<span class="meta-badge" style="background:var(--secondary); color:#000; font-size:0.6rem;">PENDING REVIEW</span>' : ''}
                         </div>
-                        <div class="item-meta-row">
+                        <div class="item-meta-row" style="margin-top: 5px;">
                             <span>📅 ${n.date}</span>
                             <div class="uploader-mini">
                                 <div class="uploader-avatar">${n.uploader.charAt(0)}</div>
                                 <span>Uploaded by ${n.uploader}</span>
                             </div>
-                            <span>• ${n.downloads} downloads</span>
                         </div>
-                        <div class="item-meta-row" style="font-size: 0.7rem; color: var(--success); opacity: 0.9;">
+                        <div class="item-meta-row" style="font-size: 0.7rem; color: var(--success); opacity: 0.9; margin-top: 2px;">
                             ${n.status === 'approved' ? `<span>✓ Verified by ${MockUsers.find(u => u.id === n.approved_by)?.name || 'Central Admin'}</span>` : ''}
                         </div>
-                        <div class="item-engagement-row">
-                            <span class="eng-icon">👍 ${n.likes}</span>
-                            <span class="eng-icon">👎 0</span>
-                            <span class="eng-icon">🔖 Save</span>
+                        <div class="item-engagement-row" style="margin-top: 10px;">
+                            <span class="eng-icon" onclick="updateNoteStat('${n.id}', 'like')">👍 ${n.likes}</span>
+                            <span class="eng-icon">�️ ${n.views}</span>
+                            <span class="eng-icon">⬇️ ${n.downloads}</span>
+                            <span class="eng-icon" style="background: rgba(108, 99, 255, 0.1); color: var(--primary);">⭐ Score: ${calculateSmartScore(n).toFixed(1)}</span>
                         </div>
                     </div>
                 </div>
@@ -608,9 +737,10 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                         <button class="btn btn-sm btn-primary" style="background: var(--success); font-size: 0.7rem; padding: 0.4rem 0.8rem;" onclick="processNote('${n.id}', 'approved')">✅ Approve</button>
                         <button class="btn btn-sm btn-ghost" style="color: #ff4757; font-size: 0.7rem;" onclick="processNote('${n.id}', 'rejected')">❌ Reject</button>
                     ` : `
-                        <button class="btn-download-pro" onclick="window.open('${n.driveLink}', '_blank')">
-                            📥 Download
-                        </button>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-ghost" style="font-size: 0.8rem;" onclick="window.open('${convertDriveLink(n.driveLink, 'preview')}', '_blank'); updateNoteStat('${n.id}', 'view')">📄 Preview</button>
+                            <button class="btn-download-pro" onclick="window.open('${convertDriveLink(n.driveLink, 'download')}', '_blank'); updateNoteStat('${n.id}', 'download')">📥 Download</button>
+                        </div>
                     `}
                 </div>
             </div>

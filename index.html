@@ -4,6 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GR784CDF73"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-GR784CDF73');
+    </script>
     <title>Smart Student OS | Next-Gen Learning Platform</title>
     <meta name="description"
         content="Ultimate academic operating system for students. Smart notes, AI tools, study planner, and real-time progress tracking.">
@@ -164,6 +173,7 @@
         </div>
     </footer>
 
+    <script type="module" src="js/firebase-config.js"></script>
     <script src="js/main.js"></script>
     <script>
         AOS.init({
