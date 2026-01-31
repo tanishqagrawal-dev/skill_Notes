@@ -1,11 +1,14 @@
 :root {
-    --primary: #6C63FF;
-    --secondary: #00E5FF;
+    --primary: #7B61FF;
+    --secondary: #00F2FF;
+    --accent: #FF2D95;
     --bg-dark: #05070A;
-    --card-bg: rgba(23, 26, 35, 0.6);
+    --card-bg: rgba(23, 26, 35, 0.4);
     --border-glass: rgba(255, 255, 255, 0.08);
     --text-main: #FFFFFF;
     --text-dim: #A0AEC0;
+    --glow-secondary: 0 0 15px rgba(0, 242, 255, 0.4);
+    --glow-primary: 0 0 15px rgba(123, 97, 255, 0.4);
 }
 
 * {
@@ -45,8 +48,17 @@ body {
 }
 
 @keyframes twinkle {
-    0%, 100% { opacity: 0.2; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(1.2); }
+
+    0%,
+    100% {
+        opacity: 0.2;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: scale(1.2);
+    }
 }
 
 /* Auth Card */
@@ -60,12 +72,36 @@ body {
 
 .auth-card {
     background: var(--card-bg);
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
     border: 1px solid var(--border-glass);
-    border-radius: 24px;
-    padding: 2.5rem;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    border-radius: 28px;
+    padding: 3rem;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), var(--glow-primary);
     text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+    animation: scanline 3s linear infinite;
+}
+
+@keyframes scanline {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 .auth-header {
@@ -167,15 +203,17 @@ body {
 }
 
 .btn-login {
-    background: linear-gradient(135deg, #42a5f5, #00e5ff);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: #05070A;
     margin-top: 1rem;
-    box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3);
+    box-shadow: var(--glow-secondary);
+    letter-spacing: 2px;
 }
 
 .btn-login:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 229, 255, 0.5);
+    box-shadow: 0 8px 25px rgba(0, 242, 255, 0.6);
+    filter: brightness(1.1);
 }
 
 .divider {
@@ -189,7 +227,8 @@ body {
     letter-spacing: 1px;
 }
 
-.divider::before, .divider::after {
+.divider::before,
+.divider::after {
     content: '';
     flex: 1;
     height: 1px;
@@ -245,6 +284,22 @@ body {
 }
 
 /* Utility */
-.hidden { display: none; }
-.fade-in { animation: fadeIn 0.4s ease-out; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.hidden {
+    display: none;
+}
+
+.fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

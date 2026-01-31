@@ -19,7 +19,10 @@ if (!window.firebaseServices) {
     }, 2000);
 }
 
-const { auth, db, provider, signInWithPopup, signOut, onAuthStateChanged, collection, addDoc, onSnapshot, updateDoc, doc, increment, query, orderBy, where } = window.firebaseServices || {};
+// Helper to get Firebase services safely
+function getFirebase() {
+    return window.firebaseServices || {};
+}
 
 // --- RBAC & USER SYSTEM ---
 const Roles = {
@@ -68,13 +71,13 @@ let unsubscribeNotes = null;
 // --- APP STATE ---
 let selState = { college: null, branch: null, year: null, subject: null };
 
-// --- ANALYTICS & SMART RANKING ---
+// --- RE-INIT SERVICES ON DEMAND ---
 function trackAnalytics(eventType, data) {
+    const { db, addDoc, collection } = getFirebase();
     console.log(`[Analytics] ${eventType}:`, data);
     if (typeof gtag === 'function') {
         gtag('event', eventType, { 'event_category': 'Explorer', 'event_label': data.id || data.name });
     }
-    // Real-time DB Analytics
     if (currentUser && db) {
         addDoc(collection(db, "analytics_logs"), {
             eventType,
@@ -85,33 +88,8 @@ function trackAnalytics(eventType, data) {
     }
 }
 
-// Smart Ranking Logic: (views*0.25) + (downloads*0.5) + (likes*0.25)
-function calculateSmartScore(note) {
-    const viewsWeight = 0.25;
-    const downloadsWeight = 0.5;
-    const likesWeight = 0.25;
-    return (note.views * viewsWeight) + (note.downloads * downloadsWeight) + (note.likes * likesWeight);
-}
-
-// Google Drive Link Converter
-function convertDriveLink(link, format = 'preview') {
-    if (!link || !link.includes('drive.google.com')) return link;
-
-    // Extract ID using regex
-    const fileIdMatch = link.match(/\/file\/d\/([^\/]+)/) || link.match(/id=([^\&]+)/);
-    const folderIdMatch = link.match(/\/folders\/([^\/?]+)/);
-
-    if (folderIdMatch) return link; // Folders stay as is for now
-    if (!fileIdMatch) return link;
-
-    const fileId = fileIdMatch[1];
-    if (format === 'preview') return `https://drive.google.com/file/d/${fileId}/preview`;
-    if (format === 'download') return `https://drive.google.com/uc?export=download&id=${fileId}`;
-    return link;
-}
-
-// Real-time Database Stat Incrementor
 window.updateNoteStat = async function (noteId, type) {
+    const { db, doc, updateDoc, increment } = getFirebase();
     // Immediate UI Optimistic Update
     const note = NotesDB.find(n => n.id === noteId);
     if (note) {
@@ -121,19 +99,13 @@ window.updateNoteStat = async function (noteId, type) {
             note.likes++;
             alert("💖 Added to your liked resources!");
         }
-        // Refresh UI
-        if (document.getElementById('final-notes-view').style.display === 'block') {
-            const activeTabElement = document.querySelector('.sub-tab.active');
-            const activeTab = activeTabElement ? activeTabElement.innerText.toLowerCase().includes('pyq') ? 'pyq' : (activeTabElement.innerText.toLowerCase().includes('formula') ? 'formula' : 'notes') : 'notes';
-            // showNotes(activeTab); // Avoid full re-render flickering, just let Firestore listener handle it eventually
-        }
     }
 
-    // Firestore Update
+    if (!db) return;
     try {
         const noteRef = doc(db, "notes", noteId);
         await updateDoc(noteRef, {
-            [type + 's']: increment(1) // views, downloads, likes
+            [type + 's']: increment(1)
         });
         trackAnalytics(`note_${type}`, { id: noteId, title: note ? note.title : 'Unknown' });
     } catch (error) {
@@ -1057,13 +1029,16 @@ window.backToExplorer = function () {
     location.reload();
 };
 
-// --- AUTH & DB FUNCTIONS ---
-
 window.addEventListener('auth-ready', (event) => {
-    const { user, currentUser: appCurrentUser } = event.detail;
+    handleAuthReady(event.detail);
+});
+
+function handleAuthReady(data) {
+    const { user, currentUser: appCurrentUser } = data;
     if (user) {
         console.log("🚀 Dashboard Session Active:", user.email || "Guest");
-        currentUser = appCurrentUser; // Update the global currentUser
+        if (currentUser && currentUser.id === appCurrentUser.id) return; // Prevent double init
+        currentUser = appCurrentUser;
         updateUserProfileUI();
         initRealTimeDB();
         initTabs();
@@ -1072,7 +1047,12 @@ window.addEventListener('auth-ready', (event) => {
         console.log("🔓 Dashboard: No active session.");
         currentUser = null;
     }
-});
+}
+
+// Check for already dispatched auth
+if (window.authStatus && window.authStatus.ready) {
+    handleAuthReady(window.authStatus.data);
+}
 
 window.loginAsGuest = function () {
     console.log("Logging in as Guest...");
@@ -1093,10 +1073,15 @@ window.loginAsGuest = function () {
 };
 
 function initRealTimeDB() {
+    const { db, query, collection, orderBy, onSnapshot } = getFirebase();
+    if (!db) {
+        console.warn("⏳ Real-time DB: Waiting for Firebase services...");
+        setTimeout(initRealTimeDB, 500);
+        return;
+    }
+
     if (unsubscribeNotes) unsubscribeNotes();
 
-    // Listen to Notes - Fetching ALL notes for client-side filtering (optimization: use queries per step)
-    // For this size of app, fetching all metadata is okay.
     const q = query(collection(db, "notes"), orderBy("created_at", "desc"));
     unsubscribeNotes = onSnapshot(q, (snapshot) => {
         NotesDB = [];
@@ -1104,12 +1089,6 @@ function initRealTimeDB() {
             NotesDB.push({ id: doc.id, ...doc.data() });
         });
         console.log(`Synced ${NotesDB.length} notes from Firestore`);
-
-        // Refresh specific views if active
-        // e.g. if we are on global search or just loaded
-        if (document.getElementById('final-notes-view')?.style.display === 'block') {
-            // Optional: trigger re-render
-        }
     });
 }
 // Removed redundant initAuthSystem, loginWithGoogle, logout, renderLoginScreen
