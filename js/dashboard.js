@@ -820,6 +820,24 @@ window.logout = function () {
     });
 };
 
+window.loginAsGuest = function () {
+    console.log("Logging in as Guest...");
+    currentUser = {
+        id: 'guest_' + Math.random().toString(36).substr(2, 9),
+        name: 'Guest Tester',
+        email: 'guest@example.com',
+        photo: null,
+        role: Roles.STUDENT,
+        college: 'medicaps',
+        isGuest: true
+    };
+
+    updateUserProfileUI();
+    initRealTimeDB();
+    initTabs();
+    renderTabContent('overview');
+};
+
 function initRealTimeDB() {
     if (unsubscribeNotes) unsubscribeNotes();
 
@@ -854,6 +872,11 @@ function renderLoginScreen() {
                     <button class="btn btn-primary btn-large" onclick="loginWithGoogle()" style="padding: 1rem 2rem; font-size: 1.1rem; width: 100%;">
                         <span style="margin-right: 10px;">🇬</span> Continue with Google
                     </button>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-ghost" onclick="loginAsGuest()" style="width: 100%; border: 1px solid rgba(255,255,255,0.1);">
+                            👤 Continue as Guest (Testing)
+                        </button>
+                    </div>
                     <p style="margin-top:1rem; font-size:0.8rem; color:var(--text-dim);">Secure access via Firebase Auth</p>
                 </div>
             </div>
