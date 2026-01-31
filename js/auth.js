@@ -9,8 +9,8 @@ import {
 
 // --- AUTH ROUTER/GUARD ---
 const path = window.location.pathname;
-const isAuthPage = path.includes('auth.html') || path.includes('login.html') || path.includes('/auth') || path.includes('/login');
-const isDashboardPage = path.includes('dashboard.html') || path.includes('/dashboard');
+const isAuthPage = path.endsWith('auth.html') || path.endsWith('auth') || path.endsWith('login.html') || path.endsWith('login');
+const isDashboardPage = path.endsWith('dashboard.html') || path.endsWith('dashboard') || path.includes('dashboard#');
 
 // --- IMMEDIATE GUEST INITIALIZATION ---
 // If on dashboard and no session exists, create a guest session immediately

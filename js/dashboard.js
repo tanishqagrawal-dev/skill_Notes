@@ -72,6 +72,31 @@ let unsubscribeNotes = null;
 let selState = { college: null, branch: null, year: null, subject: null };
 
 // --- RE-INIT SERVICES ON DEMAND ---
+// Smart Ranking Logic: (views*0.25) + (downloads*0.5) + (likes*0.25)
+function calculateSmartScore(note) {
+    const viewsWeight = 0.25;
+    const downloadsWeight = 0.5;
+    const likesWeight = 0.25;
+    return (note.views * viewsWeight) + (note.downloads * downloadsWeight) + (note.likes * likesWeight);
+}
+
+// Google Drive Link Converter
+function convertDriveLink(link, format = 'preview') {
+    if (!link || !link.includes('drive.google.com')) return link;
+
+    // Extract ID using regex
+    const fileIdMatch = link.match(/\/file\/d\/([^\/]+)/) || link.match(/id=([^\&]+)/);
+    const folderIdMatch = link.match(/\/folders\/([^\/?]+)/);
+
+    if (folderIdMatch) return link; // Folders stay as is for now
+    if (!fileIdMatch) return link;
+
+    const fileId = fileIdMatch[1];
+    if (format === 'preview') return `https://drive.google.com/file/d/${fileId}/preview`;
+    if (format === 'download') return `https://drive.google.com/uc?export=download&id=${fileId}`;
+    return link;
+}
+
 function trackAnalytics(eventType, data) {
     const { db, addDoc, collection } = getFirebase();
     console.log(`[Analytics] ${eventType}:`, data);
@@ -1034,18 +1059,22 @@ window.addEventListener('auth-ready', (event) => {
 });
 
 function handleAuthReady(data) {
+    if (!data) return;
     const { user, currentUser: appCurrentUser } = data;
-    if (user) {
-        console.log("🚀 Dashboard Session Active:", user.email || "Guest");
-        if (currentUser && currentUser.id === appCurrentUser.id) return; // Prevent double init
+    if (user && appCurrentUser) {
+        console.log("🚀 Dashboard Session Active:", (user.email || "Guest"));
+        if (currentUser && currentUser.id === appCurrentUser.id) {
+            // Already initialized, but ensure UI is synced
+            updateUserProfileUI();
+            return;
+        }
         currentUser = appCurrentUser;
         updateUserProfileUI();
         initRealTimeDB();
         initTabs();
         renderTabContent('overview');
     } else {
-        console.log("🔓 Dashboard: No active session.");
-        currentUser = null;
+        console.log("🔓 Dashboard: No active session. Waiting for auth...");
     }
 }
 
