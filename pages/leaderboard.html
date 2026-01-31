@@ -83,9 +83,74 @@
         </main>
     </div>
 
+    <!-- Footer -->
+    <footer class="footer fade-in-scroll">
+        <div class="container footer-content">
+            <!-- Left Block: Brand & Intel -->
+            <div class="footer-brand">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem;">
+                    <img src="../assets/logo.jpg" alt="SKiL MATRiX" style="height: 30px; border-radius: 50%;">
+                    <span class="logo-text">SKiL MATRiX <span class="highlight"
+                            style="font-weight: 800;">NOTES</span></span>
+                </div>
+                <p>Empowering students with intelligent academic tools.</p>
+                <div class="footer-intel-signal">
+                    ⚡ Powered by real-time data & AI-assisted learning
+                </div>
+                <div class="footer-dynamic-stats" id="footer-stats">
+                    <!-- Injected by JS -->
+                    <span>📚 Loading stats...</span>
+                </div>
+            </div>
+
+            <!-- Middle Block: Platform (Role Aware) -->
+            <div class="footer-links">
+                <div class="link-group">
+                    <h4>Platform</h4>
+                    <div id="footer-role-links">
+                        <!-- Fallback Links -->
+                        <a href="notes.html">Notes Hub</a>
+                        <a href="dashboard.html">AI Tools</a>
+                        <a href="#">Community</a>
+                    </div>
+                    <a href="leaderboard.html">Leaderboard</a>
+                </div>
+
+                <!-- Right Block: Company -->
+                <div class="link-group">
+                    <h4>Company</h4>
+                    <a href="#">About</a>
+                    <a href="#">Contact</a>
+                    <div class="legal-group">
+                        <a href="#">Privacy</a>
+                        <a href="#">Terms</a>
+                    </div>
+                    <a href="#" style="color: var(--secondary);">Report an Issue</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Strip -->
+        <div class="footer-bottom">
+            <div class="container"
+                style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <p>&copy; 2026 SKiL MATRiX. All rights reserved.</p>
+                <p class="footer-legal-notice">We respect academic integrity. No copyrighted content is hosted directly.
+                </p>
+                <div style="font-size: 0.8rem; opacity: 0.6;">
+                    Made with ❤️ for students
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Top -->
+        <button id="back-to-top" class="btn-icon-round" aria-label="Back to Top">↑</button>
+    </footer>
+
     <!-- Logic -->
     <script type="module" src="../js/firebase-config.js"></script>
     <script src="../js/leaderboard.js"></script>
+    <script src="../js/footer.js"></script>
 </body>
 
 </html>

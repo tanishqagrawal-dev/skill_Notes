@@ -917,3 +917,110 @@ input:checked+.toggle-slider:before {
 .faq-container::-webkit-scrollbar-thumb:hover {
     background: var(--primary);
 }
+
+/* --- Advanced Footer Styles --- */
+
+.footer-intel-signal {
+    font-size: 0.8rem;
+    color: var(--secondary);
+    margin-top: 0.5rem;
+    font-weight: 500;
+    font-family: var(--font-mono);
+    opacity: 0.9;
+}
+
+.footer-dynamic-stats {
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    display: inline-block;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.footer-legal-notice {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+#back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+#back-to-top.visible {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+}
+
+#back-to-top:hover {
+    background: var(--secondary);
+    transform: translateY(-3px);
+}
+
+.link-group a {
+    position: relative;
+    display: table;
+    /* Allows independent width */
+}
+
+.link-group a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    bottom: -2px;
+    left: 0;
+    background-color: var(--secondary);
+    transition: width 0.3s ease;
+}
+
+.link-group a:hover::after {
+    width: 100%;
+}
+
+.link-group a:hover {
+    color: var(--text-main);
+    text-shadow: 0 0 10px rgba(108, 99, 255, 0.3);
+}
+
+/* Footer structure tweaks */
+.footer-bottom .container {
+    border-top: 1px solid var(--border-glass);
+    padding-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .footer-links {
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .footer-bottom .container {
+        flex-direction: column;
+        text-align: center;
+    }
+}
