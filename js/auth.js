@@ -1,8 +1,9 @@
 // Auth Logic Module
 const { auth, provider, signInWithPopup, signOut, onAuthStateChanged } = window.firebaseServices;
 
-const isLoginPage = window.location.pathname.includes('login.html');
-const isDashboardPage = window.location.pathname.includes('dashboard.html');
+// Robust page detection using body classes or fallback
+const isLoginPage = document.body.classList.contains('login-page') || window.location.pathname.includes('login.html');
+const isDashboardPage = document.body.classList.contains('dashboard-body') || window.location.pathname.includes('dashboard.html');
 
 // --- AUTH STATE OBSERVER & ROUTE GUARD ---
 function initAuthGuard() {
@@ -13,19 +14,18 @@ function initAuthGuard() {
             // Redirect to dashboard if on login page
             if (isLoginPage) {
                 window.location.href = 'dashboard.html';
+                return;
             }
 
-            // If on dashboard, expose user for dashboard.js to pick up
-            if (isDashboardPage) {
-                // Dispatch event so dashboard.js knows it can start rendering
-                window.dispatchEvent(new CustomEvent('auth-ready', { detail: { user } }));
-            }
+            // Dispatch event globally so any listening script matching this user can react
+            // We do this ALWAYS if logged in, not just on dashboard, in case other pages need generic user info
+            window.dispatchEvent(new CustomEvent('auth-ready', { detail: { user } }));
+
         } else {
             console.log("AuthGuard: User is logged out.");
 
-            // Redirect to login if on protected pages (dashboard)
+            // Redirect to login if on dashboard
             if (isDashboardPage) {
-                // Store current URL to redirect back after login? (Optional enhancement)
                 window.location.href = 'login.html';
             }
         }
