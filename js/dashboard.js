@@ -39,9 +39,9 @@ let currentUser = null;
 
 const GlobalData = {
     colleges: [
-        { id: 'medicaps', name: 'Medi-Caps University', logo: '🏛️' },
-        { id: 'lpu', name: 'LPU University', logo: '🏰' },
-        { id: 'iitd', name: 'IIT Delhi', logo: '🎓' }
+        { id: 'medicaps', name: 'Medicaps University', logo: '../assets/logos/medicaps.png' },
+        { id: 'lpu', name: 'LPU University', logo: '../assets/logos/lpu.png' },
+        { id: 'iitd', name: 'IIT Delhi', logo: '../assets/logos/iitd.png' }
     ],
     branches: [
         { id: 'cse', name: 'Computer Science', icon: '💻' },
@@ -609,7 +609,7 @@ function renderAITools() {
 function renderOverview() {
     // Phase 1: Personalization
     const userName = currentUser.name.split(' ')[0];
-    const college = GlobalData.colleges.find(c => c.id === currentUser.college)?.name || 'Medi-Caps University';
+    const college = GlobalData.colleges.find(c => c.id === currentUser.college)?.name || 'Medicaps University';
     const year = currentUser.year || '3rd Year';
     const branch = currentUser.branch || 'CSE';
 
@@ -1050,8 +1050,8 @@ function renderAdminConsole() {
 function renderNotesHub() {
     return `
         <div class="tab-pane active" style="padding:0;">
-            <div class="notes-hub-wrapper" style="flex-direction: column; overflow-y: auto;">
-                <div class="explorer-header" id="explorer-header" style="padding: 4rem 2rem; border-bottom: 1px solid var(--border-glass); background: rgba(108, 99, 255, 0.02);">
+            <div class="notes-hub-wrapper" style="flex-direction: column; overflow-y: auto; overflow-x: hidden;">
+                <div class="explorer-header" id="explorer-header" style="padding: 3rem 2rem; border-bottom: 1px solid var(--border-glass); background: rgba(108, 99, 255, 0.02);">
                     <div class="step-indicator" style="display: flex; justify-content: center; gap: 3rem; margin-bottom: 3rem;">
                         ${['College', 'Branch', 'Year', 'Semester', 'Subject'].map((s, i) => `
                             <div class="step-node" id="step-${i}">
@@ -1066,7 +1066,7 @@ function renderNotesHub() {
                     </div>
                 </div>
 
-                <div id="explorer-content" style="padding: 4rem; min-height: 400px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+                <div id="explorer-content" style="padding: 2rem; min-height: 400px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
                     <!-- Step-specific cards will be injected here -->
                 </div>
 
@@ -1097,13 +1097,46 @@ function updateStepUI(activeIdx) {
 window.renderCollegeStep = function () {
     updateStepUI(0);
     const container = document.getElementById('explorer-content');
-    container.innerHTML = GlobalData.colleges.map(c => `
+
+    // Helper to generate HTML for cards
+    const getCardsHTML = (items) => items.map(c => `
         <div class="selection-card glass-card fade-in" onclick="selectCollege('${c.id}', '${c.name}')">
-            <div class="card-icon" style="font-size: 3rem;">${c.logo}</div>
+            <div class="card-icon" style="width: 80px; height: 80px; margin: 0 auto 1.5rem auto;">
+                <img src="${c.logo}" alt="${c.name}" style="width: 100%; height: 100%; object-fit: contain;">
+            </div>
             <h3 class="font-heading" style="margin-top: 1.5rem;">${c.name}</h3>
             <p style="color: var(--text-dim); margin-top: 0.5rem;">Verified Academic Partner</p>
         </div>
     `).join('');
+
+    // Attach filter function locally
+    window.handleCollegeSearch = (input) => {
+        const query = input.value.toLowerCase();
+        const filtered = GlobalData.colleges.filter(c => c.name.toLowerCase().includes(query));
+        const grid = document.getElementById('college-list-grid');
+        if (grid) {
+            if (filtered.length > 0) {
+                grid.innerHTML = getCardsHTML(filtered);
+            } else {
+                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem; color:var(--text-dim);">No universities found matching "${input.value}"</div>`;
+            }
+        }
+    };
+
+    container.innerHTML = `
+        <div style="grid-column: 1 / -1; margin-bottom: 2rem;">
+            <input type="text" 
+                   placeholder="Search for your university..." 
+                   class="input-field"
+                   onkeyup="handleCollegeSearch(this)"
+                   style="width: 100%; padding: 1.2rem; border-radius: 16px; border: 1px solid var(--border-glass); background: rgba(0,0,0,0.3); color: white; font-size: 1rem; backdrop-filter: blur(10px);">
+        </div>
+        
+        <!-- Nested Grid for Cards -->
+        <div id="college-list-grid" style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+            ${getCardsHTML(GlobalData.colleges)}
+        </div>
+    `;
 };
 
 window.selectCollege = function (id, name) {
