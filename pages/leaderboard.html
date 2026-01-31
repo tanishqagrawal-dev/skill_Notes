@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GR784CDF73"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-GR784CDF73');
+    </script>
+    <link rel="shortcut icon" href="../assets/logo.jpg" type="image/jpeg">
+    <title>Leaderboard | SKiL MATRiX Notes</title>
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/advanced_dashboard.css">
+    <style>
+        /* Custom Override for Independent Page */
+        .dashboard-container {
+            display: block;
+            /* Remove Sidebar Grid */
+            padding: 0;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            padding: 2rem;
+            max-width: 100%;
+        }
+
+        .nav-header-custom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border-glass);
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+
+<body class="dashboard-body">
+
+    <nav class="glass-nav">
+        <div class="container nav-content">
+            <div class="logo" onclick="window.location.href='../index.html'"
+                style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                <img src="../assets/logo.jpg" alt="SKiL MATRiX" style="height: 40px; border-radius: 50%;">
+                <span class="logo-text">SKiL MATRiX <span class="highlight"
+                        style="font-weight: 800;">NOTES</span></span>
+            </div>
+            <div class="nav-links">
+                <a href="../index.html">Home</a>
+                <a href="notes.html">Notes Hub</a>
+                <a href="leaderboard.html" class="active">Leaderboard</a>
+                <a href="dashboard.html?tab=overview">Dashboard</a>
+                <a href="auth.html" style="margin-right: -10px;">Login</a>
+                <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">Get Started</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container" style="padding-top: 6rem;">
+        <main class="main-content">
+            <div id="tab-content">
+                <!-- LEADERBOARD RENDERED HERE -->
+                <div style="text-align:center; padding: 4rem;">
+                    <div class="loader-pro" style="margin: 0 auto;"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Logic -->
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script src="../js/leaderboard.js"></script>
+</body>
+
+</html>

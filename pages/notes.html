@@ -14,9 +14,7 @@
         gtag('config', 'G-GR784CDF73');
     </script>
     <link rel="shortcut icon" href="../assets/logo.jpg" type="image/jpeg">
-    <title>Explore Smart Notes | SKiL MATRiX Notes</title>
-    <meta name="description"
-        content="Access thousands of curated notes, PYQs, and study materials for your curriculum.">
+    <title>Notes Hub | SKiL MATRiX Notes</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,14 +25,45 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/advanced_dashboard.css">
 
-    <!-- Libraries -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+    <style>
+        .notes-page-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 8rem 2rem 4rem;
+            /* Top padding for fixed nav */
+        }
+
+        .notes-hub-wrapper {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+
+        /* Adjust wizard for standalone page */
+        #explorer-header {
+            background: transparent !important;
+            padding: 2rem 0 !important;
+            border: none !important;
+        }
+
+        #explorer-content {
+            padding: 2rem 0 !important;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .step-indicator {
+            justify-content: center;
+            margin-bottom: 4rem;
+        }
+    </style>
 </head>
 
-<body class="notes-page">
+<body class="dashboard-body">
 
     <!-- Navigation -->
     <nav class="glass-nav">
@@ -47,102 +76,69 @@
             </div>
             <div class="nav-links">
                 <a href="../index.html">Home</a>
-                <a href="notes.html" class="active">Smart Notes</a>
-                <a href="dashboard.html">Dashboard</a>
+                <a href="notes.html" class="active">Notes Hub</a>
+                <a href="leaderboard.html">Leaderboard</a>
+                <a href="dashboard.html?tab=overview">Dashboard</a>
+                <a href="auth.html" style="margin-right: -10px;">Login</a>
                 <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">Get Started</button>
             </div>
         </div>
     </nav>
 
-    <!-- Notes Explorer Section -->
-    <section id="notes" class="notes-explorer alternate-bg" style="padding-top: 10rem; min-height: 100vh;">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <h1>Explore <span class="gradient-text">Smart Notes</span></h1>
-                <p>Find the best resources curated for your curriculum. Filter by college, branch, and semester.</p>
-            </div>
+    <div class="notes-page-container">
+        <!-- Notes Hub Wizard -->
+        <div class="notes-hub-wrapper" style="flex-direction: column;">
 
-            <div class="notes-hub-container" data-aos="fade-up">
-                <div class="notes-search-wrapper">
-                    <input type="text" id="notes-search" placeholder="Search by subject, topic or unit...">
-                    <span class="search-btn-icon">🔍</span>
-                </div>
-
-                <div class="filter-bar glass-card">
-                    <div class="filter-group">
-                        <label>Select College</label>
-                        <select id="college-select">
-                            <option value="all">All Colleges</option>
-                            <option value="medicaps">Medicaps University</option>
-                            <option value="svvv">SVVV Indore</option>
-                        </select>
+            <div id="explorer-steps-container" style="display:flex; flex-direction:column;">
+                <div class="explorer-header" id="explorer-header">
+                    <div class="step-indicator" style="display: flex; gap: 3rem;">
+                        <!-- Steps -->
+                        <div class="step-node active" id="step-0">
+                            <div class="step-num">1</div>
+                            <div class="step-label">College</div>
+                        </div>
+                        <div class="step-node" id="step-1">
+                            <div class="step-num">2</div>
+                            <div class="step-label">Branch</div>
+                        </div>
+                        <div class="step-node" id="step-2">
+                            <div class="step-num">3</div>
+                            <div class="step-label">Year</div>
+                        </div>
+                        <div class="step-node" id="step-3">
+                            <div class="step-num">4</div>
+                            <div class="step-label">Semester</div>
+                        </div>
+                        <div class="step-node" id="step-4">
+                            <div class="step-num">5</div>
+                            <div class="step-label">Subject</div>
+                        </div>
                     </div>
-                    <div class="filter-group">
-                        <label>Select Branch</label>
-                        <select id="branch-select">
-                            <option value="all">All Branches</option>
-                            <option value="cse">CSE</option>
-                            <option value="it">IT</option>
-                            <option value="ece">ECE</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Select Semester</label>
-                        <select id="sem-select">
-                            <option value="all">All Semesters</option>
-                            <option value="1">1st Sem</option>
-                            <option value="2">2nd Sem</option>
-                            <option value="3">3rd Sem</option>
-                            <option value="4">4th Sem</option>
-                        </select>
+                    <div id="explorer-title-container" style="text-align: center;">
+                        <h1 class="font-heading" id="explorer-main-title">Select your <span
+                                class="gradient-text">Institution</span></h1>
+                        <p id="explorer-sub-title" style="color: var(--text-dim); margin-top: 1rem;">Choose your college
+                            to start browsing localized content.</p>
                     </div>
                 </div>
-            </div>
 
-            <div id="notes-grid" class="notes-grid">
-                <!-- Notes will be injected by JS -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container footer-content">
-            <div class="footer-brand">
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
-                    <img src="../assets/logo.jpg" alt="SKiL MATRiX" style="height: 30px; border-radius: 50%;">
-                    <span class="logo-text">SKiL MATRiX <span class="highlight"
-                            style="font-weight: 800;">NOTES</span></span>
-                </div>
-                <p>Empowering students with intelligent academic tools.</p>
-            </div>
-            <div class="footer-links">
-                <div class="link-group">
-                    <h4>Platform</h4>
-                    <a href="notes.html">Notes</a>
-                    <a href="dashboard.html">AI Tools</a>
-                    <a href="#">Community</a>
-                </div>
-                <div class="link-group">
-                    <h4>Company</h4>
-                    <a href="#">About</a>
-                    <a href="#">Privacy</a>
-                    <a href="#">Terms</a>
+                <div id="explorer-content">
+                    <!-- Dynamic Content -->
+                    <div class="loader-pro" style="margin: 4rem auto;"></div>
                 </div>
             </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 SKiL MATRiX. All rights reserved.</p>
-        </div>
-    </footer>
 
-    <script src="../js/main.js"></script>
-    <script>
-        AOS.init({
-            duration: 800,
-            once: true
-        });
-    </script>
+            <!-- Final View -->
+            <div id="final-notes-view" style="display:none; padding: 2rem 0;">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script type="module" src="../js/auth.js"></script>
+    <script src="../js/notes-hub.js"></script>
 </body>
 
 </html>

@@ -193,6 +193,20 @@ document.addEventListener('DOMContentLoaded', () => {
             searchIcon.onclick = () => performGlobalSearch(globalSearchInput.value);
         }
     }
+    // --- DEEP LINKING SUPPORT ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    if (tabParam) {
+        const targetTab = document.querySelector(`.nav-item[data-tab="${tabParam}"]`);
+        if (targetTab) {
+            // Need to wait for initTabs to bind click handlers? 
+            // Better to just set it active logic manually or trigger click after initTabs
+            // But initTabs is called later in auth flow.
+            // We'll handle this inside onAuthStateChanged or similar triggering mechanism.
+            // However, since initTabs binds clicks, we can just store the pending tab.
+            window.pendingTab = tabParam;
+        }
+    }
 }); // End DOMContentLoaded
 
 
@@ -281,6 +295,15 @@ function initTabs() {
     });
 
     updateUserProfileUI();
+
+    // Deep Linking Check
+    if (window.pendingTab) {
+        const target = document.querySelector(`.nav-item[data-tab="${window.pendingTab}"]`);
+        if (target) {
+            target.click();
+            window.pendingTab = null;
+        }
+    }
 }
 
 function updateUserProfileUI() {
