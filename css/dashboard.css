@@ -188,6 +188,8 @@
     flex-direction: column;
     gap: 1.5rem;
     overflow-y: auto;
+    scroll-behavior: smooth;
+    /* Enabled smooth scroll here */
     padding-right: 0.5rem;
 }
 
@@ -195,6 +197,13 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    background: rgba(5, 7, 10, 0.6);
+    padding: 1rem 0;
+    margin-bottom: 0.5rem !important;
 }
 
 .search-bar {
@@ -266,10 +275,8 @@
 /* --- Professional Notes Hub Layout --- */
 .notes-hub-wrapper {
     display: flex;
-    height: calc(100vh - 100px);
     background: #080a0f;
     border-radius: 20px 0 0 20px;
-    overflow: hidden;
     margin: 1.5rem -1rem -1rem -1rem;
 }
 

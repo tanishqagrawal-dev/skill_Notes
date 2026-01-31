@@ -41,6 +41,8 @@ const GlobalData = {
     colleges: [
         { id: 'medicaps', name: 'Medicaps University', logo: '../assets/logos/medicaps.png' },
         { id: 'lpu', name: 'LPU University', logo: '../assets/logos/lpu.png' },
+        { id: 'ips', name: 'IPS Academy', logo: '../assets/logos/ips.png' },
+        { id: 'cdgi', name: 'CDGI University', logo: '../assets/logos/cdgi.png' },
         { id: 'iitd', name: 'IIT Delhi', logo: '../assets/logos/iitd.png' }
     ],
     branches: [
@@ -1076,7 +1078,7 @@ function renderAdminConsole() {
 function renderNotesHub() {
     return `
         <div class="tab-pane active" style="padding:0;">
-            <div class="notes-hub-wrapper" style="flex-direction: column; overflow-y: auto; overflow-x: hidden;">
+            <div class="notes-hub-wrapper" style="flex-direction: column; overflow-x: hidden; padding-bottom: 4rem;">
                 <div class="explorer-header" id="explorer-header" style="padding: 3rem 2rem; border-bottom: 1px solid var(--border-glass); background: rgba(108, 99, 255, 0.02);">
                     <div class="step-indicator" style="display: flex; justify-content: center; gap: 3rem; margin-bottom: 3rem;">
                         ${['College', 'Branch', 'Year', 'Semester', 'Subject'].map((s, i) => `
@@ -1092,7 +1094,7 @@ function renderNotesHub() {
                     </div>
                 </div>
 
-                <div id="explorer-content" style="padding: 2rem; min-height: 400px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+                <div id="explorer-content" style="padding: 2rem 2rem 6rem 2rem; min-height: 400px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
                     <!-- Step-specific cards will be injected here -->
                 </div>
 
@@ -1127,7 +1129,7 @@ window.renderCollegeStep = function () {
     // Helper to generate HTML for cards
     const getCardsHTML = (items) => items.map(c => `
         <div class="selection-card glass-card fade-in" onclick="selectCollege('${c.id}', '${c.name}')">
-            <div class="card-icon" style="width: 80px; height: 80px; margin: 0 auto 1.5rem auto;">
+            <div class="card-icon" style="width: 80px; height: 80px; margin: 0 auto 1.5rem auto; background: white; border-radius: 12px; padding: 10px; display: flex; align-items: center; justify-content: center;">
                 <img src="${c.logo}" alt="${c.name}" style="width: 100%; height: 100%; object-fit: contain;">
             </div>
             <h3 class="font-heading" style="margin-top: 1.5rem;">${c.name}</h3>
