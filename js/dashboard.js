@@ -324,23 +324,15 @@ function updateUserProfileUI() {
         }
     }
     if (name) name.innerText = currentUser.name || currentUser.email.split('@')[0];
+
+    // Hide extra meta text if it exists
     if (meta) {
-        let roleDisplay = currentUser.role.replace('_', ' ').toUpperCase();
-        meta.innerText = `${roleDisplay} • ${currentUser.college ? currentUser.college.toUpperCase() : 'Guest'}`;
+        meta.style.display = 'none';
     }
 
-    // Add logout option to user-info if not present
-    const userInfo = document.querySelector('.user-info');
-    if (userInfo && !document.getElementById('logout-btn')) {
-        const logoutBtn = document.createElement('div');
-        logoutBtn.id = 'logout-btn';
-        logoutBtn.style.fontSize = '0.7rem';
-        logoutBtn.style.color = '#ff4757';
-        logoutBtn.style.cursor = 'pointer';
-        logoutBtn.innerHTML = 'Sign Out';
-        logoutBtn.onclick = window.handleLogout; // Use auth.js function
-        userInfo.appendChild(logoutBtn);
-    }
+    // Ensure logout button is NOT added here (it's in Settings now)
+    const existingLogout = document.getElementById('logout-btn');
+    if (existingLogout) existingLogout.remove();
 }
 
 window.switchRole = function (userId) {

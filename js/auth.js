@@ -139,5 +139,5 @@ window.loginAsGuest = function () {
 window.handleLogout = async function () {
     localStorage.removeItem('guest_session');
     await signOut(auth);
-    window.location.href = 'auth.html';
+    window.location.href = '../index.html';
 };
