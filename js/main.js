@@ -119,13 +119,20 @@ function initFilters() {
     const collegeSelect = document.getElementById('college-select');
     const branchSelect = document.getElementById('branch-select');
     const semSelect = document.getElementById('sem-select');
-    const subjectSelect = document.getElementById('subject-select');
+    const searchInput = document.getElementById('notes-search');
+
+    if (!collegeSelect || !searchInput) return;
 
     const updateFilters = () => {
+        const searchTerm = searchInput.value.toLowerCase();
         const filtered = notesData.filter(note => {
-            return (collegeSelect.value === 'all' || note.college === collegeSelect.value) &&
-                (branchSelect.value === 'all' || note.branch === branchSelect.value) &&
-                (semSelect.value === 'all' || note.sem === semSelect.value);
+            const matchesSearch = note.title.toLowerCase().includes(searchTerm) ||
+                note.subject.toLowerCase().includes(searchTerm);
+            const matchesCollege = collegeSelect.value === 'all' || note.college === collegeSelect.value;
+            const matchesBranch = branchSelect.value === 'all' || note.branch === branchSelect.value;
+            const matchesSem = semSelect.value === 'all' || note.sem === semSelect.value;
+
+            return matchesSearch && matchesCollege && matchesBranch && matchesSem;
         });
 
         // Sort by "Best for Exam" algorithm
@@ -134,8 +141,10 @@ function initFilters() {
     };
 
     [collegeSelect, branchSelect, semSelect].forEach(select => {
-        select.addEventListener('change', updateFilters);
+        if (select) select.addEventListener('change', updateFilters);
     });
+
+    searchInput.addEventListener('input', updateFilters);
 }
 
 // Algorithm: ExamScore = (views * 0.3) + (downloads * 0.5) + (likes * 0.2)
@@ -146,6 +155,7 @@ function calculateExamScore(note) {
 // Render Notes to Grid
 function renderNotes(notes) {
     const grid = document.getElementById('notes-grid');
+    if (!grid) return;
     grid.innerHTML = '';
 
     if (notes.length === 0) {
@@ -160,18 +170,29 @@ function renderNotes(notes) {
         card.setAttribute('data-tilt', '');
 
         card.innerHTML = `
-            <span class="note-tag">${note.tag}</span>
+            <div class="note-tag">${note.tag}</div>
+            <div class="note-subject-icon">📘</div>
             <h3>${note.title}</h3>
-            <div class="note-stats">
-                <div class="stat">👍 <span>${formatNumber(note.likes)}</span></div>
-                <div class="stat">👁️ <span>${formatNumber(note.views)}</span></div>
-                <div class="stat">⬇️ <span>${formatNumber(note.downloads)}</span></div>
-            </div>
             <div class="note-meta">
-                <span>📄 ${note.pages} Pages</span> | <span>⏱️ ${note.readTime} read</span>
+                <span>📄 ${note.pages} Pages</span>
+                <span>⏱️ ${note.readTime} read</span>
+            </div>
+            <div class="note-stats">
+                <div class="stat">
+                    <span class="stat-icon-label">👍</span>
+                    <span class="stat-value">${formatNumber(note.likes)}</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-icon-label">👁️</span>
+                    <span class="stat-value">${formatNumber(note.views)}</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-icon-label">⬇️</span>
+                    <span class="stat-value">${formatNumber(note.downloads)}</span>
+                </div>
             </div>
             <div class="note-actions">
-                <button class="btn btn-primary" onclick="handleView('${note.id}')">View</button>
+                <button class="btn btn-primary" onclick="handleView('${note.id}')">View PDF</button>
                 <button class="btn btn-ghost" onclick="handleDownload('${note.id}')">Download</button>
             </div>
         `;

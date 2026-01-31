@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Smart Notes | Smart Student OS</title>
+    <meta name="description"
+        content="Access thousands of curated notes, PYQs, and study materials for your curriculum.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/main.css">
+
+    <!-- Libraries -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+</head>
+
+<body class="notes-page">
+
+    <!-- Navigation -->
+    <nav class="glass-nav">
+        <div class="container nav-content">
+            <div class="logo" onclick="window.location.href='../index.html'" style="cursor: pointer;">
+                <span class="logo-text">Smart<span class="highlight">OS</span></span>
+            </div>
+            <div class="nav-links">
+                <a href="../index.html">Home</a>
+                <a href="notes.html" class="active">Smart Notes</a>
+                <a href="dashboard.html">Dashboard</a>
+                <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">Get Started</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Notes Explorer Section -->
+    <section id="notes" class="notes-explorer alternate-bg" style="padding-top: 10rem; min-height: 100vh;">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h1>Explore <span class="gradient-text">Smart Notes</span></h1>
+                <p>Find the best resources curated for your curriculum. Filter by college, branch, and semester.</p>
+            </div>
+
+            <div class="notes-hub-container" data-aos="fade-up">
+                <div class="notes-search-wrapper">
+                    <input type="text" id="notes-search" placeholder="Search by subject, topic or unit...">
+                    <span class="search-btn-icon">🔍</span>
+                </div>
+
+                <div class="filter-bar glass-card">
+                    <div class="filter-group">
+                        <label>Select College</label>
+                        <select id="college-select">
+                            <option value="all">All Colleges</option>
+                            <option value="medicaps">Medicaps University</option>
+                            <option value="svvv">SVVV Indore</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Select Branch</label>
+                        <select id="branch-select">
+                            <option value="all">All Branches</option>
+                            <option value="cse">CSE</option>
+                            <option value="it">IT</option>
+                            <option value="ece">ECE</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Select Semester</label>
+                        <select id="sem-select">
+                            <option value="all">All Semesters</option>
+                            <option value="1">1st Sem</option>
+                            <option value="2">2nd Sem</option>
+                            <option value="3">3rd Sem</option>
+                            <option value="4">4th Sem</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="notes-grid" class="notes-grid">
+                <!-- Notes will be injected by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <span class="logo-text">Smart<span class="highlight">OS</span></span>
+                <p>Empowering students with intelligent academic tools.</p>
+            </div>
+            <div class="footer-links">
+                <div class="link-group">
+                    <h4>Platform</h4>
+                    <a href="notes.html">Notes</a>
+                    <a href="dashboard.html">AI Tools</a>
+                    <a href="#">Community</a>
+                </div>
+                <div class="link-group">
+                    <h4>Company</h4>
+                    <a href="#">About</a>
+                    <a href="#">Privacy</a>
+                    <a href="#">Terms</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Smart Student OS. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+    </script>
+</body>
+
+</html>

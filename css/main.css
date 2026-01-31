@@ -366,84 +366,146 @@ pre {
     color: var(--text-muted);
 }
 
-.filter-bar {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 3rem;
-    padding: 2rem;
-}
-
-.filter-group {
+/* Notes Hub Styling */
+.notes-hub-container {
+    max-width: 1000px;
+    margin: 0 auto 4rem;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 2rem;
 }
 
-.filter-group label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 1px;
+.notes-search-wrapper {
+    position: relative;
+    width: 100%;
 }
 
-.filter-group select {
-    background: rgba(255, 255, 255, 0.05);
+.notes-search-wrapper input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border-glass);
+    padding: 1.25rem 1.5rem 1.25rem 3.5rem;
+    border-radius: 16px;
     color: var(--text-main);
-    padding: 0.75rem;
-    border-radius: 8px;
+    font-size: 1.1rem;
     outline: none;
-    font-family: var(--font-body);
+    transition: var(--transition-smooth);
+    backdrop-filter: blur(10px);
 }
 
-.filter-group select:focus {
+.notes-search-wrapper input:focus {
     border-color: var(--primary);
+    background: rgba(108, 99, 255, 0.05);
+    box-shadow: 0 0 20px rgba(108, 99, 255, 0.2);
 }
 
-/* Notes Grid */
+.search-btn-icon {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    opacity: 0.6;
+}
+
+.filter-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    padding: 1.5rem 2rem;
+}
+
+/* Notes Grid Enhancement */
 .notes-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 2.5rem;
+    margin-top: 2rem;
 }
 
 .note-card {
     padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.note-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--primary);
+    opacity: 0.5;
 }
 
 .note-tag {
     display: inline-block;
-    padding: 0.25rem 0.75rem;
-    background: rgba(0, 229, 255, 0.1);
-    color: var(--secondary);
-    border-radius: 4px;
+    padding: 0.4rem 0.8rem;
+    background: rgba(108, 99, 255, 0.1);
+    color: var(--primary-light);
+    border-radius: 6px;
     font-size: 0.75rem;
     font-weight: 700;
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.note-subject-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.8;
 }
 
 .note-card h3 {
-    font-size: 1.25rem;
-    margin-bottom: 1rem;
+    font-size: 1.4rem;
+    line-height: 1.4;
+    margin-bottom: 1.25rem;
+    color: var(--text-main);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .note-stats {
     display: flex;
-    gap: 1.5rem;
-    margin: 1.5rem 0;
-    padding: 1rem 0;
+    justify-content: space-between;
+    align-items: center;
+    margin: auto 0 1.5rem;
+    padding-top: 1.5rem;
     border-top: 1px solid var(--border-glass);
-    border-bottom: 1px solid var(--border-glass);
 }
 
 .stat {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
+    gap: 0.4rem;
+}
+
+.stat-icon-label {
+    font-size: 1.1rem;
+}
+
+.stat-value {
+    font-size: 0.85rem;
+    font-weight: 600;
     color: var(--text-muted);
+}
+
+.note-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-bottom: 1.5rem;
 }
 
 .note-actions {
@@ -453,6 +515,8 @@ pre {
 
 .note-actions .btn {
     flex: 1;
+    font-size: 0.9rem;
+    padding: 0.8rem 1rem;
 }
 
 /* Footer */
@@ -584,6 +648,16 @@ pre {
 
     .filter-bar {
         grid-template-columns: 1fr;
+        padding: 1.5rem;
+    }
+
+    .notes-hub-container {
+        padding: 0 1rem;
+    }
+
+    .notes-search-wrapper input {
+        padding: 1rem 1rem 1rem 3rem;
+        font-size: 1rem;
     }
 }
 

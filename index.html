@@ -34,7 +34,7 @@
             </div>
             <div class="nav-links">
                 <a href="#features">Features</a>
-                <a href="#notes">Smart Notes</a>
+                <a href="pages/notes.html">Smart Notes</a>
                 <a href="pages/dashboard.html">Dashboard</a>
                 <a href="#community">Community</a>
                 <button class="btn btn-primary" onclick="window.location.href='pages/dashboard.html'">Get
@@ -61,8 +61,7 @@
                 <p>The all-in-one platform for notes, AI-powered tools, and real-time progress tracking. Built by
                     students, for students.</p>
                 <div class="hero-cta">
-                    <button class="btn btn-primary btn-large"
-                        onclick="document.getElementById('notes').scrollIntoView({behavior: 'smooth'})">Explore
+                    <button class="btn btn-primary btn-large" onclick="window.location.href='pages/notes.html'">Explore
                         Notes</button>
                     <button class="btn btn-ghost btn-large" onclick="window.location.href='pages/dashboard.html'">Open
                         Dashboard</button>
@@ -113,55 +112,6 @@
         </div>
     </section>
 
-    <!-- Notes Filter Section -->
-    <section id="notes" class="notes-explorer alternate-bg">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <h2>Explore Smart Notes</h2>
-                <p>Find the best resources curated for your curriculum.</p>
-            </div>
-
-            <div class="filter-bar glass-card" data-aos="fade-up">
-                <div class="filter-group">
-                    <label>College</label>
-                    <select id="college-select">
-                        <option value="all">All Colleges</option>
-                        <option value="medicaps">Medicaps University</option>
-                        <option value="svvv">SVVV Indore</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>Branch</label>
-                    <select id="branch-select">
-                        <option value="all">All Branches</option>
-                        <option value="cse">CSE</option>
-                        <option value="it">IT</option>
-                        <option value="ece">ECE</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>Semester</label>
-                    <select id="sem-select">
-                        <option value="all">All Semesters</option>
-                        <option value="1">1st Sem</option>
-                        <option value="2">2nd Sem</option>
-                        <option value="3">3rd Sem</option>
-                        <option value="4">4th Sem</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>Subject</label>
-                    <select id="subject-select">
-                        <option value="all">All Subjects</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="notes-grid" class="notes-grid">
-                <!-- Notes will be injected by JS -->
-            </div>
-        </div>
-    </section>
 
     <!-- Real-time Stats Section -->
     <section class="live-stats alternate-bg">
