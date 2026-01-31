@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Student OS | Next-Gen Learning Platform</title>
+    <meta name="description" content="Ultimate academic operating system for students. Smart notes, AI tools, study planner, and real-time progress tracking.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    
+    <!-- Libraries -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="glass-nav">
+        <div class="container nav-content">
+            <div class="logo">
+                <span class="logo-text">Smart<span class="highlight">OS</span></span>
+            </div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#notes">Smart Notes</a>
+                <a href="#tools">Tools</a>
+                <a href="#community">Community</a>
+                <button class="btn btn-primary">Get Started</button>
+            </div>
+            <div class="mobile-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+        </div>
+        <div class="container hero-content">
+            <div class="hero-text" data-aos="fade-up">
+                <span class="badge">🔥 Next-Gen Learning Platform</span>
+                <h1>Master Your Academics with <span class="gradient-text">Smart Student OS</span></h1>
+                <p>The all-in-one platform for notes, AI-powered tools, and real-time progress tracking. Built by students, for students.</p>
+                <div class="hero-cta">
+                    <button class="btn btn-primary btn-large">Explore Notes</button>
+                    <button class="btn btn-ghost btn-large">Learn More</button>
+                </div>
+                <div class="trust-stats">
+                    <div class="stat-item">
+                        <span class="stat-val">1.2M+</span>
+                        <span class="stat-label">Views</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-val">85K+</span>
+                        <span class="stat-label">Downloads</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-val">12K+</span>
+                        <span class="stat-label">Students</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual" data-aos="fade-left">
+                <div class="glass-card main-dashboard-peek" data-tilt>
+                    <!-- Mockup of Dashboard -->
+                    <div class="mock-header">
+                        <div class="mock-dots"><span></span><span></span><span></span></div>
+                    </div>
+                    <div class="mock-body">
+                        <div class="mock-sidebar"></div>
+                        <div class="mock-content">
+                            <div class="mock-row"></div>
+                            <div class="mock-grid">
+                                <span></span><span></span><span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features container">
+        <h2 class="section-title" data-aos="fade-up">Why Smart Student OS?</h2>
+        <div class="features-grid">
+            <div class="glass-card feature-item" data-aos="zoom-in" data-aos-delay="100">
+                <div class="feature-icon">📚</div>
+                <h3>Smart Notes</h3>
+                <p>Personalized note recommendation based on your branch, year, and upcoming exams.</p>
+            </div>
+            <div class="glass-card feature-item" data-aos="zoom-in" data-aos-delay="200">
+                <div class="feature-icon">🤖</div>
+                <h3>AI Doubt Solver</h3>
+                <p>Instant answers to your academic queries using our fine-tuned AI model.</p>
+            </div>
+            <div class="glass-card feature-item" data-aos="zoom-in" data-aos-delay="300">
+                <div class="feature-icon">📈</div>
+                <h3>Progress Tracker</h3>
+                <p>Visualize your learning journey and stay on top of your semester goals.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Notes Filter Section -->
+    <section id="notes" class="notes-explorer alternate-bg">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2>Explore Smart Notes</h2>
+                <p>Find the best resources curated for your curriculum.</p>
+            </div>
+            
+            <div class="filter-bar glass-card" data-aos="fade-up">
+                <div class="filter-group">
+                    <label>College</label>
+                    <select id="college-select">
+                        <option value="all">All Colleges</option>
+                        <option value="medicaps">Medicaps University</option>
+                        <option value="svvv">SVVV Indore</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Branch</label>
+                    <select id="branch-select">
+                        <option value="all">All Branches</option>
+                        <option value="cse">CSE</option>
+                        <option value="it">IT</option>
+                        <option value="ece">ECE</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Semester</label>
+                    <select id="sem-select">
+                        <option value="all">All Semesters</option>
+                        <option value="1">1st Sem</option>
+                        <option value="2">2nd Sem</option>
+                        <option value="3">3rd Sem</option>
+                        <option value="4">4th Sem</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Subject</label>
+                    <select id="subject-select">
+                        <option value="all">All Subjects</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="notes-grid" class="notes-grid">
+                <!-- Notes will be injected by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <span class="logo-text">Smart<span class="highlight">OS</span></span>
+                <p>Empowering students with intelligent academic tools.</p>
+            </div>
+            <div class="footer-links">
+                <div class="link-group">
+                    <h4>Platform</h4>
+                    <a href="#">Notes</a>
+                    <a href="#">AI Tools</a>
+                    <a href="#">Community</a>
+                </div>
+                <div class="link-group">
+                    <h4>Company</h4>
+                    <a href="#">About</a>
+                    <a href="#">Privacy</a>
+                    <a href="#">Terms</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Smart Student OS. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+    </script>
+</body>
+</html>
