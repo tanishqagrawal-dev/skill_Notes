@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Analytics (Global) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GR784CDF73"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-GR784CDF73');
+    </script>
+
+    <title>Sign In | SKiL MATRiX Notes</title>
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0a0a0a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Background Blobs */
+        .login-bg .blob {
+            position: absolute;
+            background: linear-gradient(180deg, rgba(108, 99, 255, 0.4) 0%, rgba(108, 99, 255, 0) 100%);
+            filter: blur(80px);
+            border-radius: 50%;
+            z-index: 0;
+            animation: float 10s infinite ease-in-out;
+        }
+
+        .login-bg .blob-1 {
+            top: -10%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            animation-delay: 0s;
+        }
+
+        .login-bg .blob-2 {
+            bottom: -10%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(180deg, rgba(255, 71, 87, 0.3) 0%, rgba(255, 71, 87, 0) 100%);
+            animation-delay: -5s;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 450px;
+            padding: 3rem;
+            text-align: center;
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(30px, -30px);
+            }
+        }
+    </style>
+</head>
+
+<body class="login-page">
+
+    <div class="login-container">
+        <div class="login-bg">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+        </div>
+
+        <div class="glass-card login-card fade-in">
+            <div class="logo"
+                style="margin-bottom: 2rem; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                <img src="../assets/logo.jpg" alt="SKiL MATRiX" style="height: 80px; border-radius: 50%;">
+                <span class="logo-text" style="font-size: 2rem;">SKiL MATRiX <span class="highlight"
+                        style="font-weight: 800;">NOTES</span></span>
+            </div>
+
+            <h1 class="font-heading" style="margin-bottom: 0.5rem;">Welcome Back</h1>
+            <p style="color: var(--text-dim); margin-bottom: 2.5rem;">
+                Sign in to continue to your academic dashboard.
+            </p>
+
+            <button id="google-login-btn" class="btn btn-primary btn-large"
+                style="width: 100%; justify-content: center; padding: 1rem; font-size: 1.1rem; position: relative; overflow: hidden;">
+                <span style="margin-right: 12px; font-size: 1.2rem;">🇬</span> Continue with Google
+            </button>
+
+            <p style="margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-dim);">
+                By continuing, you agree to our <a href="#" style="color: var(--primary);">Terms</a> and <a href="#"
+                    style="color: var(--primary);">Privacy Policy</a>.
+            </p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Essential: Type module ensuring it executes after DOM -->
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script type="module" src="../js/auth.js"></script>
+
+    <script>
+        // Inline UI handler for the button which delegates to the module-exposed function
+        document.getElementById('google-login-btn').addEventListener('click', () => {
+            const btn = document.getElementById('google-login-btn');
+            btn.innerHTML = '<span class="loader-pro" style="width:20px; height:20px; border-width:2px; margin-right:10px;"></span> Signing in...';
+            btn.style.opacity = '0.8';
+
+            if (window.handleLogin) {
+                window.handleLogin().catch(err => {
+                    console.error("Login Error:", err);
+                    btn.innerHTML = '<span style="margin-right: 12px; font-size: 1.2rem;">🇬</span> Continue with Google';
+                    btn.style.opacity = '1';
+                    alert("Authentication Failed. Please try again.");
+                });
+            } else {
+                console.error("Auth module not loaded yet");
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -122,8 +122,33 @@ window.updateNoteStat = async function (noteId, type) {
 }
 
 // --- CORE DASHBOARD LOGIC ---
+// Wait for Auth Guard to confirm user is logged in
+window.addEventListener('auth-ready', (event) => {
+    console.log("Dashboard: Auth Ready signal received.");
+    const user = event.detail.user;
+
+    // Map Firebase user to App User
+    let mappedRole = Roles.STUDENT;
+    if (user.email.includes('skillhub') || user.email === 'admin@skillhub.com') mappedRole = Roles.SUPER_ADMIN;
+
+    currentUser = {
+        id: user.uid,
+        name: user.displayName || user.email,
+        email: user.email,
+        photo: user.photoURL,
+        role: mappedRole,
+        college: 'medicaps'
+    };
+
+    updateUserProfileUI();
+    initRealTimeDB();
+    initTabs();
+    renderTabContent('overview');
+});
+
 document.addEventListener('DOMContentLoaded', () => {
-    initAuthSystem();
+    // UI initializations that don't depend on user data can go here
+    // e.g., Global search listners
 
     // Global listener for + Upload Note button in sidebar/header
     const uploadBtns = document.querySelectorAll('.upload-btn');
@@ -315,7 +340,7 @@ function updateUserProfileUI() {
         logoutBtn.style.color = '#ff4757';
         logoutBtn.style.cursor = 'pointer';
         logoutBtn.innerHTML = 'Sign Out';
-        logoutBtn.onclick = window.logout;
+        logoutBtn.onclick = window.handleLogout; // Use auth.js function
         userInfo.appendChild(logoutBtn);
     }
 }
@@ -774,51 +799,21 @@ window.backToExplorer = function () {
 
 // --- AUTH & DB FUNCTIONS ---
 
-window.initAuthSystem = function () {
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            console.log("User logged in:", user.email);
-            // Enhanced user object
-            let mappedRole = Roles.STUDENT;
-            // Simple email-based role mapping for demo
-            if (user.email.includes('skillhub') || user.email === 'admin@skillhub.com') mappedRole = Roles.SUPER_ADMIN;
-
-            currentUser = {
-                id: user.uid,
-                name: user.displayName || user.email,
-                email: user.email,
-                photo: user.photoURL,
-                role: mappedRole,
-                college: 'medicaps' // Default
-            };
-
-            updateUserProfileUI();
-            initRealTimeDB();
-            initTabs();
-            renderTabContent('overview');
-        } else {
-            console.log("User logged out");
-            currentUser = null;
-            renderLoginScreen();
-        }
-    });
-};
-
-window.loginWithGoogle = function () {
-    signInWithPopup(auth, provider)
-        .then((result) => {
-            console.log("Login success");
-        }).catch((error) => {
-            console.error("Login failed", error);
-            alert("Login failed: " + error.message);
-        });
-};
-
-window.logout = function () {
-    signOut(auth).then(() => {
-        location.reload();
-    });
-};
+document.addEventListener('auth-ready', (event) => {
+    const { user, currentUser: appCurrentUser } = event.detail;
+    if (user) {
+        console.log("User logged in:", user.email);
+        currentUser = appCurrentUser; // Update the global currentUser
+        updateUserProfileUI();
+        initRealTimeDB();
+        initTabs();
+        renderTabContent('overview');
+    } else {
+        console.log("User logged out");
+        currentUser = null;
+        // The login screen is now handled by login.html or auth.js redirect.
+    }
+});
 
 function initRealTimeDB() {
     if (unsubscribeNotes) unsubscribeNotes();
@@ -840,23 +835,5 @@ function initRealTimeDB() {
         }
     });
 }
-
-function renderLoginScreen() {
-    const contentArea = document.getElementById('tab-content');
-    if (contentArea) {
-        contentArea.innerHTML = `
-            <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;" class="fade-in">
-                <div class="glass-card" style="padding: 4rem; max-width: 500px; border: 1px solid var(--primary);">
-                    <h1 class="font-heading" style="font-size: 2.5rem; margin-bottom: 1rem;">Welcome to <span class="gradient-text">SmartOS</span></h1>
-                    <p style="color: var(--text-dim); margin-bottom: 2rem;">
-                        Sign in to access your personalized academic dashboard, real-time notes, and AI tools.
-                    </p>
-                    <button class="btn btn-primary btn-large" onclick="loginWithGoogle()" style="padding: 1rem 2rem; font-size: 1.1rem; width: 100%;">
-                        <span style="margin-right: 10px;">🇬</span> Continue with Google
-                    </button>
-                    <p style="margin-top:1rem; font-size:0.8rem; color:var(--text-dim);">Secure access via Firebase Auth</p>
-                </div>
-            </div>
-        `;
-    }
-}
+// Removed redundant initAuthSystem, loginWithGoogle, logout, renderLoginScreen
+// as they are handled by auth.js and login.html now.
