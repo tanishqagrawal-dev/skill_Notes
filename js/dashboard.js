@@ -129,6 +129,27 @@ function trackAnalytics(eventType, data) {
     }
 }
 
+window.showToast = function (message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast-popup ${type}`;
+    toast.innerHTML = `
+        <div class="toast-content">
+            <span class="toast-icon">${type === 'success' ? '✅' : '❌'}</span>
+            <span class="toast-message">${message}</span>
+        </div>
+    `;
+    document.body.appendChild(toast);
+
+    // Animate in
+    setTimeout(() => toast.classList.add('active'), 100);
+
+    // Remove after 3s
+    setTimeout(() => {
+        toast.classList.remove('active');
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+};
+
 window.updateNoteStat = async function (noteId, type) {
     const { db, doc, updateDoc, increment } = getFirebase();
     // Immediate UI Optimistic Update
@@ -348,12 +369,12 @@ async function handleDashboardNoteSubmit(e) {
 
     try {
         await addDoc(collection(db, "notes"), newNote);
-        alert("🚀 Note " + (newNote.status === 'approved' ? "published successfully!" : "submitted for review!"));
+        showToast(newNote.status === 'approved' ? "🚀 Note published successfully!" : "📩 Submitted for review!");
         closeDashboardUploadModal();
         document.getElementById('dash-upload-form').reset();
     } catch (err) {
         console.error("Upload error:", err);
-        alert("Failed to upload. See console.");
+        showToast("Failed to upload. Check connection.", "error");
     } finally {
         btn.disabled = false;
         btn.innerText = "🚀 Upload Note";
@@ -1174,10 +1195,12 @@ window.executeAdminUpload = async function () {
         branchId: document.getElementById('up-branch').value,
         year: document.getElementById('up-year').value,
         semester: document.getElementById('up-sem').value,
-        subjectId: document.getElementById('up-subject').value,
+        subject: document.getElementById('up-subject').value, // Changed from subjectId to subject
         type: document.getElementById('up-type').value,
         uploader: currentUser.name,
-        uploaded_by: currentUser.id
+        uploaded_by: currentUser.id,
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        created_at: new Date().toISOString()
     };
 
     document.getElementById('upload-progress-container').style.display = 'block';
