@@ -1,3 +1,6 @@
+// --- FIREBASE SERVICES ---
+const { auth, db, provider, signInWithPopup, signOut, onAuthStateChanged, collection, addDoc, onSnapshot, updateDoc, doc, increment, query, orderBy, where } = window.firebaseServices;
+
 // --- RBAC & USER SYSTEM ---
 const Roles = {
     SUPER_ADMIN: 'super_admin',
@@ -6,15 +9,10 @@ const Roles = {
     STUDENT: 'student'
 };
 
-const MockUsers = [
-    { id: 'u1', name: 'Tanishq (Dev)', role: Roles.SUPER_ADMIN, college: 'all', email: 'admin@skillhub.com' },
-    { id: 'u2', name: 'Ankit Sharma', role: Roles.COLLEGE_ADMIN, college: 'medicaps', email: 'ankit@medicaps.ac.in' },
-    { id: 'u3', name: 'Rahul Uploader', role: Roles.UPLOADER, college: 'medicaps', email: 'rahul@example.com' },
-    { id: 'u4', name: 'Generic Student', role: Roles.STUDENT, college: 'medicaps', email: 'student@example.com' }
-];
+const MockUsers = []; // Deprecated but kept for refernece if needed
 
-// Current session (Defaulting to Super Admin for development experience)
-let currentUser = MockUsers[0];
+// Current session
+let currentUser = null;
 
 const GlobalData = {
     colleges: [
@@ -44,37 +42,8 @@ const GlobalData = {
     }
 };
 
-const NotesDB = [
-    // Approved resources (Initial seed)
-    {
-        id: 'mc1', title: 'OS Unit 1-5: Complete Official Notes',
-        collegeId: 'medicaps', branchId: 'cse', year: '2nd Year', subject: 'os',
-        type: 'notes', views: 4200, downloads: 1200, likes: 450, uploader: 'Arjun M.',
-        date: 'Jan 28, 2026', badge: '🔥 HOT', driveLink: 'https://drive.google.com/drive/folders/1BN6ytHOWPdpLTG1v3A2CoPw8lbluoG5L',
-        status: 'approved', uploaded_by: 'u1', approved_by: 'u1'
-    },
-    {
-        id: 'mc1b', title: 'OS Mid-Sem PYQs (2024-25)',
-        collegeId: 'medicaps', branchId: 'cse', year: '2nd Year', subject: 'os',
-        type: 'pyq', views: 1500, downloads: 400, likes: 80, uploader: 'Admin',
-        date: 'Dec 15, 2025', badge: '', driveLink: 'https://drive.google.com/drive/folders/1BN6ytHOWPdpLTG1v3A2CoPw8lbluoG5L',
-        status: 'approved', uploaded_by: 'u1', approved_by: 'u1'
-    },
-    {
-        id: 'mc2', title: 'DBMS Full SQL & Normalization Notes',
-        collegeId: 'medicaps', branchId: 'cse', year: '2nd Year', subject: 'dbms',
-        type: 'notes', views: 2800, downloads: 950, likes: 310, uploader: 'Sakshi V.',
-        date: 'Jan 15, 2026', badge: '⭐ TOP', driveLink: 'https://drive.google.com/drive/folders/1OyZWpofSNatDdXt7KxSQNBE_F5NtucPn',
-        status: 'approved', uploaded_by: 'u1', approved_by: 'u1'
-    },
-    {
-        id: 'mc4', title: 'Eng. Physics - Unit 1: Optics & Lasers',
-        collegeId: 'medicaps', branchId: 'cse', year: '1st Year', subject: 'phy',
-        type: 'notes', views: 3500, downloads: 820, likes: 210, uploader: 'Admin',
-        date: 'Feb 02, 2026', badge: '🌟 BEST', driveLink: 'https://drive.google.com/drive/folders/1WXcUBjlR-57DsuI3Fgi03Bks--n1jtwC',
-        status: 'approved', uploaded_by: 'u1', approved_by: 'u1'
-    }
-];
+let NotesDB = [];
+let unsubscribeNotes = null;
 
 // --- APP STATE ---
 let selState = { college: null, branch: null, year: null, subject: null };
@@ -84,6 +53,15 @@ function trackAnalytics(eventType, data) {
     console.log(`[Analytics] ${eventType}:`, data);
     if (typeof gtag === 'function') {
         gtag('event', eventType, { 'event_category': 'Explorer', 'event_label': data.id || data.name });
+    }
+    // Real-time DB Analytics
+    if (currentUser && db) {
+        addDoc(collection(db, "analytics_logs"), {
+            eventType,
+            data,
+            userId: currentUser.id,
+            timestamp: new Date().toISOString()
+        }).catch(e => console.error("Analytics Error:", e));
     }
 }
 
@@ -113,29 +91,39 @@ function convertDriveLink(link, format = 'preview') {
 }
 
 // Real-time Database Stat Incrementor
-window.updateNoteStat = function (noteId, type) {
+window.updateNoteStat = async function (noteId, type) {
+    // Immediate UI Optimistic Update
     const note = NotesDB.find(n => n.id === noteId);
-    if (!note) return;
-
-    if (type === 'view') note.views++;
-    if (type === 'download') note.downloads++;
-    if (type === 'like') {
-        note.likes++;
-        alert("💖 Added to your liked resources!");
+    if (note) {
+        if (type === 'view') note.views++;
+        if (type === 'download') note.downloads++;
+        if (type === 'like') {
+            note.likes++;
+            alert("💖 Added to your liked resources!");
+        }
+        // Refresh UI
+        if (document.getElementById('final-notes-view').style.display === 'block') {
+            const activeTabElement = document.querySelector('.sub-tab.active');
+            const activeTab = activeTabElement ? activeTabElement.innerText.toLowerCase().includes('pyq') ? 'pyq' : (activeTabElement.innerText.toLowerCase().includes('formula') ? 'formula' : 'notes') : 'notes';
+            // showNotes(activeTab); // Avoid full re-render flickering, just let Firestore listener handle it eventually
+        }
     }
 
-    trackAnalytics(`note_${type}`, { id: noteId, title: note.title });
-
-    // Refresh UI if needed
-    if (document.getElementById('final-notes-view').style.display === 'block') {
-        showNotes();
+    // Firestore Update
+    try {
+        const noteRef = doc(db, "notes", noteId);
+        await updateDoc(noteRef, {
+            [type + 's']: increment(1) // views, downloads, likes
+        });
+        trackAnalytics(`note_${type}`, { id: noteId, title: note ? note.title : 'Unknown' });
+    } catch (error) {
+        console.error("Error updating stats:", error);
     }
 }
 
 // --- CORE DASHBOARD LOGIC ---
 document.addEventListener('DOMContentLoaded', () => {
-    initTabs();
-    renderTabContent('overview');
+    initAuthSystem();
 
     // Global listener for + Upload Note button in sidebar/header
     const uploadBtns = document.querySelectorAll('.upload-btn');
@@ -210,10 +198,16 @@ window.jumpToNote = function (id) {
     showNotes(note.type);
 };
 
-window.openUploadModal = function () {
-    // Simple prompt-based mock for upload (since we are in dashboard.js)
-    if (currentUser.role === Roles.STUDENT) {
-        alert("🔒 Only verified Uploaders or Admins can submit notes. Please update your role in the 'Overview' page for this demo.");
+window.openUploadModal = async function () {
+    if (!currentUser) {
+        alert("Please login first.");
+        return;
+    }
+
+    // Check permission (Admin/Uploader only)
+    const allowedRoles = [Roles.SUPER_ADMIN, Roles.COLLEGE_ADMIN, Roles.UPLOADER];
+    if (!allowedRoles.includes(currentUser.role)) {
+        alert("🔒 Student accounts cannot upload directly. Please ask a representative.");
         return;
     }
 
@@ -221,9 +215,8 @@ window.openUploadModal = function () {
     if (!title) return;
 
     const newNote = {
-        id: 'new_' + Date.now(),
         title: title,
-        collegeId: selState.college ? selState.college.id : currentUser.college,
+        collegeId: selState.college ? selState.college.id : 'medicaps',
         branchId: selState.branch ? selState.branch.id : 'cse',
         year: selState.year || '2nd Year',
         subject: selState.subject ? selState.subject.id : 'os',
@@ -232,17 +225,19 @@ window.openUploadModal = function () {
         uploader: currentUser.name,
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         badge: '✨ NEW',
-        driveLink: 'https://drive.google.com/',
+        driveLink: 'https://drive.google.com/', // In a real app, this would be a file input -> Storage upload
         status: 'pending',
-        uploaded_by: currentUser.id
+        uploaded_by: currentUser.id,
+        approved_by: null,
+        created_at: new Date().toISOString() // for sorting
     };
 
-    NotesDB.unshift(newNote);
-    alert("🚀 Note submitted for review! Check 'Verification Hub' if you are an Admin, or wait for approval.");
-
-    // Refresh current view if we are on notes hub
-    if (document.getElementById('final-notes-view').style.display === 'block') {
-        showNotes();
+    try {
+        await addDoc(collection(db, "notes"), newNote);
+        alert("🚀 Note submitted for review! It will appear once approved.");
+    } catch (e) {
+        console.error("Upload error:", e);
+        alert("Error uploading note. See console.");
     }
 };
 
@@ -295,9 +290,34 @@ function updateUserProfileUI() {
     const name = document.querySelector('.user-profile-mini .name');
     const meta = document.querySelector('.user-profile-mini .meta');
 
-    if (avatar) avatar.innerText = currentUser.name.charAt(0);
-    if (name) name.innerText = currentUser.name;
-    if (meta) meta.innerText = `${currentUser.role.replace('_', ' ').toUpperCase()} • ${currentUser.college.toUpperCase()}`;
+    if (!currentUser) return;
+
+    if (avatar) {
+        if (currentUser.photo) {
+            avatar.innerHTML = `<img src="${currentUser.photo}" style="width:100%; height:100%; object-fit: cover; border-radius:50%;">`;
+            avatar.style.background = 'transparent';
+        } else {
+            avatar.innerText = (currentUser.name && currentUser.name.charAt(0)) || 'U';
+        }
+    }
+    if (name) name.innerText = currentUser.name || currentUser.email.split('@')[0];
+    if (meta) {
+        let roleDisplay = currentUser.role.replace('_', ' ').toUpperCase();
+        meta.innerText = `${roleDisplay} • ${currentUser.college ? currentUser.college.toUpperCase() : 'Guest'}`;
+    }
+
+    // Add logout option to user-info if not present
+    const userInfo = document.querySelector('.user-info');
+    if (userInfo && !document.getElementById('logout-btn')) {
+        const logoutBtn = document.createElement('div');
+        logoutBtn.id = 'logout-btn';
+        logoutBtn.style.fontSize = '0.7rem';
+        logoutBtn.style.color = '#ff4757';
+        logoutBtn.style.cursor = 'pointer';
+        logoutBtn.innerHTML = 'Sign Out';
+        logoutBtn.onclick = window.logout;
+        userInfo.appendChild(logoutBtn);
+    }
 }
 
 window.switchRole = function (userId) {
@@ -722,7 +742,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                             </div>
                         </div>
                         <div class="item-meta-row" style="font-size: 0.7rem; color: var(--success); opacity: 0.9; margin-top: 2px;">
-                            ${n.status === 'approved' ? `<span>✓ Verified by ${MockUsers.find(u => u.id === n.approved_by)?.name || 'Central Admin'}</span>` : ''}
+                            ${n.status === 'approved' ? `<span>✓ Verified by ${n.approved_by || 'Admin'}</span>` : ''}
                         </div>
                         <div class="item-engagement-row" style="margin-top: 10px;">
                             <span class="eng-icon" onclick="updateNoteStat('${n.id}', 'like')">👍 ${n.likes}</span>
@@ -751,3 +771,92 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
 window.backToExplorer = function () {
     location.reload();
 };
+
+// --- AUTH & DB FUNCTIONS ---
+
+window.initAuthSystem = function () {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log("User logged in:", user.email);
+            // Enhanced user object
+            let mappedRole = Roles.STUDENT;
+            // Simple email-based role mapping for demo
+            if (user.email.includes('skillhub') || user.email === 'admin@skillhub.com') mappedRole = Roles.SUPER_ADMIN;
+
+            currentUser = {
+                id: user.uid,
+                name: user.displayName || user.email,
+                email: user.email,
+                photo: user.photoURL,
+                role: mappedRole,
+                college: 'medicaps' // Default
+            };
+
+            updateUserProfileUI();
+            initRealTimeDB();
+            initTabs();
+            renderTabContent('overview');
+        } else {
+            console.log("User logged out");
+            currentUser = null;
+            renderLoginScreen();
+        }
+    });
+};
+
+window.loginWithGoogle = function () {
+    signInWithPopup(auth, provider)
+        .then((result) => {
+            console.log("Login success");
+        }).catch((error) => {
+            console.error("Login failed", error);
+            alert("Login failed: " + error.message);
+        });
+};
+
+window.logout = function () {
+    signOut(auth).then(() => {
+        location.reload();
+    });
+};
+
+function initRealTimeDB() {
+    if (unsubscribeNotes) unsubscribeNotes();
+
+    // Listen to Notes - Fetching ALL notes for client-side filtering (optimization: use queries per step)
+    // For this size of app, fetching all metadata is okay.
+    const q = query(collection(db, "notes"), orderBy("created_at", "desc"));
+    unsubscribeNotes = onSnapshot(q, (snapshot) => {
+        NotesDB = [];
+        snapshot.forEach((doc) => {
+            NotesDB.push({ id: doc.id, ...doc.data() });
+        });
+        console.log(`Synced ${NotesDB.length} notes from Firestore`);
+
+        // Refresh specific views if active
+        // e.g. if we are on global search or just loaded
+        if (document.getElementById('final-notes-view')?.style.display === 'block') {
+            // Optional: trigger re-render
+        }
+    });
+}
+
+function renderLoginScreen() {
+    const contentArea = document.getElementById('tab-content');
+    if (contentArea) {
+        contentArea.innerHTML = `
+            <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;" class="fade-in">
+                <div class="glass-card" style="padding: 4rem; max-width: 500px; border: 1px solid var(--primary);">
+                    <h1 class="font-heading" style="font-size: 2.5rem; margin-bottom: 1rem;">Welcome to <span class="gradient-text">SmartOS</span></h1>
+                    <p style="color: var(--text-dim); margin-bottom: 2rem;">
+                        Sign in to access your personalized academic dashboard, real-time notes, and AI tools.
+                    </p>
+                    <button class="btn btn-primary btn-large" onclick="loginWithGoogle()" style="padding: 1rem 2rem; font-size: 1.1rem; width: 100%;">
+                        <span style="margin-right: 10px;">🇬</span> Continue with Google
+                    </button>
+                    <p style="margin-top:1rem; font-size:0.8rem; color:var(--text-dim);">Secure access via Firebase Auth</p>
+                </div>
+            </div>
+        `;
+    }
+}
