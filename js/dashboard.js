@@ -417,6 +417,7 @@ function renderTabContent(tabId) {
         contentArea.innerHTML = renderPlanner();
     } else if (tabId === 'ai-tools') {
         contentArea.innerHTML = renderAITools();
+        setTimeout(window.checkServer, 100); // Check server status after render
     } else if (tabId === 'analytics') {
         contentArea.innerHTML = renderAnalytics();
     } else if (tabId === 'settings') {
@@ -442,15 +443,159 @@ function renderPlanner() {
 function renderAITools() {
     return `
         <div class="tab-pane active fade-in" style="padding: 2rem;">
-            <h1 class="font-heading">🤖 AI <span class="gradient-text">Tutor</span></h1>
-            <div class="glass-card" style="margin-top: 2rem; padding: 3rem; text-align: center;">
-                <div style="font-size: 4rem; margin-bottom: 1rem;">🧠</div>
-                <h3>Fine-tuning Models...</h3>
-                <p>Our custom LLM is training on your syllabus. Stay tuned.</p>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                <div>
+                    <h1 class="font-heading">🤖 AI <span class="gradient-text">Model Paper Generator</span></h1>
+                    <p style="color: var(--text-dim);">Generate exam-ready question papers based on PYQ patterns. Powered by Gemini.</p>
+                </div>
+                <div class="status-badge" id="server-status-badge" style="font-size: 0.8rem; padding: 0.5rem 1rem; border-radius: 20px; background: rgba(255,255,255,0.05);">
+                    Checking Server...
+                </div>
+            </div>
+
+            <div class="grid-2-col" style="display: grid; grid-template-columns: 350px 1fr; gap: 2rem; align-items: start;">
+                <!-- Left: Configuration Form -->
+                <div class="glass-card" style="padding: 2rem;">
+                    <h3 class="font-heading" style="margin-bottom: 1.5rem;">⚙️ Paper Config</h3>
+                    
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label style="display:block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem;">Subject Name</label>
+                        <input type="text" id="ai-subject" class="input-field" placeholder="e.g. Operating Systems" value="${selState.subject ? selState.subject.name : ''}" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 8px; color: white;">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label style="display:block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem;">University / Pattern</label>
+                        <input type="text" id="ai-uni" class="input-field" placeholder="e.g. Medi-Caps University" value="${selState.college ? selState.college.name : 'Medi-Caps University'}" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 8px; color: white;">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label style="display:block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem;">Exam Type</label>
+                        <select id="ai-exam" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 8px; color: white;">
+                            <option value="End Semester">End Semester (Final)</option>
+                            <option value="Mid Semester">Mid Semester (MST)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label style="display:block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem;">Paste PYQs / Topics</label>
+                        <textarea id="ai-pyqs" rows="6" placeholder="Paste text from previous papers or list of important topics here..." style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 8px; color: white; resize: vertical;"></textarea>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="generatePaper()" id="btn-generate" style="width: 100%; justify-content: center;">
+                        ✨ Generate Model Paper
+                    </button>
+                    <p style="font-size: 0.7rem; color: var(--text-dim); margin-top: 1rem; text-align: center;">
+                        Requires local server running on port 3000.
+                    </p>
+                </div>
+
+                <!-- Right: Output Preview -->
+                <div class="glass-card" style="padding: 2rem; min-height: 600px; display: flex; flex-direction: column;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 1rem;">
+                        <h3 class="font-heading">📄 Generated Paper</h3>
+                        <div class="actions">
+                            <button class="btn btn-sm btn-ghost" onclick="copyPaper()" title="Copy to Clipboard">📋</button>
+                            <!-- <button class="btn btn-sm btn-ghost" title="Download PDF">📥</button> -->
+                        </div>
+                    </div>
+                    
+                    <div id="ai-output" style="flex: 1; overflow-y: auto; font-family: 'Times New Roman', serif; line-height: 1.6; white-space: pre-wrap; color: #e0e0e0;">
+                        <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-dim); opacity: 0.5;">
+                            <span style="font-size: 3rem;">📄</span>
+                            <p>Paper will appear here</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     `;
 }
+
+// Check server status when tab loads
+window.checkServer = async () => {
+    const badge = document.getElementById('server-status-badge');
+    if (!badge) return;
+
+    const isUp = await aiClient.isServerAvailable();
+    if (isUp) {
+        badge.innerHTML = "🟢 System Online";
+        badge.style.background = "rgba(46, 204, 113, 0.2)";
+        badge.style.color = "#2ecc71";
+    } else {
+        badge.innerHTML = "🔴 Server Offline";
+        badge.style.background = "rgba(231, 76, 60, 0.2)";
+        badge.style.color = "#e74c3c";
+    }
+}
+
+// Hook into renderAITools to check server
+const originalRenderAITools = renderAITools; // Self-reference fix not needed if I replaced the function definition above entirely.
+
+// Main Generation Function
+window.generatePaper = async () => {
+    const btn = document.getElementById('btn-generate');
+    const output = document.getElementById('ai-output');
+
+    // Inputs
+    const subject = document.getElementById('ai-subject').value;
+    const university = document.getElementById('ai-uni').value;
+    const examType = document.getElementById('ai-exam').value;
+    const pyqs = document.getElementById('ai-pyqs').value;
+
+    if (!subject || !pyqs) {
+        alert("Please enter a subject and paste some PYQ content/topics.");
+        return;
+    }
+
+    // UI Loading State
+    btn.innerHTML = '<span class="loader-pro" style="width:15px; height:15px; border-width:2px;"></span> Generating...';
+    btn.disabled = true;
+    output.innerHTML = `
+        <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--primary);">
+            <div class="loader-pro"></div>
+            <p style="margin-top: 1rem;">Analyzing patterns & generating questions...</p>
+        </div>
+    `;
+
+    try {
+        const result = await aiClient.generateModelPaper({
+            subject, university, semester: selState.year || 'Unknown', examType, pyqs
+        });
+
+        // Format Markdown to simple HTML for display (basic)
+        // Replacing **text** with <b>text</b> etc. for better preview
+        let formatted = result.content
+            .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+            .replace(/### (.*?)\n/g, '<h3 style="margin-top:1rem; border-bottom:1px solid #444;">$1</h3>')
+            .replace(/## (.*?)\n/g, '<h2 style="text-align:center; text-decoration:underline;">$1</h2>');
+
+        output.innerHTML = formatted;
+
+        // Track
+        trackAnalytics('ai_generate_paper', { subject });
+
+    } catch (error) {
+        output.innerHTML = `
+            <div style="color: #ff4757; text-align: center; padding: 2rem;">
+                <h3>⚠️ Error</h3>
+                <p>${error.message}</p>
+                ${error.message.includes('Server') ? '<p style="font-size:0.8rem; margin-top:1rem; color: var(--text-dim);">Run "node server.js" in the server folder.</p>' : ''}
+            </div>
+        `;
+    } finally {
+        btn.innerHTML = '✨ Generate Model Paper';
+        btn.disabled = false;
+    }
+};
+
+window.copyPaper = function () {
+    const text = document.getElementById('ai-output').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        alert("Paper copied to clipboard!");
+    });
+};
+
+/* End AI Tools */
 
 function renderAnalytics() {
     return `
