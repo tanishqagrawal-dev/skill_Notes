@@ -78,6 +78,69 @@
             width: 1em;
             margin-left: -1em;
         }
+
+        /* Founder Section Styles */
+        .founders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .founder-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .founder-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            background: rgba(108, 99, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(108, 99, 255, 0.15);
+        }
+
+        .founder-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .founder-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .founder-role {
+            font-size: 0.9rem;
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .founder-bio {
+            font-size: 0.95rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
     </style>
 </head>
 
@@ -127,6 +190,58 @@
 
                 <p style="font-weight: 600; color: var(--secondary); margin-top: 2rem;">Made for students. Powered by
                     intelligence.</p>
+
+                <div style="margin-top: 4rem;">
+                    <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2rem;">Meet Our <span
+                            class="gradient-text">Founders</span></h2>
+
+                    <div class="founders-grid">
+                        <!-- Founder 1 -->
+                        <div class="founder-card">
+                            <div class="founder-avatar" style="border: 2px solid var(--primary);">TA</div>
+                            <h3 class="founder-name">Tanishq Agrawal</h3>
+                            <div class="founder-role">Frontend, UI/UX, Marketing</div>
+                            <p class="founder-bio">Visionary lead focusing on crafting world-class user experiences and
+                                driving the product's feature roadmap.</p>
+                            <div
+                                style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; opacity: 0.6;">
+                                <span style="cursor: pointer; font-size: 1.2rem;">🔗</span>
+                                <span style="cursor: pointer; font-size: 1.2rem;">🐦</span>
+                                <span style="cursor: pointer; font-size: 1.2rem;">💼</span>
+                            </div>
+                        </div>
+
+                        <!-- Founder 2 -->
+                        <div class="founder-card">
+                            <div class="founder-avatar" style="border: 2px solid var(--secondary);">YJ</div>
+                            <h3 class="founder-name">Yash Jain</h3>
+                            <div class="founder-role">Cloud, Backend & Security</div>
+                            <p class="founder-bio">Architectural mastermind ensuring scalability, security, and robust
+                                cloud infrastructure for the platform.</p>
+                            <div
+                                style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; opacity: 0.6;">
+                                <span style="cursor: pointer; font-size: 1.2rem;">🔗</span>
+                                <span style="cursor: pointer; font-size: 1.2rem;">🐦</span>
+                                <span style="cursor: pointer; font-size: 1.2rem;">💼</span>
+                            </div>
+                        </div>
+
+                        <!-- Founder 3 -->
+                        <div class="founder-card">
+                            <div class="founder-avatar" style="border: 2px solid var(--accent);">AV</div>
+                            <h3 class="founder-name">Anoop Verma</h3>
+                            <div class="founder-role">AI & Backend Developer</div>
+                            <p class="founder-bio">Intelligence lead developing core AI models and integrating smart
+                                automation to power student tools.</p>
+                            <div
+                                style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; opacity: 0.6;">
+                                <span style="cursor: pointer; font-size: 1.2rem;">🔗</span>
+                                <span style="cursor: pointer; font-size: 1.2rem;">🐦</span>
+                                <span style="cursor: pointer; font-size: 1.2rem;">💼</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
