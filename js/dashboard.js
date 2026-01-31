@@ -143,8 +143,10 @@ window.updateNoteStat = async function (noteId, type) {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    // UI initializations that don't depend on user data can go here
-    // e.g., Global search listners
+    // Check for saved theme
+    if (localStorage.getItem('theme') === 'light') {
+        document.body.classList.add('light-mode');
+    }
 
     // Global listener for + Upload Note button in sidebar/header
     const uploadBtns = document.querySelectorAll('.upload-btn');
@@ -634,12 +636,15 @@ function renderSettings() {
 
             <!-- Application Settings -->
             <div class="glass-card">
-                 <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-glass); display:flex; justify-content:space-between; align-items:center;">
+                <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-glass); display:flex; justify-content:space-between; align-items:center;">
                     <div>
-                        <h4 style="margin-bottom: 0.25rem;">Appearance</h4>
-                        <p style="font-size: 0.8rem; color: var(--text-dim);">Customize the interface theme</p>
+                        <h4 style="margin-bottom: 0.25rem;">Dark Mode</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-dim);">Toggle light/dark theme</p>
                     </div>
-                    <button class="btn btn-sm btn-primary">Dark Mode Active</button>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="theme-toggle" onchange="window.toggleTheme()" ${document.body.classList.contains('light-mode') ? '' : 'checked'}>
+                        <span class="toggle-slider"></span>
+                    </label>
                 </div>
                 
                  <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-glass); display:flex; justify-content:space-between; align-items:center;">
@@ -1110,6 +1115,12 @@ function handleAuthReady(data) {
     } else {
         console.log("🔓 Dashboard: No active session. Waiting for auth...");
     }
+}
+
+window.toggleTheme = function () {
+    document.body.classList.toggle('light-mode');
+    const isLight = document.body.classList.contains('light-mode');
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
 }
 
 // Check for already dispatched auth
