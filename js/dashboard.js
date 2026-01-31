@@ -400,6 +400,140 @@ function renderAITools() {
         });
     });
 
+    function renderOverview() {
+        // Phase 1: Personalization
+        const userName = currentUser.name.split(' ')[0];
+        const college = GlobalData.colleges.find(c => c.id === currentUser.college)?.name || 'Medi-Caps University';
+        const year = currentUser.year || '3rd Year';
+        const branch = currentUser.branch || 'CSE';
+
+        // Mock Readiness Data (Phase 1)
+        const subjects = [
+            { name: 'Digital Electronics', progress: 85, color: '#2ecc71' },
+            { name: 'Data Structures', progress: 60, color: '#f1c40f' },
+            { name: 'Mathematics-III', progress: 30, color: '#e74c3c' }
+        ];
+
+        setTimeout(initLiveCounters, 0); // Start animations
+
+        return `
+        <div class="tab-pane active fade-in" style="padding: 2rem;">
+            <!-- 1. Personalized Header -->
+            <div style="margin-bottom: 2.5rem;">
+                <h1 class="font-heading" style="font-size: 2.5rem;">Welcome back, <span class="gradient-text">${userName}</span> 👋</h1>
+                <p style="color: var(--text-dim); font-size: 1.1rem;">${year} • ${branch} • ${college}</p>
+            </div>
+
+            <!-- 2. Live Activity Widgets -->
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+                <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #2ecc71;">
+                    <div style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.5rem;">🔴 Live Students</div>
+                    <div class="live-counter" id="live-students" style="font-size: 2rem; font-weight: 700;">124</div>
+                </div>
+                <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #3498db;">
+                    <div style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.5rem;">🔥 Trending Now</div>
+                    <div style="font-size: 2rem; font-weight: 700;">18 Notes</div>
+                </div>
+                <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #9b59b6;">
+                    <div style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.5rem;">⬇️ Global Downloads</div>
+                    <div class="live-counter" id="global-downloads" style="font-size: 2rem; font-weight: 700;">2,340</div>
+                </div>
+            </div>
+
+            <div class="grid-2-col" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;">
+                
+                <!-- Main Content: Quick Actions & Recently Viewed -->
+                <div style="display: flex; flex-direction: column; gap: 2rem;">
+                    
+                    <!-- 4. "What Next?" AI Card -->
+                    <div class="glass-card" style="background: linear-gradient(135deg, rgba(108, 99, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%); border: 1px solid rgba(108, 99, 255, 0.3); padding: 2rem; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: -10px; right: -10px; font-size: 8rem; opacity: 0.05; transform: rotate(15deg);">🤖</div>
+                        <h3 class="font-heading">🤖 AI Recommendation</h3>
+                        <p style="margin-bottom: 1.5rem; max-width: 80%;">Your retention in <strong>Mathematics-III</strong> is dropping. We recommend solving a model paper to boost confidence.</p>
+                        <div style="display: flex; gap: 1rem;">
+                            <button class="btn btn-primary" onclick="renderTabContent('ai-tools')">Generate Model Paper</button>
+                            <button class="btn btn-ghost" onclick="renderTabContent('planner')">Schedule Revision</button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div>
+                        <h3 class="font-heading" style="margin-bottom: 1rem;">🚀 Quick Actions</h3>
+                        <div class="grid-2-col" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                           <div class="quick-action-card glass-card" onclick="renderNotesHub()" style="cursor: pointer; text-align: center; padding: 1.5rem; transition: transform 0.2s;">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📚</div>
+                                <div>Notes Hub</div>
+                           </div>
+                           <div class="quick-action-card glass-card" onclick="renderTabContent('ai-tools')" style="cursor: pointer; text-align: center; padding: 1.5rem; transition: transform 0.2s;">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">🤖</div>
+                                <div>AI Tools</div>
+                           </div>
+                           <div class="quick-action-card glass-card" onclick="renderTabContent('planner')" style="cursor: pointer; text-align: center; padding: 1.5rem; transition: transform 0.2s;">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📅</div>
+                                <div>Planner</div>
+                           </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 3. Exam Readiness Meter (Sidebar) -->
+                <div>
+                    <div class="glass-card" style="padding: 1.5rem;">
+                         <h3 class="font-heading" style="margin-bottom: 1.5rem;">📊 Exam Readiness</h3>
+                         <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                            ${subjects.map(sub => `
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                                        <span>${sub.name}</span>
+                                        <span style="font-weight: 700; color: ${sub.color};">${sub.progress}%</span>
+                                    </div>
+                                    <div style="width: 100%; background: rgba(255,255,255,0.1); height: 8px; border-radius: 10px; overflow: hidden;">
+                                        <div style="width: ${sub.progress}%; background: ${sub.color}; height: 100%; border-radius: 10px; transition: width 1s ease;"></div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                         </div>
+                         <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-glass); text-align: center;">
+                            <button class="btn btn-sm btn-ghost" style="width: 100%;" onclick="renderTabContent('analytics')">View Full Analysis</button>
+                         </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    `;
+    }
+
+    // Live Counter Animation logic
+    window.initLiveCounters = function () {
+        // 1. Live Students (Fluctuate)
+        const liveEl = document.getElementById('live-students');
+        if (liveEl) {
+            let count = 124;
+            setInterval(() => {
+                const change = Math.floor(Math.random() * 5) - 2; // -2 to +2
+                count += change;
+                if (count < 100) count = 100;
+                liveEl.innerText = count;
+            }, 3000);
+        }
+
+        // 2. Global Downloads (Count up)
+        const dlEl = document.getElementById('global-downloads');
+        if (dlEl) {
+            let dlCount = 2340;
+            setInterval(() => {
+                if (Math.random() > 0.7) { // 30% chance to increment
+                    dlCount++;
+                    dlEl.innerText = dlCount.toLocaleString();
+                    // Flash effect
+                    dlEl.style.color = '#fff';
+                    setTimeout(() => dlEl.style.color = '', 200);
+                }
+            }, 2000);
+        }
+    }
     return `
         <div class="tab-pane active fade-in" style="padding: 2rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">

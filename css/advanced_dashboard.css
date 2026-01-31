@@ -1,0 +1,51 @@
+/* Advanced Dashboard Features */
+
+/* Wobble Hover Effect for Live Stats */
+.wobble-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.wobble-hover:hover {
+    transform: translateY(-5px) rotate(1deg);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.wobble-hover:nth-child(even):hover {
+    transform: translateY(-5px) rotate(-1deg);
+}
+
+/* Live Counter Pulse */
+@keyframes pulse-text {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.live-counter {
+    transition: color 0.2s ease;
+}
+
+/* Quick Action Cards */
+.quick-action-card:hover {
+    background: rgba(108, 99, 255, 0.1);
+    border-color: var(--primary);
+    transform: translateY(-5px);
+}
+
+/* Readiness Meter Animations */
+@keyframes fill-bar {
+    from {
+        width: 0%;
+    }
+}
