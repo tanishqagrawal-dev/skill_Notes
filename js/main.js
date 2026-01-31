@@ -70,34 +70,9 @@ document.addEventListener('DOMContentLoaded', () => {
     animateCounters();
 });
 
-// Animate Stats Counters
+// Animate Stats Counters (Disabled as stats are now handled by stats.js real-time listener)
 function animateCounters() {
-    const stats = [
-        { id: 'stat-views', end: 1245670 },
-        { id: 'stat-downloads', end: 85432 },
-        { id: 'stat-active', end: 12890 }
-    ];
-
-    stats.forEach(stat => {
-        const el = document.getElementById(stat.id);
-        if (!el) return;
-
-        let start = 0;
-        const duration = 2000;
-        const stepTime = 20;
-        const totalSteps = duration / stepTime;
-        const increment = stat.end / totalSteps;
-
-        const timer = setInterval(() => {
-            start += increment;
-            if (start >= stat.end) {
-                el.innerText = stat.end.toLocaleString();
-                clearInterval(timer);
-            } else {
-                el.innerText = Math.floor(start).toLocaleString();
-            }
-        }, stepTime);
-    });
+    // Left empty: stats.js handles real-time updates now.
 }
 
 // Navigation Scroll Effect
@@ -218,21 +193,37 @@ function formatNumber(num) {
     return num;
 }
 
-// Analytics Handlers (Mock)
-function handleView(id) {
+// Analytics Handlers
+async function handleView(id) {
     console.log(`Viewing note: ${id}`);
     const note = notesData.find(n => n.id === id);
     if (note) {
         note.views++;
-        renderNotes(notesData); // Re-render to show updated stats
+        renderNotes(notesData); // Local update
+
+        // Real-time tracking (lazy import to wait for module system if needed)
+        try {
+            const { trackPageView } = await import('./stats.js');
+            trackPageView();
+        } catch (e) {
+            console.error("Tracking failed", e);
+        }
     }
 }
 
-function handleDownload(id) {
+async function handleDownload(id) {
     console.log(`Downloading note: ${id}`);
     const note = notesData.find(n => n.id === id);
     if (note) {
         note.downloads++;
-        renderNotes(notesData);
+        renderNotes(notesData); // Local update
+
+        // Real-time tracking
+        try {
+            const { trackDownload } = await import('./stats.js');
+            trackDownload();
+        } catch (e) {
+            console.error("Tracking failed", e);
+        }
     }
 }
