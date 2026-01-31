@@ -81,6 +81,30 @@ function renderTabContent(tabId) {
                         </div>
                     </div>
                 </div>
+
+                <!-- Advanced Resource Viewer Modal -->
+                <div id="preview-modal" class="modal-overlay" style="display:none;">
+                    <div class="glass-card modal-content preview-modal-content">
+                        <div class="preview-header">
+                            <h3 id="preview-title">Document Preview</h3>
+                            <button class="btn btn-ghost" onclick="closePreviewModal()">✕</button>
+                        </div>
+                        <div class="preview-body">
+                            <div style="text-align: center;">
+                                <div style="font-size: 4rem; opacity: 0.2; margin-bottom: 1rem;">📄</div>
+                                <p style="color: var(--text-dim);">Secure Preview Rendering...</p>
+                                <div class="loader-pro" style="margin-top: 2rem;"></div>
+                            </div>
+                        </div>
+                        <div class="preview-footer">
+                            <div style="display: flex; gap: 2rem;">
+                                <span style="font-size: 0.9rem; color: var(--text-muted);">Verified by 12 Students</span>
+                                <span style="font-size: 0.9rem; color: var(--text-muted);">Quality Score: 9.8/10</span>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="alert('Download started...')">Download PDF</button>
+                        </div>
+                    </div>
+                </div>
             `;
             contentArea.innerHTML = html;
             setTimeout(() => {
@@ -363,27 +387,23 @@ window.renderHubHome = function () {
                         <input type="text" placeholder="Search by subject, topic or uploader..." style="width:100%; padding: 1.2rem 1.5rem 1.2rem 3rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); border-radius: 12px; color: white; outline: none;">
                         <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); opacity: 0.5;">🔍</span>
                     </div>
-                    <div class="hub-stats-row" style="display: flex; gap: 3rem; margin-top: 2.5rem;">
-                        <div class="h-stat">
-                            <span class="val">12K+</span>
-                            <span class="lbl">Resources</span>
-                        </div>
-                        <div class="h-stat">
-                            <span class="val">450+</span>
-                            <span class="lbl">Contributors</span>
-                        </div>
-                        <div class="h-stat">
-                            <span class="val">85K+</span>
-                            <span class="lbl">Downloads</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="hero-right">
-                    <!-- Illustrated or empty space for visual balance -->
                 </div>
             </div>
 
-            <section class="featured-section" style="margin-top: 5rem;">
+            <section class="moderation-tease" style="margin-top: 4rem;">
+                <div class="verification-card-pro">
+                    <div style="display: flex; gap: 2rem; align-items: center;">
+                        <div style="font-size: 2.5rem;">🗳️</div>
+                        <div>
+                            <h3 style="margin:0;">Peer Review Queue</h3>
+                            <p style="margin: 0.3rem 0 0 0; color: var(--text-dim); font-size: 0.95rem;">There are <span style="color:var(--secondary); font-weight:700;">4 pending uploads</span> in Computer Science needing student verification.</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="renderVerificationQueue()">Access Queue</button>
+                </div>
+            </section>
+
+            <section class="featured-section" style="margin-top: 4rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                     <h2 style="font-size: 1.8rem;">Featured <span class="highlight">Resources</span></h2>
                     <button class="btn btn-sm btn-ghost">View All Trending</button>
@@ -411,6 +431,85 @@ window.renderHubHome = function () {
             </section>
         </div>
     `;
+};
+
+window.renderVerificationQueue = function () {
+    const mainArea = document.getElementById('notes-hub-main');
+    if (!mainArea) return;
+
+    mainArea.innerHTML = `
+        <div class="subject-hub-page" style="padding: 3rem 4rem;">
+            <div class="hub-breadcrumb">
+                <span>Dashboard</span> <span>Resources</span> <span>Community Verification</span>
+            </div>
+            <div class="subject-hero-section">
+                <h1>Peer Review <span class="gradient-text">Queue</span></h1>
+                <p class="subject-description-pro">Students collectively verify the quality and accuracy of uploaded notes. Review the documents below and approve those that meet our academic standards.</p>
+            </div>
+
+            <div class="resource-list-pro">
+                ${renderVerificationItem('Data Structures', 'Balanced Trees - Detailed Unit 2', 'Aman R.', 'pending')}
+                ${renderVerificationItem('Operating Systems', 'Memory Management Cheatsheet', 'Sneha V.', 'pending')}
+            </div>
+        </div>
+    `;
+};
+
+function renderVerificationItem(subject, title, author, status) {
+    return `
+        <div class="hub-resource-item" style="border-left: 4px solid #FFA500;">
+            <div class="item-left-content">
+                <div class="item-type-icon" style="background: rgba(255,165,0,0.1); color: #FFA500;">⏳</div>
+                <div class="item-details-text">
+                    <div style="display:flex; align-items:center; gap: 1rem;">
+                        <h4>${title}</h4>
+                        <span class="ver-status-badge ${status}">${status}</span>
+                    </div>
+                    <div class="item-meta-info">
+                        <span>Subject: <b>${subject}</b></span>
+                        <span>👤 ${author}</span>
+                        <span>📅 Just now</span>
+                    </div>
+                </div>
+            </div>
+            <div class="item-right-actions">
+                <div class="peer-review-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="showPreviewModal('${title}')">Preview</button>
+                    <button class="btn btn-primary btn-sm" onclick="approveResource(this, '${title}')">Verify & Approve</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+window.approveResource = function (btn, title) {
+    const card = btn.closest('.hub-resource-item');
+    btn.innerHTML = 'Verifying...';
+    btn.style.opacity = '0.5';
+
+    setTimeout(() => {
+        card.style.transform = 'translateX(50px)';
+        card.style.opacity = '0';
+        setTimeout(() => {
+            card.remove();
+            alert(`"${title}" has been successfully verified and moved to the public library!`);
+            // If queue is empty, show return home button
+            if (document.querySelectorAll('.hub-resource-item').length === 0) {
+                renderHubHome();
+            }
+        }, 300);
+    }, 1000);
+};
+
+window.showPreviewModal = function (title) {
+    const modal = document.getElementById('preview-modal');
+    document.getElementById('preview-title').textContent = title;
+    if (modal) modal.style.display = 'flex';
+};
+
+window.closePreviewModal = function () {
+    const modal = document.getElementById('preview-modal');
+    if (modal) modal.style.display = 'none';
 };
 
 function renderFeaturedCard(subject, title, author, views, badge) {
@@ -471,7 +570,7 @@ window.renderHubSubject = function (subject) {
     if (event && event.currentTarget) event.currentTarget.classList.add('active');
 
     mainArea.innerHTML = `
-        <div class="subject-hub-page">
+        <div class="subject-hub-page" style="padding: 3rem 4rem;">
             <div class="hub-breadcrumb">
                 <span>Dashboard</span> <span>Resources</span> <span>Explorer</span> <span>${subject}</span>
             </div>
@@ -487,34 +586,45 @@ window.renderHubSubject = function (subject) {
                     </div>
                     <button class="btn btn-primary" onclick="showUploadModal('${subject}')">+ Contribute Note</button>
                 </div>
-                <p class="subject-description-pro">Elite study materials for ${subject}. These resources have been curated and verified by academic leaders to ensure the highest quality of learning.</p>
+                <p class="subject-description-pro">Advanced study materials for ${subject}. These resources have been curated, unit-categorized, and verified by student experts.</p>
             </div>
 
             <div class="hub-tab-bar">
-                <div class="hub-tab active" onclick="switchResourceTab(this)">Curated Notes</div>
+                <div class="hub-tab active" onclick="switchResourceTab(this)">Curated Units</div>
                 <div class="hub-tab" onclick="switchResourceTab(this)">PYQ Explorer</div>
-                <div class="hub-tab" onclick="switchResourceTab(this)">Review Hub</div>
+                <div class="hub-tab" onclick="switchResourceTab(this)">Peer Review</div>
             </div>
 
-            <div class="resource-list-pro">
-                ${renderMockResource(subject, 'Comprehensive Unit 1 Study Guide')}
-                ${renderMockResource(subject, 'Exam Focused: Important Questions')}
-                ${renderMockResource(subject, 'Last Minute Revision Sheet')}
+            <div class="advanced-unit-browser">
+                <h3 class="unit-section-title">Unit 1: Fundamentals & Theory</h3>
+                <div class="resource-list-pro">
+                    ${renderMockResource(subject, 'Comprehensive Unit 1 Study Guide', 'verified')}
+                    ${renderMockResource(subject, 'Unit 1: Class Handwritten Notes', 'verified')}
+                </div>
+
+                <h3 class="unit-section-title">Unit 2: Applied Concepts</h3>
+                <div class="resource-list-pro">
+                    ${renderMockResource(subject, 'Exam Focused: Unit 2 Summary', 'verified')}
+                    ${renderMockResource(subject, 'Practice Problems Set', 'pending')}
+                </div>
             </div>
         </div>
     `;
 };
 
-function renderMockResource(subject, title) {
+function renderMockResource(subject, title, status) {
     return `
         <div class="hub-resource-item">
             <div class="item-left-content">
                 <div class="item-type-icon">📄</div>
                 <div class="item-details-text">
-                    <h4>${title}</h4>
+                    <div style="display:flex; align-items:center; gap: 1rem;">
+                        <h4>${title}</h4>
+                        <span class="ver-status-badge ${status || 'verified'}">${status || 'verified'}</span>
+                    </div>
                     <div class="item-meta-info">
                         <span>📅 Jan 2026</span>
-                        <span>👤 Admin Choice</span>
+                        <span>👤 Student Contributor</span>
                         <span>📥 ${Math.floor(Math.random() * 2000 + 500)} downloads</span>
                     </div>
                 </div>
@@ -523,7 +633,10 @@ function renderMockResource(subject, title) {
                 <div class="item-engagement">
                     <span class="eng-stat">👍 ${Math.floor(Math.random() * 200 + 40)}</span>
                 </div>
-                <button class="btn btn-primary btn-sm" onclick="alert('Download started...')">View / Download</button>
+                <div style="display:flex; gap: 0.5rem;">
+                    <button class="btn btn-ghost btn-sm" onclick="showPreviewModal('${title}')">Preview</button>
+                    <button class="btn btn-primary btn-sm" onclick="alert('Download started...')">Download</button>
+                </div>
             </div>
         </div>
     `;
