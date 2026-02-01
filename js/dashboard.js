@@ -660,7 +660,16 @@ function renderTabContent(tabId) {
 
     try {
         if (tabId === 'overview') {
-            contentArea.innerHTML = renderOverview();
+            console.log("➡️ Rendering Overview...");
+            contentArea.innerHTML = '<div style="padding:4rem; text-align:center;"><h3>🚀 Loading Dashboard...</h3></div>';
+            setTimeout(() => {
+                try {
+                    contentArea.innerHTML = renderOverview();
+                } catch (e) {
+                    console.error("Render Overview Failed:", e);
+                    contentArea.innerHTML = `<div style="color:red; padding:2rem;">Render Fail: ${e.message}</div>`;
+                }
+            }, 50);
         } else if (tabId === 'notes') {
             selState = { college: null, branch: null, year: null, subject: null };
             contentArea.innerHTML = renderNotesHub();
@@ -1832,7 +1841,11 @@ window.selectSubject = function (id, name) {
     showNotes();
 };
 
-function showNotes(activeTab = 'notes') {
+
+
+let notesUnsubscribe = null;
+
+window.showNotes = function (activeTab = 'notes') {
     const explorerHeader = document.getElementById('explorer-header');
     const explorerContent = document.getElementById('explorer-content');
     if (explorerHeader) explorerHeader.style.display = 'none';
@@ -1841,48 +1854,31 @@ function showNotes(activeTab = 'notes') {
     const view = document.getElementById('final-notes-view');
     view.style.display = 'block';
 
-    const key = `${selState.branch.id}-${selState.semester}`;
-    const subjectData = (GlobalData.subjects[key] || []).find(s => s.id === selState.subject.id) || {
-        name: selState.subject.name,
-        code: 'GEN101',
-        description: 'Comprehensive study materials and verified academic resources for final exam preparation.'
-    };
+    // 1. Unsubscribe previous listener if exists
+    if (notesUnsubscribe) {
+        notesUnsubscribe();
+        notesUnsubscribe = null;
+    }
 
-    // Filter notes relevant to the current subject and tab type
-    const relevantNotes = NotesDB.filter(n =>
-        n.subject === selState.subject.id &&
-        n.collegeId === selState.college.id &&
-        n.type === activeTab &&
-        (n.status === 'approved' || (currentUser.role === Roles.SUPER_ADMIN || (currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === n.collegeId)))
-    );
+    const { db, collection, query, where, onSnapshot } = window.firebaseServices;
 
-    const uniqueUnits = new Set();
-    relevantNotes.forEach(n => {
-        if (n.units) {
-            n.units.split(',').forEach(unit => uniqueUnits.add(unit.trim()));
-        }
-    });
-
+    // 2. Render Shell
     view.innerHTML = `
         <div class="subject-page-container fade-in">
-            <div class="breadcrumb-pro">
-                🏠 <span>›</span> ${selState.branch.name} <span>›</span> ... <span>›</span> ${selState.subject.name}
+             <div class="breadcrumb-pro">
+                🏠 <span>›</span> ${selState.branch.name} <span>›</span> ${selState.semester} <span>›</span> ${selState.subject.name}
             </div>
-
-            <div class="subject-page-hero">
+             <div class="subject-page-hero">
                 <div style="display:flex; justify-content: space-between; align-items: flex-start;">
                     <div>
                         <h1 class="font-heading" style="font-size: 3rem; margin: 0; line-height: 1.1;">${selState.subject.name}</h1>
-                        <div class="sub-meta-stats" style="margin-top: 1rem; display: flex; gap: 2rem; color: var(--text-dim); font-size: 0.9rem;">
-                            <span>📚 <b>${relevantNotes.length}</b> Resources</span>
-                            <span>🎯 <b>${uniqueUnits.size}</b> Units Covered</span>
+                        <div id="notes-header-stats" class="sub-meta-stats" style="margin-top: 1rem; display: flex; gap: 2rem; color: var(--text-dim); font-size: 0.9rem;">
+                             <span>📚 <b>Loading...</b></span>
                         </div>
                         <div class="sub-badges" style="margin-top: 0.8rem;">
                             <span class="meta-badge">${selState.branch.id.toUpperCase()}</span>
                             <span class="meta-badge">${selState.year.toUpperCase()}</span>
-                            <span class="meta-badge">${subjectData.code.toUpperCase()}</span>
                         </div>
-                        <p class="subject-description">${subjectData.description}</p>
                         <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
                             <button class="btn btn-primary btn-sm" onclick="showAIModal('summary', '${selState.subject.name}')">✨ AI Summary</button>
                             <button class="btn btn-ghost btn-sm" style="border: 1px solid var(--primary);" onclick="showAIModal('questions', '${selState.subject.name}')">📝 Generate Model Questions</button>
@@ -1902,34 +1898,116 @@ function showNotes(activeTab = 'notes') {
 
             <div class="resource-section">
                 <h3 class="font-heading" style="margin-bottom: 2rem;">Verified <span class="highlight">${activeTab.toUpperCase()}</span></h3>
-                <div class="resource-list-detailed">
-                    ${renderDetailedNotes(selState.subject.id, activeTab)}
+                <div class="resource-list-detailed" id="notes-list-grid">
+                     <div style="text-align:center; padding: 4rem;">
+                        <div class="loader-pro" style="margin: 0 auto 1rem;"></div>
+                        <p style="color:var(--text-dim);">Listening for live updates...</p>
+                    </div>
                 </div>
             </div>
         </div>
     `;
-}
 
-window.switchSubjectTab = function (tab) {
-    showNotes(tab);
-    trackAnalytics('switch_subject_tab', { tab });
+    console.log("📡 Connecting Real-Time Listener:", selState);
+    const q = query(
+        collection(db, "notes_approved"),
+        where("collegeId", "==", selState.college.id),
+        where("branchId", "==", selState.branch.id),
+        where("semester", "==", selState.semester),
+        where("subject", "==", selState.subject.id),
+        where("type", "==", activeTab)
+    );
+
+    notesUnsubscribe = onSnapshot(q, (snapshot) => {
+        const notes = [];
+        snapshot.forEach(doc => notes.push({ id: doc.id, ...doc.data() }));
+        console.log(`⚡ Real-time update: ${notes.length} notes found.`);
+
+        // Update Stats
+        const statsEl = document.getElementById('notes-header-stats');
+        if (statsEl) {
+            const uniqueUnits = new Set();
+            notes.forEach(n => { if (n.units) n.units.split(',').forEach(u => uniqueUnits.add(u.trim())); });
+            statsEl.innerHTML = `<span>📚 <b>${notes.length}</b> Resources</span><span>🎯 <b>${uniqueUnits.size}</b> Units Covered</span>`;
+        }
+
+        // Render List
+        const listContainer = document.getElementById('notes-list-grid');
+        if (listContainer) {
+            listContainer.innerHTML = renderNotesList(notes, activeTab);
+        }
+
+    }, (error) => {
+        console.error("❌ Real-time Error:", error);
+        const listContainer = document.getElementById('notes-list-grid');
+        if (listContainer) {
+            listContainer.innerHTML = `
+                <div style="padding: 2rem; border: 1px solid red; background: rgba(255,0,0,0.1); border-radius: 8px; color: #ff6b6b;">
+                    <strong>🔥 Connection Failed:</strong> ${error.message}<br>
+                    <small>Check console for details.</small>
+                </div>
+             `;
+        }
+    });
 };
 
-function renderDetailedNotes(subjectId, tabType = 'notes') {
-    // Advanced Filter + Smart Sorting
-    const filtered = NotesDB.filter(n => {
-        const isCorrectSubject = n.subject === subjectId && n.collegeId === selState.college.id && n.type === tabType;
-        if (!isCorrectSubject) return false;
+window.renderMyUploads = function () {
+    const container = document.getElementById('my-uploads-grid');
+    if (!container || !currentUser) return;
 
-        const isApproved = n.status === 'approved';
-        const isAdminOfCollege = (currentUser.role === Roles.SUPER_ADMIN) ||
-            (currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === n.collegeId);
+    const { db, collection, query, where, onSnapshot } = window.firebaseServices;
+    container.innerHTML = '<div class="loader-pro" style="margin: 2rem auto;"></div>';
 
-        if (isAdminOfCollege) return n.status !== 'rejected';
-        return isApproved;
-    }).sort((a, b) => calculateSmartScore(b) - calculateSmartScore(a)); // Sort by SmartScore (Highest first)
+    const render = (all) => {
+        if (all.length === 0) {
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 4rem; opacity: 0.6;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📤</div>
+                    <p>You haven't uploaded anything yet.</p>
+                    <button class="btn btn-primary" onclick="openUploadModal()" style="margin-top:1rem;">Upload Your First Note</button>
+                </div>
+            `;
+            return;
+        }
+        container.innerHTML = all.map(n => `
+            <div class="glass-card wobble-hover" style="position: relative; border-left: 4px solid ${n.status === 'approved' ? 'var(--success)' : '#f1c40f'}; padding: 1.5rem;">
+                <div style="position: absolute; top: 1rem; right: 1rem; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); color: ${n.status === 'approved' ? 'var(--success)' : '#f1c40f'}; border: 1px solid ${n.status === 'approved' ? 'var(--success)' : '#f1c40f'};">
+                    ${n.status.toUpperCase()}
+                </div>
+                <div style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.8;">📄</div>
+                <h4 style="margin-bottom: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${n.title}</h4>
+                <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1rem;">
+                    ${n.subject.toUpperCase()} • ${new Date(n.created_at || Date.now()).toLocaleDateString()}
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                     <a href="${n.fileUrl || n.driveLink}" target="_blank" class="btn btn-sm btn-ghost" style="border: 1px solid var(--border-glass);">View</a>
+                     ${n.status === 'approved' ? `<span style="font-size:0.8rem; margin-left:auto; display:flex; align-items:center;">👁️ ${n.views || 0}</span>` : ''}
+                </div>
+            </div>
+        `).join('');
+    };
 
-    if (filtered.length === 0) {
+    let approved = [], pending = [];
+    const mergeAndRender = () => {
+        const all = [...approved, ...pending].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+        render(all);
+    };
+
+    const q1 = query(collection(db, "notes_approved"), where("uploaderUid", "==", currentUser.id));
+    onSnapshot(q1, (snap) => {
+        approved = snap.docs.map(d => ({ id: d.id, ...d.data(), status: 'approved' }));
+        mergeAndRender();
+    });
+
+    const q2 = query(collection(db, "notes_pending"), where("uploaderUid", "==", currentUser.id));
+    onSnapshot(q2, (snap) => {
+        pending = snap.docs.map(d => ({ id: d.id, ...d.data(), status: 'pending' }));
+        mergeAndRender();
+    });
+};
+
+function renderNotesList(list, tabType) {
+    if (list.length === 0) {
         return `
             <div style="text-align: center; padding: 5rem; background: rgba(255,255,255,0.01); border: 2px dashed rgba(255,255,255,0.05); border-radius: 20px;">
                 <div style="font-size: 4rem; margin-bottom: 2rem;">📂</div>
@@ -1940,45 +2018,134 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
         `;
     }
 
-    const grid = document.getElementById('notes-list-grid');
-    if (!grid) return filtered.map(n => `
-        <div class="note-card glass-card">
-            <div class="note-type-badge">${n.type || 'Note'}</div>
-            <h3 class="note-title">${n.title}</h3>
-            ${n.source ? `<div style="font-size: 0.75rem; color: var(--primary); margin-top: -0.5rem; margin-bottom: 0.5rem;">Source: ${n.source}</div>` : ''}
-            <div class="note-meta">
-                <span>👁️ ${n.views || 0}</span>
-                <span>📥 ${n.downloads || 0}</span>
-                <span>💖 ${n.likes || 0}</span>
+    return list.map(n => `
+        <div class="detailed-item glass-card card-reveal" style="display: flex; align-items: center; justify-content: space-between; padding: 1.5rem; margin-bottom: 1rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05);">
+            <div class="item-left" style="display: flex; gap: 1.5rem; align-items: center;">
+                <div class="file-icon-lg" style="font-size: 2.5rem; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 12px; min-width: 80px; text-align: center;">
+                    ${getActiveIcon(n.fileUrl || n.driveLink)}
+                </div>
+                <div class="file-info">
+                    <h3 style="margin: 0; font-size: 1.2rem; font-weight: 600; color: white;">${n.title}</h3>
+                    <div class="meta-row" style="display: flex; gap: 1.5rem; color: var(--text-dim); font-size: 0.85rem; margin-top: 0.6rem;">
+                        <span style="display: flex; align-items: center; gap: 0.4rem;">📅 ${formatDate(n.created_at || n.approvedAt || n.date)}</span>
+                        <span style="display: flex; align-items: center; gap: 0.4rem;">
+                            ${n.uploaderAvatar ? `<img src="${n.uploaderAvatar}" style="width:20px; height:20px; border-radius:50%;">` : '👤'} 
+                            ${n.uploaderName || 'Admin'}
+                        </span>
+                        <span style="display: flex; align-items: center; gap: 0.4rem;">📥 ${n.downloads || 0} downloads</span>
+                    </div>
+                </div>
             </div>
-            <div class="note-actions">
-                <a href="${n.driveLink}" target="_blank" class="btn btn-primary btn-sm" onclick="updateNoteStat('${n.id}', 'view')">Open Notes</a>
-                <button class="btn btn-ghost btn-sm" onclick="updateNoteStat('${n.id}', 'like')">💖</button>
+            
+            <div class="item-right" style="display: flex; align-items: center; gap: 1.5rem;">
+                <div class="action-buttons" style="display: flex; gap: 0.8rem;">
+                     <button class="btn btn-ghost btn-sm" onclick="updateNoteStat('${n.id}', 'like')" style="color: var(--text-dim);">👍 ${n.likes || 0}</button>
+                     <button class="btn btn-ghost btn-sm" style="color: var(--text-dim);">👎</button>
+                     <button class="btn btn-ghost btn-sm" style="color: var(--text-dim);">🔖</button>
+                </div>
+                <a href="${n.fileUrl || n.driveLink}" target="_blank" class="btn" style="background: white; color: black; font-weight: 600; padding: 0.8rem 1.8rem; border-radius: 8px; text-decoration: none; border:none;" onclick="updateNoteStat('${n.id}', 'download')">Download</a>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.switchSubjectTab = function (tab) {
+    showNotes(tab);
+    trackAnalytics('switch_subject_tab', { tab });
+};
+
+function renderDetailedNotes(subjectId, tabType = 'notes') {
+    console.log(`🔎 Filtering Notes for Subject: ${subjectId}, Type: ${tabType}`);
+
+    // Advanced Filter + Smart Sorting
+    const filtered = NotesDB.filter(n => {
+        // Debug Log for first few items
+        // if (Math.random() < 0.1) console.log("Checking Note:", n.title, n.subject, n.collegeId, n.type, n.status);
+
+        const isCorrectSubject = n.subject === subjectId && (n.collegeId === selState.college.id || n.college === selState.college.id) && n.type === tabType;
+        if (!isCorrectSubject) return false;
+
+        const isApproved = n.status === 'approved';
+        const isAdminOfCollege = (currentUser.role === Roles.SUPER_ADMIN) ||
+            (currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === n.collegeId);
+
+        if (isAdminOfCollege) return n.status !== 'rejected';
+        return isApproved;
+    }).sort((a, b) => calculateSmartScore(b) - calculateSmartScore(a));
+
+    console.log(`✅ Found ${filtered.length} matching notes.`);
+
+    if (filtered.length === 0) {
+        // DEBUGGING DIAGNOSTICS
+        const debugInfo = NotesDB.length > 0
+            ? `DB:${NotesDB.length} | First: ${NotesDB[0].title} (${NotesDB[0].subject}) | Target: ${subjectId}`
+            : `DB Empty (Fetch failed?)`;
+
+        return `
+            <div style="text-align: center; padding: 5rem; background: rgba(255,255,255,0.01); border: 2px dashed rgba(255,255,255,0.05); border-radius: 20px;">
+                <div style="font-size: 4rem; margin-bottom: 2rem;">📂</div>
+                <h2 class="font-heading">No premium ${tabType} for this subject found yet.</h2>
+                <p style="color: var(--text-dim); margin-bottom: 2.5rem;">Be the first contributor and earn academic credit!</p>
+                <div style="background: #333; color: #0f0; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-family: monospace; font-size: 0.8rem; text-align: left; display: inline-block;">
+                    <strong>DEBUG INFO:</strong><br>
+                    ${debugInfo}<br>
+                    My College: ${selState.college ? selState.college.id : 'null'}<br>
+                    Note College: ${NotesDB.length > 0 ? NotesDB[0].collegeId : 'N/A'}
+                </div>
+                <br>
+                <button class="btn btn-primary" style="padding: 1rem 2.5rem; font-weight: 700;" onclick="openUploadModal()">+ Upload ${tabType}</button>
+            </div>
+        `;
+    }
+
+    const cardsHTML = filtered.map(n => `
+        <div class="detailed-item glass-card card-reveal" style="display: flex; align-items: center; justify-content: space-between; padding: 1.5rem; margin-bottom: 1rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05);">
+            <div class="item-left" style="display: flex; gap: 1.5rem; align-items: center;">
+                <div class="file-icon-lg" style="font-size: 2.5rem; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 12px; min-width: 80px; text-align: center;">
+                    ${getActiveIcon(n.fileUrl || n.driveLink)}
+                </div>
+                <div class="file-info">
+                    <h3 style="margin: 0; font-size: 1.2rem; font-weight: 600; color: white;">${n.title}</h3>
+                    <div class="meta-row" style="display: flex; gap: 1.5rem; color: var(--text-dim); font-size: 0.85rem; margin-top: 0.6rem;">
+                        <span style="display: flex; align-items: center; gap: 0.4rem;">📅 ${formatDate(n.created_at || n.approvedAt)}</span>
+                        <span style="display: flex; align-items: center; gap: 0.4rem;">
+                            ${n.uploaderAvatar ? `<img src="${n.uploaderAvatar}" style="width:20px; height:20px; border-radius:50%;">` : '👤'} 
+                            ${n.uploaderName || 'Admin'}
+                        </span>
+                        <span style="display: flex; align-items: center; gap: 0.4rem;">📥 ${n.downloads || 0} downloads</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="item-right" style="display: flex; align-items: center; gap: 1.5rem;">
+                <div class="action-buttons" style="display: flex; gap: 0.8rem;">
+                     <button class="btn btn-ghost btn-sm" onclick="updateNoteStat('${n.id}', 'like')" style="color: var(--text-dim);">👍 ${n.likes || 0}</button>
+                     <button class="btn btn-ghost btn-sm" style="color: var(--text-dim);">👎</button>
+                     <button class="btn btn-ghost btn-sm" style="color: var(--text-dim);">🔖</button>
+                </div>
+                <a href="${n.fileUrl || n.driveLink}" target="_blank" class="btn" style="background: white; color: black; font-weight: 600; padding: 0.8rem 1.8rem; border-radius: 8px; text-decoration: none; border:none;" onclick="updateNoteStat('${n.id}', 'download')">Download</a>
             </div>
         </div>
     `).join('');
 
-    grid.innerHTML = filtered.map(n => `
-        <div class="note-card glass-card">
-            <div class="note-type-badge">${n.type || 'Note'}</div>
-            <h3 class="note-title">${n.title}</h3>
-            ${n.source ? `<div style="font-size: 0.75rem; color: var(--primary); margin-top: -0.5rem; margin-bottom: 0.5rem;">Source: ${n.source}</div>` : ''}
-            <div class="note-meta">
-                <span>👁️ ${n.views || 0}</span>
-                <span>📥 ${n.downloads || 0}</span>
-                <span>💖 ${n.likes || 0}</span>
-            </div>
-            <div class="note-actions">
-                <a href="${n.driveLink}" target="_blank" class="btn btn-primary btn-sm" onclick="updateNoteStat('${n.id}', 'view')">Open Notes</a>
-                <button class="btn btn-ghost btn-sm" onclick="updateNoteStat('${n.id}', 'like')">💖</button>
-            </div>
-        </div>
-    `).join('') + `
-        <div style="grid-column: 1 / -1; text-align: center; margin-top: 2rem; padding: 1.5rem; border-top: 1px solid var(--border-glass);">
-            <p style="color: var(--text-dim); font-size: 0.85rem;">⚠️ <i>Disclaimer: Notes are referenced from educational sources like ${Array.from(new Set(filtered.map(f => f.source).filter(s => s))).join(', ') || 'Medinotes.live'}.</i></p>
-        </div>
-    `;
-    return grid.innerHTML;
+    const grid = document.getElementById('notes-list-grid');
+    if (grid) grid.innerHTML = cardsHTML;
+    return cardsHTML;
+}
+
+function getActiveIcon(url) {
+    if (!url) return '📄';
+    if (url.includes('.pdf')) return '📕';
+    if (url.includes('.ppt')) return '📊';
+    if (url.includes('.doc')) return '📝';
+    return '📄';
+}
+
+function formatDate(timestamp) {
+    if (!timestamp) return 'Recently';
+    // Handle Firestore Timestamp or Date string
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 window.showAIModal = function (type, subject) {
@@ -2306,6 +2473,22 @@ function initRealTimeDB() {
             updateLeaderboardUI(activeType, activeTime);
         }
         startActivityFeed();
+    }, (error) => {
+        console.error("❌ Stats Realtime Error:", error);
+        window.LastDbError = error; // Expose for debugUI
+
+        // Critical Error Display
+        const container = document.getElementById('notes-list-grid');
+        if (container) {
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; padding: 2rem; background: rgba(255,0,0,0.1); border: 1px solid red; border-radius: 12px; color: #ff6b6b; font-family: monospace;">
+                    <strong>🔥 Database Error:</strong><br>
+                    ${error.message}<br><br>
+                    This is usually due to missing indexes or security rules.
+                    <br>Check console for "link to create index".
+                </div>
+            `;
+        }
     });
 }
 
@@ -2614,3 +2797,370 @@ if (!window.formatNumber) {
         return num;
     };
 }
+
+// --- PRIVATE DRIVE MODULE ---
+
+window.renderPrivateDrive = function () {
+    const { db, collection, query, where, onSnapshot, orderBy } = window.firebaseServices;
+    const container = document.getElementById('private-drive');
+    if (!container) return;
+
+    container.innerHTML = `
+        <div class="fade-in">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <div>
+                    <h1 class="font-heading">🔒 Private <span class="gradient-text">Drive</span></h1>
+                    <p style="color: var(--text-dim);">Secure cloud storage for your personal study materials.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openPrivateUploadModal()">
+                    <span style="margin-right:0.5rem;">☁️</span> Upload File
+                </button>
+            </div>
+
+            <!-- Stats Row -->
+            <div style="display: flex; gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="stat-card glass-card" style="flex:1; padding: 1.5rem;">
+                    <div style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 0.5rem;">Storage Used</div>
+                    <div style="font-size: 1.8rem; font-weight: 700;" id="pd-storage-used">Loading...</div>
+                </div>
+                <div class="stat-card glass-card" style="flex:1; padding: 1.5rem;">
+                    <div style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 0.5rem;">Total Files</div>
+                    <div style="font-size: 1.8rem; font-weight: 700;" id="pd-file-count">...</div>
+                </div>
+            </div>
+
+            <!-- Process Indicator -->
+            <div id="private-upload-progress" style="display:none; margin-bottom: 2rem; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 1rem; border: 1px solid var(--border-glass);">
+                <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                    <span id="p-prog-text">Uploading...</span>
+                    <span id="p-prog-percent">0%</span>
+                </div>
+                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow:hidden;">
+                    <div id="p-prog-bar" style="width: 0%; height: 100%; background: var(--gradient-main); transition: width 0.3s;"></div>
+                </div>
+            </div>
+
+            <div id="private-files-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
+                <!-- Files populate here -->
+            </div>
+        </div>
+    `;
+
+    // Subscribe to Files
+    if (!currentUser) return;
+
+    // Using userId for strict isolation
+    const q = query(
+        collection(db, "personal_notes"),
+        where("userId", "==", currentUser.id),
+        orderBy("createdAt", "desc")
+    );
+
+    const unsub = onSnapshot(q, (snapshot) => {
+        const files = [];
+        let totalBytes = 0;
+
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            files.push({ id: doc.id, ...data });
+            totalBytes += (data.fileSize || 0);
+        });
+
+        // Update Stats
+        document.getElementById('pd-file-count').innerText = files.length;
+        document.getElementById('pd-storage-used').innerText = formatBytes(totalBytes);
+
+        // Render Grid
+        const grid = document.getElementById('private-files-grid');
+
+        if (files.length === 0) {
+            grid.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 4rem; opacity: 0.5;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📂</div>
+                    <p>Your drive is empty.</p>
+                </div>
+            `;
+        } else {
+            grid.innerHTML = files.map(f => `
+                <div class="glass-card card-reveal" style="position: relative;">
+                    <div style="display: flex; align-items: start; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="font-size: 2rem; background: rgba(255,255,255,0.05); padding: 0.8rem; border-radius: 12px;">
+                            ${getFileIcon(f.fileType)}
+                        </div>
+                        <div style="flex:1; overflow:hidden;">
+                            <h4 style="margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${f.title}">${f.title}</h4>
+                            <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 0.3rem;">
+                                ${formatBytes(f.fileSize)} • ${new Date(f.createdAt.toDate()).toLocaleDateString()}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                        <button class="btn btn-primary btn-sm" onclick="window.open('${f.fileUrl}', '_blank')" style="flex:1;">Open</button>
+                        <button class="btn btn-ghost btn-sm" onclick="deletePrivateFile('${f.id}', '${f.storagePath}')" style="color: #ff4757;">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+    });
+};
+
+// Open Upload Modal
+window.openPrivateUploadModal = function () {
+    // We reuse the generic modal logic but specific for private drive
+    // OR create a simple prompt for now
+
+    // Let's create a specific hidden input trigger
+    let input = document.getElementById('private-file-input');
+    if (!input) {
+        input = document.createElement('input');
+        input.type = 'file';
+        input.id = 'private-file-input';
+        input.style.display = 'none';
+        input.accept = ".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png"; // Allowed types
+        document.body.appendChild(input);
+
+        input.onchange = (e) => {
+            if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                const title = prompt("Enter a title for this file:", file.name); // Simple flow
+                if (title) handlePrivateUpload(file, title);
+                input.value = ''; // Reset
+            }
+        };
+    }
+    input.click();
+};
+
+window.handlePrivateUpload = async function (file, title) {
+    const { storage, ref, uploadBytesResumable, getDownloadURL, db, collection, addDoc, serverTimestamp } = window.firebaseServices;
+
+    // Validation
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    if (file.size > maxSize) return alert("File too large. Max 50MB.");
+
+    // UI Update
+    const progressDiv = document.getElementById('private-upload-progress');
+    const bar = document.getElementById('p-prog-bar');
+    const txt = document.getElementById('p-prog-percent');
+    if (progressDiv) progressDiv.style.display = 'block';
+
+    try {
+        const noteId = Date.now().toString(); // Use timestamp as simple unique ID part
+        const storagePath = `personal_notes/${currentUser.id}/${noteId}/${file.name}`;
+        const storageRef = ref(storage, storagePath);
+
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        uploadTask.on('state_changed',
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                if (bar) bar.style.width = progress + '%';
+                if (txt) txt.innerText = Math.round(progress) + '%';
+            },
+            (error) => {
+                console.error(error);
+                alert("Upload failed: " + error.code);
+                if (progressDiv) progressDiv.style.display = 'none';
+            },
+            async () => {
+                // Success
+                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
+                await addDoc(collection(db, "personal_notes"), {
+                    userId: currentUser.id,
+                    title: title,
+                    fileName: file.name,
+                    fileType: file.type,
+                    fileSize: file.size,
+                    fileUrl: downloadURL,
+                    storagePath: storagePath,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                });
+
+                if (progressDiv) progressDiv.style.display = 'none';
+                alert("✅ File uploaded securely!");
+            }
+        );
+
+    } catch (e) {
+        console.error("Upload Init Error:", e);
+
+        if (progressDiv) progressDiv.style.display = 'none';
+        alert("Upload Error: " + e.message);
+    }
+};
+
+// --- GLOBAL SEARCH & ADMIN UPLOAD ---
+window.initGlobalSearch = function () {
+    const input = document.getElementById('global-search-input');
+    if (!input) return;
+
+    let debounceTimer;
+
+    // Create Results Dropdown
+    let resultsContainer = document.getElementById('global-search-results');
+    if (!resultsContainer) {
+        resultsContainer = document.createElement('div');
+        resultsContainer.id = 'global-search-results';
+        resultsContainer.className = 'glass-card';
+        Object.assign(resultsContainer.style, {
+            position: 'absolute',
+            top: '100%',
+            left: '0',
+            right: '0',
+            zIndex: '1000',
+            maxHeight: '400px',
+            overflowY: 'auto',
+            display: 'none',
+            marginTop: '0.5rem',
+            padding: '1rem'
+        });
+        document.querySelector('.search-bar').style.position = 'relative';
+        document.querySelector('.search-bar').appendChild(resultsContainer);
+    }
+
+    input.addEventListener('input', (e) => {
+        const term = e.target.value.trim().toLowerCase();
+        if (debounceTimer) clearTimeout(debounceTimer);
+
+        if (term.length < 2) {
+            resultsContainer.style.display = 'none';
+            return;
+        }
+
+        debounceTimer = setTimeout(async () => {
+            const { db, collection, query, where, getDocs, limit } = window.firebaseServices;
+            resultsContainer.innerHTML = '<div style="text-align:center; padding:1rem;">Searching...</div>';
+            resultsContainer.style.display = 'block';
+
+            try {
+                // Simple Subject Code / Title search logic
+                // Since Firestore doesn't do "contains", we do startAt/endAt or client side if small.
+                // Assuming "subjectCode" or "title" exact or prefix.
+                // Doing a combined client-side filter for better UX on small dataset
+                const q = query(collection(db, "notes_approved"), limit(50));
+                const snap = await getDocs(q);
+
+                const hits = snap.docs
+                    .map(d => ({ id: d.id, ...d.data() }))
+                    .filter(doc =>
+                        (doc.title && doc.title.toLowerCase().includes(term)) ||
+                        (doc.subject && doc.subject.toLowerCase().includes(term)) ||
+                        (doc.subjectCode && doc.subjectCode.toLowerCase().includes(term))
+                    ).slice(0, 5);
+
+                if (hits.length === 0) {
+                    resultsContainer.innerHTML = '<div style="text-align:center; padding:1rem; color:var(--text-dim);">No results found.</div>';
+                } else {
+                    resultsContainer.innerHTML = hits.map(hit => `
+                        <div onclick="window.open('${hit.driveLink || hit.fileUrl}', '_blank')" style="padding: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; display: flex; align-items: center; gap: 1rem; transition: background 0.2s;">
+                            <div style="font-size: 1.5rem;">📄</div>
+                            <div>
+                                <div style="font-weight: 600; color: white;">${hit.title}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-dim);">${hit.subject.toUpperCase()} • ${hit.collegeId}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error("Search error:", err);
+                resultsContainer.innerHTML = '<div style="padding:1rem; color:red;">Search failed.</div>';
+            }
+        }, 300);
+    });
+
+    // Close on click outside
+    document.addEventListener('click', (e) => {
+        if (!input.contains(e.target) && !resultsContainer.contains(e.target)) {
+            resultsContainer.style.display = 'none';
+        }
+    });
+};
+
+window.uploadNoteToFirebase = async function (file, metadata) {
+    const { storage, ref, uploadBytesResumable, getDownloadURL, db, collection, addDoc, serverTimestamp } = window.firebaseServices;
+
+    // 1. Path: notes/{collegeId}/{branch}/{subject}/{filename}
+    // Using a timestamp prefix to avoid overwrites
+    const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
+    const storagePath = `notes_uploads/${metadata.collegeId}/${metadata.subject}/${Date.now()}_${safeName}`;
+    const fileRef = ref(storage, storagePath);
+
+    // 2. Upload
+    const uploadTask = uploadBytesResumable(fileRef, file);
+
+    return new Promise((resolve, reject) => {
+        uploadTask.on('state_changed',
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                const progBar = document.getElementById('upload-progress');
+                if (progBar) progBar.style.width = progress + '%';
+            },
+            (error) => {
+                reject(error);
+            },
+            async () => {
+                // 3. Get URL & Save Firestore
+                const url = await getDownloadURL(uploadTask.snapshot.ref);
+                const finalDoc = {
+                    ...metadata,
+                    fileUrl: url,
+                    storagePath: storagePath,
+                    searchKeywords: [metadata.title.toLowerCase(), metadata.subject.toLowerCase()], // Helper for future search
+                    uploadedAt: serverTimestamp() // Server timestamp for sorting
+                };
+
+                await addDoc(collection(db, metadata.targetCollection || "notes_pending"), finalDoc);
+                resolve(finalDoc);
+            }
+        );
+    });
+};
+
+// Initialize listeners
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(window.initGlobalSearch, 1000);
+});
+
+window.deletePrivateFile = async function (docId, storagePath) {
+    if (!confirm("Permanently delete this file? This cannot be undone.")) return;
+
+    const { db, doc, deleteDoc, storage, ref, deleteObject } = window.firebaseServices;
+
+    try {
+        // 1. Delete from Storage
+        const fileRef = ref(storage, storagePath);
+        await deleteObject(fileRef);
+        console.log("Storage file deleted.");
+
+        // 2. Delete Metadata
+        await deleteDoc(doc(db, "personal_notes", docId));
+        console.log("Firestore metadata deleted.");
+
+        // UI updates automatically via onSnapshot
+    } catch (e) {
+        console.error("Delete failed:", e);
+        alert("Delete failed: " + e.message);
+    }
+};
+
+// Utils
+function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+function getFileIcon(mimeType) {
+    if (mimeType.includes('pdf')) return '📄';
+    if (mimeType.includes('image')) return '🖼️';
+    if (mimeType.includes('word') || mimeType.includes('document')) return '📝';
+    if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) return '📊';
+    return '📁';
+}
+
