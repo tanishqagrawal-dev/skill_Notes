@@ -66,22 +66,31 @@
         }
 
         .legal-content ul {
-            margin-bottom: 2rem;
-            list-style-type: none;
+            padding-left: 1.5rem;
+            margin-bottom: 1.5rem;
         }
 
-        .legal-content ul li::before {
-            content: "•";
-            color: var(--secondary);
-            font-weight: bold;
-            display: inline-block;
-            width: 1em;
-            margin-left: -1em;
+        /* Footer Style Override for Legal Pages */
+        footer {
+            background: rgba(13, 17, 23, 0.95);
+            border-top: 1px solid var(--border-glass);
+            padding: 4rem 2rem;
+            margin-top: auto;
+        }
+
+        .footer-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
         }
     </style>
 </head>
 
-<body>
+<body style="min-height: 100vh; display: flex; flex-direction: column;">
     <!-- Cyber Grid Background -->
     <div class="cyber-grid"></div>
 
@@ -97,8 +106,7 @@
             <div class="nav-links">
                 <a href="../index.html">Home</a>
                 <a href="notes.html">Notes Hub</a>
-                <a href="leaderboard.html">Leaderboard</a>
-                <a href="dashboard.html?tab=overview">Dashboard</a>
+                <a href="contact.html">Contact</a>
             </div>
         </div>
     </nav>
@@ -106,44 +114,92 @@
     <div class="legal-page-container">
         <div class="legal-content-card">
             <div class="legal-content">
-                <h1>Terms & Conditions</h1>
+                <h1>Terms & Conditions for SKiL MATRiX Notes</h1>
 
-                <p>Welcome to <strong>SKiL MATRIX NOTES</strong>. By accessing this website, you agree to the following
-                    terms.</p>
+                <p>Effective Date: February 1, 2026</p>
 
-                <h2>Use of Content</h2>
+                <p>Welcome to <strong>SKiL MATRiX Notes</strong>. By accessing or using our website located at
+                    https://skilmatrixnotes.netlify.app/, you agree to be bound by these Terms & Conditions and our
+                    Privacy Policy.</p>
+
+                <h2>1. Use of the Site</h2>
+                <p>SKiL MATRiX Notes is an academic platform designed to provide curated educational content including
+                    notes, study tools, AI tools, and analytics. You agree to use the site only for lawful purposes and
+                    in a way that does not infringe upon the rights of others.</p>
+
+                <h2>2. User Accounts and Authentication</h2>
+                <p>To upload notes or access certain features, you must create an account and agree to provide accurate
+                    information. Accounts are non-transferable and for personal use only. You are responsible for
+                    safeguarding your account credentials.</p>
+
+                <h2>3. User Content and Uploads</h2>
+                <p>When you upload notes or content:</p>
                 <ul>
-                    <li>Notes are provided for educational purposes only</li>
-                    <li>You may not resell or redistribute content without permission</li>
+                    <li>You warrant that you have the legal right to upload the material.</li>
+                    <li>You grant SKiL MATRiX Notes a non-exclusive, worldwide license to store and display the content.
+                    </li>
+                    <li>Content will be reviewed by admins/co-admins before approval.</li>
+                    <li>Inappropriate or illegal content is prohibited and may result in account suspension.</li>
                 </ul>
 
-                <h2>User Responsibilities</h2>
-                <ul>
-                    <li>Do not upload copyrighted or illegal material</li>
-                    <li>Do not misuse AI tools or analytics</li>
-                    <li>Respect academic integrity</li>
-                </ul>
+                <h2>4. Approval and Moderation</h2>
+                <p>All uploaded notes are subject to approval by authorized personnel (admins/co-admins). SKiL MATRiX
+                    Notes reserves the right to approve, reject, or remove any content at its discretion.</p>
 
-                <h2>Account Termination</h2>
-                <p>We reserve the right to suspend or terminate accounts that violate these terms.</p>
+                <h2>5. Intellectual Property</h2>
+                <p>All intellectual property rights in the site design, proprietary software, and branding are owned by
+                    SKiL MATRiX Notes unless otherwise stated. You may not reproduce, modify, distribute, or use any of
+                    the materials without prior permission.</p>
 
-                <h2>Advertisements</h2>
-                <p>Our site may display advertisements provided by third-party networks such as Google AdSense.</p>
+                <h2>6. Limitation of Liability</h2>
+                <p>To the maximum extent permitted by law, SKiL MATRiX Notes will not be liable for any indirect,
+                    incidental, or consequential damages arising out of your use of the site or reliance on any
+                    information provided.</p>
 
-                <h2>Limitation of Liability</h2>
-                <p>We are not responsible for academic results, exam outcomes, or losses incurred by using our platform.
-                </p>
+                <h2>7. Advertisements and Third-Party Services</h2>
+                <p>The site may contain advertisements from third parties such as Google AdSense. SKiL MATRiX Notes is
+                    not responsible for the content or privacy practices of third-party services. You agree to comply
+                    with their respective terms.</p>
 
-                <h2>Changes to Terms</h2>
-                <p>We may update these terms at any time without prior notice.</p>
+                <h2>8. Changes to Terms</h2>
+                <p>We may modify these Terms & Conditions at any time. We will post the updated policy on this page with
+                    a revised “Effective Date.”</p>
 
-                <p style="margin-top: 3rem; font-size: 0.9rem; opacity: 0.6;"><strong>Last updated:</strong> 2026</p>
+                <h2>9. Governing Law</h2>
+                <p>These terms will be governed by and construed in accordance with the laws of India, and you agree
+                    that any disputes will be subject to the exclusive jurisdiction of the courts in Madhya Pradesh,
+                    India.</p>
+
+                <p>For questions regarding these terms, contact us at: <strong>skilmatrix3@gmail.com</strong></p>
             </div>
         </div>
     </div>
 
-    <!-- Footer Script -->
-    <script src="../js/footer.js"></script>
+    <!-- Static Footer for Legal Pages -->
+    <footer>
+        <div class="container" style="text-align: center;">
+            <div style="margin-bottom: 2rem;">
+                <h3 class="font-heading" style="color:white; margin-bottom:1rem;">SKiL MATRiX NOTES</h3>
+                <p style="color: var(--text-dim); max-width: 600px; margin: 0 auto;">Empowering students with smart
+                    notes, AI tools, and a collaborative ecosystem.</p>
+            </div>
+
+            <div class="footer-links"
+                style="display: flex; gap: 2rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap;">
+                <a href="../index.html">Home</a>
+                <a href="notes.html">Notes Hub</a>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html" style="color: var(--primary);">Terms & Conditions</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+
+            <div
+                style="color: var(--text-dim); font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2rem;">
+                &copy; 2026 SKiL MATRiX Notes. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
     <script src="../js/main.js"></script>
 </body>
 

@@ -66,22 +66,31 @@
         }
 
         .legal-content ul {
-            margin-bottom: 2rem;
-            list-style-type: none;
+            padding-left: 1.5rem;
+            margin-bottom: 1.5rem;
         }
 
-        .legal-content ul li::before {
-            content: "•";
-            color: var(--secondary);
-            font-weight: bold;
-            display: inline-block;
-            width: 1em;
-            margin-left: -1em;
+        /* Footer Style Override for Legal Pages */
+        footer {
+            background: rgba(13, 17, 23, 0.95);
+            border-top: 1px solid var(--border-glass);
+            padding: 4rem 2rem;
+            margin-top: auto;
+        }
+
+        .footer-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
         }
     </style>
 </head>
 
-<body>
+<body style="min-height: 100vh; display: flex; flex-direction: column;">
     <!-- Cyber Grid Background -->
     <div class="cyber-grid"></div>
 
@@ -97,8 +106,7 @@
             <div class="nav-links">
                 <a href="../index.html">Home</a>
                 <a href="notes.html">Notes Hub</a>
-                <a href="leaderboard.html">Leaderboard</a>
-                <a href="dashboard.html?tab=overview">Dashboard</a>
+                <a href="contact.html">Contact</a>
             </div>
         </div>
     </nav>
@@ -106,49 +114,109 @@
     <div class="legal-page-container">
         <div class="legal-content-card">
             <div class="legal-content">
-                <h1>Privacy Policy</h1>
+                <h1>Privacy Policy for SKiL MATRiX Notes</h1>
 
-                <p>At <strong>SKiL MATRIX NOTES</strong>, we respect your privacy and are committed to protecting your
-                    personal information.</p>
+                <p>Effective Date: February 1, 2026</p>
 
-                <h2>Information We Collect</h2>
+                <p>At <strong>SKiL MATRiX Notes</strong>, we are committed to protecting your privacy and providing a
+                    safe, secure experience for all visitors and users of our website, regardless of where you reside.
+                </p>
+
+                <h2>1. Information We Collect</h2>
+                <p>We may collect the following information:</p>
                 <ul>
-                    <li>Name and email address (when you sign in)</li>
-                    <li>Academic preferences such as college, branch, and year</li>
-                    <li>Usage data like visited pages, downloaded notes, and interactions</li>
+                    <li><strong>Personal Information:</strong> When you sign up or log in, we collect your name, email
+                        address, and academic details (such as college, branch, year) to personalize your experience.
+                    </li>
+                    <li><strong>Usage Data:</strong> We track your interactions on the site — such as pages viewed,
+                        notes downloaded, and search queries — to improve features and analytics.</li>
+                    <li><strong>Device & Analytics Data:</strong> Browser type, device type, IP address, and usage
+                        patterns using Firebase Analytics and Google Analytics.</li>
                 </ul>
 
-                <h2>How We Use Your Information</h2>
+                <h2>2. How We Use Your Information</h2>
+                <p>We use collected information to:</p>
                 <ul>
-                    <li>To personalize your learning experience</li>
-                    <li>To provide analytics and insights</li>
-                    <li>To improve platform performance</li>
-                    <li>To send important notifications (optional)</li>
+                    <li>Provide, maintain, and improve our services</li>
+                    <li>Personalize your experience (e.g., notes recommendations, region/college filters)</li>
+                    <li>Manage your account and preferences</li>
+                    <li>Respond to support requests or feedback</li>
+                    <li>Analyze usage trends and behavior for future development</li>
+                    <li>Ensure security and monitor for fraud or misuse</li>
                 </ul>
 
-                <h2>Cookies & Advertising</h2>
-                <p>We use third-party services such as Google AdSense and Google Analytics. These services may use
-                    cookies to show relevant ads and analyze traffic.</p>
+                <h2>3. Cookies and Tracking Technologies</h2>
+                <p>We use cookies, tracking pixels, and similar technologies to collect usage information and support
+                    analytics and advertising services such as Google Analytics and Google AdSense. These technologies
+                    help us monitor site performance and provide personalized recommendations.</p>
 
-                <p>Google uses the DoubleClick cookie, which enables it and its partners to serve ads based on your
-                    visit to this and other websites.</p>
+                <h2>4. How We Share Information</h2>
+                <p>We do not sell your personal data to third parties. We may share information with:</p>
+                <ul>
+                    <li>Service providers such as Firebase and analytics partners</li>
+                    <li>Advertising partners (only aggregated data)</li>
+                    <li>Legal authorities when required by law</li>
+                </ul>
 
-                <h2>Third-Party Services</h2>
-                <p>We may use services such as Firebase, Google Analytics, and AI APIs to improve our platform.</p>
+                <h2>5. Third-Party Services</h2>
+                <p>We use third-party services such as:</p>
+                <ul>
+                    <li>Firebase Authentication and Firestore</li>
+                    <li>Google Analytics</li>
+                    <li>Google AdSense</li>
+                    <li>AI APIs for advanced tools</li>
+                </ul>
+                <p>These partners may collect information according to their own privacy policies.</p>
 
-                <h2>Data Security</h2>
-                <p>We take reasonable measures to protect your data from unauthorized access.</p>
+                <h2>6. Data Retention</h2>
+                <p>We retain your information for as long as needed to provide services, comply with legal requirements,
+                    resolve disputes, and enforce our policies.</p>
 
-                <h2>Your Consent</h2>
-                <p>By using our website, you consent to our Privacy Policy.</p>
+                <h2>7. Security</h2>
+                <p>We implement reasonable security safeguards to protect your information but cannot guarantee absolute
+                    security due to the inherent risks of technology.</p>
 
-                <p style="margin-top: 3rem; font-size: 0.9rem; opacity: 0.6;"><strong>Last updated:</strong> 2026</p>
+                <h2>8. User Rights</h2>
+                <p>You may request to access, correct, or delete your personal information by contacting us at
+                    <strong>skilmatrix3@gmail.com</strong>.
+                </p>
+
+                <h2>9. Changes to This Policy</h2>
+                <p>We may update this Privacy Policy at any time. We will post the updated policy on this page with a
+                    revised “Effective Date.”</p>
+
+                <p>Contact us if you have any questions or concerns regarding your privacy:
+                    <strong>skilmatrix3@gmail.com</strong>
+                </p>
             </div>
         </div>
     </div>
 
-    <!-- Footer Script -->
-    <script src="../js/footer.js"></script>
+    <!-- Static Footer for Legal Pages -->
+    <footer>
+        <div class="container" style="text-align: center;">
+            <div style="margin-bottom: 2rem;">
+                <h3 class="font-heading" style="color:white; margin-bottom:1rem;">SKiL MATRiX NOTES</h3>
+                <p style="color: var(--text-dim); max-width: 600px; margin: 0 auto;">Empowering students with smart
+                    notes, AI tools, and a collaborative ecosystem.</p>
+            </div>
+
+            <div class="footer-links"
+                style="display: flex; gap: 2rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap;">
+                <a href="../index.html">Home</a>
+                <a href="notes.html">Notes Hub</a>
+                <a href="privacy.html" style="color: var(--primary);">Privacy Policy</a>
+                <a href="terms.html">Terms & Conditions</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+
+            <div
+                style="color: var(--text-dim); font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2rem;">
+                &copy; 2026 SKiL MATRiX Notes. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
     <script src="../js/main.js"></script>
 </body>
 

@@ -265,7 +265,7 @@ window.SettingsModule = {
                         </div>
                         <div class="settings-row">
                             <div class="settings-label"><strong>Delete Account</strong><span>Permanently remove all your notes and scores</span></div>
-                            <button class="btn-sm-ghost" style="background:#ff4757; color:white; border:none;" onclick="alert('Please contact support@skillmatrix.com to request permanent deletion.')">Delete Forever</button>
+                            <button class="btn-sm-ghost" style="background:#ff4757; color:white; border:none;" onclick="alert('Please contact skilmatrix3@gmail.com to request permanent deletion.')">Delete Forever</button>
                         </div>
                     </div>
                 `;
