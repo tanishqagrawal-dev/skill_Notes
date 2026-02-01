@@ -1,0 +1,14 @@
+evalmachine.<anonymous>:1
+import { initRealtimeStats, trackDownload } from './stats.js';
+^^^^^^
+
+SyntaxError: Cannot use import statement outside a module
+    at new Script (node:vm:117:7)
+    at [eval]:1:116
+    at runScriptInThisContext (node:internal/vm:219:10)
+    at node:internal/process/execution:451:12
+    at [eval]-wrapper:6:24
+    at runScriptInContext (node:internal/process/execution:449:60)
+    at evalFunction (node:internal/process/execution:283:30)
+    at evalTypeScript (node:internal/process/execution:295:3)
+    at node:internal/main/eval_string:71:3

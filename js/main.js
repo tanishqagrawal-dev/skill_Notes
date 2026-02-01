@@ -305,14 +305,14 @@ function initRoleAwareLinks() {
 
     // Determine Role (Check localStorage or default to Student)
     // NOTE: This is UI-only. Security is handled by backend rules.
-    const userRole = localStorage.getItem('user_role') || 'student';
+    const userRole = localStorage.getItem('user_role') || 'user';
     // If complex auth object is stored:
     // const user = JSON.parse(localStorage.getItem('auth_user') || '{}');
     // const role = user.role || 'student';
 
     let links = [];
 
-    if (userRole === 'admin' || userRole === 'super_admin' || userRole === 'college_admin') {
+    if (userRole === 'admin' || userRole === 'superadmin' || userRole === 'coadmin') {
         links = [
             { txt: 'Admin Console', url: 'pages/dashboard.html?tab=admin' },
             { txt: 'Manage Content', url: 'pages/dashboard.html?tab=verification' },

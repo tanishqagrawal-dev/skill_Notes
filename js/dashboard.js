@@ -25,23 +25,22 @@ function getFirebase() {
     return window.firebaseServices || {};
 }
 
-// --- RBAC & USER SYSTEM ---
-const Roles = {
-    SUPER_ADMIN: 'super_admin',
-    COLLEGE_ADMIN: 'college_admin',
-    UPLOADER: 'uploader',
-    STUDENT: 'student'
-};
-
+// --- MOCK DATA ---
 const MockUsers = [
-    { id: 'u_student', name: 'Tanishq Agrawal', role: 'student', college: 'medicaps', email: 'student@example.com', year: '2nd Year', branch: 'CSE' },
-    { id: 'u_admin', name: 'Dev Admin', role: 'super_admin', college: 'medicaps', email: 'yeashjain2006@gmail.com' },
-    { id: 'u_faculty', name: 'Dr. Mehta', role: 'uploader', college: 'medicaps', email: 'faculty@medicaps.ac.in' }
+    { id: 'u_user', name: 'Rohan Sharma', email: 'rohan@example.com', role: 'user', college: 'medicaps', branch: 'CSE', year: '3rd Year' },
+    { id: 'u_coadmin', name: 'Prof. Jain', email: 'jain@medicaps.ac.in', role: 'coadmin', college: 'medicaps', branch: 'CSE', year: 'Faculty' },
+    { id: 'u_admin', name: 'Dean Admin', email: 'admin@medicaps.ac.in', role: 'admin', college: 'medicaps', branch: 'All', year: 'Staff' }
 ];
 
-// Current session
-let currentUser = null;
+// --- RBAC & USER SYSTEM ---
+const Roles = {
+    SUPER_ADMIN: 'superadmin',
+    ADMIN: 'admin',
+    COLLEGE_ADMIN: 'coadmin',
+    USER: 'user'
+};
 
+// --- GLOBAL STATE ---
 const GlobalData = {
     colleges: [
         { id: 'medicaps', name: 'Medicaps University', logo: '../assets/logos/medicaps.png' },
@@ -62,38 +61,150 @@ const GlobalData = {
     ],
     streams: [
         { id: 'btech', name: 'B.Tech', icon: '🎓', branches: ['cse', 'ece', 'ee', 'me'] },
-        { id: 'mtech', name: 'M.Tech', icon: '🔬', branches: ['cse', 'vlsi'] }, // Example branches for now
-        { id: 'mba', name: 'MBA', icon: '📊', branches: ['finance', 'marketing'] } // Example branches
+        { id: 'mtech', name: 'M.Tech', icon: '🔬', branches: ['cse', 'vlsi'] },
+        { id: 'mba', name: 'MBA', icon: '📊', branches: ['finance', 'marketing'] }
     ],
     years: ['1st Year', '2nd Year', '3rd Year', '4th Year'],
     subjects: {
-        'cse-2nd Year': [
-            { id: 'os', name: 'Operating Systems', icon: '💾', code: 'CS402', description: 'Medi-Caps Core Syllabus: Process scheduling, memory management, and disk algorithms.' },
-            { id: 'dbms', name: 'DBMS', icon: '🗄️', code: 'CS403', description: 'Relational models, SQL query optimization, and transaction control for CSE students.' },
-            { id: 'dsa', name: 'Data Structures', icon: '🌳', code: 'CS404', description: 'Trees, Graphs, and Advanced Algorithms. Core competitive programming base.' }
+        'cse-Semester 1': [
+            { id: 'math-1', name: 'Engineering Mathematics I', icon: '📐', code: 'MA101', description: 'Calculus, Linear Algebra and differential equations.' },
+            { id: 'physics', name: 'Engineering Physics', icon: '⚛️', code: 'PH101', description: 'Quantum physics, optics and semiconductor theory.' },
+            { id: 'pps', name: 'Programming for Problem Solving', icon: '💻', code: 'CS101', description: 'Introduction to algorithmic logic and C programming.' },
+            { id: 'bee', name: 'Basic Electrical Engineering', icon: '🔌', code: 'EE101', description: 'AC/DC circuits, transformers and machines.' },
+            { id: 'comm-skills', name: 'Communication Skills', icon: '🗣️', code: 'HS101', description: 'Professional writing and verbal communication.' }
         ],
-        'aiml-2nd Year': [
-            { id: 'python', name: 'Python for AI', icon: '🐍', code: 'AL201', description: 'Numerical computing with NumPy and Data Science foundations.' }
+        'cse-Semester 2': [
+            { id: 'chemistry', name: 'Engineering Chemistry', icon: '🧪', code: 'EN3BS14', description: 'Water treatment, thermodynamics and material science.' },
+            { id: 'math-2', name: 'Engineering Mathematics-II', icon: '📉', code: 'EN3BS12', description: 'Advanced calculus, Fourier series and complex variables.' },
+            { id: 'graphics', name: 'Engineering Graphics', icon: '📐', code: 'EN3ES26', description: 'Technical drawing, projection and CAD basics.' },
+            { id: 'electronics', name: 'Basic Electronics Engg.', icon: '📟', code: 'EN3ES16', description: 'Semiconductor devices and circuits.' },
+            { id: 'mech', name: 'Basic Mechanical Engg.', icon: '⚙️', code: 'EN3ES18', description: 'Thermodynamics and IC engines.' }
         ],
-        'cse-1st Year': [
-            { id: 'phy', name: 'Engineering Physics', icon: '⚛️', code: 'PH101', description: 'Quantum mechanics, Optics, and Semiconductors syllabus for Medi-Caps Engineering.' }
+        'cse-Semester 3': [
+            { id: 'discrete-math', name: 'Discrete Mathematics', icon: '🧩', code: 'CS301', description: 'Logic, sets, graph theory and combinatorics.' },
+            { id: 'digital-elec', name: 'Digital Electronics', icon: '💡', code: 'CS302', description: 'Boolean algebra and combinational circuits.' },
+            { id: 'java-oop', name: 'Object Oriented Programming (Java)', icon: '☕', code: 'CS303', description: 'Core principles: Encapsulation, Inheritance, Polymorphism.' },
+            { id: 'co', name: 'Computer Organization', icon: '🖥️', code: 'CS304', description: 'ALU, control unit and memory hierarchy.' },
+            { id: 'dsa', name: 'Data Structures', icon: '🌳', code: 'CS305', description: 'Arrays, stacks, queues, trees and sorting.' }
+        ],
+        'cse-Semester 4': [
+            { id: 'adv-java', name: 'Advanced Java Programming', icon: '☕', code: 'CS3CO37', description: 'Servlets, JSP, JDBC and enterprise application components.' },
+            { id: 'dbms', name: 'DBMS', icon: '🗄️', code: 'CS3CO39', description: 'Relational databases, SQL, normalization and transaction management.' },
+            { id: 'micro', name: 'Microprocessor & Interfacing', icon: '📟', code: 'CS3CO35', description: '8085/8086 architecture, assembly language and peripheral interfacing.' },
+            { id: 'os', name: 'Operating Systems', icon: '💾', code: 'CS3CO47', description: 'Process management, synchronization and file systems.' },
+            { id: 'toc', name: 'Theory of Computation', icon: '🧠', code: 'CS3CO46', description: 'Finite automata, context-free grammars and Turing machines.' },
+            { id: 'elective-1', name: 'Elective-1', icon: '🏷️', code: 'CS3ELXX', description: 'Specialized elective track course for Computer Science.' }
         ]
     }
 };
 
 let NotesDB = [];
 let unsubscribeNotes = null;
-
-// --- APP STATE ---
+let currentUser = null;
 let selState = { college: null, branch: null, year: null, subject: null };
 
+// --- CORE SYSTEM INITIALIZATION ---
+
+function handleAuthReady(data) {
+    if (!data) return;
+    try {
+        const { user, currentUser: appCurrentUser } = data;
+        if (user && appCurrentUser) {
+            console.log("🚀 Dashboard Session Active:", (appCurrentUser.email || "Guest"));
+
+            currentUser = appCurrentUser;
+            window.currentUser = currentUser;
+
+            // UI & DB
+            updateUserProfileUI();
+            initRealTimeDB();
+            initTabs();
+
+            // Settings
+            if (window.SettingsModule) {
+                window.SettingsModule.state.user = { ...currentUser };
+                window.SettingsModule.init();
+            }
+
+            // Stats
+            if (window.statServices && window.statServices.initRealtimeStats) {
+                window.statServices.initRealtimeStats();
+            }
+
+            // Telemetry
+            if (typeof trackStudent === 'function') trackStudent();
+
+            // Initial View - Specialized Routing
+            if (currentUser.role === 'superadmin') {
+                renderTabContent('superadmin-panel');
+                // Update Sidebar Active State
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                const adminTab = document.querySelector('.nav-item[data-tab="superadmin-panel"]');
+                if (adminTab) adminTab.classList.add('active');
+            } else if (currentUser.role === 'coadmin' || currentUser.role === 'admin') {
+                renderTabContent('verification-hub');
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                const modTab = document.querySelector('.nav-item[data-tab="verification-hub"]');
+                if (modTab) modTab.classList.add('active');
+            } else {
+                renderTabContent('overview');
+            }
+        } else {
+            console.warn("🔓 Dashboard: No user data in auth-ready event.");
+        }
+    } catch (e) {
+        console.error("CRITICAL Dashboard Init Error:", e);
+        const contentArea = document.getElementById('tab-content');
+        if (contentArea) {
+            contentArea.innerHTML = `
+                <div style="padding: 4rem; text-align: center; color: #ff4757;">
+                    <h2>🚧 Initialization Failed</h2>
+                    <p>${e.message}</p>
+                    <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 1rem;">Reload Dashboard</button>
+                </div>
+            `;
+        }
+    }
+}
+
+async function trackStudent() {
+    const { db, doc, setDoc, serverTimestamp } = getFirebase();
+    if (!db || !currentUser || currentUser.isGuest) return;
+
+    try {
+        const userRef = doc(db, "users", currentUser.id);
+        await setDoc(userRef, {
+            name: currentUser.name,
+            email: currentUser.email,
+            lastSeen: serverTimestamp(),
+            role: currentUser.role,
+            college: currentUser.college
+        }, { merge: true });
+        console.log("👤 User heart-beat updated.");
+    } catch (e) {
+        console.warn("Telemetry error:", e);
+    }
+}
+
+// Initial Listener
+window.addEventListener('auth-ready', (event) => {
+    console.log("📥 Received auth-ready event");
+    handleAuthReady(event.detail);
+});
+
+// Check if auth was already dispatched before dashboard.js loaded
+if (window.authStatus && window.authStatus.ready) {
+    console.log("⚡ Auth already ready, triggering handleAuthReady immediately");
+    handleAuthReady(window.authStatus.data);
+}
+
+
 // --- RE-INIT SERVICES ON DEMAND ---
-// Smart Ranking Logic: (views*0.25) + (downloads*0.5) + (likes*0.25)
 function calculateSmartScore(note) {
     const viewsWeight = 0.25;
     const downloadsWeight = 0.5;
     const likesWeight = 0.25;
-    return (note.views * viewsWeight) + (note.downloads * downloadsWeight) + (note.likes * likesWeight);
+    return ((note.totalViews || 0) * viewsWeight) + ((note.totalSaves || 0) * downloadsWeight) + ((note.likes || 0) * likesWeight);
 }
 
 // Google Drive Link Converter
@@ -275,10 +386,10 @@ window.openUploadModal = async function () {
         return;
     }
 
-    // Check permission (Admin/Uploader only)
-    const allowedRoles = [Roles.SUPER_ADMIN, Roles.COLLEGE_ADMIN, Roles.UPLOADER];
-    if (!allowedRoles.includes(currentUser.role)) {
-        alert("🔒 Student accounts cannot upload directly. Please ask a representative.");
+    // Check permission (Admin+)
+    const isUploader = ['admin', 'superadmin', 'coadmin'].includes(currentUser.role);
+    if (!isUploader) {
+        alert("🔒 Only contributors and admins can upload directly in this version.");
         return;
     }
 
@@ -348,28 +459,32 @@ async function handleDashboardNoteSubmit(e) {
     btn.disabled = true;
     btn.innerText = "Uploading...";
 
+    const isModerator = ['admin', 'superadmin', 'coadmin'].includes(currentUser.role);
+    const targetCollegeId = selState.college ? selState.college.id : (currentUser.collegeId || currentUser.college || 'medicaps');
+
     const newNote = {
         title: title,
-        collegeId: selState.college ? selState.college.id : 'medicaps',
+        collegeId: targetCollegeId,
         branchId: selState.branch ? selState.branch.id : 'cse',
+        semester: selState.semester || 'Semester 3',
         year: selState.year || '2nd Year',
         subject: selState.subject ? selState.subject.id : 'os',
         type: type,
         views: 0,
-        downloads: 0,
-        likes: 0,
-        dislikes: 0,
+        saves: 0,
         uploader: currentUser.name,
-        uploaded_by: currentUser.id,
+        uploaderUid: currentUser.id,
+        uploaderEmail: currentUser.email,
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         driveLink: link,
-        status: (currentUser.role === Roles.SUPER_ADMIN || currentUser.role === Roles.COLLEGE_ADMIN) ? 'approved' : 'pending',
+        status: isModerator ? 'approved' : 'pending',
         created_at: new Date().toISOString()
     };
 
     try {
-        await addDoc(collection(db, "notes"), newNote);
-        showToast(newNote.status === 'approved' ? "🚀 Note published successfully!" : "📩 Submitted for review!");
+        const targetColl = isModerator ? "notes_approved" : "notes_pending";
+        await addDoc(collection(db, targetColl), newNote);
+        showToast(isModerator ? "🚀 Note published successfully!" : "📩 Submitted for review!");
         closeDashboardUploadModal();
         document.getElementById('dash-upload-form').reset();
     } catch (err) {
@@ -384,54 +499,53 @@ async function handleDashboardNoteSubmit(e) {
 function initTabs() {
     const navItems = document.querySelectorAll('.nav-item');
     const sidebarNav = document.querySelector('.sidebar-nav');
+    if (!sidebarNav || !currentUser) return;
 
-    // Clear dynamic tabs before re-rendering to avoid duplicates
-    const dynamicTabs = document.querySelectorAll('[data-tab="verification"], [data-tab="admin-console"]');
-    dynamicTabs.forEach(t => t.remove());
+    // 1. Inject Dynamic Items based on Role
+    // Remove existing dynamic items
+    document.querySelectorAll('.nav-item.dynamic-node').forEach(n => n.remove());
 
-    if (sidebarNav) {
-        if (currentUser.role === Roles.SUPER_ADMIN || currentUser.role === Roles.COLLEGE_ADMIN) {
-            const adminTab = document.createElement('a');
-            adminTab.href = "#";
-            adminTab.className = "nav-item";
-            adminTab.setAttribute('data-tab', 'verification');
-            adminTab.innerHTML = `<span class="icon">🛡️</span> Verification Hub`;
-            sidebarNav.insertBefore(adminTab, sidebarNav.querySelector('.nav-divider'));
-        }
+    const isAdmin = ['admin', 'superadmin', 'coadmin'].includes(currentUser.role);
+    const settingsNode = document.querySelector('[data-tab="settings"]');
 
-        if (currentUser.role === Roles.SUPER_ADMIN) {
-            const devTab = document.createElement('a');
-            devTab.href = "#";
-            devTab.className = "nav-item";
-            devTab.setAttribute('data-tab', 'admin-console');
-            devTab.innerHTML = `<span class="icon">💻</span> Admin Console`;
-            sidebarNav.insertBefore(devTab, sidebarNav.querySelector('.nav-divider'));
-        }
+    // My Uploads (For Everyone)
+    const myUploads = document.createElement('a');
+    myUploads.href = "#";
+    myUploads.className = "nav-item dynamic-node";
+    myUploads.dataset.tab = "my-uploads";
+    myUploads.innerHTML = `<span class="icon">📤</span> My Uploads`;
+    sidebarNav.insertBefore(myUploads, settingsNode);
+
+    if (isAdmin) {
+        const modItem = document.createElement('a');
+        modItem.href = "#";
+        modItem.className = "nav-item dynamic-node";
+        modItem.dataset.tab = "verification-hub";
+        modItem.innerHTML = `<span class="icon">🛡️</span> Moderation`;
+        sidebarNav.insertBefore(modItem, settingsNode);
     }
 
-    // Refresh nav items after dynamic addition
-    const allNavItems = document.querySelectorAll('.nav-item[data-tab]');
-    allNavItems.forEach(item => {
+    if (currentUser.role === 'superadmin') {
+        const adminItem = document.createElement('a');
+        adminItem.href = "#";
+        adminItem.className = "nav-item dynamic-node";
+        adminItem.dataset.tab = "superadmin-panel";
+        adminItem.innerHTML = `<span class="icon">🔐</span> Admin Console`;
+        sidebarNav.insertBefore(adminItem, settingsNode);
+    }
+
+    // 2. Re-bind all listeners
+    document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
         item.onclick = (e) => {
             e.preventDefault();
-            const tabId = item.getAttribute('data-tab');
-            allNavItems.forEach(i => i.classList.remove('active'));
+            const tid = item.dataset.tab;
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             item.classList.add('active');
-            renderTabContent(tabId);
-            trackAnalytics('tab_switch', { name: tabId });
+            renderTabContent(tid);
         };
     });
 
     updateUserProfileUI();
-
-    // Deep Linking Check
-    if (window.pendingTab) {
-        const target = document.querySelector(`.nav-item[data-tab="${window.pendingTab}"]`);
-        if (target) {
-            target.click();
-            window.pendingTab = null;
-        }
-    }
 }
 
 function updateUserProfileUI() {
@@ -451,9 +565,10 @@ function updateUserProfileUI() {
     }
     if (name) name.innerText = currentUser.name || currentUser.email.split('@')[0];
 
-    // Hide extra meta text if it exists
+    // Update meta text with role
     if (meta) {
-        meta.style.display = 'none';
+        meta.style.display = 'block';
+        meta.innerText = currentUser.role ? currentUser.role.toUpperCase() : 'USER';
     }
 
     // Ensure logout button is NOT added here (it's in Settings now)
@@ -461,56 +576,87 @@ function updateUserProfileUI() {
     if (existingLogout) existingLogout.remove();
 }
 
-window.switchRole = function (userId) {
-    const user = MockUsers.find(u => u.id === userId);
-    if (!user) return;
+window.switchRole = function (userId, role, name) {
+    const user = MockUsers.find(u => u.id === userId) || { id: userId, role, name, email: 'demo@example.com', college: 'medicaps' };
+
+    console.log(`🛠️ Switching to role: ${role} (${name})`);
 
     // Simulate auth-ready event data structure
     handleAuthReady({
         user: { uid: user.id, email: user.email },
-        currentUser: { ...user }
+        currentUser: { ...user, role, name } // Override with passed values for demo
     });
 
     // Switch to Overview
     const overviewTab = document.querySelector('.nav-item[data-tab="overview"]');
-    if (overviewTab) overviewTab.click();
+    if (overviewTab) {
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        overviewTab.classList.add('active');
+    }
 };
 
 function renderTabContent(tabId) {
     const contentArea = document.getElementById('tab-content');
     if (!contentArea) return;
 
-    if (tabId === 'overview') {
-        contentArea.innerHTML = renderOverview();
-    } else if (tabId === 'verification') {
-        contentArea.innerHTML = renderVerificationHub();
-    } else if (tabId === 'admin-console') {
-        contentArea.innerHTML = renderAdminConsole();
-    } else if (tabId === 'notes') {
-        selState = { college: null, branch: null, year: null, subject: null };
-        contentArea.innerHTML = renderNotesHub();
-        renderCollegeStep();
-    } else if (tabId === 'planner') {
-        contentArea.innerHTML = renderPlanner();
-    } else if (tabId === 'ai-tools') {
-        contentArea.innerHTML = renderAITools();
-        setTimeout(window.checkServer, 100); // Check server status after render
-    } else if (tabId === 'analytics') {
-        contentArea.innerHTML = renderAnalytics();
-    } else if (tabId === 'settings') {
-        contentArea.innerHTML = window.renderSettings ? window.renderSettings() : 'Loading settings...';
-    } else if (tabId === 'leaderboard') {
-        contentArea.innerHTML = renderLeaderboard();
-        setTimeout(initLeaderboardListeners, 100);
-    } else {
-        contentArea.innerHTML = `<div class="tab-pane active"><h1 class="font-heading">${tabId}</h1><p>Coming soon...</p></div>`;
+    try {
+        if (tabId === 'overview') {
+            contentArea.innerHTML = renderOverview();
+        } else if (tabId === 'notes') {
+            selState = { college: null, branch: null, year: null, subject: null };
+            contentArea.innerHTML = renderNotesHub();
+            renderCollegeStep();
+        } else if (tabId === 'planner') {
+            contentArea.innerHTML = renderPlanner();
+        } else if (tabId === 'ai-tools') {
+            contentArea.innerHTML = renderAITools();
+            setTimeout(window.checkServer, 100);
+        } else if (tabId === 'leaderboard') {
+            contentArea.innerHTML = renderLeaderboard();
+            setTimeout(initLeaderboardListeners, 100);
+        } else if (tabId === 'verification-hub') {
+            contentArea.innerHTML = `<div class="tab-pane active fade-in" style="padding: 2rem;">
+                <h1 class="font-heading">🛡️ Moderation <span class="gradient-text">Queue</span></h1>
+                <p style="color: var(--text-dim); margin-bottom: 2rem;">Approve or reject pending note submissions.</p>
+                <div id="admin-queue" class="grid-1-col" style="display: grid; gap: 1rem;"></div>
+            </div>`;
+            setTimeout(renderAdminModQueue, 100);
+        } else if (tabId === 'superadmin-panel') {
+            contentArea.innerHTML = `<div class="tab-pane active fade-in" style="padding: 2rem;">
+                <h1 class="font-heading">🔐 Admin <span class="gradient-text">Console</span></h1>
+                <p style="color: var(--text-dim); margin-bottom: 2rem;">Global system management and role assignment.</p>
+                <div id="superadmin-panel"></div>
+            </div>`;
+            setTimeout(renderSuperAdminPanel, 100);
+        } else if (tabId === 'my-uploads') {
+            contentArea.innerHTML = `<div class="tab-pane active fade-in" style="padding: 2rem;">
+                <h1 class="font-heading">📤 My <span class="gradient-text">Uploads</span></h1>
+                <p style="color: var(--text-dim); margin-bottom: 2rem;">Track the status of your contributed materials.</p>
+                <div id="my-uploads-grid" class="notes-grid-pro" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;"></div>
+            </div>`;
+            setTimeout(renderMyUploads, 100);
+        } else if (tabId === 'settings') {
+            contentArea.innerHTML = window.renderSettings ? window.renderSettings() : 'Loading settings...';
+        } else {
+            contentArea.innerHTML = `<div class="tab-pane active"><h1 class="font-heading">${tabId}</h1><p>Module coming soon...</p></div>`;
+        }
+    } catch (err) {
+        console.error("Tab Render Error:", err);
+        contentArea.innerHTML = `
+            <div style="padding: 4rem; text-align: center;">
+                <h2 style="color: #ff4757;">⚠️ Rendering Error</h2>
+                <p style="color: var(--text-dim); margin-top: 1rem;">Something went wrong while loading this module.</p>
+                <pre style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; margin-top: 1rem; color: #ff4757; font-size: 0.8rem;">${err.message}</pre>
+                <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 2rem;">Reload Page</button>
+            </div>
+        `;
     }
 }
 
 
 function renderPlanner() {
     // 1. Get Subjects
-    const mySubjects = GlobalData.subjects['cse-2nd Year'].map(s => s.name);
+    const mySubjects = (GlobalData.subjects['cse-Semester 3'] || GlobalData.subjects['cse-Semester 1']).map(s => s.name);
 
     return `
         <div class="tab-pane active fade-in" style="padding: 2rem;">
@@ -581,7 +727,7 @@ window.handleGeneratePlan = async function () {
     const examDate = document.getElementById('p-exam-date').value;
     const hours = document.getElementById('p-hours').value;
     const weakTopics = Array.from(document.querySelectorAll('.chip.active')).map(el => el.dataset.val);
-    const subjects = GlobalData.subjects['cse-2nd Year'].map(s => s.name);
+    const subjects = (GlobalData.subjects['cse-Semester 3'] || GlobalData.subjects['cse-Semester 1']).map(s => s.name);
 
     if (!examDate) {
         alert("⚠️ Please select an upcoming exam date.");
@@ -775,8 +921,8 @@ function renderOverview() {
     const year = currentUser.year || '3rd Year';
     const branch = currentUser.branch || 'CSE';
 
-    // Real-time subjects based on user branch/year
-    const branchKey = `${branch.toLowerCase().replace(' ', '')}-${year}`;
+    // Real-time subjects based on user branch/semester
+    const branchKey = `${branch.toLowerCase().replace(' ', '')}-${currentUser.semester || 'Semester 3'}`;
     const mySubjects = GlobalData.subjects[branchKey] || [];
     const subjects = mySubjects.length > 0 ? mySubjects.slice(0, 3).map((s, idx) => ({
         name: s.name,
@@ -790,9 +936,9 @@ function renderOverview() {
 
     // Mock Users for Role Switcher (Demo Mode)
     const mockUsers = [
-        { id: 'u_student', name: 'Rohan (Student)', role: 'student' },
-        { id: 'u_uploader', name: 'Faculty (Uploader)', role: 'uploader' },
-        { id: 'u_admin', name: 'Dean (Admin)', role: 'college_admin' }
+        { id: 'u_user', name: 'Rohan (User)', role: 'user' },
+        { id: 'u_coadmin', name: 'Dr. Jain (Co-Admin)', role: 'coadmin' },
+        { id: 'u_admin', name: 'Admin Console', role: 'admin' }
     ];
 
     setTimeout(initLiveCounters, 0); // Start animations
@@ -817,7 +963,7 @@ function renderOverview() {
                 </div>
                 <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #9b59b6;">
                     <div style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.5rem;">⬇️ Global Downloads</div>
-                    <div class="live-counter" id="global-downloads" style="font-size: 2rem; font-weight: 700;">2,340</div>
+                    <div class="live-counter" id="global-downloads" style="font-size: 2rem; font-weight: 700;">0</div>
                 </div>
             </div>
 
@@ -882,7 +1028,8 @@ function renderOverview() {
                 </div>
             </div>
 
-            <!-- Role Switcher (Restored) -->
+            <!-- Role Switcher (Developer Only) -->
+            ${(currentUser.role === 'admin' || currentUser.role === 'superadmin') ? `
              <div style="margin-top: 3rem; padding: 1.5rem; background: rgba(108, 99, 255, 0.05); border-radius: 16px; border: 1px dashed var(--border-glass);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
                     <h4 class="font-heading" style="font-size: 1rem;">🛠️ Quick Role Switcher (Demo)</h4>
@@ -897,25 +1044,42 @@ function renderOverview() {
                     `).join('')}
                 </div>
             </div>
+            ` : ''}
         </div>
     `;
 }
 
+let unsubscribeLiveStat = null;
+
 // Live Counter Animation logic
 window.initLiveCounters = function () {
-    // 1. Live Students (Slight Fluctuation Around Real Baseline if available)
     const liveEl = document.getElementById('live-students');
-    if (liveEl) {
-        let baseCount = parseInt(liveEl.innerText) || 124;
-        setInterval(() => {
-            const change = Math.floor(Math.random() * 3) - 1; // -1 to +1
-            baseCount += change;
-            if (baseCount < 5) baseCount = 5;
-            liveEl.innerText = baseCount;
-        }, 5000);
-    }
+    const downloadEl = document.getElementById('global-downloads');
+    const { db, doc, onSnapshot } = getFirebase();
 
-    // Global Downloads is handled by stats.js real-time listener
+    if (unsubscribeLiveStat) unsubscribeLiveStat();
+
+    if (db && (liveEl || downloadEl)) {
+        // Listen to global stats for student count and downloads
+        const statsRef = doc(db, 'stats', 'global');
+        unsubscribeLiveStat = onSnapshot(statsRef, (snap) => {
+            if (snap.exists()) {
+                const data = snap.data();
+
+                // Update Live Students
+                if (liveEl) {
+                    const realCount = data.students || 0;
+                    const variance = Math.floor(Math.random() * 5) + 2;
+                    liveEl.innerText = (realCount + variance).toLocaleString();
+                }
+
+                // Update Global Downloads
+                if (downloadEl) {
+                    downloadEl.innerText = (data.downloads || 0).toLocaleString();
+                }
+            }
+        });
+    }
 }
 
 // File Handler
@@ -1027,13 +1191,36 @@ window.copyPaper = function () {
 /* End AI Tools */
 
 function renderAnalytics() {
+    const totalViews = NotesDB.reduce((acc, n) => acc + (n.views || 0), 0);
+    const totalDownloads = NotesDB.reduce((acc, n) => acc + (n.downloads || 0), 0);
+    const totalLikes = NotesDB.reduce((acc, n) => acc + (n.likes || 0), 0);
+
     return `
         <div class="tab-pane active fade-in" style="padding: 2rem;">
             <h1 class="font-heading">📈 Performance <span class="gradient-text">Analytics</span></h1>
+            
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                <div class="glass-card" style="padding: 2rem; border-top: 4px solid var(--primary);">
+                    <div style="color: var(--text-dim); font-size: 0.9rem;">Total Content Reach</div>
+                    <div style="font-size: 2.5rem; font-weight: 700;">${totalViews.toLocaleString()}</div>
+                    <div style="color: var(--success); font-size: 0.8rem; margin-top: 0.5rem;">👁️ Universal Views</div>
+                </div>
+                <div class="glass-card" style="padding: 2rem; border-top: 4px solid var(--secondary);">
+                    <div style="color: var(--text-dim); font-size: 0.9rem;">Community Engagement</div>
+                    <div style="font-size: 2.5rem; font-weight: 700;">${totalLikes.toLocaleString()}</div>
+                    <div style="color: var(--primary); font-size: 0.8rem; margin-top: 0.5rem;">💖 Total Likes</div>
+                </div>
+                <div class="glass-card" style="padding: 2rem; border-top: 4px solid #2ecc71;">
+                    <div style="color: var(--text-dim); font-size: 0.9rem;">Resource Utilization</div>
+                    <div style="font-size: 2.5rem; font-weight: 700;">${totalDownloads.toLocaleString()}</div>
+                    <div style="color: #2ecc71; font-size: 0.8rem; margin-top: 0.5rem;">📥 Direct Downloads</div>
+                </div>
+            </div>
+
             <div class="glass-card" style="margin-top: 2rem; padding: 3rem; text-align: center;">
-                <div style="font-size: 4rem; margin-bottom: 1rem;">📊</div>
-                <h3>Gathering Data...</h3>
-                <p>Interact with more notes to generate your learning insights map.</p>
+                <div style="font-size: 4rem; margin-bottom: 1rem;">🧠</div>
+                <h3>Personalized Insights Coming Soon</h3>
+                <p>Gemini is currently analyzing your study patterns within the <b>${NotesDB.length} available resources</b>.</p>
             </div>
         </div>
     `;
@@ -1334,7 +1521,8 @@ function renderNotesHub() {
 }
 
 function updateStepUI(activeIdx) {
-    document.querySelectorAll('.step-node').forEach((node, i) => {
+    const nodes = document.querySelectorAll('.step-node');
+    nodes.forEach((node, i) => {
         node.classList.remove('active', 'completed');
         if (i < activeIdx) node.classList.add('completed');
         if (i === activeIdx) node.classList.add('active');
@@ -1521,7 +1709,7 @@ window.renderSubjectStep = function () {
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Subject</span>`;
 
     const container = document.getElementById('explorer-content');
-    const key = `${selState.branch.id}-${selState.year}`;
+    const key = `${selState.branch.id}-${selState.semester}`;
     const subjects = GlobalData.subjects[key] || [];
 
     if (subjects.length === 0) {
@@ -1534,8 +1722,9 @@ window.renderSubjectStep = function () {
 
     container.innerHTML = subjects.map(s => `
         <div class="selection-card glass-card fade-in" onclick="selectSubject('${s.id}', '${s.name}')">
-            <div class="card-icon" style="font-size: 2.5rem;">${s.icon}</div>
-            <h3 class="font-heading" style="margin-top: 1rem;">${s.name}</h3>
+            <div class="card-icon" style="font-size: 2.5rem; margin-bottom: 0.5rem;">${s.icon}</div>
+            <div style="font-size: 0.7rem; color: var(--primary); font-weight: 700; margin-bottom: 0.5rem; background: rgba(108, 99, 255, 0.1); padding: 2px 8px; border-radius: 4px; display: inline-block;">${s.code}</div>
+            <h3 class="font-heading">${s.name}</h3>
         </div>
     `).join('');
 };
@@ -1555,12 +1744,27 @@ function showNotes(activeTab = 'notes') {
     const view = document.getElementById('final-notes-view');
     view.style.display = 'block';
 
-    const key = `${selState.branch.id}-${selState.year}`;
+    const key = `${selState.branch.id}-${selState.semester}`;
     const subjectData = (GlobalData.subjects[key] || []).find(s => s.id === selState.subject.id) || {
         name: selState.subject.name,
         code: 'GEN101',
         description: 'Comprehensive study materials and verified academic resources for final exam preparation.'
     };
+
+    // Filter notes relevant to the current subject and tab type
+    const relevantNotes = NotesDB.filter(n =>
+        n.subject === selState.subject.id &&
+        n.collegeId === selState.college.id &&
+        n.type === activeTab &&
+        (n.status === 'approved' || (currentUser.role === Roles.SUPER_ADMIN || (currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === n.collegeId)))
+    );
+
+    const uniqueUnits = new Set();
+    relevantNotes.forEach(n => {
+        if (n.units) {
+            n.units.split(',').forEach(unit => uniqueUnits.add(unit.trim()));
+        }
+    });
 
     view.innerHTML = `
         <div class="subject-page-container fade-in">
@@ -1572,12 +1776,20 @@ function showNotes(activeTab = 'notes') {
                 <div style="display:flex; justify-content: space-between; align-items: flex-start;">
                     <div>
                         <h1 class="font-heading" style="font-size: 3rem; margin: 0; line-height: 1.1;">${selState.subject.name}</h1>
-                        <div class="sub-badges">
-                            <span class="meta-badge">${selState.branch.id}</span>
-                            <span class="meta-badge">${selState.year}</span>
-                            <span class="meta-badge">${subjectData.code}</span>
+                        <div class="sub-meta-stats" style="margin-top: 1rem; display: flex; gap: 2rem; color: var(--text-dim); font-size: 0.9rem;">
+                            <span>📚 <b>${relevantNotes.length}</b> Resources</span>
+                            <span>🎯 <b>${uniqueUnits.size}</b> Units Covered</span>
+                        </div>
+                        <div class="sub-badges" style="margin-top: 0.8rem;">
+                            <span class="meta-badge">${selState.branch.id.toUpperCase()}</span>
+                            <span class="meta-badge">${selState.year.toUpperCase()}</span>
+                            <span class="meta-badge">${subjectData.code.toUpperCase()}</span>
                         </div>
                         <p class="subject-description">${subjectData.description}</p>
+                        <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                            <button class="btn btn-primary btn-sm" onclick="showAIModal('summary', '${selState.subject.name}')">✨ AI Summary</button>
+                            <button class="btn btn-ghost btn-sm" style="border: 1px solid var(--primary);" onclick="showAIModal('questions', '${selState.subject.name}')">📝 Generate Model Questions</button>
+                        </div>
                     </div>
                     <div style="display:flex; gap: 1rem;">
                         <button class="btn btn-ghost" onclick="backToSubjectSelection()" style="white-space:nowrap; background: rgba(255,255,255,0.05); padding: 0.6rem 1.2rem; border-radius: 8px;">⬅ Back</button>
@@ -1631,61 +1843,55 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
         `;
     }
 
-    return filtered.map(n => {
-        const canModerate = (currentUser.role === Roles.SUPER_ADMIN) ||
-            (currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === n.collegeId);
-
-        return `
-            <div class="detailed-item glass-card card-reveal" style="${n.status === 'pending' ? 'border: 1px dashed var(--secondary); background: rgba(108, 99, 255, 0.05);' : ''}">
-                <div class="item-left">
-                    <div class="file-type-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                    </div>
-                    <div class="item-info-block">
-                        <div class="item-title" style="display:flex; align-items:center; gap: 0.5rem;">
-                            ${n.title}
-                            ${n.status === 'pending' ? '<span class="meta-badge" style="background:var(--secondary); color:#000; font-size:0.6rem;">PENDING REVIEW</span>' : ''}
-                        </div>
-                        <div class="item-meta-row">
-                            <span title="Upload Date">📅 ${n.date}</span>
-                            <div class="uploader-mini">
-                                <div class="uploader-avatar">${n.uploader ? n.uploader.charAt(0) : 'U'}</div>
-                                <span>${n.uploader}</span>
-                            </div>
-                            <span title="Total Downloads">${n.downloads} downloads</span>
-                        </div>
-                        
-                        <div class="item-engagement-row">
-                            <span class="eng-icon" onclick="updateNoteStat('${n.id}', 'like')">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
-                                ${n.likes || 0}
-                            </span>
-                            <span class="eng-icon" onclick="toggleNoteDislike('${n.id}')">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
-                                ${n.dislikes || 0}
-                            </span>
-                            <span class="eng-icon" onclick="toggleNoteBookmark('${n.id}')">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="item-right">
-                    ${n.status === 'pending' && canModerate ? `
-                        <div style="display:flex; gap:0.5rem;">
-                            <button class="btn btn-sm btn-primary" style="background: var(--success); font-size: 0.7rem;" onclick="processNote('${n.id}', 'approved')">✅ Approve</button>
-                            <button class="btn btn-sm btn-ghost" style="color: #ff4757; font-size: 0.7rem;" onclick="processNote('${n.id}', 'rejected')">❌ Reject</button>
-                        </div>
-                    ` : `
-                        <button class="btn-download-pro" onclick="window.open('${convertDriveLink(n.driveLink, 'download')}', '_blank'); updateNoteStat('${n.id}', 'download')">
-                            Download
-                        </button>
-                    `}
-                </div>
+    const grid = document.getElementById('notes-list-grid');
+    if (!grid) return filtered.map(n => `
+        <div class="note-card glass-card">
+            <div class="note-type-badge">${n.type || 'Note'}</div>
+            <h3 class="note-title">${n.title}</h3>
+            ${n.source ? `<div style="font-size: 0.75rem; color: var(--primary); margin-top: -0.5rem; margin-bottom: 0.5rem;">Source: ${n.source}</div>` : ''}
+            <div class="note-meta">
+                <span>👁️ ${n.views || 0}</span>
+                <span>📥 ${n.downloads || 0}</span>
+                <span>💖 ${n.likes || 0}</span>
             </div>
-        `;
-    }).join('');
+            <div class="note-actions">
+                <a href="${n.driveLink}" target="_blank" class="btn btn-primary btn-sm" onclick="updateNoteStat('${n.id}', 'view')">Open Notes</a>
+                <button class="btn btn-ghost btn-sm" onclick="updateNoteStat('${n.id}', 'like')">💖</button>
+            </div>
+        </div>
+    `).join('');
+
+    grid.innerHTML = filtered.map(n => `
+        <div class="note-card glass-card">
+            <div class="note-type-badge">${n.type || 'Note'}</div>
+            <h3 class="note-title">${n.title}</h3>
+            ${n.source ? `<div style="font-size: 0.75rem; color: var(--primary); margin-top: -0.5rem; margin-bottom: 0.5rem;">Source: ${n.source}</div>` : ''}
+            <div class="note-meta">
+                <span>👁️ ${n.views || 0}</span>
+                <span>📥 ${n.downloads || 0}</span>
+                <span>💖 ${n.likes || 0}</span>
+            </div>
+            <div class="note-actions">
+                <a href="${n.driveLink}" target="_blank" class="btn btn-primary btn-sm" onclick="updateNoteStat('${n.id}', 'view')">Open Notes</a>
+                <button class="btn btn-ghost btn-sm" onclick="updateNoteStat('${n.id}', 'like')">💖</button>
+            </div>
+        </div>
+    `).join('') + `
+        <div style="grid-column: 1 / -1; text-align: center; margin-top: 2rem; padding: 1.5rem; border-top: 1px solid var(--border-glass);">
+            <p style="color: var(--text-dim); font-size: 0.85rem;">⚠️ <i>Disclaimer: Notes are referenced from educational sources like ${Array.from(new Set(filtered.map(f => f.source).filter(s => s))).join(', ') || 'Medinotes.live'}.</i></p>
+        </div>
+    `;
+    return grid.innerHTML;
 }
+
+window.showAIModal = function (type, subject) {
+    const title = type === 'summary' ? 'AI Concept Summary' : 'Model Exam Questions';
+    const content = type === 'summary'
+        ? `Gemini is generating a high-yield summary for <b>${subject}</b> based on the latest Medi-Caps syllabus...`
+        : `Generating a mock question paper for <b>${subject}</b> including 2-mark and 10-mark questions...`;
+
+    alert(`✨ [AI Agent Mode]\n\n${title}\nTarget: ${subject}\n\n${content}\n\n(Feature processing available in Pro Sandbox)`);
+};
 
 window.processNote = async function (noteId, status) {
     const { db, doc, updateDoc } = getFirebase();
@@ -1719,36 +1925,291 @@ window.backToSubjectSelection = function () {
     renderSubjectStep();
 };
 
-window.addEventListener('auth-ready', (event) => {
-    handleAuthReady(event.detail);
-});
+// Checked for auth above in system initialization
 
-function handleAuthReady(data) {
-    if (!data) return;
-    const { user, currentUser: appCurrentUser } = data;
-    if (user && appCurrentUser) {
-        console.log("🚀 Dashboard Session Active:", (user.email || "Guest"));
-        if (currentUser && currentUser.id === appCurrentUser.id) {
-            // Already initialized, but ensure UI is synced
-            updateUserProfileUI();
+
+window.loginAsGuest = function () {
+    console.log("Logging in as Guest...");
+    currentUser = {
+        id: 'guest_' + Math.random().toString(36).substr(2, 9),
+        name: 'Guest Tester',
+        email: 'guest@example.com',
+        photo: null,
+        role: Roles.USER,
+        college: 'medicaps',
+        isGuest: true
+    };
+
+    updateUserProfileUI();
+    initRealTimeDB();
+    initTabs();
+    renderTabContent('overview');
+};
+
+// --- PRODUCTION MODULES ---
+
+// 1. UPLOAD MODULE
+window.uploadNote = async function (formData) {
+    const { db, collection, addDoc, serverTimestamp, storage, ref, uploadBytes, getDownloadURL } = getFirebase();
+    if (!currentUser) return alert("You must be logged in to upload.");
+
+    try {
+        const file = formData.get('noteFile');
+        const storageRef = ref(storage, `notes/${Date.now()}_${file.name}`);
+
+        console.log("📤 Uploading to Storage...");
+        const snapshot = await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+
+        console.log("📝 Saving Metadata to notes_pending...");
+        await addDoc(collection(db, "notes_pending"), {
+            title: formData.get('title'),
+            subject: formData.get('subject'),
+            semester: formData.get('semester'),
+            year: formData.get('year'),
+            collegeId: formData.get('collegeId') || currentUser.collegeId || currentUser.college || 'medicaps',
+            fileUrl: downloadURL,
+            uploaderUid: currentUser.id,
+            uploaderName: currentUser.name,
+            uploaderEmail: currentUser.email,
+            status: 'pending',
+            uploadedAt: serverTimestamp()
+        });
+
+        alert("✅ Note successfully submitted for review!");
+        closeModal('upload-modal');
+    } catch (err) {
+        console.error("Upload Error:", err);
+        alert("❌ Upload failed: " + err.message);
+    }
+};
+
+// 2. USER DASHBOARD MODULE
+window.renderMyUploads = function () {
+    const { db, query, collection, onSnapshot, where, orderBy } = getFirebase();
+    const container = document.getElementById('my-uploads-grid');
+    if (!container || !currentUser) return;
+
+    const q = query(
+        collection(db, "notes_pending"),
+        where("uploaderUid", "==", currentUser.id),
+        orderBy("uploadedAt", "desc")
+    );
+
+    onSnapshot(q, (snapshot) => {
+        const pending = [];
+        snapshot.forEach(doc => pending.push({ id: doc.id, ...doc.data() }));
+
+        const approvedQ = query(
+            collection(db, "notes_approved"),
+            where("uploaderUid", "==", currentUser.id)
+        );
+
+        onSnapshot(approvedQ, (appSnapshot) => {
+            const approved = [];
+            appSnapshot.forEach(doc => approved.push({ id: doc.id, ...doc.data() }));
+
+            const all = [...pending, ...approved].sort((a, b) => (b.uploadedAt || b.approvedAt) - (a.uploadedAt || a.approvedAt));
+
+            container.innerHTML = all.length ? all.map(n => `
+                <div class="selection-card glass-card">
+                    <div class="status-badge ${n.status}">${n.status.toUpperCase()}</div>
+                    <h4 style="margin: 0.5rem 0;">${n.title}</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-dim);">${n.subject} | ${n.semester}</p>
+                    ${n.status === 'approved' ? `
+                        <div style="margin-top: 1rem; display: flex; gap: 1rem; font-size: 0.75rem;">
+                            <span>👁️ ${n.totalViews || 0}</span>
+                            <span>📥 ${n.totalSaves || 0}</span>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('') : '<p style="grid-column: 1/-1; text-align: center; color: var(--text-dim);">No uploads found.</p>';
+        });
+    });
+};
+
+// 3. ADMIN / MODERATION MODULE
+window.renderAdminModQueue = function () {
+    const { db, query, collection, onSnapshot, where, orderBy, deleteDoc, doc, addDoc } = getFirebase();
+    const container = document.getElementById('admin-queue');
+    if (!container || !['admin', 'superadmin', 'coadmin'].includes(currentUser.role)) return;
+
+    let q = query(collection(db, "notes_pending"), orderBy("uploadedAt", "asc"));
+
+    // Co-Admin Restriction: Only see notes from their assigned college
+    if (currentUser.role === 'coadmin') {
+        const myCollegeId = currentUser.collegeId || currentUser.college;
+        console.log(`🛡️ Filtering Mod Queue for College: ${myCollegeId}`);
+        q = query(collection(db, "notes_pending"), where("collegeId", "==", myCollegeId), orderBy("uploadedAt", "asc"));
+    }
+
+    onSnapshot(q, (snapshot) => {
+        const items = [];
+        snapshot.forEach(doc => items.push({ id: doc.id, ...doc.data() }));
+
+        container.innerHTML = items.length ? items.map(n => `
+            <div class="glass-card" style="padding: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3 style="margin:0;">${n.title}</h3>
+                    <p style="margin: 0.3rem 0; font-size: 0.9rem;">From: ${n.uploaderName} | <span class="gradient-text">${n.collegeId || n.college}</span></p>
+                    <a href="${n.fileUrl}" target="_blank" class="gradient-text" style="font-weight: 700;">👁️ Preview Note</a>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-primary btn-sm" onclick="approveNote('${n.id}')">✅ Approve</button>
+                    <button class="btn btn-ghost btn-sm" style="color: #ff4757;" onclick="rejectNote('${n.id}')">❌ Reject</button>
+                </div>
+            </div>
+        `).join('') : '<p style="text-align:center; color: var(--text-dim);">All caught up! No pending approvals.</p>';
+    });
+
+    window.approveNote = async (id) => {
+        try {
+            const noteRef = doc(db, "notes_pending", id);
+            const noteSnap = await getDoc(noteRef);
+            if (!noteSnap.exists()) return;
+
+            const data = noteSnap.data();
+            await addDoc(collection(db, "notes_approved"), {
+                ...data,
+                status: 'approved',
+                approvedBy: currentUser.name,
+                approvedByEmail: currentUser.email,
+                approvedAt: serverTimestamp(),
+                totalViews: 0,
+                totalSaves: 0
+            });
+
+            await deleteDoc(noteRef);
+            alert("✅ Note Approved!");
+        } catch (err) {
+            console.error("Approval Error:", err);
+            alert("❌ Approval failed.");
+        }
+    };
+
+    window.rejectNote = async (id) => {
+        const reason = prompt("Enter rejection reason:");
+        if (!reason) return;
+        try {
+            const noteRef = doc(db, "notes_pending", id);
+            await updateDoc(noteRef, {
+                status: 'rejected',
+                rejectionReason: reason,
+                processedBy: currentUser.email,
+                processedAt: serverTimestamp()
+            });
+            alert("❌ Note Rejected.");
+        } catch (err) {
+            console.error("Rejection Error:", err);
+        }
+    };
+};
+
+// 4. SUPER ADMIN MANAGEMENT PANEL
+window.renderSuperAdminPanel = function () {
+    const { db, collection, query, where, getDocs, updateDoc, doc } = getFirebase();
+    const container = document.getElementById('superadmin-panel');
+    if (!container || currentUser.role !== 'superadmin') return;
+
+    container.innerHTML = `
+        <div class="glass-card" style="padding: 2rem;">
+            <h3>User Role Management</h3>
+            <div style="display:flex; gap: 1rem; margin-top: 1rem;">
+                <input type="email" id="user-search-email" placeholder="User Email" class="glass-input" style="flex:1;">
+                <button class="btn btn-primary" onclick="searchUserForRoleChange()">Search</button>
+            </div>
+            <div id="user-management-result" style="margin-top: 2rem;"></div>
+        </div>
+    `;
+
+    window.searchUserForRoleChange = async () => {
+        const email = document.getElementById('user-search-email').value;
+        const q = query(collection(db, "users"), where("email", "==", email));
+        const snap = await getDocs(q);
+
+        const resultDiv = document.getElementById('user-management-result');
+        if (snap.empty) {
+            resultDiv.innerHTML = '<p style="color:red;">User not found.</p>';
             return;
         }
-        currentUser = appCurrentUser;
-        updateUserProfileUI();
-        initRealTimeDB();
-        initTabs();
 
-        // Initialize Settings Module
-        if (window.SettingsModule && window.SettingsModule.init) {
-            window.SettingsModule.init();
+        const user = snap.docs[0].data();
+        const uid = snap.docs[0].id;
+
+        resultDiv.innerHTML = `
+            <div class="glass-card" style="padding: 1rem; border-color: var(--primary);">
+                <p><strong>Name:</strong> ${user.name}</p>
+                <p><strong>Current Role:</strong> ${user.role}</p>
+                <p><strong>Assigned College ID:</strong> ${user.collegeId || user.college || 'None'}</p>
+                
+                <div style="margin-top: 1rem; display:grid; gap: 0.5rem;">
+                    <label style="font-size: 0.8rem; color: var(--text-dim);">Assign New Role</label>
+                    <select id="new-role-select" class="glass-input">
+                        <option value="user" ${user.role === 'user' ? 'selected' : ''}>Standard User</option>
+                        <option value="coadmin" ${user.role === 'coadmin' ? 'selected' : ''}>College Co-Admin</option>
+                        <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Full Admin</option>
+                    </select>
+                    
+                    <label style="font-size: 0.8rem; color: var(--text-dim);">Assign To College</label>
+                    <select id="new-college-select" class="glass-input">
+                        <option value="">None / All</option>
+                        ${GlobalData.colleges.map(c => `<option value="${c.id}" ${(user.collegeId === c.id || user.college === c.id) ? 'selected' : ''}>${c.name}</option>`).join('')}
+                    </select>
+                    
+                    <button class="btn btn-primary" onclick="updateUserRole('${uid}')" style="margin-top: 0.5rem;">Update Permissions</button>
+                </div>
+            </div>
+        `;
+    };
+
+    window.updateUserRole = async (uid) => {
+        const role = document.getElementById('new-role-select').value;
+        const collegeId = document.getElementById('new-college-select').value;
+        try {
+            await updateDoc(doc(db, "users", uid), {
+                role,
+                collegeId: collegeId,
+                college: collegeId // Maintain backward compatibility for now
+            });
+            alert("✅ Permissions updated!");
+            searchUserForRoleChange();
+        } catch (err) {
+            alert("❌ Error: " + err.message);
         }
+    };
+};
 
-        initRealtimeStats();
-        trackStudent();
-        renderTabContent('overview');
-    } else {
-        console.log("🔓 Dashboard: No active session. Waiting for auth...");
+function initRealTimeDB() {
+    const { db, query, collection, onSnapshot, orderBy } = getFirebase();
+    if (!db) {
+        setTimeout(initRealTimeDB, 500);
+        return;
     }
+
+    if (unsubscribeNotes) unsubscribeNotes();
+
+    // ONLY fetch from notes_approved for the public feed
+    const q = query(collection(db, "notes_approved"), orderBy("approvedAt", "desc"));
+    unsubscribeNotes = onSnapshot(q, (snapshot) => {
+        NotesDB = [];
+        snapshot.forEach((doc) => {
+            NotesDB.push({ id: doc.id, ...doc.data() });
+        });
+        window.NotesDB = NotesDB;
+        console.log(`✅ Synced ${NotesDB.length} approved notes from Firestore.`);
+
+        // Trigger UI updates
+        const trendingEl = document.getElementById('trending-notes');
+        if (trendingEl) trendingEl.innerText = `${NotesDB.length} Approved Notes`;
+
+        const lbList = document.getElementById('lb-list-container');
+        if (lbList) {
+            const activeType = document.querySelector('.lb-tab.active')?.dataset.type || 'student';
+            const activeTime = document.querySelector('.time-filter.active')?.dataset.time || 'all';
+            updateLeaderboardUI(activeType, activeTime);
+        }
+        startActivityFeed();
+    });
 }
 
 window.toggleTheme = function (forceLight) {
@@ -1760,81 +2221,6 @@ window.toggleTheme = function (forceLight) {
     }
     const isLight = document.body.classList.contains('light-mode');
     localStorage.setItem('theme', isLight ? 'light' : 'dark');
-}
-
-// Check for already dispatched auth
-if (window.authStatus && window.authStatus.ready) {
-    handleAuthReady(window.authStatus.data);
-}
-
-window.loginAsGuest = function () {
-    console.log("Logging in as Guest...");
-    currentUser = {
-        id: 'guest_' + Math.random().toString(36).substr(2, 9),
-        name: 'Guest Tester',
-        email: 'guest@example.com',
-        photo: null,
-        role: Roles.STUDENT,
-        college: 'medicaps',
-        isGuest: true
-    };
-
-    updateUserProfileUI();
-    initRealTimeDB();
-    initTabs();
-    renderTabContent('overview');
-};
-
-function initRealTimeDB() {
-    const { db, query, collection, orderBy, onSnapshot } = getFirebase();
-    if (!db) {
-        console.warn("⏳ Real-time DB: Waiting for Firebase services...");
-        setTimeout(initRealTimeDB, 500);
-        return;
-    }
-
-    if (unsubscribeNotes) unsubscribeNotes();
-
-    const q = query(collection(db, "notes"), orderBy("created_at", "desc"));
-    unsubscribeNotes = onSnapshot(q, (snapshot) => {
-        NotesDB = [];
-        snapshot.forEach((doc) => {
-            NotesDB.push({ id: doc.id, ...doc.data() });
-        });
-        window.NotesDB = NotesDB; // Expose globally
-        console.log(`Synced ${NotesDB.length} notes from Firestore`);
-
-        // Update Trending Notes UI if present
-        const trendingEl = document.getElementById('trending-notes');
-        if (trendingEl) trendingEl.innerText = `${NotesDB.length} Notes`;
-
-        // Update Leaderboard if on that tab
-        const lbList = document.getElementById('lb-list-container');
-        if (lbList) {
-            const activeType = document.querySelector('.lb-tab.active')?.dataset.type || 'student';
-            const activeTime = document.querySelector('.time-filter.active')?.dataset.time || 'all';
-            updateLeaderboardUI(activeType, activeTime);
-        }
-    });
-}
-
-async function trackStudent() {
-    const { db, doc, setDoc, serverTimestamp } = getFirebase();
-    if (!db || !currentUser || currentUser.isGuest) return;
-
-    try {
-        const userRef = doc(db, "users", currentUser.id);
-        await setDoc(userRef, {
-            name: currentUser.name,
-            email: currentUser.email,
-            lastSeen: serverTimestamp(),
-            role: currentUser.role,
-            college: currentUser.college
-        }, { merge: true });
-        console.log("👤 User session heart-beat updated.");
-    } catch (e) {
-        console.warn("Could not track user session:", e);
-    }
 }
 // Removed redundant initAuthSystem, loginWithGoogle, logout, renderLoginScreen
 // as they are handled by auth.js and login.html now.
@@ -2047,14 +2433,16 @@ function updateLeaderboardUI(type, timeframe) {
     const myScore = data.find(item => item.name === currentUser.name)?.score || 0;
 
     // Attempt to update the sidebar widget if it exists
-    const standingValue = document.querySelector('.personal-rank-card .value');
-    if (standingValue) {
+    const valueEls = document.querySelectorAll('.personal-rank-card .value');
+    if (valueEls && valueEls.length >= 3) {
         if (type === 'student') {
-            document.querySelectorAll('.personal-rank-card .rank-stat .value')[0].innerText = myRank > 0 ? `#${myRank}` : 'N/A';
+            const rankEls = document.querySelectorAll('.personal-rank-card .rank-stat .value');
+            if (rankEls[0]) rankEls[0].innerText = myRank > 0 ? `#${myRank}` : 'N/A';
         } else if (type === 'contributor') {
-            document.querySelectorAll('.personal-rank-card .rank-stat .value')[1].innerText = myRank > 0 ? `#${myRank}` : 'N/A';
+            const rankEls = document.querySelectorAll('.personal-rank-card .rank-stat .value');
+            if (rankEls[1]) rankEls[1].innerText = myRank > 0 ? `#${myRank}` : 'N/A';
         }
-        document.querySelectorAll('.personal-rank-card .value')[2].innerText = `${myScore.toLocaleString()} ${type === 'student' ? 'XP' : 'pts'}`;
+        valueEls[2].innerText = `${myScore.toLocaleString()} ${type === 'student' ? 'XP' : 'pts'}`;
     }
 
     list.innerHTML = data.map((item, index) => {
@@ -2095,10 +2483,12 @@ function startActivityFeed() {
 
     // Use actual NotesDB data for activity feed
     const getRecentActivities = () => {
-        return NotesDB.slice(0, 5).map(note => ({
+        // Sort NotesDB by created_at desc to get truly recent ones
+        const sorted = [...NotesDB].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        return sorted.slice(0, 5).map(note => ({
             icon: note.type === 'pyq' ? '📝' : '📄',
             text: `<strong>${note.uploader}</strong> uploaded ${note.title}`,
-            time: 'Recently'
+            time: note.date || 'Recently'
         }));
     };
 

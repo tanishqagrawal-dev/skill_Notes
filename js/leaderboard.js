@@ -2,7 +2,7 @@
 // Derived from dashboard.js logic
 
 const LeaderboardData = {
-    student: [
+    user: [
         { id: 'l1', name: 'Tanishq', views: 856, score: 2400, rank: 1, avatar: 'assets/avatars/1.png' },
         { id: 'l2', name: 'Ankit Sharma', views: 720, score: 2100, rank: 2, avatar: null },
         { id: 'l3', name: 'Riya Patel', views: 690, score: 1950, rank: 3, avatar: null },
@@ -40,7 +40,7 @@ function renderLeaderboard() {
                 <!-- Controls -->
                 <div class="leaderboard-controls glass-card">
                     <div class="lb-tabs">
-                        <div class="lb-tab active" data-type="student">🧑🎓 Students</div>
+                        <div class="lb-tab active" data-type="user">🧑🎓 Students</div>
                         <div class="lb-tab" data-type="contributor">📤 Contributors</div>
                         <div class="lb-tab" data-type="college">🏫 Colleges</div>
                     </div>

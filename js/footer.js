@@ -39,7 +39,7 @@ function initRoleAwareLinks() {
     if (!linksContainer) return;
 
     // Determine Role (Check localStorage or default to Student)
-    const userRole = localStorage.getItem('user_role') || 'student';
+    const userRole = localStorage.getItem('user_role') || 'user';
 
     let links = [];
 
@@ -48,7 +48,7 @@ function initRoleAwareLinks() {
     const p = (path) => inPages ? path : 'pages/' + path;
     const r = (path) => inPages ? '../' + path : path; // root link
 
-    if (userRole === 'admin' || userRole === 'super_admin' || userRole === 'college_admin') {
+    if (userRole === 'admin' || userRole === 'superadmin' || userRole === 'coadmin') {
         links = [
             { txt: 'Admin Console', url: p('dashboard.html?tab=admin') },
             { txt: 'Manage Content', url: p('dashboard.html?tab=verification') },

@@ -3,10 +3,10 @@
 
 // --- GLOBAL CONSTANTS ---
 const Roles = {
-    SUPER_ADMIN: 'super_admin',
-    COLLEGE_ADMIN: 'college_admin',
+    SUPER_ADMIN: 'superadmin',
+    COLLEGE_ADMIN: 'coadmin',
     UPLOADER: 'uploader',
-    STUDENT: 'student'
+    STUDENT: 'user'
 };
 
 const GlobalData = {

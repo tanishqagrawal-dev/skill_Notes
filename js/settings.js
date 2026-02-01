@@ -12,16 +12,20 @@ window.SettingsModule = {
             privacy: { leaderboard: true }
         }
     },
+    isInitialized: false,
+    unsubscribe: null,
 
     init: function () {
-        const { db, doc, onSnapshot } = window.firebaseServices;
-        if (!window.currentUser) return;
+        if (this.isInitialized) return;
+
+        const { db, doc, onSnapshot } = window.firebaseServices || {};
+        if (!db || !window.currentUser) return;
 
         this.state.user = { ...window.currentUser };
 
         // Real-time Settings Listener
         const settingsRef = doc(db, 'users', window.currentUser.id, 'settings', 'general');
-        onSnapshot(settingsRef, (docSnap) => {
+        this.unsubscribe = onSnapshot(settingsRef, (docSnap) => {
             if (docSnap.exists()) {
                 this.state.settings = docSnap.data();
                 if (this.state.activeTab !== 'profile') { // Don't refresh if editing profile
@@ -40,6 +44,8 @@ window.SettingsModule = {
                 this.switchTab(navItem.dataset.setTab);
             }
         });
+
+        this.isInitialized = true;
     },
 
     saveAllSettings: async function (data) {
@@ -109,7 +115,7 @@ window.SettingsModule = {
         ];
 
         // Add Admin tab if qualified
-        if (this.state.user.role === 'super_admin' || this.state.user.role === 'college_admin') {
+        if (this.state.user.role === 'superadmin' || this.state.user.role === 'coadmin') {
             tabs.push({ id: 'admin', icon: '⚡', label: 'Admin Controls' });
         }
 
@@ -159,7 +165,7 @@ window.SettingsModule = {
                             </div>
                             <div>
                                 <h3 style="margin:0 0 0.5rem 0;">${user.name || 'Student'} <span class="meta-badge" style="font-size:0.6rem; vertical-align:middle;">VERIFIED</span></h3>
-                                <p style="color:var(--text-dim); margin-bottom:1rem;">${user.role ? user.role.toUpperCase() : 'STUDENT'}</p>
+                                <p style="color:var(--text-dim); margin-bottom:1rem;">${user.role ? user.role.toUpperCase() : 'USER'}</p>
                                 <button class="btn-sm-ghost" onclick="SettingsModule.triggerAvatarUpload()">Change Photo</button>
                                 <button class="btn-sm-ghost" style="color:#ff4757;">Remove</button>
                             </div>
@@ -304,6 +310,46 @@ window.SettingsModule = {
                         <h3>Content Filters</h3>
                         ${this.toggleRow('study', 'show_verified_only', 'Show only verified notes', true)}
                         ${this.toggleRow('study', 'auto_save_activity', 'Auto-save study activity', true)}
+                    </div>
+                `;
+
+            case 'contributor':
+                return `
+                    <div class="settings-section-title">🏆 Contributor Program</div>
+                    <p class="settings-section-desc">Manage your contributions and track your impact on campus.</p>
+
+                    <div class="settings-group" style="background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <h3 style="margin:0;">Contributor Status: <span style="color:#2ecc71;">ACTIVE</span></h3>
+                                <p style="color:var(--text-dim); font-size:0.9rem; margin-top:0.5rem;">You have uploaded 12 verified resources.</p>
+                            </div>
+                            <div style="font-size:2.5rem;">🌟</div>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>Monetization & Recognition</h3>
+                        <div class="settings-row">
+                            <div class="settings-label"><strong>Public Portfolio</strong><span>Showcase your uploads on your profile</span></div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                         <div class="settings-row">
+                            <div class="settings-label"><strong>Enable Tips</strong><span>Allow students to support you (Beta)</span></div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>Preferences</h3>
+                        ${this.toggleRow('contributor', 'anonymous', 'Upload anonymously', false)}
+                        ${this.toggleRow('contributor', 'notify_likes', 'Notify me when someone likes my note', true)}
                     </div>
                 `;
 

@@ -43,9 +43,51 @@ if (isDashboardPage) {
     }
 }
 
-onAuthStateChanged(auth, (user) => {
+const SUPER_ADMIN_EMAIL = 'tanishqagrawal1103@gmail.com';
+
+onAuthStateChanged(auth, async (user) => {
     if (user) {
-        console.log("🔐 Auth Guard: User is logged in as", user.email);
+        console.log("🔐 Auth Guard: Firebase session active for", user.email);
+
+        const { db, doc, getDoc, setDoc, serverTimestamp } = window.firebaseServices || {};
+        let userData = {
+            id: user.uid,
+            name: user.displayName || user.email.split('@')[0],
+            email: user.email,
+            photo: user.photoURL,
+            role: (user.email === SUPER_ADMIN_EMAIL) ? 'superadmin' : 'user',
+            college: 'medicaps' // Global default for now
+        };
+
+        if (db) {
+            try {
+                const userRef = doc(db, 'users', user.uid);
+                const userSnap = await getDoc(userRef);
+
+                if (userSnap.exists()) {
+                    const storedData = userSnap.data();
+                    userData = { ...userData, ...storedData };
+                } else {
+                    // Initialize new user in Firestore
+                    if (user.email === SUPER_ADMIN_EMAIL) {
+                        userData.role = 'superadmin';
+                    }
+                    await setDoc(userRef, {
+                        ...userData,
+                        createdAt: serverTimestamp()
+                    });
+                    console.log("🆕 New User Registered in Firestore");
+                }
+
+                // Hard-security override for Super Admin email even if DB is tampered
+                if (user.email === SUPER_ADMIN_EMAIL) {
+                    userData.role = 'superadmin';
+                }
+
+            } catch (err) {
+                console.error("Firestore Identity Sync Error:", err);
+            }
+        }
 
         if (isAuthPage) {
             window.location.href = 'dashboard.html';
@@ -55,24 +97,13 @@ onAuthStateChanged(auth, (user) => {
         if (isDashboardPage) {
             dispatchAuthReady({
                 user: user,
-                currentUser: {
-                    id: user.uid,
-                    name: user.displayName || user.email.split('@')[0],
-                    email: user.email,
-                    photo: user.photoURL,
-                    photo: user.photoURL,
-                    role: (user.email === 'yeashjain2006@gmail.com') ? 'super_admin' : 'student',
-                    college: 'medicaps'
-                }
+                currentUser: userData
             });
         }
     } else {
         console.log("🔓 Auth Guard: No active Firebase session.");
-
-        // Final check: If no Firebase user AND no Guest Session, and we're on a protected page -> Redirect
         const hasGuestSession = localStorage.getItem('guest_session');
         if (!hasGuestSession && isDashboardPage) {
-            console.log("🚫 Access Denied: Redirecting to Login...");
             window.location.href = 'auth.html';
         }
     }
