@@ -73,5 +73,11 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin() || isCoAdmin(); // Counters updated via transactions
     }
+
+    // --- Support Queries ---
+    match /support_queries/{queryId} {
+      allow create: if true; // Public contact form
+      allow read, update, delete: if isAdmin();
+    }
   }
 }

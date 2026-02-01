@@ -101,6 +101,17 @@
     <script src="../js/upload-helper.js"></script>
     <script type="module" src="../js/stats.js"></script>
     <script src="../js/admin-console.js"></script>
+    <script src="../js/email-config.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+        (function () {
+            // Init emailJS globally for admin use
+            if (window.EmailConfig) {
+                emailjs.init({ publicKey: window.EmailConfig.PUBLIC_KEY });
+            }
+        })();
+    </script>
+    <script src="../js/admin-support.js"></script>
     <script src="../js/coadmin-module.js"></script>
     <script type="module" src="../js/dashboard.js"></script>
 </body>

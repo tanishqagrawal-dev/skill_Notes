@@ -29,6 +29,7 @@ window.AdminConsole = {
                     <button class="btn btn-sm btn-primary" onclick="AdminConsole.switchView('overview')">📊 Overview</button>
                     <button class="btn btn-sm btn-ghost" onclick="AdminConsole.switchView('coadmins')">👥 Manage Co-Admins</button>
                     <button class="btn btn-sm btn-ghost" onclick="AdminConsole.switchView('colleges')">🏫 College Analytics</button>
+                     <button class="btn btn-sm btn-ghost" onclick="AdminConsole.switchView('support')">📨 Support Inbox</button>
                 </div>
 
                 <div id="admin-view-content">
@@ -45,11 +46,27 @@ window.AdminConsole = {
         // Toggle buttons style
         const btns = document.querySelectorAll('.glass-card button');
         btns.forEach(b => b.classList.replace('btn-primary', 'btn-ghost'));
-        // (Simplified button toggle logic for now)
+
+        // Find clicked button and highlight (simple logic based on text content order)
+        // For robustness, we won't strictly match index, just relying on visual rebuild or user click
+        // But let's verify visual feedback:
+        const map = { 'overview': 0, 'coadmins': 1, 'colleges': 2, 'support': 3 };
+        if (btns[map[viewId]]) {
+            btns[map[viewId]].classList.replace('btn-ghost', 'btn-primary');
+        }
 
         if (viewId === 'overview') container.innerHTML = this.renderOverview();
         else if (viewId === 'coadmins') container.innerHTML = this.renderCoAdminManager();
         else if (viewId === 'colleges') container.innerHTML = this.renderCollegeAnalytics();
+        else if (viewId === 'support') {
+            // Init support module if needed
+            if (window.AdminSupport) {
+                if (!window.AdminSupport.unsubscribe) window.AdminSupport.init();
+                container.innerHTML = window.AdminSupport.renderInbox();
+            } else {
+                container.innerHTML = "Support Module Loading...";
+            }
+        }
     },
 
     renderOverview: function () {
