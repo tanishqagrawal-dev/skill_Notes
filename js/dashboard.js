@@ -379,6 +379,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 }); // End DOMContentLoaded
 
+// Global Theme Toggler
+window.toggleTheme = function (isLight) {
+    if (isLight) {
+        document.body.classList.add('light-mode');
+        localStorage.setItem('theme', 'light');
+    } else {
+        document.body.classList.remove('light-mode');
+        localStorage.setItem('theme', 'dark');
+    }
+};
+
 
 window.openUploadModal = async function () {
     if (!currentUser) {
@@ -622,12 +633,11 @@ function renderTabContent(tabId) {
             </div>`;
             setTimeout(renderAdminModQueue, 100);
         } else if (tabId === 'superadmin-panel') {
-            contentArea.innerHTML = `<div class="tab-pane active fade-in" style="padding: 2rem;">
-                <h1 class="font-heading">🔐 Admin <span class="gradient-text">Console</span></h1>
-                <p style="color: var(--text-dim); margin-bottom: 2rem;">Global system management and role assignment.</p>
-                <div id="superadmin-panel"></div>
-            </div>`;
-            setTimeout(renderSuperAdminPanel, 100);
+            if (window.AdminConsole) {
+                contentArea.innerHTML = window.AdminConsole.render();
+            } else {
+                contentArea.innerHTML = "<p>Admin Console module loading...</p>";
+            }
         } else if (tabId === 'my-uploads') {
             contentArea.innerHTML = `<div class="tab-pane active fade-in" style="padding: 2rem;">
                 <h1 class="font-heading">📤 My <span class="gradient-text">Uploads</span></h1>

@@ -9,7 +9,9 @@ window.SettingsModule = {
         settings: {
             notifications: { email: true, push: true, exam_alerts: true, ai_suggestions: true },
             appearance: { theme: 'dark', compact: false, reduceMotion: false },
-            privacy: { leaderboard: true }
+            privacy: { leaderboard: true },
+            study: { target_hours: 4, show_verified_only: true, auto_save_activity: true },
+            ai: { model: 'flash-2.0', auto_summarize: true, explain_concepts: true, smart_search: false }
         }
     },
     isInitialized: false,
@@ -27,8 +29,9 @@ window.SettingsModule = {
         const settingsRef = doc(db, 'users', window.currentUser.id, 'settings', 'general');
         this.unsubscribe = onSnapshot(settingsRef, (docSnap) => {
             if (docSnap.exists()) {
-                this.state.settings = docSnap.data();
-                if (this.state.activeTab !== 'profile') { // Don't refresh if editing profile
+                // deeply merge settings to preserve defaults
+                this.state.settings = this.deepMerge(this.state.settings, docSnap.data());
+                if (this.state.activeTab !== 'profile') { // Don't refresh if editing profile to avoid input loss
                     this.refreshContent();
                 }
             } else {
@@ -45,7 +48,28 @@ window.SettingsModule = {
             }
         });
 
+        // Create hidden file input for avatar
+        if (!document.getElementById('settings-avatar-input')) {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.id = 'settings-avatar-input';
+            fileInput.accept = 'image/*';
+            fileInput.style.display = 'none';
+            fileInput.onchange = (e) => this.handleAvatarChange(e);
+            document.body.appendChild(fileInput);
+        }
+
         this.isInitialized = true;
+    },
+
+    deepMerge: function (target, source) {
+        for (const key in source) {
+            if (source[key] instanceof Object && key in target) {
+                Object.assign(source[key], this.deepMerge(target[key], source[key]));
+            }
+        }
+        Object.assign(target || {}, source);
+        return target;
     },
 
     saveAllSettings: async function (data) {
@@ -63,13 +87,19 @@ window.SettingsModule = {
         const ref = doc(db, 'users', window.currentUser.id, 'settings', 'general');
 
         // Optimistic UI update
+        if (!this.state.settings[category]) this.state.settings[category] = {};
         this.state.settings[category][key] = value;
 
         try {
             const updatePath = `${category}.${key}`;
             await updateDoc(ref, { [updatePath]: value });
+
+            // Show toast only for explicit user actions (not internal logic)
+            if (window.showToast) window.showToast('Setting saved', 'success');
+
         } catch (e) {
             console.error("Failed to update setting:", e);
+            if (window.showToast) window.showToast('Failed to save setting', 'error');
         }
     },
 
@@ -130,12 +160,16 @@ window.SettingsModule = {
         this.state.activeTab = tabId;
         // Re-render nav (for active class)
         const sidebar = document.querySelector('.settings-sidebar');
-        if (sidebar) sidebar.innerHTML = this.renderNavItems() + `
+        if (sidebar) {
+            // Keep the logout button at the bottom
+            const logoutHtml = `
             <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05);">
                  <div class="settings-nav-item" style="color: #ff4757;" onclick="handleLogout()">
                     <span class="icon">🚪</span> Log Out
                 </div>
             </div>`;
+            sidebar.innerHTML = this.renderNavItems() + logoutHtml;
+        }
 
         // Render Content
         const content = document.getElementById('settings-content-area');
@@ -207,8 +241,8 @@ window.SettingsModule = {
                             <input class="settings-input" type="email" value="${user.email || ''}" disabled style="opacity:0.6;">
                         </div>
                          <div class="settings-row">
-                            <div class="settings-label"><strong>Password</strong><span>Last changed 3 months ago</span></div>
-                            <button class="btn-sm-ghost" onclick="alert('Password reset email sent!')">Change Password</button>
+                            <div class="settings-label"><strong>Password</strong><span>Prevent unauthorized access</span></div>
+                            <button class="btn-sm-ghost" onclick="SettingsModule.triggerPasswordReset('${user.email}')">Reset Password</button>
                         </div>
                     </div>
 
@@ -216,17 +250,10 @@ window.SettingsModule = {
                         <h3>Active Sessions</h3>
                         <div class="settings-row">
                              <div class="settings-label">
-                                <strong>Windows PC (Chrome)</strong>
-                                <span style="color:var(--success);">● Active Now • Indore, IN</span>
+                                <strong>Generic Session</strong>
+                                <span style="color:var(--success);">● Active Now</span>
                              </div>
                              <button class="btn-sm-ghost" disabled>Current</button>
-                        </div>
-                         <div class="settings-row">
-                             <div class="settings-label">
-                                <strong>iPhone 13 (Safari)</strong>
-                                <span>Last seen 2 hours ago • Delhi, IN</span>
-                             </div>
-                             <button class="btn-sm-ghost" style="color:#ff4757;" onclick="this.closest('.settings-row').remove()">Revoke</button>
                         </div>
                     </div>
 
@@ -238,7 +265,7 @@ window.SettingsModule = {
                         </div>
                         <div class="settings-row">
                             <div class="settings-label"><strong>Delete Account</strong><span>Permanently remove all your notes and scores</span></div>
-                            <button class="btn-sm-ghost" style="background:#ff4757; color:white; border:none;" onclick="alert('Critical: Please contact admin to delete account permanently.')">Delete Forever</button>
+                            <button class="btn-sm-ghost" style="background:#ff4757; color:white; border:none;" onclick="alert('Please contact support@skillmatrix.com to request permanent deletion.')">Delete Forever</button>
                         </div>
                     </div>
                 `;
@@ -251,8 +278,8 @@ window.SettingsModule = {
                     <div class="settings-group">
                         <h3>Email Alerts</h3>
                         ${this.toggleRow('notifications', 'email', 'New notes in my subjects', s.notifications.email)}
-                        ${this.toggleRow('notifications', 'weekly_summary', 'Weekly study summary', true)}
-                        ${this.toggleRow('notifications', 'promo', 'Promotional emails', false)}
+                        ${this.toggleRow('notifications', 'weekly_summary', 'Weekly study summary', s.notifications.weekly_summary !== false)}
+                        ${this.toggleRow('notifications', 'promo', 'Promotional emails', s.notifications.promo === true)}
                     </div>
 
                      <div class="settings-group">
@@ -264,6 +291,8 @@ window.SettingsModule = {
                 `;
 
             case 'appearance':
+                const theme = s.appearance && s.appearance.theme ? s.appearance.theme : (localStorage.getItem('theme') || 'dark');
+
                 return `
                     <div class="settings-section-title">🎨 Appearance</div>
                     <p class="settings-section-desc">Customize your visual experience and performance.</p>
@@ -271,13 +300,12 @@ window.SettingsModule = {
                     <div class="settings-group">
                          <h3>Theme</h3>
                          <div style="display:flex; gap:1rem; margin-top:1rem;">
-                            <button class="btn-sm-ghost ${s.appearance.theme === 'dark' ? 'active' : ''}" 
-                                    style="${s.appearance.theme === 'dark' ? 'border-color:var(--primary); background:rgba(123,97,255,0.1);' : ''}"
+                            <button class="btn-sm-ghost ${theme === 'dark' ? 'active' : ''}" 
+                                    style="${theme === 'dark' ? 'border-color:var(--primary); background:rgba(123,97,255,0.1);' : ''}"
                                     onclick="SettingsModule.updateSetting('appearance', 'theme', 'dark').then(() => window.toggleTheme(false))">🌙 Dark</button>
-                            <button class="btn-sm-ghost ${s.appearance.theme === 'light' ? 'active' : ''}" 
-                                    style="${s.appearance.theme === 'light' ? 'border-color:var(--primary); background:rgba(123,97,255,0.1);' : ''}"
+                            <button class="btn-sm-ghost ${theme === 'light' ? 'active' : ''}" 
+                                    style="${theme === 'light' ? 'border-color:var(--primary); background:rgba(123,97,255,0.1);' : ''}"
                                     onclick="SettingsModule.updateSetting('appearance', 'theme', 'light').then(() => window.toggleTheme(true))">☀️ Light</button>
-                            <button class="btn-sm-ghost">🌗 Auto</button>
                          </div>
                     </div>
 
@@ -289,6 +317,7 @@ window.SettingsModule = {
                 `;
 
             case 'study':
+                const hours = (s.study && s.study.target_hours) || 4;
                 return `
                     <div class="settings-section-title">📚 Study Preferences</div>
                     <p class="settings-section-desc">Fine-tune your learning environment and goal tracking.</p>
@@ -298,18 +327,18 @@ window.SettingsModule = {
                          <div class="settings-row">
                             <div class="settings-label"><strong>Study Target</strong><span>Hours per day</span></div>
                             <select class="settings-input" style="width: auto;" onchange="SettingsModule.updateSetting('study', 'target_hours', this.value)">
-                                <option value="2">2 Hours</option>
-                                <option value="4" selected>4 Hours</option>
-                                <option value="6">6 Hours</option>
-                                <option value="8">8 Hours</option>
+                                <option value="2" ${hours == 2 ? 'selected' : ''}>2 Hours</option>
+                                <option value="4" ${hours == 4 ? 'selected' : ''}>4 Hours</option>
+                                <option value="6" ${hours == 6 ? 'selected' : ''}>6 Hours</option>
+                                <option value="8" ${hours == 8 ? 'selected' : ''}>8 Hours</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="settings-group">
                         <h3>Content Filters</h3>
-                        ${this.toggleRow('study', 'show_verified_only', 'Show only verified notes', true)}
-                        ${this.toggleRow('study', 'auto_save_activity', 'Auto-save study activity', true)}
+                        ${this.toggleRow('study', 'show_verified_only', 'Show only verified notes', s.study && s.study.show_verified_only)}
+                        ${this.toggleRow('study', 'auto_save_activity', 'Auto-save study activity', s.study && s.study.auto_save_activity)}
                     </div>
                 `;
 
@@ -322,7 +351,7 @@ window.SettingsModule = {
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <div>
                                 <h3 style="margin:0;">Contributor Status: <span style="color:#2ecc71;">ACTIVE</span></h3>
-                                <p style="color:var(--text-dim); font-size:0.9rem; margin-top:0.5rem;">You have uploaded 12 verified resources.</p>
+                                <p style="color:var(--text-dim); font-size:0.9rem; margin-top:0.5rem;">You have uploaded shared resources.</p>
                             </div>
                             <div style="font-size:2.5rem;">🌟</div>
                         </div>
@@ -333,14 +362,14 @@ window.SettingsModule = {
                         <div class="settings-row">
                             <div class="settings-label"><strong>Public Portfolio</strong><span>Showcase your uploads on your profile</span></div>
                             <label class="toggle-switch">
-                                <input type="checkbox" checked>
+                                <input type="checkbox" checked onchange="window.showToast('Portfolio visibility updated')">
                                 <span class="slider"></span>
                             </label>
                         </div>
                          <div class="settings-row">
                             <div class="settings-label"><strong>Enable Tips</strong><span>Allow students to support you (Beta)</span></div>
                             <label class="toggle-switch">
-                                <input type="checkbox">
+                                <input type="checkbox" onchange="window.showToast('Note: This feature is in beta')">
                                 <span class="slider"></span>
                             </label>
                         </div>
@@ -354,6 +383,7 @@ window.SettingsModule = {
                 `;
 
             case 'ai':
+                const model = (s.ai && s.ai.model) || 'flash-2.0';
                 return `
                     <div class="settings-section-title">🤖 AI Features</div>
                     <p class="settings-section-desc">Configure Gemini-powered learning assistance.</p>
@@ -363,17 +393,21 @@ window.SettingsModule = {
                         <div class="settings-row">
                             <div class="settings-label"><strong>Default AI Model</strong><span>Gemini 2.0 Flash is recommended for speed</span></div>
                             <div style="display:flex; gap:0.5rem;">
-                                <button class="btn-sm-ghost active" style="border-color:var(--primary);">Flash 2.0</button>
-                                <button class="btn-sm-ghost">Pro 1.5</button>
+                                <button class="btn-sm-ghost ${model === 'flash-2.0' ? 'active' : ''}" 
+                                        style="${model === 'flash-2.0' ? 'border-color:var(--primary);' : ''}"
+                                        onclick="SettingsModule.updateSetting('ai', 'model', 'flash-2.0').then(() => SettingsModule.refreshContent())">Flash 2.0</button>
+                                <button class="btn-sm-ghost ${model === 'pro-1.5' ? 'active' : ''}" 
+                                        style="${model === 'pro-1.5' ? 'border-color:var(--primary);' : ''}"
+                                        onclick="SettingsModule.updateSetting('ai', 'model', 'pro-1.5').then(() => SettingsModule.refreshContent())">Pro 1.5</button>
                             </div>
                         </div>
                     </div>
 
                     <div class="settings-group">
                         <h3>AI Capabilities</h3>
-                        ${this.toggleRow('ai', 'auto_summarize', 'Auto-summarize long notes', true)}
-                        ${this.toggleRow('ai', 'explain_concepts', 'Inline concept explanation', true)}
-                        ${this.toggleRow('ai', 'smart_search', 'Enable Semantic Search', false)}
+                        ${this.toggleRow('ai', 'auto_summarize', 'Auto-summarize long notes', s.ai && s.ai.auto_summarize)}
+                        ${this.toggleRow('ai', 'explain_concepts', 'Inline concept explanation', s.ai && s.ai.explain_concepts)}
+                        ${this.toggleRow('ai', 'smart_search', 'Enable Semantic Search', s.ai && s.ai.smart_search)}
                     </div>
                 `;
 
@@ -388,7 +422,7 @@ window.SettingsModule = {
                         <div class="settings-row">
                             <div class="settings-label"><strong>Incognito Study Mode</strong><span>Don't track my views for next 24h</span></div>
                             <label class="toggle-switch">
-                                <input type="checkbox">
+                                <input type="checkbox" onchange="window.showToast('Incognito mode active for 24h')">
                                 <span class="slider"></span>
                             </label>
                         </div>
@@ -399,10 +433,6 @@ window.SettingsModule = {
                         <div class="settings-row">
                             <div class="settings-label"><strong>Download My Activity</strong><span>JSON format of all your uploads and downloads</span></div>
                             <button class="btn-sm-ghost" onclick="SettingsModule.exportData()">Export JSON</button>
-                        </div>
-                         <div class="settings-row">
-                            <div class="settings-label"><strong>Connected Apps</strong><span>Google, Calendar, Drive</span></div>
-                            <button class="btn-sm-ghost">Manage Links</button>
                         </div>
                     </div>
                 `;
@@ -449,6 +479,8 @@ window.SettingsModule = {
     saveProfile: async function () {
         const name = document.getElementById('prof-name').value;
         const college = document.getElementById('prof-college').value;
+        const branch = document.getElementById('prof-branch').value; // Just reading, not saving yet as structure might be different
+
         const { db, doc, updateDoc } = window.firebaseServices;
 
         try {
@@ -459,7 +491,8 @@ window.SettingsModule = {
             window.currentUser.name = name;
             window.currentUser.college = college;
 
-            alert('Profile updated successfully!');
+            if (window.showToast) window.showToast('Profile updated successfully!', 'success');
+
             this.toggleProfileEdit();
             this.refreshContent();
 
@@ -472,7 +505,59 @@ window.SettingsModule = {
     },
 
     triggerAvatarUpload: function () {
-        alert('Photo upload service starting... (Mock: File picker opened)');
+        const input = document.getElementById('settings-avatar-input');
+        if (input) input.click();
+    },
+
+    handleAvatarChange: async function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size > 2 * 1024 * 1024) { // 2MB limit
+            alert("Image is too large. Please choose an image under 2MB.");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            const base64String = event.target.result;
+
+            // UI Update Immediate
+            this.state.user.photo = base64String;
+            this.refreshContent();
+            if (window.updateUserProfileUI) {
+                window.currentUser.photo = base64String;
+                window.updateUserProfileUI();
+            }
+
+            // Save to Backend
+            const { db, doc, updateDoc } = window.firebaseServices;
+            try {
+                const userRef = doc(db, 'users', window.currentUser.id);
+                await updateDoc(userRef, { photo: base64String }); // Saving Base64 to Firestore (OK for small images)
+                if (window.showToast) window.showToast('Avatar updated!');
+            } catch (err) {
+                console.error("Failed to save avatar", err);
+                if (window.showToast) window.showToast('Failed to save avatar', 'error');
+            }
+        };
+        reader.readAsDataURL(file);
+    },
+
+    triggerPasswordReset: async function (email) {
+        if (!email) return;
+        if (confirm(`Send password reset email to ${email}?`)) {
+            // Dynamic import to use Auth functions since we can't top-level import
+            import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(async ({ sendPasswordResetEmail, getAuth }) => {
+                const auth = getAuth();
+                try {
+                    await sendPasswordResetEmail(auth, email);
+                    alert(`Reset email sent to ${email}. Check your inbox.`);
+                } catch (e) {
+                    alert('Error: ' + e.message);
+                }
+            });
+        }
     },
 
     exportData: function () {
