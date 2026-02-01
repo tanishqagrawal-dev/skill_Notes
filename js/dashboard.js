@@ -165,7 +165,24 @@ function handleAuthReady(data) {
                 </div>
             `;
         }
+
     }
+}
+
+// --- AUTH LISTENER FIX ---
+window.addEventListener('auth-ready', (e) => handleAuthReady(e.detail));
+
+// Check if auth was ready before we listened (Race Condition Fix)
+if (window.authStatus && window.authStatus.ready) {
+    console.log("⚡ Auth was ready early, syncing now...");
+    handleAuthReady(window.authStatus.data);
+} else {
+    // Failsafe
+    setTimeout(() => {
+        if (!currentUser && !window.location.href.includes('auth.html')) {
+            console.warn("⚠️ Auth timeout - verifying session state...");
+        }
+    }, 3000);
 }
 
 async function trackStudent() {
@@ -950,17 +967,21 @@ function renderAITools() {
     `;
 }
 
+
 // Phase 1 Advanced Dashboard Implementation
 function renderOverview() {
     // Phase 1: Personalization
-    const userName = currentUser.name.split(' ')[0];
-    const college = GlobalData.colleges.find(c => c.id === currentUser.college)?.name || 'Medicaps University';
+    // Safe checks for guest users who might have undefined name/college
+    const safeName = currentUser.name || "Guest User";
+    const userName = safeName.split(' ')[0] || "Guest";
+    const collegeId = currentUser.college || 'medicaps';
+    const college = (GlobalData.colleges && GlobalData.colleges.find(c => c.id === collegeId)?.name) || 'Medicaps University';
     const year = currentUser.year || '3rd Year';
     const branch = currentUser.branch || 'CSE';
 
     // Real-time subjects based on user branch/semester
     const branchKey = `${branch.toLowerCase().replace(' ', '')}-${currentUser.semester || 'Semester 3'}`;
-    const mySubjects = GlobalData.subjects[branchKey] || [];
+    const mySubjects = (GlobalData.subjects && GlobalData.subjects[branchKey]) || [];
     const subjects = mySubjects.length > 0 ? mySubjects.slice(0, 3).map((s, idx) => ({
         name: s.name,
         progress: [85, 60, 30][idx] || 45,
