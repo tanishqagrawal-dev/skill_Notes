@@ -11,7 +11,9 @@
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
 
-        gtag('config', 'G-Q334FN7M78');
+        gtag('config', 'G-Q334FN7M78', {
+            send_page_view: true
+        });
     </script>
     <link rel="shortcut icon" href="assets/logo.jpg" type="image/jpeg">
     <title>SKiL MATRiX Notes | Next-Gen Learning Platform</title>
@@ -21,6 +23,9 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&family=Poppins:wght@600;700&display=swap"
         rel="stylesheet">
@@ -29,9 +34,9 @@
     <link rel="stylesheet" href="css/main.css">
 
     <!-- Libraries -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js" defer></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js" defer></script>
 </head>
 
 <body>
@@ -40,7 +45,7 @@
 
     <!-- Navigation Hub -->
     <div id="navbar-container"></div>
-    <script src="js/navbar.js"></script>
+    <script src="js/navbar.js" defer></script>
 
     <!-- Hero Section -->
     <section class="hero">
@@ -77,7 +82,7 @@
             </div>
             <div class="hero-visual" data-aos="fade-left">
                 <div class="hero-image-container" data-tilt>
-                    <img src="assets/hero.png" alt="SKiL MATRiX Dashboard" class="hero-image">
+                    <img src="assets/hero.png" alt="SKiL MATRiX Dashboard" class="hero-image" loading="lazy">
                     <div class="glow-overlay"></div>
                 </div>
             </div>
@@ -172,20 +177,20 @@
         <div class="container">
             <div class="glass-card stats-wrapper" data-aos="zoom-in">
                 <div class="stat-box">
-                    <h3 id="stat-views">1,245,670</h3>
-                    <p>Total Note Views</p>
+                    <h3 class="stat-val">...</h3>
+                    <p class="stat-label">Total Note Views</p>
                 </div>
                 <div class="stat-box">
-                    <h3 id="stat-downloads">85,432</h3>
-                    <p>Notes Downloaded</p>
+                    <h3 class="stat-val">...</h3>
+                    <p class="stat-label">Notes Downloaded</p>
                 </div>
                 <div class="stat-box">
-                    <h3 id="stat-active">12,890</h3>
-                    <p>Active Students</p>
+                    <h3 class="stat-val">...</h3>
+                    <p class="stat-label">Active Students</p>
                 </div>
                 <div class="stat-box">
-                    <h3 id="stat-score">9.8/10</h3>
-                    <p>Study Satisfaction</p>
+                    <h3 class="stat-val">9.8/10</h3>
+                    <p class="stat-label">Study Satisfaction</p>
                 </div>
             </div>
         </div>
@@ -350,13 +355,7 @@
         import { initRealtimeStats } from './js/stats.js';
         initRealtimeStats();
     </script>
-    <script src="js/main.js"></script>
-    <script>
-        AOS.init({
-            duration: 800,
-            once: true
-        });
-    </script>
+    <script src="js/main.js" defer></script>
 </body>
 
 </html>

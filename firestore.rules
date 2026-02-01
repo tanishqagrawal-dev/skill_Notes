@@ -71,7 +71,9 @@ service cloud.firestore {
     // --- Stats ---
     match /stats/{statId} {
       allow read: if true;
-      allow write: if isAdmin() || isCoAdmin(); // Counters updated via transactions
+      allow update: if (request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['views', 'downloads'])) || isAdmin() || isCoAdmin();
+      allow create, delete: if isAdmin();
     }
 
     // --- Support Queries ---

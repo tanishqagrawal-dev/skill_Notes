@@ -1,4 +1,4 @@
-import { db, analytics } from './firebase-config.js';
+import { db, analytics, logEvent } from './firebase-config.js';
 import {
     doc,
     setDoc,
@@ -8,80 +8,51 @@ import {
     getDoc,
     collection,
     getDocs
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { logEvent } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 
 const STATS_DOC_PATH = 'stats/global';
 let lastStatsData = null;
 
 /**
- * Initializes the statistics document in Firestore if it doesn't exist.
- * Then starts a real-time listener to update the UI counters.
+ * Initializes the statistics document in Firestore.
+ * Starts a real-time listener to update UI counters.
+ * Uses localStorage for instant initial display on reload.
  */
 export async function initRealtimeStats() {
     console.log("🚀 Initializing Real-time Stats...");
+
+    // 0. Load from Cache IMMEDIATELY for zero-latency reload
+    const cached = localStorage.getItem('global_stats_cache');
+    if (cached) {
+        try {
+            lastStatsData = JSON.parse(cached);
+            updateUICounters(lastStatsData);
+        } catch (e) { }
+    }
+
     const statsRef = doc(db, STATS_DOC_PATH);
 
     try {
-        const docSnap = await getDoc(statsRef);
-
-        // If document doesn't exist, OR if it contains the old test dummy data, reset to production start
-        if (!docSnap.exists() || docSnap.data().views === 1210000) {
-            await setDoc(statsRef, {
-                views: 5, // Start with small numbers for realism
-                downloads: 2,
-                students: 0,
-                notes: 0
-            });
-            console.log("📊 Production stats initialized.");
-        }
-
-        // Real-time listener
         onSnapshot(statsRef, (doc) => {
             if (doc.exists()) {
-                const data = doc.data();
-                console.log("📡 Received real-time stats update:", data);
-                updateUICounters(data);
+                lastStatsData = doc.data();
+                localStorage.setItem('global_stats_cache', JSON.stringify(lastStatsData));
+                console.log("📡 Received real-time stats update:", lastStatsData);
+                updateUICounters(lastStatsData);
             }
         }, (error) => {
             console.error("❌ Firestore Snapshot Error:", error);
         });
 
-        // Track a page view
+        // 2. Track a page view (Non-blocking)
         trackPageView();
 
-        // Periodically refresh collection counts
-        refreshLiveCounts();
+        // 4. Update counts (Only run background sync if specifically requested or for admins)
+        // refreshLiveCounts(); 
 
     } catch (error) {
-        console.error("❌ Error initializing stats:", error);
-    }
-}
-
-/**
- * Syncs student and note counts from their respective collections.
- */
-async function refreshLiveCounts() {
-    try {
-        // 1. Sync Students (Users)
-        const usersRef = collection(db, 'users');
-        const userSnap = await getDocs(usersRef);
-        const userCount = userSnap.size;
-
-        // 2. Sync Notes
-        const notesRef = collection(db, 'notes_approved');
-        const notesSnap = await getDocs(notesRef);
-        const notesCount = notesSnap.size;
-
-        const statsRef = doc(db, STATS_DOC_PATH);
-        await updateDoc(statsRef, {
-            students: userCount,
-            notes: notesCount
-        });
-
-        console.log(`📈 Synced live counts: ${userCount} students, ${notesCount} notes.`);
-    } catch (error) {
-        console.warn("⚠️ Counter sync failed:", error);
+        console.error("❌ Error initializing stats logic:", error);
     }
 }
 
@@ -94,10 +65,34 @@ export async function trackPageView() {
         await updateDoc(statsRef, {
             views: increment(1)
         });
-        logEvent(analytics, 'page_view_increment');
+        if (analytics) logEvent(analytics, 'page_view_increment');
     } catch (error) {
-        console.warn("⚠️ View tracking failed.");
+        console.warn("⚠️ View increment skipped");
     }
+}
+
+/**
+ * Syncs student and note counts.
+ */
+async function refreshLiveCounts() {
+    try {
+        const usersRef = collection(db, 'users');
+        const notesRef = collection(db, 'notes_approved');
+
+        const [userSnap, notesSnap] = await Promise.all([
+            getDocs(usersRef).catch(() => null),
+            getDocs(notesRef).catch(() => null)
+        ]);
+
+        if (userSnap && notesSnap) {
+            const statsRef = doc(db, STATS_DOC_PATH);
+            await updateDoc(statsRef, {
+                students: userSnap.size,
+                notes: notesSnap.size
+            });
+            console.log("📈 Collection counts synced.");
+        }
+    } catch (error) { }
 }
 
 /**
@@ -109,87 +104,159 @@ export async function trackDownload() {
         await updateDoc(statsRef, {
             downloads: increment(1)
         });
-        logEvent(analytics, 'file_download_increment');
+        if (analytics) logEvent(analytics, 'file_download_increment');
     } catch (error) {
-        console.warn("⚠️ Download tracking failed.");
+        console.warn("⚠️ Download increment skipped");
     }
 }
 
 /**
- * Updates UI elements based on Firestore data.
+ * REFINED TRACKING FUNCTIONS (GA4 + Firebase)
  */
-function updateUICounters(data) {
-    if (data) lastStatsData = data;
-    const stats = data || lastStatsData;
-    if (!stats) return;
 
-    // 1. Update Hero section & Global stat blocks
-    document.querySelectorAll('.stat-item, .footer-stats-block').forEach(item => {
-        const valEl = item.querySelector('.stat-val, #stat-views, #stat-downloads, #stat-active');
-        const labelEl = item.querySelector('.stat-label');
-        if (!valEl) return;
-
-        // Use ID for specific targeting if available
-        if (valEl.id === 'stat-views') { valEl.innerText = formatStatValue(stats.views, true); return; }
-        if (valEl.id === 'stat-downloads') { valEl.innerText = formatStatValue(stats.downloads, true); return; }
-        if (valEl.id === 'stat-active' || (labelEl && labelEl.innerText.toLowerCase().includes('student'))) {
-            valEl.innerText = formatStatValue(stats.students, true);
-            return;
-        }
-
-        // Otherwise target by label text
-        if (!labelEl) return;
-        const label = labelEl.innerText.toLowerCase();
-        if (label.includes('view')) valEl.innerText = formatStatValue(stats.views, true);
-        if (label.includes('download')) valEl.innerText = formatStatValue(stats.downloads, true);
-        if (label.includes('student')) valEl.innerText = formatStatValue(stats.students, true);
-        if (label.includes('note')) valEl.innerText = formatStatValue(stats.notes, true);
-    });
-
-    // 2. Specific IDs (Fallback/Direct)
-    const elViews = document.getElementById('stat-views');
-    const elDownloads = document.getElementById('stat-downloads') || document.getElementById('global-downloads');
-    const elActive = document.getElementById('stat-active') || document.getElementById('live-students');
-    const elNotes = document.getElementById('stat-notes');
-
-    if (elViews) elViews.innerText = formatStatValue(stats.views, true);
-    if (elDownloads) elDownloads.innerText = formatStatValue(stats.downloads, true);
-    if (elActive) elActive.innerText = formatStatValue(stats.students, true);
-    if (elNotes) elNotes.innerText = formatStatValue(stats.notes, true);
+/**
+ * Tracks a page view manually (for SPAs / Tab switching)
+ */
+export function trackGA4PageView(title = document.title, path = window.location.pathname) {
+    if (typeof gtag === 'function') {
+        gtag('event', 'page_view', {
+            page_title: title,
+            page_location: window.location.href,
+            page_path: path
+        });
+        console.log(`📊 GA4 Page View tracked: ${path}`);
+    }
 }
 
 /**
- * Helper to format numbers with smart thresholds (50+, 100+, 1.2M+, etc.)
+ * Tracks a Note View event
  */
+export function trackNoteView(noteId, collegeName, subjectName) {
+    if (typeof gtag === 'function') {
+        gtag('event', 'note_view', {
+            note_id: noteId,
+            college: collegeName,
+            subject: subjectName
+        });
+        console.log(`📊 GA4 Note View tracked: ${noteId}`);
+    }
+    // Also increment Firestore view counter
+    trackPageView();
+}
+
+/**
+ * Tracks a Note Download event
+ */
+export function trackNoteDownload(noteId, fileType = 'pdf') {
+    if (typeof gtag === 'function') {
+        gtag('event', 'note_download', {
+            note_id: noteId,
+            file_type: fileType
+        });
+        console.log(`📊 GA4 Note Download tracked: ${noteId}`);
+    }
+    // Also increment Firestore download counter
+    trackDownload();
+}
+
+/**
+ * Tracks User Sign-up
+ */
+export function trackSignUp(method = 'email') {
+    if (typeof gtag === 'function') {
+        gtag('event', 'sign_up', {
+            method: method
+        });
+        console.log("📊 GA4 Sign-up tracked.");
+    }
+}
+
+/**
+ * Tracks Note Upload
+ */
+export function trackNoteUpload(collegeName) {
+    if (typeof gtag === 'function') {
+        gtag('event', 'note_upload', {
+            college: collegeName
+        });
+        console.log("📊 GA4 Note Upload tracked.");
+    }
+}
+
+/**
+ * Updates ALL UI elements matching stat keywords.
+ */
+function updateUICounters(data) {
+    // defaults if data is missing
+    const stats = data || lastStatsData || { views: 0, downloads: 0, students: 0, notes: 0 };
+    lastStatsData = stats;
+
+    const fmt = (val) => formatStatValue(val);
+
+    // 1. Target specifically by ID
+    const mapping = {
+        'stat-views': stats.views,
+        'stat-downloads': stats.downloads,
+        'global-downloads': stats.downloads,
+        'stat-active': stats.students,
+        'live-students': stats.students,
+        'stat-notes': stats.notes
+    };
+
+    for (const [id, value] of Object.entries(mapping)) {
+        const el = document.getElementById(id);
+        if (el) el.innerText = fmt(value);
+    }
+
+    // 2. Target by class AND container context
+    const containers = document.querySelectorAll('.stat-item, .stat-box, .footer-stats-block');
+    containers.forEach(container => {
+        const valEl = container.querySelector('.stat-val, h3, .value, span, b');
+        const labelEl = container.querySelector('.stat-label, p, .label');
+        if (!valEl || !labelEl) return;
+
+        const label = labelEl.innerText.toLowerCase();
+        if (label.includes('view')) valEl.innerText = fmt(stats.views);
+        else if (label.includes('download')) valEl.innerText = fmt(stats.downloads);
+        else if (label.includes('student')) valEl.innerText = fmt(stats.students);
+        else if (label.includes('note')) valEl.innerText = fmt(stats.notes);
+    });
+}
+
 function formatStatValue(num, usePlus = true) {
     if (!num || num < 1) return '0';
-
-    // Requirements: 50+, 100+, 150+ logic for smaller numbers
     if (num < 1000) {
         if (num >= 50) {
-            // Floor to nearest 50
             const floored = Math.floor(num / 50) * 50;
             return floored + (usePlus ? '+' : '');
         }
         return num.toString();
     }
-
-    // K+ logic for medium numbers (1000 to 1M)
-    if (num < 1000000) {
-        return (num / 1000).toFixed(1) + 'K' + (usePlus ? '+' : '');
-    }
-
-    // M+ logic for large numbers
+    if (num < 1000000) return (num / 1000).toFixed(1) + 'K' + (usePlus ? '+' : '');
     return (num / 1000000).toFixed(1) + 'M' + (usePlus ? '+' : '');
 }
 
-// Expose to window for non-module scripts
+export { formatStatValue };
+
 window.statServices = {
     initRealtimeStats,
     trackPageView,
     trackDownload,
-    updateUI: updateUICounters
+    trackGA4PageView,
+    trackNoteView,
+    trackNoteDownload,
+    trackSignUp,
+    trackNoteUpload,
+    updateUI: () => updateUICounters(lastStatsData)
 };
 
-// Automatic initialization
-setTimeout(initRealtimeStats, 500); 
+// Start logic
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(initRealtimeStats, 500);
+        trackGA4PageView(); // Initial page load track
+    });
+} else {
+    setTimeout(initRealtimeStats, 500);
+    trackGA4PageView();
+}

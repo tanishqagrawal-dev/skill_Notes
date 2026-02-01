@@ -1,6 +1,6 @@
 // Firebase Configuration & Initialization
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, getDoc, setDoc, onSnapshot, updateDoc, doc, increment, serverTimestamp, query, where, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
@@ -61,7 +61,8 @@ window.firebaseServices = {
     getDownloadURL,
     deleteObject,
     getFunctions,
-    httpsCallable
+    httpsCallable,
+    logEvent
 };
 
-export { app, analytics, auth, db, storage, functions, provider };
+export { app, analytics, auth, db, storage, functions, provider, logEvent };
