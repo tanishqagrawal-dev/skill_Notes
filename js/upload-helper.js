@@ -30,18 +30,21 @@ window.uploadNoteToFirebase = async function (file, metadata) {
                     const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
 
                     // 4. Save Metadata to Firestore
+                    const targetColl = metadata.targetCollection || 'notes_pending';
                     const docData = {
                         ...metadata,
                         driveLink: downloadURL,
                         fileType: file.type,
                         fileName: file.name,
-                        status: metadata.status || 'approved',
+                        status: metadata.status || (targetColl === 'notes_approved' ? 'approved' : 'pending'),
                         views: 0,
                         downloads: 0,
                         likes: 0
                     };
 
-                    await addDoc(collection(db, "notes"), docData);
+                    delete docData.targetCollection; // Clean up before saving
+
+                    await addDoc(collection(db, targetColl), docData);
                     resolve(docData);
                 }
             );

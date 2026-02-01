@@ -277,7 +277,7 @@ window.updateNoteStat = async function (noteId, type) {
 
     if (!db) return;
     try {
-        const noteRef = doc(db, "notes", noteId);
+        const noteRef = doc(db, "notes_approved", noteId);
         await updateDoc(noteRef, {
             [type + 's']: increment(1)
         });
@@ -295,7 +295,7 @@ window.toggleNoteDislike = async function (noteId) {
 
     if (!db) return;
     try {
-        const noteRef = doc(db, "notes", noteId);
+        const noteRef = doc(db, "notes_approved", noteId);
         await updateDoc(noteRef, {
             dislikes: increment(1)
         });
@@ -471,8 +471,10 @@ async function handleDashboardNoteSubmit(e) {
     btn.disabled = true;
     btn.innerText = "Uploading...";
 
-    const isModerator = ['admin', 'superadmin', 'coadmin'].includes(currentUser.role);
-    const targetCollegeId = selState.college ? selState.college.id : (currentUser.collegeId || currentUser.college || 'medicaps');
+    const isSuperAdmin = currentUser.role === 'superadmin';
+    const isCoAdmin = currentUser.role === 'coadmin';
+    const userCollege = currentUser.collegeId || currentUser.college;
+    const canPublishDirectly = isSuperAdmin || (isCoAdmin && targetCollegeId === userCollege);
 
     const newNote = {
         title: title,
@@ -489,14 +491,14 @@ async function handleDashboardNoteSubmit(e) {
         uploaderEmail: currentUser.email,
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         driveLink: link,
-        status: isModerator ? 'approved' : 'pending',
+        status: canPublishDirectly ? 'approved' : 'pending',
         created_at: new Date().toISOString()
     };
 
     try {
-        const targetColl = isModerator ? "notes_approved" : "notes_pending";
+        const targetColl = canPublishDirectly ? "notes_approved" : "notes_pending";
         await addDoc(collection(db, targetColl), newNote);
-        showToast(isModerator ? "🚀 Note published successfully!" : "📩 Submitted for review!");
+        showToast(canPublishDirectly ? "🚀 Note published successfully!" : "📩 Submitted for review!");
         closeDashboardUploadModal();
         document.getElementById('dash-upload-form').reset();
     } catch (err) {
@@ -1416,6 +1418,8 @@ window.executeAdminUpload = async function () {
         uploader: currentUser.name,
         uploaded_by: currentUser.id,
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        status: 'approved',
+        targetCollection: 'notes_approved',
         created_at: new Date().toISOString()
     };
 
@@ -1433,16 +1437,52 @@ window.executeAdminUpload = async function () {
     }
 };
 
-window.processNote = function (noteId, newStatus) {
-    const note = NotesDB.find(n => n.id === noteId);
-    if (!note) return;
+window.processNote = async function (noteId, newStatus) {
+    const { db, doc, runTransaction, deleteDoc, serverTimestamp } = getFirebase();
+    if (!db) return;
 
-    note.status = newStatus;
-    note.approved_by = currentUser.id;
+    if (newStatus === 'rejected') {
+        if (!confirm("Permanently reject/delete this submission?")) return;
+        try {
+            await deleteDoc(doc(db, 'notes_pending', noteId));
+            showToast("🚫 Submission rejected and deleted.");
+            renderTabContent('verification-hub');
+        } catch (e) {
+            console.error(e);
+            showToast("Error rejecting: " + e.message, "error");
+        }
+        return;
+    }
 
-    trackAnalytics('note_moderation', { id: noteId, status: newStatus });
-    alert(`Note ${newStatus.toUpperCase()} successfully!`);
-    renderTabContent('verification');
+    // Approval logic
+    try {
+        await runTransaction(db, async (transaction) => {
+            const pendingRef = doc(db, 'notes_pending', noteId);
+            const pendingSnap = await transaction.get(pendingRef);
+            if (!pendingSnap.exists()) throw "Submission not found!";
+
+            const noteData = pendingSnap.data();
+            const approvedRef = doc(db, 'notes_approved', noteId);
+
+            transaction.set(approvedRef, {
+                ...noteData,
+                status: 'approved',
+                approvedBy: currentUser.id,
+                approvedAt: serverTimestamp(),
+                views: 0,
+                saves: 0,
+                likes: 0
+            });
+
+            transaction.delete(pendingRef);
+        });
+
+        showToast("🚀 Note approved and published!");
+        renderTabContent('verification-hub');
+    } catch (e) {
+        console.error(e);
+        showToast("Error approving: " + e.message, "error");
+    }
 };
 
 window.updateUpBranches = function () {

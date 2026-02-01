@@ -53,7 +53,7 @@ function initNotesData() {
         return;
     }
 
-    const q = query(collection(db, "notes"), orderBy("created_at", "desc"));
+    const q = query(collection(db, "notes_approved"), orderBy("created_at", "desc"));
     onSnapshot(q, (snapshot) => {
         NotesDB = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
@@ -223,13 +223,13 @@ function openUploadModal() {
         return;
     }
 
-    // Role check: Only Admin and Co-Admin (College Admin)
+    // Messaging updated: Any user can upload, but it goes to approval.
+    // We can still show a notice if it will be direct.
     const isAdmin = currentUser.role === Roles.SUPER_ADMIN;
     const isCollegeAdmin = currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === selState.college.id;
 
     if (!isAdmin && !isCollegeAdmin) {
-        alert(`🔒 Restricted Access: Only ${selState.college.name} Admins can add notes here.`);
-        return;
+        // No restriction here anymore, just let them proceed
     }
 
     const modal = document.getElementById('add-note-modal');
@@ -257,6 +257,11 @@ async function handleNoteSubmit(e) {
     btn.disabled = true;
     btn.innerText = "Processing...";
 
+    const isAdmin = currentUser.role === Roles.SUPER_ADMIN;
+    const isMatchingCoAdmin = currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === selState.college.id;
+    const targetColl = (isAdmin || isMatchingCoAdmin) ? "notes_approved" : "notes_pending";
+    const status = (isAdmin || isMatchingCoAdmin) ? 'approved' : 'pending';
+
     const newNote = {
         title: title,
         type: type,
@@ -267,7 +272,7 @@ async function handleNoteSubmit(e) {
         subject: selState.subject.id,
         uploader: currentUser.name,
         uploaded_by: currentUser.id,
-        status: 'approved', // Direct upload for Admins
+        status: status,
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         views: 0,
         downloads: 0,
@@ -276,8 +281,12 @@ async function handleNoteSubmit(e) {
     };
 
     try {
-        await addDoc(collection(db, "notes"), newNote);
-        alert("✅ Success! Note added directly to the database.");
+        await addDoc(collection(db, targetColl), newNote);
+        if (status === 'approved') {
+            alert("✅ Success! Note added directly to the database.");
+        } else {
+            alert("📩 Submitted! Your note is pending approval by the " + selState.college.name + " admin.");
+        }
         closeUploadModal();
         // UI will auto-refresh via Firebase onSnapshot
     } catch (error) {
@@ -476,7 +485,7 @@ window.updateNoteStat = async function (noteId, type) {
 
     if (!db) return;
     try {
-        const noteRef = doc(db, "notes", noteId);
+        const noteRef = doc(db, "notes_approved", noteId);
         await updateDoc(noteRef, {
             [type + 's']: increment(1)
         });
