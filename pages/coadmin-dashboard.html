@@ -89,6 +89,37 @@
 
             <div class="content-area" id="tab-content">
                 <!-- Content will be injected dynamically by dashboard.js -->
+                <script>
+                    (function () {
+                        const raw = localStorage.getItem('auth_user_full') || localStorage.getItem('auth_user');
+                        let cachedUser = null;
+                        if (raw) {
+                            try { cachedUser = JSON.parse(raw); } catch (e) { }
+                        }
+
+                        if (cachedUser) {
+                            const name = cachedUser.name ? cachedUser.name.split(' ')[0] : 'Moderator';
+                            document.write(`
+                                <div id="instant-view" class="tab-pane active fade-in" style="padding: 2rem;">
+                                    <h1 class="font-heading" style="font-size: 2.2rem; margin-bottom: 0.5rem;">Moderator Hub: <span class="gradient-text">${name}</span></h1>
+                                    <p style="color: var(--secondary); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2.5rem;">⚙️ Campus Management</p>
+                                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                                        <div class="glass-card" style="height: 140px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: 12px;"></div>
+                                        <div class="glass-card" style="height: 140px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: 12px;"></div>
+                                    </div>
+                                    <p style="text-align: center; color: var(--text-dim); font-size: 0.8rem; opacity: 0.6;">⚡ Syncing university database...</p>
+                                </div>
+                            `);
+                        } else {
+                            document.write(`
+                                <div id="initial-loader" style="display: flex; justify-content: center; align-items: center; min-height: 480px; flex-direction: column; gap: 1rem;">
+                                    <div class="loader-pro"></div>
+                                    <p style="color: var(--text-dim); font-size: 0.9rem; animation: pulse-text 2s infinite;">Opening Moderation Gates...</p>
+                                </div>
+                            `);
+                        }
+                    })();
+                </script>
             </div>
         </main>
     </div>

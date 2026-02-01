@@ -69,6 +69,14 @@ document.addEventListener('DOMContentLoaded', () => {
     renderNotes(notesData);
     animateCounters();
     initFAQ();
+
+    // Initialize Animations
+    if (window.AOS) {
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+    }
 });
 
 // Animate Stats Counters (Disabled as stats are now handled by stats.js real-time listener)
@@ -231,12 +239,9 @@ async function handleView(id) {
         note.views++;
         renderNotes(notesData); // Local update
 
-        // Real-time tracking (lazy import to wait for module system if needed)
-        try {
-            const { trackPageView } = await import('./stats.js');
-            trackPageView();
-        } catch (e) {
-            console.error("Tracking failed", e);
+        // Real-time tracking
+        if (window.statServices && window.statServices.trackNoteView) {
+            window.statServices.trackNoteView(note.id, note.college, note.subject);
         }
     }
 }
@@ -249,11 +254,8 @@ async function handleDownload(id) {
         renderNotes(notesData); // Local update
 
         // Real-time tracking
-        try {
-            const { trackDownload } = await import('./stats.js');
-            trackDownload();
-        } catch (e) {
-            console.error("Tracking failed", e);
+        if (window.statServices && window.statServices.trackNoteDownload) {
+            window.statServices.trackNoteDownload(note.id);
         }
     }
 }
@@ -263,95 +265,4 @@ window.handlePayment = function () {
     alert("🚀 Redirecting to SKiL MATRiX Premium Gateway...\n\n(This makes a placeholder request as no Payment API Key was provided.)");
 };
 
-// --- ADVANCED FOOTER LOGIC ---
-document.addEventListener('DOMContentLoaded', () => {
-    initAdvancedFooter();
-});
-
-function initAdvancedFooter() {
-    initFooterStats();
-    initRoleAwareLinks();
-    initBackToTop();
-}
-
-function initFooterStats() {
-    const statsContainer = document.getElementById('footer-stats');
-    if (!statsContainer) return;
-
-    // Simulated "Live" Data
-    const stats = {
-        notes: 12482,
-        students: 3190,
-        downloads: 1200000
-    };
-
-    // Format numbers
-    const fmt = (n) => {
-        if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-        if (n >= 1000) return (n / 1000).toLocaleString();
-        return n;
-    };
-
-    statsContainer.innerHTML = `
-        <span>📚 ${fmt(stats.notes)} notes</span> &bull; 
-        <span>👥 ${fmt(stats.students)} students</span> &bull; 
-        <span>⬇️ ${fmt(stats.downloads)} downloads</span>
-    `;
-}
-
-function initRoleAwareLinks() {
-    const linksContainer = document.getElementById('footer-role-links');
-    if (!linksContainer) return;
-
-    // Determine Role (Check localStorage or default to Student)
-    // NOTE: This is UI-only. Security is handled by backend rules.
-    const userRole = localStorage.getItem('user_role') || 'user';
-    // If complex auth object is stored:
-    // const user = JSON.parse(localStorage.getItem('auth_user') || '{}');
-    // const role = user.role || 'student';
-
-    let links = [];
-
-    if (userRole === 'admin' || userRole === 'superadmin' || userRole === 'coadmin') {
-        links = [
-            { txt: 'Admin Console', url: 'pages/dashboard.html?tab=admin' },
-            { txt: 'Manage Content', url: 'pages/dashboard.html?tab=verification' },
-            { txt: 'System Status', url: '#' }
-        ];
-    } else if (userRole === 'uploader' || userRole === 'contributor') {
-        links = [
-            { txt: 'My Uploads', url: 'pages/dashboard.html?tab=profile' },
-            { txt: 'Upload New Note', url: '#', onclick: "openUploadModal()" },
-            { txt: 'Contributor Guidelines', url: '#' }
-        ];
-    } else {
-        // Default: Student
-        links = [
-            { txt: 'Notes Hub', url: 'pages/dashboard.html?tab=notes' },
-            { txt: 'Leaderboard', url: 'pages/dashboard.html?tab=leaderboard' },
-            { txt: 'AI Study Planner', url: 'pages/dashboard.html?tab=planner' },
-            { txt: 'Exam Strategist', url: 'pages/dashboard.html?tab=ai-tools' }
-        ];
-    }
-
-    linksContainer.innerHTML = links.map(l =>
-        `<a href="${l.url}" ${l.onclick ? `onclick="${l.onclick}"` : ''}>${l.txt}</a>`
-    ).join('');
-}
-
-function initBackToTop() {
-    const btn = document.getElementById('back-to-top');
-    if (!btn) return;
-
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 300) {
-            btn.classList.add('visible');
-        } else {
-            btn.classList.remove('visible');
-        }
-    });
-
-    btn.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-}
+// Redundant advanced footer removed. Handled by footer.js.

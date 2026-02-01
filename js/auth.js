@@ -6,8 +6,13 @@ import {
     signInWithRedirect,
     getRedirectResult,
     signOut,
-    onAuthStateChanged
+    onAuthStateChanged,
+    setPersistence,
+    browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+// --- STEP 4: LAZY AUTH INITIALIZATION ---
+setPersistence(auth, browserLocalPersistence).catch(e => console.warn("Persistence Error:", e));
 
 // --- AUTH ROUTER/GUARD ---
 const path = window.location.pathname;
@@ -33,15 +38,18 @@ function dispatchAuthReady(data) {
     window.dispatchEvent(new CustomEvent('auth-ready', { detail: data }));
 }
 
-// Check for Guest Session (Local Storage)
-if (isUserDashboard) {
-    const guestData = localStorage.getItem('guest_session');
-    if (guestData) {
-        const guest = JSON.parse(guestData);
+// 1. Instant Session Restoration (Guest or Regular)
+const lastUser = localStorage.getItem('auth_user_full') || localStorage.getItem('guest_session');
+if (lastUser && (isUserDashboard || isAdminDashboard || isCoAdminDashboard)) {
+    try {
+        const parsed = JSON.parse(lastUser);
+        console.log("⚡ Instant reload: Restoring session from cache");
         dispatchAuthReady({
-            user: { uid: guest.id, email: guest.email, displayName: guest.name },
-            currentUser: guest
+            user: { uid: parsed.id, email: parsed.email, displayName: parsed.name },
+            currentUser: parsed
         });
+    } catch (e) {
+        console.warn("Auth cache corrupted");
     }
 }
 
@@ -87,13 +95,13 @@ onAuthStateChanged(auth, async (user) => {
                 // Hard-security override (client-side only, DB is auth of truth)
                 if (isSuperAdmin) userData.role = 'superadmin';
 
-                // Sync to localStorage for non-module scripts like navbar.js
+                // Sync to localStorage for instant reload
+                localStorage.setItem('auth_user_full', JSON.stringify(userData));
                 localStorage.setItem('auth_user', JSON.stringify({
                     uid: userData.id,
                     email: userData.email,
                     role: userData.role
                 }));
-
             } catch (err) {
                 console.error("Firestore Identity Sync Error:", err);
             }
@@ -177,6 +185,9 @@ if (isAuthPage) {
             const name = document.getElementById('signup-name').value;
             try {
                 await createUserWithEmailAndPassword(auth, email, pass);
+                if (window.statServices && window.statServices.trackSignUp) {
+                    window.statServices.trackSignUp('email');
+                }
             } catch (err) {
                 alert("Signup Failed: " + err.message);
             }
@@ -190,6 +201,9 @@ if (isAuthPage) {
                 // Use Popup instead of Redirect for better local compatibility
                 const result = await signInWithPopup(auth, provider);
                 console.log("Google Login Success:", result.user.email);
+                if (window.statServices && window.statServices.trackSignUp) {
+                    window.statServices.trackSignUp('google');
+                }
 
                 // Redirection is usually handled by onAuthStateChanged, 
                 // but we can force check here if needed.
@@ -224,6 +238,8 @@ window.loginAsGuest = function () {
 window.handleLogout = async function () {
     localStorage.removeItem('guest_session');
     localStorage.removeItem('auth_user');
+    localStorage.removeItem('auth_user_full');
+    localStorage.removeItem('global_stats_cache');
     await signOut(auth);
     window.location.href = '../index.html';
 };

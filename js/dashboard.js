@@ -1,4 +1,3 @@
-import { initRealtimeStats, trackDownload } from './stats.js';
 // --- FIREBASE SERVICES ---
 // Fallback if firebaseServices failed to load (e.g. CORS or network error)
 if (!window.firebaseServices) {
@@ -97,7 +96,34 @@ const GlobalData = {
         ]
     }
 };
-window.GlobalData = GlobalData;
+// --- STEP 7: CACHE STATIC DATA ---
+const CACHE_KEY_GLOBAL = 'skilmatrix_global_data';
+const cachedGlobal = localStorage.getItem(CACHE_KEY_GLOBAL);
+if (cachedGlobal) {
+    try {
+        window.GlobalData = JSON.parse(cachedGlobal);
+        console.log("📦 Loaded GlobalData from Cache");
+    } catch (e) {
+        window.GlobalData = GlobalData;
+    }
+} else {
+    window.GlobalData = GlobalData;
+    localStorage.setItem(CACHE_KEY_GLOBAL, JSON.stringify(GlobalData));
+}
+
+// Global Progress Indicator Helper
+function updateSyncProgress(percent, status) {
+    const bar = document.getElementById('sync-status-bar');
+    if (!bar) return;
+    bar.style.opacity = '1';
+    bar.style.width = percent + '%';
+    if (percent >= 100) {
+        setTimeout(() => {
+            bar.style.opacity = '0';
+            setTimeout(() => bar.style.width = '0%', 400);
+        }, 800);
+    }
+}
 
 let NotesDB = [];
 let unsubscribeNotes = null;
@@ -129,11 +155,18 @@ function handleAuthReady(data) {
 
             // Stats
             if (window.statServices && window.statServices.initRealtimeStats) {
-                window.statServices.initRealtimeStats();
+                try {
+                    updateSyncProgress(70, "Syncing Stats...");
+                    window.statServices.initRealtimeStats();
+                } catch (e) {
+                    console.warn("Stats init failed:", e);
+                }
             }
 
             // Telemetry
             if (typeof trackStudent === 'function') trackStudent();
+
+            updateSyncProgress(100, "Ready");
 
             // Initial View - Specialized Routing
             if (currentUser.role === 'superadmin') {
@@ -197,6 +230,9 @@ window.addEventListener('auth-ready', (event) => {
 if (window.authStatus && window.authStatus.ready) {
     console.log("⚡ Auth already ready, triggering handleAuthReady immediately");
     handleAuthReady(window.authStatus.data);
+} else {
+    // If not ready yet, show that we are connecting
+    updateSyncProgress(40, "Establishing Connection...");
 }
 
 
@@ -281,7 +317,7 @@ window.updateNoteStat = async function (noteId, type) {
         await updateDoc(noteRef, {
             [type + 's']: increment(1)
         });
-        if (type === 'download') trackDownload();
+        if (type === 'download' && window.statServices) window.statServices.trackDownload();
         trackAnalytics(`note_${type}`, { id: noteId, title: note ? note.title : 'Unknown' });
     } catch (error) {
         console.error("Error updating stats:", error);
@@ -522,7 +558,11 @@ function initTabs() {
 
     // 1. My Uploads (For Everyone)
     const myUploads = createNavItem('my-uploads', '📤', 'My Uploads');
-    sidebarNav.insertBefore(myUploads, settingsNode);
+    if (settingsNode) {
+        sidebarNav.insertBefore(myUploads, settingsNode);
+    } else {
+        sidebarNav.appendChild(myUploads);
+    }
 
     // 2. Co-Admin Tools
     if (currentUser.role === 'coadmin' || currentUser.role === 'superadmin') {
@@ -542,9 +582,8 @@ function initTabs() {
         sidebarNav.insertBefore(adminConsole, settingsNode);
     }
 
-    // Re-bind listeners
-    document.querySelectorAll('.nav-item').forEach(item => {
-        // Remove old listeners to prevent duplicates? onclick overwrites so it's fine.
+    // Re-bind listeners for tabs only
+    document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
         item.onclick = (e) => {
             e.preventDefault();
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -613,6 +652,11 @@ window.switchRole = function (userId, role, name) {
 function renderTabContent(tabId) {
     const contentArea = document.getElementById('tab-content');
     if (!contentArea) return;
+
+    // Track page view in GA4
+    if (window.statServices && window.statServices.trackGA4PageView) {
+        window.statServices.trackGA4PageView(`Dashboard - ${tabId}`, `/dashboard/${tabId}`);
+    }
 
     try {
         if (tabId === 'overview') {
@@ -944,10 +988,10 @@ function renderAITools() {
 // Phase 1 Advanced Dashboard Implementation
 function renderOverview() {
     // Phase 1: Personalization
-    const userName = currentUser.name.split(' ')[0];
-    const college = GlobalData.colleges.find(c => c.id === currentUser.college)?.name || 'Medicaps University';
-    const year = currentUser.year || '3rd Year';
-    const branch = currentUser.branch || 'CSE';
+    const userName = (currentUser && currentUser.name) ? currentUser.name.split(' ')[0] : 'Scholar';
+    const college = (currentUser && currentUser.college && GlobalData.colleges.find(c => c.id === currentUser.college)) ? GlobalData.colleges.find(c => c.id === currentUser.college).name : 'Medicaps University';
+    const year = currentUser?.year || '3rd Year';
+    const branch = currentUser?.branch || 'CSE';
 
     // Real-time subjects based on user branch/semester
     const branchKey = `${branch.toLowerCase().replace(' ', '')}-${currentUser.semester || 'Semester 3'}`;
@@ -1407,6 +1451,11 @@ window.executeAdminUpload = async function () {
     try {
         await window.uploadNoteToFirebase(selectedAdminFile, metadata);
         alert("✅ Upload Successful!");
+
+        if (window.statServices && window.statServices.trackNoteUpload) {
+            window.statServices.trackNoteUpload(metadata.collegeId);
+        }
+
         selectedAdminFile = null;
         document.getElementById('selected-filename').innerText = '';
         document.getElementById('upload-progress').style.width = '0%';
