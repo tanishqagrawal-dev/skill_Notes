@@ -418,6 +418,12 @@ input:checked+.toggle-slider:before {
     max-width: 600px;
 }
 
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    margin-bottom: 4rem;
+}
+
 .hero-cta {
     display: flex;
     gap: 1.5rem;
@@ -621,6 +627,13 @@ input:checked+.toggle-slider:before {
     font-size: 2.5rem;
     margin-bottom: 1.5rem;
     opacity: 0.8;
+}
+
+.dashboard-body {
+    background: var(--bg-dark);
+    height: 100vh;
+    overflow: hidden;
+    color: var(--text-main);
 }
 
 .note-card h3 {

@@ -35,7 +35,7 @@ const Roles = {
 
 const MockUsers = [
     { id: 'u_student', name: 'Tanishq Agrawal', role: 'student', college: 'medicaps', email: 'student@example.com', year: '2nd Year', branch: 'CSE' },
-    { id: 'u_admin', name: 'Dev Admin', role: 'super_admin', college: 'medicaps', email: 'skilmatrix3@gmail.com' },
+    { id: 'u_admin', name: 'Dev Admin', role: 'super_admin', college: 'medicaps', email: 'yeashjain2006@gmail.com' },
     { id: 'u_faculty', name: 'Dr. Mehta', role: 'uploader', college: 'medicaps', email: 'faculty@medicaps.ac.in' }
 ];
 
@@ -129,6 +129,27 @@ function trackAnalytics(eventType, data) {
     }
 }
 
+window.showToast = function (message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast-popup ${type}`;
+    toast.innerHTML = `
+        <div class="toast-content">
+            <span class="toast-icon">${type === 'success' ? '✅' : '❌'}</span>
+            <span class="toast-message">${message}</span>
+        </div>
+    `;
+    document.body.appendChild(toast);
+
+    // Animate in
+    setTimeout(() => toast.classList.add('active'), 100);
+
+    // Remove after 3s
+    setTimeout(() => {
+        toast.classList.remove('active');
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+};
+
 window.updateNoteStat = async function (noteId, type) {
     const { db, doc, updateDoc, increment } = getFirebase();
     // Immediate UI Optimistic Update
@@ -153,6 +174,27 @@ window.updateNoteStat = async function (noteId, type) {
     } catch (error) {
         console.error("Error updating stats:", error);
     }
+}
+
+window.toggleNoteDislike = async function (noteId) {
+    const { db, doc, updateDoc, increment } = getFirebase();
+    const note = NotesDB.find(n => n.id === noteId);
+    if (note) note.dislikes = (note.dislikes || 0) + 1; // Optimistic
+
+    if (!db) return;
+    try {
+        const noteRef = doc(db, "notes", noteId);
+        await updateDoc(noteRef, {
+            dislikes: increment(1)
+        });
+    } catch (e) {
+        console.error("Dislike error:", e);
+    }
+}
+
+window.toggleNoteBookmark = function (noteId) {
+    alert("📑 Note added to your bookmarks!");
+    // In a real app, this would save to user's personal bookmark collection in Firestore
 }
 
 // --- CORE DASHBOARD LOGIC ---
@@ -240,8 +282,71 @@ window.openUploadModal = async function () {
         return;
     }
 
-    const title = prompt("Enter Note Title (e.g. OS Unit 3 Process Sync):");
-    if (!title) return;
+    // Creating modal overlay if it doesn't exist
+    let modal = document.getElementById('dashboard-upload-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'dashboard-upload-modal';
+        modal.className = 'modal'; // Reuse existing modal class
+        modal.innerHTML = `
+            <div class="modal-content">
+                <button class="close-modal" onclick="closeDashboardUploadModal()">&times;</button>
+                <div class="modal-header">
+                    <h2>Upload <span class="gradient-text">New Note</span></h2>
+                    <p style="color: var(--text-dim); font-size: 0.9rem;">Share your resource with the community.</p>
+                </div>
+                <form id="dash-upload-form">
+                    <div class="form-group">
+                        <label>Note Title</label>
+                        <input type="text" id="dash-note-title" class="form-input" placeholder="e.g. OS Unit 3 Process Sync" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Resource Type</label>
+                        <select id="dash-note-type" class="form-input">
+                            <option value="notes">Notes</option>
+                            <option value="pyq">PYQs</option>
+                            <option value="formula">Formula Sheet</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Google Drive Link</label>
+                        <input type="url" id="dash-note-link" class="form-input" placeholder="https://drive.google.com/..." required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary" id="dash-submit-btn" style="width:100%;">🚀 Upload Note</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        document.getElementById('dash-upload-form').onsubmit = handleDashboardNoteSubmit;
+    }
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+};
+
+window.closeDashboardUploadModal = function () {
+    const modal = document.getElementById('dashboard-upload-modal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+};
+
+async function handleDashboardNoteSubmit(e) {
+    e.preventDefault();
+    const { db, collection, addDoc } = getFirebase();
+    if (!db) return;
+
+    const btn = document.getElementById('dash-submit-btn');
+    const title = document.getElementById('dash-note-title').value;
+    const type = document.getElementById('dash-note-type').value;
+    const link = document.getElementById('dash-note-link').value;
+
+    btn.disabled = true;
+    btn.innerText = "Uploading...";
 
     const newNote = {
         title: title,
@@ -249,26 +354,32 @@ window.openUploadModal = async function () {
         branchId: selState.branch ? selState.branch.id : 'cse',
         year: selState.year || '2nd Year',
         subject: selState.subject ? selState.subject.id : 'os',
-        type: 'notes',
-        views: 0, downloads: 0, likes: 0,
+        type: type,
+        views: 0,
+        downloads: 0,
+        likes: 0,
+        dislikes: 0,
         uploader: currentUser.name,
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        badge: '✨ NEW',
-        driveLink: 'https://drive.google.com/', // In a real app, this would be a file input -> Storage upload
-        status: 'pending',
         uploaded_by: currentUser.id,
-        approved_by: null,
-        created_at: new Date().toISOString() // for sorting
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        driveLink: link,
+        status: (currentUser.role === Roles.SUPER_ADMIN || currentUser.role === Roles.COLLEGE_ADMIN) ? 'approved' : 'pending',
+        created_at: new Date().toISOString()
     };
 
     try {
         await addDoc(collection(db, "notes"), newNote);
-        alert("🚀 Note submitted for review! It will appear once approved.");
-    } catch (e) {
-        console.error("Upload error:", e);
-        alert("Error uploading note. See console.");
+        showToast(newNote.status === 'approved' ? "🚀 Note published successfully!" : "📩 Submitted for review!");
+        closeDashboardUploadModal();
+        document.getElementById('dash-upload-form').reset();
+    } catch (err) {
+        console.error("Upload error:", err);
+        showToast("Failed to upload. Check connection.", "error");
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "🚀 Upload Note";
     }
-};
+}
 
 function initTabs() {
     const navItems = document.querySelectorAll('.nav-item');
@@ -1084,10 +1195,12 @@ window.executeAdminUpload = async function () {
         branchId: document.getElementById('up-branch').value,
         year: document.getElementById('up-year').value,
         semester: document.getElementById('up-sem').value,
-        subjectId: document.getElementById('up-subject').value,
+        subject: document.getElementById('up-subject').value, // Changed from subjectId to subject
         type: document.getElementById('up-type').value,
         uploader: currentUser.name,
-        uploaded_by: currentUser.id
+        uploaded_by: currentUser.id,
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        created_at: new Date().toISOString()
     };
 
     document.getElementById('upload-progress-container').style.display = 'block';
@@ -1525,44 +1638,69 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
         return `
             <div class="detailed-item glass-card card-reveal" style="${n.status === 'pending' ? 'border: 1px dashed var(--secondary); background: rgba(108, 99, 255, 0.05);' : ''}">
                 <div class="item-left">
-                    <div class="file-type-icon">📄</div>
+                    <div class="file-type-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    </div>
                     <div class="item-info-block">
                         <div class="item-title" style="display:flex; align-items:center; gap: 0.5rem;">
                             ${n.title}
                             ${n.status === 'pending' ? '<span class="meta-badge" style="background:var(--secondary); color:#000; font-size:0.6rem;">PENDING REVIEW</span>' : ''}
                         </div>
-                        <div class="item-meta-row" style="margin-top: 5px;">
-                            <span>📅 ${n.date}</span>
+                        <div class="item-meta-row">
+                            <span title="Upload Date">📅 ${n.date}</span>
                             <div class="uploader-mini">
-                                <div class="uploader-avatar">${n.uploader.charAt(0)}</div>
-                                <span>Uploaded by ${n.uploader}</span>
+                                <div class="uploader-avatar">${n.uploader ? n.uploader.charAt(0) : 'U'}</div>
+                                <span>${n.uploader}</span>
                             </div>
+                            <span title="Total Downloads">${n.downloads} downloads</span>
                         </div>
-                        <div class="item-meta-row" style="font-size: 0.7rem; color: var(--success); opacity: 0.9; margin-top: 2px;">
-                            ${n.status === 'approved' ? `<span>✓ Verified by ${n.approved_by || 'Admin'}</span>` : ''}
-                        </div>
-                        <div class="item-engagement-row" style="margin-top: 10px;">
-                            <span class="eng-icon" onclick="updateNoteStat('${n.id}', 'like')">👍 ${n.likes}</span>
-                            <span class="eng-icon">�️ ${n.views}</span>
-                            <span class="eng-icon">⬇️ ${n.downloads}</span>
-                            <span class="eng-icon" style="background: rgba(108, 99, 255, 0.1); color: var(--primary);">⭐ Score: ${calculateSmartScore(n).toFixed(1)}</span>
+                        
+                        <div class="item-engagement-row">
+                            <span class="eng-icon" onclick="updateNoteStat('${n.id}', 'like')">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                                ${n.likes || 0}
+                            </span>
+                            <span class="eng-icon" onclick="toggleNoteDislike('${n.id}')">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
+                                ${n.dislikes || 0}
+                            </span>
+                            <span class="eng-icon" onclick="toggleNoteBookmark('${n.id}')">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                            </span>
                         </div>
                     </div>
                 </div>
-                <div class="item-right" style="display:flex; flex-direction:column; gap:0.5rem; justify-content:center;">
+                <div class="item-right">
                     ${n.status === 'pending' && canModerate ? `
-                        <button class="btn btn-sm btn-primary" style="background: var(--success); font-size: 0.7rem; padding: 0.4rem 0.8rem;" onclick="processNote('${n.id}', 'approved')">✅ Approve</button>
-                        <button class="btn btn-sm btn-ghost" style="color: #ff4757; font-size: 0.7rem;" onclick="processNote('${n.id}', 'rejected')">❌ Reject</button>
-                    ` : `
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button class="btn btn-ghost" style="font-size: 0.8rem;" onclick="window.open('${convertDriveLink(n.driveLink, 'preview')}', '_blank'); updateNoteStat('${n.id}', 'view')">📄 Preview</button>
-                            <button class="btn-download-pro" onclick="window.open('${convertDriveLink(n.driveLink, 'download')}', '_blank'); updateNoteStat('${n.id}', 'download')">📥 Download</button>
+                        <div style="display:flex; gap:0.5rem;">
+                            <button class="btn btn-sm btn-primary" style="background: var(--success); font-size: 0.7rem;" onclick="processNote('${n.id}', 'approved')">✅ Approve</button>
+                            <button class="btn btn-sm btn-ghost" style="color: #ff4757; font-size: 0.7rem;" onclick="processNote('${n.id}', 'rejected')">❌ Reject</button>
                         </div>
+                    ` : `
+                        <button class="btn-download-pro" onclick="window.open('${convertDriveLink(n.driveLink, 'download')}', '_blank'); updateNoteStat('${n.id}', 'download')">
+                            Download
+                        </button>
                     `}
                 </div>
             </div>
         `;
     }).join('');
+}
+
+window.processNote = async function (noteId, status) {
+    const { db, doc, updateDoc } = getFirebase();
+    if (!db) return;
+
+    try {
+        const noteRef = doc(db, "notes", noteId);
+        await updateDoc(noteRef, {
+            status: status,
+            approved_by: currentUser.name
+        });
+        alert(`Note ${status} successfully.`);
+    } catch (e) {
+        console.error("Moderation error:", e);
+    }
 }
 
 window.backToExplorer = function () {

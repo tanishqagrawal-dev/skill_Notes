@@ -15,6 +15,9 @@
     --text-muted: #A0AEC0;
     --text-dim: #718096;
 
+    --success: #00FF94;
+    --error: #FF4757;
+
     /* Typography */
     --font-heading: 'Poppins', sans-serif;
     --font-body: 'Inter', sans-serif;
@@ -91,6 +94,22 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* Custom Scrollbar for Sidebar */
+.sidebar-nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
 }
 
 .nav-item {
@@ -189,8 +208,27 @@
     gap: 1.5rem;
     overflow-y: auto;
     scroll-behavior: smooth;
-    /* Enabled smooth scroll here */
-    padding-right: 0.5rem;
+    padding-right: 1.5rem;
+    /* Increased padding for scrollbar */
+}
+
+/* Styled Scrollbars */
+.main-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.main-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border: 1px solid transparent;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
 }
 
 .top-bar {
@@ -1283,4 +1321,60 @@
     .subject-hub-page {
         padding: 2rem;
     }
+}
+
+/* --- TOAST NOTIFICATIONS --- */
+.toast-popup {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: rgba(15, 15, 25, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-glass);
+    padding: 1rem 1.8rem;
+    border-radius: 16px;
+    z-index: 100000;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.toast-popup.active {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.toast-popup.success {
+    border-left: 5px solid var(--success);
+}
+
+.toast-popup.error {
+    border-left: 5px solid var(--error);
+}
+
+.toast-icon {
+    font-size: 1.4rem;
+}
+
+.toast-message {
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* Sidebar Fixes for Overflow */
+.sidebar {
+    max-height: calc(100vh - 3rem);
+}
+
+.sidebar-header {
+    flex-shrink: 0;
+}
+
+.user-profile-mini {
+    flex-shrink: 0;
 }

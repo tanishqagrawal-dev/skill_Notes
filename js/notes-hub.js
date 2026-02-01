@@ -391,30 +391,58 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
     return filtered.map(n => `
         <div class="detailed-item glass-card card-reveal">
             <div class="item-left">
-                <div class="file-type-icon">📄</div>
+                <div class="file-type-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </div>
                 <div class="item-info-block">
                     <div class="item-title">${n.title}</div>
-                    <div class="item-meta-row" style="margin-top: 5px;">
-                        <span>📅 ${n.date}</span>
+                    <div class="item-meta-row">
+                        <span title="Upload Date">📅 ${n.date}</span>
                         <div class="uploader-mini">
                             <div class="uploader-avatar">${n.uploader ? n.uploader.charAt(0) : 'U'}</div>
                             <span>${n.uploader || 'Anonymous'}</span>
                         </div>
+                        <span title="Total Downloads">${n.downloads || 0} downloads</span>
                     </div>
-                    <div class="item-engagement-row" style="margin-top: 10px;">
-                        <span class="eng-icon" onclick="updateNoteStat('${n.id}', 'like')">👍 ${n.likes}</span>
-                        <span class="eng-icon">👁️ ${n.views}</span>
-                        <span class="eng-icon">⬇️ ${n.downloads}</span>
-                        <span class="eng-icon" style="background: rgba(108, 99, 255, 0.1); color: var(--primary);">⭐ Score: ${calculateSmartScore(n).toFixed(1)}</span>
+                    <div class="item-engagement-row">
+                        <span class="eng-icon" onclick="updateNoteStat('${n.id}', 'like')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                            ${n.likes || 0}
+                        </span>
+                        <span class="eng-icon" onclick="toggleNoteDislike('${n.id}')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
+                            ${n.dislikes || 0}
+                        </span>
+                        <span class="eng-icon" onclick="toggleNoteBookmark('${n.id}')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                        </span>
                     </div>
                 </div>
             </div>
             <div class="item-right">
-                <button class="btn btn-ghost" onclick="window.open('${convertDriveLink(n.driveLink, 'preview')}', '_blank'); updateNoteStat('${n.id}', 'view')">📄 Preview</button>
-                <button class="btn-download-pro" onclick="window.open('${convertDriveLink(n.driveLink, 'download')}', '_blank'); updateNoteStat('${n.id}', 'download')">📥 Download</button>
+                <button class="btn-download-pro" onclick="window.open('${convertDriveLink(n.driveLink, 'download')}', '_blank'); updateNoteStat('${n.id}', 'download')">
+                    Download
+                </button>
             </div>
         </div>
     `).join('');
+}
+
+window.toggleNoteDislike = async function (noteId) {
+    const { db, doc, updateDoc, increment } = getFirebase();
+    if (!db) return;
+    try {
+        const noteRef = doc(db, "notes", noteId);
+        await updateDoc(noteRef, {
+            dislikes: increment(1)
+        });
+    } catch (error) {
+        console.error("Error updating stats:", error);
+    }
+}
+
+window.toggleNoteBookmark = function (noteId) {
+    alert("📑 Note added to your bookmarks!");
 }
 
 

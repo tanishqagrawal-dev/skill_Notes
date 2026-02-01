@@ -6,7 +6,7 @@ window.uploadNoteToFirebase = async function (file, metadata) {
 
     try {
         // 1. Create Storage Path: notes/{college}/{branch}/{subject}/{filename}
-        const storagePath = `notes/${metadata.collegeId}/${metadata.branchId}/${metadata.subjectId}/${Date.now()}_${file.name}`;
+        const storagePath = `notes/${metadata.collegeId}/${metadata.branchId}/${metadata.subject || 'misc'}/${Date.now()}_${file.name}`;
         const storageRef = ref(storage, storagePath);
 
         // 2. Upload File
@@ -35,8 +35,7 @@ window.uploadNoteToFirebase = async function (file, metadata) {
                         driveLink: downloadURL,
                         fileType: file.type,
                         fileName: file.name,
-                        uploadedAt: new Date().toISOString(),
-                        status: 'approved', // Direct admin uploads are auto-approved
+                        status: metadata.status || 'approved',
                         views: 0,
                         downloads: 0,
                         likes: 0
