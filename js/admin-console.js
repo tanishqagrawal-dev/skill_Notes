@@ -73,58 +73,97 @@ window.AdminConsole = {
     },
 
     renderCoAdminManager: function () {
+        const colleges = window.GlobalData ? window.GlobalData.colleges : [];
+
         return `
-            <div class="grid-2-col" style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
+            <div class="grid-2-col" style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; align-items: start;">
                 <!-- Add Form -->
                 <div class="glass-card" style="padding: 2rem;">
-                    <h3 class="font-heading">➕ Assign Co-Admin</h3>
-                    <p style="color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem;">Grant college-level moderation rights.</p>
-                    
-                    <div class="form-group">
-                        <label>User Email</label>
-                        <input type="email" id="ca-email" class="input-field" placeholder="user@example.com" style="width:100%; margin-bottom: 1rem;">
+                    <div style="margin-bottom: 2rem;">
+                         <h3 class="font-heading" style="color:white; display:flex; align-items:center; gap:0.5rem;">
+                            <span style="background:linear-gradient(135deg, #7B61FF, #00F2FF); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">+ Assign Co-Admin</span>
+                         </h3>
+                         <p style="color: var(--text-dim); font-size: 0.9rem; margin-top:0.5rem;">Grant restricted moderation rights for a specific college.</p>
                     </div>
                     
-                    <div class="form-group">
-                        <label>Assign College</label>
-                        <select id="ca-college" class="input-field" style="width:100%; margin-bottom: 1.5rem; background:#000;">
-                            ${GlobalData.colleges.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                    <div class="admin-input-group" style="margin-bottom: 1.5rem;">
+                        <label>User Email address</label>
+                        <input type="email" id="ca-email" class="admin-input" placeholder="e.g. professor.j@college.edu">
+                    </div>
+                    
+                    <div class="admin-input-group" style="margin-bottom: 2rem;">
+                        <label>Assign University</label>
+                        <select id="ca-college" class="admin-input">
+                            <option value="" disabled selected>Select a college...</option>
+                            ${colleges.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
                         </select>
                     </div>
 
-                    <button class="btn btn-primary" onclick="AdminConsole.addCoAdmin()" style="width:100%;">Grant Access</button>
+                    <button class="btn btn-primary" onclick="AdminConsole.addCoAdmin()" style="width:100%; padding: 1rem; font-weight: 600; letter-spacing: 0.5px;">
+                        Grant Access Level
+                    </button>
+                    
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-glass); font-size: 0.8rem; color: var(--text-dim); line-height: 1.5;">
+                        <strong style="color: #F1C40F;">Note:</strong> The user must already be registered in the system. They will receive Co-Admin privileges immediately.
+                    </div>
                 </div>
 
                 <!-- List -->
-                <div class="glass-card" style="padding: 0; overflow: hidden;">
-                    <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-glass);">
-                        <h3 class="font-heading">Current Co-Admins</h3>
+                <div class="glass-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; height: 100%;">
+                    <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-glass); background: rgba(255,255,255,0.02); display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3 class="font-heading">Active Co-Admins</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-dim);">Manage existing access rights.</p>
+                        </div>
+                        <span class="status-indicator">
+                            <span class="dot"></span> ${this.state.coadmins.length} Active
+                        </span>
                     </div>
-                    <div class="table-container header-fixed" style="max-height: 500px; overflow-y: auto;">
-                        <table class="admin-table" style="width: 100%; border-collapse: collapse;">
-                            <thead style="background: rgba(255,255,255,0.05);">
+                    
+                    <div class="table-container custom-scroll" style="max-height: 600px; overflow-y: auto;">
+                        <table class="admin-table" style="width: 100%;">
+                            <thead>
                                 <tr>
-                                    <th style="padding: 1rem; text-align: left;">Name / Email</th>
-                                    <th style="padding: 1rem; text-align: left;">Assigned College</th>
-                                    <th style="padding: 1rem; text-align: right;">Action</th>
+                                    <th style="text-align: left; padding-left: 2rem;">Administrator</th>
+                                    <th style="text-align: left;">Assigned College</th>
+                                    <th style="text-align: right; padding-right: 2rem;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${this.state.coadmins.map(admin => `
-                                    <tr style="border-bottom: 1px solid var(--border-glass);">
-                                        <td style="padding: 1rem;">
-                                            <div><strong>${admin.name}</strong></div>
-                                            <div style="font-size: 0.8rem; color: var(--text-dim);">${admin.email}</div>
+                                    <tr>
+                                        <td style="padding-left: 2rem;">
+                                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                                <div style="width: 36px; height: 36px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white;">
+                                                    ${admin.name ? admin.name.charAt(0).toUpperCase() : 'U'}
+                                                </div>
+                                                <div>
+                                                    <div style="font-weight: 600; color: white;">${admin.name || 'Unknown User'}</div>
+                                                    <div style="font-size: 0.8rem; color: var(--text-dim);">${admin.email}</div>
+                                                </div>
+                                            </div>
                                         </td>
-                                        <td style="padding: 1rem;">
-                                            <span class="role-badge coadmin">${admin.college?.toUpperCase() || 'UNASSIGNED'}</span>
+                                        <td>
+                                            <span class="role-badge coadmin">
+                                                ${admin.college ? admin.college.toUpperCase() : 'UNASSIGNED'}
+                                            </span>
                                         </td>
-                                        <td style="padding: 1rem; text-align: right;">
-                                            <button class="btn-icon" style="color: #ff4757;" onclick="AdminConsole.removeCoAdmin('${admin.id}')">🗑️ Revoke</button>
+                                        <td style="text-align: right; padding-right: 2rem;">
+                                            <button class="btn-icon danger" onclick="AdminConsole.removeCoAdmin('${admin.id}')">
+                                                🗑️ Revoke Access
+                                            </button>
                                         </td>
                                     </tr>
                                 `).join('')}
-                                ${this.state.coadmins.length === 0 ? '<tr><td colspan="3" style="padding:2rem; text-align:center; color: var(--text-dim);">No Co-Admins assigned yet.</td></tr>' : ''}
+                                
+                                ${this.state.coadmins.length === 0 ? `
+                                    <tr>
+                                        <td colspan="3" style="padding: 4rem; text-align: center; color: var(--text-dim);">
+                                            <div style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;">👻</div>
+                                            No Co-Admins assigned yet.<br>Use the form to add one.
+                                        </td>
+                                    </tr>
+                                ` : ''}
                             </tbody>
                         </table>
                     </div>

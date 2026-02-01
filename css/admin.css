@@ -1,9 +1,46 @@
 /* Admin Console Specific Styles */
 
+/* Input Fields */
+.admin-input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    font-weight: 500;
+}
+
+.admin-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-glass);
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.admin-input:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(123, 97, 255, 0.2);
+}
+
+.admin-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+select.admin-input option {
+    background: #1a1a1a;
+    color: white;
+}
+
+
 /* KPI Cards */
 .admin-grid-kpi {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
@@ -14,41 +51,57 @@
 
 .kpi-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 /* Admin Tables */
+.admin-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
 .admin-table th {
-    font-weight: 500;
-    font-size: 0.85rem;
+    font-weight: 600;
+    font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border-glass);
+    padding: 1.2rem 1rem;
 }
 
 .admin-table td {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     color: var(--text-main);
+    padding: 1.2rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.admin-table tr:last-child td {
+    border-bottom: none;
 }
 
 .role-badge {
     display: inline-block;
-    padding: 0.25rem 0.6rem;
-    border-radius: 4px;
-    font-size: 0.7rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.role-badge.admin, .role-badge.superadmin {
+.role-badge.admin,
+.role-badge.superadmin {
     background: rgba(123, 97, 255, 0.15);
-    color: var(--primary-light);
-    border: 1px solid var(--border-primary);
+    color: #a29bfe;
+    border: 1px solid rgba(123, 97, 255, 0.3);
 }
 
 .role-badge.coadmin {
-    background: rgba(0, 242, 255, 0.15);
-    color: var(--secondary);
-    border: 1px solid rgba(0, 242, 255, 0.3);
+    background: rgba(0, 242, 255, 0.1);
+    color: #4cdffc;
+    border: 1px solid rgba(0, 242, 255, 0.2);
 }
 
 .role-badge.user {
@@ -56,6 +109,12 @@
     color: var(--text-muted);
 }
 
+.role-badge.unassigned {
+    background: rgba(255, 71, 87, 0.1);
+    color: #ff6b81;
+}
+
+/* Status Indicators */
 .status-indicator {
     display: inline-flex;
     align-items: center;
@@ -69,41 +128,62 @@
 }
 
 .status-indicator .dot {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     background: #2ecc71;
     border-radius: 50%;
-    box-shadow: 0 0 8px #2ecc71;
+    box-shadow: 0 0 10px #2ecc71;
     animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
-    0% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(1.1); }
-    100% { opacity: 1; transform: scale(1); }
+    0% {
+        opacity: 0.6;
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4);
+    }
+
+    70% {
+        opacity: 1;
+        box-shadow: 0 0 0 6px rgba(46, 204, 113, 0);
+    }
+
+    100% {
+        opacity: 0.6;
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0);
+    }
 }
 
 .table-container::-webkit-scrollbar {
     width: 6px;
 }
+
 .table-container::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 3px;
 }
 
 .btn-icon {
-    background: none;
-    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid transparent;
     cursor: pointer;
-    font-size: 1.1rem;
-    padding: 5px;
-    opacity: 0.7;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    color: var(--text-dim);
     transition: all 0.2s;
 }
 
 .btn-icon:hover {
-    opacity: 1;
-    transform: scale(1.1);
-    background: rgba(255,255,255,0.05);
-    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-icon.danger:hover {
+    background: rgba(255, 71, 87, 0.1);
+    color: #ff4757;
+    border-color: rgba(255, 71, 87, 0.3);
 }

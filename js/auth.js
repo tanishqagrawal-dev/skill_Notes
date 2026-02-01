@@ -45,19 +45,21 @@ if (isUserDashboard) {
     }
 }
 
-const SUPER_ADMIN_EMAIL = 'tanishqagrawal1103@gmail.com';
+const SUPER_ADMINS = ['tanishqagrawal1103@gmail.com', 'skilmatrix3@gmail.com'];
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         console.log("🔐 Auth Guard: Firebase session active for", user.email);
 
         const { db, doc, getDoc, setDoc, serverTimestamp } = window.firebaseServices || {};
+        const isSuperAdmin = SUPER_ADMINS.includes(user.email);
+
         let userData = {
             id: user.uid,
             name: user.displayName || user.email.split('@')[0],
             email: user.email,
             photo: user.photoURL,
-            role: (user.email === SUPER_ADMIN_EMAIL) ? 'superadmin' : 'user',
+            role: isSuperAdmin ? 'superadmin' : 'user',
             college: 'medicaps' // default
         };
 
@@ -68,17 +70,22 @@ onAuthStateChanged(auth, async (user) => {
 
                 if (userSnap.exists()) {
                     userData = { ...userData, ...userSnap.data() };
+                    // Force update role for hardcoded superadmins if not already set
+                    if (isSuperAdmin && userData.role !== 'superadmin') {
+                        userData.role = 'superadmin';
+                        await updateDoc(userRef, { role: 'superadmin' });
+                    }
                 } else {
                     // Initialize new user
-                    if (user.email === SUPER_ADMIN_EMAIL) userData.role = 'superadmin';
+                    if (isSuperAdmin) userData.role = 'superadmin';
                     await setDoc(userRef, {
                         ...userData,
                         createdAt: serverTimestamp()
                     });
                 }
 
-                // Hard-security override
-                if (user.email === SUPER_ADMIN_EMAIL) userData.role = 'superadmin';
+                // Hard-security override (client-side only, DB is auth of truth)
+                if (isSuperAdmin) userData.role = 'superadmin';
 
             } catch (err) {
                 console.error("Firestore Identity Sync Error:", err);
@@ -116,10 +123,24 @@ onAuthStateChanged(auth, async (user) => {
 
     } else {
         console.log("🔓 Auth Guard: No active Firebase session.");
-        const hasGuestSession = localStorage.getItem('guest_session');
 
-        if (!hasGuestSession && (isUserDashboard || isAdminDashboard || isCoAdminDashboard)) {
-            window.location.href = 'auth.html';
+        // CHECK FOR GUEST SESSION
+        const guestData = localStorage.getItem('guest_session');
+        if (guestData) {
+            console.log("👤 Guest session detected in Auth State Change.");
+            const guest = JSON.parse(guestData);
+            dispatchAuthReady({
+                user: { uid: guest.id, email: guest.email, displayName: guest.name },
+                currentUser: guest
+            });
+            // Ensure we are on the dashboard
+            if (isAuthPage || path === '/' || path.endsWith('index.html')) {
+                window.location.href = prefix + 'dashboard.html';
+            }
+        }
+        else if ((isUserDashboard || isAdminDashboard || isCoAdminDashboard)) {
+            // No user, no guest, but on protected page -> Redirect
+            window.location.href = prefix + 'auth.html';
         }
     }
 });
