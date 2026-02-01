@@ -564,6 +564,7 @@ function initTabs() {
     document.querySelectorAll('.nav-item').forEach(item => {
         // Remove old listeners to prevent duplicates? onclick overwrites so it's fine.
         item.onclick = (e) => {
+            if (!item.dataset.tab) return; // Allow normal links (like Back to Home) to work
             e.preventDefault();
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             item.classList.add('active');
