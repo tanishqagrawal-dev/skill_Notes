@@ -398,12 +398,8 @@ window.openUploadModal = async function () {
         return;
     }
 
-    // Check permission (Admin+)
-    const isUploader = ['admin', 'superadmin', 'coadmin'].includes(currentUser.role);
-    if (!isUploader) {
-        alert("🔒 Only contributors and admins can upload directly in this version.");
-        return;
-    }
+    // Check permission (Now allowing all logged in users to submit for approval)
+    // Direct status is still handled in handleDashboardNoteSubmit
 
     // Creating modal overlay if it doesn't exist
     let modal = document.getElementById('dashboard-upload-modal');
@@ -473,6 +469,7 @@ async function handleDashboardNoteSubmit(e) {
 
     const isSuperAdmin = currentUser.role === 'superadmin';
     const isCoAdmin = currentUser.role === 'coadmin';
+    const targetCollegeId = selState.college ? selState.college.id : (currentUser.collegeId || currentUser.college || 'medicaps');
     const userCollege = currentUser.collegeId || currentUser.college;
     const canPublishDirectly = isSuperAdmin || (isCoAdmin && targetCollegeId === userCollege);
 
@@ -909,7 +906,7 @@ function renderAITools() {
                             <p style="font-size: 0.9rem; color: var(--text-dim);">Click to upload file</p>
                             <p id="file-name-display" style="font-size: 0.8rem; color: var(--primary); margin-top: 0.5rem; font-weight: 500;"></p>
                         </div>
-                        <input type="file" id="ai-file-input" accept=".pdf,.png,.jpg,.jpeg,.txt" style="display: none;" onchange="handleAIFileUpload(this)">
+                        <input type="file" id="ai-file-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.png,.jpg,.jpeg" style="display: none;" onchange="handleAIFileUpload(this)">
                         
                         <!-- Hidden text area for fallback/content passing -->
                         <textarea id="ai-pyqs" style="display:none;"></textarea>
@@ -1297,9 +1294,9 @@ function renderVerificationHub() {
                     
                     <!-- File Drop -->
                     <div id="admin-drop-zone" style="border: 2px dashed var(--border-glass); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; cursor: pointer; transition: all 0.3s ease;">
-                        <input type="file" id="admin-file-input" accept=".pdf" style="display: none;">
+                        <input type="file" id="admin-file-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt" style="display: none;">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
-                        <p style="color: var(--text-dim);">Click or Drag PDF here</p>
+                        <p style="color: var(--text-dim);">Click or Drag PDF, DOCX, or PPT here</p>
                         <p id="selected-filename" style="color: var(--primary); margin-top: 0.5rem; font-weight: 600;"></p>
                     </div>
 
@@ -1391,8 +1388,16 @@ let selectedAdminFile = null;
 
 window.handleAdminFileSelect = function (file) {
     if (!file) return;
-    if (file.type !== 'application/pdf') {
-        alert("Please upload PDF files only.");
+    const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'text/plain'
+    ];
+    if (!allowedTypes.includes(file.type)) {
+        alert("Please upload supported document formats (PDF, Word, PPT, or Text).");
         return;
     }
     selectedAdminFile = file;
@@ -1407,7 +1412,7 @@ window.executeAdminUpload = async function () {
     }
 
     const metadata = {
-        title: document.getElementById('up-title').value || selectedAdminFile.name.replace('.pdf', ''),
+        title: document.getElementById('up-title').value || selectedAdminFile.name.replace(/\.[^/.]+$/, ""),
         collegeId: document.getElementById('up-college').value,
         streamId: document.getElementById('up-stream').value,
         branchId: document.getElementById('up-branch').value,
