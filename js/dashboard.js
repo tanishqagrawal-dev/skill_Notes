@@ -969,7 +969,9 @@ function renderOverview() {
         { id: 'u_admin', name: 'Admin Console', role: 'admin' }
     ];
 
-    setTimeout(initLiveCounters, 0); // Start animations
+    if (window.statServices && window.statServices.updateUI) {
+        setTimeout(window.statServices.updateUI, 0);
+    }
 
     return `
         <div class="tab-pane active fade-in" style="padding: 2rem;">
@@ -1080,35 +1082,7 @@ function renderOverview() {
 let unsubscribeLiveStat = null;
 
 // Live Counter Animation logic
-window.initLiveCounters = function () {
-    const liveEl = document.getElementById('live-students');
-    const downloadEl = document.getElementById('global-downloads');
-    const { db, doc, onSnapshot } = getFirebase();
-
-    if (unsubscribeLiveStat) unsubscribeLiveStat();
-
-    if (db && (liveEl || downloadEl)) {
-        // Listen to global stats for student count and downloads
-        const statsRef = doc(db, 'stats', 'global');
-        unsubscribeLiveStat = onSnapshot(statsRef, (snap) => {
-            if (snap.exists()) {
-                const data = snap.data();
-
-                // Update Live Students
-                if (liveEl) {
-                    const realCount = data.students || 0;
-                    const variance = Math.floor(Math.random() * 5) + 2;
-                    liveEl.innerText = (realCount + variance).toLocaleString();
-                }
-
-                // Update Global Downloads
-                if (downloadEl) {
-                    downloadEl.innerText = (data.downloads || 0).toLocaleString();
-                }
-            }
-        });
-    }
-}
+// Redundant initLiveCounters removed in favor of stats.js management
 
 // File Handler
 window.handleAIFileUpload = function (input) {

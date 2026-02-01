@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GR784CDF73"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q334FN7M78"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
 
-        gtag('config', 'G-GR784CDF73');
+        gtag('config', 'G-Q334FN7M78');
     </script>
     <link rel="shortcut icon" href="assets/logo.jpg" type="image/jpeg">
     <title>SKiL MATRiX Notes | Next-Gen Learning Platform</title>
@@ -38,31 +38,9 @@
     <!-- Cyber Grid Background -->
     <div class="cyber-grid"></div>
 
-    <!-- Navigation -->
-    <nav class="glass-nav">
-        <div class="container nav-content">
-            <div class="logo" style="display: flex; align-items: center; gap: 10px;">
-                <img src="assets/logo.jpg" alt="SKiL MATRiX" style="height: 40px; border-radius: 50%;">
-                <span class="logo-text">SKiL MATRiX <span class="highlight"
-                        style="font-weight: 800;">NOTES</span></span>
-            </div>
-            <div class="nav-links">
-                <a href="#features">Features</a>
-                <a href="pages/notes.html">Notes Hub</a>
-                <a href="pages/leaderboard.html">Leaderboard</a>
-                <a href="pages/dashboard.html">Dashboard</a>
-                <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" target="_blank"
-                    rel="noopener noreferrer">Community</a>
-                <button class="btn btn-primary" onclick="window.location.href='pages/auth.html'">Get
-                    Started</button>
-            </div>
-            <div class="mobile-toggle">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
-    </nav>
+    <!-- Navigation Hub -->
+    <div id="navbar-container"></div>
+    <script src="js/navbar.js"></script>
 
     <!-- Hero Section -->
     <section class="hero">
@@ -78,20 +56,21 @@
                 <p>The all-in-one platform for notes, AI-powered tools, and real-time progress tracking. Built by
                     students, for students.</p>
                 <div class="hero-cta">
-                    <button class="btn btn-primary btn-large" onclick="window.location.href='pages/notes.html'">Explore
+                    <button class="btn btn-primary btn-large"
+                        onclick="window.location.href='pages/dashboard.html?tab=notes'">Explore
                         Notes</button>
                 </div>
                 <div class="trust-stats">
                     <div class="stat-item">
-                        <span class="stat-val">1.2M+</span>
+                        <span class="stat-val" id="stat-views">...</span>
                         <span class="stat-label">Views</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-val">85K+</span>
+                        <span class="stat-val" id="stat-downloads">...</span>
                         <span class="stat-label">Downloads</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-val">12K+</span>
+                        <span class="stat-val" id="stat-active">...</span>
                         <span class="stat-label">Students</span>
                     </div>
                 </div>
@@ -327,12 +306,12 @@
                     <h4>Platform</h4>
                     <div id="footer-role-links">
                         <!-- Fallback Links -->
-                        <a href="pages/notes.html">Notes Hub</a>
+                        <a href="pages/dashboard.html?tab=notes">Notes Hub</a>
                         <a href="pages/dashboard.html">AI Tools</a>
                         <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" target="_blank"
                             rel="noopener noreferrer">Community</a>
                     </div>
-                    <a href="pages/leaderboard.html">Leaderboard</a>
+                    <a href="pages/dashboard.html?tab=leaderboard">Leaderboard</a>
                 </div>
 
                 <!-- Right Block: Company -->

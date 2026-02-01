@@ -327,7 +327,8 @@ function initRoleAwareLinks() {
     } else {
         // Default: Student
         links = [
-            { txt: 'Notes Hub', url: 'pages/notes.html' },
+            { txt: 'Notes Hub', url: 'pages/dashboard.html?tab=notes' },
+            { txt: 'Leaderboard', url: 'pages/dashboard.html?tab=leaderboard' },
             { txt: 'AI Study Planner', url: 'pages/dashboard.html?tab=planner' },
             { txt: 'Exam Strategist', url: 'pages/dashboard.html?tab=ai-tools' }
         ];

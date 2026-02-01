@@ -12,6 +12,7 @@ import {
 import { logEvent } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 
 const STATS_DOC_PATH = 'stats/global';
+let lastStatsData = null;
 
 /**
  * Initializes the statistics document in Firestore if it doesn't exist.
@@ -24,14 +25,15 @@ export async function initRealtimeStats() {
     try {
         const docSnap = await getDoc(statsRef);
 
-        // If document doesn't exist, OR if it contains the old test dummy data, reset to zero
+        // If document doesn't exist, OR if it contains the old test dummy data, reset to production start
         if (!docSnap.exists() || docSnap.data().views === 1210000) {
             await setDoc(statsRef, {
-                views: 0,
-                downloads: 0,
-                students: 0
+                views: 5, // Start with small numbers for realism
+                downloads: 2,
+                students: 0,
+                notes: 0
             });
-            console.log("📊 Production stats initialized at zero.");
+            console.log("📊 Production stats initialized.");
         }
 
         // Real-time listener
@@ -45,11 +47,11 @@ export async function initRealtimeStats() {
             console.error("❌ Firestore Snapshot Error:", error);
         });
 
-        // Also track a page view
+        // Track a page view
         trackPageView();
 
-        // Periodically check student count
-        updateStudentCount();
+        // Periodically refresh collection counts
+        refreshLiveCounts();
 
     } catch (error) {
         console.error("❌ Error initializing stats:", error);
@@ -57,10 +59,36 @@ export async function initRealtimeStats() {
 }
 
 /**
- * Increments the view counter in Firestore and logs to GA4.
+ * Syncs student and note counts from their respective collections.
+ */
+async function refreshLiveCounts() {
+    try {
+        // 1. Sync Students (Users)
+        const usersRef = collection(db, 'users');
+        const userSnap = await getDocs(usersRef);
+        const userCount = userSnap.size;
+
+        // 2. Sync Notes
+        const notesRef = collection(db, 'notes_approved');
+        const notesSnap = await getDocs(notesRef);
+        const notesCount = notesSnap.size;
+
+        const statsRef = doc(db, STATS_DOC_PATH);
+        await updateDoc(statsRef, {
+            students: userCount,
+            notes: notesCount
+        });
+
+        console.log(`📈 Synced live counts: ${userCount} students, ${notesCount} notes.`);
+    } catch (error) {
+        console.warn("⚠️ Counter sync failed:", error);
+    }
+}
+
+/**
+ * Increments the view counter in Firestore.
  */
 export async function trackPageView() {
-    console.log("📈 Tracking Page View...");
     const statsRef = doc(db, STATS_DOC_PATH);
     try {
         await updateDoc(statsRef, {
@@ -68,15 +96,14 @@ export async function trackPageView() {
         });
         logEvent(analytics, 'page_view_increment');
     } catch (error) {
-        console.warn("⚠️ Could not increment page views:", error);
+        console.warn("⚠️ View tracking failed.");
     }
 }
 
 /**
- * Increments the download counter in Firestore and logs to GA4.
+ * Increments the download counter in Firestore.
  */
 export async function trackDownload() {
-    console.log("📥 Tracking Download...");
     const statsRef = doc(db, STATS_DOC_PATH);
     try {
         await updateDoc(statsRef, {
@@ -84,7 +111,7 @@ export async function trackDownload() {
         });
         logEvent(analytics, 'file_download_increment');
     } catch (error) {
-        console.warn("⚠️ Could not increment downloads:", error);
+        console.warn("⚠️ Download tracking failed.");
     }
 }
 
@@ -92,68 +119,77 @@ export async function trackDownload() {
  * Updates UI elements based on Firestore data.
  */
 function updateUICounters(data) {
-    // 1. Update items in the Hero section (stat-item class)
-    document.querySelectorAll('.stat-item').forEach(item => {
-        const valEl = item.querySelector('.stat-val');
+    if (data) lastStatsData = data;
+    const stats = data || lastStatsData;
+    if (!stats) return;
+
+    // 1. Update Hero section & Global stat blocks
+    document.querySelectorAll('.stat-item, .footer-stats-block').forEach(item => {
+        const valEl = item.querySelector('.stat-val, #stat-views, #stat-downloads, #stat-active');
         const labelEl = item.querySelector('.stat-label');
-        if (!labelEl || !valEl) return;
+        if (!valEl) return;
 
+        // Use ID for specific targeting if available
+        if (valEl.id === 'stat-views') { valEl.innerText = formatStatValue(stats.views, true); return; }
+        if (valEl.id === 'stat-downloads') { valEl.innerText = formatStatValue(stats.downloads, true); return; }
+        if (valEl.id === 'stat-active' || (labelEl && labelEl.innerText.toLowerCase().includes('student'))) {
+            valEl.innerText = formatStatValue(stats.students, true);
+            return;
+        }
+
+        // Otherwise target by label text
+        if (!labelEl) return;
         const label = labelEl.innerText.toLowerCase();
-
-        if (label.includes('views')) valEl.innerText = formatStatValue(data.views);
-        if (label.includes('downloads')) valEl.innerText = formatStatValue(data.downloads);
-        if (label.includes('students')) valEl.innerText = formatStatValue(data.students);
+        if (label.includes('view')) valEl.innerText = formatStatValue(stats.views, true);
+        if (label.includes('download')) valEl.innerText = formatStatValue(stats.downloads, true);
+        if (label.includes('student')) valEl.innerText = formatStatValue(stats.students, true);
+        if (label.includes('note')) valEl.innerText = formatStatValue(stats.notes, true);
     });
 
-    // 2. Update items in the Live Stats section (by explicit IDs)
+    // 2. Specific IDs (Fallback/Direct)
     const elViews = document.getElementById('stat-views');
     const elDownloads = document.getElementById('stat-downloads') || document.getElementById('global-downloads');
     const elActive = document.getElementById('stat-active') || document.getElementById('live-students');
+    const elNotes = document.getElementById('stat-notes');
 
-    if (elViews) elViews.innerText = (data.views || 0).toLocaleString();
-    if (elDownloads) elDownloads.innerText = (data.downloads || 0).toLocaleString();
-    if (elActive) elActive.innerText = (data.students || 0).toLocaleString();
+    if (elViews) elViews.innerText = formatStatValue(stats.views, true);
+    if (elDownloads) elDownloads.innerText = formatStatValue(stats.downloads, true);
+    if (elActive) elActive.innerText = formatStatValue(stats.students, true);
+    if (elNotes) elNotes.innerText = formatStatValue(stats.notes, true);
 }
 
 /**
- * Attempts to count documents in the 'users' collection to update student count.
+ * Helper to format numbers with smart thresholds (50+, 100+, 1.2M+, etc.)
  */
-async function updateStudentCount() {
-    try {
-        const usersRef = collection(db, 'users');
-        const snapshot = await getDocs(usersRef);
-        const count = snapshot.size;
+function formatStatValue(num, usePlus = true) {
+    if (!num || num < 1) return '0';
 
-        if (count > 0) {
-            console.log(`👨‍🎓 Total students found: ${count}`);
-            const statsRef = doc(db, STATS_DOC_PATH);
-            await updateDoc(statsRef, {
-                students: count
-            });
+    // Requirements: 50+, 100+, 150+ logic for smaller numbers
+    if (num < 1000) {
+        if (num >= 50) {
+            // Floor to nearest 50
+            const floored = Math.floor(num / 50) * 50;
+            return floored + (usePlus ? '+' : '');
         }
-    } catch (error) {
-        // Silently fail if 'users' collection or permissions are missing
+        return num.toString();
     }
+
+    // K+ logic for medium numbers (1000 to 1M)
+    if (num < 1000000) {
+        return (num / 1000).toFixed(1) + 'K' + (usePlus ? '+' : '');
+    }
+
+    // M+ logic for large numbers
+    return (num / 1000000).toFixed(1) + 'M' + (usePlus ? '+' : '');
 }
 
 // Expose to window for non-module scripts
 window.statServices = {
     initRealtimeStats,
     trackPageView,
-    trackDownload
+    trackDownload,
+    updateUI: updateUICounters
 };
 
-// Auto-init if on dashboard or notes hub
-if (document.querySelector('.dashboard-body') || document.querySelector('.notes-page-container')) {
-    setTimeout(initRealtimeStats, 1000); // Small delay to ensure Firebase is ready
-}
-
-/**
- * Helper to format numbers like 1.2M+ or 85K+
- */
-function formatStatValue(num) {
-    if (!num) return '0';
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M+';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'K+';
-    return num.toString();
-}
+// Automatic initialization
+setTimeout(initRealtimeStats, 500); 

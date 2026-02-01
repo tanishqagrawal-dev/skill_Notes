@@ -13,7 +13,8 @@ const firebaseConfig = {
     projectId: "skill-notes",
     storageBucket: "skil-notes",
     messagingSenderId: "679937247629",
-    appId: "1:679937247629:web:708ae9818911a465d455c4"
+    appId: "1:679937247629:web:708ae9818911a465d455c4",
+    measurementId: "G-Q334FN7M78"
 };
 
 // Initialize Firebase

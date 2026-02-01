@@ -87,6 +87,13 @@ onAuthStateChanged(auth, async (user) => {
                 // Hard-security override (client-side only, DB is auth of truth)
                 if (isSuperAdmin) userData.role = 'superadmin';
 
+                // Sync to localStorage for non-module scripts like navbar.js
+                localStorage.setItem('auth_user', JSON.stringify({
+                    uid: userData.id,
+                    email: userData.email,
+                    role: userData.role
+                }));
+
             } catch (err) {
                 console.error("Firestore Identity Sync Error:", err);
             }
@@ -216,6 +223,7 @@ window.loginAsGuest = function () {
 
 window.handleLogout = async function () {
     localStorage.removeItem('guest_session');
+    localStorage.removeItem('auth_user');
     await signOut(auth);
     window.location.href = '../index.html';
 };

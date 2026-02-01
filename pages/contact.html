@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GR784CDF73"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q334FN7M78"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
 
-        gtag('config', 'G-GR784CDF73');
+        gtag('config', 'G-Q334FN7M78');
     </script>
     <!-- EmailJS SDK -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -148,23 +148,9 @@
     <!-- Cyber Grid Background -->
     <div class="cyber-grid"></div>
 
-    <!-- Navigation -->
-    <nav class="glass-nav">
-        <div class="container nav-content">
-            <div class="logo" onclick="window.location.href='../index.html'"
-                style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
-                <img src="../assets/logo.jpg" alt="SKiL MATRiX" style="height: 40px; border-radius: 50%;">
-                <span class="logo-text">SKiL MATRiX <span class="highlight"
-                        style="font-weight: 800;">NOTES</span></span>
-            </div>
-            <div class="nav-links">
-                <a href="../index.html">Home</a>
-                <a href="notes.html">Notes Hub</a>
-                <a href="leaderboard.html">Leaderboard</a>
-                <a href="dashboard.html?tab=overview">Dashboard</a>
-            </div>
-        </div>
-    </nav>
+    <!-- Navigation Hub -->
+    <div id="navbar-container"></div>
+    <script src="../js/navbar.js"></script>
 
     <div class="legal-page-container">
         <div class="legal-content-card">
@@ -352,12 +338,12 @@
                     <h4>Platform</h4>
                     <div id="footer-role-links">
                         <!-- Fallback Links -->
-                        <a href="notes.html">Notes Hub</a>
+                        <a href="dashboard.html?tab=notes">Notes Hub</a>
                         <a href="dashboard.html">AI Tools</a>
                         <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" target="_blank"
                             rel="noopener noreferrer">Community</a>
                     </div>
-                    <a href="leaderboard.html">Leaderboard</a>
+                    <a href="dashboard.html?tab=leaderboard">Leaderboard</a>
                 </div>
 
                 <!-- Right Block: Company -->

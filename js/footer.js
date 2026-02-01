@@ -13,24 +13,11 @@ function initFooterStats() {
     const statsContainer = document.getElementById('footer-stats');
     if (!statsContainer) return;
 
-    // Simulated "Live" Data
-    const stats = {
-        notes: 12482,
-        students: 3190,
-        downloads: 1200000
-    };
-
-    // Format numbers
-    const fmt = (n) => {
-        if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-        if (n >= 1000) return (n / 1000).toLocaleString();
-        return n;
-    };
-
+    // Provide the skeleton with IDs that stats.js can target
     statsContainer.innerHTML = `
-        <span>📚 ${fmt(stats.notes)} notes</span> &bull; 
-        <span>👥 ${fmt(stats.students)} students</span> &bull; 
-        <span>⬇️ ${fmt(stats.downloads)} downloads</span>
+        <span class="footer-stats-block">📚 <span id="stat-notes">...</span> notes</span> &bull; 
+        <span class="footer-stats-block">👥 <span id="stat-active">...</span> students</span> &bull; 
+        <span class="footer-stats-block">⬇️ <span id="stat-downloads">...</span> downloads</span>
     `;
 }
 
@@ -63,7 +50,8 @@ function initRoleAwareLinks() {
     } else {
         // Default: Student
         links = [
-            { txt: 'Notes Hub', url: p('notes.html') },
+            { txt: 'Notes Hub', url: p('dashboard.html?tab=notes') },
+            { txt: 'Leaderboard', url: p('dashboard.html?tab=leaderboard') },
             { txt: 'AI Study Planner', url: p('dashboard.html?tab=planner') },
             { txt: 'Exam Strategist', url: p('dashboard.html?tab=ai-tools') }
         ];
