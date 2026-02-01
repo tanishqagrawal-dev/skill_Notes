@@ -3,30 +3,23 @@ import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
     signOut,
     onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 // --- AUTH ROUTER/GUARD ---
 const path = window.location.pathname;
 const isAuthPage = path.endsWith('auth.html') || path.endsWith('auth') || path.endsWith('login.html') || path.endsWith('login');
 const isDashboardPage = path.endsWith('dashboard.html') || path.endsWith('dashboard') || path.includes('dashboard#');
 
-// --- IMMEDIATE GUEST INITIALIZATION ---
-// If on dashboard and no session exists, create a guest session immediately
-// This ensures the dashboard always has "someone" to show data for.
-if (isDashboardPage && !localStorage.getItem('guest_session')) {
-    console.log("👤 Auto-initializing Guest Session for direct access...");
-    const guest = {
-        id: 'guest_' + Math.random().toString(36).substr(2, 9),
-        name: 'Guest Tester',
-        email: 'guest@example.com',
-        role: 'student',
-        college: 'medicaps',
-        isGuest: true
-    };
-    localStorage.setItem('guest_session', JSON.stringify(guest));
-}
+// --- AUTH REDIRECT HANDLING ---
+// Handle the result of the redirect sign-in flow
+getRedirectResult(auth).catch((error) => {
+    console.error("Redirect Sign-in Error:", error);
+    if (isAuthPage) alert("Login Failed: " + error.message);
+});
 
 // Expose a way to check if auth is already handled
 window.authStatus = { ready: false, data: null };
@@ -75,7 +68,13 @@ onAuthStateChanged(auth, (user) => {
         }
     } else {
         console.log("🔓 Auth Guard: No active Firebase session.");
-        // If we are on dashboard, the immediate guest check above already handled the UI
+
+        // Final check: If no Firebase user AND no Guest Session, and we're on a protected page -> Redirect
+        const hasGuestSession = localStorage.getItem('guest_session');
+        if (!hasGuestSession && isDashboardPage) {
+            console.log("🚫 Access Denied: Redirecting to Login...");
+            window.location.href = 'auth.html';
+        }
     }
 });
 
@@ -114,7 +113,7 @@ if (isAuthPage) {
     if (googleBtn) {
         googleBtn.onclick = async () => {
             try {
-                await signInWithPopup(auth, provider);
+                await signInWithRedirect(auth, provider);
             } catch (err) {
                 alert("Google Login Failed: " + err.message);
             }
