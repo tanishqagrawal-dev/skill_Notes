@@ -1,5 +1,6 @@
-import { auth, provider, db } from './firebase-config.js';
 import {
+    auth,
+    provider,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signInWithPopup,
@@ -9,7 +10,9 @@ import {
     onAuthStateChanged,
     setPersistence,
     browserLocalPersistence
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+} from './firebase-config.js';
+
+console.log("🚀 Auth Script Loaded");
 
 // --- STEP 4: LAZY AUTH INITIALIZATION ---
 setPersistence(auth, browserLocalPersistence).catch(e => console.warn("Persistence Error:", e));
@@ -50,6 +53,7 @@ if (lastUser && (isUserDashboard || isAdminDashboard || isCoAdminDashboard)) {
         });
     } catch (e) {
         console.warn("Auth cache corrupted");
+        localStorage.removeItem('auth_user_full');
     }
 }
 
@@ -59,7 +63,7 @@ onAuthStateChanged(auth, async (user) => {
     if (user) {
         console.log("🔐 Auth Guard: Firebase session active for", user.email);
 
-        const { db, doc, getDoc, setDoc, serverTimestamp } = window.firebaseServices || {};
+        const { db, doc, getDoc, setDoc, serverTimestamp, updateDoc } = window.firebaseServices || {};
         const isSuperAdmin = SUPER_ADMINS.includes(user.email);
 
         let userData = {
@@ -110,7 +114,6 @@ onAuthStateChanged(auth, async (user) => {
         const role = userData.role;
 
         // --- REDIRECTION LOGIC ---
-        // --- REDIRECTION LOGIC ---
         const isInPagesDir = path.includes('/pages/');
         const prefix = isInPagesDir ? '' : 'pages/';
 
@@ -128,7 +131,7 @@ onAuthStateChanged(auth, async (user) => {
             return;
         }
 
-        if (isCoAdminDashboard && role !== 'coadmin' && role !== 'superadmin') { // Superadmin can view coadmin dash for debugging
+        if (isCoAdminDashboard && role !== 'coadmin' && role !== 'superadmin') {
             alert("⛔ Access Denied: Co-Admins Only");
             window.location.href = 'dashboard.html';
             return;
@@ -168,9 +171,12 @@ if (isAuthPage) {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
             const pass = document.getElementById('login-password').value;
+            console.log("Attempting email login...");
             try {
                 await signInWithEmailAndPassword(auth, email, pass);
+                console.log("Email login success");
             } catch (err) {
+                console.error("Login Failed:", err);
                 alert("Login Failed: " + err.message);
             }
         };
@@ -183,12 +189,15 @@ if (isAuthPage) {
             const email = document.getElementById('signup-email').value;
             const pass = document.getElementById('signup-password').value;
             const name = document.getElementById('signup-name').value;
+            console.log("Attempting signup...");
             try {
                 await createUserWithEmailAndPassword(auth, email, pass);
+                console.log("Signup success");
                 if (window.statServices && window.statServices.trackSignUp) {
                     window.statServices.trackSignUp('email');
                 }
             } catch (err) {
+                console.error("Signup Failed:", err);
                 alert("Signup Failed: " + err.message);
             }
         };
@@ -196,7 +205,9 @@ if (isAuthPage) {
 
     const googleBtn = document.getElementById('google-login');
     if (googleBtn) {
+        console.log("✅ Google Button Found");
         googleBtn.onclick = async () => {
+            console.log("🖱️ Google Button Clicked");
             try {
                 // Use Popup instead of Redirect for better local compatibility
                 const result = await signInWithPopup(auth, provider);
@@ -204,14 +215,13 @@ if (isAuthPage) {
                 if (window.statServices && window.statServices.trackSignUp) {
                     window.statServices.trackSignUp('google');
                 }
-
-                // Redirection is usually handled by onAuthStateChanged, 
-                // but we can force check here if needed.
             } catch (err) {
-                console.error("Google Login Error:", err);
+                console.error("❌ Google Login Error:", err);
                 alert("Google Login Failed: " + err.message);
             }
         };
+    } else {
+        console.error("❌ Google Button NOT Found");
     }
 }
 
