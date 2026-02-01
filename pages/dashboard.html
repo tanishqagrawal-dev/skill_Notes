@@ -74,8 +74,14 @@
                 <a href="#" class="nav-item" data-tab="ai-tools">
                     <span class="icon">🤖</span> AI Tools
                 </a>
+                <a href="#" class="nav-item" data-tab="private-drive">
+                    <span class="icon">🔒</span> Private Drive
+                </a>
                 <a href="#" class="nav-item" data-tab="leaderboard">
                     <span class="icon">🏆</span> Leaderboard
+                </a>
+                <a href="#" class="nav-item" data-tab="admin" id="admin-tab" style="display: none;">
+                    <span class="icon">⚡</span> Admin Console
                 </a>
                 <div class="nav-divider"></div>
                 <a href="#" class="nav-item" data-tab="settings">
@@ -91,13 +97,22 @@
             </div>
         </aside>
 
+        <!-- Private Drive Content -->
+        <div id="private-drive" class="tab-content" style="display: none;">
+            <!-- Content injected by JS -->
+        </div>
+
+        <!-- Admin Console Content -->
         <!-- Main Content -->
         <main class="main-content">
             <header class="top-bar glass-card">
+
                 <div class="search-bar">
-                    <input type="text" placeholder="Global search for notes, colleges or topics...">
+                    <input type="text" id="global-search-input"
+                        placeholder="Global search for notes, colleges or topics...">
                     <span class="search-icon">🔍</span>
                 </div>
+
                 <div class="top-actions">
                     <button class="btn btn-ghost notification-btn">🔔</button>
                     <button class="btn btn-primary upload-btn" style="border-radius: 12px; font-weight: 600;">+ Upload
@@ -167,8 +182,13 @@
     <script src="../js/settings.js" defer></script>
     <script src="../js/upload-helper.js" defer></script>
     <script type="module" src="../js/stats.js"></script>
+<<<<<<< HEAD
     <script src="../js/admin-console.js" defer></script>
     <script src="../js/dashboard.js?v=3" defer></script>
+=======
+    <script src="../js/admin-console.js"></script>
+    <script type="module" src="../js/dashboard.js?v=3"></script>
+>>>>>>> 5316a15c4147cdaca8c43f5da2cff87811898000
 </body>
 
 </html>
