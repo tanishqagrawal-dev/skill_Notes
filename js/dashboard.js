@@ -97,6 +97,7 @@ const GlobalData = {
         ]
     }
 };
+window.GlobalData = GlobalData;
 
 let NotesDB = [];
 let unsubscribeNotes = null;
@@ -507,56 +508,60 @@ async function handleDashboardNoteSubmit(e) {
     }
 }
 
+// --- TAB LOGIC ---
 function initTabs() {
-    const navItems = document.querySelectorAll('.nav-item');
     const sidebarNav = document.querySelector('.sidebar-nav');
     if (!sidebarNav || !currentUser) return;
 
-    // 1. Inject Dynamic Items based on Role
-    // Remove existing dynamic items
-    document.querySelectorAll('.nav-item.dynamic-node').forEach(n => n.remove());
+    // Reset Sidebar to Base State (Overview, Notes, Planner, AI Tools, Leaderboard)
+    // We assume HTML has the base items. We just append.
 
-    const isAdmin = ['admin', 'superadmin', 'coadmin'].includes(currentUser.role);
+    // Clear previously injected dynamic items
+    document.querySelectorAll('.dynamic-node').forEach(n => n.remove());
+
     const settingsNode = document.querySelector('[data-tab="settings"]');
 
-    // My Uploads (For Everyone)
-    const myUploads = document.createElement('a');
-    myUploads.href = "#";
-    myUploads.className = "nav-item dynamic-node";
-    myUploads.dataset.tab = "my-uploads";
-    myUploads.innerHTML = `<span class="icon">📤</span> My Uploads`;
+    // 1. My Uploads (For Everyone)
+    const myUploads = createNavItem('my-uploads', '📤', 'My Uploads');
     sidebarNav.insertBefore(myUploads, settingsNode);
 
-    if (isAdmin) {
-        const modItem = document.createElement('a');
-        modItem.href = "#";
-        modItem.className = "nav-item dynamic-node";
-        modItem.dataset.tab = "verification-hub";
-        modItem.innerHTML = `<span class="icon">🛡️</span> Moderation`;
-        sidebarNav.insertBefore(modItem, settingsNode);
+    // 2. Co-Admin Tools
+    if (currentUser.role === 'coadmin' || currentUser.role === 'superadmin') {
+        const modHub = createNavItem('coadmin-hub', '🛡️', 'Moderation Hub');
+        sidebarNav.insertBefore(modHub, settingsNode);
+
+        // Only pure coadmins get "My College Stats" explicitly here, admin sees all
+        if (currentUser.role === 'coadmin') {
+            const statsHub = createNavItem('college-stats', '📊', 'My College Stats');
+            sidebarNav.insertBefore(statsHub, settingsNode);
+        }
     }
 
-    if (currentUser.role === 'superadmin') {
-        const adminItem = document.createElement('a');
-        adminItem.href = "#";
-        adminItem.className = "nav-item dynamic-node";
-        adminItem.dataset.tab = "superadmin-panel";
-        adminItem.innerHTML = `<span class="icon">🔐</span> Admin Console`;
-        sidebarNav.insertBefore(adminItem, settingsNode);
+    // 3. Admin Tools
+    if (currentUser.role === 'admin' || currentUser.role === 'superadmin') {
+        const adminConsole = createNavItem('admin-console', '🚨', 'Command Center');
+        sidebarNav.insertBefore(adminConsole, settingsNode);
     }
 
-    // 2. Re-bind all listeners
-    document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
+    // Re-bind listeners
+    document.querySelectorAll('.nav-item').forEach(item => {
+        // Remove old listeners to prevent duplicates? onclick overwrites so it's fine.
         item.onclick = (e) => {
             e.preventDefault();
-            const tid = item.dataset.tab;
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             item.classList.add('active');
-            renderTabContent(tid);
+            renderTabContent(item.dataset.tab);
         };
     });
+}
 
-    updateUserProfileUI();
+function createNavItem(id, icon, label) {
+    const a = document.createElement('a');
+    a.href = "#";
+    a.className = "nav-item dynamic-node";
+    a.dataset.tab = id;
+    a.innerHTML = `<span class="icon">${icon}</span> ${label}`;
+    return a;
 }
 
 function updateUserProfileUI() {
@@ -645,7 +650,21 @@ function renderTabContent(tabId) {
                 <div id="my-uploads-grid" class="notes-grid-pro" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;"></div>
             </div>`;
             setTimeout(renderMyUploads, 100);
-        } else if (tabId === 'settings') {
+        }
+        // --- ROLE SPECIFIC ---
+        else if (tabId === 'admin-console') {
+            if (window.AdminConsole) contentArea.innerHTML = window.AdminConsole.render();
+            else contentArea.innerHTML = "<p>Loading Admin Console...</p>";
+        }
+        else if (tabId === 'coadmin-hub') {
+            if (window.CoAdminModule) contentArea.innerHTML = window.CoAdminModule.render();
+            else contentArea.innerHTML = "<p>Loading Moderation Hub...</p>";
+        }
+        else if (tabId === 'college-stats') {
+            contentArea.innerHTML = `<div class="tab-pane active fade-in"><h1 class="font-heading">College Stats</h1><p>Analytics module coming soon.</p></div>`;
+        }
+        // --- SETTINGS ---
+        else if (tabId === 'settings') {
             contentArea.innerHTML = window.renderSettings ? window.renderSettings() : 'Loading settings...';
         } else {
             contentArea.innerHTML = `<div class="tab-pane active"><h1 class="font-heading">${tabId}</h1><p>Module coming soon...</p></div>`;

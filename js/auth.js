@@ -12,7 +12,9 @@ import {
 // --- AUTH ROUTER/GUARD ---
 const path = window.location.pathname;
 const isAuthPage = path.endsWith('auth.html') || path.endsWith('auth') || path.endsWith('login.html') || path.endsWith('login');
-const isDashboardPage = path.endsWith('dashboard.html') || path.endsWith('dashboard') || path.includes('dashboard#');
+const isUserDashboard = path.endsWith('dashboard.html');
+const isAdminDashboard = path.endsWith('admin-dashboard.html');
+const isCoAdminDashboard = path.endsWith('coadmin-dashboard.html');
 
 // --- AUTH REDIRECT HANDLING ---
 // Handle the result of the redirect sign-in flow
@@ -27,12 +29,12 @@ window.authStatus = { ready: false, data: null };
 function dispatchAuthReady(data) {
     window.authStatus.ready = true;
     window.authStatus.data = data;
-    console.log("🚀 Dispatching auth-ready:", data.currentUser.name);
+    console.log("🚀 Dispatching auth-ready for:", data.currentUser.role);
     window.dispatchEvent(new CustomEvent('auth-ready', { detail: data }));
 }
 
-// Check for Guest Session (Local Storage) immediately
-if (isDashboardPage) {
+// Check for Guest Session (Local Storage)
+if (isUserDashboard) {
     const guestData = localStorage.getItem('guest_session');
     if (guestData) {
         const guest = JSON.parse(guestData);
@@ -56,7 +58,7 @@ onAuthStateChanged(auth, async (user) => {
             email: user.email,
             photo: user.photoURL,
             role: (user.email === SUPER_ADMIN_EMAIL) ? 'superadmin' : 'user',
-            college: 'medicaps' // Global default for now
+            college: 'medicaps' // default
         };
 
         if (db) {
@@ -65,45 +67,58 @@ onAuthStateChanged(auth, async (user) => {
                 const userSnap = await getDoc(userRef);
 
                 if (userSnap.exists()) {
-                    const storedData = userSnap.data();
-                    userData = { ...userData, ...storedData };
+                    userData = { ...userData, ...userSnap.data() };
                 } else {
-                    // Initialize new user in Firestore
-                    if (user.email === SUPER_ADMIN_EMAIL) {
-                        userData.role = 'superadmin';
-                    }
+                    // Initialize new user
+                    if (user.email === SUPER_ADMIN_EMAIL) userData.role = 'superadmin';
                     await setDoc(userRef, {
                         ...userData,
                         createdAt: serverTimestamp()
                     });
-                    console.log("🆕 New User Registered in Firestore");
                 }
 
-                // Hard-security override for Super Admin email even if DB is tampered
-                if (user.email === SUPER_ADMIN_EMAIL) {
-                    userData.role = 'superadmin';
-                }
+                // Hard-security override
+                if (user.email === SUPER_ADMIN_EMAIL) userData.role = 'superadmin';
 
             } catch (err) {
                 console.error("Firestore Identity Sync Error:", err);
             }
         }
 
-        if (isAuthPage) {
+        const role = userData.role;
+
+        // --- REDIRECTION LOGIC ---
+        // --- REDIRECTION LOGIC ---
+        const isInPagesDir = path.includes('/pages/');
+        const prefix = isInPagesDir ? '' : 'pages/';
+
+        if (isAuthPage || path === '/' || path.endsWith('index.html')) {
+            if (role === 'admin' || role === 'superadmin') window.location.href = prefix + 'admin-dashboard.html';
+            else if (role === 'coadmin') window.location.href = prefix + 'coadmin-dashboard.html';
+            else window.location.href = prefix + 'dashboard.html';
+            return;
+        }
+
+        // --- ACCESS GUARD ---
+        if (isAdminDashboard && role !== 'admin' && role !== 'superadmin') {
+            alert("⛔ Access Denied: Admins Only");
             window.location.href = 'dashboard.html';
             return;
         }
 
-        if (isDashboardPage) {
-            dispatchAuthReady({
-                user: user,
-                currentUser: userData
-            });
+        if (isCoAdminDashboard && role !== 'coadmin' && role !== 'superadmin') { // Superadmin can view coadmin dash for debugging
+            alert("⛔ Access Denied: Co-Admins Only");
+            window.location.href = 'dashboard.html';
+            return;
         }
+
+        dispatchAuthReady({ user, currentUser: userData });
+
     } else {
         console.log("🔓 Auth Guard: No active Firebase session.");
         const hasGuestSession = localStorage.getItem('guest_session');
-        if (!hasGuestSession && isDashboardPage) {
+
+        if (!hasGuestSession && (isUserDashboard || isAdminDashboard || isCoAdminDashboard)) {
             window.location.href = 'auth.html';
         }
     }
@@ -144,8 +159,14 @@ if (isAuthPage) {
     if (googleBtn) {
         googleBtn.onclick = async () => {
             try {
-                await signInWithRedirect(auth, provider);
+                // Use Popup instead of Redirect for better local compatibility
+                const result = await signInWithPopup(auth, provider);
+                console.log("Google Login Success:", result.user.email);
+
+                // Redirection is usually handled by onAuthStateChanged, 
+                // but we can force check here if needed.
             } catch (err) {
+                console.error("Google Login Error:", err);
                 alert("Google Login Failed: " + err.message);
             }
         };
@@ -164,7 +185,12 @@ window.loginAsGuest = function () {
         isGuest: true
     };
     localStorage.setItem('guest_session', JSON.stringify(guest));
-    window.location.href = 'dashboard.html';
+
+    // Dynamic Redirect
+    const path = window.location.pathname;
+    const isInPagesDir = path.includes('/pages/');
+    const prefix = isInPagesDir ? '' : 'pages/';
+    window.location.href = prefix + 'dashboard.html';
 };
 
 window.handleLogout = async function () {

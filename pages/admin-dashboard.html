@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GR784CDF73"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-GR784CDF73');
+    </script>
+    <link rel="shortcut icon" href="../assets/logo.jpg" type="image/jpeg">
+    <title>Dashboard | SKiL MATRiX Notes</title>
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/advanced_dashboard.css">
+    <link rel="stylesheet" href="../css/settings.css">
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+
+<body class="dashboard-body">
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar glass-card">
+            <div class="sidebar-header" style="display: flex; align-items: center; gap: 10px;">
+                <img src="../assets/logo.jpg" alt="SKiL MATRiX" style="height: 40px; border-radius: 50%;">
+                <span class="logo-text font-heading" style="font-size: 1.2rem;">SKiL MATRiX <span class="highlight"
+                        style="font-weight: 800;">NOTES</span></span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="../index.html" class="nav-item">
+                    <span class="icon">⬅️</span> Back to Home
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-item active" data-tab="overview">
+                    <span class="icon">📊</span> Dashboard
+                </a>
+                <a href="#" class="nav-item" data-tab="notes">
+                    <span class="icon">📚</span> Notes Hub
+                </a>
+                <a href="#" class="nav-item" data-tab="planner">
+                    <span class="icon">📅</span> Study Planner
+                </a>
+                <a href="#" class="nav-item" data-tab="ai-tools">
+                    <span class="icon">🤖</span> AI Tools
+                </a>
+                <a href="#" class="nav-item" data-tab="leaderboard">
+                    <span class="icon">🏆</span> Leaderboard
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-item" data-tab="settings">
+                    <span class="icon">⚙️</span> Settings
+                </a>
+            </nav>
+            <div class="user-profile-mini">
+                <div class="avatar">T</div>
+                <div class="user-info">
+                    <span class="name">Tanishq</span>
+                    <span class="meta" style="font-size: 0.75rem; color: var(--text-dim); display: block;">User</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar glass-card">
+                <div class="search-bar">
+                    <input type="text" placeholder="Global search for notes, colleges or topics...">
+                    <span class="search-icon">🔍</span>
+                </div>
+                <div class="top-actions">
+                    <button class="btn btn-ghost notification-btn">🔔</button>
+                    <button class="btn btn-primary upload-btn" style="border-radius: 12px; font-weight: 600;">+ Upload
+                        Note</button>
+                </div>
+            </header>
+
+            <div class="content-area" id="tab-content">
+                <!-- Content will be injected dynamically by dashboard.js -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Dynamic Dashboard Engine -->
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script type="module" src="../js/auth.js"></script>
+    <script src="../js/ai-client.js"></script>
+    <script src="../js/settings.js"></script>
+    <script src="../js/upload-helper.js"></script>
+    <script type="module" src="../js/stats.js"></script>
+    <script src="../js/admin-console.js"></script>
+    <script src="../js/coadmin-module.js"></script>
+    <script type="module" src="../js/dashboard.js"></script>
+</body>
+
+</html>
