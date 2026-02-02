@@ -1378,3 +1378,293 @@
 .user-profile-mini {
     flex-shrink: 0;
 }
+
+/* --- New Upload Note Modal Styles --- */
+.upload-card {
+    width: 600px;
+    padding: 32px 36px 28px;
+    border-radius: 22px;
+    background: linear-gradient(145deg, rgba(16, 24, 48, 0.96), rgba(5, 8, 20, 0.98));
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(120, 144, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+    margin: auto;
+    /* Center in modal wrapper */
+}
+
+.upload-card::before {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    background:
+        radial-gradient(circle at 0 0, rgba(0, 255, 213, 0.16), transparent 60%),
+        radial-gradient(circle at 100% 100%, rgba(123, 97, 255, 0.2), transparent 60%);
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.upload-card h2 {
+    position: relative;
+    margin: 0;
+    font-size: 24px;
+    letter-spacing: 0.04em;
+    background: linear-gradient(90deg, #e8f0ff, #7af3ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    width: fit-content;
+}
+
+.subtitle {
+    position: relative;
+    margin: 6px 0 24px;
+    font-size: 13px;
+    color: #9caad6;
+}
+
+.upload-form {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 18px;
+}
+
+.upload-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    color: #bcc7ff;
+}
+
+.upload-form .form-group.full {
+    grid-column: 1 / -1;
+}
+
+.upload-form label {
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-size: 11px;
+    color: #93a0d9;
+}
+
+.upload-form input,
+.upload-form select {
+    border-radius: 12px;
+    border: 1px solid rgba(114, 137, 255, 0.35);
+    background: radial-gradient(circle at 0 0, rgba(86, 120, 255, 0.16), rgba(7, 9, 24, 0.96));
+    padding: 10px 12px;
+    color: #e8f0ff;
+    font-size: 13px;
+    outline: none;
+    transition: border 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    width: 100%;
+}
+
+/* --- UTILITIES --- */
+.spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #66ffe3;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 2rem auto;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.upload-form select option {
+    background-color: #050814;
+    color: #e8f0ff;
+}
+
+.upload-form input::placeholder {
+    color: #6470a0;
+}
+
+.upload-form input:focus,
+.upload-form select:focus {
+    border-color: #66ffe3;
+    box-shadow: 0 0 0 1px rgba(102, 255, 227, 0.3);
+    background: radial-gradient(circle at 0 0, rgba(0, 255, 213, 0.12), rgba(7, 9, 24, 0.96));
+}
+
+.primary-btn {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+    border: none;
+    border-radius: 999px;
+    padding: 11px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: #050712;
+    background: linear-gradient(120deg, #66ffe3, #7f7dff, #ff91f8);
+    box-shadow:
+        0 12px 30px rgba(0, 0, 0, 0.9),
+        0 0 16px rgba(111, 255, 227, 0.55);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+
+.primary-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+}
+
+.primary-btn:active {
+    transform: translateY(1px) scale(0.99);
+    box-shadow:
+        0 6px 18px rgba(0, 0, 0, 0.9),
+        0 0 10px rgba(111, 255, 227, 0.4);
+}
+
+.upload-form input[type="file"] {
+    padding: 8px 10px;
+    cursor: pointer;
+}
+
+.upload-form input[type="file"]::file-selector-button {
+    margin-right: 10px;
+    border: none;
+    border-radius: 999px;
+    padding: 7px 14px;
+    background: linear-gradient(120deg, #66ffe3, #7f7dff);
+    color: #050712;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* --- PREMIUM NOTE CARDS (SUBJECT PAGE) --- */
+.detailed-item.glass-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.detailed-item.glass-card:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(102, 255, 227, 0.2);
+    transform: translateX(4px);
+}
+
+.item-left {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.note-icon-pro {
+    color: #66ffe3;
+    opacity: 0.9;
+    padding-top: 4px;
+}
+
+.item-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+}
+
+.item-meta-row {
+    display: flex;
+    gap: 1.2rem;
+    align-items: center;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.uploader-mini {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.uploader-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--secondary);
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.item-actions-bottom {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.action-btn-mini {
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    border-radius: 6px;
+    padding: 4px 10px;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.action-btn-mini:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.bookmark-icon {
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.bookmark-icon:hover {
+    color: #ff91f8;
+}
+
+.download-btn-pro {
+    background: #ffffff;
+    color: #050712;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.download-btn-pro:hover {
+    background: #e0e0e0;
+    transform: translateY(-2px);
+}
+
+.download-btn-pro:active {
+    transform: translateY(0);
+}

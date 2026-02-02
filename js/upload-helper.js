@@ -5,8 +5,18 @@ window.uploadNoteToFirebase = async function (file, metadata) {
     if (!file) return;
 
     try {
-        // 1. Create Storage Path: notes/{college}/{branch}/{subject}/{filename}
-        const storagePath = `notes/${metadata.collegeId}/${metadata.branchId}/${metadata.subject || 'misc'}/${Date.now()}_${file.name}`;
+        // 1. Create Storage Path logic matching user request:
+        // medicaps university/b.tech/cse/sem-4/operating-system
+
+        const clean = (val) => val ? val.toString().toLowerCase().trim().replace(/ /g, ' ') : 'misc';
+
+        const college = clean(metadata.collegeName || metadata.collegeId);
+        const stream = clean(metadata.stream).replace(' undergraduate', 'b.tech').replace(' postgraduate', 'm.tech'); // Handle legacy values
+        const branch = clean(metadata.branchId || metadata.branch);
+        const sem = metadata.semester ? (metadata.semester.toString().toLowerCase().startsWith('sem') ? metadata.semester : `sem-${metadata.semester}`) : 'misc';
+        const subject = clean(metadata.subjectName || metadata.subject);
+
+        const storagePath = `notes/${college}/${stream}/${branch}/${sem}/${subject}/${Date.now()}_${file.name}`;
         const storageRef = ref(storage, storagePath);
 
         // 2. Upload File

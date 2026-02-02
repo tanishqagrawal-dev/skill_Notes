@@ -60,7 +60,10 @@ service cloud.firestore {
                     (isCoAdmin() && (resource.data.collegeId == getUserData().collegeId || resource.data.college == getUserData().college));
     }
 
-    // --- Notes Approved ---
+    // --- Legacy Collections (Optional/Deprecated) ---
+    match /notes_pending/{noteId} {
+      allow read, write: if true; 
+    }
     match /notes_approved/{noteId} {
       allow read: if true; // Public access to approved notes
       allow create: if isAdmin() || (isCoAdmin() && (request.resource.data.collegeId == getUserData().collegeId || request.resource.data.college == getUserData().college));

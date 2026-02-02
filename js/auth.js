@@ -146,6 +146,8 @@ export async function initAuth() {
                 else if (role === 'coadmin') window.location.href = prefix + 'coadmin-dashboard.html';
                 else window.location.href = prefix + 'dashboard.html';
                 return;
+                */
+                console.log("⏸️ Auto-redirect paused on Auth Page as per user request.");
             }
 
             // --- ACCESS GUARD ---
@@ -175,9 +177,12 @@ export async function initAuth() {
                 });
                 // Ensure we are on the dashboard
                 if (isAuthPage || path === '/' || path.endsWith('index.html')) {
+                    /*
                     const isInPagesDir = path.includes('/pages/');
                     const prefix = isInPagesDir ? '' : 'pages/';
                     window.location.href = prefix + 'dashboard.html';
+                    */
+                    console.log("⏸️ Guest Auto-redirect paused.");
                 }
             }
             else if ((isUserDashboard || isAdminDashboard || isCoAdminDashboard)) {
