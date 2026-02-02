@@ -4,29 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Google Analytics (Deferred for Speed) -->
+    <!-- Google Analytics (GA4) - Standard Async -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q334FN7M78"></script>
     <script>
-        const GA_ID = 'G-Q334FN7M78';
-        function initGA() {
-            const script = document.createElement('script');
-            script.async = true;
-            script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
-            document.head.appendChild(script);
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-Q334FN7M78', {
+            send_page_view: true
+        });
 
-            window.dataLayer = window.dataLayer || [];
-            function gtag() { dataLayer.push(arguments); }
-            window.gtag = gtag; // Export to global for other scripts
-            gtag('js', new Date());
-            gtag('config', GA_ID, { send_page_view: true });
-            console.log("📊 Analytics Initialized (Background)");
-        }
-
-        // Load GA during idle time to not block UI
-        if ('requestIdleCallback' in window) {
-            requestIdleCallback(initGA);
-        } else {
-            setTimeout(initGA, 3000);
-        }
+        // Expose helper for SPA
+        window.trackSPAView = (path) => {
+            gtag('event', 'page_view', { page_path: path });
+        };
     </script>
     <link rel="shortcut icon" href="../assets/logo.jpg" type="image/jpeg">
     <title>Dashboard | SKiL MATRiX Notes</title>
@@ -131,22 +122,26 @@
                         const raw = localStorage.getItem('auth_user_full') || localStorage.getItem('guest_session');
                         const cachedUser = raw ? JSON.parse(raw) : null;
 
-                        if (cachedUser) {
-                            const name = (cachedUser.name || 'Scholar').split(' ')[0];
-                            const roleLabel = cachedUser.role !== 'user' ? `🛡️ Verified ${cachedUser.role.toUpperCase()}` : `${cachedUser.year || '3rd Year'} • ${cachedUser.branch || 'CSE'}`;
+                        // Optimized: Always render skeleton first for perceived performance
+                        const name = cachedUser ? (cachedUser.name || 'Scholar').split(' ')[0] : '...';
+                        const roleLabel = cachedUser ? (cachedUser.role !== 'user' ? `🛡️ Verified ${cachedUser.role.toUpperCase()}` : `${cachedUser.year || '3rd Year'} • ${cachedUser.branch || 'CSE'}`) : 'Loading Profile...';
 
-                            document.write(`
+                        document.write(`
                                 <div id="instant-view" class="tab-pane active fade-in" style="padding: 2rem;">
                                     <div style="margin-bottom: 2.5rem;">
-                                        <h1 class="font-heading" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Welcome back, <span class="gradient-text">${name}</span> 👋</h1>
-                                        <p style="color: var(--text-dim); font-size: 1.1rem;">${roleLabel}</p>
+                                        <h1 class="font-heading" style="font-size: 2.5rem; margin-bottom: 0.5rem;">
+                                            ${cachedUser ? `Welcome back, <span class="gradient-text">${name}</span> 👋` : `<div class="skeleton" style="height: 40px; width: 300px; border-radius: 8px;"></div>`}
+                                        </h1>
+                                        <p style="color: var(--text-dim); font-size: 1.1rem;">
+                                            ${cachedUser ? roleLabel : `<div class="skeleton" style="height: 20px; width: 200px; margin-top: 10px; border-radius: 4px;"></div>`}
+                                        </p>
                                     </div>
                                     
                                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
-                                        <div class="glass-card skeleton skeleton-card"></div>
-                                        <div class="glass-card skeleton skeleton-card"></div>
-                                        <div class="glass-card skeleton skeleton-card"></div>
-                                        <div class="glass-card skeleton skeleton-card"></div>
+                                        <div class="glass-card skeleton skeleton-card" style="height: 120px;"></div>
+                                        <div class="glass-card skeleton skeleton-card" style="height: 120px;"></div>
+                                        <div class="glass-card skeleton skeleton-card" style="height: 120px;"></div>
+                                        <div class="glass-card skeleton skeleton-card" style="height: 120px;"></div>
                                     </div>
 
                                     <div class="glass-card" style="padding: 2.5rem; border-radius: 20px; min-height: 400px; background: rgba(255,255,255,0.01);">
@@ -158,17 +153,9 @@
                                             <div class="skeleton skeleton-text" style="width: 90%;"></div>
                                         </div>
                                     </div>
-                                    <p style="text-align: center; margin-top: 3rem; color: var(--text-dim); font-size: 0.8rem; letter-spacing: 1px; opacity: 0.5;">⚡ ASYNC CLOUD SYNC IN PROGRESS...</p>
                                 </div>
                             `);
-                        } else {
-                            document.write(`
-                                <div id="initial-loader" style="display: flex; justify-content: center; align-items: center; min-height: 500px; flex-direction: column; gap: 1.5rem;">
-                                    <div class="loader-pro"></div>
-                                    <p style="color: var(--text-dim); font-family: var(--font-mono); letter-spacing: 2px; font-size: 0.8rem;">ESTABLISHING SECURE MATRIX...</p>
-                                </div>
-                            `);
-                        }
+
                     })();
                 </script>
             </div>
@@ -176,14 +163,34 @@
     </div>
 
     <!-- Dynamic Dashboard Engine -->
+    <!-- Dynamic Dashboard Engine (True Lazy Load) -->
     <script type="module" src="../js/firebase-config.js"></script>
-    <script type="module" src="../js/auth.js"></script>
     <script src="../js/ai-client.js" defer></script>
     <script src="../js/settings.js" defer></script>
     <script src="../js/upload-helper.js" defer></script>
     <script type="module" src="../js/stats.js"></script>
     <script src="../js/admin-console.js" defer></script>
-    <script type="module" src="../js/dashboard.js?v=3"></script>
+
+    <script type="module">
+        import { initAuth } from '../js/auth.js';
+
+        // Golden Rule: Render UI first, then init Firebase/Auth
+        // requestIdleCallback ensures the main thread is free for rendering skeleton
+        const startApp = () => {
+            console.log("🚦 Starting App Initialization...");
+            import('../js/dashboard.js?v=4').then(module => {
+                console.log("📦 Dashboard Module Loaded");
+            });
+
+            initAuth();
+        };
+
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => setTimeout(startApp, 100));
+        } else {
+            setTimeout(startApp, 200);
+        }
+    </script>
 </body>
 
 </html>

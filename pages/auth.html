@@ -138,7 +138,12 @@
     </div>
 
     <!-- Scripts -->
-    <script type="module" src="../js/auth.js"></script>
+    <!-- Scripts -->
+    <script type="module">
+        import { initAuth } from '../js/auth.js';
+        // Initialize Auth Listeners (Forms, Google Btn)
+        initAuth();
+    </script>
     <script>
         // Star Field Background Generator
         const starsContainer = document.getElementById('stars');
