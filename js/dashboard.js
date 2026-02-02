@@ -26,11 +26,7 @@ function getFirebase() {
 }
 
 // --- MOCK DATA ---
-const MockUsers = [
-    { id: 'u_user', name: 'Rohan Sharma', email: 'rohan@example.com', role: 'user', college: 'medicaps', branch: 'CSE', year: '3rd Year' },
-    { id: 'u_coadmin', name: 'Prof. Jain', email: 'jain@medicaps.ac.in', role: 'coadmin', college: 'medicaps', branch: 'CSE', year: 'Faculty' },
-    { id: 'u_admin', name: 'Dean Admin', email: 'admin@medicaps.ac.in', role: 'admin', college: 'medicaps', branch: 'All', year: 'Staff' }
-];
+
 
 // --- RBAC & USER SYSTEM ---
 const Roles = {
@@ -619,24 +615,7 @@ function updateUserProfileUI() {
     if (existingLogout) existingLogout.remove();
 }
 
-window.switchRole = function (userId, role, name) {
-    const user = MockUsers.find(u => u.id === userId) || { id: userId, role, name, email: 'demo@example.com', college: 'medicaps' };
 
-    console.log(`🛠️ Switching to role: ${role} (${name})`);
-
-    // Simulate auth-ready event data structure
-    handleAuthReady({
-        user: { uid: user.id, email: user.email },
-        currentUser: { ...user, role, name } // Override with passed values for demo
-    });
-
-    // Switch to Overview
-    const overviewTab = document.querySelector('.nav-item[data-tab="overview"]');
-    if (overviewTab) {
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        overviewTab.classList.add('active');
-    }
-};
 
 function renderTabContent(tabId) {
     const contentArea = document.getElementById('tab-content');
@@ -1008,12 +987,7 @@ function renderOverview() {
         { name: 'Mathematics-III', progress: 30, color: '#e74c3c' }
     ];
 
-    // Mock Users for Role Switcher (Demo Mode)
-    const mockUsers = [
-        { id: 'u_user', name: 'Rohan (User)', role: 'user' },
-        { id: 'u_coadmin', name: 'Dr. Jain (Co-Admin)', role: 'coadmin' },
-        { id: 'u_admin', name: 'Admin Console', role: 'admin' }
-    ];
+
 
     if (window.statServices && window.statServices.updateUI) {
         setTimeout(window.statServices.updateUI, 0);
@@ -1104,23 +1078,7 @@ function renderOverview() {
                 </div>
             </div>
 
-            <!-- Role Switcher (Developer Only) -->
-            ${(currentUser.role === 'admin' || currentUser.role === 'superadmin') ? `
-             <div style="margin-top: 3rem; padding: 1.5rem; background: rgba(108, 99, 255, 0.05); border-radius: 16px; border: 1px dashed var(--border-glass);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
-                    <h4 class="font-heading" style="font-size: 1rem;">🛠️ Quick Role Switcher (Demo)</h4>
-                </div>
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    ${mockUsers.map(u => `
-                        <button class="btn btn-sm ${currentUser.id === u.id ? 'btn-primary' : 'btn-ghost'}" 
-                                onclick="switchRole('${u.id}', '${u.role}', '${u.name}')" 
-                                style="font-size: 0.75rem;">
-                            👤 ${u.name}
-                        </button>
-                    `).join('')}
-                </div>
-            </div>
-            ` : ''}
+
         </div>
     `;
 }

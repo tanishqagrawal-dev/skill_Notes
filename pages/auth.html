@@ -14,6 +14,14 @@
     <!-- CSS -->
     <link rel="stylesheet" href="../css/auth.css">
     <link rel="shortcut icon" href="../assets/logo.jpg" type="image/jpeg">
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KSCJTPP875"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-KSCJTPP875', { anonymize_ip: true });
+    </script>
 </head>
 
 <body>
@@ -143,6 +151,11 @@
         import { initAuth } from '../js/auth.js';
         // Initialize Auth Listeners (Forms, Google Btn)
         initAuth();
+
+        // Track Auth Page View
+        if (typeof gtag === 'function') {
+            gtag('event', 'page_view', { page_title: 'Authentication', page_path: '/auth' });
+        }
     </script>
     <script>
         // Star Field Background Generator

@@ -71,9 +71,9 @@ service cloud.firestore {
     // --- Stats ---
     match /stats/{statId} {
       allow read: if true;
-      allow update: if (request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly(['views', 'downloads'])) || isAdmin() || isCoAdmin();
-      allow create, delete: if isAdmin();
+      allow create, update: if (request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['views', 'downloads', 'students', 'notes'])) || isAdmin() || isCoAdmin();
+      allow delete: if isAdmin();
     }
 
     // --- Support Queries ---

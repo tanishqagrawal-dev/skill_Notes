@@ -4,10 +4,26 @@ function getFirebase() {
 }
 
 const STATS_DOC_PATH = 'stats/global';
-let lastStatsData = null;
+let lastStatsData = { views: 0, downloads: 0, students: 0, notes: 0 };
+let isInitStarted = false;
 
 export async function initRealtimeStats() {
+    if (isInitStarted) return;
+    isInitStarted = true;
+
     console.log("🚀 Initializing Real-time Stats...");
+
+    // Listen for Auth Ready to sync counts (since counting users needs auth)
+    window.addEventListener('auth-ready', () => {
+        console.log("🔐 Auth Ready: Syncing live counts...");
+        refreshLiveCounts();
+    });
+
+    // Check if auth is already ready
+    if (window.authStatus?.ready) {
+        refreshLiveCounts();
+    }
+
     // Instant fallback to remove '...'
     updateUICounters({ views: 0, downloads: 0, students: 0, notes: 0 });
 
@@ -53,22 +69,28 @@ export async function initRealtimeStats() {
 }
 
 export async function trackPageView() {
-    const { db, doc, updateDoc, increment } = getFirebase();
+    const { db, doc, setDoc, increment } = getFirebase();
     if (!db) return;
 
     const statsRef = doc(db, STATS_DOC_PATH);
     try {
-        await updateDoc(statsRef, {
+        await setDoc(statsRef, {
             views: increment(1)
-        });
+        }, { merge: true });
     } catch (error) {
-        console.warn("⚠️ View increment skipped");
+        console.warn("⚠️ View increment skipped", error);
     }
 }
 
 async function refreshLiveCounts() {
-    const { db, collection, updateDoc, doc, getCountFromServer } = getFirebase();
+    const { db, collection, doc, getCountFromServer, auth, setDoc } = getFirebase();
     if (!db) return;
+
+    // IMPORTANT: Only authenticated users can count all users due to security rules.
+    if (!auth || !auth.currentUser) {
+        console.log("⏭️ Skipping count sync (Guest mode)");
+        return;
+    }
 
     try {
         const usersRef = collection(db, 'users');
@@ -83,20 +105,16 @@ async function refreshLiveCounts() {
         const notesCount = notesSnap.data().count;
 
         // INSTANT UI UPDATE
-        if (lastStatsData) {
-            lastStatsData.students = studentCount;
-            lastStatsData.notes = notesCount;
-            updateUICounters(lastStatsData);
-        }
+        lastStatsData.students = studentCount;
+        lastStatsData.notes = notesCount;
+        updateUICounters(lastStatsData);
 
-        if (studentCount > 0 || notesCount > 0) {
-            const statsRef = doc(db, STATS_DOC_PATH);
-            await updateDoc(statsRef, {
-                students: studentCount,
-                notes: notesCount
-            });
-            console.log(`📈 Synced Counts: ${studentCount} Students, ${notesCount} Notes`);
-        }
+        const statsRef = doc(db, STATS_DOC_PATH);
+        await setDoc(statsRef, {
+            students: studentCount,
+            notes: notesCount
+        }, { merge: true });
+        console.log(`📈 Synced Counts: ${studentCount} Students, ${notesCount} Notes`);
     } catch (error) {
         console.warn("Stats sync skipped:", error);
     }
@@ -108,16 +126,16 @@ async function refreshLiveCounts() {
 
 
 export async function trackDownload() {
-    const { db, doc, updateDoc, increment } = getFirebase();
+    const { db, doc, setDoc, increment } = getFirebase();
     if (!db) return;
 
     const statsRef = doc(db, STATS_DOC_PATH);
     try {
-        await updateDoc(statsRef, {
+        await setDoc(statsRef, {
             downloads: increment(1)
-        });
+        }, { merge: true });
     } catch (error) {
-        console.warn("⚠️ Download increment skipped");
+        console.warn("⚠️ Download increment skipped", error);
     }
 }
 
@@ -131,6 +149,9 @@ export function trackGA4PageView(title = document.title, path = window.location.
         console.log(`📊 GA4 Page View tracked: ${path}`);
     }
 }
+
+// Global alias for SPA tracking
+window.trackSPAView = trackGA4PageView;
 
 export function trackNoteView(noteId, collegeName, subjectName) {
     if (typeof gtag === 'function') {
@@ -209,13 +230,7 @@ function updateUICounters(data) {
 
 function formatStatValue(num, usePlus = true) {
     if (!num || num < 1) return '0';
-    if (num < 1000) {
-        if (num >= 50) {
-            const floored = Math.floor(num / 50) * 50;
-            return floored + (usePlus ? '+' : '');
-        }
-        return num.toString();
-    }
+    if (num < 1000) return num.toString();
     if (num < 1000000) return (num / 1000).toFixed(1) + 'K' + (usePlus ? '+' : '');
     return (num / 1000000).toFixed(1) + 'M' + (usePlus ? '+' : '');
 }
@@ -234,4 +249,13 @@ window.statServices = {
     updateUI: () => updateUICounters(lastStatsData)
 };
 
-
+// AUTO-INIT for SPA/Modules
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        initRealtimeStats();
+        trackGA4PageView();
+    });
+} else {
+    initRealtimeStats();
+    trackGA4PageView();
+}
