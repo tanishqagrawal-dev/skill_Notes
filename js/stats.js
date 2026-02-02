@@ -13,21 +13,14 @@ export async function initRealtimeStats() {
 
     console.log("🚀 Initializing Real-time Stats...");
 
-    // Listen for Auth Ready to sync counts (since counting users needs auth)
     window.addEventListener('auth-ready', () => {
-        console.log("🔐 Auth Ready: Syncing live counts...");
-        refreshLiveCounts();
+        updateUserPresence();
     });
 
-    // Check if auth is already ready
     if (window.authStatus?.ready) {
-        refreshLiveCounts();
+        updateUserPresence();
     }
 
-    // Instant fallback to remove '...'
-    updateUICounters({ views: 0, downloads: 0, students: 0, notes: 0 });
-
-    // 0. Load from Cache IMMEDIATELY
     const cached = localStorage.getItem('global_stats_cache');
     if (cached) {
         try {
@@ -36,10 +29,8 @@ export async function initRealtimeStats() {
         } catch (e) { }
     }
 
-    // Lazy load services
     const { db, doc, onSnapshot } = getFirebase();
     if (!db) {
-        console.warn("⚠️ Firestore not ready for stats yet. Retrying shortly...");
         setTimeout(initRealtimeStats, 2000);
         return;
     }
@@ -49,23 +40,39 @@ export async function initRealtimeStats() {
     try {
         onSnapshot(statsRef, (snapshot) => {
             if (snapshot.exists()) {
-                lastStatsData = snapshot.data();
+                const data = snapshot.data();
+                lastStatsData = { ...lastStatsData, ...data };
                 localStorage.setItem('global_stats_cache', JSON.stringify(lastStatsData));
                 updateUICounters(lastStatsData);
-            } else {
-                updateUICounters({ views: 0, downloads: 0, students: 0, notes: 0 });
             }
-        }, (error) => {
-            console.error("❌ Firestore Snapshot Error:", error);
-            updateUICounters({ views: 0, downloads: 0, students: 0, notes: 0 });
         });
 
         trackPageView();
-        refreshLiveCounts();
 
     } catch (error) {
-        console.error("❌ Error initializing stats logic:", error);
+        console.error("❌ Stats Error:", error);
     }
+}
+
+async function updateUserPresence() {
+    const { auth, db, doc, setDoc, serverTimestamp } = getFirebase();
+    if (!auth?.currentUser || !db) return;
+
+    const userRef = doc(db, "presence", auth.currentUser.uid);
+    const myColl = window.currentUser?.collegeId || window.currentUser?.college;
+
+    try {
+        await setDoc(userRef, {
+            online: true,
+            lastSeen: serverTimestamp(),
+            name: auth.currentUser.displayName || 'Scholar',
+            collegeId: myColl || 'unknown'
+        }, { merge: true });
+
+        setInterval(async () => {
+            await setDoc(userRef, { lastSeen: serverTimestamp() }, { merge: true });
+        }, 60000);
+    } catch (e) { }
 }
 
 export async function trackPageView() {
@@ -82,43 +89,9 @@ export async function trackPageView() {
     }
 }
 
-async function refreshLiveCounts() {
-    const { db, collection, doc, getCountFromServer, auth, setDoc } = getFirebase();
-    if (!db) return;
-
-    // IMPORTANT: Only authenticated users can count all users due to security rules.
-    if (!auth || !auth.currentUser) {
-        console.log("⏭️ Skipping count sync (Guest mode)");
-        return;
-    }
-
-    try {
-        const usersRef = collection(db, 'users');
-        const notesRef = collection(db, 'notes_approved');
-
-        const [userSnap, notesSnap] = await Promise.all([
-            getCountFromServer(usersRef).catch(() => ({ data: () => ({ count: 0 }) })),
-            getCountFromServer(notesRef).catch(() => ({ data: () => ({ count: 0 }) }))
-        ]);
-
-        const studentCount = userSnap.data().count;
-        const notesCount = notesSnap.data().count;
-
-        // INSTANT UI UPDATE
-        lastStatsData.students = studentCount;
-        lastStatsData.notes = notesCount;
-        updateUICounters(lastStatsData);
-
-        const statsRef = doc(db, STATS_DOC_PATH);
-        await setDoc(statsRef, {
-            students: studentCount,
-            notes: notesCount
-        }, { merge: true });
-        console.log(`📈 Synced Counts: ${studentCount} Students, ${notesCount} Notes`);
-    } catch (error) {
-        console.warn("Stats sync skipped:", error);
-    }
-}
+// refreshLiveCounts removed in favor of direct onSnapshot of stats document or triggers
+// Logic moved to background cloud functions or increment patterns in real app
+// For this frontend, we just use the global doc and presence heartbeats.
 
 // ... rest of file (trackDownload, etc)
 

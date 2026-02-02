@@ -168,6 +168,44 @@
     <script type="module" src="../js/stats.js"></script>
     <script src="../js/admin-console.js" defer></script>
 
+    <script>
+        // --- 0. INSTANT PRELOADER (Blocking script, minimal execution) ---
+        // This runs before ANY module imports to ensure window.authStatus is ready
+        // when dashboard.js eventually loads. This bypasses Firebase loading delay.
+        (function () {
+            window.authStatus = { ready: false, data: null };
+
+            try {
+                const raw = localStorage.getItem('auth_user_full') || localStorage.getItem('guest_session');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    console.log("⚡ Instant Preloader: Hydrating session from cache", parsed.email);
+
+                    // Populate global status immediately
+                    window.authStatus = {
+                        ready: true,
+                        data: {
+                            user: { uid: parsed.id, email: parsed.email, displayName: parsed.name },
+                            currentUser: parsed
+                        }
+                    };
+
+                    // Dispatch event immediately (in case listeners are somehow already there, though unlikely)
+                    window.dispatchEvent(new CustomEvent('auth-ready', { detail: window.authStatus.data }));
+                }
+            } catch (e) {
+                console.warn("Preloader Error:", e);
+            }
+        })();
+    </script>
+
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script src="../js/ai-client.js" defer></script>
+    <script src="../js/settings.js" defer></script>
+    <script src="../js/upload-helper.js" defer></script>
+    <script type="module" src="../js/stats.js"></script>
+    <script src="../js/admin-console.js" defer></script>
+
     <script type="module">
         import { initAuth } from '../js/auth.js';
 

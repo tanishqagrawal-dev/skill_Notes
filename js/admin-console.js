@@ -22,6 +22,7 @@ window.AdminConsole = {
                         <h1 class="font-heading" style="font-size: 2.5rem;">🚨 Admin <span class="gradient-text">Command Center</span></h1>
                         <p style="color: var(--text-dim);">System oversight, user management, and global configurations.</p>
                     </div>
+                    <button class="btn btn-ghost" onclick="AdminConsole.refresh()" style="border: 1px solid var(--border-glass);">🔄 Sync Database</button>
                 </div>
 
                 <!-- Navigation Tabs Internal -->
@@ -72,9 +73,9 @@ window.AdminConsole = {
     renderOverview: function () {
         return `
             <div class="admin-grid-kpi" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
-                ${this.renderKPI('👥 Total Users', this.state.users.length || 'Loading...', 'Active in DB', '#7B61FF')}
-                ${this.renderKPI('👨‍💼 Co-Admins', this.state.coadmins.length || 0, 'Assigned', '#00F2FF')}
-                ${this.renderKPI('🛡️ Pending Reviews', this.state.pendingNotes.length || 0, 'Global Queue', '#F1C40F')}
+                ${this.renderKPI('👥 Total Users', this.state.users.length, 'Active in DB', '#7B61FF')}
+                ${this.renderKPI('👨‍💼 Co-Admins', this.state.coadmins.length, 'Assigned', '#00F2FF')}
+                ${this.renderKPI('🛡️ Pending Reviews', this.state.pendingNotes.length, 'Global Queue', '#F1C40F')}
                 ${this.renderKPI('🏫 Colleges', GlobalData.colleges.length, 'Supported', '#2ECC71')}
             </div>
 
@@ -121,7 +122,7 @@ window.AdminConsole = {
                     </button>
                     
                     <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-glass); font-size: 0.8rem; color: var(--text-dim); line-height: 1.5;">
-                        <strong style="color: #F1C40F;">Note:</strong> The user must already be registered in the system. They will receive Co-Admin privileges immediately.
+                        <strong style="color: #F1C40F;">Note:</strong> If the user is not found, an invite will be created. They will receive Co-Admin rights automatically upon their first sign-in.
                     </div>
                 </div>
 
@@ -155,7 +156,10 @@ window.AdminConsole = {
                                                     ${admin.name ? admin.name.charAt(0).toUpperCase() : 'U'}
                                                 </div>
                                                 <div>
-                                                    <div style="font-weight: 600; color: white;">${admin.name || 'Unknown User'}</div>
+                                                    <div style="font-weight: 600; color: white;">
+                                                        ${admin.name || 'Unknown User'}
+                                                        ${admin.isInvite ? '<span class="status-badge" style="background:rgba(241, 196, 15, 0.2); color:#F1C40F; font-size:0.6rem; padding:2px 6px; margin-left:8px;">PENDING INVITE</span>' : ''}
+                                                    </div>
                                                     <div style="font-size: 0.8rem; color: var(--text-dim);">${admin.email}</div>
                                                 </div>
                                             </div>
@@ -166,8 +170,8 @@ window.AdminConsole = {
                                             </span>
                                         </td>
                                         <td style="text-align: right; padding-right: 2rem;">
-                                            <button class="btn-icon danger" onclick="AdminConsole.removeCoAdmin('${admin.id}')">
-                                                🗑️ Revoke Access
+                                            <button class="btn-icon danger" onclick="AdminConsole.removeCoAdmin('${admin.id}', ${admin.isInvite})">
+                                                🗑️ Revoke
                                             </button>
                                         </td>
                                     </tr>
@@ -232,37 +236,51 @@ window.AdminConsole = {
 
         console.log("📡 Admin Console: Connecting to Live DB...");
 
-        // 1. Listen to Users (for Co-Admin list and Total Users)
-        this.unsubscribeUsers = onSnapshot(collection(db, 'users'), (snap) => {
-            const users = [];
-            const coadmins = [];
-            snap.forEach(doc => {
-                const u = { id: doc.id, ...doc.data() };
-                users.push(u);
-                if (u.role === 'coadmin') coadmins.push(u);
-            });
-            this.state.users = users;
-            this.state.coadmins = coadmins;
+        // 1. Listen to Users AND Invites
+        const processLists = () => {
+            const users = this._snapUsers || [];
+            const invites = this._snapInvites || [];
 
-            // Refresh current view if needed
-            const container = document.getElementById('admin-view-content');
-            if (container) {
-                // Determine current view or default to overview? 
-                // We'll simplisticly re-render if we are in coadmins tab
-                // Better implementation would maintain active tab state.
-            }
-            // Trigger global refresh for now to update counts
+            this.state.users = users;
+
+            // Merge Real Co-Admins + Pending Invites
+            const realCoAdmins = users.filter(u => u.role === 'coadmin');
+            const invitedCoAdmins = invites.map(i => ({
+                id: 'invite_' + i.email, // Temporary ID
+                name: i.email.split('@')[0],
+                email: i.email,
+                role: 'coadmin',
+                isInvite: true,
+                college: i.collegeId,
+                status: 'pending'
+            }));
+
+            this.state.coadmins = [...realCoAdmins, ...invitedCoAdmins];
+
+            // Trigger global refresh for now to update counts (if UI is visible)
+            // Ideally we'd have a render() call here, but for now we rely on user navigation or manual refresh
+            // Just updating the KPI counters if they exist
             const kpiGrid = document.querySelector('.admin-grid-kpi');
             if (kpiGrid) kpiGrid.innerHTML = `
                 ${this.renderKPI('👥 Total Users', users.length, 'Active in DB', '#7B61FF')}
-                ${this.renderKPI('👨‍💼 Co-Admins', coadmins.length, 'Assigned', '#00F2FF')}
-                ${this.renderKPI('🛡️ Pending Reviews', this.state.pendingNotes.length, 'Global Queue', '#F1C40F')}
+                ${this.renderKPI('👨‍💼 Co-Admins', this.state.coadmins.length, `${invitedCoAdmins.length} Pending`, '#00F2FF')}
+                ${this.renderKPI('🛡️ Pending Reviews', (this.state.pendingNotes || []).length, 'Global Queue', '#F1C40F')}
                 ${this.renderKPI('🏫 Colleges', GlobalData.colleges.length, 'Supported', '#2ECC71')}
             `;
 
-            // If viewing list, update it
-            // Only re-render full logic if we implement state-based React-like updates. 
-            // For vanilla JS, we often just do targeted DOM updates or full re-renders on demand.
+            // If the co-admin table is visible, force a re-render of just that table?
+            // Since we don't have reactive bindings, let's just re-render the active view if it's 'coadmins'
+            // For chaos reduction, we won't auto-render efficiently here, just update state.
+        };
+
+        this.unsubscribeUsers = onSnapshot(collection(db, 'users'), (snap) => {
+            this._snapUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            processLists();
+        });
+
+        this.unsubscribeInvites = onSnapshot(collection(db, 'role_invites'), (snap) => {
+            this._snapInvites = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            processLists();
         });
 
         // 2. Listen to ALL Pending Notes (Global)
@@ -291,25 +309,61 @@ window.AdminConsole = {
         if (!confirm(confirmMsg)) return;
 
         try {
-            // Find user by email
-            const usersRef = collection(db, 'users');
-            const q = query(usersRef, where("email", "==", email));
-            const querySnapshot = await getDocs(q);
+            const cleanEmail = email.trim().toLowerCase();
+            let uid = null;
 
-            if (querySnapshot.empty) {
-                alert("❌ User not found! They must sign up first.");
-                return;
+            // 1. Try Local Search first (Fastest/Case Insensitive)
+            const localUser = this.state.users.find(u => u.email?.toLowerCase() === cleanEmail);
+            if (localUser) {
+                uid = localUser.id;
+            } else {
+                // 2. Fallback to direct Firestore query (In case snapshot is still loading)
+                const usersRef = collection(db, 'users');
+                const q = query(usersRef, where("email", "==", cleanEmail));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    // Try one last time with exact match in case they stored it case-sensitively
+                    const q2 = query(usersRef, where("email", "==", email.trim()));
+                    const qs2 = await getDocs(q2);
+                    if (qs2.empty) {
+                        // User not found -> PRE-AUTHORIZE (Invite)
+                        const { setDoc } = window.firebaseServices;
+                        const inviteRef = doc(db, 'role_invites', cleanEmail);
+                        await setDoc(inviteRef, {
+                            email: cleanEmail,
+                            role: 'coadmin',
+                            collegeId: collegeId,
+                            college: collegeId,
+                            permissions: {
+                                approveNotes: true,
+                                rejectNotes: true
+                            },
+                            invitedAt: new Date().toISOString(),
+                            status: 'pending'
+                        });
+                        alert(`📩 User not found, but we've Pre-Authorized this email!\n\nWhen ${cleanEmail} signs in for the first time, they will automatically receive Co-Admin rights.`);
+                        this.switchView('coadmins');
+                        return;
+                    }
+                    uid = qs2.docs[0].id;
+                } else {
+                    uid = querySnapshot.docs[0].id;
+                }
             }
 
-            let uid;
-            querySnapshot.forEach((d) => { uid = d.id; });
-
-            // Update Role
+            // Update Role (Strict scoping)
             const userRef = doc(db, 'users', uid);
             await updateDoc(userRef, {
                 role: 'coadmin',
-                college: collegeId, // Assigned college
-                collegeId: collegeId, // Support both naming conventions
+                college: collegeId, // Scoped to exactly one college
+                collegeId: collegeId,
+                permissions: {
+                    approveNotes: true,
+                    rejectNotes: true
+                },
+                assignedBy: (window.currentUser ? window.currentUser.id : 'admin'),
+                assignedAt: new Date().toISOString(),
                 promotedAt: new Date().toISOString()
             });
 
@@ -322,18 +376,27 @@ window.AdminConsole = {
         }
     },
 
-    removeCoAdmin: async function (uid) {
-        if (!confirm("⚠️ Revoke Co-Admin status? They will become a regular user.")) return;
-        const { db, updateDoc, doc } = window.firebaseServices;
+    removeCoAdmin: async function (uid, isInvite = false) {
+        if (!confirm(isInvite ? "🗑️ Cancel this invitation?" : "⚠️ Revoke Co-Admin status? They will become a regular user.")) return;
+        const { db, updateDoc, deleteDoc, doc } = window.firebaseServices;
 
         try {
-            await updateDoc(doc(db, 'users', uid), {
-                role: 'user',
-                collegeId: null, // Clear assignment
-                demotedAt: new Date().toISOString()
-            });
-            alert("✅ Co-Admin rights revoked.");
-            this.switchView('coadmins');
+            if (isInvite) {
+                // Determine email from formatting (uid is 'invite_email') or passed directly?
+                // uid was passed as 'invite_' + email in processLists.
+                const email = uid.replace('invite_', '');
+                await deleteDoc(doc(db, 'role_invites', email));
+                alert("✅ Invitation cancelled.");
+            } else {
+                await updateDoc(doc(db, 'users', uid), {
+                    role: 'user',
+                    collegeId: null, // Clear assignment
+                    demotedAt: new Date().toISOString()
+                });
+                alert("✅ Co-Admin rights revoked.");
+            }
+            // View auto-updates via onSnapshot
+            // this.switchView('coadmins'); // Not strictly needed if snapshot works, but good for focus
         } catch (e) {
             alert("Error: " + e.message);
         }
@@ -347,5 +410,13 @@ window.AdminConsole = {
                 <div style="font-size: 0.75rem; color: ${color}; opacity: 0.8;">${sub}</div>
             </div>
         `;
+    },
+
+    refresh: function () {
+        if (this.unsubscribeUsers) this.unsubscribeUsers();
+        this.isInitialized = false;
+        const container = document.getElementById('tab-content');
+        if (container) container.innerHTML = this.render();
+        showToast("Database Synced ⚡");
     }
 };

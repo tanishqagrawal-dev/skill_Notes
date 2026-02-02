@@ -10,7 +10,7 @@ window.CoAdminModule = {
 
     init: function (user) {
         if (this.isInitialized) return;
-        this.myCollege = user.college || user.assignedCollege;
+        this.myCollege = user.collegeId || user.college || user.assignedCollege;
         if (!this.myCollege) {
             console.error("CoAdmin Module: No college assigned.");
             return;
@@ -72,7 +72,8 @@ window.CoAdminModule = {
         const { db, collection, query, where, onSnapshot } = window.firebaseServices || {};
         if (!db) return;
 
-        const q = query(collection(db, 'notes_pending'), where('collegeId', '==', this.myCollege));
+        const currentColl = this.myCollege;
+        const q = query(collection(db, 'notes_pending'), where('collegeId', '==', currentColl));
 
         this.unsubscribe = onSnapshot(q, (snapshot) => {
             const notes = [];
