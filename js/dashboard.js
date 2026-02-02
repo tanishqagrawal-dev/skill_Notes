@@ -100,6 +100,8 @@ let NotesDB = [];
 let unsubscribeNotes = null;
 let currentUser = null;
 let selState = { college: null, branch: null, year: null, subject: null };
+let userNotifications = [];
+let notificationsUnsubscribe = null;
 
 // --- CORE SYSTEM INITIALIZATION ---
 
@@ -404,112 +406,231 @@ window.openUploadModal = async function () {
         return;
     }
 
-    // Check permission (Now allowing all logged in users to submit for approval)
-    // Direct status is still handled in handleDashboardNoteSubmit
-
-    // Creating modal overlay if it doesn't exist
     let modal = document.getElementById('dashboard-upload-modal');
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'dashboard-upload-modal';
-        modal.className = 'modal'; // Reuse existing modal class
+        modal.className = 'modal';
+        modal.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+            z-index: 10000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        `;
+
+        // Using User's HTML Structure
         modal.innerHTML = `
-            <div class="modal-content">
-                <button class="close-modal" onclick="closeDashboardUploadModal()">&times;</button>
-                <div class="modal-header">
-                    <h2>Upload <span class="gradient-text">New Note</span></h2>
-                    <p style="color: var(--text-dim); font-size: 0.9rem;">Share your resource with the community.</p>
-                </div>
-                <form id="dash-upload-form">
-                    <div class="form-group">
-                        <label>Note Title</label>
-                        <input type="text" id="dash-note-title" class="form-input" placeholder="e.g. OS Unit 3 Process Sync" required>
+            <div class="upload-card" onclick="event.stopPropagation()">
+                <button onclick="closeDashboardUploadModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                <h2>Upload Notes</h2>
+                <p class="subtitle">Share your notes with your juniors</p>
+
+                <form class="upload-form" id="dash-upload-form">
+                    <!-- COLLEGE (SELECT) -->
+                    <div class="form-group full">
+                    <label for="college">College Name</label>
+                    <select id="college">
+                        <option value="">Select college</option>
+                        ${GlobalData.colleges.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                    </select>
                     </div>
+
                     <div class="form-group">
-                        <label>Resource Type</label>
-                        <select id="dash-note-type" class="form-input">
-                            <option value="notes">Notes</option>
-                            <option value="pyq">PYQs</option>
-                            <option value="formula">Formula Sheet</option>
-                        </select>
+                    <label for="stream">Stream</label>
+                    <select id="stream">
+                        <option value="">Select stream</option>
+                        <option value="ug">Undergraduate</option>
+                        <option value="pg">Postgraduate</option>
+                    </select>
                     </div>
+
                     <div class="form-group">
-                        <label>Google Drive Link</label>
-                        <input type="url" id="dash-note-link" class="form-input" placeholder="https://drive.google.com/..." required>
+                    <label for="branch">Branch</label>
+                    <select id="branch">
+                        <option value="">Select branch</option>
+                        <option value="cse">CSE</option>
+                        <option value="cse_ai">CSE (AI/ML)</option>
+                        <option value="it">IT</option>
+                        <option value="ece">ECE</option>
+                    </select>
                     </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" id="dash-submit-btn" style="width:100%;">🚀 Upload Note</button>
+
+                    <div class="form-group">
+                    <label for="semester">Semester</label>
+                    <select id="semester">
+                        <option value="">Select semester</option>
+                        <option>1st</option>
+                        <option>2nd</option>
+                        <option>3rd</option>
+                        <option>4th</option>
+                        <option>5th</option>
+                        <option>6th</option>
+                        <option>7th</option>
+                        <option>8th</option>
+                    </select>
+                    </div>
+
+                    <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <select id="subject">
+                        <option value="">Select subject</option>
+                        <option value="os">Operating Systems</option>
+                        <option value="dbms">DBMS</option>
+                        <option value="cn">Computer Networks</option>
+                        <option value="coa">COA</option>
+                    </select>
+                    </div>
+
+                    <div class="form-group full">
+                    <label for="title">Notes Title</label>
+                    <input id="title" type="text" placeholder="Enter notes title" required />
+                    </div>
+
+                    <!-- FILE UPLOAD -->
+                    <div class="form-group full" id="drop-zone" style="transition: all 0.2s;">
+                    <label for="file">Upload File (pdf, ppt, doc)</label>
+                    <input
+                        id="file"
+                        type="file"
+                        accept=".pdf,.ppt,.pptx,.doc,.docx"
+                        required
+                    />
+                    </div>
+
+                    <button type="submit" class="primary-btn" id="dash-submit-btn">Upload Note</button>
+                    <!-- Progress Bar -->
+                    <div style="grid-column: 1/-1; margin-top: 10px; display: none;" id="upload-status-area">
+                        <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;">
+                            <div id="upload-progress" style="width: 0%; height: 100%; background: var(--secondary);"></div>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-dim); text-align: center; margin-top: 5px;" id="upload-status-text">Uploading...</div>
                     </div>
                 </form>
             </div>
         `;
+
         document.body.appendChild(modal);
 
+        // Initializer for form
         document.getElementById('dash-upload-form').onsubmit = handleDashboardNoteSubmit;
+
+        // Click outside to close
+        modal.onclick = (e) => {
+            if (e.target === modal) closeDashboardUploadModal();
+        }
+
+        // Drag and Drop Logic
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropZone.style.background = 'rgba(102, 255, 227, 0.05)';
+            dropZone.style.border = '1px dashed #66ffe3';
+            dropZone.style.borderRadius = '12px';
+        }
+
+        function unhighlight(e) {
+            dropZone.style.background = '';
+            dropZone.style.border = '';
+        }
+
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            fileInput.files = files;
+        }
     }
 
-    modal.classList.add('active');
+    // Reset form
+    document.getElementById('dash-upload-form')?.reset();
+    document.getElementById('upload-status-area').style.display = 'none';
+
+    // Show
+    requestAnimationFrame(() => {
+        modal.style.opacity = '1';
+        modal.style.pointerEvents = 'all';
+    });
     document.body.style.overflow = 'hidden';
 };
 
 window.closeDashboardUploadModal = function () {
     const modal = document.getElementById('dashboard-upload-modal');
     if (modal) {
-        modal.classList.remove('active');
+        modal.style.opacity = '0';
+        modal.style.pointerEvents = 'none';
         document.body.style.overflow = 'auto';
     }
 };
 
 async function handleDashboardNoteSubmit(e) {
     e.preventDefault();
-    const { db, collection, addDoc } = getFirebase();
-    if (!db) return;
-
     const btn = document.getElementById('dash-submit-btn');
-    const title = document.getElementById('dash-note-title').value;
-    const type = document.getElementById('dash-note-type').value;
-    const link = document.getElementById('dash-note-link').value;
+    const statusArea = document.getElementById('upload-status-area');
+    const statusText = document.getElementById('upload-status-text');
+
+    const title = document.getElementById('title').value;
+    const collegeId = document.getElementById('college').value;
+    const stream = document.getElementById('stream').value;
+    const branch = document.getElementById('branch').value;
+    const semester = document.getElementById('semester').value;
+    const subject = document.getElementById('subject').value;
+    const file = document.getElementById('file').files[0];
+
+    if (!file) {
+        alert("Please select a file.");
+        return;
+    }
 
     btn.disabled = true;
-    btn.innerText = "Uploading...";
+    btn.innerText = "Processing...";
+    statusArea.style.display = 'block';
 
-    const isSuperAdmin = currentUser.role === 'superadmin';
-    const isCoAdmin = currentUser.role === 'coadmin';
-    const targetCollegeId = selState.college ? selState.college.id : (currentUser.collegeId || currentUser.college || 'medicaps');
-    const userCollege = currentUser.collegeId || currentUser.college;
-    const canPublishDirectly = isSuperAdmin || (isCoAdmin && targetCollegeId === userCollege);
-
-    const newNote = {
+    // Metadata construction
+    const metadata = {
         title: title,
-        collegeId: targetCollegeId,
-        branchId: selState.branch ? selState.branch.id : 'cse',
-        semester: selState.semester || 'Semester 4',
-        year: selState.year || '2nd Year',
-        subject: selState.subject ? selState.subject.id : 'os',
-        type: type,
-        views: 0,
-        saves: 0,
+        collegeId: collegeId || (currentUser.collegeId || 'medicaps'),
+        stream: stream,
+        branch: branch,
+        semester: semester,
+        subject: subject,
+        type: 'notes', // Hardcoded as per user request
         uploader: currentUser.name,
         uploaderUid: currentUser.id,
         uploaderEmail: currentUser.email,
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        driveLink: link,
-        status: canPublishDirectly ? 'approved' : 'pending',
-        created_at: new Date().toISOString()
+        date: new Date().toLocaleDateString(),
+        targetCollection: (currentUser.role === 'admin' || currentUser.role === 'superadmin') ? 'notes_approved' : 'notes_pending'
     };
 
     try {
-        const targetColl = canPublishDirectly ? "notes_approved" : "notes_pending";
-        await addDoc(collection(db, targetColl), newNote);
-        showToast(canPublishDirectly ? "🚀 Note published successfully!" : "📩 Submitted for review!");
+        await window.uploadNoteToFirebase(file, metadata);
+        showToast("✅ Note uploaded successfully!");
         closeDashboardUploadModal();
-        document.getElementById('dash-upload-form').reset();
     } catch (err) {
-        console.error("Upload error:", err);
-        showToast("Failed to upload. Check connection.", "error");
+        console.error("Upload failed:", err);
+        statusText.innerText = "Failed: " + err.message;
+        alert("Error: " + err.message);
     } finally {
         btn.disabled = false;
-        btn.innerText = "🚀 Upload Note";
+        btn.innerText = "Upload Note";
     }
 }
 
@@ -3656,8 +3777,6 @@ async function updateModerationStats() {
 }
 
 // --- NOTIFICATIONS SYSTEM ---
-let userNotifications = [];
-let notificationsUnsubscribe = null;
 
 async function createNotification(userId, data) {
     const { db, collection, addDoc, serverTimestamp } = getFirebase();
