@@ -1,7 +1,19 @@
 // Firebase Configuration & Initialization
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { 
+    getAuth, 
+    GoogleAuthProvider, 
+    signInWithPopup, 
+    signInWithRedirect, 
+    getRedirectResult, 
+    signOut, 
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    setPersistence,
+    browserLocalPersistence
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, getDoc, setDoc, onSnapshot, updateDoc, doc, increment, serverTimestamp, query, where, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
@@ -42,6 +54,8 @@ window.firebaseServices = {
     getRedirectResult,
     signOut,
     onAuthStateChanged,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
     collection,
     addDoc,
     getDocs,
@@ -65,4 +79,22 @@ window.firebaseServices = {
     logEvent
 };
 
-export { app, analytics, auth, db, storage, functions, provider, logEvent };
+export { 
+    app, 
+    analytics, 
+    auth, 
+    db, 
+    storage, 
+    functions, 
+    provider, 
+    logEvent,
+    signInWithPopup, 
+    signInWithRedirect, 
+    getRedirectResult, 
+    signOut, 
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    setPersistence,
+    browserLocalPersistence
+};

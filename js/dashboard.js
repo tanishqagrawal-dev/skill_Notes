@@ -69,22 +69,23 @@ const GlobalData = {
         'cse-Semester 1': [
             { id: 'math-1', name: 'Engineering Mathematics I', icon: '📐', code: 'MA101', description: 'Calculus, Linear Algebra and differential equations.' },
             { id: 'physics', name: 'Engineering Physics', icon: '⚛️', code: 'PH101', description: 'Quantum physics, optics and semiconductor theory.' },
-            { id: 'pps', name: 'Programming for Problem Solving', icon: '💻', code: 'CS101', description: 'Introduction to algorithmic logic and C programming.' },
-            { id: 'bee', name: 'Basic Electrical Engineering', icon: '🔌', code: 'EE101', description: 'AC/DC circuits, transformers and machines.' },
+            { id: 'pps', name: 'Programming With C', icon: '💻', code: 'CS101', description: 'Introduction to algorithmic logic and C programming.' },
+            { id: 'bee', name: 'Basic Electrical & Electronics Engineering', icon: '🔌', code: 'EE101', description: 'AC/DC circuits, transformers and machines.' },
             { id: 'comm-skills', name: 'Communication Skills', icon: '🗣️', code: 'HS101', description: 'Professional writing and verbal communication.' }
         ],
         'cse-Semester 2': [
             { id: 'chemistry', name: 'Engineering Chemistry', icon: '🧪', code: 'EN3BS14', description: 'Water treatment, thermodynamics and material science.' },
             { id: 'math-2', name: 'Engineering Mathematics-II', icon: '📉', code: 'EN3BS12', description: 'Advanced calculus, Fourier series and complex variables.' },
             { id: 'graphics', name: 'Engineering Graphics', icon: '📐', code: 'EN3ES26', description: 'Technical drawing, projection and CAD basics.' },
-            { id: 'electronics', name: 'Basic Electronics Engg.', icon: '📟', code: 'EN3ES16', description: 'Semiconductor devices and circuits.' },
-            { id: 'mech', name: 'Basic Mechanical Engg.', icon: '⚙️', code: 'EN3ES18', description: 'Thermodynamics and IC engines.' }
+            { id: 'electronics', name: 'Basic Civil Engineering', icon: '📟', code: 'EN3ES16', description: 'Semiconductor devices and circuits.' },
+            { id: 'mech', name: 'Basic Mechanical Engineering', icon: '⚙️', code: 'EN3ES18', description: 'Thermodynamics and IC engines.' }
         ],
         'cse-Semester 3': [
-            { id: 'discrete-math', name: 'Discrete Mathematics', icon: '🧩', code: 'CS301', description: 'Logic, sets, graph theory and combinatorics.' },
-            { id: 'digital-elec', name: 'Digital Electronics', icon: '💡', code: 'CS302', description: 'Boolean algebra and combinational circuits.' },
-            { id: 'java-oop', name: 'Object Oriented Programming (Java)', icon: '☕', code: 'CS303', description: 'Core principles: Encapsulation, Inheritance, Polymorphism.' },
-            { id: 'co', name: 'Computer Organization', icon: '🖥️', code: 'CS304', description: 'ALU, control unit and memory hierarchy.' },
+            { id: 'dm', name: 'Discrete Mathematics', icon: '🧩', code: 'CS301', description: 'Logic, sets, graph theory and combinatorics.' },
+            { id: 'de', name: 'Digital Electronics', icon: '💡', code: 'CS302', description: 'Boolean algebra and combinational circuits.' },
+            { id: 'oop', name: 'Object Oriented Programming ', icon: '☕', code: 'CS303', description: 'Core principles: Encapsulation, Inheritance, Polymorphism.' },
+            { id: 'csa', name: 'Computer System Architecture', icon: '🖥️', code: 'CS304', description: 'ALU, control unit and memory hierarchy.' },
+            { id: 'java', name: 'Java Programming', icon: '☕', code: 'CS304', description: 'Core principles: Encapsulation, Inheritance, Polymorphism.' },
             { id: 'dsa', name: 'Data Structures', icon: '🌳', code: 'CS305', description: 'Arrays, stacks, queues, trees and sorting.' }
         ],
         'cse-Semester 4': [
@@ -93,7 +94,7 @@ const GlobalData = {
             { id: 'micro', name: 'Microprocessor & Interfacing', icon: '📟', code: 'CS3CO35', description: '8085/8086 architecture, assembly language and peripheral interfacing.' },
             { id: 'os', name: 'Operating Systems', icon: '💾', code: 'CS3CO47', description: 'Process management, synchronization and file systems.' },
             { id: 'toc', name: 'Theory of Computation', icon: '🧠', code: 'CS3CO46', description: 'Finite automata, context-free grammars and Turing machines.' },
-            { id: 'elective-1', name: 'Elective-1', icon: '🏷️', code: 'CS3ELXX', description: 'Specialized elective track course for Computer Science.' }
+            { id: 'SA', name: 'Statical Analysis', icon: '🏷️', code: 'CS3ELXX', description: 'Statical Analysis of Software.' }
         ]
     }
 };
@@ -494,7 +495,7 @@ async function handleDashboardNoteSubmit(e) {
         title: title,
         collegeId: targetCollegeId,
         branchId: selState.branch ? selState.branch.id : 'cse',
-        semester: selState.semester || 'Semester 3',
+        semester: selState.semester || 'Semester 4',
         year: selState.year || '2nd Year',
         subject: selState.subject ? selState.subject.id : 'os',
         type: type,
@@ -563,6 +564,7 @@ function initTabs() {
     document.querySelectorAll('.nav-item').forEach(item => {
         // Remove old listeners to prevent duplicates? onclick overwrites so it's fine.
         item.onclick = (e) => {
+            if (!item.dataset.tab) return; // Allow normal links (like Back to Home) to work
             e.preventDefault();
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             item.classList.add('active');
@@ -2170,6 +2172,7 @@ window.loginAsGuest = function () {
         id: 'guest_' + Math.random().toString(36).substr(2, 9),
         name: 'Guest Tester',
         email: 'guest@example.com',
+        password: '12345678',
         photo: null,
         role: Roles.USER,
         college: 'medicaps',
@@ -2494,7 +2497,7 @@ const LeaderboardData = {
     college: [
         { id: 'u1', name: 'Medi-Caps University', views: 42000, students: 3400, score: 9800, rank: 1, logo: '🏛️' },
         { id: 'u2', name: 'SGSITS Indore', views: 31000, students: 2100, score: 8500, rank: 2, logo: '🎓' },
-        { id: 'u3', name: 'IIPS DAVV', views: 18000, students: 1500, score: 6200, rank: 3, logo: '📚' },
+        { id: 'u3', name: 'IET DAVV', views: 18000, students: 1500, score: 6200, rank: 3, logo: '📚' },
     ]
 };
 
