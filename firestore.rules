@@ -45,27 +45,20 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // --- Notes Pending ---
-    match /notes_pending/{noteId} {
-      allow read: if isAdmin() || 
-                  (isCoAdmin() && resource.data.college == getUserData().assignedCollege) ||
-                  (isSignedIn() && resource.data.uploaderUid == request.auth.uid);
-                  
-      allow create: if isSignedIn(); // Anyone can upload
-      
-      allow update: if isAdmin() || 
-                    (isCoAdmin() && resource.data.college == getUserData().assignedCollege);
-                    
-      allow delete: if isAdmin() || 
-                    (isCoAdmin() && resource.data.college == getUserData().assignedCollege);
+    // --- Notes Collection (Unified) ---
+    match /notes/{noteId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update: if isAdmin() || isOwner(resource.data.uploaderUid);
+      allow delete: if isAdmin() || isOwner(resource.data.uploaderUid);
     }
 
-    // --- Notes Approved ---
+    // --- Legacy Collections (Optional/Deprecated) ---
+    match /notes_pending/{noteId} {
+      allow read, write: if true; 
+    }
     match /notes_approved/{noteId} {
-      allow read: if true; // Public access to approved notes
-      allow create: if isAdmin() || isCoAdmin(); // Only moved by admins
-      allow update: if isAdmin(); // Only admin can edit approved content
-      allow delete: if isAdmin();
+      allow read, write: if true;
     }
     
     // --- Stats ---

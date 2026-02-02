@@ -13,7 +13,7 @@ admin.initializeApp({
 async function uploadNote() {
     const filePath = "c:\\Users\\yeash\\OneDrive\\Desktop\\skill_Notes\\OS unit 3.pdf";
     const fileName = "OS unit 3.pdf";
-    const destination = `uploads/notes/${Date.now()}_${fileName}`;
+    const destination = `notes/${Date.now()}_${fileName}`;
 
     console.log(`Starting upload for ${fileName}...`);
 

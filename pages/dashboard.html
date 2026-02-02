@@ -103,8 +103,8 @@
 
                 <div class="top-actions">
                     <button class="btn btn-ghost notification-btn">🔔</button>
-                    <button class="btn btn-primary upload-btn" style="border-radius: 12px; font-weight: 600;">+ Upload
-                        Note</button>
+                    <button class="primary-btn upload-btn" onclick="openUploadModal()"
+                        style="padding: 10px 24px; min-width: 140px;">+ Upload Note</button>
                 </div>
             </header>
 
@@ -175,7 +175,7 @@
         // requestIdleCallback ensures the main thread is free for rendering skeleton
         const startApp = () => {
             console.log("🚦 Starting App Initialization...");
-            import('../js/dashboard.js?v=4').then(module => {
+            import('../js/dashboard.js?v=5').then(module => {
                 console.log("📦 Dashboard Module Loaded");
             });
 

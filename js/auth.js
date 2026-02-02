@@ -136,11 +136,14 @@ export async function initAuth() {
             if (isAuthPage || path === '/' || path.endsWith('index.html')) {
                 // If redundant, already handled by inline script or simple redirect
                 // Avoid infinite reload
+                /* 
                 const role = userData.role;
                 if (role === 'admin' || role === 'superadmin') window.location.href = prefix + 'admin-dashboard.html';
                 else if (role === 'coadmin') window.location.href = prefix + 'coadmin-dashboard.html';
                 else window.location.href = prefix + 'dashboard.html';
                 return;
+                */
+                console.log("⏸️ Auto-redirect paused on Auth Page as per user request.");
             }
 
             // --- ACCESS GUARD ---
@@ -172,9 +175,12 @@ export async function initAuth() {
                 });
                 // Ensure we are on the dashboard
                 if (isAuthPage || path === '/' || path.endsWith('index.html')) {
+                    /*
                     const isInPagesDir = path.includes('/pages/');
                     const prefix = isInPagesDir ? '' : 'pages/';
                     window.location.href = prefix + 'dashboard.html';
+                    */
+                    console.log("⏸️ Guest Auto-redirect paused.");
                 }
             }
             else if ((isUserDashboard || isAdminDashboard || isCoAdminDashboard)) {

@@ -115,7 +115,7 @@ window.renderCollegeStep = function () {
     document.getElementById('explorer-sub-title').innerText = `Choose your college to start browsing localized content.`;
 
     container.innerHTML = GlobalData.colleges.map(c => `
-        <div class="selection-card glass-card fade-in" onclick="selectCollege('${c.id}', '${c.name}')">
+        <div class="selection-card glass-card" onclick="selectCollege('${c.id}', '${c.name}')">
             <div class="card-icon" style="font-size: 3rem;">${c.logo}</div>
             <h3 class="font-heading" style="margin-top: 1.5rem;">${c.name}</h3>
             <p style="color: var(--text-dim); margin-top: 0.5rem;">Verified Academic Partner</p>
@@ -136,7 +136,7 @@ window.renderBranchStep = function () {
 
     const container = document.getElementById('explorer-content');
     container.innerHTML = GlobalData.branches.map(b => `
-        <div class="selection-card glass-card fade-in" onclick="selectBranch('${b.id}', '${b.name}')">
+        <div class="selection-card glass-card" onclick="selectBranch('${b.id}', '${b.name}')">
             <div class="card-icon" style="background: rgba(108, 99, 255, 0.1); color: var(--primary); width: 60px; height: 60px; display: flex; align-items:center; justify-content:center; border-radius: 12px; margin: 0 auto; font-size: 1.5rem;">${b.icon}</div>
             <h3 class="font-heading" style="margin-top: 1.5rem;">${b.name}</h3>
         </div>
@@ -154,7 +154,7 @@ window.renderYearStep = function () {
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Academic Year</span>`;
     const container = document.getElementById('explorer-content');
     container.innerHTML = GlobalData.years.map(y => `
-        <div class="selection-card glass-card fade-in" onclick="selectYear('${y}')">
+        <div class="selection-card glass-card" onclick="selectYear('${y}')">
             <div class="card-icon" style="font-size: 2rem; font-weight: 800; color: var(--secondary);">${y.split(' ')[0]}</div>
             <h3 class="font-heading" style="margin-top: 0.5rem;">${y}</h3>
         </div>
@@ -174,7 +174,7 @@ window.renderSemesterStep = function () {
     const semesters = ['Semester 1', 'Semester 2', 'Semester 3', 'Semester 4', 'Semester 5', 'Semester 6', 'Semester 7', 'Semester 8'];
 
     container.innerHTML = semesters.map(s => `
-        <div class="selection-card glass-card fade-in" onclick="selectSemester('${s}')">
+        <div class="selection-card glass-card" onclick="selectSemester('${s}')">
             <div class="card-icon" style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">${s.split(' ')[1]}</div>
             <h3 class="font-heading" style="margin-top: 0.5rem;">${s}</h3>
         </div>
@@ -204,7 +204,7 @@ window.renderSubjectStep = function () {
     }
 
     container.innerHTML = subjects.map(s => `
-        <div class="selection-card glass-card fade-in" onclick="selectSubject('${s.id}', '${s.name}')">
+        <div class="selection-card glass-card" onclick="selectSubject('${s.id}', '${s.name}')">
             <div class="card-icon" style="font-size: 2.5rem;">${s.icon}</div>
             <h3 class="font-heading" style="margin-top: 1rem;">${s.name}</h3>
         </div>
@@ -253,11 +253,13 @@ window.startDirectUpload = function () {
         const metadata = {
             title: file.name.replace(/\.[^/.]+$/, ""),
             collegeId: selState.college.id,
+            collegeName: selState.college.name,
             branch: selState.branch.id,
             semester: selState.semester,
             subject: selState.subject.id,
+            subjectName: selState.subject.name,
             type: 'notes',
-            stream: 'ug',
+            stream: 'b.tech', // Defaulting to b.tech for Hub context
             uploader: currentUser.name,
             uploaderUid: currentUser.id,
             uploaderEmail: currentUser.email,
@@ -349,9 +351,39 @@ document.addEventListener('DOMContentLoaded', () => {
     if (form) form.onsubmit = handleNoteSubmit;
 });
 
+// --- FETCHING DATA ---
+window.fetchNotesBySubject = async function (subjectId, tabType = 'notes') {
+    const { db, collection, query, where, getDocs, orderBy } = window.firebaseServices;
+    if (!db) return [];
+
+    console.log(`🔍 Fetching ${tabType} for subject: ${subjectId}`);
+
+    try {
+        const targetColl = "notes_approved";
+        const q = query(
+            collection(db, targetColl),
+            where("collegeId", "==", selState.college.id),
+            where("subject", "==", subjectId),
+            where("type", "==", tabType),
+            where("status", "==", "approved"),
+            orderBy("date", "desc")
+        );
+
+        const snapshot = await getDocs(q);
+        const notes = [];
+        snapshot.forEach(doc => {
+            notes.push({ id: doc.id, ...doc.data() });
+        });
+        return notes;
+    } catch (err) {
+        console.error("Firestore Fetch Error:", err);
+        return [];
+    }
+};
+
 // --- FINAL VIEW: NOTES LIST ---
 
-window.showNotes = function (activeTab = 'notes') {
+window.showNotes = async function (activeTab = 'notes') {
     const explorer = document.getElementById('explorer-steps-container'); // The wrapper for steps
     if (explorer) explorer.style.display = 'none';
 
@@ -365,8 +397,9 @@ window.showNotes = function (activeTab = 'notes') {
         description: 'Comprehensive study materials and verified academic resources.'
     };
 
+    // 1. Initial Render with Loading State
     view.innerHTML = `
-        <div class="subject-page-container fade-in">
+        <div class="subject-page-container">
             <div class="breadcrumb-pro">
                 <span onclick="renderCollegeStep()" style="cursor:pointer">🏠 Home</span> <span>›</span> ${selState.branch.name} <span>›</span> ${selState.subject.name}
             </div>
@@ -384,7 +417,7 @@ window.showNotes = function (activeTab = 'notes') {
                     </div>
                     <div style="display:flex; gap: 1rem;">
                         ${(currentUser && (currentUser.role === Roles.SUPER_ADMIN || (currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === selState.college.id)))
-            ? `<button class="btn btn-primary" onclick="startDirectUpload()"><span style="margin-right:0.5rem;">+</span> Upload Notes</button>`
+            ? `<button class="primary-btn" onclick="startDirectUpload()" style="padding: 10px 24px;">+ Upload Notes</button>`
             : ''}
                         <button class="btn btn-ghost" onclick="renderCollegeStep()" style="white-space:nowrap; background: rgba(255,255,255,0.05); padding: 0.6rem 1.2rem; border-radius: 8px;">↺ Switch Subject</button>
                     </div>
@@ -395,33 +428,43 @@ window.showNotes = function (activeTab = 'notes') {
                 <div class="sub-tab ${activeTab === 'notes' ? 'active' : ''}" onclick="switchSubjectTab('notes')">Notes</div>
                 <div class="sub-tab ${activeTab === 'pyq' ? 'active' : ''}" onclick="switchSubjectTab('pyq')">PYQs</div>
                 <div class="sub-tab ${activeTab === 'formula' ? 'active' : ''}" onclick="switchSubjectTab('formula')">Formula Sheets</div>
-                <div class="sub-tab">✨ AI Tutor</div>
+                <div class="sub-tab" style="opacity: 0.5; cursor: not-allowed;">✨ AI Tutor (Beta)</div>
             </div>
 
             <div class="resource-section">
                 <h3 class="font-heading" style="margin-bottom: 2rem;">Verified <span class="highlight">${activeTab.toUpperCase()}</span></h3>
-                <div class="resource-list-detailed">
-                    ${renderDetailedNotes(selState.subject.id, activeTab)}
+                <div class="resource-list-detailed" id="resource-list-container">
+                    <div style="text-align: center; padding: 4rem;">
+                        <div class="spinner" style="margin: 0 auto 1rem;"></div>
+                        <p style="color: var(--text-dim);">Fetching resources from cloud...</p>
+                    </div>
                 </div>
             </div>
         </div>
     `;
+
+    // 2. Fetch and Replace
+    try {
+        const notes = await fetchNotesBySubject(selState.subject.id, activeTab);
+        const container = document.getElementById('resource-list-container');
+        if (container) {
+            container.innerHTML = renderDetailedNotes(notes, activeTab);
+        }
+    } catch (err) {
+        console.error("UI Fetch Error:", err);
+        const container = document.getElementById('resource-list-container');
+        if (container) {
+            container.innerHTML = `<p style="color: #ff4757; text-align: center; padding: 2rem;">Connection Error: Could not reach the cloud database.</p>`;
+        }
+    }
 }
 
 window.switchSubjectTab = function (tab) {
     showNotes(tab);
 };
 
-function renderDetailedNotes(subjectId, tabType = 'notes') {
-    // Filter Mock/Real Data
-    const filtered = NotesDB.filter(n => {
-        const isCorrectSubject = n.subject === subjectId && n.collegeId === selState.college.id && n.type === tabType;
-        if (!isCorrectSubject) return false;
-        if (n.status !== 'approved') return false; // Only show approved on public page
-        return true;
-    }).sort((a, b) => calculateSmartScore(b) - calculateSmartScore(a));
-
-    if (filtered.length === 0) {
+function renderDetailedNotes(notes, tabType = 'notes') {
+    if (notes.length === 0) {
         const isAdmin = currentUser && (currentUser.role === Roles.SUPER_ADMIN || (currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === selState.college.id));
 
         return `
@@ -431,7 +474,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                 <p style="color: var(--text-dim); margin-bottom: 2rem;">Be the first contributor and earn academic credit!</p>
                 <div style="display:flex; justify-content:center; gap:1rem;">
                     ${isAdmin
-                ? `<button class="btn btn-primary" onclick="startDirectUpload()">+ Upload notes</button>`
+                ? `<button class="primary-btn" onclick="startDirectUpload()" style="padding: 10px 24px;">+ Upload notes</button>`
                 : `<button class="btn btn-primary" onclick="window.location.href='dashboard.html?tab=notes'">+ Contribute Note</button>`
             }
                 </div>
@@ -439,39 +482,50 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
         `;
     }
 
-    return filtered.map(n => `
-        <div class="detailed-item glass-card card-reveal">
+    return notes.map(n => `
+        <div class="detailed-item glass-card">
             <div class="item-left">
-                <div class="file-type-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <div class="note-icon-pro">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
                 </div>
                 <div class="item-info-block">
                     <div class="item-title">${n.title}</div>
                     <div class="item-meta-row">
                         <span title="Upload Date">📅 ${n.date}</span>
                         <div class="uploader-mini">
-                            <div class="uploader-avatar">${n.uploader ? n.uploader.charAt(0) : 'U'}</div>
+                            <div class="uploader-avatar">${n.uploader ? n.uploader.charAt(0).toUpperCase() : 'U'}</div>
                             <span>${n.uploader || 'Anonymous'}</span>
                         </div>
                         <span title="Total Downloads">${n.downloads || 0} downloads</span>
                     </div>
-                    <div class="item-engagement-row">
-                        <span class="eng-icon" onclick="updateNoteStat('${n.id}', 'like')">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                    <div class="item-actions-bottom">
+                         <button class="action-btn-mini" onclick="updateNoteStat('${n.id}', 'like')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
                             ${n.likes || 0}
-                        </span>
-                        <span class="eng-icon" onclick="toggleNoteDislike('${n.id}')">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
+                         </button>
+                         <button class="action-btn-mini" onclick="toggleNoteDislike('${n.id}')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
                             ${n.dislikes || 0}
-                        </span>
-                        <span class="eng-icon" onclick="toggleNoteBookmark('${n.id}')">
+                         </button>
+                         <div class="bookmark-icon" onclick="toggleNoteBookmark('${n.id}')">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-                        </span>
+                         </div>
                     </div>
                 </div>
             </div>
             <div class="item-right">
-                <button class="btn-download-pro" onclick="window.open('${convertDriveLink(n.driveLink, 'download')}', '_blank'); updateNoteStat('${n.id}', 'download')">
+                <button class="download-btn-pro" onclick="window.open('${n.driveLink || n.fileUrl}', '_blank'); updateNoteStat('${n.id}', 'download')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
                     Download
                 </button>
             </div>
