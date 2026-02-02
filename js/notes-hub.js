@@ -216,33 +216,75 @@ window.selectSubject = function (id, name) {
     showNotes();
 };
 
-// --- MODAL LOGIC ---
-function openUploadModal() {
+// --- CONTEXTUAL UPLOAD LOGIC ---
+window.startDirectUpload = function () {
     if (!currentUser) {
-        alert("Please login first.");
+        alert("Please login first to upload notes.");
         return;
     }
 
-    // Messaging updated: Any user can upload, but it goes to approval.
-    // We can still show a notice if it will be direct.
-    const isAdmin = currentUser.role === Roles.SUPER_ADMIN;
-    const isCollegeAdmin = currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === selState.college.id;
-
-    if (!isAdmin && !isCollegeAdmin) {
-        // No restriction here anymore, just let them proceed
+    // Ensure context is ready
+    if (!selState.college || !selState.branch || !selState.subject) {
+        alert("Please select a subject first.");
+        return;
     }
 
-    const modal = document.getElementById('add-note-modal');
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
+    // Create hidden input
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.pdf,.ppt,.pptx,.doc,.docx';
+    input.style.display = 'none';
+    document.body.appendChild(input);
 
-function closeUploadModal() {
-    const modal = document.getElementById('add-note-modal');
-    modal.classList.remove('active');
-    document.body.style.overflow = 'auto';
-    document.getElementById('add-note-form').reset();
-}
+    input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size > 50 * 1024 * 1024) {
+            alert("File is too large. Max 50MB.");
+            return;
+        }
+
+        const msg = "⏳ Uploading contextually to " + selState.subject.name + "...";
+        if (window.showToast) window.showToast(msg, "info");
+        else console.log(msg);
+
+        // Metadata inferred from current view
+        const metadata = {
+            title: file.name.replace(/\.[^/.]+$/, ""),
+            collegeId: selState.college.id,
+            branch: selState.branch.id,
+            semester: selState.semester,
+            subject: selState.subject.id,
+            type: 'notes',
+            stream: 'ug',
+            uploader: currentUser.name,
+            uploaderUid: currentUser.id,
+            uploaderEmail: currentUser.email,
+            date: new Date().toLocaleDateString(),
+            targetCollection: (currentUser.role === 'admin' || currentUser.role === 'superadmin') ? 'notes_approved' : 'notes_pending'
+        };
+
+        try {
+            await window.uploadNoteToFirebase(file, metadata);
+            if (window.showToast) window.showToast("✅ Note uploaded via Quick Upload!");
+
+            // Optionally refresh notes list if we are admin (auto-approved)
+            // initNotesData listener should handle it automatically.
+        } catch (err) {
+            console.error(err);
+            if (window.showToast) window.showToast("Upload failed: " + err.message, "error");
+            else alert("Upload failed: " + err.message);
+        } finally {
+            input.remove();
+        }
+    };
+
+    input.click();
+};
+
+// --- MODAL LOGIC ---
+// Upload Modal Logic is now centralized in dashboard.js
 
 async function handleNoteSubmit(e) {
     e.preventDefault();
@@ -342,7 +384,7 @@ window.showNotes = function (activeTab = 'notes') {
                     </div>
                     <div style="display:flex; gap: 1rem;">
                         ${(currentUser && (currentUser.role === Roles.SUPER_ADMIN || (currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === selState.college.id)))
-            ? `<button class="btn btn-primary" onclick="openUploadModal()"><span style="margin-right:0.5rem;">+</span> Upload Notes</button>`
+            ? `<button class="btn btn-primary" onclick="startDirectUpload()"><span style="margin-right:0.5rem;">+</span> Upload Notes</button>`
             : ''}
                         <button class="btn btn-ghost" onclick="renderCollegeStep()" style="white-space:nowrap; background: rgba(255,255,255,0.05); padding: 0.6rem 1.2rem; border-radius: 8px;">↺ Switch Subject</button>
                     </div>
@@ -389,7 +431,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                 <p style="color: var(--text-dim); margin-bottom: 2rem;">Be the first contributor and earn academic credit!</p>
                 <div style="display:flex; justify-content:center; gap:1rem;">
                     ${isAdmin
-                ? `<button class="btn btn-primary" onclick="openUploadModal()">+ Upload notes</button>`
+                ? `<button class="btn btn-primary" onclick="startDirectUpload()">+ Upload notes</button>`
                 : `<button class="btn btn-primary" onclick="window.location.href='dashboard.html?tab=notes'">+ Contribute Note</button>`
             }
                 </div>
