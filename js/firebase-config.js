@@ -33,7 +33,7 @@ import {
     enableIndexedDbPersistence,
     getCountFromServer
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+import { getStorage, ref, uploadBytes, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
 
 // Your web app's Firebase configuration
@@ -100,9 +100,11 @@ window.firebaseServices = {
 
     // Storage Functions
     ref,
+    uploadBytes,
     uploadBytesResumable,
     getDownloadURL,
     deleteObject,
+    listAll,
 
     // Function Utils
     httpsCallable

@@ -81,10 +81,10 @@ service cloud.firestore {
       allow create: if true; // Public contact form
       allow read, update, delete: if isAdmin();
     }
-    // --- Personal Notes (Private Drive) ---
-    match /personal_notes/{noteId} {
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow read, update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    // --- Private Drive ---
+    // User-scoped storage for files, AI notes, etc.
+    match /privateDrive/{userId}/{document=**} {
+      allow read, write: if isSignedIn() && isOwner(userId);
     }
 
   }

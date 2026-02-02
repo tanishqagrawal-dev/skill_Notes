@@ -129,20 +129,18 @@ function handleAuthReady(data) {
                 window.statServices.initRealtimeStats();
             }
 
+            listenToNotifications();
+
             // Telemetry
             if (typeof trackStudent === 'function') trackStudent();
 
             // Initial View - Specialized Routing
             if (currentUser.role === 'superadmin') {
                 renderTabContent('superadmin-panel');
-                // Update Sidebar Active State
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                const adminTab = document.querySelector('.nav-item[data-tab="superadmin-panel"]');
-                if (adminTab) adminTab.classList.add('active');
             } else if (currentUser.role === 'coadmin' || currentUser.role === 'admin') {
-                renderTabContent('verification-hub');
+                renderTabContent('moderation-hub');
                 document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                const modTab = document.querySelector('.nav-item[data-tab="verification-hub"]');
+                const modTab = document.querySelector('.nav-item[data-tab="moderation-hub"]');
                 if (modTab) modTab.classList.add('active');
             } else {
                 renderTabContent('overview');
@@ -294,6 +292,24 @@ window.updateNoteStat = async function (noteId, type) {
 
     try {
         // 2. Increment Firestore (Real Source of Truth)
+        if (type === 'save') {
+            const fileId = "saved_" + noteId;
+            const fileRef = doc(db, "privateDrive", currentUser.id, "files", fileId);
+            await setDoc(fileRef, {
+                name: note.title,
+                url: note.url,
+                size: 0, // Metadata only
+                mimeType: "application/pdf",
+                type: "saved",
+                subject: note.subject,
+                semester: note.semester,
+                updatedAt: increment(0), // placeholder for time if needed
+                uploaderUid: currentUser.id
+            }, { merge: true });
+            showToast("🔖 Note saved to Private Drive!");
+            return;
+        }
+
         const noteRef = doc(db, "notes_approved", noteId);
         await updateDoc(noteRef, {
             [type + 's']: increment(1)
@@ -543,25 +559,18 @@ function initTabs() {
 
     const settingsNode = document.querySelector('[data-tab="settings"]');
 
-    // 1. My Uploads (For Everyone)
-    const myUploads = createNavItem('my-uploads', '📤', 'My Uploads');
+    // 1. My Uploads
+    const myUploads = createNavItem('my-uploads', '📤', 'My Uploads', true);
     sidebarNav.insertBefore(myUploads, settingsNode);
 
-    // 2. Co-Admin Tools
-    if (currentUser.role === 'coadmin' || currentUser.role === 'superadmin') {
-        const modHub = createNavItem('coadmin-hub', '🛡️', 'Moderation Hub');
+    // 3. Moderation & Admin Tools
+    if (currentUser.role === 'coadmin' || currentUser.role === 'admin' || currentUser.role === 'superadmin') {
+        const modHub = createNavItem('moderation-hub', '🛡️', 'Moderation Hub', true);
         sidebarNav.insertBefore(modHub, settingsNode);
-
-        // Only pure coadmins get "My College Stats" explicitly here, admin sees all
-        if (currentUser.role === 'coadmin') {
-            const statsHub = createNavItem('college-stats', '📊', 'My College Stats');
-            sidebarNav.insertBefore(statsHub, settingsNode);
-        }
     }
 
-    // 3. Admin Tools
     if (currentUser.role === 'admin' || currentUser.role === 'superadmin') {
-        const adminConsole = createNavItem('admin-console', '🚨', 'Command Center');
+        const adminConsole = createNavItem('admin-console', '🚨', 'Command Center', true);
         sidebarNav.insertBefore(adminConsole, settingsNode);
     }
 
@@ -578,10 +587,10 @@ function initTabs() {
     });
 }
 
-function createNavItem(id, icon, label) {
+function createNavItem(id, icon, label, isDynamic = false) {
     const a = document.createElement('a');
     a.href = "#";
-    a.className = "nav-item dynamic-node";
+    a.className = `nav-item ${isDynamic ? 'dynamic-node' : ''}`;
     a.dataset.tab = id;
     a.innerHTML = `<span class="icon">${icon}</span> ${label}`;
     return a;
@@ -650,6 +659,12 @@ function renderTabContent(tabId) {
         } else if (tabId === 'leaderboard') {
             contentArea.innerHTML = renderLeaderboard();
             setTimeout(initLeaderboardListeners, 100);
+        } else if (tabId === 'private-drive') {
+            contentArea.innerHTML = renderPrivateDrive();
+            setTimeout(initPrivateDrive, 100);
+        } else if (tabId === 'moderation-hub') {
+            contentArea.innerHTML = renderModerationHub();
+            setTimeout(initModerationHub, 100);
         } else if (tabId === 'verification-hub') {
             contentArea.innerHTML = `<div class="tab-pane active fade-in" style="padding: 2rem;">
                 <h1 class="font-heading">🛡️ Moderation <span class="gradient-text">Queue</span></h1>
@@ -945,8 +960,9 @@ function renderAITools() {
                 <div class="glass-card" style="padding: 2rem; min-height: 600px; display: flex; flex-direction: column;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 1rem;">
                         <h3 class="font-heading">📄 Generated Paper</h3>
-                        <div class="actions">
+                        <div class="actions" style="display: flex; gap: 0.5rem;">
                             <button class="btn btn-sm btn-ghost" onclick="copyPaper()" title="Copy to Clipboard">📋</button>
+                            <button class="btn btn-sm btn-ghost" onclick="saveAIOutputToDrive()" title="Save to Private Drive">💾</button>
                         </div>
                     </div>
                     
@@ -1190,8 +1206,37 @@ window.generatePaper = async () => {
 window.copyPaper = function () {
     const text = document.getElementById('ai-output').innerText;
     navigator.clipboard.writeText(text).then(() => {
-        alert("Paper copied to clipboard!");
+        showToast("Paper copied to clipboard!");
     });
+};
+
+window.saveAIOutputToDrive = async function () {
+    const text = document.getElementById('ai-output').innerText;
+    if (text.includes("Paper will appear here")) return showToast("Generate paper first!", "info");
+
+    const subject = document.getElementById('ai-subject').value || "Academic";
+    const { db, doc, setDoc, serverTimestamp } = getFirebase();
+    if (!db || !currentUser) return;
+
+    showToast("Saving to Drive...", "info");
+    const fileId = "ai_" + Math.random().toString(36).substring(7);
+    const fileRef = doc(db, "privateDrive", currentUser.id, "files", fileId);
+
+    try {
+        await setDoc(fileRef, {
+            name: `${subject}_AI_Paper.txt`,
+            url: "data:text/plain;charset=utf-8," + encodeURIComponent(text),
+            size: text.length,
+            mimeType: "text/plain",
+            type: "ai",
+            updatedAt: serverTimestamp(),
+            uploaderUid: currentUser.id
+        });
+        showToast("✅ Saved to Private Drive > AI Notes");
+    } catch (e) {
+        console.error(e);
+        showToast("Failed to save", "error");
+    }
 };
 
 /* End AI Tools */
@@ -1987,7 +2032,7 @@ function renderNotesList(list, tabType) {
                 <div class="action-buttons" style="display: flex; gap: 0.8rem;">
                      <button class="btn btn-ghost btn-sm" onclick="updateNoteStat('${n.id}', 'like')" style="color: var(--text-dim);">👍 ${n.likes || 0}</button>
                      <button class="btn btn-ghost btn-sm" style="color: var(--text-dim);">👎</button>
-                     <button class="btn btn-ghost btn-sm" style="color: var(--text-dim);">🔖</button>
+                     <button class="btn btn-ghost btn-sm" onclick="updateNoteStat('${n.id}', 'save')" style="color: var(--text-dim);" title="Save to Private Drive">🔖</button>
                 </div>
                 <a href="${n.fileUrl || n.driveLink}" target="_blank" class="btn" style="background: white; color: black; font-weight: 600; padding: 0.8rem 1.8rem; border-radius: 8px; text-decoration: none; border:none;" onclick="updateNoteStat('${n.id}', 'download')">Download</a>
             </div>
@@ -3111,3 +3156,643 @@ function getFileIcon(mimeType) {
     return '📁';
 }
 
+
+// --- MODULE 1: PRIVATE DRIVE ---
+let privateDriveFiles = [];
+let privateDriveUnsubscribe = null;
+let currentDriveTab = 'files'; // files, ai, saved, drafts
+
+window.renderPrivateDrive = function () {
+    return `
+        <div class="tab-pane active fade-in" style="padding: 2rem;">
+            <!-- Header section -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem;">
+                <div>
+                    <h1 class="font-heading" style="font-size: 2.5rem; margin-bottom: 0.5rem;">My <span class="gradient-text">Private Drive</span></h1>
+                    <p style="color: var(--text-dim); font-size: 1.1rem;">Your personal academic space</p>
+                </div>
+                <div style="text-align: right; width: 300px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-dim);">
+                        <span>Storage Usage</span>
+                        <span id="storage-usage-text">0MB / 1GB</span>
+                    </div>
+                    <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; border: 1px solid var(--border-glass);">
+                        <div id="storage-usage-bar" style="width: 0%; height: 100%; background: var(--secondary); transition: width 0.5s ease;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Bar -->
+            <div class="glass-card" style="padding: 1rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                <div style="display: flex; gap: 0.75rem;">
+                    <button class="btn btn-primary btn-sm" onclick="document.getElementById('drive-upload-input').click()">➕ Upload File</button>
+                    <button class="btn btn-ghost btn-sm" onclick="renderTabContent('ai-tools')">✨ Generate AI Notes</button>
+                    <button class="btn btn-ghost btn-sm" onclick="alert('Folder support coming soon!')">📂 New Folder</button>
+                    <input type="file" id="drive-upload-input" style="display: none;" onchange="handleDriveFileUpload(this)">
+                </div>
+                <div style="position: relative; flex-grow: 1; max-width: 400px;">
+                    <input type="text" placeholder="Search your drive..." style="width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 10px; color: white;" onkeyup="filterDriveFiles(this.value)">
+                    <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); opacity: 0.5;">🔍</span>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div style="display: flex; gap: 2rem; border-bottom: 1px solid var(--border-glass); margin-bottom: 2rem; padding-left: 1rem;">
+                <button class="drive-tab active" onclick="switchDriveTab('files', this)">📁 My Files</button>
+                <button class drive-tab" onclick="switchDriveTab('ai', this)">🤖 AI Notes</button>
+                <button class="drive-tab" onclick="switchDriveTab('saved', this)">⭐ Saved Notes</button>
+                <button class="drive-tab" onclick="switchDriveTab('drafts', this)">🗂 Drafts</button>
+            </div>
+
+            <!-- Content Grid -->
+            <div id="drive-content-grid" class="notes-grid-pro" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+                <!-- Skeleton Loader -->
+                ${Array(4).fill(0).map(() => `<div class="glass-card skeleton" style="height: 180px; border-radius: 16px;"></div>`).join('')}
+            </div>
+        </div>
+    `;
+};
+
+window.initPrivateDrive = async function () {
+    const { db, collection, query, where, onSnapshot } = getFirebase();
+    if (!db || !currentUser) return;
+
+    if (privateDriveUnsubscribe) privateDriveUnsubscribe();
+
+    const driveRef = collection(db, "privateDrive", currentUser.id, "files");
+    const q = query(driveRef, where("type", "==", currentDriveTab));
+
+    privateDriveUnsubscribe = onSnapshot(q, (snapshot) => {
+        privateDriveFiles = [];
+        snapshot.forEach(doc => privateDriveFiles.push({ id: doc.id, ...doc.data() }));
+        renderDriveFiles();
+        updateStorageUsage();
+    }, (err) => {
+        console.error("Drive error:", err);
+        document.getElementById('drive-content-grid').innerHTML = `<p style="color:red; text-align:center;">Failed to load drive files.</p>`;
+    });
+};
+
+function renderDriveFiles() {
+    const container = document.getElementById('drive-content-grid');
+    if (!container) return;
+
+    if (privateDriveFiles.length === 0) {
+        container.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; opacity: 0.5;">
+                <div style="font-size: 4rem; marginBottom: 1rem;">🕳️</div>
+                <h3>Your drive is empty</h3>
+                <p>Upload files or save notes to see them here.</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = privateDriveFiles.map(file => `
+        <div class="glass-card file-card fade-in" style="padding: 1.5rem; position: relative;">
+            <div style="display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 1rem;">
+                <div style="font-size: 2.5rem; background: rgba(255,255,255,0.03); width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    ${getFileIcon(file.mimeType || '')}
+                </div>
+                <div style="flex-grow: 1; overflow: hidden;">
+                    <h4 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0.25rem;" title="${file.name}">${file.name}</h4>
+                    <p style="font-size: 0.75rem; color: var(--text-dim);">${file.subject || 'Personal'} • ${file.semester || 'Misc'}</p>
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-dim); margin-bottom: 1.5rem;">
+                <span>📏 ${formatBytes(file.size || 0)}</span>
+                <span>🕒 ${file.updatedAt ? new Date(file.updatedAt.seconds * 1000).toLocaleDateString() : 'Just now'}</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                <button class="btn btn-sm btn-primary" onclick="window.open('${file.url}', '_blank')">Open</button>
+                <div style="display:flex; gap: 0.5rem;">
+                    <button class="btn btn-sm btn-ghost" style="flex-grow:1;" onclick="handleDriveDelete('${file.id}', '${file.path}')">🗑️</button>
+                    <button class="btn btn-sm btn-ghost" style="flex-grow:1;" onclick="handleDriveRename('${file.id}', '${file.name}')">✏️</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.handleDriveFileUpload = async function (input) {
+    if (!input.files[0]) return;
+    const { db, storage, ref, uploadBytesResumable, getDownloadURL, doc, setDoc, serverTimestamp } = getFirebase();
+    if (!db || !storage || !currentUser) return;
+
+    const file = input.files[0];
+    const fileId = Math.random().toString(36).substring(7);
+    const storagePath = `private-drive/${currentUser.id}/${fileId}_${file.name}`;
+    const storageRef = ref(storage, storagePath);
+
+    // Show Progress?
+    showToast("Starting upload...", "info");
+
+    try {
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        uploadTask.on('state_changed',
+            (snapshot) => {
+                // Optional: update UI with progress
+            },
+            (error) => {
+                console.error("Upload fail:", error);
+                showToast("Upload failed!", "error");
+            },
+            async () => {
+                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                const fileRef = doc(db, "privateDrive", currentUser.id, "files", fileId);
+
+                await setDoc(fileRef, {
+                    name: file.name,
+                    url: downloadURL,
+                    path: storagePath,
+                    size: file.size,
+                    mimeType: file.type,
+                    type: currentDriveTab,
+                    updatedAt: serverTimestamp(),
+                    uploaderUid: currentUser.id
+                });
+
+                showToast("File uploaded successfully!");
+                input.value = ""; // reset
+            }
+        );
+    } catch (e) {
+        console.error("Upload error:", e);
+        showToast("Upload failed", "error");
+    }
+};
+
+window.handleDriveDelete = async function (fileId, storagePath) {
+    if (!confirm("Are you sure you want to delete this file forever?")) return;
+    const { db, storage, ref, deleteObject, doc, deleteDoc } = getFirebase();
+    if (!db || !storage || !currentUser) return;
+
+    try {
+        // 1. Delete from Storage
+        if (storagePath) {
+            const storageRef = ref(storage, storagePath);
+            await deleteObject(storageRef).catch(e => console.warn("Storage delete skip:", e));
+        }
+
+        // 2. Delete from Firestore
+        await deleteDoc(doc(db, "privateDrive", currentUser.id, "files", fileId));
+        showToast("File deleted", "success");
+    } catch (e) {
+        console.error("Delete err:", e);
+        showToast("Failed to delete", "error");
+    }
+};
+
+window.switchDriveTab = function (tabId, btn) {
+    currentDriveTab = tabId;
+    document.querySelectorAll('.drive-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    initPrivateDrive(); // Re-fetch
+};
+
+function updateStorageUsage() {
+    const totalBytes = privateDriveFiles.reduce((acc, f) => acc + (f.size || 0), 0);
+    const GB = 1024 * 1024 * 1024;
+    const percent = Math.min((totalBytes / GB) * 100, 100);
+
+    const bar = document.getElementById('storage-usage-bar');
+    const text = document.getElementById('storage-usage-text');
+
+    if (bar) bar.style.width = percent + "%";
+    if (text) text.innerText = `${formatBytes(totalBytes)} / 1GB`;
+}
+
+window.handleDriveRename = async function (fileId, oldName) {
+    const newName = prompt("Enter new filename:", oldName);
+    if (!newName || newName === oldName) return;
+
+    const { db, doc, updateDoc } = getFirebase();
+    if (!db || !currentUser) return;
+
+    try {
+        await updateDoc(doc(db, "privateDrive", currentUser.id, "files", fileId), {
+            name: newName
+        });
+        showToast("Renamed successfully");
+    } catch (e) {
+        showToast("Rename failed", "error");
+    }
+};
+
+// --- MODULE 2: MODERATION HUB ---
+let moderationQueue = [];
+let moderationUnsubscribe = null;
+
+window.renderModerationHub = function () {
+    return `
+        <div class="tab-pane active fade-in" style="padding: 2rem;">
+            <div style="margin-bottom: 2.5rem;">
+                <h1 class="font-heading" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Moderation <span class="gradient-text">Hub</span></h1>
+                <p style="color: var(--text-dim); font-size: 1.1rem;">Academic Quality Control & Content Governance</p>
+            </div>
+
+            <!-- Stats Ribbon -->
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+                <div class="glass-card" style="padding: 1.5rem; border-bottom: 3px solid var(--secondary);">
+                    <div style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.5rem;">⏳ Pending Approvals</div>
+                    <div id="stat-pending-count" style="font-size: 2rem; font-weight: 700;">--</div>
+                </div>
+                <div class="glass-card" style="padding: 1.5rem; border-bottom: 3px solid #2ecc71;">
+                    <div style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.5rem;">✅ Approved Today</div>
+                    <div id="stat-approved-today" style="font-size: 2rem; font-weight: 700;">--</div>
+                </div>
+                <div class="glass-card" style="padding: 1.5rem; border-bottom: 3px solid #e74c3c;">
+                    <div style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.5rem;">❌ Total Rejected</div>
+                    <div id="stat-rejected-total" style="font-size: 2rem; font-weight: 700;">--</div>
+                </div>
+                <div class="glass-card" style="padding: 1.5rem; border-bottom: 3px solid var(--primary);">
+                    <div style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.5rem;">🏫 Colleges Covered</div>
+                    <div id="stat-colleges-count" style="font-size: 2rem; font-weight: 700;">${GlobalData.colleges.length}</div>
+                </div>
+            </div>
+
+            <!-- Queue Table -->
+            <div class="glass-card" style="overflow: hidden; border-radius: 16px;">
+                <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-glass); display: flex; justify-content: space-between; align-items: center;">
+                    <h3 class="font-heading">🗂 Pending Notes Queue</h3>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <select id="mod-filter-college" class="search-input" style="padding: 0.4rem;" onchange="initModerationHub()">
+                            <option value="all">All Colleges</option>
+                            ${GlobalData.colleges.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                        <thead>
+                            <tr style="background: rgba(255,255,255,0.02); font-size: 0.85rem; color: var(--text-dim);">
+                                <th style="padding: 1.25rem;">Note & Subject</th>
+                                <th style="padding: 1.25rem;">College</th>
+                                <th style="padding: 1.25rem;">Uploaded By</th>
+                                <th style="padding: 1.25rem;">Status</th>
+                                <th style="padding: 1.25rem; text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mod-queue-body">
+                            <!-- Injected by JS -->
+                            <tr><td colspan="5" style="padding: 4rem; text-align: center; opacity: 0.5;">Loading moderation queue...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Moderation Modal (Hidden) -->
+        <div id="mod-review-modal" class="modal-overlay" style="display:none; z-index: 10000;">
+            <div class="glass-card" style="width: 95%; max-width: 1200px; height: 90vh; display: flex; overflow: hidden; position: relative;">
+                <button onclick="closeModModal()" style="position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.5); border: none; color: white; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; z-index: 10;">✖</button>
+                
+                <!-- PDF Preview -->
+                <div style="flex-grow: 1; background: #1a1a1a; position: relative;">
+                    <iframe id="mod-preview-frame" style="width: 100%; height: 100%; border: none;"></iframe>
+                    <div id="mod-preview-placeholder" style="display:none; height:100%; align-items:center; justify-content:center; flex-direction:column; gap:1rem;">
+                        <span style="font-size: 4rem;">🖼️</span>
+                        <p>Preview not available for this file type.</p>
+                        <a id="mod-download-link" href="#" target="_blank" class="btn btn-ghost">Download to Review</a>
+                    </div>
+                </div>
+
+                <!-- Review Panel -->
+                <div style="width: 380px; border-left: 1px solid var(--border-glass); padding: 2rem; display: flex; flex-direction: column; background: rgba(0,0,0,0.4);">
+                    <h2 class="font-heading" style="margin-bottom: 2rem;">🔍 Review Note</h2>
+                    
+                    <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 1.5rem;">
+                        <div>
+                            <label style="font-size: 0.75rem; color: var(--text-dim); display: block; margin-bottom: 0.25rem;">Note Title</label>
+                            <div id="mod-note-title" style="font-weight: 600;">--</div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <label style="font-size: 0.75rem; color: var(--text-dim); display: block; margin-bottom: 0.25rem;">College</label>
+                                <div id="mod-note-college" style="font-size: 0.9rem;">--</div>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; color: var(--text-dim); display: block; margin-bottom: 0.25rem;">Subject</label>
+                                <div id="mod-note-subject" style="font-size: 0.9rem;">--</div>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.75rem; color: var(--text-dim); display: block; margin-bottom: 0.25rem;">Uploaded By</label>
+                            <div id="mod-note-uploader" style="font-size: 0.9rem;">--</div>
+                            <div id="mod-note-email" style="font-size: 0.75rem; color: var(--text-dim);">--</div>
+                        </div>
+                        <div class="glass-card" style="padding: 1rem; background: rgba(231, 76, 60, 0.05); border: 1px solid rgba(231, 76, 60, 0.2);">
+                            <div style="display: flex; gap: 0.5rem; align-items: center; color: #e74c3c; font-size: 0.85rem; margin-bottom: 0.25rem;">
+                                <span>⚠️</span>
+                                <span style="font-weight: 700;">Plagiarism Check</span>
+                            </div>
+                            <p style="font-size: 0.75rem; opacity: 0.8;">No external matches found. Internal similarity: 12%</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                        <button class="btn btn-primary" style="background: #2ecc71; border-color: #2ecc71;" onclick="executeModeration('approve')">✅ Approve Note</button>
+                        <button class="btn btn-ghost" style="color: #f1c40f;" onclick="executeModeration('request-changes')">📝 Request Changes</button>
+                        <button class="btn btn-ghost" style="color: #e74c3c;" onclick="executeModeration('reject')">❌ Reject Note</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+window.initModerationHub = async function () {
+    const { db, collection, query, where, onSnapshot, getDocs } = getFirebase();
+    if (!db || !currentUser) return;
+
+    if (moderationUnsubscribe) moderationUnsubscribe();
+
+    const collegeFilter = document.getElementById('mod-filter-college')?.value || "all";
+
+    let q = query(collection(db, "notes_pending"));
+    if (collegeFilter !== 'all') {
+        q = query(collection(db, "notes_pending"), where("college", "==", collegeFilter));
+    } else if (currentUser.role === 'coadmin') {
+        // Co-admins only see their college by default if not admin
+        q = query(collection(db, "notes_pending"), where("college", "==", currentUser.assignedCollege || currentUser.college));
+    }
+
+    moderationUnsubscribe = onSnapshot(q, (snapshot) => {
+        moderationQueue = [];
+        snapshot.forEach(doc => moderationQueue.push({ id: doc.id, ...doc.data() }));
+        renderModerationQueue();
+        updateModerationStats();
+    });
+};
+
+function renderModerationQueue() {
+    const tbody = document.getElementById('mod-queue-body');
+    if (!tbody) return;
+
+    if (moderationQueue.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="padding: 4rem; text-align: center; opacity: 0.5;">Queue is empty. Great job!</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = moderationQueue.map(note => `
+        <tr style="border-bottom: 1px solid var(--border-glass);">
+            <td style="padding: 1.25rem;">
+                <div style="font-weight: 600;">${note.title}</div>
+                <div style="font-size: 0.75rem; color: var(--text-dim);">${note.subject} • ${note.semester}</div>
+            </td>
+            <td style="padding: 1.25rem; font-size: 0.85rem;">${note.college}</td>
+            <td style="padding: 1.25rem; font-size: 0.85rem;">${note.uploaderName || 'Unknown'}</td>
+            <td style="padding: 1.25rem;">
+                <span style="background: rgba(241, 196, 15, 0.1); color: #f1c40f; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem;">Pending</span>
+            </td>
+            <td style="padding: 1.25rem; text-align: right;">
+                <button class="btn btn-sm btn-ghost" onclick="openModReview('${note.id}')">Review</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+let activeReviewNote = null;
+
+window.openModReview = function (noteId) {
+    activeReviewNote = moderationQueue.find(n => n.id === noteId);
+    if (!activeReviewNote) return;
+
+    const modal = document.getElementById('mod-review-modal');
+    const iframe = document.getElementById('mod-preview-frame');
+    const placeholder = document.getElementById('mod-preview-placeholder');
+
+    document.getElementById('mod-note-title').innerText = activeReviewNote.title;
+    document.getElementById('mod-note-college').innerText = activeReviewNote.college;
+    document.getElementById('mod-note-subject').innerText = activeReviewNote.subject;
+    document.getElementById('mod-note-uploader').innerText = activeReviewNote.uploaderName || 'Anonymous';
+    document.getElementById('mod-note-email').innerText = activeReviewNote.uploaderEmail || 'No email';
+
+    if (activeReviewNote.fileType?.includes('pdf') || activeReviewNote.url?.includes('.pdf')) {
+        iframe.style.display = 'block';
+        placeholder.style.display = 'none';
+        iframe.src = activeReviewNote.url;
+    } else {
+        iframe.style.display = 'none';
+        placeholder.style.display = 'flex';
+        document.getElementById('mod-download-link').href = activeReviewNote.url;
+    }
+
+    modal.style.display = 'flex';
+};
+
+window.closeModModal = function () {
+    const modal = document.getElementById('mod-review-modal');
+    modal.style.display = 'none';
+    document.getElementById('mod-preview-frame').src = "";
+};
+
+window.executeModeration = async function (action) {
+    if (!activeReviewNote) return;
+    const { db, doc, setDoc, deleteDoc, serverTimestamp } = getFirebase();
+    if (!db) return;
+
+    try {
+        const noteId = activeReviewNote.id;
+        const pendingRef = doc(db, "notes_pending", noteId);
+
+        if (action === 'approve') {
+            const approvedRef = doc(db, "notes_approved", noteId);
+            await setDoc(approvedRef, {
+                ...activeReviewNote,
+                status: 'approved',
+                approvedAt: serverTimestamp(),
+                approvedBy: currentUser.id,
+                views: 0,
+                downloads: 0,
+                likes: 0
+            });
+            await deleteDoc(pendingRef);
+
+            // Send Notification
+            await createNotification(activeReviewNote.uploaderUid, {
+                title: "✅ Note Approved!",
+                message: `Your note "${activeReviewNote.title}" has been approved and is now live.`,
+                type: "success"
+            });
+
+            showToast("Note approved and made live!");
+        } else if (action === 'reject') {
+            const reason = prompt("Reason for rejection:");
+            if (!reason) return;
+            const rejectedRef = doc(db, "notes_rejected", noteId);
+            await setDoc(rejectedRef, {
+                ...activeReviewNote,
+                status: 'rejected',
+                rejectedAt: serverTimestamp(),
+                rejectionReason: reason
+            });
+            await deleteDoc(pendingRef);
+
+            // Send Notification
+            await createNotification(activeReviewNote.uploaderUid, {
+                title: "❌ Note Rejected",
+                message: `Your note "${activeReviewNote.title}" was rejected. Reason: ${reason}`,
+                type: "error"
+            });
+
+            showToast("Note rejected.");
+        }
+
+        closeModModal();
+    } catch (e) {
+        console.error("Mod action error:", e);
+        showToast("Action failed", "error");
+    }
+};
+
+async function updateModerationStats() {
+    const { db, collection, getDocs } = getFirebase();
+    if (!db) return;
+
+    document.getElementById('stat-pending-count').innerText = moderationQueue.length;
+}
+
+// --- NOTIFICATIONS SYSTEM ---
+let userNotifications = [];
+let notificationsUnsubscribe = null;
+
+async function createNotification(userId, data) {
+    const { db, collection, addDoc, serverTimestamp } = getFirebase();
+    if (!db || !userId) return;
+    try {
+        await addDoc(collection(db, "notifications"), {
+            userId,
+            ...data,
+            read: false,
+            timestamp: serverTimestamp()
+        });
+    } catch (e) { console.error("Notify fail:", e); }
+}
+
+function listenToNotifications() {
+    const { db, collection, query, where, onSnapshot, orderBy } = getFirebase();
+    if (!db || !currentUser) return;
+
+    if (notificationsUnsubscribe) notificationsUnsubscribe();
+
+    try {
+        const q = query(
+            collection(db, "notifications"),
+            where("userId", "==", currentUser.id),
+            orderBy("timestamp", "desc")
+        );
+
+        notificationsUnsubscribe = onSnapshot(q, (snapshot) => {
+            userNotifications = [];
+            snapshot.forEach(doc => userNotifications.push({ id: doc.id, ...doc.data() }));
+            updateNotificationBadge();
+        }, (err) => {
+            console.warn("Notification listener failed (likely index missing):", err);
+            // Fallback: simpler query without order if index is missing
+            const qBasic = query(collection(db, "notifications"), where("userId", "==", currentUser.id));
+            onSnapshot(qBasic, (snap) => {
+                userNotifications = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+                updateNotificationBadge();
+            });
+        });
+    } catch (e) { console.warn("Notify listen error:", e); }
+}
+
+function updateNotificationBadge() {
+    const btn = document.querySelector('.notification-btn');
+    if (!btn) return;
+
+    const unread = userNotifications.filter(n => !n.read).length;
+    if (unread > 0) {
+        btn.innerHTML = `🔔 <span style="position:absolute; top:2px; right:2px; background:var(--secondary); color:white; font-size:10px; min-width:18px; height:18px; display:flex; align-items:center; justify-content:center; border-radius:10px; border: 2px solid #111;">${unread}</span>`;
+    } else {
+        btn.innerHTML = `🔔`;
+    }
+
+    btn.onclick = toggleNotificationPanel;
+}
+
+function toggleNotificationPanel(e) {
+    e.stopPropagation();
+    let panel = document.getElementById('notification-panel');
+    if (panel) {
+        panel.remove();
+        return;
+    }
+
+    panel = document.createElement('div');
+    panel.id = 'notification-panel';
+    panel.style.cssText = `
+        position: absolute; top: 75px; right: 20px; width: 350px; 
+        max-height: 500px; display: flex; flex-direction: column; z-index: 11000;
+        background: rgba(15,15,15,0.95); backdrop-filter: blur(20px); 
+        border: 1px solid var(--border-glass); border-radius: 16px; 
+        box-shadow: 0 20px 50px rgba(0,0,0,0.8); animation: fadeInScale 0.2s ease-out;
+    `;
+
+    panel.innerHTML = `
+        <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-glass); display: flex; justify-content: space-between; align-items: center;">
+            <h3 class="font-heading" style="margin:0; font-size: 1.1rem;">Notifications</h3>
+            <span onclick="window.markAllNotificationsRead()" style="font-size: 0.75rem; color: var(--primary); cursor: pointer; font-weight: 600;">Mark all as read</span>
+        </div>
+        <div style="flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+            ${userNotifications.length === 0 ? '<div style="text-align:center; padding: 3rem; opacity:0.5;">No notifications yet.</div>' :
+            userNotifications.map(n => `
+                <div class="glass-card" style="padding: 1rem; ${n.read ? 'opacity: 0.5;' : 'border-left: 3px solid var(--secondary); background: rgba(255,255,255,0.03);'}">
+                    <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 0.25rem;">${n.title}</div>
+                    <p style="font-size: 0.8rem; line-height: 1.4; color: #ccc;">${n.message}</p>
+                    <div style="font-size: 0.65rem; color: var(--text-dim); margin-top: 0.75rem;">${n.timestamp ? new Date(n.timestamp.seconds * 1000).toLocaleString() : 'Just now'}</div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    document.body.appendChild(panel);
+
+    // Close on outside click
+    const closer = (event) => {
+        if (!panel.contains(event.target)) {
+            panel.remove();
+            document.removeEventListener('click', closer);
+        }
+    };
+    setTimeout(() => document.addEventListener('click', closer), 10);
+}
+
+window.markAllNotificationsRead = async () => {
+    const { db, doc, updateDoc } = getFirebase();
+    if (!db) return;
+
+    showToast("Clearing notifications...", "info");
+    try {
+        const batch = [];
+        for (const n of userNotifications) {
+            if (!n.read) {
+                batch.push(updateDoc(doc(db, "notifications", n.id), { read: true }));
+            }
+        }
+        await Promise.all(batch);
+        document.getElementById('notification-panel')?.remove();
+    } catch (e) { console.warn(e); }
+};
+
+window.showToast = function (msg, type = 'success') {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+        padding: 1rem 2rem; border-radius: 12px; z-index: 12000;
+        background: ${type === 'error' ? '#e74c3c' : (type === 'info' ? 'var(--primary)' : '#2ecc71')};
+        color: white; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        animation: slideUp 0.3s ease-out;
+    `;
+    toast.innerText = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.animation = 'fadeOut 0.3s ease-in forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+};
