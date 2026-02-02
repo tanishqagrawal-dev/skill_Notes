@@ -1,6 +1,6 @@
 // Firebase Configuration & Initialization
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+
 import {
     getAuth,
     GoogleAuthProvider,
@@ -30,7 +30,8 @@ import {
     where,
     orderBy,
     deleteDoc,
-    enableIndexedDbPersistence
+    enableIndexedDbPersistence,
+    getCountFromServer
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
@@ -42,8 +43,7 @@ const firebaseConfig = {
     projectId: "skill-notes",
     storageBucket: "skil-notes",
     messagingSenderId: "679937247629",
-    appId: "1:679937247629:web:708ae9818911a465d455c4",
-    measurementId: "G-Q334FN7M78"
+    appId: "1:679937247629:web:708ae9818911a465d455c4"
 };
 
 // Initialize Firebase (Core only)
@@ -56,7 +56,6 @@ const provider = new GoogleAuthProvider();
 
 // LAZY LOAD HEAVY SERVICES
 let db = null;
-let analytics = null;
 let storage = null;
 let functions = null;
 
@@ -97,6 +96,7 @@ window.firebaseServices = {
     where,
     orderBy,
     deleteDoc,
+    getCountFromServer,
 
     // Storage Functions
     ref,
@@ -105,8 +105,7 @@ window.firebaseServices = {
     deleteObject,
 
     // Function Utils
-    httpsCallable,
-    logEvent
+    httpsCallable
 };
 
 // Define Lazy Getters for Heavy Services
@@ -129,16 +128,7 @@ Object.defineProperty(window.firebaseServices, 'db', {
     }
 });
 
-Object.defineProperty(window.firebaseServices, 'analytics', {
-    get: function () {
-        if (!analytics) {
-            // Delay analytics slightly more if possible, but here we init on access
-            console.log("📊 Lazy-loading Analytics...");
-            analytics = getAnalytics(app);
-        }
-        return analytics;
-    }
-});
+
 
 Object.defineProperty(window.firebaseServices, 'storage', {
     get: function () {
@@ -165,13 +155,11 @@ Object.defineProperty(window.firebaseServices, 'functions', {
 
 export {
     app,
-    analytics,
     auth,
     db,
     storage,
     functions,
     provider,
-    logEvent,
     signInWithPopup,
     signInWithRedirect,
     getRedirectResult,

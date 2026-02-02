@@ -8,6 +8,8 @@ let lastStatsData = null;
 
 export async function initRealtimeStats() {
     console.log("🚀 Initializing Real-time Stats...");
+    // Instant fallback to remove '...'
+    updateUICounters({ views: 0, downloads: 0, students: 0, notes: 0 });
 
     // 0. Load from Cache IMMEDIATELY
     const cached = localStorage.getItem('global_stats_cache');
@@ -34,12 +36,16 @@ export async function initRealtimeStats() {
                 lastStatsData = snapshot.data();
                 localStorage.setItem('global_stats_cache', JSON.stringify(lastStatsData));
                 updateUICounters(lastStatsData);
+            } else {
+                updateUICounters({ views: 0, downloads: 0, students: 0, notes: 0 });
             }
         }, (error) => {
             console.error("❌ Firestore Snapshot Error:", error);
+            updateUICounters({ views: 0, downloads: 0, students: 0, notes: 0 });
         });
 
         trackPageView();
+        refreshLiveCounts();
 
     } catch (error) {
         console.error("❌ Error initializing stats logic:", error);
@@ -47,7 +53,7 @@ export async function initRealtimeStats() {
 }
 
 export async function trackPageView() {
-    const { db, doc, updateDoc, increment, analytics, logEvent } = getFirebase();
+    const { db, doc, updateDoc, increment } = getFirebase();
     if (!db) return;
 
     const statsRef = doc(db, STATS_DOC_PATH);
@@ -55,14 +61,13 @@ export async function trackPageView() {
         await updateDoc(statsRef, {
             views: increment(1)
         });
-        if (analytics && logEvent) logEvent(analytics, 'page_view_increment');
     } catch (error) {
         console.warn("⚠️ View increment skipped");
     }
 }
 
 async function refreshLiveCounts() {
-    const { db, collection, getDocs, updateDoc, doc } = getFirebase();
+    const { db, collection, updateDoc, doc, getCountFromServer } = getFirebase();
     if (!db) return;
 
     try {
@@ -70,23 +75,40 @@ async function refreshLiveCounts() {
         const notesRef = collection(db, 'notes_approved');
 
         const [userSnap, notesSnap] = await Promise.all([
-            getDocs(usersRef).catch(() => null),
-            getDocs(notesRef).catch(() => null)
+            getCountFromServer(usersRef).catch(() => ({ data: () => ({ count: 0 }) })),
+            getCountFromServer(notesRef).catch(() => ({ data: () => ({ count: 0 }) }))
         ]);
 
-        if (userSnap && notesSnap) {
+        const studentCount = userSnap.data().count;
+        const notesCount = notesSnap.data().count;
+
+        // INSTANT UI UPDATE
+        if (lastStatsData) {
+            lastStatsData.students = studentCount;
+            lastStatsData.notes = notesCount;
+            updateUICounters(lastStatsData);
+        }
+
+        if (studentCount > 0 || notesCount > 0) {
             const statsRef = doc(db, STATS_DOC_PATH);
             await updateDoc(statsRef, {
-                students: userSnap.size,
-                notes: notesSnap.size
+                students: studentCount,
+                notes: notesCount
             });
-            console.log("📈 Collection counts synced.");
+            console.log(`📈 Synced Counts: ${studentCount} Students, ${notesCount} Notes`);
         }
-    } catch (error) { }
+    } catch (error) {
+        console.warn("Stats sync skipped:", error);
+    }
 }
 
+// ... rest of file (trackDownload, etc)
+
+// Remove the bottom auto-execution block
+
+
 export async function trackDownload() {
-    const { db, doc, updateDoc, increment, analytics, logEvent } = getFirebase();
+    const { db, doc, updateDoc, increment } = getFirebase();
     if (!db) return;
 
     const statsRef = doc(db, STATS_DOC_PATH);
@@ -94,7 +116,6 @@ export async function trackDownload() {
         await updateDoc(statsRef, {
             downloads: increment(1)
         });
-        if (analytics && logEvent) logEvent(analytics, 'file_download_increment');
     } catch (error) {
         console.warn("⚠️ Download increment skipped");
     }
@@ -213,12 +234,4 @@ window.statServices = {
     updateUI: () => updateUICounters(lastStatsData)
 };
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(initRealtimeStats, 1000); // Delayed slightly more to allow delayed firebase init
-        trackGA4PageView();
-    });
-} else {
-    setTimeout(initRealtimeStats, 1000);
-    trackGA4PageView();
-}
+

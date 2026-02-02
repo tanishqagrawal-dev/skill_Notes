@@ -4,20 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Google Analytics (GA4) - Standard Async -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q334FN7M78"></script>
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KSCJTPP875"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
-        gtag('config', 'G-Q334FN7M78', {
-            send_page_view: true
-        });
 
-        // Expose helper for SPA
-        window.trackSPAView = (path) => {
-            gtag('event', 'page_view', { page_path: path });
-        };
+        gtag('config', 'G-KSCJTPP875', {
+            send_page_view: true,
+            anonymize_ip: true
+        });
     </script>
     <link rel="shortcut icon" href="../assets/logo.jpg" type="image/jpeg">
     <title>Dashboard | SKiL MATRiX Notes</title>

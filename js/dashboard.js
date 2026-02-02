@@ -282,29 +282,38 @@ window.showToast = function (message, type = 'success') {
 
 window.updateNoteStat = async function (noteId, type) {
     const { db, doc, updateDoc, increment } = getFirebase();
-    // Immediate UI Optimistic Update
+
+    // 1. Optimistic UI Update (Instant Feedback)
     const note = NotesDB.find(n => n.id === noteId);
     if (note) {
-        if (type === 'view') note.views++;
-        if (type === 'download') note.downloads++;
+        if (type === 'view') note.views = (note.views || 0) + 1;
+        if (type === 'download') note.downloads = (note.downloads || 0) + 1;
         if (type === 'like') {
-            note.likes++;
+            note.likes = (note.likes || 0) + 1;
             alert("💖 Added to your liked resources!");
         }
     }
 
     if (!db) return;
+
     try {
+        // 2. Increment Firestore (Real Source of Truth)
         const noteRef = doc(db, "notes_approved", noteId);
         await updateDoc(noteRef, {
             [type + 's']: increment(1)
         });
-        if (type === 'download') trackDownload();
-        trackAnalytics(`note_${type}`, { id: noteId, title: note ? note.title : 'Unknown' });
+
+        // 3. Send to GA4 (Reporting)
+        if (type === 'download' && window.statServices?.trackNoteDownload) {
+            window.statServices.trackNoteDownload(noteId);
+        } else if (type === 'view' && window.statServices?.trackNoteView) {
+            window.statServices.trackNoteView(noteId);
+        }
+
     } catch (error) {
         console.error("Error updating stats:", error);
     }
-}
+};
 
 window.toggleNoteDislike = async function (noteId) {
     const { db, doc, updateDoc, increment } = getFirebase();
@@ -632,6 +641,11 @@ window.switchRole = function (userId, role, name) {
 function renderTabContent(tabId) {
     const contentArea = document.getElementById('tab-content');
     if (!contentArea) return;
+
+    // GA4 SPA Tracking
+    if (window.trackSPAView) {
+        window.trackSPAView(`/dashboard/${tabId}`);
+    }
 
     try {
         if (tabId === 'overview') {

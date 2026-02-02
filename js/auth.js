@@ -201,6 +201,7 @@ function initAuthForms() {
             const pass = document.getElementById('login-password').value;
             try {
                 await signInWithEmailAndPassword(auth, email, pass);
+                if (typeof gtag === 'function') gtag('event', 'login', { method: 'Email' });
             } catch (err) {
                 alert("Login Failed: " + err.message);
             }
@@ -217,6 +218,7 @@ function initAuthForms() {
             try {
                 await createUserWithEmailAndPassword(auth, email, pass);
                 if (window.statServices?.trackSignUp) window.statServices.trackSignUp('email');
+                if (typeof gtag === 'function') gtag('event', 'sign_up', { method: 'Email' });
             } catch (err) {
                 alert("Signup Failed: " + err.message);
             }
@@ -254,6 +256,7 @@ function initAuthForms() {
 
                 // 3. Track (Non-blocking)
                 if (window.statServices?.trackSignUp) window.statServices.trackSignUp('google');
+                if (typeof gtag === 'function') gtag('event', 'login', { method: 'Google' });
 
                 // 4. INSTANT REDIRECT
                 console.log("🚀 Instant Redirect to Dashboard...");
