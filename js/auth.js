@@ -85,48 +85,55 @@ export async function initAuth() {
                 college: 'medicaps' // default
             };
 
-            // DB Sync (Non-blocking usually, but awaits here for ensuring role correctness if needed)
-            if (db) {
-                try {
-                    const userRef = doc(db, 'users', user.uid);
-                    // We don't await this for the UI dispatch unless critical?
-                    // Better to dispatch fast, then update. 
-                    // But we need the ROLE for the dashboard redirect/render logic.
-                    // We will assume LocalStorage is correct first, then update.
+            // 1. Instant Dispatch (Optimistic)
+            // We dispatch immediately with basic/cached data so the dashboard opens instantly.
+            dispatchAuthReady({ user, currentUser: userData });
 
-                    getDoc(userRef).then(async (userSnap) => {
-                        if (userSnap.exists()) {
+            // 2. Background Sync (Non-blocking)
+            if (db) {
+                (async () => {
+                    try {
+                        const userRef = doc(db, 'users', user.uid);
+                        const inviteRef = doc(db, 'role_invites', user.email.toLowerCase());
+
+                        // Parallel fetch for speed
+                        const [userSnap, inviteSnap] = await Promise.all([
+                            getDoc(userRef),
+                            getDoc(inviteRef)
+                        ]);
+
+                        let hasChanges = false;
+
+                        if (inviteSnap.exists()) {
+                            const inviteData = inviteSnap.data();
+                            userData = { ...userData, ...inviteData, status: 'active', joinedAt: new Date().toISOString() };
+                            await setDoc(userRef, { ...userData, createdAt: serverTimestamp() }, { merge: true });
+                            const { deleteDoc } = window.firebaseServices;
+                            if (deleteDoc) await deleteDoc(inviteRef);
+                            hasChanges = true;
+                        } else if (userSnap.exists()) {
                             const params = userSnap.data();
                             const finalRole = isSuperAdmin ? 'superadmin' : params.role;
-                            userData = { ...userData, ...params, role: finalRole };
 
-                            // Force update role only if mismatch
-                            if (isSuperAdmin && params.role !== 'superadmin') {
-                                updateDoc(userRef, { role: 'superadmin' });
+                            // Check if role or college assignment changed
+                            if (userData.role !== finalRole || userData.collegeId !== params.collegeId) {
+                                userData = { ...userData, ...params, role: finalRole };
+                                hasChanges = true;
                             }
                         } else {
-                            if (isSuperAdmin) userData.role = 'superadmin';
-                            setDoc(userRef, {
-                                ...userData,
-                                createdAt: serverTimestamp()
-                            });
+                            // New user document creation
+                            await setDoc(userRef, { ...userData, createdAt: serverTimestamp() });
                         }
 
-                        // Update Cache
-                        localStorage.setItem('auth_user_full', JSON.stringify(userData));
-                        localStorage.setItem('auth_user', JSON.stringify({
-                            uid: userData.id,
-                            email: userData.email,
-                            role: userData.role
-                        }));
-
-                        // Redispatch with latest data if role changed significantly?
-                        // For now, simpler: just dispatch
-                    });
-
-                } catch (err) {
-                    console.error("Firestore Identity Sync Error:", err);
-                }
+                        if (hasChanges) {
+                            console.log("🔄 Auth Data Updated from DB - Refreshing Dashboard");
+                            localStorage.setItem('auth_user_full', JSON.stringify(userData));
+                            dispatchAuthReady({ user, currentUser: userData });
+                        }
+                    } catch (err) {
+                        console.error("Background Identity Sync Error:", err);
+                    }
+                })();
             }
 
             // --- REDIRECTION LOGIC ---
@@ -134,8 +141,6 @@ export async function initAuth() {
             const prefix = isInPagesDir ? '' : 'pages/';
 
             if (isAuthPage || path === '/' || path.endsWith('index.html')) {
-                // If redundant, already handled by inline script or simple redirect
-                // Avoid infinite reload
                 const role = userData.role;
                 if (role === 'admin' || role === 'superadmin') window.location.href = prefix + 'admin-dashboard.html';
                 else if (role === 'coadmin') window.location.href = prefix + 'coadmin-dashboard.html';
@@ -155,8 +160,6 @@ export async function initAuth() {
                 window.location.href = 'dashboard.html';
                 return;
             }
-
-            dispatchAuthReady({ user, currentUser: userData });
 
         } else {
             console.log("🔓 Auth Guard: No active Firebase session.");

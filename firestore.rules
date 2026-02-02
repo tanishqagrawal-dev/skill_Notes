@@ -48,23 +48,23 @@ service cloud.firestore {
     // --- Notes Pending ---
     match /notes_pending/{noteId} {
       allow read: if isAdmin() || 
-                  (isCoAdmin() && resource.data.college == getUserData().assignedCollege) ||
+                  (isCoAdmin() && (resource.data.collegeId == getUserData().collegeId || resource.data.college == getUserData().college)) ||
                   (isSignedIn() && resource.data.uploaderUid == request.auth.uid);
                   
       allow create: if isSignedIn(); // Anyone can upload
       
       allow update: if isAdmin() || 
-                    (isCoAdmin() && resource.data.college == getUserData().assignedCollege);
+                    (isCoAdmin() && (resource.data.collegeId == getUserData().collegeId || resource.data.college == getUserData().college));
                     
       allow delete: if isAdmin() || 
-                    (isCoAdmin() && resource.data.college == getUserData().assignedCollege);
+                    (isCoAdmin() && (resource.data.collegeId == getUserData().collegeId || resource.data.college == getUserData().college));
     }
 
     // --- Notes Approved ---
     match /notes_approved/{noteId} {
       allow read: if true; // Public access to approved notes
-      allow create: if isAdmin() || isCoAdmin(); // Only moved by admins
-      allow update: if isAdmin(); // Only admin can edit approved content
+      allow create: if isAdmin() || (isCoAdmin() && (request.resource.data.collegeId == getUserData().collegeId || request.resource.data.college == getUserData().college));
+      allow update: if isAdmin() || (isCoAdmin() && (resource.data.collegeId == getUserData().collegeId || resource.data.college == getUserData().college));
       allow delete: if isAdmin();
     }
     
@@ -82,10 +82,32 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
     // --- Private Drive ---
-    // User-scoped storage for files, AI notes, etc.
     match /privateDrive/{userId}/{document=**} {
       allow read, write: if isSignedIn() && isOwner(userId);
     }
 
+    // --- Presence ---
+    match /presence/{userId} {
+      allow read: if true; // Needed to count online students
+      allow write: if isSignedIn() && isOwner(userId);
+    }
+
+    // --- User Stats ---
+    match /user_stats/{userId} {
+      allow read, write: if isSignedIn() && isOwner(userId);
+    }
+
+    // --- Notifications ---
+    match /notifications/{notifId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isAdmin() || isCoAdmin(); // Only authorized can send
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid; // For marking as read
+      allow delete: if isAdmin();
+    }
+    // --- Role Invites ---
+    match /role_invites/{emailId} {
+      allow read, delete: if isAdmin() || (isSignedIn() && request.auth.token.email.lower() == emailId.lower());
+      allow write: if isAdmin();
+    }
   }
 }

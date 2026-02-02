@@ -168,25 +168,59 @@
     <script type="module" src="../js/stats.js"></script>
     <script src="../js/admin-console.js" defer></script>
 
+    <script>
+        // --- 0. INSTANT PRELOADER (Blocking script, minimal execution) ---
+        // This runs before ANY module imports to ensure window.authStatus is ready
+        // when dashboard.js eventually loads. This bypasses Firebase loading delay.
+        (function () {
+            window.authStatus = { ready: false, data: null };
+
+            try {
+                const raw = localStorage.getItem('auth_user_full') || localStorage.getItem('guest_session');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    console.log("⚡ Instant Preloader: Hydrating session from cache", parsed.email);
+
+                    // Populate global status immediately
+                    window.authStatus = {
+                        ready: true,
+                        data: {
+                            user: { uid: parsed.id, email: parsed.email, displayName: parsed.name },
+                            currentUser: parsed
+                        }
+                    };
+
+                    // Dispatch event immediately (in case listeners are somehow already there, though unlikely)
+                    window.dispatchEvent(new CustomEvent('auth-ready', { detail: window.authStatus.data }));
+                }
+            } catch (e) {
+                console.warn("Preloader Error:", e);
+            }
+        })();
+    </script>
+
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script src="../js/ai-client.js" defer></script>
+    <script src="../js/settings.js" defer></script>
+    <script src="../js/upload-helper.js" defer></script>
+    <script type="module" src="../js/stats.js"></script>
+    <script src="../js/admin-console.js" defer></script>
+
     <script type="module">
         import { initAuth } from '../js/auth.js';
 
-        // Golden Rule: Render UI first, then init Firebase/Auth
-        // requestIdleCallback ensures the main thread is free for rendering skeleton
-        const startApp = () => {
-            console.log("🚦 Starting App Initialization...");
-            import('../js/dashboard.js?v=4').then(module => {
-                console.log("📦 Dashboard Module Loaded");
-            });
+        // 1. Load Dashboard Logic (Optimized)
+        // We use dynamic import so it doesn't block the skeleton render
+        console.log("🚦 Starting App Initialization...");
 
-            initAuth();
-        };
+        import('../js/dashboard.js?v=5').then(module => {
+            console.log("📦 Dashboard Module Loaded");
+            // If dashboard.js loads AFTER preloader, it will check window.authStatus and render immediately.
+        });
 
-        if ('requestIdleCallback' in window) {
-            requestIdleCallback(() => setTimeout(startApp, 100));
-        } else {
-            setTimeout(startApp, 200);
-        }
+        // 2. Start Background Sync (Async)
+        // This downloads Firebase SDK and verifies token validity
+        setTimeout(initAuth, 0); 
     </script>
 </body>
 

@@ -103,111 +103,72 @@ let selState = { college: null, branch: null, year: null, subject: null };
 
 // --- CORE SYSTEM INITIALIZATION ---
 
+// function handleAuthReady removed (duplicate)
+
+// --- CONSOLIDATED AUTH INITIALIZATION ---
+let dashboardReady = false;
+
 function handleAuthReady(data) {
     if (!data) return;
     try {
         const { user, currentUser: appCurrentUser } = data;
-        if (user && appCurrentUser) {
-            console.log("🚀 Dashboard Session Active:", (appCurrentUser.email || "Guest"));
+        if (!user || !appCurrentUser) return;
 
-            currentUser = appCurrentUser;
-            window.currentUser = currentUser;
+        console.log("🚦 Dashboard Sync:", appCurrentUser.email, `[${appCurrentUser.role}]`);
 
-            // UI & DB
-            updateUserProfileUI();
-            initRealTimeDB();
+        const isNewSession = !currentUser || currentUser.id !== appCurrentUser.id;
+        const roleChanged = currentUser && currentUser.role !== appCurrentUser.role;
+
+        // Update Global State
+        currentUser = appCurrentUser;
+        window.currentUser = currentUser;
+
+        // 1. UI Refresh (Identities, Roles)
+        updateUserProfileUI();
+
+        // 2. Core Service Initialization (Only Once)
+        if (!dashboardReady || isNewSession) {
             initTabs();
-
-            // Settings
-            if (window.SettingsModule) {
-                window.SettingsModule.state.user = { ...currentUser };
-                window.SettingsModule.init();
-            }
-
-            // Stats
-            if (window.statServices && window.statServices.initRealtimeStats) {
-                window.statServices.initRealtimeStats();
-            }
-
             listenToNotifications();
 
-            // Telemetry
-            if (typeof trackStudent === 'function') trackStudent();
+            // Fire parallel background workers
+            Promise.all([
+                Promise.resolve(), // Removed undefined loadLiveDashboardStats
+                typeof trackStudent === 'function' ? trackStudent() : Promise.resolve(),
+                window.statServices?.initRealtimeStats ? window.statServices.initRealtimeStats() : Promise.resolve()
+            ]);
 
-            // Initial View - Specialized Routing
-            if (currentUser.role === 'superadmin') {
+            dashboardReady = true;
+        }
+
+        // 3. Dynamic Routing (On load or Role upgrade)
+        // If we are already on a tab, don't force a re-render unless role changed
+        const contentArea = document.getElementById('tab-content');
+        const isSkeleton = contentArea && (contentArea.innerHTML.includes('Loading') || contentArea.innerHTML.includes('skeleton'));
+
+        if (isNewSession || roleChanged || isSkeleton) {
+            const tabParam = (new URLSearchParams(window.location.search)).get('tab') || window.pendingTab;
+
+            if (tabParam) {
+                renderTabContent(tabParam);
+            } else if (currentUser.role === 'superadmin') {
                 renderTabContent('superadmin-panel');
             } else if (currentUser.role === 'coadmin' || currentUser.role === 'admin') {
                 renderTabContent('moderation-hub');
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                const modTab = document.querySelector('.nav-item[data-tab="moderation-hub"]');
-                if (modTab) modTab.classList.add('active');
             } else {
                 renderTabContent('overview');
             }
-        } else {
-            console.warn("🔓 Dashboard: No user data in auth-ready event.");
         }
     } catch (e) {
         console.error("CRITICAL Dashboard Init Error:", e);
-        const contentArea = document.getElementById('tab-content');
-        if (contentArea) {
-            contentArea.innerHTML = `
-                <div style="padding: 4rem; text-align: center; color: #ff4757;">
-                    <h2>🚧 Initialization Failed</h2>
-                    <p>${e.message}</p>
-                    <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 1rem;">Reload Dashboard</button>
-                </div>
-            `;
-        }
-
     }
 }
 
-// --- AUTH LISTENER FIX ---
+// Single Event Listener
 window.addEventListener('auth-ready', (e) => handleAuthReady(e.detail));
 
-// Check if auth was ready before we listened (Race Condition Fix)
+// Immediate Sync
 if (window.authStatus && window.authStatus.ready) {
-    console.log("⚡ Auth was ready early, syncing now...");
-    handleAuthReady(window.authStatus.data);
-} else {
-    // Failsafe
-    setTimeout(() => {
-        if (!currentUser && !window.location.href.includes('auth.html')) {
-            console.warn("⚠️ Auth timeout - verifying session state...");
-        }
-    }, 3000);
-}
-
-async function trackStudent() {
-    const { db, doc, setDoc, serverTimestamp } = getFirebase();
-    if (!db || !currentUser || currentUser.isGuest) return;
-
-    try {
-        const userRef = doc(db, "users", currentUser.id);
-        await setDoc(userRef, {
-            name: currentUser.name,
-            email: currentUser.email,
-            lastSeen: serverTimestamp(),
-            role: currentUser.role,
-            college: currentUser.college
-        }, { merge: true });
-        console.log("👤 User heart-beat updated.");
-    } catch (e) {
-        console.warn("Telemetry error:", e);
-    }
-}
-
-// Initial Listener
-window.addEventListener('auth-ready', (event) => {
-    console.log("📥 Received auth-ready event");
-    handleAuthReady(event.detail);
-});
-
-// Check if auth was already dispatched before dashboard.js loaded
-if (window.authStatus && window.authStatus.ready) {
-    console.log("⚡ Auth already ready, triggering handleAuthReady immediately");
     handleAuthReady(window.authStatus.data);
 }
 
@@ -280,11 +241,17 @@ window.updateNoteStat = async function (noteId, type) {
     // 1. Optimistic UI Update (Instant Feedback)
     const note = NotesDB.find(n => n.id === noteId);
     if (note) {
-        if (type === 'view') note.views = (note.views || 0) + 1;
-        if (type === 'download') note.downloads = (note.downloads || 0) + 1;
+        if (type === 'view') {
+            note.views = (note.views || 0) + 1;
+            window.trackStudyProgress(note.subject || 'misc', 'view');
+        }
+        if (type === 'download') {
+            note.downloads = (note.downloads || 0) + 1;
+            window.trackStudyProgress(note.subject || 'misc', 'download');
+        }
         if (type === 'like') {
             note.likes = (note.likes || 0) + 1;
-            alert("💖 Added to your liked resources!");
+            showToast("💖 Added to your bookmarks!");
         }
     }
 
@@ -638,15 +605,7 @@ function renderTabContent(tabId) {
     try {
         if (tabId === 'overview') {
             console.log("➡️ Rendering Overview...");
-            contentArea.innerHTML = '<div style="padding:4rem; text-align:center;"><h3>🚀 Loading Dashboard...</h3></div>';
-            setTimeout(() => {
-                try {
-                    contentArea.innerHTML = renderOverview();
-                } catch (e) {
-                    console.error("Render Overview Failed:", e);
-                    contentArea.innerHTML = `<div style="color:red; padding:2rem;">Render Fail: ${e.message}</div>`;
-                }
-            }, 50);
+            contentArea.innerHTML = renderOverview();
         } else if (tabId === 'notes') {
             selState = { college: null, branch: null, year: null, subject: null };
             contentArea.innerHTML = renderNotesHub();
@@ -655,23 +614,23 @@ function renderTabContent(tabId) {
             contentArea.innerHTML = renderPlanner();
         } else if (tabId === 'ai-tools') {
             contentArea.innerHTML = renderAITools();
-            setTimeout(window.checkServer, 100);
+            if (window.checkServer) window.checkServer();
         } else if (tabId === 'leaderboard') {
             contentArea.innerHTML = renderLeaderboard();
-            setTimeout(initLeaderboardListeners, 100);
+            if (typeof initLeaderboardListeners === 'function') initLeaderboardListeners();
         } else if (tabId === 'private-drive') {
             contentArea.innerHTML = renderPrivateDrive();
-            setTimeout(initPrivateDrive, 100);
+            if (typeof initPrivateDrive === 'function') initPrivateDrive();
         } else if (tabId === 'moderation-hub') {
             contentArea.innerHTML = renderModerationHub();
-            setTimeout(initModerationHub, 100);
+            if (typeof initModerationHub === 'function') initModerationHub();
         } else if (tabId === 'verification-hub') {
             contentArea.innerHTML = `<div class="tab-pane active fade-in" style="padding: 2rem;">
                 <h1 class="font-heading">🛡️ Moderation <span class="gradient-text">Queue</span></h1>
                 <p style="color: var(--text-dim); margin-bottom: 2rem;">Approve or reject pending note submissions.</p>
                 <div id="admin-queue" class="grid-1-col" style="display: grid; gap: 1rem;"></div>
             </div>`;
-            setTimeout(renderAdminModQueue, 100);
+            if (typeof renderAdminModQueue === 'function') renderAdminModQueue();
         } else if (tabId === 'superadmin-panel') {
             if (window.AdminConsole) {
                 contentArea.innerHTML = window.AdminConsole.render();
@@ -684,7 +643,7 @@ function renderTabContent(tabId) {
                 <p style="color: var(--text-dim); margin-bottom: 2rem;">Track the status of your contributed materials.</p>
                 <div id="my-uploads-grid" class="notes-grid-pro" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;"></div>
             </div>`;
-            setTimeout(renderMyUploads, 100);
+            if (typeof renderMyUploads === 'function') renderMyUploads();
         }
         // --- ROLE SPECIFIC ---
         else if (tabId === 'admin-console') {
@@ -979,122 +938,162 @@ function renderAITools() {
 }
 
 
-// Phase 1 Advanced Dashboard Implementation
+// --- PROFESSIONAL DASHBOARD ENGINE ---
+
+function renderDashboardSkeleton() {
+    return `
+        <div class="tab-pane active fade-in" style="padding: 2rem;">
+            <div style="margin-bottom: 2.5rem;">
+                <div class="skeleton" style="height: 48px; width: 400px; border-radius: 8px; margin-bottom: 0.5rem;"></div>
+                <div class="skeleton" style="height: 24px; width: 250px; border-radius: 4px;"></div>
+            </div>
+
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+                ${Array(3).fill(0).map(() => `<div class="glass-card skeleton" style="height: 120px; border-radius: 12px;"></div>`).join('')}
+            </div>
+
+            <div class="grid-2-col" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                <div class="glass-card skeleton" style="height: 250px; border-radius: 20px;"></div>
+                <div class="glass-card skeleton" style="height: 400px; border-radius: 20px;"></div>
+            </div>
+        </div>
+    `;
+}
+
 function renderOverview() {
-    // Phase 1: Personalization
-    // Safe checks for guest users who might have undefined name/college
-    const safeName = currentUser.name || "Guest User";
-    const userName = safeName.split(' ')[0] || "Guest";
-    const collegeId = currentUser.college || 'medicaps';
-    const college = (GlobalData.colleges && GlobalData.colleges.find(c => c.id === collegeId)?.name) || 'Medicaps University';
+    const contentArea = document.getElementById('tab-content');
+    if (!contentArea) return "";
+
+    // If data not loaded yet, show skeleton and trigger load
+    if (!currentUser || !currentUser.name) {
+        return renderDashboardSkeleton();
+    }
+
+    const userName = (currentUser.name || "Scholar").split(' ')[0];
+    const college = currentUser.collegeName || currentUser.college || 'Medicaps University';
     const year = currentUser.year || '3rd Year';
     const branch = currentUser.branch || 'CSE';
+    const roleLabel = currentUser.role !== 'user' ? `🛡️ Verified ${currentUser.role.toUpperCase()}` : `${year} • ${branch}`;
 
-    // Real-time subjects based on user branch/semester
-    const branchKey = `${branch.toLowerCase().replace(' ', '')}-${currentUser.semester || 'Semester 3'}`;
-    const mySubjects = (GlobalData.subjects && GlobalData.subjects[branchKey]) || [];
-    const subjects = mySubjects.length > 0 ? mySubjects.slice(0, 3).map((s, idx) => ({
-        name: s.name,
-        progress: [85, 60, 30][idx] || 45,
-        color: ['#2ecc71', '#f1c40f', '#e74c3c'][idx] || '#3498db'
-    })) : [
-        { name: 'Digital Electronics', progress: 85, color: '#2ecc71' },
-        { name: 'Data Structures', progress: 60, color: '#f1c40f' },
-        { name: 'Mathematics-III', progress: 30, color: '#e74c3c' }
+    // Calculate real readiness (from user_stats or mock for first time)
+    const userStats = currentUser.stats || { subjects: {} };
+    const readinessData = [
+        { name: 'Discrete Mathematics', progress: userStats.subjects?.dm?.readiness || 85, color: '#2ecc71', id: 'dm' },
+        { name: 'Digital Electronics', progress: userStats.subjects?.de?.readiness || 60, color: '#f1c40f', id: 'de' },
+        { name: 'Object Oriented Programming', progress: userStats.subjects?.oop?.readiness || 30, color: '#e74c3c', id: 'oop' }
     ];
 
+    const isGuest = !currentUser.email;
 
+    // AI Logic: What should they study?
+    let aiRec = {
+        title: "🤖 AI Recommendation",
+        msg: `Your retention in <strong>${readinessData[0].name}</strong> is dropping. We recommend solving a model paper to boost confidence.`,
+        actionType: "ai-tools",
+        actionLabel: "Generate Model Paper"
+    };
 
-    if (window.statServices && window.statServices.updateUI) {
-        setTimeout(window.statServices.updateUI, 0);
+    if (isGuest) {
+        aiRec = {
+            title: "🔐 Unlock AI Insights",
+            msg: "Create a free account to track your study progress, get personalized AI recommendations, and see your exam readiness.",
+            actionType: "login",
+            actionLabel: "Join Now"
+        };
+    } else if (readinessData[2].progress < 40) {
+        aiRec.msg = `We noticed you're struggling with <strong>${readinessData[2].name}</strong>. Why not check out some verified formula sheets?`;
+        aiRec.actionType = "notes";
+        aiRec.actionLabel = "Browse Resource Hub";
     }
 
     return `
         <div class="tab-pane active fade-in" style="padding: 2rem;">
             <!-- 1. Personalized Header -->
             <div style="margin-bottom: 2.5rem;">
-                <h1 class="font-heading" style="font-size: 2.5rem;">Welcome back, <span class="gradient-text">${userName}</span> 👋</h1>
-                <p style="color: var(--text-dim); font-size: 1.1rem;">${year} • ${branch} • ${college}</p>
+                <h1 class="font-heading" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Welcome back, <span class="gradient-text">${userName}</span> 👋</h1>
+                <p style="color: var(--text-dim); font-size: 1.1rem;">${roleLabel} • ${college}</p>
             </div>
 
-            <!-- 2. Live Activity Widgets -->
-            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+            <!-- 2. Live Activity Widgets (Firestore Real-time) -->
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
                 <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #2ecc71;">
-                    <div style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.5rem;">🔴 Live Students</div>
-                    <div class="live-counter" id="live-students" style="font-size: 2rem; font-weight: 700;">124</div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="font-size: 0.9rem; color: var(--text-dim);">🔴 Live Students</span>
+                        <span style="font-size: 0.8rem; color: #2ecc71;">● Live</span>
+                    </div>
+                    <div id="stat-active" style="font-size: 2.5rem; font-weight: 700; margin-top:0.5rem;">--</div>
                 </div>
                 <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #3498db;">
-                    <div style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.5rem;">🔥 Trending Now</div>
-                    <div style="font-size: 2rem; font-weight: 700;" id="trending-notes">${NotesDB.length} Notes</div>
+                    <div style="font-size: 0.9rem; color: var(--text-dim);">🔥 Trending Now</div>
+                    <div id="stat-notes" style="font-size: 2.5rem; font-weight: 700; margin-top:0.5rem;">--</div>
+                    <div style="font-size: 0.75rem; color: var(--text-dim);">Premium Resources</div>
                 </div>
                 <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #9b59b6;">
-                    <div style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.5rem;">⬇️ Global Downloads</div>
-                    <div class="live-counter" id="global-downloads" style="font-size: 2rem; font-weight: 700;">0</div>
+                    <div style="font-size: 0.9rem; color: var(--text-dim);">⬇️ Global Downloads</div>
+                    <div id="stat-downloads" style="font-size: 2.5rem; font-weight: 700; margin-top:0.5rem;">--</div>
                 </div>
             </div>
 
-            <div class="grid-2-col" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;">
+            <div class="grid-2-col" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem; align-items: start;">
                 
-                <!-- Main Content: Quick Actions & Recently Viewed -->
-                <div style="display: flex; flex-direction: column; gap: 2rem;">
+                <div style="display: flex; flex-direction: column; gap: 2.5rem;">
                     
-                    <!-- 4. "What Next?" AI Card -->
-                    <div class="glass-card" style="background: linear-gradient(135deg, rgba(108, 99, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%); border: 1px solid rgba(108, 99, 255, 0.3); padding: 2rem; position: relative; overflow: hidden;">
-                        <div style="position: absolute; top: -10px; right: -10px; font-size: 8rem; opacity: 0.05; transform: rotate(15deg);">🤖</div>
-                        <h3 class="font-heading">🤖 AI Recommendation</h3>
-                        <p style="margin-bottom: 1.5rem; max-width: 80%;">Your retention in <strong>${subjects[0]?.name || 'Core Subjects'}</strong> is dropping. We recommend solving a model paper to boost confidence.</p>
+                    <!-- 4. AI Insights Card -->
+                    <div class="glass-card" style="background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 100%); border: 1px solid rgba(108, 99, 255, 0.2); padding: 2.5rem; position: relative; overflow: hidden; border-radius: 24px;">
+                        <div style="position: absolute; top: -20px; right: -20px; font-size: 10rem; opacity: 0.03; transform: rotate(15deg);">🤖</div>
+                        <h3 class="font-heading" style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--secondary);">✨ ${aiRec.title}</h3>
+                        <p style="margin-bottom: 2rem; max-width: 85%; font-size: 1.1rem; line-height: 1.6; color: #eee;">${aiRec.msg}</p>
                         <div style="display: flex; gap: 1rem;">
-                            <button class="btn btn-primary" onclick="renderTabContent('ai-tools')">Generate Model Paper</button>
-                            <button class="btn btn-ghost" onclick="renderTabContent('planner')">Schedule Revision</button>
+                            <button class="btn btn-primary" onclick="${isGuest ? "window.location.href='../pages/auth.html'" : `renderTabContent('${aiRec.actionType}')`}">${aiRec.actionLabel}</button>
+                            ${!isGuest ? '<button class="btn btn-ghost" onclick="renderTabContent(\'planner\')">Schedule Revision</button>' : ''}
                         </div>
                     </div>
 
-                    <!-- Quick Actions -->
+                    <!-- 5. Quick Access Path -->
                     <div>
-                        <h3 class="font-heading" style="margin-bottom: 1rem;">🚀 Quick Actions</h3>
-                        <div class="grid-2-col" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
-                           <div class="quick-action-card glass-card" onclick="renderNotesHub()" style="cursor: pointer; text-align: center; padding: 1.5rem; transition: transform 0.2s;">
-                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📚</div>
-                                <div>Notes Hub</div>
+                        <h3 class="font-heading" style="margin-bottom: 1.5rem;">🚀 Personalized Track</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem;">
+                           <div class="glass-card wobble-hover" onclick="renderTabContent('private-drive')" style="cursor: pointer; padding: 2rem; text-align: center; border: 1px solid var(--border-glass);">
+                                <div style="font-size: 2.5rem; margin-bottom:1rem;">📂</div>
+                                <div style="font-weight:600;">My Drive</div>
+                                <div style="font-size:0.7rem; color: var(--text-dim); margin-top:0.3rem;">Stored Notes</div>
                            </div>
-                           <div class="quick-action-card glass-card" onclick="renderTabContent('ai-paper')" style="cursor: pointer; text-align: center; padding: 1.5rem; transition: transform 0.2s;">
-                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">🤖</div>
-                                <div>AI Paper</div>
+                           <div class="glass-card wobble-hover" onclick="renderTabContent('ai-tools')" style="cursor: pointer; padding: 2rem; text-align: center; border: 1px solid var(--border-glass);">
+                                <div style="font-size: 2.5rem; margin-bottom:1rem;">🤖</div>
+                                <div style="font-weight:600;">AI Lab</div>
+                                <div style="font-size:0.7rem; color: var(--text-dim); margin-top:0.3rem;">Predict Papers</div>
                            </div>
-                           <div class="quick-action-card glass-card" onclick="renderTabContent('planner')" style="cursor: pointer; text-align: center; padding: 1.5rem; transition: transform 0.2s;">
-                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📅</div>
-                                <div>Planner</div>
+                           <div class="glass-card wobble-hover" onclick="renderTabContent('leaderboard')" style="cursor: pointer; padding: 2rem; text-align: center; border: 1px solid var(--border-glass);">
+                                <div style="font-size: 2.5rem; margin-bottom:1rem;">🏆</div>
+                                <div style="font-weight:600;">Ranking</div>
+                                <div style="font-size:0.7rem; color: var(--text-dim); margin-top:0.3rem;">View Peers</div>
                            </div>
                         </div>
                     </div>
-
                 </div>
 
-                <!-- 3. Exam Readiness Meter (Sidebar) -->
-                <div>
-                    <div class="glass-card" style="padding: 1.5rem;">
-                         <h3 class="font-heading" style="margin-bottom: 1.5rem;">📊 Exam Readiness</h3>
-                         <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                            ${subjects.map(sub => `
-                                <div>
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
-                                        <span>${sub.name}</span>
-                                        <span style="font-weight: 700; color: ${sub.color};">${sub.progress}%</span>
-                                    </div>
-                                    <div style="width: 100%; background: rgba(255,255,255,0.1); height: 8px; border-radius: 10px; overflow: hidden;">
-                                        <div style="width: ${sub.progress}%; background: ${sub.color}; height: 100%; border-radius: 10px; transition: width 1s ease;"></div>
-                                    </div>
+                <!-- 3. Readiness Meter (Sidebar) -->
+                <div class="glass-card" style="padding: 2rem; border-radius: 24px;">
+                     <h3 class="font-heading" style="margin-bottom: 2rem; font-size: 1.3rem;">📊 Readiness Analysis</h3>
+                     <div style="display: flex; flex-direction: column; gap: 2rem;">
+                        ${readinessData.map(sub => `
+                            <div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.95rem;">
+                                    <span style="color: var(--text-dim);">${sub.name}</span>
+                                    <span style="font-weight: 700; color: ${sub.color};">${sub.progress}%</span>
                                 </div>
-                            `).join('')}
-                         </div>
-                         <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-glass); text-align: center;">
-                            <button class="btn btn-sm btn-ghost" style="width: 100%;" onclick="renderTabContent('analytics')">View Full Analysis</button>
-                         </div>
-                    </div>
+                                <div style="width: 100%; background: rgba(255,255,255,0.05); height: 10px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.02);">
+                                    <div style="width: ${sub.progress}%; background: linear-gradient(90deg, ${sub.color}, white); height: 100%; border-radius: 20px; transition: width 1.5s cubic-bezier(0.1, 0.7, 1.0, 0.1);"></div>
+                                </div>
+                            </div>
+                        `).join('')}
+                     </div>
+                     <div style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-glass); text-align: center;">
+                        <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1.5rem;">Calculated based on downloads, views, and AI interactions.</p>
+                        <button class="btn btn-ghost" style="width: 100%;" onclick="renderTabContent('analytics')">Deeper Insights →</button>
+                     </div>
                 </div>
             </div>
-
-
         </div>
     `;
 }
@@ -3514,10 +3513,10 @@ window.initModerationHub = async function () {
 
     let q = query(collection(db, "notes_pending"));
     if (collegeFilter !== 'all') {
-        q = query(collection(db, "notes_pending"), where("college", "==", collegeFilter));
+        q = query(collection(db, "notes_pending"), where("collegeId", "==", collegeFilter));
     } else if (currentUser.role === 'coadmin') {
-        // Co-admins only see their college by default if not admin
-        q = query(collection(db, "notes_pending"), where("college", "==", currentUser.assignedCollege || currentUser.college));
+        const myColl = currentUser.collegeId || currentUser.college || currentUser.assignedCollege;
+        q = query(collection(db, "notes_pending"), where("collegeId", "==", myColl));
     }
 
     moderationUnsubscribe = onSnapshot(q, (snapshot) => {
@@ -3796,3 +3795,59 @@ window.showToast = function (msg, type = 'success') {
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 };
+
+async function loadLiveDashboardStats() {
+    const { db, collection, query, where, onSnapshot, limit } = getFirebase();
+    if (!db) return;
+
+    const isCoAdmin = currentUser?.role === 'coadmin';
+    const myColl = currentUser?.collegeId || currentUser?.college;
+
+    console.log("📊 Loading Dashboard Live Data...");
+
+    // 1. Live Students (Heartbeat listener)
+    try {
+        let qPresence = query(collection(db, "presence"), where("online", "==", true));
+        if (isCoAdmin && myColl) {
+            qPresence = query(collection(db, "presence"), where("online", "==", true), where("collegeId", "==", myColl));
+        }
+        onSnapshot(qPresence, (snap) => {
+            const el = document.getElementById('stat-active');
+            if (el) el.innerText = snap.size > 0 ? snap.size : "0";
+        });
+    } catch (e) { console.warn("Presence sync fail:", e); }
+
+    // 2. Trending Notes Count
+    try {
+        let qTrending = query(collection(db, "notes_approved"), limit(5));
+        if (isCoAdmin && myColl) {
+            qTrending = query(collection(db, "notes_approved"), where("collegeId", "==", myColl), limit(5));
+        }
+        onSnapshot(qTrending, (snap) => {
+            const el = document.getElementById('stat-notes');
+            if (el) el.innerText = snap.size > 0 ? snap.size : "0";
+        });
+    } catch (e) { console.warn("Trending sync fail:", e); }
+}
+
+// Global hook for tracking progress
+window.trackStudyProgress = async function (subjectId, action = 'view') {
+    const { db, doc, setDoc, increment } = getFirebase();
+    if (!db || !currentUser || currentUser.id === 'guest') return;
+
+    const statsRef = doc(db, "user_stats", currentUser.id);
+    const weight = action === 'download' ? 5 : 1;
+
+    try {
+        await setDoc(statsRef, {
+            subjects: {
+                [subjectId]: {
+                    score: increment(weight),
+                    lastActive: new Date().toISOString()
+                }
+            }
+        }, { merge: true });
+    } catch (e) { }
+};
+
+window.renderOverviewSkeleton = renderDashboardSkeleton;
