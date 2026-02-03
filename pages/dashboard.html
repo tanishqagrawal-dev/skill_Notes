@@ -103,8 +103,8 @@
 
                 <div class="top-actions">
                     <button class="btn btn-ghost notification-btn">🔔</button>
-                    <button class="btn btn-primary upload-btn" style="border-radius: 12px; font-weight: 600;">+ Upload
-                        Note</button>
+                    <button class="primary-btn upload-btn" onclick="openUploadModal()"
+                        style="padding: 10px 24px; min-width: 140px;">+ Upload Note</button>
                 </div>
             </header>
 
@@ -209,18 +209,22 @@
     <script type="module">
         import { initAuth } from '../js/auth.js';
 
-        // 1. Load Dashboard Logic (Optimized)
-        // We use dynamic import so it doesn't block the skeleton render
-        console.log("🚦 Starting App Initialization...");
+        // Golden Rule: Render UI first, then init Firebase/Auth
+        // requestIdleCallback ensures the main thread is free for rendering skeleton
+        const startApp = () => {
+            console.log("🚦 Starting App Initialization...");
+            import('../js/dashboard.js?v=5').then(module => {
+                console.log("📦 Dashboard Module Loaded");
+            });
 
-        import('../js/dashboard.js?v=5').then(module => {
-            console.log("📦 Dashboard Module Loaded");
-            // If dashboard.js loads AFTER preloader, it will check window.authStatus and render immediately.
-        });
+            initAuth();
+        };
 
-        // 2. Start Background Sync (Async)
-        // This downloads Firebase SDK and verifies token validity
-        setTimeout(initAuth, 0); 
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => setTimeout(startApp, 100));
+        } else {
+            setTimeout(startApp, 200);
+        }
     </script>
 </body>
 

@@ -281,7 +281,7 @@ window.updateNoteStat = async function (noteId, type) {
             return;
         }
 
-        const noteRef = doc(db, "notes_approved", noteId);
+        const noteRef = doc(db, "notes", noteId);
         await updateDoc(noteRef, {
             [type + 's']: increment(1)
         });
@@ -305,7 +305,7 @@ window.toggleNoteDislike = async function (noteId) {
 
     if (!db) return;
     try {
-        const noteRef = doc(db, "notes_approved", noteId);
+        const noteRef = doc(db, "notes", noteId);
         await updateDoc(noteRef, {
             dislikes: increment(1)
         });
@@ -441,8 +441,10 @@ window.openUploadModal = async function () {
                     <label for="stream">Stream</label>
                     <select id="stream">
                         <option value="">Select stream</option>
-                        <option value="ug">Undergraduate</option>
-                        <option value="pg">Postgraduate</option>
+                        <option value="btech">B.Tech</option>
+                        <option value="mtech">M.Tech</option>
+                        <option value="bba">BBA</option>
+                        <option value="mba">MBA</option>
                     </select>
                     </div>
 
@@ -606,20 +608,29 @@ async function handleDashboardNoteSubmit(e) {
     btn.innerText = "Processing...";
     statusArea.style.display = 'block';
 
+    // Helper to get text from select
+    const getSelectText = (id) => {
+        const el = document.getElementById(id);
+        return el.options[el.selectedIndex]?.text || '';
+    };
+
     // Metadata construction
     const metadata = {
         title: title,
         collegeId: collegeId || (currentUser.collegeId || 'medicaps'),
+        collegeName: getSelectText('college'),
         stream: stream,
         branch: branch,
         semester: semester,
         subject: subject,
-        type: 'notes', // Hardcoded as per user request
+        subjectName: getSelectText('subject'),
+        type: 'notes',
         uploader: currentUser.name,
         uploaderUid: currentUser.id,
         uploaderEmail: currentUser.email,
         date: new Date().toLocaleDateString(),
-        targetCollection: (currentUser.role === 'admin' || currentUser.role === 'superadmin') ? 'notes_approved' : 'notes_pending'
+        targetCollection: 'notes',
+        status: 'approved'
     };
 
     try {
@@ -2023,7 +2034,7 @@ window.showNotes = function (activeTab = 'notes') {
 
     console.log("📡 Connecting Real-Time Listener:", selState);
     const q = query(
-        collection(db, "notes_approved"),
+        collection(db, "notes"),
         where("collegeId", "==", selState.college.id),
         where("branchId", "==", selState.branch.id),
         where("semester", "==", selState.semester),
