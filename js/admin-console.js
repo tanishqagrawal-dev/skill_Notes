@@ -260,17 +260,14 @@ window.AdminConsole = {
             // Trigger global refresh for now to update counts (if UI is visible)
             // Ideally we'd have a render() call here, but for now we rely on user navigation or manual refresh
             // Just updating the KPI counters if they exist
-            const kpiGrid = document.querySelector('.admin-grid-kpi');
-            if (kpiGrid) kpiGrid.innerHTML = `
-                ${this.renderKPI('👥 Total Users', users.length, 'Active in DB', '#7B61FF')}
-                ${this.renderKPI('👨‍💼 Co-Admins', this.state.coadmins.length, `${invitedCoAdmins.length} Pending`, '#00F2FF')}
-                ${this.renderKPI('🛡️ Pending Reviews', (this.state.pendingNotes || []).length, 'Global Queue', '#F1C40F')}
-                ${this.renderKPI('🏫 Colleges', GlobalData.colleges.length, 'Supported', '#2ECC71')}
-            `;
-
-            // If the co-admin table is visible, force a re-render of just that table?
-            // Since we don't have reactive bindings, let's just re-render the active view if it's 'coadmins'
-            // For chaos reduction, we won't auto-render efficiently here, just update state.
+            // If the co-admin table is visible, force a re-render of just the relevant content area
+            const viewContent = document.getElementById('admin-view-content');
+            // We check if the current active button is the 'Manage Co-Admins' one (the 2nd button in the nav)
+            const activeBtn = document.querySelector('.glass-card button.btn-primary');
+            if (viewContent && activeBtn && activeBtn.innerText.includes('Co-Admins')) {
+                console.log("🔄 Reactive UI: Updating Co-Admin Table...");
+                viewContent.innerHTML = this.renderCoAdminManager();
+            }
         };
 
         this.unsubscribeUsers = onSnapshot(collection(db, 'users'), (snap) => {
@@ -299,82 +296,75 @@ window.AdminConsole = {
     // --- ACTIONS ---
 
     addCoAdmin: async function () {
-        const email = document.getElementById('ca-email').value;
-        const collegeId = document.getElementById('ca-college').value;
+        const emailInput = document.getElementById('ca-email');
+        const collegeSelect = document.getElementById('ca-college');
+        const email = emailInput?.value;
+        const collegeId = collegeSelect?.value;
 
         if (!email) return alert("Please enter an email.");
+        if (!collegeId) return alert("Please select a college.");
 
-        const { db, collection, getDocs, query, where, updateDoc, doc } = window.firebaseServices;
-        const confirmMsg = `Are you sure you want to promote ${email} to CO-ADMIN for ${collegeId.toUpperCase()}?`;
+        const { db, collection, getDocs, query, where, updateDoc, doc, setDoc } = window.firebaseServices;
+        const cleanEmail = email.trim().toLowerCase();
+
+        const confirmMsg = `Grant CO-ADMIN access to ${cleanEmail} for ${collegeId.toUpperCase()}?`;
         if (!confirm(confirmMsg)) return;
 
         try {
-            const cleanEmail = email.trim().toLowerCase();
-            let uid = null;
+            console.log("🛠️ Promoting user:", cleanEmail);
+            let targetUid = null;
 
-            // 1. Try Local Search first (Fastest/Case Insensitive)
+            // 1. Check local state first (fast)
             const localUser = this.state.users.find(u => u.email?.toLowerCase() === cleanEmail);
-            if (localUser) {
-                uid = localUser.id;
-            } else {
-                // 2. Fallback to direct Firestore query (In case snapshot is still loading)
-                const usersRef = collection(db, 'users');
-                const q = query(usersRef, where("email", "==", cleanEmail));
-                const querySnapshot = await getDocs(q);
 
-                if (querySnapshot.empty) {
-                    // Try one last time with exact match in case they stored it case-sensitively
-                    const q2 = query(usersRef, where("email", "==", email.trim()));
-                    const qs2 = await getDocs(q2);
-                    if (qs2.empty) {
-                        // User not found -> PRE-AUTHORIZE (Invite)
-                        const { setDoc } = window.firebaseServices;
-                        const inviteRef = doc(db, 'role_invites', cleanEmail);
-                        await setDoc(inviteRef, {
-                            email: cleanEmail,
-                            role: 'coadmin',
-                            collegeId: collegeId,
-                            college: collegeId,
-                            permissions: {
-                                approveNotes: true,
-                                rejectNotes: true
-                            },
-                            invitedAt: new Date().toISOString(),
-                            status: 'pending'
-                        });
-                        alert(`📩 User not found, but we've Pre-Authorized this email!\n\nWhen ${cleanEmail} signs in for the first time, they will automatically receive Co-Admin rights.`);
-                        this.switchView('coadmins');
-                        return;
-                    }
-                    uid = qs2.docs[0].id;
-                } else {
-                    uid = querySnapshot.docs[0].id;
+            if (localUser) {
+                targetUid = localUser.id;
+            } else {
+                // 2. Direct Firestore Query (Robust)
+                const q = query(collection(db, 'users'), where("email", "==", cleanEmail));
+                const snap = await getDocs(q);
+                if (!snap.empty) {
+                    targetUid = snap.docs[0].id;
                 }
             }
 
-            // Update Role (Strict scoping)
-            const userRef = doc(db, 'users', uid);
-            const updatePayload = {
-                role: 'coadmin',
-                college: collegeId, // Scoped to exactly one college
-                collegeId: collegeId,
-                permissions: {
-                    approveNotes: true,
-                    rejectNotes: true
-                },
-                assignedBy: (window.currentUser ? window.currentUser.id : 'admin'),
-                assignedByEmail: (window.currentUser ? window.currentUser.email : 'admin'),
-                assignedAt: new Date().toISOString(),
-                promotedAt: new Date().toISOString()
-            };
+            if (targetUid) {
+                // DIRECT PROMOTION
+                const userRef = doc(db, 'users', targetUid);
+                await updateDoc(userRef, {
+                    role: 'coadmin',
+                    college: collegeId,
+                    collegeId: collegeId,
+                    permissions: {
+                        approveNotes: true,
+                        rejectNotes: true,
+                        manageContent: true
+                    },
+                    assignedBy: (window.currentUser ? window.currentUser.id : 'admin'),
+                    assignedByEmail: (window.currentUser ? window.currentUser.email : 'system'),
+                    promotedAt: new Date().toISOString()
+                });
+                alert("✅ Success! User promoted directly to Co-Admin.");
+            } else {
+                // PRE-AUTHORIZATION (User hasn't signed up yet)
+                const inviteRef = doc(db, 'role_invites', cleanEmail);
+                await setDoc(inviteRef, {
+                    email: cleanEmail,
+                    role: 'coadmin',
+                    collegeId: collegeId,
+                    college: collegeId,
+                    status: 'pending',
+                    invitedAt: new Date().toISOString()
+                });
+                alert(`📩 User not found in DB. We've Pre-Authorized ${cleanEmail}.\n\nThey will get Co-Admin rights the moment they first sign in.`);
+            }
 
-            await updateDoc(userRef, updatePayload);
-
-            alert("✅ Success! User is now a Co-Admin.");
-            this.switchView('coadmins'); // Refresh
+            // Reset UI
+            if (emailInput) emailInput.value = '';
+            this.switchView('coadmins');
 
         } catch (e) {
-            console.error(e);
+            console.error("Promotion Error:", e);
             alert("Error: " + e.message);
         }
     },

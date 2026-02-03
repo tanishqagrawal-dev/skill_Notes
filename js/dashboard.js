@@ -146,19 +146,19 @@ function handleAuthReady(data) {
         }
 
         // 3. Dynamic Routing (On load or Role upgrade)
-        // If we are already on a tab, don't force a re-render unless role changed
         const contentArea = document.getElementById('tab-content');
         const isSkeleton = contentArea && (contentArea.innerHTML.includes('Loading') || contentArea.innerHTML.includes('skeleton'));
 
         if (isNewSession || roleChanged || isSkeleton) {
-            const tabParam = (new URLSearchParams(window.location.search)).get('tab') || window.pendingTab;
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab') || window.pendingTab;
 
             if (tabParam) {
                 renderTabContent(tabParam);
-            } else if (currentUser.role === 'superadmin') {
-                renderTabContent('superadmin-panel');
-            } else if (currentUser.role === 'coadmin' || currentUser.role === 'admin') {
-                renderTabContent('moderation-hub');
+            } else if (currentUser.role === 'superadmin' || currentUser.role === 'admin') {
+                renderTabContent('admin-console');
+            } else if (currentUser.role === 'coadmin') {
+                renderTabContent('coadmin-hub');
             } else {
                 renderTabContent('overview');
             }
@@ -675,11 +675,17 @@ function initTabs() {
         sidebarNav.insertBefore(adminConsole, settingsNode);
     }
 
-    // Re-bind listeners
+    // Re-bind listeners and set initial active state
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialTab = urlParams.get('tab') || window.pendingTab ||
+        (currentUser.role === 'coadmin' ? 'coadmin-hub' :
+            (currentUser.role === 'admin' || currentUser.role === 'superadmin' ? 'admin-console' : 'overview'));
+
     document.querySelectorAll('.nav-item').forEach(item => {
-        // Remove old listeners to prevent duplicates? onclick overwrites so it's fine.
+        if (item.dataset.tab === initialTab) item.classList.add('active');
+
         item.onclick = (e) => {
-            if (!item.dataset.tab) return; // Allow normal links (like Back to Home) to work
+            if (!item.dataset.tab) return;
             e.preventDefault();
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             item.classList.add('active');

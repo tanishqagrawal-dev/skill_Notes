@@ -73,7 +73,7 @@ window.CoAdminModule = {
         if (!db) return;
 
         const currentColl = this.myCollege;
-        const q = query(collection(db, 'notes_pending'), where('collegeId', '==', currentColl));
+        const q = query(collection(db, 'notes'), where('collegeId', '==', currentColl), where('status', '==', 'pending'));
 
         this.unsubscribe = onSnapshot(q, (snapshot) => {
             const notes = [];
@@ -97,22 +97,16 @@ window.CoAdminModule = {
 
         try {
             await runTransaction(db, async (transaction) => {
-                const noteRef = doc(db, 'notes_pending', noteId);
+                const noteRef = doc(db, 'notes', noteId);
                 const noteDoc = await transaction.get(noteRef);
                 if (!noteDoc.exists()) throw "Note missing";
 
-                const newNoteData = {
-                    ...noteDoc.data(),
+                transaction.update(noteRef, {
                     status: 'approved',
                     approvedBy: window.currentUser.id,
                     approvedByRole: 'coadmin',
-                    approvedAt: serverTimestamp(),
-                    views: 0, likes: 0, saves: 0
-                };
-
-                const approvedRef = doc(db, 'notes_approved', noteId);
-                transaction.set(approvedRef, newNoteData);
-                transaction.delete(noteRef);
+                    approvedAt: serverTimestamp()
+                });
             });
             alert("✅ Approved!");
         } catch (e) {
@@ -123,9 +117,9 @@ window.CoAdminModule = {
 
     rejectNote: async function (noteId) {
         if (!confirm("Reject this note?")) return;
-        const { db, doc, deleteDoc } = window.firebaseServices;
+        const { db, doc, updateDoc } = window.firebaseServices;
         try {
-            await deleteDoc(doc(db, 'notes_pending', noteId));
+            await updateDoc(doc(db, 'notes', noteId), { status: 'rejected' });
             alert("🚫 Rejected.");
         } catch (e) {
             alert("Error: " + e.message);
