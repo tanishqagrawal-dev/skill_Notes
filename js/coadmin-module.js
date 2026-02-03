@@ -10,9 +10,9 @@ window.CoAdminModule = {
 
     init: function (user) {
         if (this.isInitialized) return;
-        this.myCollege = user.collegeId || user.college || user.assignedCollege;
+        this.myCollege = user.college;
         if (!this.myCollege) {
-            console.error("CoAdmin Module: No college assigned.");
+            console.error("CoAdmin Module: No assigned college found in user profile.");
             return;
         }
 
@@ -73,7 +73,12 @@ window.CoAdminModule = {
         if (!db) return;
 
         const currentColl = this.myCollege;
-        const q = query(collection(db, 'notes'), where('collegeId', '==', currentColl), where('status', '==', 'pending'));
+        // Requirement: Filter by 'college' field exactly as stored in user.college
+        const q = query(
+            collection(db, 'notes'),
+            where('collegeId', '==', currentColl),
+            where('status', '==', 'pending')
+        );
 
         this.unsubscribe = onSnapshot(q, (snapshot) => {
             const notes = [];
@@ -104,7 +109,6 @@ window.CoAdminModule = {
                 transaction.update(noteRef, {
                     status: 'approved',
                     approvedBy: window.currentUser.id,
-                    approvedByRole: 'coadmin',
                     approvedAt: serverTimestamp()
                 });
             });

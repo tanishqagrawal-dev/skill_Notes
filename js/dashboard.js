@@ -38,13 +38,7 @@ const Roles = {
 
 // --- GLOBAL STATE ---
 const GlobalData = {
-    colleges: [
-        { id: 'medicaps', name: 'Medicaps University', logo: '../assets/logos/medicaps.png' },
-        { id: 'lpu', name: 'LPU University', logo: '../assets/logos/lpu.png' },
-        { id: 'ips', name: 'IPS Academy', logo: '../assets/logos/ips.png' },
-        { id: 'cdgi', name: 'CDGI University', logo: '../assets/logos/cdgi.png' },
-        { id: 'iitd', name: 'IIT Delhi', logo: '../assets/logos/iitd.png' }
-    ],
+    colleges: [], // Now fetched dynamically from Firestore
     branches: [
         { id: 'cse', name: 'Computer Science', icon: '💻' },
         { id: 'ece', name: 'Electronics', icon: '⚡' },
@@ -138,7 +132,9 @@ function handleAuthReady(data) {
                 Promise.all([
                     Promise.resolve(), // Removed undefined loadLiveDashboardStats
                     typeof trackStudent === 'function' ? trackStudent() : Promise.resolve(),
-                    window.statServices?.initRealtimeStats ? window.statServices.initRealtimeStats() : Promise.resolve()
+                    window.statServices?.initRealtimeStats ? window.statServices.initRealtimeStats() : Promise.resolve(),
+                    initDynamicColleges(),
+                    initNotesSync()
                 ]);
             }
 
@@ -310,8 +306,41 @@ window.toggleNoteDislike = async function (noteId) {
             dislikes: increment(1)
         });
     } catch (e) {
-        console.error("Dislike error:", e);
+        console.error("Auth Ready Fail:", e);
     }
+}
+
+function initDynamicColleges() {
+    const { db, collection, onSnapshot } = getFirebase();
+    if (!db) return;
+
+    return new Promise((resolve) => {
+        onSnapshot(collection(db, 'colleges'), (snap) => {
+            GlobalData.colleges = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            console.log("🏫 Dynamic Colleges Synced:", GlobalData.colleges.length);
+            // Dispatch event for components that need to re-render (like Notes Hub filters)
+            window.dispatchEvent(new CustomEvent('collegesUpdated', { detail: GlobalData.colleges }));
+            resolve();
+        });
+    });
+}
+
+function initNotesSync() {
+    const { db, collection, onSnapshot } = getFirebase();
+    if (!db || unsubscribeNotes) return;
+
+    console.log("📡 Initializing Notes Hub Synchronization...");
+    unsubscribeNotes = onSnapshot(collection(db, 'notes'), (snap) => {
+        NotesDB = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        console.log(`📦 Notes Hub Updated: ${NotesDB.length} records in cache.`);
+
+        // Trigger UI refreshes if on a hub page
+        const verificationHub = document.getElementById('admin-drop-zone');
+        if (verificationHub) {
+            const contentArea = document.getElementById('tab-content');
+            if (contentArea) renderTabContent('moderation-hub');
+        }
+    });
 }
 
 window.toggleNoteBookmark = function (noteId) {
@@ -431,10 +460,14 @@ window.openUploadModal = async function () {
                     <!-- COLLEGE (SELECT) -->
                     <div class="form-group full">
                     <label for="college">College Name</label>
-                    <select id="college">
+                    <select id="college" onchange="const nc = document.getElementById('college-new-wrapper'); if(this.value==='new_college'){nc.style.display='block';} else {nc.style.display='none';}">
                         <option value="">Select college</option>
                         ${GlobalData.colleges.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                        <option value="new_college">+ Other (Add New Institution)</option>
                     </select>
+                    <div id="college-new-wrapper" style="display: none; margin-top: 10px;">
+                        <input type="text" id="college-new-name" placeholder="Enter Full Institution Name" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--primary); border-radius: 8px; color: white;">
+                    </div>
                     </div>
 
                     <div class="form-group">
@@ -615,12 +648,35 @@ async function handleDashboardNoteSubmit(e) {
     };
 
     // Metadata construction
+    let finalCollegeId = collegeId;
+    let finalCollegeName = getSelectText('college');
+
+    if (collegeId === 'new_college') {
+        const newName = document.getElementById('college-new-name').value;
+        if (!newName) {
+            alert("Please enter the new college name.");
+            btn.disabled = false;
+            btn.innerText = "Upload Note";
+            return;
+        }
+        finalCollegeId = newName.toLowerCase().trim().replace(/\s+/g, '-');
+        finalCollegeName = newName;
+
+        const { db, doc, setDoc, serverTimestamp } = getFirebase();
+        await setDoc(doc(db, 'colleges', finalCollegeId), {
+            id: finalCollegeId,
+            name: finalCollegeName,
+            status: 'active',
+            createdAt: serverTimestamp()
+        }, { merge: true });
+    }
+
     const metadata = {
         title: title,
-        collegeId: collegeId || (currentUser.collegeId || 'medicaps'),
-        collegeName: getSelectText('college'),
-        stream: stream,
-        branch: branch,
+        collegeId: finalCollegeId || (currentUser.collegeId || 'medicaps'),
+        collegeName: finalCollegeName,
+        streamId: stream,
+        branchId: branch,
         semester: semester,
         subject: subject,
         subjectName: getSelectText('subject'),
@@ -630,7 +686,7 @@ async function handleDashboardNoteSubmit(e) {
         uploaderEmail: currentUser.email,
         date: new Date().toLocaleDateString(),
         targetCollection: 'notes',
-        status: 'approved'
+        status: (currentUser.role === 'admin' || currentUser.role === 'superadmin' || currentUser.role === 'coadmin') ? 'approved' : 'pending'
     };
 
     try {
@@ -1464,7 +1520,12 @@ function renderVerificationHub() {
 
                     <!-- Metadata Form -->
                     <div class="upload-meta-form" style="display: flex; flex-direction: column; gap: 1rem;">
-                        <select id="up-college" class="search-input" style="width: 100%;"><option value="medicaps">Medi-Caps University</option></select>
+                        <select id="up-college" class="search-input" style="width: 100%;" onchange="const nc = document.getElementById('up-college-new'); if(this.value==='new_college'){nc.style.display='block'; nc.focus();} else {nc.style.display='none';}">
+                            <option value="">Select College</option>
+                            ${GlobalData.colleges.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                            <option value="new_college">+ Add New College...</option>
+                        </select>
+                        <input type="text" id="up-college-new" class="search-input" placeholder="Enter New College Name" style="width: 100%; display: none; margin-top: 5px; border-color: var(--primary);">
                         <div style="display: flex; gap: 1rem;">
                             <select id="up-stream" class="search-input" style="width: 100%;" onchange="updateUpBranches()">
                                 <option value="btech">B.Tech</option>
@@ -1573,14 +1634,34 @@ window.executeAdminUpload = async function () {
         return;
     }
 
+    let finalCollegeId = document.getElementById('up-college').value;
+    let finalCollegeName = document.getElementById('up-college').options[document.getElementById('up-college').selectedIndex].text;
+
+    if (finalCollegeId === 'new_college') {
+        const newName = document.getElementById('up-college-new').value;
+        if (!newName) return alert("Please enter the new college name.");
+
+        finalCollegeId = newName.toLowerCase().trim().replace(/\s+/g, '-');
+        finalCollegeName = newName;
+
+        const { db, doc, setDoc, serverTimestamp } = getFirebase();
+        await setDoc(doc(db, 'colleges', finalCollegeId), {
+            id: finalCollegeId,
+            name: finalCollegeName,
+            status: 'active',
+            createdAt: serverTimestamp()
+        }, { merge: true });
+    }
+
     const metadata = {
         title: document.getElementById('up-title').value || selectedAdminFile.name.replace(/\.[^/.]+$/, ""),
-        collegeId: document.getElementById('up-college').value,
+        collegeId: finalCollegeId,
+        collegeName: finalCollegeName,
         streamId: document.getElementById('up-stream').value,
         branchId: document.getElementById('up-branch').value,
         year: document.getElementById('up-year').value,
         semester: document.getElementById('up-sem').value,
-        subject: document.getElementById('up-subject').value, // Changed from subjectId to subject
+        subject: document.getElementById('up-subject').value,
         type: document.getElementById('up-type').value,
         uploader: currentUser.name,
         uploaded_by: currentUser.id,
@@ -3651,12 +3732,12 @@ window.initModerationHub = async function () {
 
     const collegeFilter = document.getElementById('mod-filter-college')?.value || "all";
 
-    let q = query(collection(db, "notes_pending"));
+    let q = query(collection(db, "notes"), where("status", "==", "pending"));
     if (collegeFilter !== 'all') {
-        q = query(collection(db, "notes_pending"), where("collegeId", "==", collegeFilter));
+        q = query(collection(db, "notes"), where("status", "==", "pending"), where("collegeId", "==", collegeFilter));
     } else if (currentUser.role === 'coadmin') {
         const myColl = currentUser.collegeId || currentUser.college || currentUser.assignedCollege;
-        q = query(collection(db, "notes_pending"), where("collegeId", "==", myColl));
+        q = query(collection(db, "notes"), where("status", "==", "pending"), where("collegeId", "==", myColl));
     }
 
     moderationUnsubscribe = onSnapshot(q, (snapshot) => {
@@ -3731,17 +3812,15 @@ window.closeModModal = function () {
 
 window.executeModeration = async function (action) {
     if (!activeReviewNote) return;
-    const { db, doc, setDoc, deleteDoc, serverTimestamp } = getFirebase();
+    const { db, doc, updateDoc, serverTimestamp } = getFirebase();
     if (!db) return;
 
     try {
         const noteId = activeReviewNote.id;
-        const pendingRef = doc(db, "notes_pending", noteId);
+        const noteRef = doc(db, "notes", noteId);
 
         if (action === 'approve') {
-            const approvedRef = doc(db, "notes_approved", noteId);
-            await setDoc(approvedRef, {
-                ...activeReviewNote,
+            await updateDoc(noteRef, {
                 status: 'approved',
                 approvedAt: serverTimestamp(),
                 approvedBy: currentUser.id,
@@ -3749,34 +3828,35 @@ window.executeModeration = async function (action) {
                 downloads: 0,
                 likes: 0
             });
-            await deleteDoc(pendingRef);
 
             // Send Notification
-            await createNotification(activeReviewNote.uploaderUid, {
-                title: "✅ Note Approved!",
-                message: `Your note "${activeReviewNote.title}" has been approved and is now live.`,
-                type: "success"
-            });
+            if (typeof createNotification === 'function') {
+                await createNotification(activeReviewNote.uploaderUid, {
+                    title: "✅ Note Approved!",
+                    message: `Your note "${activeReviewNote.title}" has been approved and is now live.`,
+                    type: "success"
+                });
+            }
 
             showToast("Note approved and made live!");
         } else if (action === 'reject') {
             const reason = prompt("Reason for rejection:");
             if (!reason) return;
-            const rejectedRef = doc(db, "notes_rejected", noteId);
-            await setDoc(rejectedRef, {
-                ...activeReviewNote,
+
+            await updateDoc(noteRef, {
                 status: 'rejected',
                 rejectedAt: serverTimestamp(),
                 rejectionReason: reason
             });
-            await deleteDoc(pendingRef);
 
             // Send Notification
-            await createNotification(activeReviewNote.uploaderUid, {
-                title: "❌ Note Rejected",
-                message: `Your note "${activeReviewNote.title}" was rejected. Reason: ${reason}`,
-                type: "error"
-            });
+            if (typeof createNotification === 'function') {
+                await createNotification(activeReviewNote.uploaderUid, {
+                    title: "❌ Note Rejected",
+                    message: `Your note "${activeReviewNote.title}" was rejected. Reason: ${reason}`,
+                    type: "error"
+                });
+            }
 
             showToast("Note rejected.");
         }
@@ -3784,7 +3864,7 @@ window.executeModeration = async function (action) {
         closeModModal();
     } catch (e) {
         console.error("Mod action error:", e);
-        showToast("Action failed", "error");
+        showToast("Action failed: " + e.message, "error");
     }
 };
 
@@ -3957,9 +4037,9 @@ async function loadLiveDashboardStats() {
 
     // 2. Trending Notes Count
     try {
-        let qTrending = query(collection(db, "notes_approved"), limit(5));
+        let qTrending = query(collection(db, "notes"), where("status", "==", "approved"), limit(5));
         if (isCoAdmin && myColl) {
-            qTrending = query(collection(db, "notes_approved"), where("collegeId", "==", myColl), limit(5));
+            qTrending = query(collection(db, "notes"), where("status", "==", "approved"), where("collegeId", "==", myColl), limit(5));
         }
         onSnapshot(qTrending, (snap) => {
             const el = document.getElementById('stat-notes');
