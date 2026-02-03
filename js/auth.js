@@ -116,8 +116,11 @@ export async function initAuth() {
                             const finalRole = isSuperAdmin ? 'superadmin' : params.role;
 
                             // Check if role or college assignment changed
-                            if (userData.role !== finalRole || userData.collegeId !== params.collegeId) {
+                            if (userData.role !== finalRole || userData.college !== params.college || userData.collegeId !== params.collegeId) {
                                 userData = { ...userData, ...params, role: finalRole };
+                                // Ensure both fields exist for consistency
+                                if (params.collegeId && !userData.college) userData.college = params.collegeId;
+                                if (params.college && !userData.collegeId) userData.collegeId = params.college;
                                 hasChanges = true;
                             }
                         } else {

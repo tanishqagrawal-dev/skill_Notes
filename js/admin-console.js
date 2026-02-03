@@ -354,7 +354,7 @@ window.AdminConsole = {
 
             // Update Role (Strict scoping)
             const userRef = doc(db, 'users', uid);
-            await updateDoc(userRef, {
+            const updatePayload = {
                 role: 'coadmin',
                 college: collegeId, // Scoped to exactly one college
                 collegeId: collegeId,
@@ -363,9 +363,12 @@ window.AdminConsole = {
                     rejectNotes: true
                 },
                 assignedBy: (window.currentUser ? window.currentUser.id : 'admin'),
+                assignedByEmail: (window.currentUser ? window.currentUser.email : 'admin'),
                 assignedAt: new Date().toISOString(),
                 promotedAt: new Date().toISOString()
-            });
+            };
+
+            await updateDoc(userRef, updatePayload);
 
             alert("✅ Success! User is now a Co-Admin.");
             this.switchView('coadmins'); // Refresh

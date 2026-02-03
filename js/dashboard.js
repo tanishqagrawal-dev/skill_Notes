@@ -128,17 +128,19 @@ function handleAuthReady(data) {
         // 1. UI Refresh (Identities, Roles)
         updateUserProfileUI();
 
-        // 2. Core Service Initialization (Only Once)
-        if (!dashboardReady || isNewSession) {
+        // 2. Core Service Initialization (Only Once or on Role Change)
+        if (!dashboardReady || isNewSession || roleChanged) {
             initTabs();
             listenToNotifications();
 
             // Fire parallel background workers
-            Promise.all([
-                Promise.resolve(), // Removed undefined loadLiveDashboardStats
-                typeof trackStudent === 'function' ? trackStudent() : Promise.resolve(),
-                window.statServices?.initRealtimeStats ? window.statServices.initRealtimeStats() : Promise.resolve()
-            ]);
+            if (!dashboardReady || isNewSession) {
+                Promise.all([
+                    Promise.resolve(), // Removed undefined loadLiveDashboardStats
+                    typeof trackStudent === 'function' ? trackStudent() : Promise.resolve(),
+                    window.statServices?.initRealtimeStats ? window.statServices.initRealtimeStats() : Promise.resolve()
+                ]);
+            }
 
             dashboardReady = true;
         }
