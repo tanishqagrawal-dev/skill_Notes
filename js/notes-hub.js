@@ -53,7 +53,7 @@ function initNotesData() {
         return;
     }
 
-    const q = query(collection(db, "notes"), orderBy("created_at", "desc"));
+    const q = query(collection(db, "notes_approved"), orderBy("created_at", "desc"));
     onSnapshot(q, (snapshot) => {
         NotesDB = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
@@ -261,11 +261,10 @@ window.startDirectUpload = function () {
             type: 'notes',
             stream: 'b.tech', // Defaulting to b.tech for Hub context
             uploader: currentUser.name,
-            uploadedBy: currentUser.id,
+            uploaderUid: currentUser.id,
             uploaderEmail: currentUser.email,
             date: new Date().toLocaleDateString(),
-            created_at: new Date().toISOString(),
-            targetCollection: 'notes'
+            targetCollection: (currentUser.role === 'admin' || currentUser.role === 'superadmin') ? 'notes_approved' : 'notes_pending'
         };
 
         try {
@@ -302,8 +301,10 @@ async function handleNoteSubmit(e) {
     btn.disabled = true;
     btn.innerText = "Processing...";
 
-    const targetColl = "notes";
-    const status = 'approved';
+    const isAdmin = currentUser.role === Roles.SUPER_ADMIN;
+    const isMatchingCoAdmin = currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === selState.college.id;
+    const targetColl = (isAdmin || isMatchingCoAdmin) ? "notes_approved" : "notes_pending";
+    const status = (isAdmin || isMatchingCoAdmin) ? 'approved' : 'pending';
 
     const newNote = {
         title: title,
@@ -314,8 +315,7 @@ async function handleNoteSubmit(e) {
         year: selState.year,
         subject: selState.subject.id,
         uploader: currentUser.name,
-        uploadedBy: currentUser.id,
-        uploaderEmail: currentUser.email,
+        uploaded_by: currentUser.id,
         status: status,
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         views: 0,
@@ -359,14 +359,14 @@ window.fetchNotesBySubject = async function (subjectId, tabType = 'notes') {
     console.log(`🔍 Fetching ${tabType} for subject: ${subjectId}`);
 
     try {
-        const targetColl = "notes";
+        const targetColl = "notes_approved";
         const q = query(
             collection(db, targetColl),
             where("collegeId", "==", selState.college.id),
             where("subject", "==", subjectId),
             where("type", "==", tabType),
             where("status", "==", "approved"),
-            orderBy("created_at", "desc")
+            orderBy("date", "desc")
         );
 
         const snapshot = await getDocs(q);
@@ -581,7 +581,7 @@ window.updateNoteStat = async function (noteId, type) {
 
     if (!db) return;
     try {
-        const noteRef = doc(db, "notes", noteId);
+        const noteRef = doc(db, "notes_approved", noteId);
         await updateDoc(noteRef, {
             [type + 's']: increment(1)
         });
