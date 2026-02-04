@@ -14,35 +14,25 @@ service cloud.firestore {
     function hasRole(role) {
       return isSignedIn() && getUserData().role == role;
     }
-    
-    function isAdmin() {
-      return hasRole('superadmin') || hasRole('admin');
-    }
-    
-    function isCoAdmin() {
-      return hasRole('coadmin');
-    }
 
-    function isOwner(userId) {
-      return request.auth.uid == userId;
+    // --- Colleges Collection ---
+    match /colleges/{collegeId} {
+      allow read: if true; // Everyone can see colleges
+      allow write: if hasRole('admin') || hasRole('superadmin');
     }
 
     // --- Users Collection ---
     match /users/{userId} {
-      allow read: if isSignedIn(); // Users can read basic profiles (for comments etc)
-      allow create: if isSignedIn() && isOwner(userId); // Initial sign up
-      allow update: if isAdmin() || isOwner(userId); // Only Admin can change roles/colleges
-      allow delete: if isAdmin();
-      
-      // Strict Role Protection: Users cannot escalate their own privileges
-      // (This validation logic assumes client doesn't send role/college updates, 
-      // but strictly, we should validate `request.resource.data.role` hasn't changed if not admin)
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && (request.auth.uid == userId);
+      allow update: if hasRole('admin') || hasRole('superadmin') || (request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'college']));
+      allow delete: if hasRole('admin') || hasRole('superadmin');
     }
 
-    // --- Co-Admins Collection (Audit Log / List) ---
-    match /coadmins/{userId} {
-      allow read: if isAdmin();
-      allow write: if isAdmin();
+    // --- College Admins Mapping ---
+    match /college_admins/{collegeId} {
+      allow read: if true;
+      allow write: if hasRole('admin') || hasRole('superadmin');
     }
 
     // --- Notes Collection (Unified) ---
@@ -67,57 +57,39 @@ service cloud.firestore {
                     (isCoAdmin() && (resource.data.collegeId == getUserData().collegeId || resource.data.college == getUserData().college));
     }
 
-    // --- Legacy Collections (Optional/Deprecated) ---
-    match /notes_pending/{noteId} {
-      allow read, write: if true; 
-    }
-    match /notes_approved/{noteId} {
-      allow read: if true; // Public access to approved notes
-      allow create: if isAdmin() || (isCoAdmin() && (request.resource.data.collegeId == getUserData().collegeId || request.resource.data.college == getUserData().college));
-      allow update: if isAdmin() || (isCoAdmin() && (resource.data.collegeId == getUserData().collegeId || resource.data.college == getUserData().college));
-      allow delete: if isAdmin();
-    }
-    
-    // --- Stats ---
-    match /stats/{statId} {
-      allow read: if true;
-      allow create, update: if (request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly(['views', 'downloads', 'students', 'notes'])) || isAdmin() || isCoAdmin();
-      allow delete: if isAdmin();
+      // Creation Rule: Signed in users can upload
+      allow create: if isSignedIn();
+
+      // Update Rule: Only Admin or the designated Co-Admin for that specific college
+      allow update: if hasRole('admin') || hasRole('superadmin') || (
+                      hasRole('coadmin') && 
+                      getUserData().college == resource.data.collegeId &&
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'approvedBy', 'rejectionReason'])
+                    );
+
+      allow delete: if hasRole('admin') || hasRole('superadmin');
     }
 
-    // --- Support Queries ---
-    match /support_queries/{queryId} {
-      allow create: if true; // Public contact form
-      allow read, update, delete: if isAdmin();
-    }
-    // --- Private Drive ---
-    match /privateDrive/{userId}/{document=**} {
-      allow read, write: if isSignedIn() && isOwner(userId);
-    }
-
-    // --- Presence ---
-    match /presence/{userId} {
-      allow read: if true; // Needed to count online students
-      allow write: if isSignedIn() && isOwner(userId);
-    }
-
-    // --- User Stats ---
-    match /user_stats/{userId} {
-      allow read, write: if isSignedIn() && isOwner(userId);
-    }
-
-    // --- Notifications ---
-    match /notifications/{notifId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow create: if isAdmin() || isCoAdmin(); // Only authorized can send
-      allow update: if isSignedIn() && resource.data.userId == request.auth.uid; // For marking as read
-      allow delete: if isAdmin();
-    }
     // --- Role Invites ---
     match /role_invites/{emailId} {
-      allow read, delete: if isSignedIn(); // TODO: Re-tighten after debugging invite claiming
-      allow write: if isAdmin();
+      allow read, delete: if isSignedIn();
+      allow write: if hasRole('admin') || hasRole('superadmin');
+    }
+
+    // --- Stats & Others ---
+    match /stats/{statId} {
+      allow read: if true;
+      allow write: if hasRole('admin') || hasRole('superadmin') || hasRole('coadmin');
+    }
+
+    match /support_queries/{queryId} {
+      allow create: if true;
+      allow read, write: if hasRole('admin') || hasRole('superadmin');
+    }
+
+    match /presence/{userId} {
+      allow read: if true;
+      allow write: if isSignedIn() && request.auth.uid == userId;
     }
   }
 }

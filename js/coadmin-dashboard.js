@@ -140,7 +140,11 @@ function initLiveFeed() {
     // NOTE: Firestore requires an index for this. If it fails, I'll fallback to client-side filter of a larger set? No, that's insecure.
     // I will assume simple query works.
 
-    const q = query(collection(db, 'notes_pending'), where('collegeId', '==', myCollege));
+    const q = query(
+        collection(db, 'notes'),
+        where('status', '==', 'pending'),
+        where('collegeId', '==', myCollege)
+    );
 
     onSnapshot(q, (snapshot) => {
         const notes = [];
@@ -200,58 +204,30 @@ function renderQueueList() {
 // --- ACTIONS ---
 
 window.approveNote = async function (noteId) {
-    const { db, doc, runTransaction, serverTimestamp } = getFirebase();
+    const { db, doc, updateDoc, serverTimestamp } = getFirebase();
     const note = pendingNotes.find(n => n.id === noteId);
     if (!note) return;
 
-    // Strict College Match Check (Client Side Double Check)
     if (note.collegeId !== myCollege) {
         alert("⚠️ Security Alert: You cannot approve notes for other colleges.");
         return;
     }
 
-    if (!confirm(`Approve "${note.title}"? It will be live for all ${note.collegeId} students.`)) return;
+    if (!confirm(`Approve "${note.title}"?`)) return;
 
     try {
-        await runTransaction(db, async (transaction) => {
-            // 1. Read Note (Verify existence and status)
-            const noteRef = doc(db, 'notes_pending', noteId);
-            const noteDoc = await transaction.get(noteRef);
-            if (!noteDoc.exists()) throw "Note does not exist!";
-
-            // 2. Prepare Approved Data
-            const newNoteData = {
-                ...noteDoc.data(),
-                status: 'approved',
-                approvedBy: currentUser.id,
-                approvedByRole: 'coadmin',
-                approvedAt: serverTimestamp(),
-                views: 0,
-                saves: 0,
-                likes: 0
-            };
-
-            // 3. Create in notes_approved
-            // We use the same ID or a new one? New ID is safer to avoid collision, but same ID is cleaner for tracking.
-            // Let's use a new doc reference in notes_approved
-            const approvedRef = doc(db, 'notes_approved', noteId); // Using same ID
-            transaction.set(approvedRef, newNoteData);
-
-            // 4. Delete from pending
-            transaction.delete(noteRef);
-
-            // 5. Update Co-Admin Stats (Optional)
-            const coAdminRef = doc(db, 'coadmins', currentUser.id);
-            transaction.set(coAdminRef, {
-                email: currentUser.email,
-                college: myCollege,
-                lastActive: serverTimestamp()
-            }, { merge: true });
+        const noteRef = doc(db, 'notes', noteId);
+        await updateDoc(noteRef, {
+            status: 'approved',
+            approvedBy: currentUser.id,
+            approvedByRole: 'coadmin',
+            approvedAt: serverTimestamp(),
+            views: 0,
+            downloads: 0,
+            likes: 0
         });
 
-        alert("✅ Note Approved Successfully!");
-        // UI will update automatically via listener
-
+        alert("✅ Note Approved successfully!");
     } catch (e) {
         console.error("Approval Error:", e);
         alert("Approval Failed: " + e.message);
@@ -259,13 +235,17 @@ window.approveNote = async function (noteId) {
 };
 
 window.rejectNote = async function (noteId) {
-    const reason = prompt("Enter rejection reason (optional):");
-    if (reason === null) return; // Cancelled
+    const reason = prompt("Enter rejection reason:");
+    if (reason === null) return;
 
-    const { db, doc, deleteDoc } = getFirebase();
+    const { db, doc, updateDoc, serverTimestamp } = getFirebase();
     try {
-        await deleteDoc(doc(db, 'notes_pending', noteId));
-        alert("🚫 Note Rejected and Removed.");
+        await updateDoc(doc(db, 'notes', noteId), {
+            status: 'rejected',
+            rejectionReason: reason,
+            rejectedAt: serverTimestamp()
+        });
+        alert("🚫 Note Rejected.");
     } catch (e) {
         alert("Error: " + e.message);
     }

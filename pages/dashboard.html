@@ -199,32 +199,24 @@
         })();
     </script>
 
+    <!-- Core Application Logic -->
     <script type="module" src="../js/firebase-config.js"></script>
     <script src="../js/ai-client.js" defer></script>
     <script src="../js/settings.js" defer></script>
     <script src="../js/upload-helper.js" defer></script>
     <script type="module" src="../js/stats.js"></script>
     <script src="../js/admin-console.js" defer></script>
+    <script src="../js/coadmin-module.js" defer></script>
 
     <script type="module">
         import { initAuth } from '../js/auth.js';
 
-        // Golden Rule: Render UI first, then init Firebase/Auth
-        // requestIdleCallback ensures the main thread is free for rendering skeleton
-        const startApp = () => {
-            console.log("🚦 Starting App Initialization...");
-            import('../js/dashboard.js?v=5').then(module => {
-                console.log("📦 Dashboard Module Loaded");
-            });
-
-            initAuth();
-        };
-
-        if ('requestIdleCallback' in window) {
-            requestIdleCallback(() => setTimeout(startApp, 100));
-        } else {
-            setTimeout(startApp, 200);
-        }
+        // Instant Startup: No artificial delays
+        console.log("🚦 Starting App Initialization...");
+        import('../js/dashboard.js?v=6').then(module => {
+            console.log("📦 Dashboard Module Loaded");
+        });
+        initAuth();
     </script>
 </body>
 

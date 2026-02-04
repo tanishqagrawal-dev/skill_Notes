@@ -89,7 +89,27 @@ export async function initAuth() {
             // We dispatch immediately with basic/cached data so the dashboard opens instantly.
             dispatchAuthReady({ user, currentUser: userData });
 
-            // 2. Background Sync (Non-blocking)
+            // --- REDIRECTION & ACCESS CONTROL ---
+            const triggerRedirect = (data) => {
+                const currentRole = data.role;
+                const isInPagesDir = path.includes('/pages/');
+                const prefix = isInPagesDir ? '' : 'pages/';
+
+                if (isAuthPage || path === '/' || path.endsWith('index.html')) {
+                    console.log("🚀 Role-based Redirect:", currentRole);
+                    if (currentRole === 'admin' || currentRole === 'superadmin') window.location.href = prefix + 'admin-dashboard.html';
+                    else if (currentRole === 'coadmin') window.location.href = prefix + 'coadmin-dashboard.html';
+                    else window.location.href = prefix + 'dashboard.html';
+                    return true;
+                }
+                return false;
+            };
+
+            // 1. Optimistic Redirect (If we have cached data, go now!)
+            const wasRedirected = triggerRedirect(userData);
+            if (wasRedirected) return;
+
+            // 2. Background Sync (Non-blocking usually, but critical for role correctness)
             if (db) {
                 (async () => {
                     try {
@@ -103,11 +123,12 @@ export async function initAuth() {
                         ]);
 
                         let hasChanges = false;
+                        let syncData = { ...userData };
 
                         if (inviteSnap.exists()) {
                             const inviteData = inviteSnap.data();
-                            userData = { ...userData, ...inviteData, status: 'active', joinedAt: new Date().toISOString() };
-                            await setDoc(userRef, { ...userData, createdAt: serverTimestamp() }, { merge: true });
+                            syncData = { ...syncData, ...inviteData, status: 'active', joinedAt: new Date().toISOString() };
+                            await setDoc(userRef, { ...syncData, createdAt: serverTimestamp() }, { merge: true });
                             const { deleteDoc } = window.firebaseServices;
                             if (deleteDoc) await deleteDoc(inviteRef);
                             hasChanges = true;
@@ -116,19 +137,28 @@ export async function initAuth() {
                             const finalRole = isSuperAdmin ? 'superadmin' : params.role;
 
                             // Check if role or college assignment changed
-                            if (userData.role !== finalRole || userData.collegeId !== params.collegeId) {
-                                userData = { ...userData, ...params, role: finalRole };
+                            if (syncData.role !== finalRole || syncData.college !== params.college || syncData.collegeId !== params.collegeId) {
+                                syncData = { ...syncData, ...params, role: finalRole };
+                                // Ensure both fields exist for consistency
+                                if (params.collegeId && !syncData.college) syncData.college = params.collegeId;
+                                if (params.college && !syncData.collegeId) syncData.collegeId = params.college;
                                 hasChanges = true;
                             }
                         } else {
                             // New user document creation
-                            await setDoc(userRef, { ...userData, createdAt: serverTimestamp() });
+                            await setDoc(userRef, { ...syncData, createdAt: serverTimestamp() });
                         }
 
                         if (hasChanges) {
-                            console.log("🔄 Auth Data Updated from DB - Refreshing Dashboard");
-                            localStorage.setItem('auth_user_full', JSON.stringify(userData));
-                            dispatchAuthReady({ user, currentUser: userData });
+                            console.log("🔄 Role Sync Complete - Updating Session");
+                            localStorage.setItem('auth_user_full', JSON.stringify(syncData));
+                            dispatchAuthReady({ user, currentUser: syncData });
+
+                            // If we didn't redirect optimistically (e.g. cache was 'user' but DB is 'coadmin')
+                            // AND we are on a landing page, trigger redirect now!
+                            if (isAuthPage || path === '/' || path.endsWith('index.html')) {
+                                triggerRedirect(syncData);
+                            }
                         }
                     } catch (err) {
                         console.error("Background Identity Sync Error:", err);
@@ -136,33 +166,16 @@ export async function initAuth() {
                 })();
             }
 
-            // --- REDIRECTION LOGIC ---
-            const isInPagesDir = path.includes('/pages/');
-            const prefix = isInPagesDir ? '' : 'pages/';
-
-            if (isAuthPage || path === '/' || path.endsWith('index.html')) {
-                const role = userData.role;
-                if (role === 'admin' || role === 'superadmin') window.location.href = prefix + 'admin-dashboard.html';
-                else if (role === 'coadmin') window.location.href = prefix + 'coadmin-dashboard.html';
-                else window.location.href = prefix + 'dashboard.html';
-                return;
-                */
-                console.log("⏸️ Auto-redirect paused on Auth Page as per user request.");
-            }
-
-            // --- ACCESS GUARD ---
-            if (isAdminDashboard && userData.role !== 'admin' && userData.role !== 'superadmin') {
-                alert("⛔ Access Denied: Admins Only");
+            // --- ACCESS GUARD (Fallback for direct URL access) ---
+            if (isAdminDashboard && role !== 'admin' && role !== 'superadmin') {
                 window.location.href = 'dashboard.html';
                 return;
             }
 
-            if (isCoAdminDashboard && userData.role !== 'coadmin' && userData.role !== 'superadmin') {
-                alert("⛔ Access Denied: Co-Admins Only");
+            if (isCoAdminDashboard && role !== 'coadmin' && role !== 'superadmin') {
                 window.location.href = 'dashboard.html';
                 return;
             }
-
         } else {
             console.log("🔓 Auth Guard: No active Firebase session.");
 
@@ -177,12 +190,9 @@ export async function initAuth() {
                 });
                 // Ensure we are on the dashboard
                 if (isAuthPage || path === '/' || path.endsWith('index.html')) {
-                    /*
                     const isInPagesDir = path.includes('/pages/');
                     const prefix = isInPagesDir ? '' : 'pages/';
                     window.location.href = prefix + 'dashboard.html';
-                    */
-                    console.log("⏸️ Guest Auto-redirect paused.");
                 }
             }
             else if ((isUserDashboard || isAdminDashboard || isCoAdminDashboard)) {
