@@ -53,13 +53,13 @@ function initNotesData() {
         return;
     }
 
-    const q = query(collection(db, "notes_approved"), orderBy("created_at", "desc"));
+    const q = query(collection(db, "notes"), where("status", "==", "approved"));
     onSnapshot(q, (snapshot) => {
-        NotesDB = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        NotesDB = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
         // If we are currently viewing the final list, refresh it to show new/updated notes
         if (document.getElementById('final-notes-view').style.display === 'block') {
-            showNotes(document.querySelector('.sub-tab.active')?.innerText.toLowerCase().includes('notes') ? 'notes' : 'notes');
+            showNotes('notes');
         }
     }, (error) => {
         console.error("NotesHub: Failed to fetch notes:", error);
@@ -250,21 +250,28 @@ window.startDirectUpload = function () {
         else console.log(msg);
 
         // Metadata inferred from current view
+        const isAdmin = ['admin', 'superadmin', 'super-admin', 'coadmin', 'college-admin'].includes(currentUser.role?.toLowerCase()) ||
+            currentUser.email === 'skilmatrix3@gmail.com' || currentUser.email === 'notes.hub.admin@gmail.com';
+        console.log("👤 Hub Quick-Upload Role/Email:", currentUser.role, currentUser.email);
+
         const metadata = {
             title: file.name.replace(/\.[^/.]+$/, ""),
+            college: selState.college.name,
             collegeId: selState.college.id,
-            collegeName: selState.college.name,
-            branch: selState.branch.id,
+            branch: selState.branch.name,
+            branchId: selState.branch.id,
             semester: selState.semester,
-            subject: selState.subject.id,
-            subjectName: selState.subject.name,
+            subject: selState.subject.name,
+            subjectId: selState.subject.id,
             type: 'notes',
             stream: 'b.tech', // Defaulting to b.tech for Hub context
             uploader: currentUser.name,
-            uploaderUid: currentUser.id,
+            uploadedBy: currentUser.id,
             uploaderEmail: currentUser.email,
             date: new Date().toLocaleDateString(),
-            targetCollection: (currentUser.role === 'admin' || currentUser.role === 'superadmin') ? 'notes_approved' : 'notes_pending'
+            targetCollection: 'notes',
+            status: isAdmin ? 'approved' : 'pending',
+            verified: isAdmin
         };
 
         try {
@@ -290,7 +297,7 @@ window.startDirectUpload = function () {
 
 async function handleNoteSubmit(e) {
     e.preventDefault();
-    const { db, collection, addDoc } = getFirebase();
+    const { db, collection, addDoc, serverTimestamp } = getFirebase();
     if (!db) return;
 
     const btn = document.getElementById('submit-note-btn');
@@ -301,9 +308,9 @@ async function handleNoteSubmit(e) {
     btn.disabled = true;
     btn.innerText = "Processing...";
 
-    const isAdmin = currentUser.role === Roles.SUPER_ADMIN;
+    const isAdmin = currentUser.role === Roles.SUPER_ADMIN || currentUser.email === 'skilmatrix3@gmail.com';
     const isMatchingCoAdmin = currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === selState.college.id;
-    const targetColl = (isAdmin || isMatchingCoAdmin) ? "notes_approved" : "notes_pending";
+    const targetColl = "notes";
     const status = (isAdmin || isMatchingCoAdmin) ? 'approved' : 'pending';
 
     const newNote = {
@@ -311,17 +318,20 @@ async function handleNoteSubmit(e) {
         type: type,
         driveLink: driveLink,
         collegeId: selState.college.id,
+        college: selState.college.name,
         branchId: selState.branch.id,
+        branch: selState.branch.name,
         year: selState.year,
-        subject: selState.subject.id,
+        subjectId: selState.subject.id,
+        subject: selState.subject.name,
         uploader: currentUser.name,
-        uploaded_by: currentUser.id,
+        uploadedBy: currentUser.id,
         status: status,
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        date: new Date().toLocaleDateString(),
         views: 0,
         downloads: 0,
         likes: 0,
-        created_at: new Date().toISOString()
+        createdAt: serverTimestamp ? serverTimestamp() : new Date().toISOString()
     };
 
     try {
@@ -356,24 +366,50 @@ window.fetchNotesBySubject = async function (subjectId, tabType = 'notes') {
     const { db, collection, query, where, getDocs, orderBy } = window.firebaseServices;
     if (!db) return [];
 
-    console.log(`🔍 Fetching ${tabType} for subject: ${subjectId}`);
+    console.log(`🔍 Firestore Query Params:`, {
+        collegeId: selState.college.id,
+        subjectId: subjectId,
+        type: tabType,
+        status: "approved"
+    });
 
     try {
-        const targetColl = "notes_approved";
-        const q = query(
+        const targetColl = "notes";
+        const approvedQ = query(
             collection(db, targetColl),
             where("collegeId", "==", selState.college.id),
-            where("subject", "==", subjectId),
+            where("subjectId", "==", subjectId),
             where("type", "==", tabType),
-            where("status", "==", "approved"),
-            orderBy("date", "desc")
+            where("status", "==", "approved")
         );
 
-        const snapshot = await getDocs(q);
-        const notes = [];
-        snapshot.forEach(doc => {
-            notes.push({ id: doc.id, ...doc.data() });
+        let userQ = null;
+        if (currentUser && currentUser.id) {
+            userQ = query(
+                collection(db, targetColl),
+                where("collegeId", "==", selState.college.id),
+                where("subjectId", "==", subjectId),
+                where("type", "==", tabType),
+                where("uploadedBy", "==", currentUser.id)
+            );
+        }
+
+        const [approvedSnap, userSnap] = await Promise.all([
+            getDocs(approvedQ),
+            userQ ? getDocs(userQ) : Promise.resolve({ docs: [] })
+        ]);
+
+        const notesMap = new Map();
+        approvedSnap.forEach(doc => notesMap.set(doc.id, { id: doc.id, ...doc.data() }));
+        userSnap.forEach(doc => notesMap.set(doc.id, { id: doc.id, ...doc.data() }));
+
+        const notes = Array.from(notesMap.values()).sort((a, b) => {
+            const dateA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : new Date(a.date).getTime();
+            const dateB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : new Date(b.date).getTime();
+            return dateB - dateA;
         });
+
+        console.log(`📦 Total Docs found (Approved + Own): ${notes.length}`);
         return notes;
     } catch (err) {
         console.error("Firestore Fetch Error:", err);
@@ -520,7 +556,7 @@ function renderDetailedNotes(notes, tabType = 'notes') {
                 </div>
             </div>
             <div class="item-right">
-                <button class="download-btn-pro" onclick="window.open('${n.driveLink || n.fileUrl}', '_blank'); updateNoteStat('${n.id}', 'download')">
+                <button class="download-btn-pro" onclick="window.open('${n.fileUrl || n.driveLink}', '_blank'); updateNoteStat('${n.id}', 'download')">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                         <polyline points="7 10 12 15 17 10"></polyline>
@@ -581,7 +617,7 @@ window.updateNoteStat = async function (noteId, type) {
 
     if (!db) return;
     try {
-        const noteRef = doc(db, "notes_approved", noteId);
+        const noteRef = doc(db, "notes", noteId);
         await updateDoc(noteRef, {
             [type + 's']: increment(1)
         });

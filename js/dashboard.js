@@ -609,6 +609,11 @@ window.openUploadModal = async function () {
     document.body.style.overflow = 'hidden';
 };
 
+window.showToast = window.showToast || function (msg, type = 'success') {
+    console.log(`[Toast] ${type.toUpperCase()}: ${msg}`);
+    alert(msg);
+};
+
 window.closeDashboardUploadModal = function () {
     const modal = document.getElementById('dashboard-upload-modal');
     if (modal) {
@@ -671,28 +676,41 @@ async function handleDashboardNoteSubmit(e) {
         }, { merge: true });
     }
 
+    const isAdmin = ['admin', 'superadmin', 'super-admin', 'coadmin', 'college-admin'].includes(currentUser.role?.toLowerCase()) ||
+        currentUser.email === 'skilmatrix3@gmail.com';
+    console.log("👤 Current User Role/Email for Upload:", currentUser.role, currentUser.email, "isAdmin:", isAdmin);
     const metadata = {
         title: title,
+        college: finalCollegeName || 'Medicaps University',
         collegeId: finalCollegeId || (currentUser.collegeId || 'medicaps'),
-        collegeName: finalCollegeName,
+        stream: getSelectText('stream') || 'B.Tech',
         streamId: stream,
+        branch: getSelectText('branch') || 'CSE',
         branchId: branch,
         semester: semester,
-        subject: subject,
-        subjectName: getSelectText('subject'),
+        subject: getSelectText('subject') || 'General',
+        subjectId: subject,
         type: 'notes',
         uploader: currentUser.name,
-        uploaderUid: currentUser.id,
+        uploadedBy: currentUser.id,
         uploaderEmail: currentUser.email,
         date: new Date().toLocaleDateString(),
         targetCollection: 'notes',
-        status: (currentUser.role === 'admin' || currentUser.role === 'superadmin' || currentUser.role === 'coadmin') ? 'approved' : 'pending'
+        status: isAdmin ? 'approved' : 'pending',
+        verified: isAdmin // Set verified true for admins
     };
 
     try {
-        await window.uploadNoteToFirebase(file, metadata);
-        showToast("✅ Note uploaded successfully!");
-        closeDashboardUploadModal();
+        const result = await window.uploadNoteToFirebase(file, metadata);
+        statusText.innerText = "✅ Upload and Save Successful!";
+        if (window.showToast) window.showToast("✅ Note uploaded successfully!");
+
+        setTimeout(() => {
+            closeDashboardUploadModal();
+            // Clear form
+            document.getElementById('dash-upload-form').reset();
+            document.getElementById('upload-status-area').style.display = 'none';
+        }, 1500);
     } catch (err) {
         console.error("Upload failed:", err);
         statusText.innerText = "Failed: " + err.message;
