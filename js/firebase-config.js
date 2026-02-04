@@ -1,40 +1,9 @@
 // Firebase Configuration & Initialization
+// Using CDN imports for browser compatibility without bundler
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-
-import {
-    getAuth,
-    GoogleAuthProvider,
-    signInWithPopup,
-    signInWithRedirect,
-    getRedirectResult,
-    signOut,
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    setPersistence,
-    browserLocalPersistence
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import {
-    getFirestore,
-    collection,
-    addDoc,
-    getDocs,
-    getDoc,
-    setDoc,
-    onSnapshot,
-    updateDoc,
-    doc,
-    increment,
-    serverTimestamp,
-    query,
-    where,
-    orderBy,
-    deleteDoc,
-    enableIndexedDbPersistence,
-    getCountFromServer
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
+import { getAuth, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, getDoc, setDoc, onSnapshot, updateDoc, doc, increment, serverTimestamp, query, where, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -47,129 +16,27 @@ const firebaseConfig = {
     measurementId: "G-KSCJTPP875"
 };
 
-// Initialize Firebase (Core only)
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// Initialize Auth (Required for Auth Listeners)
-// We keep this eager to ensure onAuthStateChanged works, but since this script is defer/module, it runs after parsing.
 const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
 const provider = new GoogleAuthProvider();
 
-// LAZY LOAD HEAVY SERVICES
-let db = null;
-let storage = null;
-let functions = null;
+console.log("🔥 Firebase initialized.");
 
-console.log("🔥 Firebase Core initialized. Heavy services paused.");
+// Export services
+export { app, auth, db, storage, provider };
 
-const firebaseFunctions = null; // Placeholder handling
-
-// Expose services to window with LAZY GETTERS
+// Expose services to window for non-module scripts (like notes-hub.js)
 window.firebaseServices = {
-    // Core
-    app,
-    auth,
-    provider,
-
-    // Auth Functions
-    signInWithPopup,
-    signInWithRedirect,
-    getRedirectResult,
-    signOut,
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    setPersistence,
-    browserLocalPersistence,
-
-    // Firestore Functions
-    collection,
-    addDoc,
-    getDocs,
-    getDoc,
-    setDoc,
-    onSnapshot,
-    updateDoc,
-    doc,
-    increment,
-    serverTimestamp,
-    query,
-    where,
-    orderBy,
-    deleteDoc,
-    getCountFromServer,
-
-    // Storage Functions
-    ref,
-    uploadBytes,
-    uploadBytesResumable,
-    getDownloadURL,
-    deleteObject,
-    listAll,
-
-    // Function Utils
-    httpsCallable
-};
-
-// Define Lazy Getters for Heavy Services
-Object.defineProperty(window.firebaseServices, 'db', {
-    get: function () {
-        if (!db) {
-            console.log("🚀 Lazy-loading Firestore...");
-            db = getFirestore(app);
-            enableIndexedDbPersistence(db).then(() => {
-                console.log("💾 Offline Persistence Enabled");
-            }).catch(err => {
-                if (err.code == 'failed-precondition') {
-                    console.warn("⚠️ Persistence failed: Multiple tabs open");
-                } else if (err.code == 'unimplemented') {
-                    console.warn("⚠️ Persistence not supported in this browser");
-                }
-            });
-        }
-        return db;
-    }
-});
-
-
-
-Object.defineProperty(window.firebaseServices, 'storage', {
-    get: function () {
-        if (!storage) {
-            console.log("📦 Lazy-loading Storage...");
-            storage = getStorage(app);
-        }
-        return storage;
-    }
-});
-
-Object.defineProperty(window.firebaseServices, 'functions', {
-    get: function () {
-        if (!functions) {
-            console.log("⚡ Lazy-loading Functions...");
-            try {
-                functions = getFunctions(app);
-            } catch (e) { console.warn("Functions init error", e); }
-        }
-        return functions;
-    }
-});
-
-
-export {
     app,
     auth,
     db,
     storage,
-    functions,
     provider,
-    signInWithPopup,
-    signInWithRedirect,
-    getRedirectResult,
-    signOut,
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    setPersistence,
-    browserLocalPersistence
+    // Firestore helpers
+    collection, addDoc, getDocs, getDoc, setDoc, onSnapshot, updateDoc, doc, increment, serverTimestamp, query, where, orderBy, deleteDoc,
+    // Storage helpers
+    ref, uploadBytesResumable, getDownloadURL, deleteObject
 };
