@@ -6,12 +6,9 @@ service firebase.storage {
     // --- Public Notes System ---
     // This allows anything uploaded by logged-in users (Admins, Co-Admins, and Students)
     // to be readable by everyone.
-    // --- Notes Storage Rules ---
-    match /notes/{userId}/{fileName} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null
-                  && request.resource.contentType == 'application/pdf'
-                  && request.resource.size < 10 * 1024 * 1024; // Max 10MB
+    match /notes/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
     }
 
     // --- Personal Private Drive ---

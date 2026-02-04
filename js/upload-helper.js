@@ -8,10 +8,15 @@ window.uploadNoteToFirebase = async function (file, metadata) {
         // 1. Create Storage Path logic matching user request:
         // medicaps university/b.tech/cse/sem-4/operating-system
 
-        const uid = metadata.uploadedBy;
-        if (!uid) throw new Error("User ID (uploadedBy) missing for upload path");
+        const clean = (val) => val ? val.toString().toLowerCase().trim().replace(/ /g, ' ') : 'misc';
 
-        const storagePath = `notes/${uid}/${Date.now()}_${file.name}`;
+        const college = clean(metadata.collegeName || metadata.collegeId);
+        const stream = clean(metadata.stream).replace(' undergraduate', 'b.tech').replace(' postgraduate', 'm.tech'); // Handle legacy values
+        const branch = clean(metadata.branchId || metadata.branch);
+        const sem = metadata.semester ? (metadata.semester.toString().toLowerCase().startsWith('sem') ? metadata.semester : `sem-${metadata.semester}`) : 'misc';
+        const subject = clean(metadata.subjectName || metadata.subject);
+
+        const storagePath = `notes/${college}/${stream}/${branch}/${sem}/${subject}/${Date.now()}_${file.name}`;
         const storageRef = ref(storage, storagePath);
 
         // 2. Upload File
@@ -35,14 +40,13 @@ window.uploadNoteToFirebase = async function (file, metadata) {
                     const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
 
                     // 4. Save Metadata to Firestore
-                    const targetColl = metadata.targetCollection || 'notes';
+                    const targetColl = metadata.targetCollection || 'notes_pending';
                     const docData = {
                         ...metadata,
                         driveLink: downloadURL,
                         fileType: file.type,
                         fileName: file.name,
-                        fileSize: file.size,
-                        status: metadata.status || 'approved',
+                        status: metadata.status || (targetColl === 'notes_approved' ? 'approved' : 'pending'),
                         views: 0,
                         downloads: 0,
                         likes: 0
