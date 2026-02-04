@@ -45,6 +45,13 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // --- Notes Collection (Unified) ---
+    match /notes/{noteId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.uploadedBy;
+    }
+
     // --- Notes Pending ---
     match /notes_pending/{noteId} {
       allow read: if isAdmin() || 
