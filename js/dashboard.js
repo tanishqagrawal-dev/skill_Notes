@@ -1,4 +1,4 @@
-import { initRealtimeStats, trackDownload } from './stats.js';
+// stats functionality is managed via window.statServices
 // --- FIREBASE SERVICES ---
 // Fallback if firebaseServices failed to load (e.g. CORS or network error)
 if (!window.firebaseServices) {
@@ -108,15 +108,23 @@ function handleAuthReady(data) {
     if (!data) return;
     try {
         const { user, currentUser: appCurrentUser } = data;
-        if (!user || !appCurrentUser) return;
+        if (appCurrentUser) {
+            console.log("🚦 Dashboard Sync:", appCurrentUser.email, `[${appCurrentUser.role}]`);
+        } else {
+            console.log("🚦 Dashboard Sync: Guest Mode");
+        }
 
-        console.log("🚦 Dashboard Sync:", appCurrentUser.email, `[${appCurrentUser.role}]`);
-
-        const isNewSession = !currentUser || currentUser.id !== appCurrentUser.id;
-        const roleChanged = currentUser && currentUser.role !== appCurrentUser.role;
+        const isNewSession = !currentUser || (appCurrentUser && currentUser.id !== appCurrentUser.id);
+        const roleChanged = currentUser && appCurrentUser && currentUser.role !== appCurrentUser.role;
 
         // Update Global State
-        currentUser = appCurrentUser;
+        currentUser = appCurrentUser || {
+            id: 'visitor_' + Math.random().toString(36).substr(2, 9),
+            name: 'Guest Scholar',
+            role: 'user',
+            college: 'medicaps',
+            isGuest: true
+        };
         window.currentUser = currentUser;
 
         // 1. UI Refresh (Identities, Roles)
@@ -128,9 +136,9 @@ function handleAuthReady(data) {
             listenToNotifications();
 
             // Fire parallel background workers
-            if (!dashboardReady || isNewSession) {
+            if (!dashboardReady || isNewSession || !appCurrentUser) {
                 Promise.all([
-                    Promise.resolve(), // Removed undefined loadLiveDashboardStats
+                    loadLiveDashboardStats(),
                     typeof trackStudent === 'function' ? trackStudent() : Promise.resolve(),
                     window.statServices?.initRealtimeStats ? window.statServices.initRealtimeStats() : Promise.resolve(),
                     initDynamicColleges(),
@@ -151,9 +159,9 @@ function handleAuthReady(data) {
 
             if (tabParam) {
                 renderTabContent(tabParam);
-            } else if (currentUser.role === 'superadmin' || currentUser.role === 'admin') {
+            } else if (currentUser && (currentUser.role === 'superadmin' || currentUser.role === 'admin')) {
                 renderTabContent('admin-console');
-            } else if (currentUser.role === 'coadmin') {
+            } else if (currentUser && currentUser.role === 'coadmin') {
                 renderTabContent('coadmin-hub');
             } else {
                 renderTabContent('overview');
@@ -236,7 +244,7 @@ window.showToast = function (message, type = 'success') {
 };
 
 window.updateNoteStat = async function (noteId, type) {
-    const { db, doc, updateDoc, increment } = getFirebase();
+    const { db, doc, updateDoc, increment, setDoc } = getFirebase();
 
     // 1. Optimistic UI Update (Instant Feedback)
     const note = NotesDB.find(n => n.id === noteId);
@@ -797,7 +805,15 @@ function updateUserProfileUI() {
     const name = document.querySelector('.user-profile-mini .name');
     const meta = document.querySelector('.user-profile-mini .meta');
 
-    if (!currentUser) return;
+    if (!currentUser) {
+        if (name) name.innerText = "Visitor";
+        if (meta) meta.innerText = "GUEST";
+        if (avatar) {
+            avatar.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+            avatar.style.background = 'rgba(255,255,255,0.05)';
+        }
+        return;
+    }
 
     if (avatar) {
         if (currentUser.photo) {
@@ -1193,8 +1209,8 @@ function renderOverview() {
     const contentArea = document.getElementById('tab-content');
     if (!contentArea) return "";
 
-    // If data not loaded yet, show skeleton and trigger load
-    if (!currentUser || !currentUser.name) {
+    // Simplified guard: Only skeleton if we truly have no identity data at all
+    if (!currentUser) {
         return renderDashboardSkeleton();
     }
 
@@ -1372,7 +1388,6 @@ window.checkServer = async () => {
 }
 
 // Hook into renderAITools to check server
-const originalRenderAITools = renderAITools; // Self-reference fix not needed if I replaced the function definition above entirely.
 
 // Main Generation Function
 window.generatePaper = async () => {
@@ -1696,11 +1711,11 @@ window.executeAdminUpload = async function () {
         semester: document.getElementById('up-sem').value,
         subject: document.getElementById('up-subject').value,
         type: document.getElementById('up-type').value,
-        uploader: currentUser.name,
-        uploaded_by: currentUser.id,
+        uploaderName: currentUser.name,
+        uploadedBy: currentUser.id,
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         status: 'approved',
-        targetCollection: 'notes_approved',
+        targetCollection: 'notes',
         created_at: new Date().toISOString()
     };
 
@@ -1738,15 +1753,11 @@ window.processNote = async function (noteId, newStatus) {
     // Approval logic
     try {
         await runTransaction(db, async (transaction) => {
-            const pendingRef = doc(db, 'notes_pending', noteId);
-            const pendingSnap = await transaction.get(pendingRef);
-            if (!pendingSnap.exists()) throw "Submission not found!";
+            const noteRef = doc(db, 'notes', noteId);
+            const noteSnap = await transaction.get(noteRef);
+            if (!noteSnap.exists()) throw "Note not found!";
 
-            const noteData = pendingSnap.data();
-            const approvedRef = doc(db, 'notes_approved', noteId);
-
-            transaction.set(approvedRef, {
-                ...noteData,
+            transaction.update(noteRef, {
                 status: 'approved',
                 approvedBy: currentUser.id,
                 approvedAt: serverTimestamp(),
@@ -1754,8 +1765,6 @@ window.processNote = async function (noteId, newStatus) {
                 saves: 0,
                 likes: 0
             });
-
-            transaction.delete(pendingRef);
         });
 
         showToast("🚀 Note approved and published!");
@@ -2177,11 +2186,10 @@ window.showNotes = function (activeTab = 'notes') {
             // 2. Subject Check (Matches "subjectId" or "subject" fields)
             const subMatch = (data.subjectId === selState.subject.id) || (data.subject === selState.subject.id) || (data.subject === selState.subject.name);
 
-            // 3. Status Check (Only show approved or user's own)
-            const isApproved = data.status === 'approved' || data.status === 'active';
-            const isOwner = currentUser && data.uploadedBy === currentUser.id;
+            // 3. Status Check (Show all non-rejected notes to everyone)
+            const isVisible = data.status !== 'rejected';
 
-            if (semMatch && subMatch && (isApproved || isOwner)) {
+            if (semMatch && subMatch && isVisible) {
                 notes.push({ id: doc.id, ...data });
             }
         });
@@ -2264,16 +2272,16 @@ window.renderMyUploads = function () {
         render(all);
     };
 
-    const q1 = query(collection(db, "notes_approved"), where("uploaderUid", "==", currentUser.id));
-    onSnapshot(q1, (snap) => {
-        approved = snap.docs.map(d => ({ id: d.id, ...d.data(), status: 'approved' }));
-        mergeAndRender();
-    });
+    if (!currentUser) {
+        const grid = document.getElementById('my-uploads-grid');
+        if (grid) grid.innerHTML = `<p style="color:var(--text-dim); text-align:center; padding: 2rem;">Please login to see your uploads.</p>`;
+        return;
+    }
 
-    const q2 = query(collection(db, "notes_pending"), where("uploaderUid", "==", currentUser.id));
-    onSnapshot(q2, (snap) => {
-        pending = snap.docs.map(d => ({ id: d.id, ...d.data(), status: 'pending' }));
-        mergeAndRender();
+    const q = query(collection(db, "notes"), where("uploadedBy", "==", currentUser.id));
+    onSnapshot(q, (snap) => {
+        const notes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        render(notes);
     });
 };
 
@@ -2447,7 +2455,7 @@ function renderNotesList(list, tabType) {
                 <div class="note-metadata-bar">
                     <span class="meta-badge-pro uploader">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                        ${n.uploaderName || 'Admin'}
+                        ${n.uploaderName || n.uploader || 'Admin'}
                     </span>
                     <span class="meta-badge-pro">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
@@ -2512,12 +2520,14 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
 
         if (!semMatch || !isCorrectSubject) return false;
 
-        const isApproved = n.status === 'approved' || n.status === 'active';
-        const isAdminOfCollege = (currentUser.role === Roles.SUPER_ADMIN) ||
-            (currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === n.collegeId);
+        const isVisible = n.status !== 'rejected';
+        const isAdminOfCollege = currentUser && (
+            (currentUser.role === Roles.SUPER_ADMIN) ||
+            (currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === n.collegeId)
+        );
 
         if (isAdminOfCollege) return n.status !== 'rejected';
-        return isApproved;
+        return isVisible;
     }).sort((a, b) => calculateSmartScore(b) - calculateSmartScore(a));
 
     console.log(`✅ Found ${filtered.length} matching notes (Robust Filter).`);
@@ -2681,18 +2691,18 @@ window.uploadNote = async function (formData) {
         const snapshot = await uploadBytes(storageRef, file);
         const downloadURL = await getDownloadURL(snapshot.ref);
 
-        console.log("📝 Saving Metadata to notes_pending...");
-        await addDoc(collection(db, "notes_pending"), {
+        console.log("📝 Saving Metadata to notes...");
+        await addDoc(collection(db, "notes"), {
             title: formData.get('title'),
             subject: formData.get('subject'),
             semester: formData.get('semester'),
             year: formData.get('year'),
             collegeId: formData.get('collegeId') || currentUser.collegeId || currentUser.college || 'medicaps',
             fileUrl: downloadURL,
-            uploaderUid: currentUser.id,
             uploaderName: currentUser.name,
+            uploadedBy: currentUser.id,
             uploaderEmail: currentUser.email,
-            status: 'pending',
+            status: 'approved', // Auto-approve per user request for instant visibility
             uploadedAt: serverTimestamp()
         });
 
