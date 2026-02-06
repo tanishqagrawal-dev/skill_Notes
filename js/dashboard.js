@@ -483,7 +483,7 @@ window.openUploadModal = async function () {
 
                     <div class="form-group">
                     <label for="branch">Branch</label>
-                    <select id="branch">
+                    <select id="branch" onchange="updateUploadSubjects()">
                         <option value="">Select branch</option>
                         <option value="cse">CSE</option>
                         <option value="cse_ai">CSE (AI/ML)</option>
@@ -494,16 +494,16 @@ window.openUploadModal = async function () {
 
                     <div class="form-group">
                     <label for="semester">Semester</label>
-                    <select id="semester">
+                    <select id="semester" onchange="updateUploadSubjects()">
                         <option value="">Select semester</option>
-                        <option>1st</option>
-                        <option>2nd</option>
-                        <option>3rd</option>
-                        <option>4th</option>
-                        <option>5th</option>
-                        <option>6th</option>
-                        <option>7th</option>
-                        <option>8th</option>
+                        <option value="Semester 1">1st Semester</option>
+                        <option value="Semester 2">2nd Semester</option>
+                        <option value="Semester 3">3rd Semester</option>
+                        <option value="Semester 4">4th Semester</option>
+                        <option value="Semester 5">5th Semester</option>
+                        <option value="Semester 6">6th Semester</option>
+                        <option value="Semester 7">7th Semester</option>
+                        <option value="Semester 8">8th Semester</option>
                     </select>
                     </div>
 
@@ -720,6 +720,21 @@ async function handleDashboardNoteSubmit(e) {
         btn.innerText = "Upload Note";
     }
 }
+
+window.updateUploadSubjects = function () {
+    const branch = document.getElementById('branch').value;
+    const semester = document.getElementById('semester').value;
+    const subjectSelect = document.getElementById('subject');
+
+    if (!branch || !semester || !subjectSelect) return;
+
+    const key = `${branch}-${semester}`;
+    const subjects = GlobalData.subjects[key] || [];
+
+    subjectSelect.innerHTML = `<option value="">Select subject</option>` +
+        subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('') +
+        `<option value="other">Other</option>`;
+};
 
 // --- TAB LOGIC ---
 function initTabs() {
@@ -2137,20 +2152,41 @@ window.showNotes = function (activeTab = 'notes') {
         </div>
     `;
 
-    console.log("📡 Connecting Real-Time Listener:", selState);
+    console.log("📡 Connecting Real-Time Listener (Robust):", selState);
     const q = query(
         collection(db, "notes"),
         where("collegeId", "==", selState.college.id),
         where("branchId", "==", selState.branch.id),
-        where("semester", "==", selState.semester),
-        where("subject", "==", selState.subject.id),
         where("type", "==", activeTab)
     );
 
     notesUnsubscribe = onSnapshot(q, (snapshot) => {
+        const querySem = selState.semester; // e.g. "Semester 4"
+        // Generate alternative format (e.g. "Semester 4" -> "4th")
+        const semNum = querySem.split(' ')[1];
+        const altSem = semNum ? (semNum + (semNum === '1' ? 'st' : semNum === '2' ? 'nd' : semNum === '3' ? 'rd' : 'th')) : null;
+
         const notes = [];
-        snapshot.forEach(doc => notes.push({ id: doc.id, ...doc.data() }));
-        console.log(`⚡ Real-time update: ${notes.length} notes found.`);
+        snapshot.forEach(doc => {
+            const data = doc.data();
+
+            // Robust Filtering:
+            // 1. Semester Check (Matches "Semester 4" or "4th")
+            const semMatch = data.semester === querySem || (altSem && data.semester === altSem);
+
+            // 2. Subject Check (Matches "subjectId" or "subject" fields)
+            const subMatch = (data.subjectId === selState.subject.id) || (data.subject === selState.subject.id) || (data.subject === selState.subject.name);
+
+            // 3. Status Check (Only show approved or user's own)
+            const isApproved = data.status === 'approved' || data.status === 'active';
+            const isOwner = currentUser && data.uploadedBy === currentUser.id;
+
+            if (semMatch && subMatch && (isApproved || isOwner)) {
+                notes.push({ id: doc.id, ...data });
+            }
+        });
+
+        console.log(`⚡ Real-time update (filtered): ${notes.length} notes found.`);
 
         // Update Stats
         const statsEl = document.getElementById('notes-header-stats');
@@ -2287,14 +2323,22 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
     console.log(`🔎 Filtering Notes for Subject: ${subjectId}, Type: ${tabType}`);
 
     // Advanced Filter + Smart Sorting
+    const querySem = selState.semester;
+    const semNum = querySem ? querySem.split(' ')[1] : null;
+    const altSem = semNum ? (semNum + (semNum === '1' ? 'st' : semNum === '2' ? 'nd' : semNum === '3' ? 'rd' : 'th')) : null;
+
     const filtered = NotesDB.filter(n => {
-        // Debug Log for first few items
-        // if (Math.random() < 0.1) console.log("Checking Note:", n.title, n.subject, n.collegeId, n.type, n.status);
+        // 1. Semester Check (Robust)
+        const semMatch = n.semester === querySem || (altSem && n.semester === altSem);
 
-        const isCorrectSubject = n.subject === subjectId && (n.collegeId === selState.college.id || n.college === selState.college.id) && n.type === tabType;
-        if (!isCorrectSubject) return false;
+        // 2. Subject & College & Type Check
+        const isCorrectSubject = ((n.subjectId === subjectId) || (n.subject === subjectId)) &&
+            (n.collegeId === selState.college.id || n.college === selState.college.id) &&
+            n.type === tabType;
 
-        const isApproved = n.status === 'approved';
+        if (!semMatch || !isCorrectSubject) return false;
+
+        const isApproved = n.status === 'approved' || n.status === 'active';
         const isAdminOfCollege = (currentUser.role === Roles.SUPER_ADMIN) ||
             (currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === n.collegeId);
 
@@ -2302,7 +2346,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
         return isApproved;
     }).sort((a, b) => calculateSmartScore(b) - calculateSmartScore(a));
 
-    console.log(`✅ Found ${filtered.length} matching notes.`);
+    console.log(`✅ Found ${filtered.length} matching notes (Robust Filter).`);
 
     if (filtered.length === 0) {
         // DEBUGGING DIAGNOSTICS
