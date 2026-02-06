@@ -65,10 +65,17 @@ service cloud.firestore {
       allow write: if hasRole('admin') || hasRole('superadmin');
     }
 
-    // --- Stats & Others ---
+    // --- Analytics (Global Standard) ---
+    match /analytics/{docId} {
+      allow read: if true;
+      allow write: if true; // Allow everyone (including guests) to increment global counters
+    }
+
+    // --- Legacy Stats (Deprecated but kept for safety) ---
     match /stats/{statId} {
       allow read: if true;
-      allow write: if hasRole('admin') || hasRole('superadmin') || hasRole('coadmin');
+      allow update: if true; 
+      allow create, delete: if hasRole('admin') || hasRole('superadmin');
     }
 
     match /support_queries/{queryId} {
