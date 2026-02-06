@@ -2200,6 +2200,12 @@ window.showNotes = function (activeTab = 'notes') {
         const listContainer = document.getElementById('notes-list-grid');
         if (listContainer) {
             listContainer.innerHTML = renderNotesList(notes, activeTab);
+            // Trigger unique view tracking for all notes shown
+            notes.forEach(n => {
+                if (typeof window.incrementNoteView === 'function') {
+                    window.incrementNoteView(n.id);
+                }
+            });
         }
 
     }, (error) => {
@@ -2283,35 +2289,203 @@ function renderNotesList(list, tabType) {
         `;
     }
 
-    return list.map(n => `
-        <div class="detailed-item glass-card card-reveal" style="display: flex; align-items: center; justify-content: space-between; padding: 1.5rem; margin-bottom: 1rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05);">
-            <div class="item-left" style="display: flex; gap: 1.5rem; align-items: center;">
-                <div class="file-icon-lg" style="font-size: 2.5rem; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 12px; min-width: 80px; text-align: center;">
-                    ${getActiveIcon(n.fileUrl || n.driveLink)}
+    // Inject Refined Futuristic Styles
+    const futuristicStyles = `
+        <style>
+            .futuristic-note-card {
+                background: rgba(13, 17, 23, 0.9);
+                backdrop-filter: blur(15px);
+                border: 1px solid rgba(123, 97, 255, 0.2);
+                border-radius: 16px;
+                padding: 1.2rem 1.5rem;
+                margin-bottom: 1.25rem;
+                transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+                position: relative;
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+                gap: 1.5rem;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            }
+
+            .futuristic-note-card:hover {
+                transform: translateY(-4px);
+                border-color: var(--secondary);
+                box-shadow: 0 10px 40px rgba(0, 242, 255, 0.15);
+            }
+
+            .futuristic-note-card::before {
+                content: '';
+                position: absolute;
+                top: 0; left: 0; width: 4px; height: 100%;
+                background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            }
+
+            .note-icon-box {
+                width: 60px; height: 60px;
+                background: rgba(255, 255, 255, 0.03);
+                border-radius: 12px;
+                display: flex; align-items: center; justify-content: center;
+                color: var(--secondary);
+                flex-shrink: 0;
+            }
+
+            .note-core-content {
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 0.6rem;
+            }
+
+            .note-title-line {
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: #FFFFFF;
+                margin: 0;
+            }
+
+            .note-metadata-bar {
+                display: flex;
+                gap: 1rem;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+
+            .meta-badge-pro {
+                display: flex; align-items: center; gap: 0.4rem;
+                background: rgba(255, 255, 255, 0.06);
+                padding: 0.3rem 0.75rem;
+                border-radius: 6px;
+                font-size: 0.8rem;
+                color: #E2E8F0; /* Brighter for visibility */
+                font-weight: 500;
+            }
+
+            .meta-badge-pro.uploader {
+                background: rgba(123, 97, 255, 0.15);
+                color: #CBD5E0;
+            }
+
+            .note-actions-metrics {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                margin-top: 0.2rem;
+            }
+
+            .action-pill-rt {
+                display: flex; align-items: center; gap: 0.5rem;
+                background: rgba(255, 255, 255, 0.04);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                padding: 0.35rem 0.8rem;
+                border-radius: 8px;
+                font-size: 0.85rem;
+                color: #A0AEC0;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                font-family: var(--font-mono);
+            }
+
+            .action-pill-rt:hover {
+                background: rgba(255, 255, 255, 0.1);
+                color: #FFFFFF;
+            }
+
+            .action-pill-rt.liked {
+                background: rgba(123, 97, 255, 0.2);
+                border-color: var(--primary);
+                color: var(--primary-light);
+            }
+
+            .view-count-badge {
+                display: flex; align-items: center; gap: 0.4rem;
+                color: var(--secondary);
+                font-size: 0.8rem;
+                font-weight: 600;
+                margin-left: 0.5rem;
+            }
+
+            .download-btn-furistic {
+                background: #FFFFFF;
+                color: #000000 !important;
+                padding: 0.9rem 1.8rem;
+                border-radius: 10px;
+                font-weight: 800;
+                text-decoration: none;
+                display: flex; align-items: center; gap: 0.6rem;
+                transition: transform 0.2s ease, filter 0.2s ease;
+                white-space: nowrap;
+                box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+            }
+
+            .download-btn-furistic:hover {
+                transform: scale(1.05);
+                filter: brightness(0.9);
+            }
+        </style>
+    `;
+
+    // Track View increments - Moved to fetch/display triggers to avoid render loops
+    /* 
+    if (list.length > 0) {
+        list.forEach(n => incrementNoteView(n.id));
+    }
+    */
+
+    const html = list.map(n => {
+        const isLiked = currentUser && n.likedBy && n.likedBy.includes(currentUser.id);
+
+        return `
+        <div class="futuristic-note-card card-reveal">
+            <div class="note-icon-box">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            </div>
+            
+            <div class="note-core-content">
+                <h3 class="note-title-line">${n.title}</h3>
+                
+                <div class="note-metadata-bar">
+                    <span class="meta-badge-pro uploader">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        ${n.uploaderName || 'Admin'}
+                    </span>
+                    <span class="meta-badge-pro">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
+                        ${formatDate(n.created_at || n.approvedAt || n.date)}
+                    </span>
+                    <div class="view-count-badge">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        ${n.views || 0}
+                    </div>
                 </div>
-                <div class="file-info">
-                    <h3 style="margin: 0; font-size: 1.2rem; font-weight: 600; color: white;">${n.title}</h3>
-                    <div class="meta-row" style="display: flex; gap: 1.5rem; color: var(--text-dim); font-size: 0.85rem; margin-top: 0.6rem;">
-                        <span style="display: flex; align-items: center; gap: 0.4rem;">📅 ${formatDate(n.created_at || n.approvedAt || n.date)}</span>
-                        <span style="display: flex; align-items: center; gap: 0.4rem;">
-                            ${n.uploaderAvatar ? `<img src="${n.uploaderAvatar}" style="width:20px; height:20px; border-radius:50%;">` : '👤'} 
-                            ${n.uploaderName || 'Admin'}
-                        </span>
-                        <span style="display: flex; align-items: center; gap: 0.4rem;">📥 ${n.downloads || 0} downloads</span>
+
+                <div class="note-actions-metrics">
+                    <button class="action-pill-rt ${isLiked ? 'liked' : ''}" onclick="toggleNoteLike('${n.id}')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                        ${n.likes || 0}
+                    </button>
+                    <button class="action-pill-rt" onclick="updateNoteStat('${n.id}', 'save')" title="Save to Private Drive">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                    </button>
+                    <div class="action-pill-rt" style="cursor:default; opacity:0.8;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline></svg>
+                        ${n.downloads || 0}
                     </div>
                 </div>
             </div>
-            
-            <div class="item-right" style="display: flex; align-items: center; gap: 1.5rem;">
-                <div class="action-buttons" style="display: flex; gap: 0.8rem;">
-                     <button class="btn btn-ghost btn-sm" onclick="updateNoteStat('${n.id}', 'like')" style="color: var(--text-dim);">👍 ${n.likes || 0}</button>
-                     <button class="btn btn-ghost btn-sm" style="color: var(--text-dim);">👎</button>
-                     <button class="btn btn-ghost btn-sm" onclick="updateNoteStat('${n.id}', 'save')" style="color: var(--text-dim);" title="Save to Private Drive">🔖</button>
-                </div>
-                <a href="${n.fileUrl || n.driveLink}" target="_blank" class="btn" style="background: white; color: black; font-weight: 600; padding: 0.8rem 1.8rem; border-radius: 8px; text-decoration: none; border:none;" onclick="updateNoteStat('${n.id}', 'download')">Download</a>
+
+            <div class="note-action-side">
+                <a href="${n.fileUrl || n.driveLink}" target="_blank" class="download-btn-furistic" onclick="updateNoteStat('${n.id}', 'download')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    DOWNLOAD
+                </a>
             </div>
         </div>
-    `).join('');
+    `}).join('');
+
+    return futuristicStyles + html;
+
+    return futuristicStyles + html;
 }
 
 window.switchSubjectTab = function (tab) {
@@ -2402,7 +2576,15 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
     `).join('');
 
     const grid = document.getElementById('notes-list-grid');
-    if (grid) grid.innerHTML = cardsHTML;
+    if (grid) {
+        grid.innerHTML = cardsHTML;
+        // Trigger unique view tracking (if available in this context)
+        filtered.forEach(n => {
+            if (typeof window.incrementNoteView === 'function') {
+                window.incrementNoteView(n.id);
+            }
+        });
+    }
     return cardsHTML;
 }
 
@@ -4075,6 +4257,9 @@ window.showToast = function (msg, type = 'success') {
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 };
+
+
+// Note actions moved to js/note-actions.js for global availability
 
 async function loadLiveDashboardStats() {
     const { db, collection, query, where, onSnapshot, limit } = getFirebase();
