@@ -26,7 +26,7 @@ window.authStatus = { ready: false, data: null };
 function dispatchAuthReady(data) {
     window.authStatus.ready = true;
     window.authStatus.data = data;
-    console.log("🚀 Dispatching auth-ready for:", data.currentUser.role);
+    console.log("🚀 Dispatching auth-ready for:", data.currentUser ? data.currentUser.role : 'guest/visitor');
     window.dispatchEvent(new CustomEvent('auth-ready', { detail: data }));
 }
 
@@ -97,6 +97,7 @@ export async function initAuth() {
 
             // --- REDIRECTION & ACCESS CONTROL ---
             const triggerRedirect = (data) => {
+                if (!data) return false;
                 const currentRole = data.role;
                 const isInPagesDir = path.includes('/pages/');
                 const prefix = isInPagesDir ? '' : 'pages/';
@@ -152,34 +153,33 @@ export async function initAuth() {
             }
 
             // --- ACCESS GUARD (Fallback for direct URL access) ---
-            if (isAdminDashboard && role !== 'admin' && role !== 'superadmin') {
+            if (isAdminDashboard && userData.role !== 'admin' && userData.role !== 'superadmin') {
                 window.location.href = 'dashboard.html';
                 return;
             }
-
-            // Verify: We removed the CoAdmin Dashboard guard because role is now 'user'.
-            // The dashboard script itself (coadmin-dashboard.js) verifies access via college_admins collection.
         } else {
-            console.log("🔓 Auth Guard: No active Firebase session.");
+            console.log("🔓 Auth Guard: No active session. Checking for guest session...");
 
-            // CHECK FOR GUEST SESSION
             const guestData = localStorage.getItem('guest_session');
             if (guestData) {
-                console.log("👤 Guest session detected.");
-                const guest = JSON.parse(guestData);
-                dispatchAuthReady({
-                    user: { uid: guest.id, email: guest.email, displayName: guest.name },
-                    currentUser: guest
-                });
-                // Ensure we are on the dashboard
-                if (isAuthPage || path === '/' || path.endsWith('index.html')) {
-                    const isInPagesDir = path.includes('/pages/');
-                    const prefix = isInPagesDir ? '' : 'pages/';
-                    window.location.href = prefix + 'dashboard.html';
+                try {
+                    const guest = JSON.parse(guestData);
+                    console.log("👤 Restoring guest session:", guest.name);
+                    dispatchAuthReady({
+                        user: { uid: guest.id, email: guest.email, displayName: guest.name },
+                        currentUser: guest
+                    });
+                    return;
+                } catch (e) {
+                    localStorage.removeItem('guest_session');
                 }
             }
-            else if ((isUserDashboard || isAdminDashboard || isCoAdminDashboard)) {
-                // No user, no guest, but on protected page -> Redirect
+
+            // Signal readiness with null user for public/visitor mode
+            dispatchAuthReady({ user: null, currentUser: null });
+
+            // Only redirect if on strictly protected pages
+            if (isAdminDashboard || isCoAdminDashboard) {
                 const isInPagesDir = path.includes('/pages/');
                 const prefix = isInPagesDir ? '' : 'pages/';
                 window.location.href = prefix + 'auth.html';

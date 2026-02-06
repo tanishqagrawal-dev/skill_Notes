@@ -73,13 +73,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.authStatus && window.authStatus.ready) {
         currentUser = window.authStatus.data.currentUser;
         initNotesData();
+    } else {
+        // Fallback for visitors (non-authenticated)
+        console.log("👤 Public visitor mode active");
+        initNotesData();
     }
 
     // Start Wizard
     renderCollegeStep();
 });
 
-// Auth Listener
+// Auth Listener (handles late auth states or logins)
 window.addEventListener('auth-ready', (e) => {
     if (e.detail) {
         currentUser = e.detail.currentUser;
@@ -379,8 +383,7 @@ window.fetchNotesBySubject = async function (subjectId, tabType = 'notes') {
             collection(db, targetColl),
             where("collegeId", "==", selState.college.id),
             where("subjectId", "==", subjectId),
-            where("type", "==", tabType),
-            where("status", "==", "approved")
+            where("type", "==", tabType)
         );
 
         let userQ = null;
@@ -400,8 +403,18 @@ window.fetchNotesBySubject = async function (subjectId, tabType = 'notes') {
         ]);
 
         const notesMap = new Map();
-        approvedSnap.forEach(doc => notesMap.set(doc.id, { id: doc.id, ...doc.data() }));
-        userSnap.forEach(doc => notesMap.set(doc.id, { id: doc.id, ...doc.data() }));
+        approvedSnap.forEach(doc => {
+            const data = doc.data();
+            if (data.status !== 'rejected') {
+                notesMap.set(doc.id, { id: doc.id, ...data });
+            }
+        });
+        userSnap.forEach(doc => {
+            const data = doc.data();
+            if (data.status !== 'rejected') {
+                notesMap.set(doc.id, { id: doc.id, ...data });
+            }
+        });
 
         const notes = Array.from(notesMap.values()).sort((a, b) => {
             const dateA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : new Date(a.date).getTime();
