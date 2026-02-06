@@ -31,7 +31,8 @@ import {
     orderBy,
     deleteDoc,
     enableIndexedDbPersistence,
-    getCountFromServer
+    getCountFromServer,
+    runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
@@ -55,21 +56,29 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// LAZY LOAD HEAVY SERVICES
-let db = null;
-let storage = null;
-let functions = null;
+// EAGER INIT (Standard for shared usage)
+const db = getFirestore(app);
+const storage = getStorage(app);
+const functions = getFunctions(app);
 
-console.log("🔥 Firebase Core initialized. Heavy services paused.");
+// Enable Persistence (Optional but good)
+enableIndexedDbPersistence(db).catch(err => {
+    if (err.code == 'failed-precondition') {
+        console.warn("⚠️ Persistence failed: Multiple tabs open");
+    } else if (err.code == 'unimplemented') {
+        console.warn("⚠️ Persistence not supported in this browser");
+    }
+});
 
-const firebaseFunctions = null; // Placeholder handling
-
-// Expose services to window with LAZY GETTERS
+// Expose services to window (for legacy compatibility)
 window.firebaseServices = {
     // Core
     app,
     auth,
     provider,
+    db, // Shared Instance
+    storage,
+    functions,
 
     // Auth Functions
     signInWithPopup,
@@ -98,6 +107,7 @@ window.firebaseServices = {
     orderBy,
     deleteDoc,
     getCountFromServer,
+    runTransaction, // Exported correctly
 
     // Storage Functions
     ref,
@@ -110,38 +120,6 @@ window.firebaseServices = {
     // Function Utils
     httpsCallable
 };
-
-// Define Lazy Getters for Heavy Services
-Object.defineProperty(window.firebaseServices, 'db', {
-    get: function () {
-        if (!db) {
-            console.log("🚀 Lazy-loading Firestore...");
-            db = getFirestore(app);
-            enableIndexedDbPersistence(db).then(() => {
-                console.log("💾 Offline Persistence Enabled");
-            }).catch(err => {
-                if (err.code == 'failed-precondition') {
-                    console.warn("⚠️ Persistence failed: Multiple tabs open");
-                } else if (err.code == 'unimplemented') {
-                    console.warn("⚠️ Persistence not supported in this browser");
-                }
-            });
-        }
-        return db;
-    }
-});
-
-
-
-Object.defineProperty(window.firebaseServices, 'storage', {
-    get: function () {
-        if (!storage) {
-            console.log("📦 Lazy-loading Storage...");
-            storage = getStorage(app);
-        }
-        return storage;
-    }
-});
 
 Object.defineProperty(window.firebaseServices, 'functions', {
     get: function () {
@@ -171,5 +149,15 @@ export {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     setPersistence,
-    browserLocalPersistence
+    browserLocalPersistence,
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc,
+    serverTimestamp,
+    collection,
+    query,
+    where,
+    getDocs,
+    onSnapshot
 };
