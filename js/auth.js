@@ -9,7 +9,13 @@ import {
     signOut,
     onAuthStateChanged,
     setPersistence,
-    browserLocalPersistence
+    browserLocalPersistence,
+    db,
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc,
+    serverTimestamp
 } from './firebase-config.js';
 
 console.log("🚀 Auth Script Loaded (Lazy Mode)");
@@ -73,7 +79,7 @@ export async function initAuth() {
         if (user) {
             console.log("🔐 Auth Guard: Firebase session active for", user.email);
 
-            const { db, doc, getDoc, setDoc, serverTimestamp, updateDoc } = window.firebaseServices || {};
+            // const { db, doc, getDoc, setDoc, serverTimestamp, updateDoc } = window.firebaseServices || {}; // REMOVED: Using direct imports
             const isSuperAdmin = SUPER_ADMINS.includes(user.email);
 
             let userData = {
@@ -106,59 +112,38 @@ export async function initAuth() {
             };
 
             // 1. Optimistic Redirect (If we have cached data, go now!)
+            // We DO NOT return here anymore. We must let the DB sync logic (below) run even if we encourage a redirect.
+            // The browser will handle the race, but this gives the async op a chance to queue.
             const wasRedirected = triggerRedirect(userData);
-            if (wasRedirected) return;
+            // if (wasRedirected) return; // REMOVED to force DB sync
 
-            // 2. Background Sync (Non-blocking usually, but critical for role correctness)
+            // 2. Background Sync & Auto-Creation (CRITICAL FIX)
+            // Using direct imports for robustness
             if (db) {
                 (async () => {
                     try {
-                        const userRef = doc(db, 'users', user.uid);
-                        const inviteRef = doc(db, 'role_invites', user.email.toLowerCase());
+                        const userRef = doc(db, "users", user.uid);
+                        const userSnap = await getDoc(userRef);
 
-                        // Parallel fetch for speed
-                        const [userSnap, inviteSnap] = await Promise.all([
-                            getDoc(userRef),
-                            getDoc(inviteRef)
-                        ]);
-
-                        let hasChanges = false;
-                        let syncData = { ...userData };
-
-                        if (inviteSnap.exists()) {
-                            const inviteData = inviteSnap.data();
-                            syncData = { ...syncData, ...inviteData, status: 'active', joinedAt: new Date().toISOString() };
-                            await setDoc(userRef, { ...syncData, createdAt: serverTimestamp() }, { merge: true });
-                            const { deleteDoc } = window.firebaseServices;
-                            if (deleteDoc) await deleteDoc(inviteRef);
-                            hasChanges = true;
-                        } else if (userSnap.exists()) {
-                            const params = userSnap.data();
-                            const finalRole = isSuperAdmin ? 'superadmin' : params.role;
-
-                            // Check if role or college assignment changed
-                            if (syncData.role !== finalRole || syncData.college !== params.college || syncData.collegeId !== params.collegeId) {
-                                syncData = { ...syncData, ...params, role: finalRole };
-                                // Ensure both fields exist for consistency
-                                if (params.collegeId && !syncData.college) syncData.college = params.collegeId;
-                                if (params.college && !syncData.collegeId) syncData.collegeId = params.college;
-                                hasChanges = true;
-                            }
+                        if (!userSnap.exists()) {
+                            console.log("🆕 [AUTH FIX] creating Firestore profile for:", user.email);
+                            await setDoc(userRef, {
+                                email: user.email.toLowerCase(),
+                                role: "user",          // default role
+                                college: null,         // Explicitly null as requested
+                                createdAt: serverTimestamp(),
+                                name: user.displayName || user.email.split('@')[0],
+                                photo: user.photoURL
+                            });
+                            // Update local cache to match what we just created
+                            userData.role = 'user';
+                            userData.college = null;
+                            localStorage.setItem('auth_user_full', JSON.stringify(userData));
                         } else {
-                            // New user document creation
-                            await setDoc(userRef, { ...syncData, createdAt: serverTimestamp() });
-                        }
-
-                        if (hasChanges) {
-                            console.log("🔄 Role Sync Complete - Updating Session");
-                            localStorage.setItem('auth_user_full', JSON.stringify(syncData));
-                            dispatchAuthReady({ user, currentUser: syncData });
-
-                            // If we didn't redirect optimistically (e.g. cache was 'user' but DB is 'coadmin')
-                            // AND we are on a landing page, trigger redirect now!
-                            if (isAuthPage || path === '/' || path.endsWith('index.html')) {
-                                triggerRedirect(syncData);
-                            }
+                            // Existing user: Sync logic if needed
+                            const params = userSnap.data();
+                            // We don't overwrite role from DB unless it's a superadmin forcing a downgrade/upgrade? 
+                            // safe to just trust DB for everything except superadmin override in memory
                         }
                     } catch (err) {
                         console.error("Background Identity Sync Error:", err);
@@ -172,10 +157,8 @@ export async function initAuth() {
                 return;
             }
 
-            if (isCoAdminDashboard && role !== 'coadmin' && role !== 'superadmin') {
-                window.location.href = 'dashboard.html';
-                return;
-            }
+            // Verify: We removed the CoAdmin Dashboard guard because role is now 'user'.
+            // The dashboard script itself (coadmin-dashboard.js) verifies access via college_admins collection.
         } else {
             console.log("🔓 Auth Guard: No active Firebase session.");
 

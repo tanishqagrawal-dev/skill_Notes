@@ -76,7 +76,7 @@ window.CoAdminModule = {
         // Requirement: Filter by 'college' field exactly as stored in user.college
         const q = query(
             collection(db, 'notes'),
-            where('collegeId', '==', currentColl),
+            where('college', '==', currentColl),
             where('status', '==', 'pending')
         );
 

@@ -42,7 +42,7 @@ service cloud.firestore {
                    (isSignedIn() && (
                      hasRole('admin') || 
                      hasRole('superadmin') || 
-                     (hasRole('coadmin') && resource.data.collegeId == getUserData().college) ||
+                     (hasRole('coadmin') && resource.data.college == getUserData().college) ||
                      resource.data.uploadedBy == request.auth.uid
                    ));
 
@@ -52,7 +52,7 @@ service cloud.firestore {
       // Update Rule: Only Admin or the designated Co-Admin for that specific college
       allow update: if hasRole('admin') || hasRole('superadmin') || (
                       hasRole('coadmin') && 
-                      getUserData().college == resource.data.collegeId &&
+                      getUserData().college == resource.data.college &&
                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'approvedBy', 'rejectionReason'])
                     );
 

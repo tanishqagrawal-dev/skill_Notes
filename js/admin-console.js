@@ -104,7 +104,7 @@ window.AdminConsole = {
                     
                     <div class="admin-input-group" style="margin-bottom: 1.2rem;">
                         <label>User Email address</label>
-                        <input type="email" id="ca-email" class="admin-input" placeholder="e.g. professor.j@college.edu">
+                        <input type="text" id="ca-email" class="admin-input" placeholder="User Email OR Firebase UID (if lookup fails)">
                     </div>
                     
                     <div class="admin-input-group" style="margin-bottom: 1.2rem;">
@@ -120,7 +120,7 @@ window.AdminConsole = {
                     </button>
                     
                     <p style="margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-dim); border-top: 1px solid var(--border-glass); padding-top: 1rem;">
-                        <strong style="color:var(--F1C40F);">Note:</strong> If the user is not found, an invite will be created. They will receive Co-Admin rights automatically upon their first sign-in.
+                        <strong style="color:var(--F1C40F);">Note:</strong> User must have logged in at least once to be assigned.
                     </p>
                 </div>
 
@@ -146,34 +146,30 @@ window.AdminConsole = {
                                 </tr>
                             </thead>
                             <tbody>
-                                ${this.state.coadmins.map(admin => {
-            const statusLabel = admin.isInvite ?
-                '<span class="status-badge" style="background:rgba(241, 196, 15, 0.2); color:#F1C40F; font-size:0.6rem; padding:2px 6px; margin-left:8px;">PENDING INVITE</span>' :
-                '<span class="status-badge" style="background:rgba(46, 204, 113, 0.2); color:#2ECC71; font-size:0.6rem; padding:2px 6px; margin-left:8px;">ACTIVE</span>';
-
+                                ${this.state.coadmins.map(c => {
             return `
                                         <tr style="border-bottom: 1px solid var(--border-glass);">
                                             <td style="padding: 1rem 2rem;">
                                                 <div style="display: flex; align-items: center; gap: 1rem;">
                                                     <div style="width: 36px; height: 36px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white;">
-                                                        ${admin.name ? admin.name.charAt(0).toUpperCase() : 'U'}
+                                                        ${c.email ? c.email.charAt(0).toUpperCase() : 'U'}
                                                     </div>
                                                     <div>
                                                         <div style="font-weight: 600; color: white;">
-                                                            ${admin.name || 'Unknown User'}
-                                                            ${statusLabel}
+                                                            ${c.email || 'Unknown User'}
+                                                            <span class="status-badge" style="background:rgba(46, 204, 113, 0.2); color:#2ECC71; font-size:0.6rem; padding:2px 6px; margin-left:8px;">ACTIVE</span>
                                                         </div>
-                                                        <div style="font-size: 0.8rem; color: var(--text-dim);">${admin.email}</div>
+                                                        <div style="font-size: 0.8rem; color: var(--text-dim);">${c.uid}</div>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td style="padding: 1rem;">
                                                 <span class="role-badge coadmin" style="background: rgba(123, 97, 255, 0.1); color: #7B61FF; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">
-                                                    ${admin.college ? admin.college.toUpperCase() : 'UNASSIGNED'}
+                                                    ${c.college ? c.college.toUpperCase() : 'UNASSIGNED'}
                                                 </span>
                                             </td>
                                             <td style="text-align: right; padding: 1rem 2rem;">
-                                                <button class="btn-icon danger" onclick="AdminConsole.removeCoAdmin('${admin.id}', ${admin.isInvite})" style="color: #ff4757; transition: 0.2s;">
+                                                <button class="btn-icon danger" onclick="AdminConsole.revokeAccess('${c.id}', '${c.college}')" style="color: #ff4757; transition: 0.2s;">
                                                     🗑️ Revoke
                                                 </button>
                                             </td>
@@ -261,23 +257,16 @@ window.AdminConsole = {
 
         console.log("📡 Admin Console: Connecting to Live DB...");
 
-        const processLists = () => {
-            const users = this._snapUsers || [];
-            const invites = this._snapInvites || [];
-            this.state.users = users;
+        // 3. ADMIN DASHBOARD - FIX LISTING (SHARED DB + ROLE QUERY)
+        // Query users where role == 'coadmin' directly
+        const qCoAdmins = query(collection(db, "users"), where("role", "==", "coadmin"));
 
-            const realCoAdmins = users.filter(u => u.role === 'coadmin');
-            const invitedCoAdmins = invites.map(i => ({
-                id: 'invite_' + i.email,
-                name: i.email.split('@')[0],
-                email: i.email,
-                role: 'coadmin',
-                isInvite: true,
-                college: i.college,
-                status: 'pending'
+        this.unsubscribeCoAdmins = onSnapshot(qCoAdmins, (snap) => {
+            this.state.coadmins = snap.docs.map(d => ({
+                id: d.id,
+                uid: d.id,
+                ...d.data()
             }));
-
-            this.state.coadmins = [...realCoAdmins, ...invitedCoAdmins];
 
             const viewContent = document.getElementById('admin-view-content');
             const activeBtn = document.querySelector('.glass-card button.btn-primary');
@@ -286,26 +275,18 @@ window.AdminConsole = {
             } else if (viewContent && activeBtn && activeBtn.innerText.includes('Overview')) {
                 viewContent.innerHTML = this.renderOverview();
             }
-        };
-
-        this.unsubscribeUsers = onSnapshot(collection(db, 'users'), (snap) => {
-            this._snapUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            processLists();
-        });
-
-        this.unsubscribeInvites = onSnapshot(collection(db, 'role_invites'), (snap) => {
-            this._snapInvites = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            processLists();
         });
 
         this.unsubscribeColleges = onSnapshot(collection(db, 'colleges'), (snap) => {
             this.state.colleges = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            this.logActivity(`📡 Database Sync: ${this.state.colleges.length} colleges detected.`);
-            const viewContent = document.getElementById('admin-view-content');
-            const activeBtn = document.querySelector('.glass-card button.btn-primary');
-            if (viewContent && activeBtn && activeBtn.innerText.includes('Analytics')) {
-                viewContent.innerHTML = this.renderCollegeAnalytics();
-            }
+        });
+
+        // Note: we might still want users list for metrics, but NOT for coadmin logic.
+        // Keeping it separate.
+        onSnapshot(collection(db, 'users'), (snap) => {
+            this.state.users = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            console.log("📊 Admin Debug: Loaded Users:", this.state.users.map(u => `${u.email} (${u.role})`));
+            this.refreshViewIfActive('Overview');
         });
 
         onSnapshot(collection(db, 'notes'), (snap) => {
@@ -313,24 +294,28 @@ window.AdminConsole = {
             snap.forEach(doc => all.push({ id: doc.id, ...doc.data() }));
             this.state.allNotes = all;
             this.state.pendingNotes = all.filter(n => n.status === 'pending');
-
-            const viewContent = document.getElementById('admin-view-content');
-            const activeBtn = document.querySelector('.glass-card button.btn-primary');
-            if (viewContent && activeBtn && activeBtn.innerText.includes('Analytics')) {
-                viewContent.innerHTML = this.renderCollegeAnalytics();
-            } else if (viewContent && activeBtn && activeBtn.innerText.includes('Overview')) {
-                viewContent.innerHTML = this.renderOverview();
-            }
+            this.refreshViewIfActive('Overview');
+            this.refreshViewIfActive('Analytics');
         });
 
         this.bootstrapDefaultColleges();
         this.isInitialized = true;
     },
 
+    refreshViewIfActive: function (viewName) {
+        const viewContent = document.getElementById('admin-view-content');
+        const activeBtn = document.querySelector('.glass-card button.btn-primary');
+        if (viewContent && activeBtn && activeBtn.innerText.includes(viewName)) {
+            // simple re-render triggers
+            if (viewName === 'Overview') viewContent.innerHTML = this.renderOverview();
+            if (viewName === 'Analytics') viewContent.innerHTML = this.renderCollegeAnalytics();
+        }
+    },
+
 
 
     bootstrapDefaultColleges: async function () {
-        const { db, collection, getDocs, doc, setDoc, serverTimestamp } = window.firebaseServices;
+        const { db, collection, getDocs, doc, setDoc, serverTimestamp } = window.firebaseServices || {};
         try {
             this.logActivity("🚀 System Seeding: Ensuring core universities are synchronized...");
             const defaults = [
@@ -373,64 +358,109 @@ window.AdminConsole = {
     },
 
     addCoAdmin: async function () {
-        const emailInput = document.getElementById('ca-email');
-        const collegeSelect = document.getElementById('ca-college');
-        const email = emailInput?.value;
-        const collegeId = collegeSelect?.value;
+        const inputVal = document.getElementById("ca-email").value.trim();
+        const collegeId = document.getElementById("ca-college").value;
 
-        if (!email) return alert("Please enter an email.");
-        if (!collegeId) return alert("Please select a college.");
+        if (!inputVal || !collegeId) return alert("Fill all fields");
 
-        const { db, collection, getDocs, getDoc, query, where, updateDoc, doc, setDoc, serverTimestamp } = window.firebaseServices;
-        const cleanEmail = email.trim().toLowerCase();
-
-        if (!confirm(`Grant CO-ADMIN access to ${cleanEmail} for ${collegeId.toUpperCase()}?`)) return;
+        const { db, collection, query, where, getDocs, doc, updateDoc, getDoc, setDoc } = window.firebaseServices;
 
         try {
-            const caMapRef = doc(db, 'college_admins', collegeId);
-            const caMapSnap = await getDoc(caMapRef);
-            if (caMapSnap.exists()) {
-                const existing = caMapSnap.data();
-                return alert(`⚠️ Error: ${collegeId.toUpperCase()} already has a Co-Admin (${existing.email}).`);
-            }
+            let uid;
+            let emailFound = "";
 
-            const userRef = query(collection(db, 'users'), where('email', '==', cleanEmail));
-            const userSnap = await getDocs(userRef);
+            // DETECT INPUT TYPE: Email vs UID
+            if (!inputVal.includes('@')) {
+                // assume UID
+                console.log("🆔 Detected UID input:", inputVal);
+                const userRef = doc(db, "users", inputVal);
+                const userSnap = await getDoc(userRef);
 
-            if (!userSnap.empty) {
-                const targetUser = userSnap.docs[0];
-                const targetUid = targetUser.id;
-                await updateDoc(doc(db, 'users', targetUid), { role: 'coadmin', college: collegeId });
-                await setDoc(caMapRef, { coadminUid: targetUid, email: cleanEmail, assignedAt: serverTimestamp() });
-                alert("✅ Success! User promoted directly.");
+                if (userSnap.exists()) {
+                    uid = inputVal;
+                    emailFound = userSnap.data().email || "Unknown Email";
+                } else {
+                    alert(`User not found by UID: ${inputVal}`);
+                    return;
+                }
             } else {
-                await setDoc(doc(db, 'role_invites', cleanEmail), { email: cleanEmail, role: 'coadmin', college: collegeId, status: 'pending', invitedAt: serverTimestamp() });
-                await setDoc(caMapRef, { email: cleanEmail, status: 'pending_invite', assignedAt: serverTimestamp() });
-                alert(`📩 Pre-Authorized ${cleanEmail}.`);
+                // Treat as Email
+                const email = inputVal.toLowerCase();
+
+                // 1. Try Cache
+                let userDocStub = this.state.users.find(u => u.email && u.email.toLowerCase() === email);
+
+                if (userDocStub) {
+                    console.log("✅ Found in cache");
+                    uid = userDocStub.uid || userDocStub.id;
+                    emailFound = userDocStub.email;
+                } else {
+                    // 2. Network Query Fallback
+                    console.log("⚠️ User not in cache, forcing network sync for:", email);
+                    const q = query(collection(db, "users"), where("email", "==", email));
+                    const snap = await getDocs(q);
+
+                    if (snap.empty) {
+                        const known = this.state.users.map(u => u.email).join('\n');
+                        alert(`❌ User '${email}' not found.\n\nTroubleshooting:\n1. Copy their UID from Firebase Console (e.g. 'E3ekQAnpQ...').\n2. Paste UID here instead of email.\n\n(This bypasses search errors)`);
+                        return;
+                    }
+                    uid = snap.docs[0].id;
+                    emailFound = snap.docs[0].data().email;
+                }
             }
-            if (emailInput) emailInput.value = '';
+
+            // 2. Lock Check
+            const collegeRef = doc(db, "colleges", collegeId);
+            const collegeSnap = await getDoc(collegeRef);
+
+            if (collegeSnap.exists() && collegeSnap.data().coadminUid) {
+                alert("College already has Co-Admin (Locked)");
+                return;
+            }
+
+            // 3. Assign
+            await updateDoc(doc(db, "users", uid), {
+                role: "coadmin",
+                college: collegeId
+            });
+
+            // 4. Lock
+            await setDoc(collegeRef, {
+                coadminUid: uid
+            }, { merge: true });
+
+            alert(`✅ Assigned ${emailFound} as Co-Admin for ${collegeId}`);
+            document.getElementById("ca-email").value = "";
+            document.getElementById("ca-college").value = "";
+
         } catch (e) {
-            alert("Error: " + e.message);
+            console.error(e);
+            alert("Assignment Failed: " + (e.message || e));
         }
     },
 
-    removeCoAdmin: async function (uid, isInvite = false) {
-        if (!confirm("Revoke access?")) return;
-        const { db, updateDoc, deleteDoc, doc } = window.firebaseServices;
+    revokeAccess: async function (uid, collegeId) {
+        if (!confirm("Revoke Co-Admin access? This will unlock the college.")) return;
+        const { db, updateDoc, doc } = window.firebaseServices;
         try {
-            const admin = this.state.coadmins.find(a => a.id === uid);
-            const collegeId = admin ? admin.college : null;
-            if (isInvite) {
-                const email = uid.replace('invite_', '');
-                await deleteDoc(doc(db, 'role_invites', email));
-                if (collegeId) await deleteDoc(doc(db, 'college_admins', collegeId));
-            } else {
-                await updateDoc(doc(db, 'users', uid), { role: 'user', college: null });
-                if (collegeId) await deleteDoc(doc(db, 'college_admins', collegeId));
+            // 1. Reset user
+            await updateDoc(doc(db, "users", uid), {
+                role: "user",
+                college: null
+            });
+
+            // 2. Unlock college
+            if (collegeId && collegeId !== 'null' && collegeId !== 'undefined') {
+                await updateDoc(doc(db, "colleges", collegeId), {
+                    coadminUid: null
+                });
             }
-            alert("✅ Revoked.");
+
+            alert("✅ Revoked & College Unlocked.");
         } catch (e) {
-            alert("Error: " + e.message);
+            console.error(e);
+            alert("Revoke Error: " + e.message);
         }
     },
 
@@ -447,9 +477,11 @@ window.AdminConsole = {
     },
 
     refresh: function () {
-        this.isInitialized = false;
-        const container = document.getElementById('tab-content');
-        if (container) container.innerHTML = this.render();
+        // Force full reload to clear all caches and listeners
+        // This is the most robust way to 'Sync' if things get stuck
+        if (confirm("Reload Admin Console to sync latest data?")) {
+            window.location.reload();
+        }
     }
 };
 
