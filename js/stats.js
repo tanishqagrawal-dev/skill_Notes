@@ -116,14 +116,17 @@ function updateUICounters(data) {
     const map = {
         'stat-views': data.totalViews,
         'views': data.totalViews,         // Fallback ID
+        'stat-views-2': data.totalViews,
 
         'stat-downloads': data.totalDownloads,
         'global-downloads': data.totalDownloads,
         'downloads': data.totalDownloads, // Fallback ID
+        'stat-downloads-2': data.totalDownloads,
 
         'stat-active': data.totalStudents,
         'live-students': data.totalStudents,
         'students': data.totalStudents,   // Fallback ID
+        'stat-active-2': data.totalStudents,
 
         // Derived or fixed
         'stat-notes': 414 // Keep this fixed or fetch count if needed
@@ -181,9 +184,5 @@ window.statServices = {
     updateUI: () => { } // Auto-handled by snapshot
 };
 
-// Auto Init
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initRealtimeStats);
-} else {
-    initRealtimeStats();
-}
+// Auto-init removed to prevent double counting.
+// Initialization is handled explicitly in index.html and main.js
