@@ -323,11 +323,22 @@ window.AdminConsole = {
                 badge.style.borderColor = "rgba(46, 204, 113, 0.3)";
                 this.logDebug("Cloud Heartbeat: Success (Connection Stable)", "success");
             } catch (e) {
-                console.warn("💓 Heartbeat Fail:", e.message);
-                badge.innerHTML = "🔴 System Offline";
-                badge.style.color = "#ff4757";
-                badge.style.borderColor = "rgba(255, 71, 87, 0.3)";
-                this.logDebug(`Cloud Heartbeat Fail: ${e.message}`, "error");
+                console.warn("💓 Heartbeat Server Fail:", e.message);
+
+                // Fallback: Try Cache
+                try {
+                    const q2 = query(collection(db, "colleges"), limit(1));
+                    await getDocs(q2);
+                    badge.innerHTML = "⚠️ Offline (Read-Only)";
+                    badge.style.color = "#f1c40f";
+                    badge.style.borderColor = "rgba(241, 196, 15, 0.3)";
+                    this.logDebug("Cloud Heartbeat: Server unreachable, but Cache is active. (Read-Only Mode)", "warn");
+                } catch (cacheErr) {
+                    badge.innerHTML = "🔴 System Offline";
+                    badge.style.color = "#ff4757";
+                    badge.style.borderColor = "rgba(255, 71, 87, 0.3)";
+                    this.logDebug(`Cloud Heartbeat Fail: ${e.message}`, "error");
+                }
             }
         };
 
@@ -613,13 +624,7 @@ window.AdminConsole = {
 
             if (badge) badge.innerHTML = "📡 Querying Cloud...";
 
-            // Trigger a fresh health check immediately
-            setTimeout(() => {
-                const currentBadge = document.getElementById('db-health-badge');
-                if (currentBadge && currentBadge.innerHTML.includes("Querying")) {
-                    alert("Sync taking longer than expected. Please reload the page if it doesn't turn green soon.");
-                }
-            }, 8000);
+            // Trigger a fresh health check immediately (silently)
 
             // Re-run init logic to refresh listeners
             this.init();

@@ -16,6 +16,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
     getFirestore,
+    initializeFirestore,
     collection,
     addDoc,
     getDocs,
@@ -63,7 +64,10 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 // EAGER INIT (Standard for shared usage)
-const db = getFirestore(app);
+// Use initializeFirestore with long polling to fix "Offline" issues on some networks
+const db = initializeFirestore(app, {
+    experimentalForceLongPolling: true
+});
 const storage = getStorage(app);
 const functions = getFunctions(app);
 
