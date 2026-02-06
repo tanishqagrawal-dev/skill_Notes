@@ -37,8 +37,9 @@ service cloud.firestore {
 
     // --- Consolidated Notes Collection ---
     match /notes/{noteId} {
-      // Access Rule: Everyone can read approved notes, Co-Admins can read their college's notes
-      allow read: if resource.data.status == 'approved' || 
+      // Access Rule: Everyone can read non-rejected notes. 
+      // Co-Admins and Admins can see everything including rejected notes if needed.
+      allow read: if (resource.data.status != 'rejected') || 
                    (isSignedIn() && (
                      hasRole('admin') || 
                      hasRole('superadmin') || 

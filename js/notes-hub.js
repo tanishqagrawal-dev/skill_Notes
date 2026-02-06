@@ -53,9 +53,12 @@ function initNotesData() {
         return;
     }
 
-    const q = query(collection(db, "notes"), where("status", "==", "approved"));
+    const q = query(collection(db, "notes"));
     onSnapshot(q, (snapshot) => {
-        NotesDB = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        NotesDB = snapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .filter(n => n.status !== 'rejected') // Only keep visible notes
+            .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
         // If we are currently viewing the final list, refresh it to show new/updated notes
         if (document.getElementById('final-notes-view').style.display === 'block') {
