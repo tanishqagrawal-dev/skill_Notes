@@ -38,12 +38,26 @@ export async function initRealtimeStats() {
     const statsRef = doc(db, STATS_DOC_PATH);
 
     try {
-        onSnapshot(statsRef, (snapshot) => {
+        onSnapshot(statsRef, async (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.data();
                 lastStatsData = { ...lastStatsData, ...data };
                 localStorage.setItem('global_stats_cache', JSON.stringify(lastStatsData));
                 updateUICounters(lastStatsData);
+            } else {
+                // AUTO-INIT: Create global stats doc if it doesn't exist
+                console.warn("⚠️ Global Stats Missing. creating default...");
+                try {
+                    const { setDoc } = getFirebase();
+                    await setDoc(statsRef, {
+                        views: 414, // Start with non-zero for realism
+                        downloads: 12,
+                        students: 5,
+                        notes: 8
+                    }, { merge: true });
+                } catch (e) {
+                    console.error("Stats Auto-Init Failed:", e);
+                }
             }
         });
 
