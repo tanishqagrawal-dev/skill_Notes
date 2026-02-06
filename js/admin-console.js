@@ -436,7 +436,13 @@ window.AdminConsole = {
 
         } catch (e) {
             console.error(e);
-            alert("Assignment Failed: " + (e.message || e));
+            if (e.message.includes("offline")) {
+                if (confirm("⚠️ Network Connection Lost.\n\nThe database client is offline. Please reload the page to reconnect.\n\nReload now?")) {
+                    window.location.reload();
+                }
+            } else {
+                alert("Assignment Failed: " + (e.message || e));
+            }
         }
     },
 
