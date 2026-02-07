@@ -10,9 +10,9 @@ window.CoAdminModule = {
 
     init: function (user) {
         if (this.isInitialized) return;
-        this.myCollege = user.college;
+        this.myCollege = user.collegeId || user.college;
         if (!this.myCollege) {
-            console.error("CoAdmin Module: No assigned college found in user profile.");
+            console.error("CoAdmin Module: No assigned collegeId found in user profile.");
             return;
         }
 
@@ -76,7 +76,7 @@ window.CoAdminModule = {
         // Requirement: Filter by 'college' field exactly as stored in user.college
         const q = query(
             collection(db, 'notes'),
-            where('college', '==', currentColl),
+            where('collegeId', '==', currentColl),
             where('status', '==', 'pending')
         );
 

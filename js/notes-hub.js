@@ -57,7 +57,7 @@ function initNotesData() {
     onSnapshot(q, (snapshot) => {
         NotesDB = snapshot.docs
             .map(doc => ({ id: doc.id, ...doc.data() }))
-            .filter(n => n.status !== 'rejected') // Only keep visible notes
+            .filter(n => n.status === 'approved') // Only show approved notes globally in Hub
             .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
         // If we are currently viewing the final list, refresh it to show new/updated notes
@@ -408,15 +408,14 @@ window.fetchNotesBySubject = async function (subjectId, tabType = 'notes') {
         const notesMap = new Map();
         approvedSnap.forEach(doc => {
             const data = doc.data();
-            if (data.status !== 'rejected') {
+            if (data.status === 'approved') {
                 notesMap.set(doc.id, { id: doc.id, ...data });
             }
         });
         userSnap.forEach(doc => {
             const data = doc.data();
-            if (data.status !== 'rejected') {
-                notesMap.set(doc.id, { id: doc.id, ...data });
-            }
+            // User can always see their own notes in their own view
+            notesMap.set(doc.id, { id: doc.id, ...data });
         });
 
         const notes = Array.from(notesMap.values()).sort((a, b) => {

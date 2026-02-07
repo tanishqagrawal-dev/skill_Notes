@@ -201,6 +201,24 @@
     <script src="../js/coadmin-module.js" defer></script>
     <script src="../js/note-actions.js" defer></script>
     <script src="../js/dashboard.js" defer></script>
+
+    <!-- Auth Lifecycle & Logout -->
+    <script type="module">
+        import { initAuth } from '../js/auth.js';
+
+        // Boot up real Firebase auth in background
+        // requestIdleCallback keeps the immediate load fast
+        const bootAuth = () => {
+            console.log("🔐 Initializing Auth Lifecycle...");
+            initAuth();
+        };
+
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(bootAuth);
+        } else {
+            setTimeout(bootAuth, 200);
+        }
+    </script>
 </body>
 
 </html>

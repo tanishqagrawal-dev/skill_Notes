@@ -127,13 +127,23 @@
 
     <!-- Dynamic Dashboard Engine -->
     <script type="module" src="../js/firebase-config.js"></script>
-    <script type="module" src="../js/auth.js"></script>
     <script src="../js/ai-client.js"></script>
     <script src="../js/settings.js"></script>
     <script src="../js/upload-helper.js"></script>
     <script type="module" src="../js/stats.js"></script>
     <script src="../js/coadmin-module.js"></script>
     <script type="module" src="../js/coadmin-dashboard.js"></script>
+
+    <!-- Auth Lifecycle & Logout -->
+    <script type="module">
+        import { initAuth } from '../js/auth.js';
+        const bootAuth = () => {
+            console.log("🔐 Initializing Co-Admin Auth Lifecycle...");
+            initAuth();
+        };
+        if ('requestIdleCallback' in window) requestIdleCallback(bootAuth);
+        else setTimeout(bootAuth, 200);
+    </script>
 </body>
 
 </html>
