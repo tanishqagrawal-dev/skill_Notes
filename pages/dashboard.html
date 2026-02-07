@@ -77,12 +77,29 @@
                 </a>
             </nav>
             <div class="user-profile-mini">
-                <div class="avatar">G</div>
+                <div class="avatar" id="instant-avatar">...</div>
                 <div class="user-info">
-                    <span class="name">Guest User</span>
-                    <span class="meta" style="font-size: 0.75rem; color: var(--text-dim); display: block;">User</span>
+                    <span class="name" id="instant-name">Loading...</span>
+                    <span class="meta" id="instant-role"
+                        style="font-size: 0.75rem; color: var(--text-dim); display: block;">Profile</span>
                 </div>
             </div>
+            <script>
+                // --- 00. SIDEBAR HYDRATION (Blocking for instant paint) ---
+                (function () {
+                    const raw = localStorage.getItem('auth_user_full') || localStorage.getItem('guest_session');
+                    if (raw) {
+                        try {
+                            const u = JSON.parse(raw);
+                            document.getElementById('instant-name').innerText = u.name || (u.email ? u.email.split('@')[0] : 'Scholar');
+                            document.getElementById('instant-role').innerText = (u.role || 'USER').toUpperCase();
+                            const av = document.getElementById('instant-avatar');
+                            if (u.photo) av.innerHTML = `<img src="${u.photo}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                            else av.innerText = (u.name || 'U').charAt(0);
+                        } catch (e) { }
+                    }
+                })();
+            </script>
         </aside>
 
         <!-- Private Drive Content -->
@@ -90,98 +107,78 @@
             <!-- Content injected by JS -->
         </div>
 
-        <!-- Admin Console Content -->
         <!-- Main Content -->
         <main class="main-content">
             <header class="top-bar glass-card">
-
                 <div class="search-bar">
                     <input type="text" id="global-search-input"
                         placeholder="Global search for notes, colleges or topics...">
                     <span class="search-icon">🔍</span>
                 </div>
-
                 <div class="top-actions">
                     <button class="btn btn-ghost notification-btn">🔔</button>
-                    <button class="primary-btn upload-btn" onclick="openUploadModal()"
-                        style="padding: 10px 24px; min-width: 140px;">+ Upload Note</button>
+                    <button class="primary-btn upload-btn">+ Upload Note</button>
                 </div>
             </header>
 
             <div class="content-area" id="tab-content">
-                <!-- Top Progress Bar (Pulse) -->
-                <div id="sync-status-bar"
-                    style="position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: var(--secondary); z-index: 10000; transition: width 0.4s ease, opacity 0.4s ease;">
-                </div>
-
                 <script>
                     (function () {
                         const raw = localStorage.getItem('auth_user_full') || localStorage.getItem('guest_session');
                         const cachedUser = raw ? JSON.parse(raw) : null;
+                        const rawStats = localStorage.getItem('cached_stats');
+                        const stats = rawStats ? JSON.parse(rawStats) : null;
 
-                        // Optimized: Always render skeleton first for perceived performance
                         const name = cachedUser ? (cachedUser.name || 'Scholar').split(' ')[0] : '...';
+                        const college = cachedUser ? (cachedUser.collegeName || cachedUser.college || 'Medicaps University') : 'Loading...';
                         const roleLabel = cachedUser ? (cachedUser.role !== 'user' ? `🛡️ Verified ${cachedUser.role.toUpperCase()}` : `${cachedUser.year || '3rd Year'} • ${cachedUser.branch || 'CSE'}`) : 'Loading Profile...';
 
                         document.write(`
-                                <div id="instant-view" class="tab-pane active fade-in" style="padding: 2rem;">
-                                    <div style="margin-bottom: 2.5rem;">
-                                        <h1 class="font-heading" style="font-size: 2.5rem; margin-bottom: 0.5rem;">
-                                            ${cachedUser ? `Welcome back, <span class="gradient-text">${name}</span> 👋` : `<div class="skeleton" style="height: 40px; width: 300px; border-radius: 8px;"></div>`}
-                                        </h1>
-                                        <p style="color: var(--text-dim); font-size: 1.1rem;">
-                                            ${cachedUser ? roleLabel : `<div class="skeleton" style="height: 20px; width: 200px; margin-top: 10px; border-radius: 4px;"></div>`}
-                                        </p>
+                            <div id="instant-view" class="tab-pane active fade-in" style="padding: 2rem;">
+                                <div style="margin-bottom: 2.5rem;">
+                                    <h1 class="font-heading" style="font-size: 2.5rem; margin-bottom: 0.5rem;">
+                                        ${cachedUser ? `Welcome back, <span class="gradient-text">${name}</span> 👋` : `<div class="skeleton" style="height: 48px; width: 300px; border-radius: 8px;"></div>`}
+                                    </h1>
+                                    <p style="color: var(--text-dim); font-size: 1.1rem;">
+                                        ${cachedUser ? `${roleLabel} • ${college}` : `<div class="skeleton" style="height: 20px; width: 250px; margin-top: 10px;"></div>`}
+                                    </p>
+                                </div>
+                                
+                                <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+                                    <div class="glass-card" style="padding: 1.5rem; border-left: 4px solid #2ecc71;">
+                                        <div style="font-size: 0.9rem; color: var(--text-dim);">🔴 Live Students</div>
+                                        <div style="font-size: 2.5rem; font-weight: 700; margin-top:0.5rem;">${stats ? stats.totalStudents : '--'}</div>
                                     </div>
-                                    
-                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
-                                        <div class="glass-card skeleton skeleton-card" style="height: 120px;"></div>
-                                        <div class="glass-card skeleton skeleton-card" style="height: 120px;"></div>
-                                        <div class="glass-card skeleton skeleton-card" style="height: 120px;"></div>
-                                        <div class="glass-card skeleton skeleton-card" style="height: 120px;"></div>
+                                    <div class="glass-card" style="padding: 1.5rem; border-left: 4px solid #3498db;">
+                                        <div style="font-size: 0.9rem; color: var(--text-dim);">🔥 Trending Now</div>
+                                        <div style="font-size: 2.5rem; font-weight: 700; margin-top:0.5rem;">414</div>
                                     </div>
-
-                                    <div class="glass-card" style="padding: 2.5rem; border-radius: 20px; min-height: 400px; background: rgba(255,255,255,0.01);">
-                                        <div class="skeleton skeleton-title" style="width: 40%; margin-bottom: 2rem;"></div>
-                                        <div style="display: flex; flex-direction: column; gap: 1rem;">
-                                            <div class="skeleton skeleton-text" style="width: 100%;"></div>
-                                            <div class="skeleton skeleton-text" style="width: 95%;"></div>
-                                            <div class="skeleton skeleton-text" style="width: 85%;"></div>
-                                            <div class="skeleton skeleton-text" style="width: 90%;"></div>
-                                        </div>
+                                    <div class="glass-card" style="padding: 1.5rem; border-left: 4px solid #9b59b6;">
+                                        <div style="font-size: 0.9rem; color: var(--text-dim);">⬇️ Global Downloads</div>
+                                        <div style="font-size: 2.5rem; font-weight: 700; margin-top:0.5rem;">${stats ? stats.totalDownloads : '--'}</div>
                                     </div>
                                 </div>
-                            `);
 
+                                <div class="glass-card" style="background: linear-gradient(135deg, rgba(108,99,255,0.05) 0%, rgba(255,255,255,0.01) 100%); padding: 3rem; border-radius: 24px; text-align: center;">
+                                    <div class="loader-pro" style="margin: 0 auto 1.5rem;"></div>
+                                    <p style="color: var(--text-dim);">Synchronizing your educational workspace...</p>
+                                </div>
+                            </div>
+                        `);
                     })();
                 </script>
             </div>
         </main>
     </div>
 
-    <!-- Dynamic Dashboard Engine -->
-    <!-- Dynamic Dashboard Engine (True Lazy Load) -->
-    <script type="module" src="../js/firebase-config.js"></script>
-    <script src="../js/ai-client.js" defer></script>
-    <script src="../js/settings.js" defer></script>
-    <script src="../js/upload-helper.js" defer></script>
-    <script type="module" src="../js/stats.js"></script>
-    <script src="../js/admin-console.js" defer></script>
-
+    <!-- Application Engine -->
     <script>
-        // --- 0. INSTANT PRELOADER (Blocking script, minimal execution) ---
-        // This runs before ANY module imports to ensure window.authStatus is ready
-        // when dashboard.js eventually loads. This bypasses Firebase loading delay.
+        window.authStatus = { ready: false, data: null };
         (function () {
-            window.authStatus = { ready: false, data: null };
-
             try {
                 const raw = localStorage.getItem('auth_user_full') || localStorage.getItem('guest_session');
                 if (raw) {
                     const parsed = JSON.parse(raw);
-                    console.log("⚡ Instant Preloader: Hydrating session from cache", parsed.email);
-
-                    // Populate global status immediately
                     window.authStatus = {
                         ready: true,
                         data: {
@@ -189,17 +186,12 @@
                             currentUser: parsed
                         }
                     };
-
-                    // Dispatch event immediately (in case listeners are somehow already there, though unlikely)
                     window.dispatchEvent(new CustomEvent('auth-ready', { detail: window.authStatus.data }));
                 }
-            } catch (e) {
-                console.warn("Preloader Error:", e);
-            }
+            } catch (e) { }
         })();
     </script>
 
-    <!-- Core Application Logic -->
     <script type="module" src="../js/firebase-config.js"></script>
     <script src="../js/ai-client.js" defer></script>
     <script src="../js/settings.js" defer></script>
@@ -208,17 +200,7 @@
     <script src="../js/admin-console.js" defer></script>
     <script src="../js/coadmin-module.js" defer></script>
     <script src="../js/note-actions.js" defer></script>
-
-    <script type="module">
-        import { initAuth } from '../js/auth.js';
-
-        // Instant Startup: No artificial delays
-        console.log("🚦 Starting App Initialization...");
-        import('../js/dashboard.js?v=6').then(module => {
-            console.log("📦 Dashboard Module Loaded");
-        });
-        initAuth();
-    </script>
+    <script src="../js/dashboard.js" defer></script>
 </body>
 
 </html>

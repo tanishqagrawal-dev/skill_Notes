@@ -27,7 +27,10 @@ window.AdminConsole = {
                         <h1 class="font-heading" style="font-size: 2.5rem;">🚨 Admin <span class="gradient-text">Command Center</span></h1>
                         <p style="color: var(--text-dim);">System oversight, user management, and global configurations.</p>
                     </div>
-                    <button class="btn btn-ghost" onclick="AdminConsole.refresh()" style="border: 1px solid var(--border-glass);">🔄 Sync Database</button>
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn btn-ghost" onclick="AdminConsole.emergencyRescue()" style="border: 1px solid #ff4757; color: #ff4757;">🛠️ Emergency Rescue</button>
+                        <button class="btn btn-ghost" onclick="AdminConsole.refresh()" style="border: 1px solid var(--border-glass);">🔄 Sync Database</button>
+                    </div>
                 </div>
 
                 <div class="glass-card" style="padding: 1rem; margin-bottom: 2rem; display: flex; gap: 1rem;">
@@ -471,6 +474,50 @@ window.AdminConsole = {
     },
 
 
+
+    emergencyRescue: async function () {
+        console.log("🛠️ Starting Emergency Rescue...");
+        const { db, doc, updateDoc, arrayUnion, setDoc, serverTimestamp } = window.firebaseServices;
+
+        // NEW: Allow manual UID entry if the provided ones are wrong
+        const manualUid = prompt("Enter specific UID to rescue (optional, leave blank to use defaults):")?.trim();
+
+        const rescueList = [
+            { email: 'tanishqagrawalgenai@gmail.com', uid: 'E3ekQAnpQmaArDL7Am7bunbrzXf2' },
+            { email: 'tanishqsharmaa2006@gmail.com', uid: 'NcZlk0S69jeLw5foXDd091Bte3v2' }
+        ];
+
+        if (manualUid) {
+            rescueList.push({ email: 'Manual Entry', uid: manualUid });
+        }
+
+        const collegeId = 'medicaps';
+
+        try {
+            for (const user of rescueList) {
+                console.log(`📡 Rescuing: ${user.email} (${user.uid})`);
+
+                // 1. Force update user document
+                await setDoc(doc(db, "users", user.uid), {
+                    email: user.email,
+                    role: "coadmin",
+                    college: collegeId,
+                    lastRescued: serverTimestamp()
+                }, { merge: true });
+
+                // 2. Force add to college coadmins array (use setDoc merge to ensure doc exists)
+                await setDoc(doc(db, "colleges", collegeId), {
+                    id: collegeId,
+                    name: "Medicaps University",
+                    coadmins: arrayUnion(user.uid)
+                }, { merge: true });
+            }
+            alert(`✅ Emergency Rescue Complete!\nUpdated:\n- ${rescueList[0].email}\n- ${rescueList[1].email}\nto Medicaps Co-Admins.`);
+        } catch (e) {
+            console.error("Rescue Failed:", e);
+            alert("Rescue Failed: " + e.message);
+        }
+    },
 
     renderKPI: function (label, value, sub, color) {
         return `

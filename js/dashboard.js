@@ -718,7 +718,15 @@ async function handleDashboardNoteSubmit(e) {
             // Clear form
             document.getElementById('dash-upload-form').reset();
             document.getElementById('upload-status-area').style.display = 'none';
-        }, 1500);
+
+            // Redirect to My Uploads tab instantly
+            const myUploadsTab = document.querySelector('.nav-item[data-tab="my-uploads"]');
+            if (myUploadsTab) {
+                myUploadsTab.click();
+            } else {
+                renderTabContent('my-uploads');
+            }
+        }, 1200);
     } catch (err) {
         console.error("Upload failed:", err);
         statusText.innerText = "Failed: " + err.message;

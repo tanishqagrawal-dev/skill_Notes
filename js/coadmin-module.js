@@ -94,24 +94,28 @@ window.CoAdminModule = {
     },
 
     approveNote: async function (noteId) {
-        const { db, doc, runTransaction, serverTimestamp } = window.firebaseServices;
+        const { db, doc, updateDoc, addDoc, collection, serverTimestamp } = window.firebaseServices;
         const note = this.pendingNotes.find(n => n.id === noteId);
         if (!note) return;
 
         if (!confirm(`Approve "${note.title}"?`)) return;
 
         try {
-            await runTransaction(db, async (transaction) => {
-                const noteRef = doc(db, 'notes', noteId);
-                const noteDoc = await transaction.get(noteRef);
-                if (!noteDoc.exists()) throw "Note missing";
-
-                transaction.update(noteRef, {
-                    status: 'approved',
-                    approvedBy: window.currentUser.id,
-                    approvedAt: serverTimestamp()
-                });
+            const noteRef = doc(db, 'notes', noteId);
+            await updateDoc(noteRef, {
+                status: 'approved',
+                approvedBy: window.currentUser.id,
+                approvedAt: serverTimestamp()
             });
+
+            // Log activity
+            await addDoc(collection(db, 'colleges', this.myCollege, 'activity'), {
+                uid: window.currentUser.id,
+                action: "approved note",
+                noteTitle: note.title,
+                time: serverTimestamp()
+            });
+
             alert("✅ Approved!");
         } catch (e) {
             console.error(e);

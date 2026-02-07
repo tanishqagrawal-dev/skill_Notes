@@ -135,32 +135,32 @@ function initStrictMode() {
         console.log("🔍 Verifying CoAdmin Access for:", u.email);
 
         // 5. COADMIN DASHBOARD FIX - Strict Check
-        onSnapshot(collection(db, "college_admins"), snap => {
+        onSnapshot(collection(db, "colleges"), snap => {
             let found = false;
             snap.forEach(d => {
-                const data = d.data();
-                if (data.uid === u.uid) {
+                const college = d.data();
+                if (college.coadmins?.includes(u.uid)) {
                     console.log("✅ Access Granted: CoAdmin for", d.id);
                     myCollege = d.id;
-                    currentUser = { ...u, college: myCollege, role: 'coadmin' }; // Optimistic role for UI
+                    currentUser = { ...u, college: myCollege, role: 'coadmin' };
                     found = true;
-
-                    // Update UI
                     updateDashboardUI();
-
-                    // Load Content
                     loadCollege(d.id);
                 }
             });
 
             if (!found) {
-                console.warn("⛔ Access Denied: Not in college_admins");
-                // Optional: Redirect if strict, or show "Access Denied" screen
+                console.warn("⛔ Access Denied: Not in any college coadmins list");
                 document.body.innerHTML = `
-                    <div style="display:flex; justify-content:center; align-items:center; height:100vh; flex-direction:column; background:#0f0c29; color:white;">
-                        <h1>⛔ Access Denied</h1>
-                        <p>You are not assigned as a Co-Admin to any college.</p>
-                        <a href="dashboard.html" style="color:#7B61FF; margin-top:1rem;">Return to Member Dashboard</a>
+                    <div style="display:flex; justify-content:center; align-items:center; height:100vh; flex-direction:column; background:#0f0c29; color:white; padding: 2rem; text-align: center;">
+                        <h1 style="font-size: 4rem;">⛔</h1>
+                        <h1 style="margin-bottom: 1rem;">Access Denied</h1>
+                        <p style="color: var(--text-dim); margin-bottom: 0.5rem;">You are not assigned as a Co-Admin to any college.</p>
+                        <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-glass);">
+                            <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.25rem;">Your Unique ID (UID):</p>
+                            <code style="color: #7B61FF; font-weight: bold; font-family: monospace;">${u.uid}</code>
+                        </div>
+                        <a href="dashboard.html" style="color:#7B61FF; text-decoration: none; border-bottom: 1px solid #7B61FF;">Return to Member Dashboard</a>
                     </div>
                 `;
             }
@@ -170,64 +170,60 @@ function initStrictMode() {
 
 // 6. LOAD NOTES - Strict College Query
 function loadCollege(college) {
-    const { db, collection, query, where, onSnapshot } = getFirebase();
-
-    // Update Tab UI based on college (reuse existing)
-    initCoAdminTabs();
-
-    // We listen for pending notes for this college
-    const q = query(collection(db, "notes"),
-        where("college", "==", college),
-        where("status", "==", "pending"));
-
-    onSnapshot(q, snap => {
-        const notes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        pendingNotes = notes;
-
-        // Render if on correct tab
-        if (document.querySelector('.nav-item[data-tab="verification-hub"].active')) {
-            renderQueueList();
+    console.log("🏫 Loading College Module for:", college);
+    if (window.CoAdminModule) {
+        window.CoAdminModule.init({ college: college });
+        // Force refresh the moderation hub if it's the active tab
+        const activeNav = document.querySelector('.nav-item.active');
+        if (activeNav && activeNav.dataset.tab === 'verification-hub') {
+            renderTabContent('verification-hub');
         }
-    });
-
-    // Also listen for approved for stats
-    // ...
+    }
 }
+
+function renderQueueList() {
+    const container = document.getElementById('coadmin-queue-list');
+    if (container && window.CoAdminModule) {
+        container.innerHTML = window.CoAdminModule.renderQueueItems();
+    }
+}
+
+function renderCollegeStats() {
+    return `
+        <div class="tab-pane active fade-in" style="padding: 2rem;">
+            <h1 class="font-heading">📊 College <span class="gradient-text">Analytics</span></h1>
+            <p style="color: var(--text-dim);">Live performance metrics for ${myCollege.toUpperCase()}.</p>
+            <div style="margin-top: 2rem; padding: 4rem; text-align: center; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px dashed var(--border-glass);">
+                <p style="color: var(--text-dim);">Detailed college analytics are being synchronized...</p>
+            </div>
+        </div>
+    `;
+}
+
+// Start Verification Flow
+initStrictMode();
 
 // Global Event Listener
 window.addEventListener('auth-ready', (event) => {
     console.log("⚡ CoAdmin Dashboard received auth-ready");
-    const { user } = event.detail;
-    if (user) {
-        initRealtimeAccessCheck(user.uid);
-    }
     handleAuthReady(event.detail);
 });
 
 if (window.authStatus && window.authStatus.ready) {
-    if (window.authStatus.data.user) {
-        initRealtimeAccessCheck(window.authStatus.data.user.uid);
-    }
     handleAuthReady(window.authStatus.data);
 }
 
 function initRealtimeAccessCheck(uid) {
-    const { db, doc, onSnapshot } = getFirebase();
+    const services = getFirebase();
+    const { db, doc, onSnapshot } = services;
     if (!db) return;
 
-    // REALTIME REFLECTION: Listen to MY user doc
     onSnapshot(doc(db, "users", uid), (docSnap) => {
         if (docSnap.exists()) {
             const data = docSnap.data();
-            // If role lost or changed, kick out immediately
-            if (data.role !== 'coadmin' && data.role !== 'superadmin') {
+            if (data.role !== 'coadmin' && data.role !== 'superadmin' && data.role !== 'admin') {
                 console.warn("⛔ Role revoked in realtime. Redirecting...");
                 window.location.href = '../index.html';
-            }
-            // Optional: Update college if switched in realtime
-            if (data.college && myCollege && data.college !== myCollege) {
-                console.log("🔄 College switched in realtime. Reloading...");
-                window.location.reload();
             }
         }
     });
