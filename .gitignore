@@ -2,3 +2,8 @@ node_modules
 .env
 log.txt
 service-account.json
+
+.env*
+.flaskenv*
+!.env.project
+!.env.vault

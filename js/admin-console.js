@@ -25,7 +25,12 @@ window.AdminConsole = {
                 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 3rem;">
                     <div>
                         <h1 class="font-heading" style="font-size: 2.5rem;">🚨 Admin <span class="gradient-text">Command Center</span></h1>
-                        <p style="color: var(--text-dim);">System oversight, user management, and global configurations.</p>
+                        <p style="color: var(--text-dim); display: flex; align-items: center; gap: 0.5rem;">
+                            System oversight, user management, and global configurations.
+                            <span id="db-health-badge" style="font-size: 0.7rem; padding: 2px 8px; border-radius: 12px; background: rgba(255,255,255,0.05); color: var(--text-dim); border: 1px solid var(--border-glass); cursor: pointer;" onclick="AdminConsole.forceReconnect()" title="Click to force reconnect">
+                                📡 Checking Connection...
+                            </span>
+                        </p>
                     </div>
                     <div style="display: flex; gap: 1rem;">
                         <button class="btn btn-ghost" onclick="AdminConsole.emergencyRescue()" style="border: 1px solid #ff4757; color: #ff4757;">🛠️ Emergency Rescue</button>
@@ -38,6 +43,7 @@ window.AdminConsole = {
                     <button class="btn btn-sm btn-ghost" onclick="AdminConsole.switchView('coadmins')">👥 Manage Co-Admins</button>
                     <button class="btn btn-sm btn-ghost" onclick="AdminConsole.switchView('colleges')">🏫 College Analytics</button>
                     <button class="btn btn-sm btn-ghost" onclick="AdminConsole.switchView('support')">📨 Support Inbox</button>
+                    <button class="btn btn-sm btn-ghost" onclick="AdminConsole.switchView('debug')" id="debug-tab-btn">🧪 Debug Console</button>
                 </div>
 
                 <div id="admin-view-content">
@@ -71,6 +77,47 @@ window.AdminConsole = {
                 container.innerHTML = "Support Module Loading...";
             }
         }
+        else if (viewId === 'debug') {
+            container.innerHTML = this.renderDebugConsole();
+        }
+    },
+
+    renderDebugConsole: function () {
+        return `
+            <div class="glass-card" style="padding: 2rem;">
+                <h3 class="font-heading" style="margin-bottom:1rem;">🧪 System Debug Console</h3>
+                <p style="color: var(--text-dim); margin-bottom: 2rem;">Real-time diagnostics for database and authentication services.</p>
+                
+                <div id="admin-debug-logs" style="background: rgba(0,0,0,0.5); padding: 1.5rem; border-radius: 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; height: 400px; overflow-y: auto; border: 1px solid var(--border-glass);">
+                    <div style="color: #666;">[${new Date().toLocaleTimeString()}] Diagnostics Initialized...</div>
+                </div>
+                
+                <div style="margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 1rem;">
+                    <button class="btn btn-primary" onclick="AdminConsole.forceReconnect()">⚡ Reconnect Firestore</button>
+                    <button class="btn btn-secondary" style="background: rgba(255, 71, 87, 0.1); border-color: rgba(255, 71, 87, 0.2); color: #ff4757;" onclick="AdminConsole.hardResetFirestore()">🚨 Hard Reset (Cloud Sync)</button>
+                    <button class="btn btn-ghost" onclick="AdminConsole.clearLogs()">🧹 Clear Logs</button>
+                </div>
+            </div>
+        `;
+    },
+
+    logDebug: function (msg, type = 'info') {
+        const logContainer = document.getElementById('admin-debug-logs');
+        if (logContainer) {
+            const time = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#ff4757' : type === 'success' ? '#2ecc71' : type === 'warn' ? '#f1c40f' : '#fff';
+            const div = document.createElement('div');
+            div.style.marginBottom = '0.5rem';
+            div.style.color = color;
+            div.innerHTML = `<span style="color: #666;">[${time}]</span> ${msg}`;
+            logContainer.appendChild(div);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+    },
+
+    clearLogs: function () {
+        const logContainer = document.getElementById('admin-debug-logs');
+        if (logContainer) logContainer.innerHTML = `<div style="color: #666;">[${new Date().toLocaleTimeString()}] Logs Cleared.</div>`;
     },
 
     renderOverview: function () {
@@ -118,7 +165,7 @@ window.AdminConsole = {
                         </select>
                     </div>
 
-                    <button class="btn btn-primary" onclick="AdminConsole.addCoAdmin()" style="width:100%; padding: 1rem; font-weight: 600; margin-top: 1rem;">
+                    <button id="grant-access-btn" class="btn btn-primary" onclick="AdminConsole.addCoAdmin()" style="width:100%; padding: 1rem; font-weight: 600; margin-top: 1rem;">
                         Grant Access Level
                     </button>
                     
@@ -255,10 +302,51 @@ window.AdminConsole = {
     init: function () {
         if (this.isInitialized) return;
 
-        const { db, collection, onSnapshot, query, where } = window.firebaseServices || {};
-        if (!db) return;
+        // Ensure window.firebaseServices is ready before proceeding
+        if (!window.firebaseServices || !window.firebaseServices.db) {
+            console.log("⏳ Admin Console: Waiting for Firebase Services...");
+            setTimeout(() => this.init(), 500);
+            return;
+        }
 
+        const { db, collection, onSnapshot, query, where, getDocs, getDocsFromServer, limit, doc } = window.firebaseServices;
         console.log("📡 Admin Console: Connecting to Live DB...");
+
+        // Monitor Connection Health (Heartbeat every 30s)
+        const checkHealth = async () => {
+            const badge = document.getElementById('db-health-badge');
+            if (!badge) return;
+            try {
+                // Try a small server-side fetch to verify real connectivity
+                // USE getDocsFromServer to bypass cache and force network check
+                const q = query(collection(db, "colleges"), limit(1));
+                await getDocsFromServer(q);
+                badge.innerHTML = "🟢 System Online";
+                badge.style.color = "#2ecc71";
+                badge.style.borderColor = "rgba(46, 204, 113, 0.3)";
+                this.logDebug("Cloud Heartbeat: Success (Connection Stable)", "success");
+            } catch (e) {
+                console.warn("💓 Heartbeat Server Fail:", e.message);
+
+                // Fallback: Try Cache
+                try {
+                    const q2 = query(collection(db, "colleges"), limit(1));
+                    await getDocs(q2);
+                    badge.innerHTML = "⚠️ Offline (Read-Only)";
+                    badge.style.color = "#f1c40f";
+                    badge.style.borderColor = "rgba(241, 196, 15, 0.3)";
+                    this.logDebug("Cloud Heartbeat: Server unreachable, but Cache is active. (Read-Only Mode)", "warn");
+                } catch (cacheErr) {
+                    badge.innerHTML = "🔴 System Offline";
+                    badge.style.color = "#ff4757";
+                    badge.style.borderColor = "rgba(255, 71, 87, 0.3)";
+                    this.logDebug(`Cloud Heartbeat Fail: ${e.message}`, "error");
+                }
+            }
+        };
+
+        checkHealth();
+        this.healthInterval = setInterval(checkHealth, 10000); // 10s for faster debug
 
         // 3. ADMIN DASHBOARD - FIX LISTING (SHARED DB + ROLE QUERY)
         // Query users where role == 'coadmin' directly
@@ -278,6 +366,8 @@ window.AdminConsole = {
             } else if (viewContent && activeBtn && activeBtn.innerText.includes('Overview')) {
                 viewContent.innerHTML = this.renderOverview();
             }
+        }, (error) => {
+            this.logDebug(`Co-Admin Listener Error: ${error.message} (Code: ${error.code})`, "error");
         });
 
         this.unsubscribeColleges = onSnapshot(collection(db, 'colleges'), (snap) => {
@@ -363,8 +453,15 @@ window.AdminConsole = {
     addCoAdmin: async function () {
         const inputVal = document.getElementById("ca-email").value.trim();
         const collegeId = document.getElementById("ca-college").value;
+        const btn = document.getElementById("grant-access-btn");
 
         if (!inputVal || !collegeId) return alert("Fill all fields");
+
+        // Throttle Button
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+        }
 
         const { db, collection, query, where, getDocs, doc, updateDoc, getDoc, setDoc } = window.firebaseServices;
 
@@ -373,9 +470,9 @@ window.AdminConsole = {
             let emailFound = "";
 
             // DETECT INPUT TYPE: Email vs UID
-            if (!inputVal.includes('@')) {
-                // assume UID
-                console.log("🆔 Detected UID input:", inputVal);
+            if (!inputVal.includes('@') && inputVal.length > 20) {
+                // assume UID (long string without @)
+                console.log("🆔 Attempting lookup by UID:", inputVal);
                 const userRef = doc(db, "users", inputVal);
                 const userSnap = await getDoc(userRef);
 
@@ -383,68 +480,85 @@ window.AdminConsole = {
                     uid = inputVal;
                     emailFound = userSnap.data().email || "Unknown Email";
                 } else {
-                    alert(`User not found by UID: ${inputVal}`);
+                    alert(`❌ User not found in database by UID: ${inputVal}\n\nMake sure the user has logged in at least once.`);
                     return;
                 }
             } else {
-                // Treat as Email
-                const email = inputVal.toLowerCase();
+                // Treat as Email (search case-insensitively)
+                const searchEmail = inputVal.toLowerCase();
+                console.log("📧 Attempting lookup by Email:", searchEmail);
 
-                // 1. Try Cache
-                let userDocStub = this.state.users.find(u => u.email && u.email.toLowerCase() === email);
+                // 1. Try Cache First (Efficient)
+                let userDocStub = this.state.users.find(u =>
+                    (u.email && u.email.toLowerCase() === searchEmail) ||
+                    (u.id === inputVal) // also try matching as a short ID/UID just in case
+                );
 
                 if (userDocStub) {
-                    console.log("✅ Found in cache");
+                    console.log("✅ Found in local cache");
                     uid = userDocStub.uid || userDocStub.id;
                     emailFound = userDocStub.email;
                 } else {
-                    // 2. Network Query Fallback
-                    console.log("⚠️ User not in cache, forcing network sync for:", email);
-                    const q = query(collection(db, "users"), where("email", "==", email));
+                    // 2. Network Query Fallback (Reliable)
+                    console.log("⚠️ User not in cache, querying network for:", searchEmail);
+                    const q = query(collection(db, "users"), where("email", "==", searchEmail));
                     const snap = await getDocs(q);
 
                     if (snap.empty) {
-                        const known = this.state.users.map(u => u.email).join('\n');
-                        alert(`❌ User '${email}' not found.\n\nTroubleshooting:\n1. Copy their UID from Firebase Console (e.g. 'E3ekQAnpQ...').\n2. Paste UID here instead of email.\n\n(This bypasses search errors)`);
-                        return;
+                        // 3. Last Ditch: If they passed a UID as the email field
+                        const userRef = doc(db, "users", inputVal);
+                        const userSnap = await getDoc(userRef);
+
+                        if (userSnap.exists()) {
+                            uid = inputVal;
+                            emailFound = userSnap.data().email;
+                        } else {
+                            alert(`❌ User '${inputVal}' not found.\n\nTroubleshooting:\n1. Verify the email is correct.\n2. Ensure the user has logged in once.\n3. Try using their Firebase UID directly.`);
+                            return;
+                        }
+                    } else {
+                        uid = snap.docs[0].id;
+                        emailFound = snap.docs[0].data().email;
                     }
-                    uid = snap.docs[0].id;
-                    emailFound = snap.docs[0].data().email;
                 }
             }
 
-            // 2. Lock Check
+            // 2. College Lock Check (Optional, but keeping for business logic)
             const collegeRef = doc(db, "colleges", collegeId);
             const collegeSnap = await getDoc(collegeRef);
 
-            if (collegeSnap.exists() && collegeSnap.data().coadminUid) {
-                alert("College already has Co-Admin (Locked)");
-                return;
-            }
-
-            // 3. Assign
+            // 3. Assign Role & College
+            console.log("🚀 Granting Co-Admin permissions to:", emailFound);
             await updateDoc(doc(db, "users", uid), {
                 role: "coadmin",
                 college: collegeId
             });
 
-            // 4. Lock
+            // 4. Update College record with Co-Admin reference
             await setDoc(collegeRef, {
-                coadminUid: uid
+                coadminUid: uid,
+                coadminEmail: emailFound // Helpful for quick lookup
             }, { merge: true });
 
-            alert(`✅ Assigned ${emailFound} as Co-Admin for ${collegeId}`);
+            alert(`✅ Success: ${emailFound} is now Co-Admin for ${collegeId}`);
             document.getElementById("ca-email").value = "";
             document.getElementById("ca-college").value = "";
 
         } catch (e) {
-            console.error(e);
-            if (e.message.includes("offline")) {
-                if (confirm("⚠️ Network Connection Lost.\n\nThe database client is offline. Please reload the page to reconnect.\n\nReload now?")) {
-                    window.location.reload();
-                }
-            } else {
-                alert("Assignment Failed: " + (e.message || e));
+            console.error("Co-Admin Assignment Error:", e);
+
+            let errorMsg = e.message || "Unknown Error";
+            if (e.code === 'unavailable' || errorMsg.toLowerCase().includes('offline')) {
+                errorMsg = "Database Connection Lost. This usually happens if the backend is waking up or your internet flickered.\n\nTry clicking 'Grant Access Level' again in a few seconds, or reload the page.";
+            } else if (e.code === 'permission-denied') {
+                errorMsg = "Security Denied: You don't have permission to modify this user. Try logging out and back in.";
+            }
+
+            alert("Assignment Failed: " + errorMsg);
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = 'Grant Access Level';
             }
         }
     },
@@ -534,6 +648,61 @@ window.AdminConsole = {
         // This is the most robust way to 'Sync' if things get stuck
         if (confirm("Reload Admin Console to sync latest data?")) {
             window.location.reload();
+        }
+    },
+
+    forceReconnect: async function () {
+        if (!window.firebaseServices || !window.firebaseServices.db) return;
+        const { db, enableNetwork, disableNetwork } = window.firebaseServices;
+        const badge = document.getElementById('db-health-badge');
+
+        console.log("🔄 Admin Console: Manually forcing network recovery...");
+        if (badge) {
+            badge.innerHTML = "🔄 Reconnecting...";
+            badge.style.color = "#f1c40f";
+        }
+
+        try {
+            await disableNetwork(db);
+            // Wait a moment for cleanup
+            await new Promise(r => setTimeout(r, 1000));
+            await enableNetwork(db);
+            console.log("✅ Admin Console: Network enabled successfully.");
+
+            if (badge) badge.innerHTML = "📡 Querying Cloud...";
+
+            // Trigger a fresh health check immediately (silently)
+
+            // Re-run init logic to refresh listeners
+            this.init();
+        } catch (e) {
+            console.error("❌ Reconnect Failed:", e);
+            alert("Force Reconnect Failed: " + (e.message || e));
+        }
+    },
+
+    hardResetFirestore: async function () {
+        if (!confirm("🚨 WARNING: This will force-close the database connection and clear your local cache to fix status issues.\n\nThe page will reload automatically. Proceed?")) return;
+
+        if (!window.firebaseServices || !window.firebaseServices.db) return;
+        const { db, terminate, clearIndexedDbPersistence } = window.firebaseServices;
+
+        console.log("🧨 Admin Console: STARTING HARD RESET...");
+        this.logDebug("🧨 Initializing Hard Reset (Cloud Sync Override)...", "warn");
+
+        try {
+            await terminate(db);
+            console.log("🛑 Database terminated.");
+            await clearIndexedDbPersistence(db);
+            console.log("🧹 Cache cleared.");
+            this.logDebug("✅ Database reset successful. Reloading...", "success");
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } catch (e) {
+            console.error("❌ Hard Reset Failed:", e);
+            alert("Hard Reset Failed: " + e.message + "\n\nPlease try reloading manually.");
         }
     }
 };

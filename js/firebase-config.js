@@ -16,9 +16,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
     getFirestore,
+    initializeFirestore,
     collection,
     addDoc,
     getDocs,
+    getDocsFromServer,
     getDoc,
     setDoc,
     onSnapshot,
@@ -31,6 +33,11 @@ import {
     orderBy,
     deleteDoc,
     enableIndexedDbPersistence,
+    enableNetwork,
+    disableNetwork,
+    terminate,
+    clearIndexedDbPersistence,
+    limit,
     getCountFromServer,
     runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -45,7 +52,7 @@ const firebaseConfig = {
     storageBucket: "skill-notes.firebasestorage.app",
     messagingSenderId: "679937247629",
     appId: "1:679937247629:web:708ae9818911a465d455c4",
-    measurementId: "G-KSCJTPP875"
+    measurementId: "G-S2MPNV3GZK"
 };
 
 // Initialize Firebase (Core only)
@@ -57,18 +64,25 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 // EAGER INIT (Standard for shared usage)
-const db = getFirestore(app);
+// Use initializeFirestore with long polling to fix "Offline" issues on some networks
+const db = initializeFirestore(app, {
+    experimentalForceLongPolling: true
+});
 const storage = getStorage(app);
 const functions = getFunctions(app);
 
-// Enable Persistence (Optional but good)
-enableIndexedDbPersistence(db).catch(err => {
-    if (err.code == 'failed-precondition') {
-        console.warn("⚠️ Persistence failed: Multiple tabs open");
-    } else if (err.code == 'unimplemented') {
-        console.warn("⚠️ Persistence not supported in this browser");
-    }
-});
+// Enable Persistence (Optional but good) - Skip if flag set
+if (localStorage.getItem('disableFirestorePersistence') !== 'true') {
+    enableIndexedDbPersistence(db).catch(err => {
+        if (err.code == 'failed-precondition') {
+            console.warn("⚠️ Persistence failed: Multiple tabs open");
+        } else if (err.code == 'unimplemented') {
+            console.warn("⚠️ Persistence not supported in this browser");
+        }
+    });
+} else {
+    console.log("🚫 Firestore Persistence is disabled via debug flag.");
+}
 
 // Expose services to window (for legacy compatibility)
 window.firebaseServices = {
@@ -95,6 +109,7 @@ window.firebaseServices = {
     collection,
     addDoc,
     getDocs,
+    getDocsFromServer,
     getDoc,
     setDoc,
     onSnapshot,
@@ -106,6 +121,11 @@ window.firebaseServices = {
     where,
     orderBy,
     deleteDoc,
+    enableNetwork,
+    disableNetwork,
+    terminate,
+    clearIndexedDbPersistence,
+    limit,
     getCountFromServer,
     runTransaction, // Exported correctly
 
@@ -159,5 +179,9 @@ export {
     query,
     where,
     getDocs,
-    onSnapshot
+    onSnapshot,
+    limit,
+    terminate,
+    clearIndexedDbPersistence,
+    getDocsFromServer
 };

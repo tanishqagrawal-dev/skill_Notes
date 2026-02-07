@@ -4302,13 +4302,11 @@ async function loadLiveDashboardStats() {
 
     // 2. Trending Notes Count
     try {
-        let qTrending = query(collection(db, "notes"), where("status", "==", "approved"), limit(5));
-        if (isCoAdmin && myColl) {
-            qTrending = query(collection(db, "notes"), where("status", "==", "approved"), where("collegeId", "==", myColl), limit(5));
-        }
+        let qTrending = query(collection(db, "notes"), limit(10));
         onSnapshot(qTrending, (snap) => {
+            const count = snap.docs.filter(d => d.data().status !== 'rejected').length;
             const el = document.getElementById('stat-notes');
-            if (el) el.innerText = snap.size > 0 ? snap.size : "0";
+            if (el) el.innerText = count > 0 ? count : "0";
         });
     } catch (e) { console.warn("Trending sync fail:", e); }
 }
