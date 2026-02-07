@@ -36,11 +36,35 @@ service cloud.firestore {
     }
 
     // --- Consolidated Notes Collection ---
+<<<<<<< HEAD
     match /notes/{id} {
       allow read: if resource.data.status == "approved" || hasRole('admin') || hasRole('superadmin');
       
       allow update: if hasRole('coadmin') || hasRole('admin') || hasRole('superadmin');
       
+=======
+    match /notes/{noteId} {
+      // Access Rule: Everyone can read non-rejected notes. 
+      // Co-Admins and Admins can see everything including rejected notes if needed.
+      allow read: if (resource.data.status != 'rejected') || 
+                   (isSignedIn() && (
+                     hasRole('admin') || 
+                     hasRole('superadmin') || 
+                     (hasRole('coadmin') && resource.data.college == getUserData().college) ||
+                     resource.data.uploadedBy == request.auth.uid
+                   ));
+
+      // Creation Rule: Signed in users can upload
+      allow create: if isSignedIn();
+
+      // Update Rule: Only Admin or the designated Co-Admin for that specific college
+      allow update: if hasRole('admin') || hasRole('superadmin') || (
+                      hasRole('coadmin') && 
+                      getUserData().college == resource.data.college &&
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'approvedBy', 'rejectionReason'])
+                    );
+
+>>>>>>> f9486eeee219a5dbd4833603bc5060aaebb25209
       allow delete: if hasRole('admin') || hasRole('superadmin');
     }
 
