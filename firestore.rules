@@ -38,7 +38,9 @@ service cloud.firestore {
     }
 
     // --- Consolidated Notes Collection ---
+    // --- Consolidated Notes Collection ---
     match /notes/{noteId} {
+<<<<<<< HEAD
       // Access Rule: Everyone can read verified notes.
       allow read: if (resource.data.verified == true) || 
                    (isSignedIn() && (
@@ -47,10 +49,15 @@ service cloud.firestore {
                      (hasRole('coadmin') && resource.data.collegeId == getUserData().collegeId) ||
                      resource.data.uploadedBy == request.auth.uid
                    ));
+=======
+      // Access Rule: Everyone can read approved/verified notes.
+      allow read: if (resource.data.status == "approved") || (resource.data.verified == true) || isSignedIn();
+>>>>>>> 6616e853d015d772bc9f03bae1bca2448c2100a4
 
       // Creation Rule: Signed in users can upload
       allow create: if isSignedIn();
 
+<<<<<<< HEAD
       // Update Rule: Increments (views/downloads) allowed for all, full edit for admins/uploader
       allow update: if hasRole('admin') || hasRole('superadmin') || 
                     (hasRole('coadmin') && getUserData().collegeId == resource.data.collegeId) ||
@@ -58,6 +65,16 @@ service cloud.firestore {
                     (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views', 'downloads', 'likes', 'likedBy']));
 
       allow delete: if hasRole('admin') || hasRole('superadmin') || resource.data.uploadedBy == request.auth.uid;
+=======
+      // Update Rule: 
+      allow update: if hasRole('admin') || hasRole('superadmin') || (
+                      isSignedIn() && resource.data.uploadedBy == request.auth.uid
+                    );
+
+      allow delete: if hasRole('admin') || hasRole('superadmin') || (
+                      isSignedIn() && resource.data.uploadedBy == request.auth.uid
+                    );
+>>>>>>> 6616e853d015d772bc9f03bae1bca2448c2100a4
     }
 
     // --- Role Invites ---
