@@ -2294,14 +2294,28 @@ window.showNotes = function (activeTab = 'notes') {
             const data = doc.data();
 
             // Robust Filtering:
-            // 1. Semester Check (Matches "Semester 4" or "4th")
-            const semMatch = data.semester === querySem || (altSem && data.semester === altSem);
+            // 1. Semester Check (Matches "Semester 4", "4th Semester", "4th Sem", "4")
+            // Normalize both to just the number for robust comparison
+            const noteSemNum = (data.semester || '').match(/\d+/)?.[0];
+            const querySemNum = (querySem || '').match(/\d+/)?.[0];
+            const semMatch = noteSemNum && querySemNum && noteSemNum === querySemNum;
 
-            // 2. Subject Check (Matches "subjectId" or "subject" fields)
-            const subMatch = (data.subjectId === selState.subject.id) || (data.subject === selState.subject.id) || (data.subject === selState.subject.name);
+            // 2. Subject Check (Matches "subjectId" or "subject" fields, case-insensitive)
+            const noteSubId = (data.subjectId || '').toLowerCase();
+            const noteSubName = (data.subject || '').toLowerCase();
+            const querySubId = (selState.subject.id || '').toLowerCase();
+            const querySubName = (selState.subject.name || '').toLowerCase();
 
-            // 3. Status Check (Show only approved notes Globally)
-            const isVisible = true; // Query already filters for approved
+            // Check for ID match, name match, or if the note subject contains the query subject (or vice versa)
+            const subMatch =
+                noteSubId === querySubId ||
+                noteSubName === querySubName ||
+                noteSubName.includes(querySubName) ||
+                querySubName.includes(noteSubName);
+
+            // 3. Status Check (Show all, relying on query for 'approved')
+            // Double check purely for safety, but trust the query mostly
+            const isVisible = data.status === 'approved' || data.verified === true;
 
             if (semMatch && subMatch && isVisible) {
                 notes.push({ id: doc.id, ...data });
