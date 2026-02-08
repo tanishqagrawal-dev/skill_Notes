@@ -36,28 +36,22 @@ service cloud.firestore {
     }
 
     // --- Consolidated Notes Collection ---
+    // --- Consolidated Notes Collection ---
     match /notes/{noteId} {
-      // Access Rule: Everyone can read approved notes. 
-      // Uploaders and authorized admins (Admin/SuperAdmin/College Co-Admin) can see their specific context.
-      allow read: if (resource.data.status == "approved") || 
-                   (isSignedIn() && (
-                     hasRole('admin') || 
-                     hasRole('superadmin') || 
-                     (hasRole('coadmin') && resource.data.collegeId == getUserData().collegeId) ||
-                     resource.data.uploadedBy == request.auth.uid
-                   ));
+      // Access Rule: Everyone can read approved/verified notes.
+      allow read: if (resource.data.status == "approved") || (resource.data.verified == true) || isSignedIn();
 
       // Creation Rule: Signed in users can upload
       allow create: if isSignedIn();
 
-      // Update Rule: Only Admin or the designated Co-Admin for that specific college
+      // Update Rule: 
       allow update: if hasRole('admin') || hasRole('superadmin') || (
-                      hasRole('coadmin') && 
-                      getUserData().collegeId == resource.data.collegeId &&
-                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'approvedBy', 'rejectionReason'])
+                      isSignedIn() && resource.data.uploadedBy == request.auth.uid
                     );
 
-      allow delete: if hasRole('admin') || hasRole('superadmin');
+      allow delete: if hasRole('admin') || hasRole('superadmin') || (
+                      isSignedIn() && resource.data.uploadedBy == request.auth.uid
+                    );
     }
 
     // --- Role Invites ---
