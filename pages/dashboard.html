@@ -33,6 +33,7 @@
     <link rel="stylesheet" href="../css/advanced_dashboard.css">
     <link rel="stylesheet" href="../css/settings.css">
     <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/lockOverlay.css">
 </head>
 
 <body class="dashboard-body">
@@ -56,10 +57,10 @@
                 <a href="#" class="nav-item" data-tab="notes">
                     <span class="icon">📚</span> Notes Hub
                 </a>
-                <a href="#" class="nav-item" data-tab="planner">
+                <a href="#" class="nav-item locked" data-tab="planner">
                     <span class="icon">📅</span> Study Planner
                 </a>
-                <a href="#" class="nav-item" data-tab="ai-tools">
+                <a href="#" class="nav-item locked" data-tab="ai-tools">
                     <span class="icon">🤖</span> AI Tools
                 </a>
                 <a href="#" class="nav-item" data-tab="private-drive">
@@ -200,6 +201,7 @@
     <script src="../js/admin-console.js" defer></script>
     <script src="../js/coadmin-module.js" defer></script>
     <script src="../js/note-actions.js" defer></script>
+    <script src="../js/lockOverlay.js" defer></script>
     <script src="../js/dashboard.js" defer></script>
 
     <!-- Auth Lifecycle & Logout -->

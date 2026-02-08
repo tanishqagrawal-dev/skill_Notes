@@ -865,8 +865,16 @@ function renderTabContent(tabId) {
             contentArea.innerHTML = renderNotesHub();
             renderCollegeStep();
         } else if (tabId === 'planner') {
+            if (window.lockOverlay) {
+                window.lockOverlay.show();
+                return;
+            }
             contentArea.innerHTML = renderPlanner();
         } else if (tabId === 'ai-tools') {
+            if (window.lockOverlay) {
+                window.lockOverlay.show();
+                return;
+            }
             contentArea.innerHTML = renderAITools();
             if (window.checkServer) window.checkServer();
         } else if (tabId === 'leaderboard') {
@@ -1298,7 +1306,7 @@ function renderOverview() {
                         <h3 class="font-heading" style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--secondary);">✨ ${aiRec.title}</h3>
                         <p style="margin-bottom: 2rem; max-width: 85%; font-size: 1.1rem; line-height: 1.6; color: #eee;">${aiRec.msg}</p>
                         <div style="display: flex; gap: 1rem;">
-                            <button class="btn btn-primary" onclick="${isGuest ? "window.location.href='../pages/auth.html'" : `renderTabContent('${aiRec.actionType}')`}">${aiRec.actionLabel}</button>
+                            <button class="btn btn-primary" onclick="${isGuest ? "window.location.href='../pages/auth.html'" : (aiRec.actionType === 'ai-tools' || aiRec.actionType === 'planner' ? "window.lockOverlay.show()" : `renderTabContent('${aiRec.actionType}')`)}">${aiRec.actionLabel}</button>
                             ${!isGuest ? '<button class="btn btn-ghost" onclick="renderTabContent(\'planner\')">Schedule Revision</button>' : ''}
                         </div>
                     </div>
@@ -1312,7 +1320,7 @@ function renderOverview() {
                                 <div style="font-weight:600;">My Drive</div>
                                 <div style="font-size:0.7rem; color: var(--text-dim); margin-top:0.3rem;">Stored Notes</div>
                            </div>
-                           <div class="glass-card wobble-hover" onclick="renderTabContent('ai-tools')" style="cursor: pointer; padding: 2rem; text-align: center; border: 1px solid var(--border-glass);">
+                           <div class="glass-card wobble-hover" onclick="window.lockOverlay ? window.lockOverlay.show() : renderTabContent('ai-tools')" style="cursor: pointer; padding: 2rem; text-align: center; border: 1px solid var(--border-glass);">
                                 <div style="font-size: 2.5rem; margin-bottom:1rem;">🤖</div>
                                 <div style="font-weight:600;">AI Lab</div>
                                 <div style="font-size:0.7rem; color: var(--text-dim); margin-top:0.3rem;">Predict Papers</div>
