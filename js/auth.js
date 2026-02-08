@@ -135,20 +135,24 @@ export async function initAuth() {
                         id: user.uid,
                         email: user.email.toLowerCase(),
                         role: "user",
-                        college: null,
-                        collegeId: null,
-                        collegeName: null,
+                        college: "medicaps", // Default
+                        collegeId: "medicaps",
+                        collegeName: "Medicaps University",
                         name: user.displayName || user.email.split('@')[0],
                         photo: user.photoURL
                     };
-                    await setDoc(doc(db, "users", user.uid), {
+                    // Don't await this to speed up UI
+                    setDoc(doc(db, "users", user.uid), {
                         ...userData,
                         createdAt: serverTimestamp()
                     });
                 }
 
                 // Global SUPER ADMIN check override
-                if (SUPER_ADMINS.includes(user.email)) userData.role = 'superadmin';
+                if (SUPER_ADMINS.includes(user.email)) {
+                    userData.role = 'superadmin';
+                    console.log("👑 Super Admin Override Active for:", user.email);
+                }
 
                 // Update Session & Local Storage
                 window.currentUser = userData;

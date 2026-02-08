@@ -58,6 +58,8 @@ window.uploadNoteToFirebase = async function (file, metadata) {
                             status: metadata.status || 'approved',
                             uploadedBy: metadata.uploadedBy || currentUser.id || window.firebaseServices?.auth?.currentUser?.uid,
                             uploaderName: metadata.uploaderName || metadata.uploader || currentUser.name || "Scholar",
+                            verified: metadata.verified !== undefined ? metadata.verified : true, // Default true
+                            approvedBy: metadata.approvedBy || 'system',
                             views: 0,
                             downloads: 0,
                             likes: 0,
