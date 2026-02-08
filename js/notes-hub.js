@@ -1,14 +1,9 @@
-// Standalone Notes Hub Wizard Script
-// Handles the "Select Institution -> Branch -> Year -> Notes" flow
+// Phase-1 Static Notes Hub Wizard Script
+// Handles the "Select Institution -> Branch -> Year -> Notes" flow using static data
+
+import { globalNotes } from "../data/globalNotes.js";
 
 // --- GLOBAL CONSTANTS ---
-const Roles = {
-    SUPER_ADMIN: 'superadmin',
-    COLLEGE_ADMIN: 'coadmin',
-    UPLOADER: 'uploader',
-    STUDENT: 'user'
-};
-
 const GlobalData = {
     colleges: [
         { id: 'medicaps', name: 'Medi-Caps University', logo: '🏛️' },
@@ -24,108 +19,49 @@ const GlobalData = {
     years: ['1st Year', '2nd Year', '3rd Year', '4th Year'],
     subjects: {
         'cse-2nd Year': [
-            { id: 'os', name: 'Operating Systems', icon: '💾', code: 'CS402', description: 'Medi-Caps Core Syllabus: Process scheduling, memory management, and disk algorithms.' },
-            { id: 'dbms', name: 'DBMS', icon: '🗄️', code: 'CS403', description: 'Relational models, SQL query optimization, and transaction control for CSE students.' },
-            { id: 'dsa', name: 'Data Structures', icon: '🌳', code: 'CS404', description: 'Trees, Graphs, and Advanced Algorithms. Core competitive programming base.' }
+            { id: 'Advanced Java Programming', name: 'Advanced Java Programming', icon: '☕', code: 'CS402', description: 'Core Advanced Java concepts: Collections, Multithreading, and Networking.' },
+            { id: 'dbms', name: 'DBMS', icon: '🗄️', code: 'CS403', description: 'Relational models, SQL query optimization, and transaction control.' },
+            { id: 'dsa', name: 'Data Structures', icon: '🌳', code: 'CS404', description: 'Trees, Graphs, and Advanced Algorithms.' }
         ],
         'aiml-2nd Year': [
             { id: 'python', name: 'Python for AI', icon: '🐍', code: 'AL201', description: 'Numerical computing with NumPy and Data Science foundations.' }
         ],
         'cse-1st Year': [
-            { id: 'phy', name: 'Engineering Physics', icon: '⚛️', code: 'PH101', description: 'Quantum mechanics, Optics, and Semiconductors syllabus for Medi-Caps Engineering.' }
+            { id: 'phy', name: 'Engineering Physics', icon: '⚛️', code: 'PH101', description: 'Quantum mechanics, Optics, and Semiconductors syllabus.' }
         ]
     }
 };
 
-let currentUser = null;
-let NotesDB = [];
 let selState = { college: null, branch: null, year: null, subject: null };
 
-// --- FIREBASE INTEGRATION ---
-function getFirebase() {
-    return window.firebaseServices || {};
-}
-
-async function loadGlobalVerifiedNotes() {
-    const list = document.getElementById('notes');
+// --- GLOBAL SHOWCASE LOGIC ---
+function renderGlobalShowcase() {
+    const list = document.getElementById('global-notes-list');
     if (!list) return;
 
-    const { db, collection, query, where, getDocs, orderBy } = getFirebase();
-    if (!db) return;
-
-    try {
-        const q = query(
-            collection(db, "notes"),
-            orderBy("createdAt", "desc")
-        );
-
-        const snap = await getDocs(q);
-        const notes = [];
-        snap.forEach(doc => notes.push({ id: doc.id, ...doc.data() }));
-
-        if (notes.length === 0) {
-            list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">No verified global notes yet.</p>';
-        } else {
-            list.innerHTML = renderDetailedNotes(notes, 'notes');
-        }
-    } catch (err) {
-        console.error("Global Notes Hub: Failed to fetch verified notes:", err);
-        list.innerHTML = '<p style="text-align:center; padding: 2rem; color: #ff4757;">Error loading global notes.</p>';
-    }
-}
-
-function initNotesData() {
-    const { db, collection, query, where, orderBy, onSnapshot } = getFirebase();
-    if (!db) {
-        console.warn("NotesHub: Firebase not loaded. Using fallback/empty state.");
-        return;
+    // Aggregate all notes under 'global' category
+    const allGlobalNotes = [];
+    if (globalNotes.global) {
+        Object.values(globalNotes.global).forEach(notesArray => {
+            allGlobalNotes.push(...notesArray);
+        });
     }
 
-    // Load Global Verified Feed
-    loadGlobalVerifiedNotes();
-
-    const q = query(collection(db, "notes"), orderBy("createdAt", "desc"));
-    onSnapshot(q, (snapshot) => {
-        NotesDB = snapshot.docs
-            .map(doc => ({ id: doc.id, ...doc.data() }));
-
-        // Refresh global feed on updates
-        loadGlobalVerifiedNotes();
-
-        // If we are currently viewing the final list, refresh it to show new/updated notes
-        if (document.getElementById('final-notes-view').style.display === 'block') {
-            showNotes('notes');
-        }
-    }, (error) => {
-        console.error("NotesHub: Failed to fetch notes:", error);
-    });
+    if (allGlobalNotes.length === 0) {
+        list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">Coming soon to the global hub.</p>';
+    } else {
+        list.innerHTML = renderStaticNotes(allGlobalNotes);
+    }
 }
 
 // --- WIZARD RENDER LOGIC ---
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Check for auth readiness
-    if (window.authStatus && window.authStatus.ready) {
-        currentUser = window.authStatus.data.currentUser;
-        initNotesData();
-    } else {
-        // Fallback for visitors (non-authenticated)
-        console.log("👤 Public visitor mode active");
-        initNotesData();
-    }
-
     // Start Wizard
     renderCollegeStep();
+    // Render Global Showcase
+    renderGlobalShowcase();
 });
-
-// Auth Listener (handles late auth states or logins)
-window.addEventListener('auth-ready', (e) => {
-    if (e.detail) {
-        currentUser = e.detail.currentUser;
-        initNotesData();
-    }
-});
-
 
 // Helper: Update Step Indicators
 function updateStepUI(activeIdx) {
@@ -136,15 +72,17 @@ function updateStepUI(activeIdx) {
     });
 }
 
-// STEP 1: College
-window.renderCollegeStep = function () {
+// Helper: Ensure Wizard Container is visible
+function ensureWizardVisible() {
     const view = document.getElementById('final-notes-view');
     const explorer = document.getElementById('explorer-steps-container');
-
-    // Reset View
     if (view) view.style.display = 'none';
-    if (explorer) explorer.style.display = 'flex'; // show flex container
+    if (explorer) explorer.style.display = 'flex';
+}
 
+// STEP 1: College
+window.renderCollegeStep = function () {
+    ensureWizardVisible();
     updateStepUI(0);
     const container = document.getElementById('explorer-content');
     if (!container) return;
@@ -169,6 +107,7 @@ window.selectCollege = function (id, name) {
 
 // STEP 2: Branch
 window.renderBranchStep = function () {
+    ensureWizardVisible();
     updateStepUI(1);
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Branch</span>`;
     document.getElementById('explorer-sub-title').innerText = `What's your field of study at ${selState.college.name}?`;
@@ -189,6 +128,7 @@ window.selectBranch = function (id, name) {
 
 // STEP 3: Year
 window.renderYearStep = function () {
+    ensureWizardVisible();
     updateStepUI(2);
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Academic Year</span>`;
     const container = document.getElementById('explorer-content');
@@ -207,6 +147,7 @@ window.selectYear = function (year) {
 
 // STEP 4: Semester
 window.renderSemesterStep = function () {
+    ensureWizardVisible();
     updateStepUI(3);
     document.getElementById('explorer-main-title').innerHTML = `Select <span class="gradient-text">Semester</span>`;
     const container = document.getElementById('explorer-content');
@@ -227,6 +168,7 @@ window.selectSemester = function (sem) {
 
 // STEP 5: Subject
 window.renderSubjectStep = function () {
+    ensureWizardVisible();
     updateStepUI(4);
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Subject</span>`;
 
@@ -255,200 +197,14 @@ window.selectSubject = function (id, name) {
     showNotes();
 };
 
-// --- CONTEXTUAL UPLOAD LOGIC ---
-window.startDirectUpload = function () {
-    if (!currentUser) {
-        alert("Please login first to upload notes.");
-        return;
-    }
-
-    // Ensure context is ready
-    if (!selState.college || !selState.branch || !selState.subject) {
-        alert("Please select a subject first.");
-        return;
-    }
-
-    // Create hidden input
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.pdf,.ppt,.pptx,.doc,.docx';
-    input.style.display = 'none';
-    document.body.appendChild(input);
-
-    input.onchange = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        if (file.size > 50 * 1024 * 1024) {
-            alert("File is too large. Max 50MB.");
-            return;
-        }
-
-        const msg = "⏳ Uploading contextually to " + selState.subject.name + "...";
-        if (window.showToast) window.showToast(msg, "info");
-        else console.log(msg);
-
-        // Metadata inferred from current view
-        const isAdmin = ['admin', 'superadmin', 'super-admin', 'coadmin', 'college-admin'].includes(currentUser.role?.toLowerCase()) ||
-            currentUser.email === 'skilmatrix3@gmail.com' || currentUser.email === 'notes.hub.admin@gmail.com';
-        console.log("👤 Hub Quick-Upload Role/Email:", currentUser.role, currentUser.email);
-
-        const metadata = {
-            title: file.name.replace(/\.[^/.]+$/, ""),
-            college: selState.college.id,
-            collegeId: selState.college.id,
-            collegeName: selState.college.name,
-            branch: selState.branch.name,
-            branchId: selState.branch.id,
-            semester: selState.semester,
-            subject: selState.subject.name,
-            subjectId: selState.subject.id,
-            type: 'notes',
-            stream: 'b.tech', // Defaulting to b.tech for Hub context
-            uploader: currentUser.name,
-            uploadedBy: currentUser.id,
-            uploaderEmail: currentUser.email,
-            date: new Date().toLocaleDateString(),
-            targetCollection: 'notes',
-            status: 'approved',
-            verified: isAdmin
-        };
-
-        try {
-            await window.uploadNoteToFirebase(file, metadata);
-            if (window.showToast) window.showToast("✅ Note uploaded via Quick Upload!");
-
-            // Optionally refresh notes list if we are admin (auto-approved)
-            // initNotesData listener should handle it automatically.
-        } catch (err) {
-            console.error(err);
-            if (window.showToast) window.showToast("Upload failed: " + err.message, "error");
-            else alert("Upload failed: " + err.message);
-        } finally {
-            input.remove();
-        }
-    };
-
-    input.click();
-};
-
-// --- MODAL LOGIC ---
-// Upload Modal Logic is now centralized in dashboard.js
-
-async function handleNoteSubmit(e) {
-    e.preventDefault();
-    const { db, collection, addDoc, serverTimestamp } = getFirebase();
-    if (!db) return;
-
-    const btn = document.getElementById('submit-note-btn');
-    const title = document.getElementById('note-title').value;
-    const type = document.getElementById('note-type').value;
-    const driveLink = document.getElementById('drive-link').value;
-
-    btn.disabled = true;
-    btn.innerText = "Processing...";
-
-    const isAdmin = currentUser.role === Roles.SUPER_ADMIN || currentUser.email === 'skilmatrix3@gmail.com';
-    const isMatchingCoAdmin = currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === selState.college.id;
-    const targetColl = "notes";
-    const status = 'approved';
-
-    const newNote = {
-        title: title,
-        type: type,
-        driveLink: driveLink,
-        collegeId: selState.college.id,
-        college: selState.college.id,
-        collegeName: selState.college.name,
-        branchId: selState.branch.id,
-        subjectId: selState.subject.id,
-        subject: selState.subject.name,
-        fileUrl: driveLink,
-        url: driveLink,
-        uploader: currentUser.name,
-        uploadedBy: currentUser.id,
-        status: status,
-        date: new Date().toLocaleDateString(),
-        views: 0,
-        downloads: 0,
-        likes: 0,
-        createdAt: serverTimestamp ? serverTimestamp() : new Date().toISOString()
-    };
-
-    try {
-        await addDoc(collection(db, targetColl), newNote);
-        if (status === 'approved') {
-            alert("✅ Success! Note added directly to the database.");
-        } else {
-            alert("📩 Submitted! Your note is pending approval by the " + selState.college.name + " admin.");
-        }
-        closeUploadModal();
-        // UI will auto-refresh via Firebase onSnapshot
-    } catch (error) {
-        console.error("Error adding note:", error);
-        alert("Failed to add note. Check console.");
-    } finally {
-        btn.disabled = false;
-        btn.innerText = "✨ Add Resource Now";
-    }
-}
-
-// Initializing UI Listeners
-document.addEventListener('DOMContentLoaded', () => {
-    const closeBtn = document.querySelector('.close-modal');
-    if (closeBtn) closeBtn.onclick = closeUploadModal;
-
-    const form = document.getElementById('add-note-form');
-    if (form) form.onsubmit = handleNoteSubmit;
-});
-
-// --- FETCHING DATA ---
-window.fetchNotesBySubject = async function (subjectId, tabType = 'notes') {
-    const { db, collection, query, where, getDocs, orderBy } = window.firebaseServices;
-    if (!db) return [];
-
-    console.log(`🔍 Firestore Query Params:`, {
-        collegeId: selState.college.id,
-        subjectId: subjectId,
-        type: tabType,
-        status: "approved"
-    });
-
-    try {
-        const targetColl = "notes";
-        const approvedQ = query(
-            collection(db, targetColl)
-        );
-
-        const snap = await getDocs(approvedQ);
-        const notes = [];
-        snap.forEach(doc => {
-            notes.push({ id: doc.id, ...doc.data() });
-        });
-
-        // Sort by creation time
-        notes.sort((a, b) => {
-            const dateA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : new Date(a.date || 0).getTime());
-            const dateB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : new Date(b.date || 0).getTime());
-            return dateB - dateA;
-        });
-
-        console.log(`📦 Total Approved Docs found: ${notes.length}`);
-        return notes;
-    } catch (err) {
-        console.error("Firestore Fetch Error:", err);
-        return [];
-    }
-};
-
 // --- FINAL VIEW: NOTES LIST ---
 
-window.showNotes = async function (activeTab = 'notes') {
-    const explorer = document.getElementById('explorer-steps-container'); // The wrapper for steps
+window.showNotes = function (activeTab = 'notes') {
+    const explorer = document.getElementById('explorer-steps-container');
     if (explorer) explorer.style.display = 'none';
 
     const view = document.getElementById('final-notes-view');
-    view.style.display = 'block'; // Show final grid
+    view.style.display = 'block';
 
     const key = `${selState.branch.id}-${selState.year}`;
     const subjectData = (GlobalData.subjects[key] || []).find(s => s.id === selState.subject.id) || {
@@ -457,141 +213,354 @@ window.showNotes = async function (activeTab = 'notes') {
         description: 'Comprehensive study materials and verified academic resources.'
     };
 
-    // 1. Initial Render with Loading State
+    // Lookup static notes
+    const staticNotes = globalNotes[selState.college.id]?.[selState.subject.name] || [];
+
     view.innerHTML = `
-        <div class="subject-page-container">
+        <style>
+            .breadcrumb-pro {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 0.95rem;
+                font-weight: 600;
+                margin-bottom: 2.5rem;
+                color: rgba(255, 255, 255, 0.4);
+            }
+            .breadcrumb-pro span.link {
+                color: #4facfe;
+                cursor: pointer;
+                transition: 0.3s;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+            .breadcrumb-pro span.link:hover {
+                color: #00f2ff;
+                transform: translateX(2px);
+            }
+            .breadcrumb-pro .sep {
+                opacity: 0.3;
+                font-weight: 300;
+            }
+            .breadcrumb-pro .current {
+                color: rgba(255, 255, 255, 0.8);
+                cursor: default;
+            }
+        </style>
+
+        <div class="subject-page-container fade-in">
             <div class="breadcrumb-pro">
-                <span onclick="renderCollegeStep()" style="cursor:pointer">🏠 Home</span> <span>›</span> ${selState.branch.name} <span>›</span> ${selState.subject.name}
+                <span class="link" onclick="renderCollegeStep()">🏠 Home</span>
+                <span class="sep">›</span>
+                <span class="link" onclick="renderBranchStep()">${selState.branch.name}</span>
+                <span class="sep">›</span>
+                <span class="link" onclick="renderSemesterStep()">${selState.semester || 'Semester'}</span>
+                <span class="sep">›</span>
+                <span class="current">${selState.subject.name}</span>
             </div>
 
             <div class="subject-page-hero">
                 <div style="display:flex; justify-content: space-between; align-items: flex-start;">
                     <div>
                         <h1 class="font-heading" style="font-size: 3rem; margin: 0; line-height: 1.1;">${selState.subject.name}</h1>
-                        <div class="sub-badges">
+                        <div class="sub-badges" style="margin-top: 0.8rem;">
                             <span class="meta-badge">${selState.branch.id}</span>
                             <span class="meta-badge">${selState.year}</span>
                             <span class="meta-badge">${subjectData.code}</span>
                         </div>
                         <p class="subject-description">${subjectData.description}</p>
                     </div>
-                    <div style="display:flex; gap: 1rem;">
-                        ${(currentUser && (currentUser.role === Roles.SUPER_ADMIN || (currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === selState.college.id)))
-            ? `<button class="primary-btn" onclick="startDirectUpload()" style="padding: 10px 24px;">+ Upload Notes</button>`
-            : ''}
+                    <div>
                         <button class="btn btn-ghost" onclick="renderCollegeStep()" style="white-space:nowrap; background: rgba(255,255,255,0.05); padding: 0.6rem 1.2rem; border-radius: 8px;">↺ Switch Subject</button>
                     </div>
                 </div>
             </div>
 
-            <div class="subject-content-tabs">
-                <div class="sub-tab ${activeTab === 'notes' ? 'active' : ''}" onclick="switchSubjectTab('notes')">Notes</div>
-                <div class="sub-tab ${activeTab === 'pyq' ? 'active' : ''}" onclick="switchSubjectTab('pyq')">PYQs</div>
-                <div class="sub-tab ${activeTab === 'formula' ? 'active' : ''}" onclick="switchSubjectTab('formula')">Formula Sheets</div>
-                <div class="sub-tab" style="opacity: 0.5; cursor: not-allowed;">✨ AI Tutor (Beta)</div>
+            <div class="subject-tabs-nav">
+                <div class="subject-tab ${activeTab === 'notes' ? 'active' : ''}" onclick="window.switchSubjectTab('notes')">Notes</div>
+                <div class="subject-tab ${activeTab === 'pyqs' ? 'active' : ''}" onclick="window.switchSubjectTab('pyqs')">PYQs</div>
+                <div class="subject-tab ${activeTab === 'formula' ? 'active' : ''}" onclick="window.switchSubjectTab('formula')">Formula Sheets</div>
             </div>
 
             <div class="resource-section">
-                <h3 class="font-heading" style="margin-bottom: 2rem;">Verified <span class="highlight">${activeTab.toUpperCase()}</span></h3>
-                <div class="resource-list-detailed" id="resource-list-container">
-                    <div style="text-align: center; padding: 4rem;">
-                        <div class="spinner" style="margin: 0 auto 1rem;"></div>
-                        <p style="color: var(--text-dim);">Fetching resources from cloud...</p>
-                    </div>
+                <h2 class="font-heading" style="margin-bottom: 1.5rem; font-size: 1.6rem; color: rgba(255,255,255,0.7);">Verified <span class="highlight" style="color: #00f2ff; font-weight: 800;">${activeTab.toUpperCase()}</span></h2>
+                <div class="notes-list-container-pro" id="resource-list-container">
+                    ${(activeTab === 'notes' && staticNotes.length > 0) ? renderStaticNotes(staticNotes) : `
+                        <div style="text-align: center; padding: 5rem; background: rgba(255,255,255,0.01); border: 2px dashed rgba(255,255,255,0.05); border-radius: 20px;">
+                            <div style="font-size: 4rem; margin-bottom: 2rem;">📂</div>
+                            <h2 class="font-heading">No ${activeTab} found for this subject yet.</h2>
+                            <p style="color: var(--text-dim);">Static Phase-1 MVP only includes specific subjects for now.</p>
+                            <button class="btn btn-primary" style="margin-top: 1.5rem;" onclick="renderCollegeStep()">Try Another Subject</button>
+                        </div>
+                    `}
                 </div>
             </div>
         </div>
     `;
+};
 
-    // 2. Fetch and Replace
-    try {
-        const notes = await fetchNotesBySubject(selState.subject.id, activeTab);
-        const container = document.getElementById('resource-list-container');
-        if (container) {
-            container.innerHTML = renderDetailedNotes(notes, activeTab);
-        }
-    } catch (err) {
-        console.error("UI Fetch Error:", err);
-        const container = document.getElementById('resource-list-container');
-        if (container) {
-            container.innerHTML = `<p style="color: #ff4757; text-align: center; padding: 2rem;">Connection Error: Could not reach the cloud database.</p>`;
-        }
-    }
+function renderStaticNotes(notes) {
+    const futuristicStyles = `
+        <style>
+            .notes-list-container-pro {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                width: 100%;
+                padding: 10px 0;
+            }
+
+            .note-card {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                padding: 16px 28px;
+                background: rgba(255, 255, 255, 0.04);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                border-radius: 18px;
+                position: relative;
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            }
+
+            .note-card::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 5px;
+                background: linear-gradient(180deg, #00f2ff, #7000ff);
+                box-shadow: 3px 0 15px rgba(0, 242, 255, 0.4);
+                transition: 0.3s;
+            }
+
+            .note-card:hover {
+                transform: translateY(-4px) scale(1.01);
+                background: rgba(255, 255, 255, 0.06);
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+                border-color: rgba(0, 242, 255, 0.2);
+            }
+
+            .note-card-left {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+                flex-grow: 1;
+            }
+
+            .note-icon-box {
+                width: 50px;
+                height: 50px;
+                background: rgba(0, 242, 255, 0.1);
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #00f2ff;
+                border: 1px solid rgba(0, 242, 255, 0.2);
+                flex-shrink: 0;
+                box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
+            }
+
+            .note-info-stack {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .unit-label {
+                color: #00f2ff;
+                font-weight: 800;
+                font-size: 0.65rem;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                margin: 0;
+            }
+
+            .note-card h3 {
+                font-size: 1.25rem;
+                font-weight: 900;
+                color: #FFFFFF;
+                margin: 0;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+                text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            }
+
+            .note-meta-pills {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .meta-pill {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                background: rgba(70, 70, 90, 0.4);
+                padding: 4px 12px;
+                border-radius: 8px;
+                font-size: 0.75rem;
+                color: #e0e0f0;
+                font-weight: 600;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                backdrop-filter: blur(5px);
+            }
+
+            .meta-pill.views { color: #00f2ff; background: rgba(0, 242, 255, 0.05); border-color: rgba(0, 242, 255, 0.1); }
+            .meta-pill svg { stroke-width: 2.5; }
+
+            .note-interactions {
+                display: flex;
+                gap: 10px;
+            }
+
+            .int-btn {
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                color: #FFFFFF;
+                padding: 4px 10px;
+                border-radius: 8px;
+                font-size: 0.8rem;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                transition: 0.3s;
+                font-weight: 700;
+            }
+
+            .int-btn:hover {
+                background: rgba(255, 255, 255, 0.1);
+                border-color: rgba(255, 255, 255, 0.2);
+                transform: translateY(-2px);
+            }
+
+            .int-btn.active {
+                background: rgba(255, 45, 85, 0.1);
+                color: #ff2d55;
+                border-color: rgba(255, 45, 85, 0.3);
+            }
+
+            .download-btn-premium {
+                background: #FFFFFF;
+                color: #000000 !important;
+                padding: 12px 32px;
+                border: none;
+                border-radius: 50px;
+                font-weight: 900;
+                font-size: 0.85rem;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+                text-transform: uppercase;
+                letter-spacing: 1.5px;
+                box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+                text-decoration: none;
+                white-space: nowrap;
+                position: relative;
+                overflow: hidden;
+                flex-shrink: 0;
+            }
+
+            .download-btn-premium:hover {
+                transform: translateY(-3px) scale(1.05);
+                box-shadow: 0 15px 35px rgba(255, 255, 255, 0.4);
+                background: #f0f0f0;
+            }
+
+            .download-btn-premium svg { stroke-width: 3.5; }
+
+            @keyframes rowEntrance {
+                from { opacity: 0; transform: translateY(30px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .card-reveal {
+                animation: rowEntrance 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            }
+
+            @media (max-width: 900px) {
+                .note-card { flex-direction: column; align-items: flex-start; gap: 20px; padding: 20px 24px; }
+                .download-btn-premium { width: 100%; justify-content: center; }
+            }
+
+            @media (max-width: 480px) {
+                .note-card-left { gap: 16px; }
+                .note-icon-box { width: 44px; height: 44px; }
+                .note-card h3 { font-size: 1.1rem; }
+            }
+        </style>
+    `;
+
+    const cards = notes.map((n, idx) => {
+        // Reusable card template logic
+        const createNoteCard = (unit, title, url, likes = 8, views = 124) => {
+            return `
+            <div class="note-card card-reveal" style="animation-delay: ${idx * 0.1}s;">
+                <div class="note-card-left">
+                    <div class="note-icon-box">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    </div>
+                    <div class="note-info-stack">
+                        <span class="unit-label">${unit}</span>
+                        <h3>${title}</h3>
+                        <div class="note-meta-pills">
+                            <span class="meta-pill">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                Official Resource
+                            </span>
+                            <span class="meta-pill">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
+                                Feb 2026
+                            </span>
+                            <span class="meta-pill views">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                <span class="count">${views}</span>
+                            </span>
+                        </div>
+                        <div class="note-interactions">
+                            <button class="int-btn like-btn" onclick="let s=this.querySelector('.count'); s.innerText = parseInt(s.innerText)+1; this.classList.add('active'); event.stopPropagation();">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                                <span class="count">${likes}</span>
+                            </button>
+                            <button class="int-btn bookmark-btn" onclick="this.classList.toggle('active'); event.stopPropagation();">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="${url}" target="_blank" class="download-btn-premium" onclick="let v=this.closest('.note-card').querySelector('.views .count'); if(v) v.innerText = parseInt(v.innerText)+1;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    DOWNLOAD
+                </a>
+            </div>`;
+        };
+
+        return createNoteCard(n.unit || `UNIT ${idx + 1}`, n.title || n.subjectName, n.url || n.fileUrl || n.driveLink);
+    }).join('');
+
+    return futuristicStyles + cards;
 }
 
 window.switchSubjectTab = function (tab) {
     showNotes(tab);
 };
 
-function renderDetailedNotes(notes, tabType = 'notes') {
-    if (notes.length === 0) {
-        const isAdmin = currentUser && (currentUser.role === Roles.SUPER_ADMIN || (currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === selState.college.id));
-
-        return `
-            <div style="text-align: center; padding: 5rem; background: rgba(255,255,255,0.01); border: 2px dashed rgba(255,255,255,0.05); border-radius: 20px;">
-                <div style="font-size: 4rem; margin-bottom: 2rem;">📂</div>
-                <h2 class="font-heading">No premium ${tabType} for this subject found yet.</h2>
-                <p style="color: var(--text-dim); margin-bottom: 2rem;">Be the first contributor and earn academic credit!</p>
-                <div style="display:flex; justify-content:center; gap:1rem;">
-                    ${isAdmin
-                ? `<button class="primary-btn" onclick="startDirectUpload()" style="padding: 10px 24px;">+ Upload notes</button>`
-                : `<button class="btn btn-primary" onclick="window.location.href='dashboard.html?tab=notes'">+ Contribute Note</button>`
-            }
-                </div>
-        `;
-    }
-
-    return notes.map(n => {
-        const isLiked = currentUser && n.likedBy && n.likedBy.includes(currentUser.id);
-
-        return `
-        <div class="futuristic-note-card card-reveal">
-            <div class="note-icon-box">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-            </div>
-            
-            <div class="note-core-content">
-                <h3 class="note-title-line">${n.title}</h3>
-                
-                <div class="note-metadata-bar">
-                    <span class="meta-badge-pro uploader">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                        ${n.uploaderName || n.uploader || 'Admin'}
-                    </span>
-                    <span class="meta-badge-pro">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
-                        ${n.date || 'Static Date'}
-                    </span>
-                    <div class="view-count-badge">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                        ${n.views || 0}
-                    </div>
-                </div>
-
-                <div class="note-actions-metrics">
-                    <button class="action-pill-rt ${isLiked ? 'liked' : ''}" onclick="window.toggleNoteLike('${n.id}')">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
-                        ${n.likes || 0}
-                    </button>
-                    <button class="action-pill-rt" onclick="window.toggleNoteBookmark('${n.id}')" title="Bookmark">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-                    </button>
-                    <div class="action-pill-rt" style="cursor:default; opacity:0.8;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline></svg>
-                        ${n.downloads || 0}
-                    </div>
-                </div>
-            </div>
-
-            <div class="note-action-side">
-                <button class="download-btn-furistic" onclick="window.open('${n.fileUrl || n.driveLink || n.url}', '_blank'); window.incrementNoteView('${n.id}'); window.updateNoteStat('${n.id}', 'download')">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    DOWNLOAD
-                </button>
-            </div>
-        </div>
-`}).join('');
-}
-
-
-// Moved note interaction logic to note-actions.js
+// Attach to window for HTML onclicks
+window.selectCollege = selectCollege;
+window.selectBranch = selectBranch;
+window.selectYear = selectYear;
+window.selectSemester = selectSemester;
+window.selectSubject = selectSubject;
+window.renderCollegeStep = renderCollegeStep;
+window.showNotes = showNotes;
