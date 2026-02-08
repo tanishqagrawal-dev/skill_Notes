@@ -438,6 +438,74 @@ window.toggleTheme = function (isLight) {
     }
 };
 
+// --- SYNC UTILITY FOR ADVANCE JAVA ---
+window.syncAdvancedJavaNotes = async function () {
+    const { storage, ref, listAll, getDownloadURL, db, setDoc, doc, serverTimestamp } = window.firebaseServices;
+
+    // Exact path from screenshot: notes_uploads > medicaps > Advance Java P...
+    // Assuming "Advance Java Programming"
+    const folderPath = 'notes_uploads/medicaps/Advance Java Programming';
+    const folderRef = ref(storage, folderPath);
+
+    showToast(`🔄 Starting sync for: ${folderPath}`, 'info');
+    console.log(`🔄 Starting sync for: ${folderPath}`);
+
+    try {
+        const res = await listAll(folderRef);
+        console.log(`📂 Found ${res.items.length} files.`);
+
+        let count = 0;
+        for (const itemRef of res.items) {
+            const name = itemRef.name;
+            console.log(`Processing: ${name}`);
+
+            const url = await getDownloadURL(itemRef);
+
+            // Generate Metadata
+            const noteId = 'sync_' + name.replace(/[^a-zA-Z0-9]/g, '_');
+            const title = name.replace('.pdf', '').replace('.pptx', '').replace(/-/g, ' ');
+
+            // Firestore Doc
+            await setDoc(doc(db, 'notes', noteId), {
+                title: title,
+                url: url,
+                driveLink: url, // For compatibility
+                collegeId: 'medicaps',
+                collegeName: 'Medicaps University',
+                branchId: 'cse',
+                branch: 'Computer Science',
+                semester: 'Semester 4', // Mapped to 4th Sem in GlobalData
+                subject: 'Advanced Java Programming',
+                subjectId: 'adv-java',
+                type: 'notes',
+                status: 'approved',
+                verified: true, // Explicitly trusted
+                approvedBy: 'admin_sync',
+                approvedAt: serverTimestamp(),
+                uploadedBy: 'admin_sync',
+                uploader: 'Admin Sync',
+                created_at: serverTimestamp(),
+                date: new Date().toLocaleDateString(),
+                views: 0,
+                likes: 0,
+                downloads: 0,
+                description: 'Auto-synced from storage'
+            }, { merge: true });
+
+            count++;
+            console.log(`✅ Synced: ${title}`);
+        }
+
+        showToast(`✅ Successfully synchronized ${count} notes!`);
+        // Refresh view if on the page
+        if (window.showNotes) window.showNotes('notes');
+
+    } catch (e) {
+        console.error("Sync Error:", e);
+        showToast("Sync Failed: " + e.message, 'error');
+    }
+};
+
 
 window.openUploadModal = async function () {
     if (!currentUser) {
@@ -700,13 +768,15 @@ async function handleDashboardNoteSubmit(e) {
         subject: getSelectText('subject') || 'General',
         subjectId: subject,
         type: 'notes',
-        uploader: currentUser.name,
-        uploadedBy: currentUser.id,
-        uploaderEmail: currentUser.email,
+        uploader: currentUser.name || "Guest Scholar",
+        uploadedBy: currentUser.id || "guest",
+        uploaderEmail: currentUser.email || "guest@example.com",
         date: new Date().toLocaleDateString(),
         targetCollection: 'notes',
-        status: 'approved',
-        verified: isAdmin // Set verified true for admins
+        status: 'approved', // Auto-approve ALL
+        verified: true, // Auto-verify ALL
+        approvedBy: 'auto_system',
+        approvedAt: new Date().toISOString() // Fallback to ISO string for immediate use
     };
 
     try {
@@ -772,7 +842,15 @@ function initTabs() {
 
     // 3. Moderation & Admin Tools
     if (currentUser.role === 'coadmin' || currentUser.role === 'admin' || currentUser.role === 'superadmin') {
-        const modHub = createNavItem('moderation-hub', '🛡️', 'Moderation Hub', true);
+        // Co-Admin Hub - Locked
+        const modHub = createNavItem('moderation-hub', '🛡️', 'Moderation Hub <span style="font-size:0.6rem; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; margin-left:5px;">🔒 Soon</span>', true);
+        modHub.style.opacity = '0.6';
+        modHub.style.cursor = 'not-allowed';
+        modHub.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            alert("🔒 Moderation Hub is coming soon!");
+        };
         sidebarNav.insertBefore(modHub, settingsNode);
     }
 
@@ -1825,7 +1903,10 @@ function renderAdminConsole() {
                     <div style="background: #000; padding: 1rem; border-radius: 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #00ff00; max-height: 200px; overflow: scroll;">
                         { "notes_count": ${NotesDB.length}, "verified": ${NotesDB.filter(n => n.status === 'approved').length}, "pending": ${NotesDB.filter(n => n.status === 'pending').length} }
                     </div>
-                    <button class="btn btn-ghost" style="width:100%; margin-top: 1rem; font-size: 0.8rem;">📥 Export full .JSON data</button>
+                    <div style="display:flex; gap:0.5rem; margin-top: 1rem;">
+                        <button class="btn btn-ghost" style="flex:1; font-size: 0.8rem;">📥 Export JSON</button>
+                        <button class="btn btn-primary" style="flex:1; font-size: 0.8rem;" onclick="window.syncAdvancedJavaNotes()">🔄 Sync AJP</button>
+                    </div>
                 </div>
 
                 <div class="glass-card" style="padding: 2rem;">
