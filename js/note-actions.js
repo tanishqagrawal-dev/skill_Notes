@@ -18,7 +18,14 @@ window.incrementNoteView = async function (noteId) {
         await updateDoc(noteRef, {
             views: increment(1)
         });
+
+        // Also update global counters
+        if (window.statServices && window.statServices.trackPageView) {
+            window.statServices.trackPageView();
+        }
+
         sessionStorage.setItem(sessionKey, 'true');
+        console.log(`📈 View incremented for note ${noteId}`);
     } catch (e) {
         console.warn("View increment failed:", e);
     }
@@ -71,7 +78,13 @@ window.updateNoteStat = async function (noteId, type) {
             await updateDoc(noteRef, {
                 downloads: increment(1)
             });
-            if (window.statServices) window.statServices.trackDownload();
+
+            // Also update global counters
+            if (window.statServices && window.statServices.trackDownload) {
+                window.statServices.trackDownload();
+            }
+
+            console.log(`📉 Download incremented for note ${noteId}`);
         } else if (type === 'save') {
             // Future: Save to private drive logic here
             if (typeof showToast === 'function') showToast("Saved to Private Drive");

@@ -531,7 +531,8 @@ window.AdminConsole = {
             console.log("🚀 Granting Co-Admin permissions to:", emailFound);
             await updateDoc(doc(db, "users", uid), {
                 role: "coadmin",
-                college: collegeId
+                collegeId: collegeId,
+                collegeName: collegeSnap.data()?.name || collegeId
             });
 
             // 4. Update College record with Co-Admin reference
@@ -570,7 +571,8 @@ window.AdminConsole = {
             // 1. Reset user
             await updateDoc(doc(db, "users", uid), {
                 role: "user",
-                college: null
+                collegeId: null,
+                collegeName: null
             });
 
             // 2. Unlock college
@@ -615,7 +617,8 @@ window.AdminConsole = {
                 await setDoc(doc(db, "users", user.uid), {
                     email: user.email,
                     role: "coadmin",
-                    college: collegeId,
+                    collegeId: collegeId,
+                    collegeName: "Medicaps University",
                     lastRescued: serverTimestamp()
                 }, { merge: true });
 

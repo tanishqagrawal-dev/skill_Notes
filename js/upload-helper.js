@@ -46,13 +46,18 @@ window.uploadNoteToFirebase = async function (file, metadata) {
                         if (statusEl) statusEl.innerText = "Finalizing: Saving to Database...";
 
                         const targetColl = metadata.targetCollection || 'notes';
+                        const currentUser = window.currentUser || (window.authStatus?.data?.currentUser) || {};
+
                         const docData = {
                             ...metadata,
                             fileUrl: downloadURL,
-                            driveLink: downloadURL,
+                            driveLink: downloadURL, // Compatibility
+                            url: downloadURL,      // Compatibility
                             fileType: file.type || 'application/pdf',
                             fileName: file.name,
-                            status: metadata.status || 'pending',
+                            status: metadata.status || 'approved',
+                            uploadedBy: metadata.uploadedBy || currentUser.id || window.firebaseServices?.auth?.currentUser?.uid,
+                            uploaderName: metadata.uploaderName || metadata.uploader || currentUser.name || "Scholar",
                             views: 0,
                             downloads: 0,
                             likes: 0,

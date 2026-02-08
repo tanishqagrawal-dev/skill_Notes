@@ -129,7 +129,7 @@ function updateUICounters(data) {
         'stat-active-2': data.totalStudents,
 
         // Derived or fixed
-        'stat-notes': 414 // Keep this fixed or fetch count if needed
+        'stat-notes': data.totalViews // Trending now reflects total views
     };
 
     for (const [id, val] of Object.entries(map)) {
@@ -162,13 +162,20 @@ async function updateUserPresence() {
     // For now, let's just make sure we don't break the presence logic:
     const userRef = doc(db, "presence", auth.currentUser.uid);
     try {
+        const { db, doc, setDoc, increment, serverTimestamp, updateDoc } = getFirebase();
         await setDoc(userRef, {
             online: true,
             lastSeen: serverTimestamp()
         }, { merge: true });
 
-        // Optional: Increment totalStudents in analytics if logic defines it (e.g. Unique Signups)
-        // We won't auto-increment global totalStudents here to avoid +1 on every refresh.
+        // Increment totalStudents if it's the first time we see them this session
+        if (!sessionStorage.getItem('presence_counted')) {
+            const globalRef = doc(db, ANALYTICS_DOC);
+            await updateDoc(globalRef, {
+                totalStudents: increment(1)
+            });
+            sessionStorage.setItem('presence_counted', 'true');
+        }
     } catch (e) { }
 }
 

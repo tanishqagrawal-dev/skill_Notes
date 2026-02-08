@@ -53,12 +53,10 @@ function initNotesData() {
         return;
     }
 
-    const q = query(collection(db, "notes"));
+    const q = query(collection(db, "notes"), where("status", "==", "approved"), orderBy("createdAt", "desc"));
     onSnapshot(q, (snapshot) => {
         NotesDB = snapshot.docs
-            .map(doc => ({ id: doc.id, ...doc.data() }))
-            .filter(n => n.status === 'approved') // Only show approved notes globally in Hub
-            .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            .map(doc => ({ id: doc.id, ...doc.data() }));
 
         // If we are currently viewing the final list, refresh it to show new/updated notes
         if (document.getElementById('final-notes-view').style.display === 'block') {
@@ -263,8 +261,9 @@ window.startDirectUpload = function () {
 
         const metadata = {
             title: file.name.replace(/\.[^/.]+$/, ""),
-            college: selState.college.name,
+            college: selState.college.id,
             collegeId: selState.college.id,
+            collegeName: selState.college.name,
             branch: selState.branch.name,
             branchId: selState.branch.id,
             semester: selState.semester,
@@ -277,7 +276,7 @@ window.startDirectUpload = function () {
             uploaderEmail: currentUser.email,
             date: new Date().toLocaleDateString(),
             targetCollection: 'notes',
-            status: isAdmin ? 'approved' : 'pending',
+            status: 'approved',
             verified: isAdmin
         };
 
@@ -318,19 +317,20 @@ async function handleNoteSubmit(e) {
     const isAdmin = currentUser.role === Roles.SUPER_ADMIN || currentUser.email === 'skilmatrix3@gmail.com';
     const isMatchingCoAdmin = currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === selState.college.id;
     const targetColl = "notes";
-    const status = (isAdmin || isMatchingCoAdmin) ? 'approved' : 'pending';
+    const status = 'approved';
 
     const newNote = {
         title: title,
         type: type,
         driveLink: driveLink,
         collegeId: selState.college.id,
-        college: selState.college.name,
+        college: selState.college.id,
+        collegeName: selState.college.name,
         branchId: selState.branch.id,
-        branch: selState.branch.name,
-        year: selState.year,
         subjectId: selState.subject.id,
         subject: selState.subject.name,
+        fileUrl: driveLink,
+        url: driveLink,
         uploader: currentUser.name,
         uploadedBy: currentUser.id,
         status: status,
@@ -386,45 +386,24 @@ window.fetchNotesBySubject = async function (subjectId, tabType = 'notes') {
             collection(db, targetColl),
             where("collegeId", "==", selState.college.id),
             where("subjectId", "==", subjectId),
-            where("type", "==", tabType)
+            where("type", "==", tabType),
+            where("status", "==", "approved")
         );
 
-        let userQ = null;
-        if (currentUser && currentUser.id) {
-            userQ = query(
-                collection(db, targetColl),
-                where("collegeId", "==", selState.college.id),
-                where("subjectId", "==", subjectId),
-                where("type", "==", tabType),
-                where("uploadedBy", "==", currentUser.id)
-            );
-        }
-
-        const [approvedSnap, userSnap] = await Promise.all([
-            getDocs(approvedQ),
-            userQ ? getDocs(userQ) : Promise.resolve({ docs: [] })
-        ]);
-
-        const notesMap = new Map();
-        approvedSnap.forEach(doc => {
-            const data = doc.data();
-            if (data.status === 'approved') {
-                notesMap.set(doc.id, { id: doc.id, ...data });
-            }
-        });
-        userSnap.forEach(doc => {
-            const data = doc.data();
-            // User can always see their own notes in their own view
-            notesMap.set(doc.id, { id: doc.id, ...data });
+        const snap = await getDocs(approvedQ);
+        const notes = [];
+        snap.forEach(doc => {
+            notes.push({ id: doc.id, ...doc.data() });
         });
 
-        const notes = Array.from(notesMap.values()).sort((a, b) => {
-            const dateA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : new Date(a.date).getTime();
-            const dateB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : new Date(b.date).getTime();
+        // Sort by creation time
+        notes.sort((a, b) => {
+            const dateA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : new Date(a.date || 0).getTime());
+            const dateB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : new Date(b.date || 0).getTime());
             return dateB - dateA;
         });
 
-        console.log(`📦 Total Docs found (Approved + Own): ${notes.length}`);
+        console.log(`📦 Total Approved Docs found: ${notes.length}`);
         return notes;
     } catch (err) {
         console.error("Firestore Fetch Error:", err);
@@ -500,12 +479,6 @@ window.showNotes = async function (activeTab = 'notes') {
         const container = document.getElementById('resource-list-container');
         if (container) {
             container.innerHTML = renderDetailedNotes(notes, activeTab);
-            // Trigger unique view tracking for all notes shown
-            notes.forEach(n => {
-                if (typeof window.incrementNoteView === 'function') {
-                    window.incrementNoteView(n.id);
-                }
-            });
         }
     } catch (err) {
         console.error("UI Fetch Error:", err);
@@ -581,7 +554,7 @@ function renderDetailedNotes(notes, tabType = 'notes') {
             </div>
 
             <div class="note-action-side">
-                <button class="download-btn-furistic" onclick="window.open('${n.fileUrl || n.driveLink}', '_blank'); window.updateNoteStat('${n.id}', 'download')">
+                <button class="download-btn-furistic" onclick="window.open('${n.fileUrl || n.driveLink || n.url}', '_blank'); window.incrementNoteView('${n.id}'); window.updateNoteStat('${n.id}', 'download')">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                     DOWNLOAD
                 </button>

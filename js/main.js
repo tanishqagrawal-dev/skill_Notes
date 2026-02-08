@@ -236,10 +236,15 @@ async function handleView(id) {
     console.log(`Viewing note: ${id}`);
     const note = notesData.find(n => n.id === id);
     if (note) {
-        note.views++;
-        renderNotes(notesData); // Local update
-
         // Real-time tracking
+        if (typeof window.incrementNoteView === 'function') {
+            window.incrementNoteView(id);
+        }
+
+        // Local update for UI feedback
+        note.views++;
+        renderNotes(notesData);
+
         if (window.statServices && window.statServices.trackNoteView) {
             window.statServices.trackNoteView(note.id, note.college, note.subject);
         }
@@ -250,10 +255,15 @@ async function handleDownload(id) {
     console.log(`Downloading note: ${id}`);
     const note = notesData.find(n => n.id === id);
     if (note) {
-        note.downloads++;
-        renderNotes(notesData); // Local update
-
         // Real-time tracking
+        if (typeof window.updateNoteStat === 'function') {
+            window.updateNoteStat(id, 'download');
+        }
+
+        // Local update for UI feedback
+        note.downloads++;
+        renderNotes(notesData);
+
         if (window.statServices && window.statServices.trackNoteDownload) {
             window.statServices.trackNoteDownload(note.id);
         }

@@ -689,8 +689,9 @@ async function handleDashboardNoteSubmit(e) {
     console.log("👤 Current User Role/Email for Upload:", currentUser.role, currentUser.email, "isAdmin:", isAdmin);
     const metadata = {
         title: title,
-        college: finalCollegeName || 'Medicaps University',
+        college: finalCollegeId || (currentUser.collegeId || 'medicaps'),
         collegeId: finalCollegeId || (currentUser.collegeId || 'medicaps'),
+        collegeName: finalCollegeName || 'Medicaps University',
         stream: getSelectText('stream') || 'B.Tech',
         streamId: stream,
         branch: getSelectText('branch') || 'CSE',
@@ -704,7 +705,7 @@ async function handleDashboardNoteSubmit(e) {
         uploaderEmail: currentUser.email,
         date: new Date().toLocaleDateString(),
         targetCollection: 'notes',
-        status: isAdmin ? 'approved' : 'pending',
+        status: 'approved',
         verified: isAdmin // Set verified true for admins
     };
 
@@ -1748,7 +1749,7 @@ window.processNote = async function (noteId, newStatus) {
     if (newStatus === 'rejected') {
         if (!confirm("Permanently reject/delete this submission?")) return;
         try {
-            await deleteDoc(doc(db, 'notes_pending', noteId));
+            await deleteDoc(doc(db, 'notes', noteId));
             showToast("🚫 Submission rejected and deleted.");
             renderTabContent('verification-hub');
         } catch (e) {
@@ -2174,7 +2175,8 @@ window.showNotes = function (activeTab = 'notes') {
         collection(db, "notes"),
         where("collegeId", "==", selState.college.id),
         where("branchId", "==", selState.branch.id),
-        where("type", "==", activeTab)
+        where("type", "==", activeTab),
+        where("status", "==", "approved")
     );
 
     notesUnsubscribe = onSnapshot(q, (snapshot) => {
@@ -2194,8 +2196,8 @@ window.showNotes = function (activeTab = 'notes') {
             // 2. Subject Check (Matches "subjectId" or "subject" fields)
             const subMatch = (data.subjectId === selState.subject.id) || (data.subject === selState.subject.id) || (data.subject === selState.subject.name);
 
-            // 3. Status Check (Show all non-rejected notes to everyone)
-            const isVisible = data.status !== 'rejected';
+            // 3. Status Check (Show only approved notes Globally)
+            const isVisible = true; // Query already filters for approved
 
             if (semMatch && subMatch && isVisible) {
                 notes.push({ id: doc.id, ...data });
@@ -2705,12 +2707,18 @@ window.uploadNote = async function (formData) {
             subject: formData.get('subject'),
             semester: formData.get('semester'),
             year: formData.get('year'),
+            college: formData.get('collegeId') || currentUser.collegeId || currentUser.college || 'medicaps',
             collegeId: formData.get('collegeId') || currentUser.collegeId || currentUser.college || 'medicaps',
+            collegeName: formData.get('collegeName') || currentUser.collegeName || 'Medicaps University',
+            stream: formData.get('stream') || 'B.Tech',
             fileUrl: downloadURL,
             uploaderName: currentUser.name,
             uploadedBy: currentUser.id,
             uploaderEmail: currentUser.email,
             status: 'approved', // Auto-approve per user request for instant visibility
+            views: 0,
+            downloads: 0,
+            likes: 0,
             uploadedAt: serverTimestamp()
         });
 
@@ -2724,45 +2732,41 @@ window.uploadNote = async function (formData) {
 
 // 2. USER DASHBOARD MODULE
 window.renderMyUploads = function () {
-    const { db, query, collection, onSnapshot, where, orderBy } = getFirebase();
+    const { db, collection, query, where, onSnapshot } = getFirebase();
     const container = document.getElementById('my-uploads-grid');
     if (!container || !currentUser) return;
 
+    container.innerHTML = '<div class="spinner" style="margin: 2rem auto;"></div>';
+
+    // Query notes where user is uploader. Check both field names for older docs.
     const q = query(
-        collection(db, "notes_pending"),
-        where("uploaderUid", "==", currentUser.id),
-        orderBy("uploadedAt", "desc")
+        collection(db, "notes"),
+        where("uploadedBy", "==", currentUser.id)
     );
 
     onSnapshot(q, (snapshot) => {
-        const pending = [];
-        snapshot.forEach(doc => pending.push({ id: doc.id, ...doc.data() }));
+        const notes = [];
+        snapshot.forEach(doc => notes.push({ id: doc.id, ...doc.data() }));
 
-        const approvedQ = query(
-            collection(db, "notes_approved"),
-            where("uploaderUid", "==", currentUser.id)
-        );
-
-        onSnapshot(approvedQ, (appSnapshot) => {
-            const approved = [];
-            appSnapshot.forEach(doc => approved.push({ id: doc.id, ...doc.data() }));
-
-            const all = [...pending, ...approved].sort((a, b) => (b.uploadedAt || b.approvedAt) - (a.uploadedAt || a.approvedAt));
-
-            container.innerHTML = all.length ? all.map(n => `
-                <div class="selection-card glass-card">
-                    <div class="status-badge ${n.status}">${n.status.toUpperCase()}</div>
-                    <h4 style="margin: 0.5rem 0;">${n.title}</h4>
-                    <p style="font-size: 0.8rem; color: var(--text-dim);">${n.subject} | ${n.semester}</p>
-                    ${n.status === 'approved' ? `
-                        <div style="margin-top: 1rem; display: flex; gap: 1rem; font-size: 0.75rem;">
-                            <span>👁️ ${n.totalViews || 0}</span>
-                            <span>📥 ${n.totalSaves || 0}</span>
-                        </div>
-                    ` : ''}
-                </div>
-            `).join('') : '<p style="grid-column: 1/-1; text-align: center; color: var(--text-dim);">No uploads found.</p>';
+        const sorted = notes.sort((a, b) => {
+            const dateA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : (a.uploadedAt?.seconds ? a.uploadedAt.seconds * 1000 : 0);
+            const dateB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : (b.uploadedAt?.seconds ? b.uploadedAt.seconds * 1000 : 0);
+            return dateB - dateA;
         });
+
+        container.innerHTML = sorted.length ? sorted.map(n => `
+            <div class="selection-card glass-card">
+                <div class="status-badge ${n.status}">${(n.status || 'pending').toUpperCase()}</div>
+                <h4 style="margin: 0.5rem 0;">${n.title}</h4>
+                <p style="font-size: 0.8rem; color: var(--text-dim);">${n.subject} | ${n.semester}</p>
+                <div style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                     <div style="display: flex; gap: 1rem; font-size: 0.75rem;">
+                        <span>👁️ ${n.views || 0}</span>
+                        <span>📥 ${n.downloads || 0}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('') : '<p style="grid-column: 1/-1; text-align: center; color: var(--text-dim);">No uploads found.</p>';
     });
 };
 
@@ -2772,13 +2776,13 @@ window.renderAdminModQueue = function () {
     const container = document.getElementById('admin-queue');
     if (!container || !['admin', 'superadmin', 'coadmin'].includes(currentUser.role)) return;
 
-    let q = query(collection(db, "notes_pending"), orderBy("uploadedAt", "asc"));
+    let q = query(collection(db, "notes"), where("status", "==", "pending"), orderBy("createdAt", "asc"));
 
     // Co-Admin Restriction: Only see notes from their assigned college
     if (currentUser.role === 'coadmin') {
         const myCollegeId = currentUser.collegeId || currentUser.college;
         console.log(`🛡️ Filtering Mod Queue for College: ${myCollegeId}`);
-        q = query(collection(db, "notes_pending"), where("collegeId", "==", myCollegeId), orderBy("uploadedAt", "asc"));
+        q = query(collection(db, "notes"), where("status", "==", "pending"), where("collegeId", "==", myCollegeId), orderBy("createdAt", "asc"));
     }
 
     onSnapshot(q, (snapshot) => {
@@ -2790,7 +2794,7 @@ window.renderAdminModQueue = function () {
                 <div>
                     <h3 style="margin:0;">${n.title}</h3>
                     <p style="margin: 0.3rem 0; font-size: 0.9rem;">From: ${n.uploaderName} | <span class="gradient-text">${n.collegeId || n.college}</span></p>
-                    <a href="${n.fileUrl}" target="_blank" class="gradient-text" style="font-weight: 700;">👁️ Preview Note</a>
+                    <a href="${n.fileUrl || n.driveLink || n.url}" target="_blank" onclick="window.incrementNoteView('${n.id}')" class="gradient-text" style="font-weight: 700;">👁️ Preview Note</a>
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
                     <button class="btn btn-primary btn-sm" onclick="approveNote('${n.id}')">✅ Approve</button>
@@ -2802,22 +2806,19 @@ window.renderAdminModQueue = function () {
 
     window.approveNote = async (id) => {
         try {
-            const noteRef = doc(db, "notes_pending", id);
-            const noteSnap = await getDoc(noteRef);
-            if (!noteSnap.exists()) return;
-
-            const data = noteSnap.data();
-            await addDoc(collection(db, "notes_approved"), {
-                ...data,
+            const noteRef = doc(db, "notes", id);
+            await updateDoc(noteRef, {
                 status: 'approved',
                 approvedBy: currentUser.name,
                 approvedByEmail: currentUser.email,
                 approvedAt: serverTimestamp(),
-                totalViews: 0,
-                totalSaves: 0
+                // Ensure analytic fields are initialized
+                views: 0,
+                downloads: 0,
+                // Ensure URL fields are consistent upon approval
+                verified: true
             });
 
-            await deleteDoc(noteRef);
             alert("✅ Note Approved!");
         } catch (err) {
             console.error("Approval Error:", err);
@@ -2829,7 +2830,7 @@ window.renderAdminModQueue = function () {
         const reason = prompt("Enter rejection reason:");
         if (!reason) return;
         try {
-            const noteRef = doc(db, "notes_pending", id);
+            const noteRef = doc(db, "notes", id);
             await updateDoc(noteRef, {
                 status: 'rejected',
                 rejectionReason: reason,
@@ -2927,7 +2928,7 @@ function initRealTimeDB() {
     if (unsubscribeNotes) unsubscribeNotes();
 
     // ONLY fetch from notes_approved for the public feed
-    const q = query(collection(db, "notes_approved"), orderBy("approvedAt", "desc"));
+    const q = query(collection(db, "notes"), where("status", "==", "approved"), orderBy("approvedAt", "desc"));
     unsubscribeNotes = onSnapshot(q, (snapshot) => {
         NotesDB = [];
         snapshot.forEach((doc) => {
@@ -3514,7 +3515,7 @@ window.initGlobalSearch = function () {
                 // Since Firestore doesn't do "contains", we do startAt/endAt or client side if small.
                 // Assuming "subjectCode" or "title" exact or prefix.
                 // Doing a combined client-side filter for better UX on small dataset
-                const q = query(collection(db, "notes_approved"), limit(50));
+                const q = query(collection(db, "notes"), where("status", "==", "approved"), limit(50));
                 const snap = await getDocs(q);
 
                 const hits = snap.docs
@@ -3529,7 +3530,7 @@ window.initGlobalSearch = function () {
                     resultsContainer.innerHTML = '<div style="text-align:center; padding:1rem; color:var(--text-dim);">No results found.</div>';
                 } else {
                     resultsContainer.innerHTML = hits.map(hit => `
-                        <div onclick="window.open('${hit.driveLink || hit.fileUrl}', '_blank')" style="padding: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; display: flex; align-items: center; gap: 1rem; transition: background 0.2s;">
+                        <div onclick="window.open('${hit.driveLink || hit.fileUrl || hit.url}', '_blank')" style="padding: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; display: flex; align-items: center; gap: 1rem; transition: background 0.2s;">
                             <div style="font-size: 1.5rem;">📄</div>
                             <div>
                                 <div style="font-weight: 600; color: white;">${hit.title}</div>
@@ -3550,46 +3551,6 @@ window.initGlobalSearch = function () {
         if (!input.contains(e.target) && !resultsContainer.contains(e.target)) {
             resultsContainer.style.display = 'none';
         }
-    });
-};
-
-window.uploadNoteToFirebase = async function (file, metadata) {
-    const { storage, ref, uploadBytesResumable, getDownloadURL, db, collection, addDoc, serverTimestamp } = window.firebaseServices;
-
-    // 1. Path: notes/{collegeId}/{branch}/{subject}/{filename}
-    // Using a timestamp prefix to avoid overwrites
-    const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
-    const storagePath = `notes_uploads/${metadata.collegeId}/${metadata.subject}/${Date.now()}_${safeName}`;
-    const fileRef = ref(storage, storagePath);
-
-    // 2. Upload
-    const uploadTask = uploadBytesResumable(fileRef, file);
-
-    return new Promise((resolve, reject) => {
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                const progBar = document.getElementById('upload-progress');
-                if (progBar) progBar.style.width = progress + '%';
-            },
-            (error) => {
-                reject(error);
-            },
-            async () => {
-                // 3. Get URL & Save Firestore
-                const url = await getDownloadURL(uploadTask.snapshot.ref);
-                const finalDoc = {
-                    ...metadata,
-                    fileUrl: url,
-                    storagePath: storagePath,
-                    searchKeywords: [metadata.title.toLowerCase(), metadata.subject.toLowerCase()], // Helper for future search
-                    uploadedAt: serverTimestamp() // Server timestamp for sorting
-                };
-
-                await addDoc(collection(db, metadata.targetCollection || "notes_pending"), finalDoc);
-                resolve(finalDoc);
-            }
-        );
     });
 };
 
@@ -3748,7 +3709,7 @@ function renderDriveFiles() {
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-                <button class="btn btn-sm btn-primary" onclick="window.open('${file.url}', '_blank')">Open</button>
+                <button class="btn btn-sm btn-primary" onclick="window.open('${file.driveLink || file.fileUrl || file.url}', '_blank')">Open</button>
                 <div style="display:flex; gap: 0.5rem;">
                     <button class="btn btn-sm btn-ghost" style="flex-grow:1;" onclick="handleDriveDelete('${file.id}', '${file.path}')">🗑️</button>
                     <button class="btn btn-sm btn-ghost" style="flex-grow:1;" onclick="handleDriveRename('${file.id}', '${file.name}')">✏️</button>
@@ -3789,6 +3750,8 @@ window.handleDriveFileUpload = async function (input) {
                 await setDoc(fileRef, {
                     name: file.name,
                     url: downloadURL,
+                    fileUrl: downloadURL,
+                    driveLink: downloadURL,
                     path: storagePath,
                     size: file.size,
                     mimeType: file.type,
@@ -4025,7 +3988,7 @@ function renderModerationQueue() {
                 <div style="font-weight: 600;">${note.title}</div>
                 <div style="font-size: 0.75rem; color: var(--text-dim);">${note.subject} • ${note.semester}</div>
             </td>
-            <td style="padding: 1.25rem; font-size: 0.85rem;">${note.college}</td>
+            <td style="padding: 1.25rem; font-size: 0.85rem;">${note.collegeName || note.collegeId || note.college}</td>
             <td style="padding: 1.25rem; font-size: 0.85rem;">${note.uploaderName || 'Unknown'}</td>
             <td style="padding: 1.25rem;">
                 <span style="background: rgba(241, 196, 15, 0.1); color: #f1c40f; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem;">Pending</span>
@@ -4060,7 +4023,7 @@ window.openModReview = function (noteId) {
     } else {
         iframe.style.display = 'none';
         placeholder.style.display = 'flex';
-        document.getElementById('mod-download-link').href = activeReviewNote.url;
+        document.getElementById('mod-download-link').href = activeReviewNote.driveLink || activeReviewNote.fileUrl || activeReviewNote.url;
     }
 
     modal.style.display = 'flex';
@@ -4302,9 +4265,9 @@ async function loadLiveDashboardStats() {
 
     // 2. Trending Notes Count
     try {
-        let qTrending = query(collection(db, "notes"), limit(10));
+        let qTrending = query(collection(db, "notes"), where("status", "==", "approved"), limit(10));
         onSnapshot(qTrending, (snap) => {
-            const count = snap.docs.filter(d => d.data().status !== 'rejected').length;
+            const count = snap.size;
             const el = document.getElementById('stat-notes');
             if (el) el.innerText = count > 0 ? count : "0";
         });

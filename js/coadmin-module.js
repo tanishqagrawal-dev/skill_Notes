@@ -59,6 +59,9 @@ window.CoAdminModule = {
                     <div style="font-size: 0.85rem; color: var(--text-dim);">
                         Uploaded by <strong>${note.uploader || 'Unknown'}</strong> • ${note.subject || note.branchId} • ${note.date}
                     </div>
+                    <div style="margin-top: 0.5rem; font-size: 0.8rem;">
+                        <a href="${note.fileUrl || note.driveLink || note.url}" target="_blank" onclick="window.incrementNoteView('${note.id}')" style="color: var(--primary); text-decoration: none;">🔍 Preview / Download</a>
+                    </div>
                 </div>
                 <div style="display: flex; gap: 1rem;">
                     <button class="btn btn-sm btn-ghost" style="color: #ff4757; border-color: rgba(255,71,87,0.3);" onclick="CoAdminModule.rejectNote('${note.id}')">❌ Reject</button>
@@ -105,7 +108,9 @@ window.CoAdminModule = {
             await updateDoc(noteRef, {
                 status: 'approved',
                 approvedBy: window.currentUser.id,
-                approvedAt: serverTimestamp()
+                approvedAt: serverTimestamp(),
+                views: 0,
+                downloads: 0
             });
 
             // Log activity

@@ -183,5 +183,6 @@ export {
     limit,
     terminate,
     clearIndexedDbPersistence,
-    getDocsFromServer
+    getDocsFromServer,
+    increment
 };
