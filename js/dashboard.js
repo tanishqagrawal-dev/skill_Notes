@@ -3267,95 +3267,98 @@ function updateLeaderboardUI(type, timeframe) {
     const list = document.getElementById('lb-list-container');
     if (!list) return;
 
-    let data = [];
-
-    if (type === 'student') {
-        // Real logic: Aggregating stats from NotesDB for contributors
-        // But for "Student" rank usually based on their own activity or points
-        // Let's use NotesDB to find top contributors as "Students" for now since we don't have a points system yet
-        const contributors = {};
-        NotesDB.forEach(note => {
-            if (!contributors[note.uploader]) {
-                contributors[note.uploader] = { name: note.uploader, score: 0, views: 0, avatar: null };
-            }
-            contributors[note.uploader].score += (note.likes * 10) + (note.downloads * 5) + note.views;
-            contributors[note.uploader].views += note.views;
-        });
-        data = Object.values(contributors);
-    } else if (type === 'contributor') {
-        const uploaderStats = {};
-        NotesDB.forEach(note => {
-            if (!uploaderStats[note.uploader]) {
-                uploaderStats[note.uploader] = { name: note.uploader, score: 0, downloads: 0, avatar: null };
-            }
-            uploaderStats[note.uploader].score += note.likes + note.downloads;
-            uploaderStats[note.uploader].downloads += note.downloads;
-        });
-        data = Object.values(uploaderStats);
-    } else if (type === 'college') {
-        const collegeStats = {};
-        const colleges = GlobalData.colleges;
-        colleges.forEach(c => collegeStats[c.id] = { id: c.id, name: c.name, score: 0, views: 0, students: 0, logo: c.logo });
-
-        NotesDB.forEach(note => {
-            if (collegeStats[note.collegeId]) {
-                collegeStats[note.collegeId].views += note.views;
-                collegeStats[note.collegeId].score += note.views;
-            }
-        });
-        data = Object.values(collegeStats);
+    const { db, collection, query, orderBy, limit, onSnapshot } = window.firebaseServices || {};
+    if (!db) {
+        list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">Syncing with Cloud Hub...</p>';
+        return;
     }
 
-    // Sort
-    data.sort((a, b) => b.score - a.score);
+    // Determine collection and ordering based on type
+    let colRef;
+    let orderField;
 
-    // --- NEW: Update "Your Standing" Widget ---
-    const myRank = data.findIndex(item => item.name === currentUser.name) + 1;
-    const myScore = data.find(item => item.name === currentUser.name)?.score || 0;
+    if (type === 'college') {
+        colRef = collection(db, "colleges");
+        orderField = "views"; // Assume views for colleges
+    } else {
+        colRef = collection(db, "users");
+        orderField = type === 'student' ? "xp" : "uploads";
+    }
 
-    // Attempt to update the sidebar widget if it exists
-    const valueEls = document.querySelectorAll('.personal-rank-card .value');
-    if (valueEls && valueEls.length >= 3) {
-        if (type === 'student') {
-            const rankEls = document.querySelectorAll('.personal-rank-card .rank-stat .value');
-            if (rankEls[0]) rankEls[0].innerText = myRank > 0 ? `#${myRank}` : 'N/A';
-        } else if (type === 'contributor') {
-            const rankEls = document.querySelectorAll('.personal-rank-card .rank-stat .value');
-            if (rankEls[1]) rankEls[1].innerText = myRank > 0 ? `#${myRank}` : 'N/A';
+    const q = query(colRef, orderBy(orderField, "desc"), limit(20));
+
+    onSnapshot(q, (snapshot) => {
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        if (data.length === 0) {
+            list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">No rankings found yet. Be the first!</p>';
+            return;
         }
-        valueEls[2].innerText = `${myScore.toLocaleString()} ${type === 'student' ? 'XP' : 'pts'}`;
-    }
 
-    list.innerHTML = data.map((item, index) => {
-        const rankClass = index < 3 ? `top-3 rank-${index + 1}` : '';
-        const rankDisplay = `#${index + 1}`;
-        const avatar = item.avatar ? `<img src="${item.avatar}">` : (item.name[0]);
-        const logo = item.logo ? item.logo : (item.name[0]);
+        // --- Update "Your Standing" Widget ---
+        if (window.currentUser) {
+            const myRank = data.findIndex(item => item.id === window.currentUser.id || item.name === window.currentUser.name) + 1;
+            const myScore = data.find(item => item.id === window.currentUser.id || item.name === window.currentUser.name)?.[orderField] || 0;
 
-        // Different meta based on type
-        let metaHtml = '';
-        if (type === 'student') metaHtml = `<span class="score-val">${item.score} XP</span><span class="score-label">${item.views} views</span>`;
-        if (type === 'contributor') metaHtml = `<span class="score-val">${item.score} pts</span><span class="score-label">${item.downloads} downloads</span>`;
-        if (type === 'college') metaHtml = `<span class="score-val">${formatNumber(item.views)}</span><span class="score-label">total views</span>`;
+            const valueEls = document.querySelectorAll('.personal-rank-card .value');
+            if (valueEls && valueEls.length >= 3) {
+                if (type === 'student') {
+                    const rankEls = document.querySelectorAll('.personal-rank-card .rank-stat .value');
+                    if (rankEls[0]) rankEls[0].innerText = myRank > 0 ? `#${myRank}` : 'N/A';
+                } else if (type === 'contributor') {
+                    const rankEls = document.querySelectorAll('.personal-rank-card .rank-stat .value');
+                    if (rankEls[1]) rankEls[1].innerText = myRank > 0 ? `#${myRank}` : 'N/A';
+                }
+                valueEls[2].innerText = `${myScore.toLocaleString()} ${type === 'student' ? 'XP' : 'pts'}`;
+            }
+        }
 
-        return `
-            <div class="lb-entry ${rankClass}">
-                <div class="lb-rank ${rankClass}">${index < 3 ? ['🥇', '🥈', '🥉'][index] : rankDisplay}</div>
-                <div class="lb-user">
-                    <div class="lb-avatar">${type === 'college' ? logo : avatar} 
-                        ${index === 0 ? '<div class="badge-mini">👑</div>' : ''}
+        list.innerHTML = data.map((item, index) => {
+            const rankClass = index < 3 ? `top-3 rank-${index + 1}` : '';
+            const rankIcon = index < 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`;
+
+            // Systematic logo/avatar rendering
+            const imgPath = item.logo || item.avatar;
+            let avatarHtml = '';
+
+            if (imgPath) {
+                avatarHtml = `<img src="${imgPath}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                              <span class="lb-avatar-letter" style="display:none">${item.name ? item.name[0] : '?'}</span>`;
+            } else {
+                avatarHtml = `<span class="lb-avatar-letter">${item.name ? item.name[0] : '?'}</span>`;
+            }
+
+            let metaHtml = '';
+            if (type === 'student') {
+                metaHtml = `<span class="score-val">${item.xp || 0} XP</span><span class="score-label">Points</span>`;
+            } else if (type === 'contributor') {
+                metaHtml = `<span class="score-val">${item.uploads || 0}</span><span class="score-label">Uploads</span>`;
+            } else if (type === 'college') {
+                metaHtml = `<span class="score-val">${formatNumber(item.views || 0)}</span><span class="score-label">Total Views</span>`;
+            }
+
+            return `
+                <div class="lb-entry ${rankClass}">
+                    <div class="lb-rank rank-${index + 1}">${rankIcon}</div>
+                    
+                    <div class="lb-user-content">
+                        <div class="lb-avatar-container">
+                            ${avatarHtml}
+                            ${index === 0 ? '<div class="lb-badge">👑</div>' : ''}
+                        </div>
+                        <div class="lb-info">
+                            <h4>${item.name || "Anonymous"}</h4>
+                            <p>${type === 'college' ? (item.city || 'University') : (item.collegeName || "Student")}</p>
+                        </div>
                     </div>
-                    <div class="lb-info">
-                        <h4>${item.name}</h4>
-                        <p>${type === 'college' ? item.students + ' Students' : 'Medi-Caps University'}</p>
+
+                    <div class="lb-score">
+                        ${metaHtml}
                     </div>
                 </div>
-                <div class="lb-score">
-                    ${metaHtml}
-                </div>
-            </div>
-        `;
-    }).join('');
+            `;
+        }).join('');
+    });
 }
 
 function startActivityFeed() {

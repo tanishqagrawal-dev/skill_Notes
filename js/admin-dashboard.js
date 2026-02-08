@@ -79,8 +79,9 @@ function initTabs() {
 
     // Rebuild Sidebar for Admin
     const items = [
-        { id: 'admin-console', icon: '🚨', label: 'Command Center' },
-        { id: 'verification-hub', icon: '🛡️', label: 'Global Moderation' },
+        { id: 'admin-console', icon: '📊', label: 'Overview' },
+        { id: 'moderation', icon: '🛡️', label: 'Moderation Hub' },
+        { id: 'coadmins', icon: '👥', label: 'Manage Co-Admins' },
         { id: 'settings', icon: '⚙️', label: 'Settings' }
     ];
 
@@ -106,27 +107,14 @@ function renderTabContent(tabId) {
     const contentArea = document.getElementById('tab-content');
     if (!contentArea) return;
 
-    if (tabId === 'admin-console') {
+    if (tabId === 'admin-console' || tabId === 'moderation' || tabId === 'coadmins') {
         if (window.AdminConsole) {
-            contentArea.innerHTML = window.AdminConsole.render();
-            // Re-bind listeners if needed
+            if (tabId === 'admin-console') contentArea.innerHTML = window.AdminConsole.render();
+            else window.AdminConsole.switchView(tabId);
             setTimeout(() => window.AdminConsole.init(), 100);
         } else {
             contentArea.innerHTML = "<p>Loading Admin Console...</p>";
         }
-    } else if (tabId === 'verification-hub') {
-        // We can reuse the moderation logic from AdminConsole or keep it separate
-        // For strictness, let's create a simple wrapper or reuse AdminConsole logic
-        contentArea.innerHTML = `
-            <div class="tab-pane active fade-in" style="padding: 2rem;">
-                <h1 class="font-heading">🛡️ Global <span class="gradient-text">Moderation</span></h1>
-                <p style="color: var(--text-dim); margin-bottom: 2rem;">Review pending notes from ALL colleges.</p>
-                <div id="admin-global-queue">Loading...</div>
-            </div>
-        `;
-        // We need a renderQueue function. For now, simple placeholder.
-        // Ideally, this should be in AdminConsole too.
-        if (window.AdminConsole) setTimeout(renderGlobalQueue, 100);
     } else if (tabId === 'settings') {
         contentArea.innerHTML = window.renderSettings ? window.renderSettings() : 'Loading settings...';
     }

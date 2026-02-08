@@ -155,78 +155,124 @@ function updateLeaderboardUI(type, timeframe) {
     const list = document.getElementById('lb-list-container');
     if (!list) return;
 
-    // Get Data
-    let data = LeaderboardData[type] || [];
+    const { db, collection, query, orderBy, limit, onSnapshot } = window.firebaseServices || {};
+    if (!db) {
+        list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">Syncing with Cloud Hub...</p>';
+        return;
+    }
 
-    // Simulate Score Variation based on time filter
-    if (timeframe === 'today') data = data.map(d => ({ ...d, score: Math.round(d.score * 0.1) }));
-    if (timeframe === 'week') data = data.map(d => ({ ...d, score: Math.round(d.score * 0.5) }));
+    // Determine collection and ordering based on type
+    let colRef;
+    let orderField;
 
-    // Sort
-    data.sort((a, b) => b.score - a.score);
+    if (type === 'college') {
+        colRef = collection(db, "colleges");
+        orderField = "views"; // Assume views for colleges
+    } else {
+        colRef = collection(db, "users");
+        orderField = type === 'student' ? "xp" : "uploads";
+    }
 
-    list.innerHTML = data.map((item, index) => {
-        const rankClass = index < 3 ? `top-3 rank-${index + 1}` : '';
-        const rankDisplay = `#${index + 1}`;
-        const avatar = item.avatar ? `<img src="${item.avatar}">` : (item.name[0]);
-        const logo = item.logo ? item.logo : (item.name[0]);
+    const q = query(colRef, orderBy(orderField, "desc"), limit(20));
 
-        // Different meta based on type
-        let metaHtml = '';
-        if (type === 'student') metaHtml = `<span class="score-val">${item.score} XP</span><span class="score-label">${item.views} views</span>`;
-        if (type === 'contributor') metaHtml = `<span class="score-val">${item.score} pts</span><span class="score-label">${item.downloads} downloads</span>`;
-        if (type === 'college') metaHtml = `<span class="score-val">${formatNumber(item.views)}</span><span class="score-label">total views</span>`;
+    onSnapshot(q, (snapshot) => {
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-        return `
-            <div class="lb-entry ${rankClass}">
-                <div class="lb-rank ${rankClass}">${index < 3 ? ['🥇', '🥈', '🥉'][index] : rankDisplay}</div>
-                <div class="lb-user">
-                    <div class="lb-avatar">${type === 'college' ? logo : avatar} 
-                        ${index === 0 ? '<div class="badge-mini">👑</div>' : ''}
+        if (data.length === 0) {
+            list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">No rankings found yet. Be the first!</p>';
+            return;
+        }
+
+        // --- NEW: Update "Your Standing" Widget ---
+        if (window.currentUser) {
+            const myRank = data.findIndex(item => item.id === window.currentUser.id) + 1;
+            const myScore = data.find(item => item.id === window.currentUser.id)?.[orderField] || 0;
+
+            const valueEls = document.querySelectorAll('.personal-rank-card .value');
+            if (valueEls && valueEls.length >= 3) {
+                if (type === 'student') {
+                    const rankEls = document.querySelectorAll('.personal-rank-card .rank-stat .value');
+                    if (rankEls[0]) rankEls[0].innerText = myRank > 0 ? `#${myRank}` : 'N/A';
+                } else if (type === 'contributor') {
+                    const rankEls = document.querySelectorAll('.personal-rank-card .rank-stat .value');
+                    if (rankEls[1]) rankEls[1].innerText = myRank > 0 ? `#${myRank}` : 'N/A';
+                }
+                valueEls[2].innerText = `${myScore.toLocaleString()} ${type === 'student' ? 'XP' : 'pts'}`;
+            }
+        }
+
+        list.innerHTML = data.map((item, index) => {
+            const rankClass = index < 3 ? `top-3 rank-${index + 1}` : '';
+            const rankIcon = index < 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`;
+
+            // Systematic logo/avatar rendering
+            const imgPath = item.logo || item.avatar; // Prefer logo for institutions
+            let avatarHtml = '';
+
+            if (imgPath) {
+                // If path starts with .., adjust if needed (but currently in /pages/dashboard.html, so ../ is correct)
+                avatarHtml = `<img src="${imgPath}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                              <span class="lb-avatar-letter" style="display:none">${item.name ? item.name[0] : '?'}</span>`;
+            } else {
+                avatarHtml = `<span class="lb-avatar-letter">${item.name ? item.name[0] : '?'}</span>`;
+            }
+
+            let metaHtml = '';
+            if (type === 'student') {
+                metaHtml = `<span class="score-val">${item.xp || 0} XP</span><span class="score-label">Points</span>`;
+            } else if (type === 'contributor') {
+                metaHtml = `<span class="score-val">${item.uploads || 0}</span><span class="score-label">Uploads</span>`;
+            } else if (type === 'college') {
+                metaHtml = `<span class="score-val">${formatNumber(item.views || 0)}</span><span class="score-label">Total Views</span>`;
+            }
+
+            return `
+                <div class="lb-entry ${rankClass}">
+                    <div class="lb-rank rank-${index + 1}">${rankIcon}</div>
+                    
+                    <div class="lb-user-content">
+                        <div class="lb-avatar-container">
+                            ${avatarHtml}
+                            ${index === 0 ? '<div class="lb-badge">👑</div>' : ''}
+                        </div>
+                        <div class="lb-info">
+                            <h4>${item.name || "Anonymous"}</h4>
+                            <p>${type === 'college' ? (item.city || 'University') : (item.collegeName || "Student")}</p>
+                        </div>
                     </div>
-                    <div class="lb-info">
-                        <h4>${item.name}</h4>
-                        <p>${type === 'college' ? item.students + ' Students' : 'Medi-Caps University'}</p>
+
+                    <div class="lb-score">
+                        ${metaHtml}
                     </div>
                 </div>
-                <div class="lb-score">
-                    ${metaHtml}
-                </div>
-            </div>
-        `;
-    }).join('');
+            `;
+        }).join('');
+    });
 }
 
 function startActivityFeed() {
     const feed = document.getElementById('activity-feed');
     if (!feed) return;
 
-    const activities = [
-        { icon: '👁️', text: '<strong>Riya</strong> viewed Digital Electronics', time: 'Just now' },
-        { icon: '📤', text: '<strong>Ankit</strong> uploaded a new note', time: '2 mins ago' },
-        { icon: '🏆', text: '<strong>Tanishq</strong> reached Rank #1', time: '5 mins ago' },
-        { icon: '⬇️', text: '<strong>Rahul</strong> downloaded OS Unit 4', time: '12 mins ago' },
-        { icon: '🔥', text: 'New streak started by <strong>Sneha</strong>', time: '15 mins ago' }
-    ];
+    const { db, collection, query, orderBy, limit, onSnapshot } = window.firebaseServices || {};
+    if (!db) return;
 
-    // Initial fill
-    feed.innerHTML = activities.map(act => createActivityHTML(act)).join('');
-
-    // Add new activity every few seconds
-    setInterval(() => {
-        const randomAct = activities[Math.floor(Math.random() * activities.length)];
-        const el = document.createElement('div');
-        el.className = 'activity-item';
-        el.innerHTML = `
-            <div class="activity-icon">${randomAct.icon}</div>
-            <div class="activity-text">
-                ${randomAct.text}
-                <span class="activity-meta">Just now</span>
-            </div>
-        `;
-        feed.insertBefore(el, feed.firstChild);
-        if (feed.children.length > 6) feed.lastChild.remove();
-    }, 4000);
+    // Fetch latest notes (approved or not, just for activity feed)
+    const q = query(collection(db, "notes"), orderBy("createdAt", "desc"), limit(5));
+    onSnapshot(q, (snapshot) => {
+        feed.innerHTML = snapshot.docs.map(doc => {
+            const n = doc.data();
+            return `
+                <div class="activity-item">
+                    <div class="activity-icon">📤</div>
+                    <div class="activity-text">
+                        <strong>${n.uploaderName || 'Scholar'}</strong> uploaded ${n.title}
+                        <span class="activity-meta">Just now</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    });
 }
 
 function createActivityHTML(act) {

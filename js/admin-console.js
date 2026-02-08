@@ -69,6 +69,7 @@ window.AdminConsole = {
         if (viewId === 'overview') container.innerHTML = this.renderOverview();
         else if (viewId === 'coadmins') container.innerHTML = this.renderCoAdminManager();
         else if (viewId === 'colleges') container.innerHTML = this.renderCollegeAnalytics();
+        else if (viewId === 'moderation') this.renderModerationQueue();
         else if (viewId === 'support') {
             if (window.AdminSupport) {
                 if (!window.AdminSupport.unsubscribe) window.AdminSupport.init();
@@ -386,9 +387,10 @@ window.AdminConsole = {
             const all = [];
             snap.forEach(doc => all.push({ id: doc.id, ...doc.data() }));
             this.state.allNotes = all;
-            this.state.pendingNotes = all.filter(n => n.status === 'pending');
+            this.state.pendingNotes = all.filter(n => n.verified === false);
             this.refreshViewIfActive('Overview');
             this.refreshViewIfActive('Analytics');
+            this.refreshViewIfActive('Moderation');
         });
 
         this.bootstrapDefaultColleges();
@@ -402,6 +404,64 @@ window.AdminConsole = {
             // simple re-render triggers
             if (viewName === 'Overview') viewContent.innerHTML = this.renderOverview();
             if (viewName === 'Analytics') viewContent.innerHTML = this.renderCollegeAnalytics();
+            if (viewName === 'Moderation') this.renderModerationQueue();
+        }
+    },
+
+    renderModerationQueue: function () {
+        const container = document.getElementById('admin-view-content');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="glass-card" style="padding: 2rem;">
+                <h2 class="font-heading">🛡️ Global <span class="gradient-text">Moderation Queue</span></h2>
+                <p style="color: var(--text-dim); margin-bottom: 2rem;">Review and approve notes from all colleges.</p>
+                <div id="pending-notes-list" style="display: grid; gap: 1rem;">
+                    ${this.state.pendingNotes.length === 0 ? '<p style="text-align:center; padding: 2rem;">No pending notes. Well done!</p>' :
+                this.state.pendingNotes.map(n => `
+                        <div class="glass-card" style="padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-glass);">
+                            <div>
+                                <h4 style="color: white; margin: 0;">${n.title}</h4>
+                                <div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 0.3rem;">
+                                    ${n.collegeName || n.college} • ${n.subject || n.subjectId} • ${n.uploadedBy}
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 0.8rem;">
+                                <button class="btn btn-sm btn-primary" onclick="AdminConsole.approveNote('${n.id}')">Approve</button>
+                                <button class="btn btn-sm btn-ghost" style="color: #ff4757; border-color: rgba(255, 71, 87, 0.2);" onclick="AdminConsole.rejectNote('${n.id}')">Reject</button>
+                                <a href="${n.fileUrl || n.driveLink}" target="_blank" class="btn btn-sm btn-ghost">Preview</a>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    },
+
+    approveNote: async function (noteId) {
+        const { db, doc, updateDoc } = window.firebaseServices;
+        try {
+            await updateDoc(doc(db, "notes", noteId), {
+                verified: true,
+                status: 'approved',
+                approvedBy: window.currentUser?.email || 'Admin'
+            });
+            if (window.showToast) window.showToast("Note approved and live!");
+        } catch (e) {
+            console.error("Approval failed:", e);
+            alert("Error: " + e.message);
+        }
+    },
+
+    rejectNote: async function (noteId) {
+        if (!confirm("Are you sure you want to reject this note? It will be deleted.")) return;
+        const { db, doc, deleteDoc } = window.firebaseServices;
+        try {
+            await deleteDoc(doc(db, "notes", noteId));
+            if (window.showToast) window.showToast("Note rejected and removed.");
+        } catch (e) {
+            console.error("Rejection failed:", e);
+            alert("Error: " + e.message);
         }
     },
 

@@ -55,11 +55,11 @@ window.uploadNoteToFirebase = async function (file, metadata) {
                             url: downloadURL,      // Compatibility
                             fileType: file.type || 'application/pdf',
                             fileName: file.name,
-                            status: metadata.status || 'approved',
-                            uploadedBy: metadata.uploadedBy || currentUser.id || window.firebaseServices?.auth?.currentUser?.uid,
+                            status: metadata.status || 'pending',
+                            uploadedBy: currentUser.id || window.firebaseServices?.auth?.currentUser?.uid,
                             uploaderName: metadata.uploaderName || metadata.uploader || currentUser.name || "Scholar",
-                            verified: metadata.verified !== undefined ? metadata.verified : true, // Default true
-                            approvedBy: metadata.approvedBy || 'system',
+                            verified: false, // Force verification for all
+                            approvedBy: 'pending',
                             views: 0,
                             downloads: 0,
                             likes: 0,
@@ -69,9 +69,18 @@ window.uploadNoteToFirebase = async function (file, metadata) {
                         delete docData.targetCollection;
 
                         console.log("📝 Saving metadata to Firestore...", targetColl);
-                        console.table(docData);
                         await addDoc(collection(db, targetColl), docData);
-                        console.log("✅ Firestore save successful!");
+
+                        // XP Logic: Increment Uploads and XP (+20)
+                        const userRef = doc(db, "users", docData.uploadedBy);
+                        const { increment: fireIncrement } = window.firebaseServices;
+                        await updateDoc(userRef, {
+                            xp: fireIncrement(20),
+                            uploads: fireIncrement(1),
+                            notesCount: fireIncrement(1)
+                        });
+
+                        console.log("✅ Firestore save & XP update successful!");
                         resolve(docData);
                     } catch (err) {
                         console.error("❌ Error in Firestore save phase:", err);

@@ -23,9 +23,11 @@ service cloud.firestore {
 
     // --- Users Collection ---
     match /users/{userId} {
-      allow read: if isSignedIn();
+      allow read: if true; // Needed for leaderboard
       allow create: if isSignedIn() && (request.auth.uid == userId);
-      allow update: if hasRole('admin') || hasRole('superadmin') || (request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'college']));
+      allow update: if hasRole('admin') || hasRole('superadmin') || 
+                   (request.auth.uid == userId && 
+                    request.resource.data.diff(resource.data).affectedKeys().hasAny(['xp', 'uploads', 'downloads', 'notesCount', 'name', 'avatar']));
       allow delete: if hasRole('admin') || hasRole('superadmin');
     }
 
@@ -37,9 +39,8 @@ service cloud.firestore {
 
     // --- Consolidated Notes Collection ---
     match /notes/{noteId} {
-      // Access Rule: Everyone can read approved notes. 
-      // Uploaders and authorized admins (Admin/SuperAdmin/College Co-Admin) can see their specific context.
-      allow read: if (resource.data.status == "approved") || 
+      // Access Rule: Everyone can read verified notes.
+      allow read: if (resource.data.verified == true) || 
                    (isSignedIn() && (
                      hasRole('admin') || 
                      hasRole('superadmin') || 
@@ -50,14 +51,13 @@ service cloud.firestore {
       // Creation Rule: Signed in users can upload
       allow create: if isSignedIn();
 
-      // Update Rule: Only Admin or the designated Co-Admin for that specific college
-      allow update: if hasRole('admin') || hasRole('superadmin') || (
-                      hasRole('coadmin') && 
-                      getUserData().collegeId == resource.data.collegeId &&
-                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'approvedBy', 'rejectionReason'])
-                    );
+      // Update Rule: Increments (views/downloads) allowed for all, full edit for admins/uploader
+      allow update: if hasRole('admin') || hasRole('superadmin') || 
+                    (hasRole('coadmin') && getUserData().collegeId == resource.data.collegeId) ||
+                    (resource.data.uploadedBy == request.auth.uid) ||
+                    (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views', 'downloads', 'likes', 'likedBy']));
 
-      allow delete: if hasRole('admin') || hasRole('superadmin');
+      allow delete: if hasRole('admin') || hasRole('superadmin') || resource.data.uploadedBy == request.auth.uid;
     }
 
     // --- Role Invites ---

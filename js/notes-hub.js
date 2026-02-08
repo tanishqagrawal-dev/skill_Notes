@@ -46,17 +46,51 @@ function getFirebase() {
     return window.firebaseServices || {};
 }
 
+async function loadGlobalVerifiedNotes() {
+    const list = document.getElementById('notes');
+    if (!list) return;
+
+    const { db, collection, query, where, getDocs, orderBy } = getFirebase();
+    if (!db) return;
+
+    try {
+        const q = query(
+            collection(db, "notes"),
+            orderBy("createdAt", "desc")
+        );
+
+        const snap = await getDocs(q);
+        const notes = [];
+        snap.forEach(doc => notes.push({ id: doc.id, ...doc.data() }));
+
+        if (notes.length === 0) {
+            list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">No verified global notes yet.</p>';
+        } else {
+            list.innerHTML = renderDetailedNotes(notes, 'notes');
+        }
+    } catch (err) {
+        console.error("Global Notes Hub: Failed to fetch verified notes:", err);
+        list.innerHTML = '<p style="text-align:center; padding: 2rem; color: #ff4757;">Error loading global notes.</p>';
+    }
+}
+
 function initNotesData() {
-    const { db, collection, query, orderBy, onSnapshot } = getFirebase();
+    const { db, collection, query, where, orderBy, onSnapshot } = getFirebase();
     if (!db) {
         console.warn("NotesHub: Firebase not loaded. Using fallback/empty state.");
         return;
     }
 
-    const q = query(collection(db, "notes"), where("status", "==", "approved"), orderBy("createdAt", "desc"));
+    // Load Global Verified Feed
+    loadGlobalVerifiedNotes();
+
+    const q = query(collection(db, "notes"), orderBy("createdAt", "desc"));
     onSnapshot(q, (snapshot) => {
         NotesDB = snapshot.docs
             .map(doc => ({ id: doc.id, ...doc.data() }));
+
+        // Refresh global feed on updates
+        loadGlobalVerifiedNotes();
 
         // If we are currently viewing the final list, refresh it to show new/updated notes
         if (document.getElementById('final-notes-view').style.display === 'block') {
@@ -383,11 +417,7 @@ window.fetchNotesBySubject = async function (subjectId, tabType = 'notes') {
     try {
         const targetColl = "notes";
         const approvedQ = query(
-            collection(db, targetColl),
-            where("collegeId", "==", selState.college.id),
-            where("subjectId", "==", subjectId),
-            where("type", "==", tabType),
-            where("status", "==", "approved")
+            collection(db, targetColl)
         );
 
         const snap = await getDocs(approvedQ);

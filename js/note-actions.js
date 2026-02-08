@@ -19,6 +19,14 @@ window.incrementNoteView = async function (noteId) {
             views: increment(1)
         });
 
+        // XP Logic: Increment Current User Views Activity
+        if (window.currentUser && window.currentUser.id) {
+            const userRef = doc(db, "users", window.currentUser.id);
+            await updateDoc(userRef, {
+                views: increment(1)
+            });
+        }
+
         // Also update global counters
         if (window.statServices && window.statServices.trackPageView) {
             window.statServices.trackPageView();
@@ -78,6 +86,16 @@ window.updateNoteStat = async function (noteId, type) {
             await updateDoc(noteRef, {
                 downloads: increment(1)
             });
+
+            // XP Logic: Increment Current User XP (+2)
+            if (window.currentUser && window.currentUser.id) {
+                const userRef = doc(db, "users", window.currentUser.id);
+                await updateDoc(userRef, {
+                    xp: increment(2),
+                    downloads: increment(1)
+                });
+                console.log("⭐ XP +2 awarded for download");
+            }
 
             // Also update global counters
             if (window.statServices && window.statServices.trackDownload) {
