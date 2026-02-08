@@ -2533,9 +2533,10 @@ function renderInstantStaticNotes(notes) {
         </style>
     `;
 
-    const createNoteCard = (unit, title, url, likes = 8, views = 124, idx = 0) => {
+    const createNoteCard = (unit, title, url, likes = 8, views = 124, idx = 0, id = '') => {
+        const noteId = id || `static-${unit.replace(/\s+/g, '-').toLowerCase()}-${title.replace(/\s+/g, '-').toLowerCase()}`;
         return `
-            <div class="note-card card-reveal" style="animation-delay: ${idx * 0.1}s;">
+            <div class="note-card card-reveal" data-note-id="${noteId}" style="animation-delay: ${idx * 0.1}s;">
                 <div class="note-card-top">
                     <div class="note-icon-box">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -2558,7 +2559,7 @@ function renderInstantStaticNotes(notes) {
                             </span>
                         </div>
                         <div class="note-interactions">
-                            <button class="int-btn like-btn" onclick="let s=this.querySelector('.count'); s.innerText = parseInt(s.innerText)+1; this.classList.add('active'); event.stopPropagation();">
+                            <button class="int-btn like-btn" onclick="toggleNoteLike('${noteId}'); event.stopPropagation();">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                                 <span class="count">${likes}</span>
                             </button>
@@ -2570,7 +2571,7 @@ function renderInstantStaticNotes(notes) {
                 </div>
 
                 <div class="note-card-bottom">
-                    <a href="${url}" target="_blank" class="download-btn-premium" onclick="let v=this.closest('.note-card').querySelector('.views .count'); if(v) v.innerText = parseInt(v.innerText)+1;">
+                    <a href="${url}" target="_blank" class="download-btn-premium" onclick="updateNoteStat('${noteId}', 'download');">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         DOWNLOAD
                     </a>
@@ -2578,7 +2579,14 @@ function renderInstantStaticNotes(notes) {
             </div>`;
     };
 
-    const html = notes.map((n, idx) => createNoteCard(n.unit || 'UNIT 1', n.title, n.url, n.likes, n.views, idx)).join('');
+    const html = notes.map((n, idx) => createNoteCard(n.unit || 'UNIT 1', n.title, n.url, n.likes, n.views, idx, n.id)).join('');
+
+    // Trigger realtime Listeners after a small delay to ensure DOM is ready
+    setTimeout(() => {
+        if (typeof attachNoteRealtimeListeners === 'function') attachNoteRealtimeListeners('tab-content');
+        // Also trigger view increments
+        notes.forEach(n => incrementNoteView(n.id || `static-${(n.unit || 'UNIT 1').toLowerCase()}-${(n.title || '').toLowerCase()}`));
+    }, 100);
 
     return futuristicStyles + html;
 }
@@ -3151,9 +3159,10 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
     `;
 
     const cardsHTML = filtered.map((n, idx) => {
-        const createNoteCard = (unit, title, url, likes = 8, views = 124, idx = 0) => {
+        const createNoteCard = (unit, title, url, likes = 8, views = 124, idx = 0, id = '') => {
+            const noteId = id || `unit-${unit.replace(/\s+/g, '-').toLowerCase()}-${title.replace(/\s+/g, '-').toLowerCase()}`;
             return `
-            <div class="note-card card-reveal" style="animation-delay: ${idx * 0.1}s;">
+            <div class="note-card card-reveal" data-note-id="${noteId}" style="animation-delay: ${idx * 0.1}s;">
                 <div class="note-card-left">
                     <div class="note-icon-box">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -3176,7 +3185,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                             </span>
                         </div>
                         <div class="note-interactions">
-                            <button class="int-btn like-btn" onclick="let s=this.querySelector('.count'); s.innerText = parseInt(s.innerText)+1; this.classList.add('active'); event.stopPropagation();">
+                            <button class="int-btn like-btn" onclick="toggleNoteLike('${noteId}'); event.stopPropagation();">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                                 <span class="count">${likes}</span>
                             </button>
@@ -3187,24 +3196,25 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                     </div>
                 </div>
 
-                <a href="${url}" target="_blank" class="download-btn-premium" onclick="let v=this.closest('.note-card').querySelector('.views .count'); if(v) v.innerText = parseInt(v.innerText)+1;">
+                <a href="${url}" target="_blank" class="download-btn-premium" onclick="updateNoteStat('${noteId}', 'download');">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                     DOWNLOAD
                 </a>
             </div>`;
         };
 
-        return createNoteCard(n.unit || 'UNIT 1', n.title, n.fileUrl || n.driveLink, n.likes || 12, n.views || 48, idx);
+        return createNoteCard(n.unit || 'UNIT 1', n.title, n.fileUrl || n.driveLink, n.likes || 12, n.views || 48, idx, n.id);
     }).join('');
 
     grid.innerHTML = futuristicStyles + `<div class="notes-list-container-pro">${cardsHTML}</div>`;
 
-    // Trigger unique view tracking
-    filtered.forEach(n => {
-        if (typeof window.incrementNoteView === 'function') {
-            window.incrementNoteView(n.id);
-        }
-    });
+    setTimeout(() => {
+        if (typeof attachNoteRealtimeListeners === 'function') attachNoteRealtimeListeners('tab-content');
+        filtered.forEach(n => {
+            const noteId = n.id || `unit-${(n.unit || 'unit-1').toLowerCase()}-${(n.title || '').toLowerCase()}`;
+            if (typeof window.incrementNoteView === 'function') window.incrementNoteView(noteId);
+        });
+    }, 150);
 
     return grid.innerHTML;
 }

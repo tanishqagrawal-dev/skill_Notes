@@ -166,6 +166,34 @@ window.selectSemester = function (sem) {
     renderSubjectStep();
 }
 
+window.currentStaticNotes = [];
+
+window.filterNotes = function (query) {
+    const container = document.getElementById('resource-list-container');
+    if (!container) return;
+
+    const term = query.toLowerCase();
+    const filtered = window.currentStaticNotes.filter(n =>
+        (n.title && n.title.toLowerCase().includes(term)) ||
+        (n.unit && n.unit.toLowerCase().includes(term)) ||
+        (n.subjectName && n.subjectName.toLowerCase().includes(term))
+    );
+
+    if (filtered.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 4rem; opacity: 0.7;">
+                <h3>No matches found</h3>
+                <p>Try a different keyword</p>
+            </div>`;
+    } else {
+        container.innerHTML = renderStaticNotes(filtered);
+        // Re-attach listeners
+        setTimeout(() => {
+            if (typeof attachNoteRealtimeListeners === 'function') attachNoteRealtimeListeners('resource-list-container');
+        }, 50);
+    }
+};
+
 // STEP 5: Subject
 window.renderSubjectStep = function () {
     ensureWizardVisible();
@@ -215,6 +243,7 @@ window.showNotes = function (activeTab = 'notes') {
 
     // Lookup static notes
     const staticNotes = globalNotes[selState.college.id]?.[selState.subject.name] || [];
+    window.currentStaticNotes = staticNotes;
 
     view.innerHTML = `
         <style>
@@ -277,10 +306,18 @@ window.showNotes = function (activeTab = 'notes') {
                 </div>
             </div>
 
-            <div class="subject-tabs-nav">
-                <div class="subject-tab ${activeTab === 'notes' ? 'active' : ''}" onclick="window.switchSubjectTab('notes')">Notes</div>
-                <div class="subject-tab ${activeTab === 'pyqs' ? 'active' : ''}" onclick="window.switchSubjectTab('pyqs')">PYQs</div>
-                <div class="subject-tab ${activeTab === 'formula' ? 'active' : ''}" onclick="window.switchSubjectTab('formula')">Formula Sheets</div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div class="subject-tabs-nav" style="margin-bottom: 0;">
+                    <div class="subject-tab ${activeTab === 'notes' ? 'active' : ''}" onclick="window.switchSubjectTab('notes')">Notes</div>
+                    <div class="subject-tab ${activeTab === 'pyqs' ? 'active' : ''}" onclick="window.switchSubjectTab('pyqs')">PYQs</div>
+                    <div class="subject-tab ${activeTab === 'formula' ? 'active' : ''}" onclick="window.switchSubjectTab('formula')">Formula Sheets</div>
+                </div>
+                <div style="position: relative; min-width: 250px;">
+                    <input type="text" id="search-notes" placeholder="Search in ${selState.subject.name}..." 
+                           oninput="window.filterNotes(this.value)"
+                           style="width: 100%; padding: 10px 15px; padding-right: 40px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; color: white; outline: none; transition: 0.3s;">
+                    <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); opacity: 0.5;">🔍</span>
+                </div>
             </div>
 
             <div class="resource-section">
@@ -503,9 +540,10 @@ function renderStaticNotes(notes) {
 
     const cards = notes.map((n, idx) => {
         // Reusable card template logic
-        const createNoteCard = (unit, title, url, likes = 8, views = 124) => {
+        const createNoteCard = (unit, title, url, likes = 8, views = 124, id = '') => {
+            const noteId = id || `hub-${unit.replace(/\s+/g, '-').toLowerCase()}-${title.replace(/\s+/g, '-').toLowerCase()}`;
             return `
-            <div class="note-card card-reveal" style="animation-delay: ${idx * 0.1}s;">
+            <div class="note-card card-reveal" data-note-id="${noteId}" style="animation-delay: ${idx * 0.1}s;">
                 <div class="note-card-left">
                     <div class="note-icon-box">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -528,7 +566,7 @@ function renderStaticNotes(notes) {
                             </span>
                         </div>
                         <div class="note-interactions">
-                            <button class="int-btn like-btn" onclick="let s=this.querySelector('.count'); s.innerText = parseInt(s.innerText)+1; this.classList.add('active'); event.stopPropagation();">
+                            <button class="int-btn like-btn" onclick="toggleNoteLike('${noteId}'); event.stopPropagation();">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                                 <span class="count">${likes}</span>
                             </button>
@@ -539,15 +577,23 @@ function renderStaticNotes(notes) {
                     </div>
                 </div>
 
-                <a href="${url}" target="_blank" class="download-btn-premium" onclick="let v=this.closest('.note-card').querySelector('.views .count'); if(v) v.innerText = parseInt(v.innerText)+1;">
+                <a href="${url}" target="_blank" class="download-btn-premium" onclick="updateNoteStat('${noteId}', 'download');">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                     DOWNLOAD
                 </a>
             </div>`;
         };
 
-        return createNoteCard(n.unit || `UNIT ${idx + 1}`, n.title || n.subjectName, n.url || n.fileUrl || n.driveLink);
+        return createNoteCard(n.unit || `UNIT ${idx + 1}`, n.title || n.subjectName, n.url || n.fileUrl || n.driveLink, n.likes || 12, n.views || 48, n.id);
     }).join('');
+
+    setTimeout(() => {
+        if (typeof attachNoteRealtimeListeners === 'function') attachNoteRealtimeListeners('final-notes-view');
+        notes.forEach(n => {
+            const noteId = n.id || `hub-${(n.unit || 'unit-1').toLowerCase()}-${(n.title || '').toLowerCase()}`;
+            if (typeof window.incrementNoteView === 'function') window.incrementNoteView(noteId);
+        });
+    }, 150);
 
     return futuristicStyles + cards;
 }

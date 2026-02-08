@@ -35,6 +35,13 @@ export const globalNotes = {
                 title: "Advanced Java – Unit 3",
                 url: "https://firebasestorage.googleapis.com/v0/b/skill-notes.firebasestorage.app/o/notes_uploads%2Fmedicaps%2FAdvance%20Java%20Programming%2FAJP-Unit3.pdf?alt=media&token=e8575cd6-650c-4600-8bf9-9959ac064c5e"
             }
+        ],
+        "DBMS": [
+            {
+                unit: "UNIT 1",
+                title: "DBMS – Unit 1",
+                url: "https://firebasestorage.googleapis.com/v0/b/skill-notes.firebasestorage.app/o/notes_uploads%2Fmedicaps%2FDBMS%2FDBMS%20UNIT-1.ppt?alt=media&token=81cf2410-0243-4f13-9f2d-22fc68276cfb"
+            }
         ]
     }
 };
