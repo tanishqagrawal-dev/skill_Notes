@@ -1906,15 +1906,39 @@ window.renderCollegeStep = function () {
     const container = document.getElementById('explorer-content');
 
     // Helper to generate HTML for cards
-    const getCardsHTML = (items) => items.map(c => `
-        <div class="selection-card glass-card fade-in" onclick="selectCollege('${c.id}', '${c.name}')">
-            <div class="card-icon" style="width: 80px; height: 80px; margin: 0 auto 1.5rem auto; background: white; border-radius: 12px; padding: 10px; display: flex; align-items: center; justify-content: center;">
+    const getCardsHTML = (items) => {
+        // Sort: Medicaps first
+        const sortedItems = [...items].sort((a, b) => {
+            const isMedicapsA = (a.id === 'medicaps' || a.name.toLowerCase().includes('medicaps'));
+            const isMedicapsB = (b.id === 'medicaps' || b.name.toLowerCase().includes('medicaps'));
+            if (isMedicapsA && !isMedicapsB) return -1;
+            if (!isMedicapsA && isMedicapsB) return 1;
+            return 0;
+        });
+
+        return sortedItems.map(c => {
+            const isMedicaps = (c.id === 'medicaps' || c.name.toLowerCase().includes('medicaps'));
+            const isLocked = !isMedicaps;
+
+            return `
+        <div class="selection-card glass-card fade-in" 
+             style="position: relative; ${isLocked ? 'opacity: 0.7; cursor: not-allowed;' : ''}"
+             onclick="${isLocked ? '' : `selectCollege('${c.id}', '${c.name}')`}">
+             
+            ${isLocked ? `
+                <div style="position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.6); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; color: #fff; display: flex; align-items: center; gap: 0.3rem; border: 1px solid rgba(255,255,255,0.1);">
+                    🔒 <span style="font-weight: 500;">Coming Soon</span>
+                </div>
+            ` : ''}
+
+            <div class="card-icon" style="width: 80px; height: 80px; margin: 0 auto 1.5rem auto; background: white; border-radius: 12px; padding: 10px; display: flex; align-items: center; justify-content: center; ${isLocked ? 'filter: grayscale(1); opacity: 0.8;' : ''}">
                 <img src="${c.logo}" alt="${c.name}" style="width: 100%; height: 100%; object-fit: contain;">
             </div>
-            <h3 class="font-heading" style="margin-top: 1.5rem;">${c.name}</h3>
-            <p style="color: var(--text-dim); margin-top: 0.5rem;">Verified Academic Partner</p>
+            <h3 class="font-heading" style="margin-top: 1.5rem; ${isLocked ? 'color: var(--text-dim);' : ''}">${c.name}</h3>
+            <p style="color: var(--text-dim); margin-top: 0.5rem;">${isLocked ? 'Integration in progress' : 'Verified Academic Partner'}</p>
         </div>
-    `).join('');
+    `}).join('');
+    };
 
     // Attach filter function locally
     window.handleCollegeSearch = (input) => {
