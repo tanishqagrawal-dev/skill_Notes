@@ -1935,7 +1935,6 @@ window.renderCollegeStep = function () {
                 <img src="${c.logo}" alt="${c.name}" style="width: 100%; height: 100%; object-fit: contain;">
             </div>
             <h3 class="font-heading" style="margin-top: 1.5rem; ${isLocked ? 'color: var(--text-dim);' : ''}">${c.name}</h3>
-            <p style="color: var(--text-dim); margin-top: 0.5rem;">${isLocked ? 'Integration in progress' : 'Verified Academic Partner'}</p>
         </div>
     `}).join('');
     };
