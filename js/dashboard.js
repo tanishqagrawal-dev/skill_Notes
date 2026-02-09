@@ -1,4 +1,5 @@
 import { globalNotes } from "../data/globalNotes.js";
+import { RoutingSystem } from "./routing.js";
 // stats functionality is managed via window.statServices
 // --- FIREBASE SERVICES ---
 // Fallback if firebaseServices failed to load (e.g. CORS or network error)
@@ -945,9 +946,13 @@ function renderTabContent(tabId) {
             console.log("➡️ Rendering Overview...");
             contentArea.innerHTML = renderOverview();
         } else if (tabId === 'notes') {
-            selState = { college: null, branch: null, year: null, subject: null };
+            selState.college = null; selState.branch = null; selState.year = null; selState.subject = null; selState.semester = null;
             contentArea.innerHTML = renderNotesHub();
             renderCollegeStep();
+            // Force URL update to reflect /notes tab entry in address bar
+            if (typeof RoutingSystem !== 'undefined') {
+                RoutingSystem.updateURL(selState);
+            }
         } else if (tabId === 'planner') {
             if (window.lockOverlay) {
                 window.lockOverlay.show();
@@ -2083,6 +2088,7 @@ window.renderCollegeStep = function () {
 
 window.selectCollege = function (id, name) {
     selState.college = { id, name };
+    if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
     trackAnalytics('select_college', { id, name });
     renderStreamStep();
 };
@@ -2110,6 +2116,7 @@ window.renderStreamStep = function () {
 
 window.selectStream = function (id, name) {
     selState.stream = { id, name };
+    if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
     trackAnalytics('select_stream', { id, name });
     renderBranchStep();
 };
@@ -2153,6 +2160,7 @@ window.renderBranchStep = function () {
 
 window.selectBranch = function (id, name) {
     selState.branch = { id, name };
+    if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
     trackAnalytics('select_branch', { id, name });
     renderCombinedSemesterStep();
 };
@@ -2196,6 +2204,7 @@ window.renderCombinedSemesterStep = function () {
 window.selectCombinedSemester = function (sem, year) {
     selState.semester = sem;
     selState.year = year; // Implicitly set year
+    if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
     trackAnalytics('select_semester', { sem, year });
     renderSubjectStep();
 };
@@ -2234,6 +2243,7 @@ window.renderSubjectStep = function () {
 
 window.selectSubject = function (id, name) {
     selState.subject = { id, name };
+    if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
     trackAnalytics('select_subject', { id, name });
     showNotes();
 };
@@ -2271,6 +2281,7 @@ window.showNotes = function (activeTab = 'notes') {
                         </div>
                     </div>
                     <div style="display:flex; gap: 1rem;">
+                        <button class="btn btn-ghost" onclick="copyShareLink()" id="share-btn" style="white-space:nowrap; background: rgba(0, 242, 255, 0.1); color: var(--secondary); padding: 0.6rem 1.2rem; border-radius: 8px;">🔗 Share Subject</button>
                         <button class="btn btn-ghost" onclick="backToSubjectSelection()" style="white-space:nowrap; background: rgba(255,255,255,0.05); padding: 0.6rem 1.2rem; border-radius: 8px;">⬅ Back</button>
                     </div>
                 </div>

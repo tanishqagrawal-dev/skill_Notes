@@ -5,7 +5,7 @@ import { globalNotes } from "../data/globalNotes.js";
 import { RoutingSystem } from "./routing.js";
 
 // --- GLOBAL CONSTANTS ---
-const GlobalData = {
+const LocalData = {
     colleges: [
         { id: 'medicaps', name: 'Medi-Caps University', logo: '🏛️' },
         { id: 'lpu', name: 'LPU University', logo: '🏰' },
@@ -23,17 +23,16 @@ const GlobalData = {
             { id: 'Advanced Java Programming', name: 'Advanced Java Programming', icon: '☕', code: 'CS402', description: 'Core Advanced Java concepts: Collections, Multithreading, and Networking.' },
             { id: 'dbms', name: 'DBMS', icon: '🗄️', code: 'CS403', description: 'Relational models, SQL query optimization, and transaction control.' },
             { id: 'dsa', name: 'Data Structures', icon: '🌳', code: 'CS404', description: 'Trees, Graphs, and Advanced Algorithms.' }
-        ],
-        'aiml-2nd Year': [
-            { id: 'python', name: 'Python for AI', icon: '🐍', code: 'AL201', description: 'Numerical computing with NumPy and Data Science foundations.' }
-        ],
-        'cse-1st Year': [
-            { id: 'phy', name: 'Engineering Physics', icon: '⚛️', code: 'PH101', description: 'Quantum mechanics, Optics, and Semiconductors syllabus.' }
         ]
     }
 };
 
-let selState = { college: null, branch: null, year: null, subject: null };
+// Use Dashboard's GlobalData if available, otherwise fallback to local
+const GlobalData = window.GlobalData || LocalData;
+
+// Use Dashboard's selState if available, otherwise fallback to local
+let selState = window.selState || { college: null, branch: null, year: null, subject: null };
+if (!window.selState) window.selState = selState;
 
 // --- GLOBAL SHOWCASE LOGIC ---
 function renderGlobalShowcase() {
@@ -55,7 +54,22 @@ function renderGlobalShowcase() {
     }
 }
 
-// --- WIZARD RENDER LOGIC ---
+// --- SHARE LOGIC ---
+window.copyShareLink = async function () {
+    const btn = document.getElementById('share-btn');
+    const success = await RoutingSystem.copyShareLink(selState);
+    if (success) {
+        const originalText = btn.innerText;
+        btn.innerText = '✅ Link Copied!';
+        btn.style.background = 'rgba(0, 255, 127, 0.2)';
+        setTimeout(() => {
+            btn.innerText = originalText;
+            btn.style.background = 'rgba(0, 242, 255, 0.1)';
+        }, 2000);
+    }
+};
+
+// --- INITIALIZATION ---
 
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize from URL if deep link exists
@@ -123,7 +137,12 @@ function ensureWizardVisible() {
 
 // STEP 1: College
 window.renderCollegeStep = function () {
-    selState = { college: null, branch: null, year: null, subject: null };
+    // Reset properties to maintain reference
+    selState.college = null;
+    selState.branch = null;
+    selState.year = null;
+    selState.subject = null;
+    selState.semester = null;
     RoutingSystem.updateURL(selState);
     ensureWizardVisible();
     updateStepUI(0);
@@ -356,8 +375,9 @@ window.showNotes = function (activeTab = 'notes') {
                         </div>
                         <p class="subject-description">${subjectData.description}</p>
                     </div>
-                    <div>
-                        <button class="btn btn-ghost" onclick="renderCollegeStep()" style="white-space:nowrap; background: rgba(255,255,255,0.05); padding: 0.6rem 1.2rem; border-radius: 8px;">↺ Switch Subject</button>
+                    <div style="display: flex; gap: 0.8rem;">
+                        <button class="btn btn-ghost" onclick="copyShareLink()" id="share-btn" style="white-space:nowrap; background: rgba(0, 242, 255, 0.1); color: var(--secondary); padding: 0.6rem 1.2rem; border-radius: 8px;">🔗 Share Subject</button>
+                        <button class="btn btn-ghost" onclick="renderCollegeStep()" style="white-space:nowrap; background: rgba(255,255,255,0.05); padding: 0.6rem 1.2rem; border-radius: 8px;">↺ Switch</button>
                     </div>
                 </div>
             </div>

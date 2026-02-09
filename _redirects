@@ -1,0 +1,3 @@
+# Redirects for SKiL MATRiX Deep Linking
+/notes/*  /pages/notes.html  200
+/*        /index.html        200

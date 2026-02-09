@@ -15,7 +15,7 @@
             send_page_view: true
         });
     </script>
-    <link rel="shortcut icon" href="../assets/logo.jpg" type="image/jpeg">
+    <link rel="shortcut icon" href="/assets/logo.jpg" type="image/jpeg">
     <title>About Us | SKiL MATRiX Notes</title>
 
     <!-- Fonts -->
@@ -26,7 +26,7 @@
         rel="stylesheet">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="/css/main.css">
 
     <style>
         .legal-page-container {
@@ -480,7 +480,7 @@
 
     <!-- Navigation Hub -->
     <div id="navbar-container"></div>
-    <script src="../js/navbar.js"></script>
+    <script src="/js/navbar.js"></script>
 
     <div class="legal-page-container">
         <div class="legal-content-card" data-aos="fade-up">
@@ -503,8 +503,8 @@
                             <div class="profile-glow-container">
                                 <div class="profile-img-ring"></div>
                                 <div class="profile-img-frame">
-                                    <img src="../assets/tanishq.jpg" alt="Tanishq Agrawal"
-                                        onerror="this.src='../assets/logo.jpg'">
+                                    <img src="/assets/tanishq.jpg" alt="Tanishq Agrawal"
+                                        onerror="this.src='/assets/logo.jpg'">
                                 </div>
                             </div>
                             <h3 class="founder-name">Tanishq Agrawal</h3>
@@ -521,8 +521,7 @@
                                 <div class="profile-img-ring"
                                     style="background: linear-gradient(135deg, #00F2FF, #7B61FF) border-box;"></div>
                                 <div class="profile-img-frame" style="box-shadow: 0 0 30px rgba(0, 242, 255, 0.2);">
-                                    <img src="../assets/yash.jpg" alt="Yash Jain"
-                                        onerror="this.src='../assets/logo.jpg'">
+                                    <img src="/assets/yash.jpg" alt="Yash Jain" onerror="this.src='/assets/logo.jpg'">
                                 </div>
                             </div>
                             <h3 class="founder-name">Yash Jain</h3>
@@ -562,7 +561,7 @@
             tanishq: {
                 name: "Tanishq Agrawal",
                 role: "Frontend, UI/UX, Marketing & Features",
-                image: "../assets/tanishq.jpg",
+                image: "/assets/tanishq.jpg",
                 socials: {
                     github: "https://github.com/tanishqagrawal-dev",
                     linkedin: "https://linkedin.com/in/tanishq-agrawal-dev",
@@ -575,7 +574,7 @@
             yash: {
                 name: "Yash Jain",
                 role: "Cloud, Backend & Security",
-                image: "../assets/yash.jpg",
+                image: "/assets/yash.jpg",
                 socials: {
                     github: "https://github.com/",
                     linkedin: "https://linkedin.com/in/",
@@ -595,7 +594,7 @@
             body.innerHTML = `
                 <div class="modal-profile-header">
                     <div class="modal-profile-img">
-                        <img src="${data.image}" alt="${data.name}" onerror="this.src='../assets/logo.jpg'">
+                        <img src="${data.image}" alt="${data.name}" onerror="this.src='/assets/logo.jpg'">
                     </div>
                     <div class="modal-socials">
                         <a href="${data.socials.github}" target="_blank" class="social-btn" title="GitHub">
@@ -652,8 +651,8 @@
             AOS.init({ duration: 800, once: true });
         });
     </script>
-    <script src="../js/footer.js"></script>
-    <script src="../js/main.js"></script>
+    <script src="/js/footer.js"></script>
+    <script src="/js/main.js"></script>
 </body>
 
 </html>
