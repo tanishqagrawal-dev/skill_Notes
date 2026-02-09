@@ -12,24 +12,36 @@ function renderNavbar() {
     const container = document.getElementById('navbar-container');
     if (!container) return;
 
-    // Handles clean URLs and deep links by using absolute paths
-    const basePath = '/';
+    // Detect if we are in a subdirectory (e.g. /pages/) or root
+    // Simplest check: does the path contain '/pages/'?
+    const isPagesDir = window.location.pathname.includes('/pages/');
+    const basePath = isPagesDir ? '../' : '';
 
     let pathParts = window.location.pathname.split('/');
     let currentPage = pathParts.pop() || 'index.html';
     if (currentPage === '' || window.location.pathname.startsWith('/notes')) currentPage = 'notes.html';
 
-    // Helper to get correct absolute path for nav links
+    // Helper to get correct relative path for nav links
     const getLinkPath = (page) => {
-        if (page === 'index.html#features') return '/index.html#features';
-        if (page === 'index.html') return '/index.html';
-        return `/pages/${page}`;
+        // If we are at root and link is index.html, it's just index.html (or ./index.html)
+        // If we are at pages/ and link is index.html, it's ../index.html
+        if (page.startsWith('index.html')) {
+            return basePath + page;
+        }
+        // If we are at root and link is pages/something, it's pages/something
+        // If we are at pages/ and link is pages/something, it's something (sibling)
+        if (page.startsWith('pages/')) {
+            const targetPage = page.split('/')[1];
+            return isPagesDir ? targetPage : page;
+        }
+        // Fallback for other assets if needed
+        return basePath + page;
     };
 
     container.innerHTML = `
         <nav class="glass-nav">
             <div class="container nav-content">
-                <div class="logo" onclick="window.location.href='/'"
+                <div class="logo" onclick="window.location.href='${basePath}index.html'"
                     style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
                     <img src="${basePath}assets/logo.jpg" alt="SKiL MATRiX" style="height: 40px; border-radius: 50%;">
                     <span class="logo-text">SKiL MATRiX <span class="highlight"
@@ -37,9 +49,9 @@ function renderNavbar() {
                 </div>
                 <div class="nav-links" id="nav-links">
                     <a href="${getLinkPath('index.html#features')}" class="${currentPage === 'index.html' ? 'active' : ''}">Features</a>
-                    <a href="${getLinkPath('dashboard.html?tab=notes')}" class="${currentPage === 'dashboard.html' && window.location.search.includes('tab=notes') ? 'active' : ''}">Notes Hub</a>
-                    <a href="${getLinkPath('dashboard.html?tab=leaderboard')}" class="${currentPage === 'dashboard.html' && window.location.search.includes('tab=leaderboard') ? 'active' : ''}">Leaderboard</a>
-                    <a href="${getLinkPath('dashboard.html')}" class="${currentPage === 'dashboard.html' && !window.location.search.includes('tab=notes') && !window.location.search.includes('tab=leaderboard') ? 'active' : ''}">Dashboard</a>
+                    <a href="${getLinkPath('pages/dashboard.html')}?tab=notes" class="${currentPage === 'dashboard.html' && window.location.search.includes('tab=notes') ? 'active' : ''}">Notes Hub</a>
+                    <a href="${getLinkPath('pages/dashboard.html')}?tab=leaderboard" class="${currentPage === 'dashboard.html' && window.location.search.includes('tab=leaderboard') ? 'active' : ''}">Leaderboard</a>
+                    <a href="${getLinkPath('pages/dashboard.html')}" class="${currentPage === 'dashboard.html' && !window.location.search.includes('tab=notes') && !window.location.search.includes('tab=leaderboard') ? 'active' : ''}">Dashboard</a>
                     <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" target="_blank" rel="noopener noreferrer">Community</a>
                     <button class="btn btn-primary" id="navbar-auth-btn">Get Started</button>
                 </div>
@@ -53,19 +65,19 @@ function renderNavbar() {
 
         <!-- Mobile Bottom Nav -->
         <nav class="mobile-bottom-nav">
-            <a href="/" class="bottom-nav-item ${currentPage === 'index.html' ? 'active' : ''}">
+            <a href="${getLinkPath('index.html')}" class="bottom-nav-item ${currentPage === 'index.html' ? 'active' : ''}">
                 <span class="bottom-nav-icon">🏠</span>
                 <span>Home</span>
             </a>
-            <a href="${getLinkPath('dashboard.html?tab=notes')}" class="bottom-nav-item ${currentPage === 'dashboard.html' && window.location.search.includes('tab=notes') ? 'active' : ''}">
+            <a href="${getLinkPath('pages/dashboard.html')}?tab=notes" class="bottom-nav-item ${currentPage === 'dashboard.html' && window.location.search.includes('tab=notes') ? 'active' : ''}">
                 <span class="bottom-nav-icon">📚</span>
                 <span>Notes</span>
             </a>
-            <a href="${getLinkPath('dashboard.html')}" class="bottom-nav-item ${currentPage === 'dashboard.html' && !window.location.search.includes('tab=notes') ? 'active' : ''}">
+            <a href="${getLinkPath('pages/dashboard.html')}" class="bottom-nav-item ${currentPage === 'dashboard.html' && !window.location.search.includes('tab=notes') ? 'active' : ''}">
                 <span class="bottom-nav-icon">📊</span>
                 <span>Dash</span>
             </a>
-            <a href="${getLinkPath('auth.html')}" class="bottom-nav-item ${currentPage === 'auth.html' ? 'active' : ''}">
+            <a href="${getLinkPath('pages/auth.html')}" class="bottom-nav-item ${currentPage === 'auth.html' ? 'active' : ''}">
                 <span class="bottom-nav-icon">👤</span>
                 <span>Profile</span>
             </a>
@@ -76,7 +88,7 @@ function renderNavbar() {
     `;
 
     // Initialize Auth State for Button
-    updateNavbarAuthButton('/');
+    updateNavbarAuthButton(basePath);
 }
 
 function updateNavbarAuthButton(basePath) {
