@@ -4,17 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <!-- Google Analytics (GA4) -->
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-KSCJTPP875"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
 
-        gtag('config', 'G-KSCJTPP875', {
-            send_page_view: true,
-            anonymize_ip: true
-        });
+        gtag('config', 'G-KSCJTPP875');
     </script>
     <link rel="shortcut icon" href="../assets/logo.jpg" type="image/jpeg">
     <title>Dashboard | SKiL MATRiX Notes</title>
@@ -197,7 +194,10 @@
     <script src="../js/ai-client.js" defer></script>
     <script src="../js/settings.js" defer></script>
     <script src="../js/upload-helper.js" defer></script>
-    <script type="module" src="../js/stats.js"></script>
+    <script type="module">
+        import { initRealtimeStats } from '../js/stats.js';
+        initRealtimeStats();
+    </script>
     <script src="../js/admin-console.js" defer></script>
     <script src="../js/coadmin-module.js" defer></script>
     <script src="../js/note-actions.js" defer></script>

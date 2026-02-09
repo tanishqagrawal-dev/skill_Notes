@@ -17,64 +17,41 @@ service cloud.firestore {
 
     // --- Colleges Collection ---
     match /colleges/{collegeId} {
-      allow read: if true; // Everyone can see colleges
+      allow read: if true; 
       allow write: if hasRole('admin') || hasRole('superadmin');
     }
 
     // --- Users Collection ---
     match /users/{userId} {
-      allow read: if true; // Needed for leaderboard
+      allow read: if true; 
       allow create: if isSignedIn() && (request.auth.uid == userId);
       allow update: if hasRole('admin') || hasRole('superadmin') || 
                    (request.auth.uid == userId && 
-                    request.resource.data.diff(resource.data).affectedKeys().hasAny(['xp', 'uploads', 'downloads', 'notesCount', 'name', 'avatar']));
+                    request.resource.data.diff(resource.data).affectedKeys().hasAny(['xp', 'uploads', 'downloads', 'notesCount', 'name', 'avatar', 'views_activity']));
       allow delete: if hasRole('admin') || hasRole('superadmin');
     }
 
-    // --- College Admins Mapping ---
-    match /college_admins/{collegeId} {
-      allow read: if true;
-      allow write: if hasRole('admin') || hasRole('superadmin');
-    }
-
-    // --- Consolidated Notes Collection ---
     // --- Consolidated Notes Collection ---
     match /notes/{noteId} {
-<<<<<<< HEAD
-      // Access Rule: Everyone can read verified notes.
-      allow read: if (resource.data.verified == true) || 
-                   (isSignedIn() && (
-                     hasRole('admin') || 
-                     hasRole('superadmin') || 
-                     (hasRole('coadmin') && resource.data.collegeId == getUserData().collegeId) ||
-                     resource.data.uploadedBy == request.auth.uid
-                   ));
-=======
-      // Access Rule: Everyone can read approved/verified notes.
-      allow read: if (resource.data.status == "approved") || (resource.data.verified == true) || isSignedIn();
->>>>>>> 6616e853d015d772bc9f03bae1bca2448c2100a4
+      // Access Rule: Public read for approved/verified, or signed in users
+      allow read: if true; // Everyone can see counts/metadata
 
       // Creation Rule: Signed in users can upload
       allow create: if isSignedIn();
 
-<<<<<<< HEAD
-      // Update Rule: Increments (views/downloads) allowed for all, full edit for admins/uploader
+      // Update Rule: Allow anyone to increment stats, full edit for admins/uploader
       allow update: if hasRole('admin') || hasRole('superadmin') || 
                     (hasRole('coadmin') && getUserData().collegeId == resource.data.collegeId) ||
-                    (resource.data.uploadedBy == request.auth.uid) ||
-                    (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views', 'downloads', 'likes', 'likedBy']));
+                    (isSignedIn() && resource.data.uploadedBy == request.auth.uid) ||
+                    (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views', 'downloads', 'likes', 'lastViewed']));
 
-      allow delete: if hasRole('admin') || hasRole('superadmin') || resource.data.uploadedBy == request.auth.uid;
-=======
-      // Update Rule: 
-      allow update: if hasRole('admin') || hasRole('superadmin') || (
-                      isSignedIn() && resource.data.uploadedBy == request.auth.uid
-                    );
+      allow delete: if hasRole('admin') || hasRole('superadmin') || (isSignedIn() && resource.data.uploadedBy == request.auth.uid);
 
-      allow delete: if hasRole('admin') || hasRole('superadmin') || (
-                      isSignedIn() && resource.data.uploadedBy == request.auth.uid
-                    );
->>>>>>> 6616e853d015d772bc9f03bae1bca2448c2100a4
+      // --- Likes Subcollection ---
+      match /likes/{userId} {
+        allow read: if true;
+        allow write: if isSignedIn() && request.auth.uid == userId;
+      }
     }
 
     // --- Role Invites ---
@@ -86,24 +63,19 @@ service cloud.firestore {
     // --- Analytics (Global Standard) ---
     match /analytics/{docId} {
       allow read: if true;
-      allow write: if true; // Allow everyone (including guests) to increment global counters
+      allow write: if true; 
     }
 
-    // --- Legacy Stats (Deprecated but kept for safety) ---
-    match /stats/{statId} {
-      allow read: if true;
-      allow update: if true; 
-      allow create, delete: if hasRole('admin') || hasRole('superadmin');
-    }
-
-    match /support_queries/{queryId} {
-      allow create: if true;
-      allow read, write: if hasRole('admin') || hasRole('superadmin');
-    }
-
+    // --- Presence ---
     match /presence/{userId} {
       allow read: if true;
       allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // --- Legacy / Safety ---
+    match /college_admins/{collegeId} {
+      allow read: if true;
+      allow write: if hasRole('admin') || hasRole('superadmin');
     }
   }
 }

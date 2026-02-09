@@ -7,9 +7,8 @@ const ANALYTICS_DOC = 'analytics/global';
 
 // --- MAIN INIT FUNCTION ---
 export async function initRealtimeStats() {
-    console.log("🚀 Initializing Global Analytics (One-Source-of-Truth)...");
+    console.log("🚀 Initializing Global Analytics (Real-time Source of Truth)...");
 
-    // 1. Check & Sync Presence (User Count)
     updateUserPresence();
     window.addEventListener('auth-ready', updateUserPresence);
 
@@ -21,15 +20,15 @@ export async function initRealtimeStats() {
 
     const globalRef = doc(db, ANALYTICS_DOC);
 
-    // 2. REAL-TIME LISTENER (The Core)
+    // REAL-TIME LISTENER
     onSnapshot(globalRef, async (snap) => {
         if (!snap.exists()) {
             console.warn("⚠️ Analytics Doc Missing. performing RESET-TO-ZERO...");
-            // RESET STEP: Create if missing
             try {
                 await setDoc(globalRef, {
                     totalViews: 0,
                     totalDownloads: 0,
+                    totalLikes: 0,
                     totalStudents: 0,
                     updatedAt: serverTimestamp()
                 });
@@ -45,7 +44,6 @@ export async function initRealtimeStats() {
         console.error("Analytics Sync Error:", err);
     });
 
-    // 3. Track Current Visit
     trackPageView();
 }
 
@@ -61,10 +59,8 @@ export async function trackPageView() {
             totalViews: increment(1),
             updatedAt: serverTimestamp()
         });
-        console.log("👁️ +1 Global View Logged");
     } catch (e) {
-        // Warning only, don't crash app
-        console.warn("View tracking failed (likely network):", e);
+        console.warn("Global View tracking failed:", e);
     }
 }
 
@@ -78,9 +74,23 @@ export async function trackDownload() {
             totalDownloads: increment(1),
             updatedAt: serverTimestamp()
         });
-        console.log("📥 +1 Global Download Logged");
     } catch (e) {
-        console.error("Download tracking failed:", e);
+        console.error("Global Download tracking failed:", e);
+    }
+}
+
+export async function trackGlobalLike(amount = 1) {
+    const { db, doc, updateDoc, increment, serverTimestamp } = getFirebase();
+    if (!db) return;
+
+    try {
+        const globalRef = doc(db, ANALYTICS_DOC);
+        await updateDoc(globalRef, {
+            totalLikes: increment(amount),
+            updatedAt: serverTimestamp()
+        });
+    } catch (e) {
+        console.error("Global Like tracking failed:", e);
     }
 }
 
@@ -88,17 +98,15 @@ export async function trackDownload() {
 // --- HELPER WRAPPERS ---
 
 export function trackNoteDownload(noteId) {
-    trackDownload(); // Just increment global
+    trackDownload();
     if (typeof gtag === 'function') {
-        gtag('event', 'note_download', { note_id: noteId });
+        gtag('event', 'notes_download', { note_id: noteId });
     }
 }
 
 export function trackNoteView(noteId) {
-    // Note: Views are usually tracked per page load, but we can add specific logic here if needed.
-    // For now, we rely on the global counter.
     if (typeof gtag === 'function') {
-        gtag('event', 'note_view', { note_id: noteId });
+        gtag('event', 'notes_view', { note_id: noteId });
     }
 }
 
@@ -108,41 +116,30 @@ function updateUICounters(data) {
     if (!data) return;
 
     const fmt = (val) => {
-        if (!val) return "0";
+        if (typeof val !== 'number') return "0";
         return val.toLocaleString();
     };
 
     // ID Mapping (UI <-> DB)
     const map = {
         'stat-views': data.totalViews,
-        'views': data.totalViews,         // Fallback ID
-        'stat-views-2': data.totalViews,
-
         'stat-downloads': data.totalDownloads,
-        'global-downloads': data.totalDownloads,
-        'downloads': data.totalDownloads, // Fallback ID
-        'stat-downloads-2': data.totalDownloads,
-
+        'stat-likes': data.totalLikes,
         'stat-active': data.totalStudents,
         'live-students': data.totalStudents,
-        'students': data.totalStudents,   // Fallback ID
-        'stat-active-2': data.totalStudents,
 
-        // Derived or fixed
-        'stat-notes': data.totalViews // Trending now reflects total views
+        // Legacy/Fallback IDs
+        'views': data.totalViews,
+        'downloads': data.totalDownloads,
+        'students': data.totalStudents
     };
 
     for (const [id, val] of Object.entries(map)) {
         const el = document.getElementById(id);
         if (el) {
             el.innerText = fmt(val);
-            // Add flash effect? 
-            // el.style.color = '#2ecc71'; setTimeout(() => el.style.color = '', 500);
         }
     }
-
-    // Also update footer stats if they exist with class selectors
-    // ... logic for classes if needed
 }
 
 // --- PRESENCE SYSTEM (Active Students) ---
@@ -186,6 +183,7 @@ window.statServices = {
     initRealtimeStats,
     trackPageView,
     trackDownload,
+    trackGlobalLike,
     trackNoteDownload,
     trackNoteView,
     updateUI: () => { } // Auto-handled by snapshot

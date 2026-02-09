@@ -52,7 +52,7 @@ const firebaseConfig = {
     storageBucket: "skill-notes.firebasestorage.app",
     messagingSenderId: "679937247629",
     appId: "1:679937247629:web:708ae9818911a465d455c4",
-    measurementId: "G-S2MPNV3GZK"
+    measurementId: "G-KSCJTPP875"
 };
 
 // Initialize Firebase (Core only)

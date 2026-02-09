@@ -298,6 +298,11 @@ window.updateNoteStat = async function (noteId, type) {
         });
 
         // 3. Send to GA4 (Reporting)
+        // 3. Send to GA4 (Reporting)
+        if (type === 'download' && typeof gtag === 'function') {
+            gtag('event', 'notes_download', { note_id: noteId });
+        }
+
         if (type === 'download' && window.statServices?.trackNoteDownload) {
             window.statServices.trackNoteDownload(noteId);
         } else if (type === 'view' && window.statServices?.trackNoteView) {
@@ -2340,13 +2345,13 @@ function renderInstantStaticNotes(notes) {
                         </div>
                         <div class="meta-pill-pro views-pro">
                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                             ${note.views || 0}
+                             <span class="view-count">${note.views || 0}</span>
                         </div>
                     </div>
                     <div class="note-actions-pro">
                         <button class="tool-icon-pro" onclick="toggleNoteLike('${noteId}')" title="Like">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                            <span>${note.likes || 0}</span>
+                            <span class="like-count">${note.likes || 0}</span>
                         </button>
                     </div>
                 </div>
@@ -2574,118 +2579,11 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
     return grid.innerHTML;
 }
 
-// --- APPENDED NOTE INTERACTIONS LOGIC ---
-
+// --- NOTE INTERACTIONS LOGIC (Handled by js/note-actions.js) ---
 window.noteUnsubscribers = window.noteUnsubscribers || {};
 
-window.incrementNoteView = async function (noteId) {
-    const { db, doc, updateDoc, increment } = getFirebase();
-    if (!db || !noteId) return;
 
-    // session-based unique view check
-    const sessionKey = `viewed_${noteId}`;
-    if (sessionStorage.getItem(sessionKey)) return;
 
-    try {
-        const noteRef = doc(db, "notes", noteId);
-        await updateDoc(noteRef, { views: increment(1) });
-
-        // XP Logic for uploader and viewer
-        if (window.currentUser && window.currentUser.id) {
-            const userRef = doc(db, "users", window.currentUser.id);
-            await updateDoc(userRef, { views_activity: increment(1) });
-        }
-
-        sessionStorage.setItem(sessionKey, 'true');
-    } catch (e) {
-        console.warn("View increment failed:", e);
-    }
-};
-
-window.toggleNoteLike = async function (noteId) {
-    const { db, auth, doc, runTransaction, increment } = getFirebase();
-    if (!db || !noteId) return;
-
-    const user = auth?.currentUser || window.currentUser;
-    if (!user) {
-        if (typeof showToast === 'function') showToast("Please login to like", "info");
-        return;
-    }
-
-    try {
-        const noteRef = doc(db, "notes", noteId);
-        const likeRef = doc(db, "notes", noteId, "likes", user.uid || user.id);
-
-        await runTransaction(db, async (transaction) => {
-            const likeSnap = await transaction.get(likeRef);
-
-            if (!likeSnap.exists()) {
-                transaction.set(likeRef, { liked: true, timestamp: Date.now() });
-                transaction.update(noteRef, { likes: increment(1) });
-                if (typeof showToast === 'function') showToast("Added to your favorites ❤️");
-            } else {
-                transaction.delete(likeRef);
-                transaction.update(noteRef, { likes: increment(-1) });
-                if (typeof showToast === 'function') showToast("Removed from favorites");
-            }
-        });
-    } catch (e) {
-        console.error("Like system error:", e);
-    }
-};
-
-window.updateNoteStat = async function (noteId, type) {
-    const { db, doc, updateDoc, increment } = getFirebase();
-    if (!db || !noteId) return;
-
-    try {
-        const noteRef = doc(db, "notes", noteId);
-        if (type === 'download') {
-            await updateDoc(noteRef, { downloads: increment(1) });
-
-            if (window.currentUser && window.currentUser.id) {
-                const userRef = doc(db, "users", window.currentUser.id);
-                await updateDoc(userRef, { xp: increment(5), downloads: increment(1) });
-            }
-        }
-    } catch (e) {
-        console.warn("Stat update failed:", e);
-    }
-};
-
-window.attachNoteRealtimeListeners = function (containerId = 'tab-content') {
-    const { db, doc, onSnapshot } = getFirebase();
-    if (!db) return;
-
-    const container = document.getElementById(containerId) || document.body;
-    const cards = container.querySelectorAll('.note-card-pro[data-note-id]');
-
-    cards.forEach(card => {
-        const noteId = card.getAttribute('data-note-id');
-        if (!noteId) return;
-
-        if (window.noteUnsubscribers[noteId]) {
-            try { window.noteUnsubscribers[noteId](); } catch (e) { }
-            delete window.noteUnsubscribers[noteId];
-        }
-
-        const noteRef = doc(db, "notes", noteId);
-
-        window.noteUnsubscribers[noteId] = onSnapshot(noteRef, (snap) => {
-            if (!snap.exists()) return;
-            const data = snap.data();
-
-            // Sync Views
-            const viewEl = card.querySelector('.views-pro');
-            if (viewEl) viewEl.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${data.views || 0}`;
-
-            // Sync Likes
-            const likeEl = card.querySelector('.note-interactions span');
-            if (likeEl) likeEl.innerText = data.likes || 0;
-
-        }, (err) => console.warn(`Listener error:`, err));
-    });
-};
 
 
 function getActiveIcon(url) {
