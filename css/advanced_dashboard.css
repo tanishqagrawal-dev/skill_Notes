@@ -474,6 +474,48 @@ body.light-mode .skeleton {
     }
 }
 
+@media (max-width: 768px) {
+    .leaderboard-controls {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .lb-tabs,
+    .time-filters {
+        height: auto;
+        flex-wrap: wrap;
+    }
+
+    .lb-entry {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .lb-rank {
+        grid-column: 1 / -1;
+        text-align: left;
+    }
+
+    .lb-score {
+        text-align: left;
+    }
+
+    .detailed-item.glass-card {
+        padding: 1.25rem;
+    }
+
+    .item-left {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .btn-download-pro {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
 /* --- Premium Notes Cards (Updated Design) --- */
 
 .detailed-item.glass-card {

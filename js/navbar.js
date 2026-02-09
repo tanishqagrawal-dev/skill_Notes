@@ -51,9 +51,34 @@ function renderNavbar() {
                 </div>
                 <div class="mobile-toggle" id="mobile-toggle">
                     <span></span>
+                    <span></span>
+                    <span></span>
                 </div>
             </div>
         </nav>
+
+        <!-- Mobile Bottom Nav -->
+        <nav class="mobile-bottom-nav">
+            <a href="${isSubPage ? '../index.html' : 'index.html'}" class="bottom-nav-item ${currentPage === 'index.html' ? 'active' : ''}">
+                <span class="bottom-nav-icon">🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="${getLinkPath('dashboard.html?tab=notes')}" class="bottom-nav-item ${currentPage === 'dashboard.html' && window.location.search.includes('tab=notes') ? 'active' : ''}">
+                <span class="bottom-nav-icon">📚</span>
+                <span>Notes</span>
+            </a>
+            <a href="${getLinkPath('dashboard.html')}" class="bottom-nav-item ${currentPage === 'dashboard.html' && !window.location.search.includes('tab=notes') ? 'active' : ''}">
+                <span class="bottom-nav-icon">📊</span>
+                <span>Dash</span>
+            </a>
+            <a href="${getLinkPath('auth.html')}" class="bottom-nav-item ${currentPage === 'auth.html' ? 'active' : ''}">
+                <span class="bottom-nav-icon">👤</span>
+                <span>Profile</span>
+            </a>
+        </nav>
+
+        <!-- Navbar Overlay -->
+        <div class="nav-overlay" id="nav-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; backdrop-filter:blur(5px);"></div>
     `;
 
     // Initialize Auth State for Button
@@ -103,10 +128,26 @@ function initNavbarLogic() {
     // Mobile Toggle
     const toggle = document.getElementById('mobile-toggle');
     const links = document.getElementById('nav-links');
+    const overlay = document.getElementById('nav-overlay');
+
     if (toggle && links) {
-        toggle.addEventListener('click', () => {
+        const toggleMenu = () => {
             links.classList.toggle('active');
             toggle.classList.toggle('active');
+            if (overlay) {
+                overlay.style.display = links.classList.contains('active') ? 'block' : 'none';
+                document.body.style.overflow = links.classList.contains('active') ? 'hidden' : '';
+            }
+        };
+
+        toggle.addEventListener('click', toggleMenu);
+        if (overlay) overlay.addEventListener('click', toggleMenu);
+
+        // Close menu on link click
+        links.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (links.classList.contains('active')) toggleMenu();
+            });
         });
     }
 }
