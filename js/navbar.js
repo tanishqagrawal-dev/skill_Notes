@@ -12,30 +12,24 @@ function renderNavbar() {
     const container = document.getElementById('navbar-container');
     if (!container) return;
 
-    const isSubPage = window.location.pathname.includes('/pages/');
-    const basePath = isSubPage ? '../' : '';
+    // Handles clean URLs and deep links by using absolute paths
+    const basePath = '/';
 
-    // Improved detection: handles trailing slashes, local files, and server paths
     let pathParts = window.location.pathname.split('/');
     let currentPage = pathParts.pop() || 'index.html';
-    if (currentPage === '') currentPage = 'index.html';
+    if (currentPage === '' || window.location.pathname.startsWith('/notes')) currentPage = 'notes.html';
 
-    // Helper to get correct path for nav links
+    // Helper to get correct absolute path for nav links
     const getLinkPath = (page) => {
-        if (page === 'index.html#features') {
-            return isSubPage ? '../index.html#features' : '#features';
-        }
-        if (isSubPage) {
-            return page === 'index.html' ? '../index.html' : page;
-        } else {
-            return page === 'index.html' ? 'index.html' : `pages/${page}`;
-        }
+        if (page === 'index.html#features') return '/index.html#features';
+        if (page === 'index.html') return '/index.html';
+        return `/pages/${page}`;
     };
 
     container.innerHTML = `
         <nav class="glass-nav">
             <div class="container nav-content">
-                <div class="logo" onclick="window.location.href='${isSubPage ? '../index.html' : 'index.html'}'"
+                <div class="logo" onclick="window.location.href='/'"
                     style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
                     <img src="${basePath}assets/logo.jpg" alt="SKiL MATRiX" style="height: 40px; border-radius: 50%;">
                     <span class="logo-text">SKiL MATRiX <span class="highlight"
@@ -59,7 +53,7 @@ function renderNavbar() {
 
         <!-- Mobile Bottom Nav -->
         <nav class="mobile-bottom-nav">
-            <a href="${isSubPage ? '../index.html' : 'index.html'}" class="bottom-nav-item ${currentPage === 'index.html' ? 'active' : ''}">
+            <a href="/" class="bottom-nav-item ${currentPage === 'index.html' ? 'active' : ''}">
                 <span class="bottom-nav-icon">🏠</span>
                 <span>Home</span>
             </a>
@@ -82,7 +76,7 @@ function renderNavbar() {
     `;
 
     // Initialize Auth State for Button
-    updateNavbarAuthButton(isSubPage ? '../' : '');
+    updateNavbarAuthButton('/');
 }
 
 function updateNavbarAuthButton(basePath) {

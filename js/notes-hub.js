@@ -2,6 +2,7 @@
 // Handles the "Select Institution -> Branch -> Year -> Notes" flow using static data
 
 import { globalNotes } from "../data/globalNotes.js";
+import { RoutingSystem } from "./routing.js";
 
 // --- GLOBAL CONSTANTS ---
 const GlobalData = {
@@ -57,10 +58,50 @@ function renderGlobalShowcase() {
 // --- WIZARD RENDER LOGIC ---
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Start Wizard
-    renderCollegeStep();
+    // Initialize from URL if deep link exists
+    const nextStep = RoutingSystem.initFromURL(
+        GlobalData,
+        (key, val) => { selState[key] = val; },
+        (step) => { /* navigation is handled by the return value below */ }
+    );
+
+    if (nextStep === "SHOW_NOTES") {
+        showNotes();
+    } else if (nextStep === "SUBJECT_STEP") {
+        renderSubjectStep();
+    } else if (nextStep === "SEMESTER_STEP") {
+        renderSemesterStep();
+    } else if (nextStep === "YEAR_STEP") {
+        renderYearStep();
+    } else if (nextStep === "BRANCH_STEP") {
+        renderBranchStep();
+    } else {
+        renderCollegeStep();
+    }
+
     // Render Global Showcase
     renderGlobalShowcase();
+});
+
+// Handle browser back/forward buttons
+window.addEventListener('popstate', (event) => {
+    const route = RoutingSystem.parseRoute();
+    if (!route.college) {
+        renderCollegeStep();
+    } else {
+        // Simple re-run of init to restore state
+        const nextStep = RoutingSystem.initFromURL(
+            GlobalData,
+            (key, val) => { selState[key] = val; },
+            () => { }
+        );
+        if (nextStep === "SHOW_NOTES") showNotes();
+        else if (nextStep === "SUBJECT_STEP") renderSubjectStep();
+        else if (nextStep === "SEMESTER_STEP") renderSemesterStep();
+        else if (nextStep === "YEAR_STEP") renderYearStep();
+        else if (nextStep === "BRANCH_STEP") renderBranchStep();
+        else renderCollegeStep();
+    }
 });
 
 // Helper: Update Step Indicators
@@ -82,6 +123,8 @@ function ensureWizardVisible() {
 
 // STEP 1: College
 window.renderCollegeStep = function () {
+    selState = { college: null, branch: null, year: null, subject: null };
+    RoutingSystem.updateURL(selState);
     ensureWizardVisible();
     updateStepUI(0);
     const container = document.getElementById('explorer-content');
@@ -102,11 +145,14 @@ window.renderCollegeStep = function () {
 
 window.selectCollege = function (id, name) {
     selState.college = { id, name };
+    RoutingSystem.updateURL(selState);
     renderBranchStep();
 };
 
 // STEP 2: Branch
 window.renderBranchStep = function () {
+    selState.branch = null; selState.year = null; selState.semester = null; selState.subject = null;
+    RoutingSystem.updateURL(selState);
     ensureWizardVisible();
     updateStepUI(1);
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Branch</span>`;
@@ -123,11 +169,14 @@ window.renderBranchStep = function () {
 
 window.selectBranch = function (id, name) {
     selState.branch = { id, name };
+    RoutingSystem.updateURL(selState);
     renderYearStep();
 };
 
 // STEP 3: Year
 window.renderYearStep = function () {
+    selState.year = null; selState.semester = null; selState.subject = null;
+    RoutingSystem.updateURL(selState);
     ensureWizardVisible();
     updateStepUI(2);
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Academic Year</span>`;
@@ -142,11 +191,14 @@ window.renderYearStep = function () {
 
 window.selectYear = function (year) {
     selState.year = year;
+    RoutingSystem.updateURL(selState);
     renderSemesterStep();
 };
 
 // STEP 4: Semester
 window.renderSemesterStep = function () {
+    selState.semester = null; selState.subject = null;
+    RoutingSystem.updateURL(selState);
     ensureWizardVisible();
     updateStepUI(3);
     document.getElementById('explorer-main-title').innerHTML = `Select <span class="gradient-text">Semester</span>`;
@@ -163,6 +215,7 @@ window.renderSemesterStep = function () {
 
 window.selectSemester = function (sem) {
     selState.semester = sem;
+    RoutingSystem.updateURL(selState);
     renderSubjectStep();
 }
 
@@ -196,6 +249,8 @@ window.filterNotes = function (query) {
 
 // STEP 5: Subject
 window.renderSubjectStep = function () {
+    selState.subject = null;
+    RoutingSystem.updateURL(selState);
     ensureWizardVisible();
     updateStepUI(4);
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Subject</span>`;
@@ -222,6 +277,7 @@ window.renderSubjectStep = function () {
 
 window.selectSubject = function (id, name) {
     selState.subject = { id, name };
+    RoutingSystem.updateURL(selState);
     showNotes();
 };
 

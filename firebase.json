@@ -12,6 +12,12 @@
             "scripts/**",
             "functions/**/*.js.map"
         ],
+        "rewrites": [
+            {
+                "source": "/notes/**",
+                "destination": "/pages/notes.html"
+            }
+        ],
         "headers": [
             {
                 "source": "**/*.@(jpg|jpeg|gif|png|webp|svg|css|js|woff2)",
