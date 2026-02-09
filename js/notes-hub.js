@@ -397,7 +397,9 @@ window.showNotes = function (activeTab = 'notes') {
             </div>
 
             <div class="resource-section">
-                <h2 class="font-heading" style="margin-bottom: 1.5rem; font-size: 1.6rem; color: rgba(255,255,255,0.7);">Verified <span class="highlight" style="color: #00f2ff; font-weight: 800;">${activeTab.toUpperCase()}</span></h2>
+                <h2 class="font-heading" style="margin-bottom: 1.5rem; font-size: 1.6rem; color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 8px;">
+                    Verified <span class="highlight" style="color: #00f2ff; font-weight: 800; text-transform: uppercase;">${activeTab}</span>
+                </h2>
                 <div class="notes-list-container-pro" id="resource-list-container">
                     ${(activeTab === 'notes' && staticNotes.length > 0) ? renderStaticNotes(staticNotes) : `
                         <div style="text-align: center; padding: 5rem; background: rgba(255,255,255,0.01); border: 2px dashed rgba(255,255,255,0.05); border-radius: 20px;">
@@ -414,248 +416,51 @@ window.showNotes = function (activeTab = 'notes') {
 };
 
 function renderStaticNotes(notes) {
-    const futuristicStyles = `
-        <style>
-            .notes-list-container-pro {
-                display: flex;
-                flex-direction: column;
-                gap: 16px;
-                width: 100%;
-                padding: 10px 0;
-            }
-
-            .note-card {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-                padding: 16px 28px;
-                background: rgba(255, 255, 255, 0.04);
-                backdrop-filter: blur(20px);
-                border: 1px solid rgba(255, 255, 255, 0.05);
-                border-radius: 18px;
-                position: relative;
-                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                overflow: hidden;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            }
-
-            .note-card::before {
-                content: '';
-                position: absolute;
-                left: 0;
-                top: 0;
-                bottom: 0;
-                width: 5px;
-                background: linear-gradient(180deg, #00f2ff, #7000ff);
-                box-shadow: 3px 0 15px rgba(0, 242, 255, 0.4);
-                transition: 0.3s;
-            }
-
-            .note-card:hover {
-                transform: translateY(-4px) scale(1.01);
-                background: rgba(255, 255, 255, 0.06);
-                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-                border-color: rgba(0, 242, 255, 0.2);
-            }
-
-            .note-card-left {
-                display: flex;
-                align-items: center;
-                gap: 20px;
-                flex-grow: 1;
-            }
-
-            .note-icon-box {
-                width: 50px;
-                height: 50px;
-                background: rgba(0, 242, 255, 0.1);
-                border-radius: 12px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: #00f2ff;
-                border: 1px solid rgba(0, 242, 255, 0.2);
-                flex-shrink: 0;
-                box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
-            }
-
-            .note-info-stack {
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-            }
-
-            .unit-label {
-                color: #00f2ff;
-                font-weight: 800;
-                font-size: 0.65rem;
-                text-transform: uppercase;
-                letter-spacing: 2px;
-                margin: 0;
-            }
-
-            .note-card h3 {
-                font-size: 1.25rem;
-                font-weight: 900;
-                color: #FFFFFF;
-                margin: 0;
-                letter-spacing: 0.5px;
-                text-transform: uppercase;
-                text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            }
-
-            .note-meta-pills {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-
-            .meta-pill {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                background: rgba(70, 70, 90, 0.4);
-                padding: 4px 12px;
-                border-radius: 8px;
-                font-size: 0.75rem;
-                color: #e0e0f0;
-                font-weight: 600;
-                border: 1px solid rgba(255, 255, 255, 0.05);
-                backdrop-filter: blur(5px);
-            }
-
-            .meta-pill.views { color: #00f2ff; background: rgba(0, 242, 255, 0.05); border-color: rgba(0, 242, 255, 0.1); }
-            .meta-pill svg { stroke-width: 2.5; }
-
-            .note-interactions {
-                display: flex;
-                gap: 10px;
-            }
-
-            .int-btn {
-                background: rgba(255, 255, 255, 0.03);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                color: #FFFFFF;
-                padding: 4px 10px;
-                border-radius: 8px;
-                font-size: 0.8rem;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 6px;
-                transition: 0.3s;
-                font-weight: 700;
-            }
-
-            .int-btn:hover {
-                background: rgba(255, 255, 255, 0.1);
-                border-color: rgba(255, 255, 255, 0.2);
-                transform: translateY(-2px);
-            }
-
-            .int-btn.active {
-                background: rgba(255, 45, 85, 0.1);
-                color: #ff2d55;
-                border-color: rgba(255, 45, 85, 0.3);
-            }
-
-            .download-btn-premium {
-                background: #FFFFFF;
-                color: #000000 !important;
-                padding: 12px 32px;
-                border: none;
-                border-radius: 50px;
-                font-weight: 900;
-                font-size: 0.85rem;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2);
-                text-transform: uppercase;
-                letter-spacing: 1.5px;
-                box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
-                text-decoration: none;
-                white-space: nowrap;
-                position: relative;
-                overflow: hidden;
-                flex-shrink: 0;
-            }
-
-            .download-btn-premium:hover {
-                transform: translateY(-3px) scale(1.05);
-                box-shadow: 0 15px 35px rgba(255, 255, 255, 0.4);
-                background: #f0f0f0;
-            }
-
-            .download-btn-premium svg { stroke-width: 3.5; }
-
-            @keyframes rowEntrance {
-                from { opacity: 0; transform: translateY(30px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-
-            .card-reveal {
-                animation: rowEntrance 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-            }
-
-            @media (max-width: 900px) {
-                .note-card { flex-direction: column; align-items: flex-start; gap: 20px; padding: 20px 24px; }
-                .download-btn-premium { width: 100%; justify-content: center; }
-            }
-
-            @media (max-width: 480px) {
-                .note-card-left { gap: 16px; }
-                .note-icon-box { width: 44px; height: 44px; }
-                .note-card h3 { font-size: 1.1rem; }
-            }
-        </style>
-    `;
-
     const cards = notes.map((n, idx) => {
-        // Reusable card template logic
         const createNoteCard = (unit, title, url, likes = 8, views = 124, id = '') => {
             const noteId = id || `hub-${unit.replace(/\s+/g, '-').toLowerCase()}-${title.replace(/\s+/g, '-').toLowerCase()}`;
             return `
-            <div class="note-card card-reveal" data-note-id="${noteId}" style="animation-delay: ${idx * 0.1}s;">
-                <div class="note-card-left">
-                    <div class="note-icon-box">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                    </div>
-                    <div class="note-info-stack">
-                        <span class="unit-label">${unit}</span>
-                        <h3>${title}</h3>
-                        <div class="note-meta-pills">
-                            <span class="meta-pill">
-                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                                Official Resource
-                            </span>
-                            <span class="meta-pill">
-                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
-                                Feb 2026
-                            </span>
-                            <span class="meta-pill views">
-                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                                <span class="count">${views}</span>
-                            </span>
-                        </div>
-                        <div class="note-interactions">
-                            <button class="int-btn like-btn" onclick="toggleNoteLike('${noteId}'); event.stopPropagation();">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                                <span class="count">${likes}</span>
-                            </button>
-                            <button class="int-btn bookmark-btn" onclick="this.classList.toggle('active'); event.stopPropagation();">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-                            </button>
-                        </div>
+            <div class="note-card-pro card-reveal" data-note-id="${noteId}" style="animation-delay: ${idx * 0.1}s;">
+                <div class="note-icon-pro">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </div>
+                
+                <div class="note-info-pro">
+                    <span class="unit-tag-pro">${unit}</span>
+                    <h3 class="note-title-pro">${title}</h3>
+                    <div class="note-actions-pro">
+                        <span class="meta-pill-pro uploader">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            Tanishq Agrawal
+                        </span>
+                        <span class="meta-pill-pro">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
+                            6 Feb 2026
+                        </span>
+                        <span class="meta-pill-pro">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            ${views} Views
+                        </span>
                     </div>
                 </div>
 
-                <a href="${url}" target="_blank" class="download-btn-premium" onclick="updateNoteStat('${noteId}', 'download');">
+                <div class="note-tools-pro">
+                    <div class="tool-icon-pro like-btn" onclick="toggleNoteLike('${noteId}'); event.stopPropagation();">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        ${likes}
+                    </div>
+                    <div class="tool-icon-pro" onclick="this.classList.toggle('active'); event.stopPropagation();">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                    </div>
+                    <div class="tool-icon-pro">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                        12
+                    </div>
+                </div>
+
+                <a href="${url}" target="_blank" class="btn-download-white" onclick="updateNoteStat('${noteId}', 'download');">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    DOWNLOAD
+                    Download
                 </a>
             </div>`;
         };
@@ -671,7 +476,7 @@ function renderStaticNotes(notes) {
         });
     }, 150);
 
-    return futuristicStyles + cards;
+    return cards;
 }
 
 window.switchSubjectTab = function (tab) {
