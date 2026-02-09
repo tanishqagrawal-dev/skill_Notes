@@ -36,7 +36,7 @@ export const RoutingSystem = {
         if (state.subject) path += `/${state.subject.id}`;
 
         if (window.location.pathname !== path) {
-            window.history.pushState(state, '', path);
+            // window.history.pushState(state, '', path);
         }
     },
 
