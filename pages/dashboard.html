@@ -108,16 +108,47 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="top-bar glass-card">
-                <div class="search-bar">
-                    <input type="text" id="global-search-input" name="q"
-                        placeholder="Global search for notes, colleges or topics...">
-                    <span class="search-icon">🔍</span>
+                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                    <div class="mobile-dashboard-toggle" id="sidebar-toggle-btn" style="display: none;">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <div class="search-bar" style="flex: 1;">
+                        <input type="text" id="global-search-input" name="q" placeholder="Search notes...">
+                        <span class="search-icon">🔍</span>
+                    </div>
                 </div>
                 <div class="top-actions">
                     <button class="btn btn-ghost notification-btn">🔔</button>
                     <button class="primary-btn upload-btn">+ Upload Note</button>
                 </div>
             </header>
+
+            <style>
+                @media (max-width: 768px) {
+                    #sidebar-toggle-btn {
+                        display: flex !important;
+                    }
+
+                    .top-bar {
+                        padding: 0.75rem 0.5rem !important;
+                    }
+                }
+            </style>
+
+            <script>
+                document.getElementById('sidebar-toggle-btn')?.addEventListener('click', () => {
+                    document.querySelector('.sidebar')?.classList.toggle('active');
+                });
+
+                // Close sidebar on item click
+                document.querySelectorAll('.sidebar .nav-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        document.querySelector('.sidebar')?.classList.remove('active');
+                    });
+                });
+            </script>
 
             <div class="content-area" id="tab-content">
                 <script>
@@ -132,12 +163,12 @@
                         const roleLabel = cachedUser ? (cachedUser.role !== 'user' ? `🛡️ Verified ${cachedUser.role.toUpperCase()}` : `${cachedUser.year || '3rd Year'} • ${cachedUser.branch || 'CSE'}`) : 'Loading Profile...';
 
                         document.write(`
-                            <div id="instant-view" class="tab-pane active fade-in" style="padding: 2rem;">
-                                <div style="margin-bottom: 2.5rem;">
-                                    <h1 class="font-heading" style="font-size: 2.5rem; margin-bottom: 0.5rem;">
-                                        ${cachedUser ? `Welcome back, <span class="gradient-text">${name}</span> 👋` : `<div class="skeleton" style="height: 48px; width: 300px; border-radius: 8px;"></div>`}
+                            <div id="instant-view" class="tab-pane active fade-in dashboard-welcome-pane">
+                                <div class="welcome-header">
+                                    <h1 class="font-heading">
+                                        ${cachedUser ? `Welcome back, <span class="gradient-text">${name}</span> <span class="waving-hand">👋</span>` : `<div class="skeleton" style="height: 48px; width: 300px; border-radius: 8px;"></div>`}
                                     </h1>
-                                    <p style="color: var(--text-dim); font-size: 1.1rem;">
+                                    <p>
                                         ${cachedUser ? `${roleLabel} • ${college}` : `<div class="skeleton" style="height: 20px; width: 250px; margin-top: 10px;"></div>`}
                                     </p>
                                 </div>
@@ -168,6 +199,9 @@
             </div>
         </main>
     </div>
+
+    <!-- Back to Top -->
+    <button id="back-to-top" class="btn-icon-round" aria-label="Back to Top">↑</button>
 
     <!-- Application Engine -->
     <script>
@@ -203,6 +237,7 @@
     <script src="../js/note-actions.js" defer></script>
     <script src="../js/lockOverlay.js" defer></script>
     <script type="module" src="../js/notes-hub.js" defer></script>
+    <script src="../js/footer.js" defer></script>
     <script type="module" src="../js/dashboard.js"></script>
 
     <!-- Auth Lifecycle & Logout -->

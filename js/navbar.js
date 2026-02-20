@@ -63,26 +63,6 @@ function renderNavbar() {
             </div>
         </nav>
 
-        <!-- Mobile Bottom Nav -->
-        <nav class="mobile-bottom-nav">
-            <a href="${getLinkPath('index.html')}" class="bottom-nav-item ${currentPage === 'index.html' ? 'active' : ''}">
-                <span class="bottom-nav-icon">🏠</span>
-                <span>Home</span>
-            </a>
-            <a href="${getLinkPath('pages/dashboard.html')}?tab=notes" class="bottom-nav-item ${currentPage === 'dashboard.html' && window.location.search.includes('tab=notes') ? 'active' : ''}">
-                <span class="bottom-nav-icon">📚</span>
-                <span>Notes</span>
-            </a>
-            <a href="${getLinkPath('pages/dashboard.html')}" class="bottom-nav-item ${currentPage === 'dashboard.html' && !window.location.search.includes('tab=notes') ? 'active' : ''}">
-                <span class="bottom-nav-icon">📊</span>
-                <span>Dash</span>
-            </a>
-            <a href="${getLinkPath('pages/auth.html')}" class="bottom-nav-item ${currentPage === 'auth.html' ? 'active' : ''}">
-                <span class="bottom-nav-icon">👤</span>
-                <span>Profile</span>
-            </a>
-        </nav>
-
         <!-- Navbar Overlay -->
         <div class="nav-overlay" id="nav-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; backdrop-filter:blur(5px);"></div>
     `;

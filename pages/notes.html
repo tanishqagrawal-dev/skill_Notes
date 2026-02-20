@@ -160,15 +160,66 @@
             box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.1);
         }
 
-        .modal-footer {
-            margin-top: 2rem;
-        }
-
         .modal-footer button {
             width: 100%;
             justify-content: center;
             padding: 1rem;
             font-size: 1rem;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .notes-page-container {
+                padding: 6rem 1rem 4rem;
+            }
+
+            .step-indicator {
+                gap: 1.5rem;
+                flex-wrap: wrap;
+                margin-bottom: 2.5rem;
+            }
+
+            .step-node {
+                gap: 0.25rem;
+            }
+
+            .step-num {
+                width: 32px;
+                height: 32px;
+                font-size: 0.8rem;
+            }
+
+            .step-label {
+                font-size: 0.6rem;
+                letter-spacing: 0.5px;
+            }
+
+            #explorer-header {
+                padding: 1rem 0 !important;
+            }
+
+            #explorer-main-title {
+                font-size: 1.8rem;
+            }
+
+            #explorer-content {
+                grid-template-columns: 1fr !important;
+                gap: 1.5rem !important;
+            }
+
+            .selection-card {
+                padding: 1.5rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .step-indicator {
+                gap: 1rem;
+            }
+            
+            #explorer-main-title {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>

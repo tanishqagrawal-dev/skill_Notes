@@ -441,9 +441,36 @@
             transform: scale(1.05);
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
+            .legal-page-container {
+                padding: 6rem 1.25rem 4rem;
+            }
+
             .legal-content-card {
                 padding: 2rem 1.5rem;
+                border-radius: 16px;
+            }
+
+            .legal-content h1 {
+                font-size: 2rem;
+            }
+
+            .founders-grid {
+                gap: 2rem;
+                margin-top: 3rem;
+            }
+
+            .founder-card {
+                padding: 2.5rem 1.5rem;
+            }
+
+            .founder-name {
+                font-size: 1.5rem;
+            }
+
+            .modal-content {
+                max-width: 100%;
+                border-radius: 20px;
             }
 
             .modal-body {
@@ -465,8 +492,8 @@
                 text-align: center;
             }
 
-            .founder-card {
-                padding: 2.5rem 1.5rem;
+            .modal-info h2 {
+                font-size: 1.8rem;
             }
         }
     </style>
@@ -649,6 +676,8 @@
             AOS.init({ duration: 800, once: true });
         });
     </script>
+    <!-- Back to Top -->
+    <button id="back-to-top" class="btn-icon-round" aria-label="Back to Top">↑</button>
     <script src="/js/footer.js"></script>
     <script src="/js/main.js"></script>
 </body>
