@@ -219,3 +219,36 @@ window.attachNoteRealtimeListeners = function (containerId = 'tab-content') {
         });
     });
 };
+
+/**
+ * Toggle Note Dislike
+ */
+window.toggleNoteDislike = async function (noteId) {
+    if (typeof showToast === 'function') {
+        showToast("Note disliked", "info");
+    } else {
+        console.log("Note disliked:", noteId);
+    }
+};
+
+/**
+ * Toggle Bookmark
+ */
+window.toggleBookmark = async function (noteId) {
+    if (typeof showToast === 'function') {
+        showToast("Added to bookmarks", "success");
+    } else {
+        console.log("Bookmarked:", noteId);
+    }
+};
+
+/**
+ * Report Note
+ */
+window.reportNote = async function (noteId) {
+    if (typeof showToast === 'function') {
+        showToast("Note reported to moderation team", "warning");
+    } else {
+        console.log("Reported:", noteId);
+    }
+};

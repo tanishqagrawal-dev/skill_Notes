@@ -366,32 +366,26 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1.25rem 2rem;
-    background: rgba(23, 26, 35, 0.4);
+    padding: 1.2rem 1.5rem;
+    background: rgba(10, 12, 16, 0.6);
     backdrop-filter: blur(12px);
     border: 1px solid var(--border-glass);
-    border-radius: 18px;
+    border-radius: 16px;
+    border-left: 4px solid var(--primary);
     position: relative;
     transition: var(--transition-base);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .note-card-pro::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 60%;
-    background: var(--secondary);
-    border-radius: 0 4px 4px 0;
-    box-shadow: 0 0 15px var(--secondary);
+    display: none;
 }
 
 .note-card-pro:hover {
     background: rgba(255, 255, 255, 0.03);
-    border-color: rgba(0, 242, 255, 0.3);
-    transform: translateX(5px);
+    border-color: rgba(123, 97, 255, 0.4);
+    box-shadow: var(--glow-primary);
+    transform: translateY(-4px);
 }
 
 .note-icon-pro {
@@ -427,6 +421,8 @@
     font-size: 1.1rem;
     font-weight: 700;
     color: white;
+    display: flex;
+    align-items: center;
 }
 
 .note-actions-pro {
@@ -436,21 +432,26 @@
     margin-top: 0.5rem;
 }
 
+.meta-pills-row-pro {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+}
+
 .meta-pill-pro {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    background: rgba(255, 255, 255, 0.05);
+    font-size: 0.8rem;
     color: var(--text-muted);
+    background: transparent !important;
+    padding: 0;
 }
 
 .meta-pill-pro.uploader {
-    background: rgba(123, 97, 255, 0.2);
-    color: #B2A4FF;
+    color: var(--text-muted) !important;
 }
 
 .note-tools-pro {
@@ -467,22 +468,28 @@
     align-items: center;
     gap: 4px;
     font-size: 0.85rem;
+    padding: 6px;
+    border-radius: 8px;
+    background: transparent;
 }
 
 .tool-icon-pro:hover {
-    color: white;
+    color: var(--secondary);
+    background: rgba(0, 242, 255, 0.1);
+    transform: scale(1.1);
 }
 
 .tool-icon-pro.active {
-    color: #FF2D95;
+    color: var(--accent);
+    background: rgba(255, 45, 149, 0.1);
 }
 
 .btn-download-white {
-    background: white;
-    color: black;
+    background: linear-gradient(135deg, rgba(255,255,255,0.9), white);
+    color: #05070a;
     border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 50px;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
     font-weight: 700;
     font-size: 0.85rem;
     display: flex;
@@ -490,11 +497,25 @@
     gap: 8px;
     cursor: pointer;
     transition: var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-download-white::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%; width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+    transition: 0.5s;
+}
+
+.btn-download-white:hover::after {
+    left: 150%;
 }
 
 .btn-download-white:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
 }
 
 
@@ -2162,8 +2183,8 @@
 
 /* Hover Glow Effect for Note Cards */
 .note-card-pro:hover {
-    box-shadow: 0 0 25px rgba(0, 242, 255, 0.15);
-    border-color: rgba(0, 242, 255, 0.4);
+    box-shadow: var(--glow-primary);
+    border-color: rgba(123, 97, 255, 0.4);
     background: rgba(255, 255, 255, 0.04);
 }
 

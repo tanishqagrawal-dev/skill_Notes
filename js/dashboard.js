@@ -2328,37 +2328,45 @@ function renderInstantStaticNotes(notes) {
         const noteId = note.id || `static-${idx}`;
         return `
             <div class="note-card-pro card-reveal" data-note-id="${noteId}" style="animation-delay: ${idx * 0.1}s;">
-                <div class="note-icon-pro">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                </div>
                 <div class="note-info-pro">
-                    <div class="unit-tag-pro">${note.unit || 'RESOURCE'}</div>
-                    <h3 class="note-title-pro">${note.title}</h3>
+                    <h3 class="note-title-pro">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        ${note.title}
+                    </h3>
                     <div class="meta-pills-row-pro">
-                        <div class="meta-pill-pro uploader-pro">
-                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                             ${note.uploader || 'Verified'}
-                        </div>
                         <div class="meta-pill-pro date-pro">
-                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
+                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
                              ${note.date || 'Feb 2026'}
                         </div>
+                        <div class="meta-pill-pro uploader-pro">
+                             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(note.uploader || 'Verified')}&backgroundColor=transparent" style="width:18px;height:18px;border-radius:50%; background: #333;">
+                             ${note.uploader || 'Verified'}
+                        </div>
                         <div class="meta-pill-pro views-pro">
-                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                             <span class="view-count">${note.views || 0}</span>
+                             ${note.downloads || note.views || 0} downloads
                         </div>
                     </div>
                     <div class="note-actions-pro">
                         <button class="tool-icon-pro" onclick="toggleNoteLike('${noteId}')" title="Like">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                            <span class="like-count">${note.likes || 0}</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                            <span class="like-count">${note.likes || 1}</span>
+                        </button>
+                        <button class="tool-icon-pro" onclick="toggleNoteDislike('${noteId}')" title="Dislike">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
+                            <span class="dislike-count">${note.dislikes || 0}</span>
+                        </button>
+                        <button class="tool-icon-pro" onclick="toggleBookmark('${noteId}')" title="Bookmark">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                        </button>
+                        <button class="tool-icon-pro" onclick="reportNote('${noteId}')" title="Report">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
                         </button>
                     </div>
                 </div>
                 <div class="download-section-pro">
                     <a href="${note.url}" target="_blank" class="btn-download-white" onclick="updateNoteStat('${noteId}', 'download')">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        DOWNLOAD
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Download
                     </a>
                 </div>
             </div>
@@ -2447,31 +2455,45 @@ function renderNotesList(list, tabType) {
         const noteId = n.id || `list-${idx}`;
         return `
             <div class="note-card-pro card-reveal" data-note-id="${noteId}" style="animation-delay: ${idx * 0.1}s;">
-                <div class="note-icon-pro">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                </div>
                 <div class="note-info-pro">
-                    <div class="unit-tag-pro">${n.unit || 'RESOURCE'}</div>
-                    <h3 class="note-title-pro">${n.title}</h3>
+                    <h3 class="note-title-pro">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        ${n.title}
+                    </h3>
                     <div class="meta-pills-row-pro">
-                        <div class="meta-pill-pro uploader-pro">
-                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                             ${n.uploaderName || n.uploader || 'Scholar'}
-                        </div>
                         <div class="meta-pill-pro date-pro">
-                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
+                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
                              ${formatDate(n.created_at || n.approvedAt || n.date)}
                         </div>
-                        <div class="meta-pill-pro views-pro">
-                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                             ${n.views || 0}
+                        <div class="meta-pill-pro uploader-pro">
+                             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(n.uploaderName || n.uploader || 'Scholar')}&backgroundColor=transparent" style="width:18px;height:18px;border-radius:50%; background: #333;">
+                             ${n.uploaderName || n.uploader || 'Scholar'}
                         </div>
+                        <div class="meta-pill-pro views-pro">
+                             ${n.downloads || n.views || 0} downloads
+                        </div>
+                    </div>
+                    <div class="note-actions-pro">
+                        <button class="tool-icon-pro" onclick="toggleNoteLike('${noteId}')" title="Like">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                            <span class="like-count">${n.likes || 1}</span>
+                        </button>
+                        <button class="tool-icon-pro" onclick="toggleNoteDislike('${noteId}')" title="Dislike">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
+                            <span class="dislike-count">${n.dislikes || 0}</span>
+                        </button>
+                        <button class="tool-icon-pro" onclick="toggleBookmark('${noteId}')" title="Bookmark">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                        </button>
+                        <button class="tool-icon-pro" onclick="reportNote('${noteId}')" title="Report">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                        </button>
                     </div>
                 </div>
                 <div class="download-section-pro">
                     <a href="${n.fileUrl || n.driveLink}" target="_blank" class="btn-download-white" onclick="updateNoteStat('${noteId}', 'download')">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        DOWNLOAD
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Download
                     </a>
                 </div>
             </div>`;
@@ -2530,37 +2552,45 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
         const noteId = n.id || `unit-${(n.unit || 'RE').replace(/\s+/g, '-').toLowerCase()}-${(n.title || '').replace(/\s+/g, '-').toLowerCase()}`;
         return `
             <div class="note-card-pro card-reveal" data-note-id="${noteId}" style="animation-delay: ${idx * 0.1}s;">
-                <div class="note-icon-pro">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                </div>
                 <div class="note-info-pro">
-                    <div class="unit-tag-pro">${n.unit || 'RESOURCE'}</div>
-                    <h3 class="note-title-pro">${n.title}</h3>
+                    <h3 class="note-title-pro">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        ${n.title}
+                    </h3>
                     <div class="meta-pills-row-pro">
-                        <div class="meta-pill-pro uploader-pro">
-                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                             ${n.uploaderName || n.uploader || 'Verified'}
-                        </div>
                         <div class="meta-pill-pro date-pro">
-                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
+                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
                              ${formatDate(n.created_at || n.approvedAt || n.date)}
                         </div>
+                        <div class="meta-pill-pro uploader-pro">
+                             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(n.uploaderName || n.uploader || 'Verified')}&backgroundColor=transparent" style="width:18px;height:18px;border-radius:50%; background: #333;">
+                             ${n.uploaderName || n.uploader || 'Verified'}
+                        </div>
                         <div class="meta-pill-pro views-pro">
-                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                             ${n.views || 0}
+                             ${n.downloads || n.views || 0} downloads
                         </div>
                     </div>
-                    <div class="note-interactions">
+                    <div class="note-actions-pro">
                         <button class="tool-icon-pro" onclick="toggleNoteLike('${noteId}')" title="Like">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                            <span>${n.likes || 0}</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                            <span class="like-count">${n.likes || 1}</span>
+                        </button>
+                        <button class="tool-icon-pro" onclick="toggleNoteDislike('${noteId}')" title="Dislike">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
+                            <span class="dislike-count">${n.dislikes || 0}</span>
+                        </button>
+                        <button class="tool-icon-pro" onclick="toggleBookmark('${noteId}')" title="Bookmark">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                        </button>
+                        <button class="tool-icon-pro" onclick="reportNote('${noteId}')" title="Report">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
                         </button>
                     </div>
                 </div>
                 <div class="download-section-pro">
                     <a href="${n.fileUrl || n.driveLink}" target="_blank" class="btn-download-white" onclick="updateNoteStat('${noteId}', 'download')">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        DOWNLOAD
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Download
                     </a>
                 </div>
             </div>`;
