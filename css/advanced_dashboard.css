@@ -488,17 +488,28 @@ body.light-mode .skeleton {
     }
 
     .lb-entry {
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
+        grid-template-columns: auto 1fr auto;
+        gap: 0.75rem;
+        padding: 1rem;
     }
 
     .lb-rank {
-        grid-column: 1 / -1;
-        text-align: left;
+        grid-column: auto;
+        font-size: 1.1rem;
     }
 
-    .lb-score {
-        text-align: left;
+    .lb-user-content {
+        gap: 0.75rem;
+    }
+
+    .lb-avatar-container {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+    }
+
+    .lb-score .score-val {
+        font-size: 1rem;
     }
 
     .detailed-item.glass-card {

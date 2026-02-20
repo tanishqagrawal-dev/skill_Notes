@@ -1756,6 +1756,40 @@
     transform: translateY(0);
 }
 
+/* Responsive Grids for Explorer and Private Drive */
+.explorer-grid-pro,
+.private-files-grid-pro {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.private-files-grid-pro {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+
+    .explorer-grid-pro,
+    .private-files-grid-pro {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .explorer-grid-pro {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+        gap: 1rem !important;
+    }
+
+    .private-files-grid-pro {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+}
+
 @media (max-width: 1024px) {
     .dashboard-container {
         padding: 1rem;
@@ -1835,16 +1869,17 @@
     }
 
     .top-bar {
-        padding: 0.75rem 0;
-        /* More compact */
-        margin-bottom: 0.25rem !important;
+        padding: 0.75rem 1rem;
+        background: var(--bg-dark) !important;
+        border-bottom: 1px solid var(--border-glass);
+        margin-bottom: 0 !important;
         flex-direction: column;
         gap: 0.75rem;
         align-items: stretch;
         width: 100% !important;
         margin-left: 0 !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
     }
 
     .search-bar {
@@ -1956,6 +1991,137 @@
     .btn-download-pro {
         width: 100%;
         justify-content: center;
+    }
+
+    /* Step Indicator Mobile */
+    .step-indicator {
+        gap: 0.75rem !important;
+        margin-bottom: 2rem !important;
+        padding: 0 1rem;
+    }
+
+    .step-indicator::after {
+        display: none !important;
+    }
+
+    .step-node .step-label {
+        font-size: 0.65rem !important;
+        letter-spacing: 0;
+    }
+
+    .step-num {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 0.8rem !important;
+    }
+
+    .explorer-header {
+        padding-top: 5rem !important;
+    }
+
+    #explorer-back-container {
+        top: 1.25rem !important;
+        left: 1rem !important;
+    }
+
+    #explorer-main-title {
+        font-size: 1.5rem !important;
+    }
+
+    #explorer-back-btn {
+        padding: 0.4rem 0.8rem !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* Subject Page Mobile Fixes */
+    .subject-page-container {
+        padding-top: 2rem;
+    }
+
+    .subject-title-pro {
+        font-size: 1.8rem !important;
+        margin-top: 1rem !important;
+    }
+
+    .subject-page-hero>div {
+        flex-direction: column !important;
+        gap: 1.25rem;
+    }
+
+    .ai-btns-row {
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+    }
+
+    .ai-btns-row button {
+        width: 100%;
+        text-align: left;
+        justify-content: flex-start;
+        padding: 0.8rem 1rem !important;
+    }
+
+    .subject-actions-top {
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+    }
+
+    .subject-actions-top button {
+        width: 100%;
+        font-size: 0.75rem !important;
+        padding: 0.6rem !important;
+    }
+
+    .subject-tabs-nav {
+        gap: 1.5rem !important;
+        overflow-x: auto;
+        padding-bottom: 5px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .subject-tab {
+        white-space: nowrap;
+        font-size: 0.9rem !important;
+    }
+
+    /* Note Card Pro Fixes */
+    #final-notes-view {
+        padding: 1.5rem 1rem !important;
+        margin-top: 4rem;
+        /* Buffer for sticky top bar */
+    }
+
+    .note-card-pro {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 1.25rem !important;
+        gap: 1rem;
+    }
+
+    .note-info-pro {
+        margin-left: 0 !important;
+        gap: 0.2rem;
+    }
+
+    .download-section-pro {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+
+    .btn-download-white {
+        width: 100%;
+        justify-content: center;
+        padding: 0.8rem !important;
+    }
+
+    /* Prevent overlap with back-to-top button */
+    #back-to-top {
+        bottom: 20px !important;
+        right: 20px !important;
+        width: 45px !important;
+        height: 45px !important;
+        z-index: 1000;
     }
 }
 

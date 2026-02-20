@@ -1991,7 +1991,7 @@ function renderNotesHub() {
                     </div>
                 </div>
 
-                <div id="explorer-content" style="padding: 2rem 2rem 6rem 2rem; min-height: 400px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+                <div id="explorer-content" class="explorer-grid-pro" style="padding: 2rem 2rem 6rem 2rem; min-height: 400px; display: grid; gap: 2rem;">
                     <!-- Step-specific cards will be injected here -->
                 </div>
 
@@ -2269,23 +2269,23 @@ window.showNotes = function (activeTab = 'notes') {
     // 1. Render Shell
     view.innerHTML = `
         <div class="subject-page-container fade-in">
-             <div class="breadcrumb-pro">
-                🏠 <span>›</span> ${selState.branch.name} <span>›</span> ${selState.semester} <span>›</span> ${selState.subject.name}
+             <div class="breadcrumb-pro" style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; font-size: 0.85rem; margin-bottom: 1.5rem; color: var(--text-dim);">
+                🏠 <span style="opacity:0.5;">›</span> ${selState.branch.name} <span style="opacity:0.5;">›</span> ${selState.semester} <span style="opacity:0.5;">›</span> ${selState.subject.name}
             </div>
              <div class="subject-page-hero">
                 <div style="display:flex; justify-content: space-between; align-items: flex-start;">
                     <div>
-                        <h1 class="font-heading" style="font-size: 3rem; margin: 0; line-height: 1.1;">${selState.subject.name}</h1>
+                        <h1 class="font-heading subject-title-pro" style="margin: 0; line-height: 1.1;">${selState.subject.name}</h1>
                         <div class="sub-badges" style="margin-top: 0.8rem;">
                             <span class="meta-badge">${selState.branch.id.toUpperCase()}</span>
                             <span class="meta-badge">${selState.year.toUpperCase()}</span>
                         </div>
-                        <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                        <div class="ai-btns-row" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
                             <button class="btn btn-primary btn-sm" onclick="showAIModal('summary', '${selState.subject.name}')">✨ AI Summary</button>
-                            <button class="btn btn-ghost btn-sm" style="border: 1px solid var(--primary);" onclick="showAIModal('questions', '${selState.subject.name}')">📝 Generate Model Questions</button>
+                            <button class="btn btn-ghost btn-sm ai-questions-btn" style="border: 1px solid var(--primary);" onclick="showAIModal('questions', '${selState.subject.name}')">📝 Generate Model Questions</button>
                         </div>
                     </div>
-                    <div style="display:flex; gap: 1rem;">
+                    <div class="subject-actions-top" style="display:flex; gap: 1rem;">
                         <button class="btn btn-ghost" onclick="copyShareLink()" id="share-btn" style="white-space:nowrap; background: rgba(0, 242, 255, 0.1); color: var(--secondary); padding: 0.6rem 1.2rem; border-radius: 8px;">🔗 Share Subject</button>
                         <button class="btn btn-ghost" onclick="backToSubjectSelection()" style="white-space:nowrap; background: rgba(255,255,255,0.05); padding: 0.6rem 1.2rem; border-radius: 8px;">⬅ Back</button>
                     </div>
@@ -3296,7 +3296,7 @@ window.renderPrivateDrive = function () {
                 </div>
             </div>
 
-            <div id="private-files-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
+             <div id="private-files-grid" class="private-files-grid-pro" style="display: grid; gap: 1.5rem;">
                 <!-- Files populate here -->
             </div>
         </div>
