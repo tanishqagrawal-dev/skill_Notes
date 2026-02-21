@@ -194,13 +194,15 @@ window.SettingsModule = {
 
                     <div class="settings-group">
                         <div class="profile-edit-header">
-                            <div class="profile-avatar-large">
-                                ${user.photo ? `<img src="${user.photo}" style="width:100%;height:100%;object-fit:cover;">` : (user.name ? user.name[0] : 'U')}
+                            <div class="profile-avatar-large" style="position: relative; border-radius: 50%; display: flex; align-items: center; justify-content: center; transform-style: preserve-3d; z-index: 5; width: 140px; height: 140px; margin-right: 2rem;">
+                                <div class="founder-border-glow" style="z-index:-1; inset: -4px;"></div>
+                                <div class="founder-border-ring" style="z-index:-1; inset: -20px;"></div>
+                                ${user.photo ? `<img src="${user.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;position:relative;z-index:5;border: 3px solid rgba(255, 255, 255, 0.9); box-shadow: 0 0 20px rgba(0, 0, 0, 0.5) inset;">` : `<div style="width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#1a1e26;position:relative;z-index:5;font-size:2rem;border: 3px solid rgba(255, 255, 255, 0.9); box-shadow: 0 0 20px rgba(0, 0, 0, 0.5) inset;">${user.name ? user.name[0] : 'U'}</div>`}
                             </div>
                             <div>
                                 <h3 style="margin:0 0 0.5rem 0;">${user.name || 'Student'} <span class="meta-badge" style="font-size:0.6rem; vertical-align:middle;">VERIFIED</span></h3>
                                 <p style="color:var(--text-dim); margin-bottom:1rem;">${user.role ? user.role.toUpperCase() : 'USER'}</p>
-                                <button class="btn-sm-ghost" onclick="SettingsModule.triggerAvatarUpload()">Change Photo</button>
+                                <button class="btn-sm-ghost" onclick="SettingsModule.triggerAvatarUpload()" id="avatar-upload-btn">Change Photo</button>
                                 <button class="btn-sm-ghost" style="color:#ff4757;">Remove</button>
                             </div>
                         </div>
@@ -221,7 +223,7 @@ window.SettingsModule = {
                         </div>
                         <div class="settings-row">
                             <div class="settings-label"><strong>Branch & Year</strong><span>Used for personalized notes feed</span></div>
-                            <input class="settings-input profile-field" type="text" id="prof-branch" value="CSE - 2nd Year" disabled>
+                            <input class="settings-input profile-field" type="text" id="prof-branch" value="${user.branch || ''}" placeholder="e.g. CSE - 2nd Year" disabled>
                         </div>
                         <div id="profile-save-actions" style="display:none; margin-top:1.5rem; text-align:right;">
                             <button class="btn btn-primary" onclick="SettingsModule.saveProfile()">Save Changes</button>
@@ -479,17 +481,42 @@ window.SettingsModule = {
     saveProfile: async function () {
         const name = document.getElementById('prof-name').value;
         const college = document.getElementById('prof-college').value;
-        const branch = document.getElementById('prof-branch').value; // Just reading, not saving yet as structure might be different
+        const branch = document.getElementById('prof-branch').value;
+
+        // Guest Fallback
+        if (window.currentUser && window.currentUser.isGuest) {
+            window.currentUser.name = name;
+            window.currentUser.college = college;
+            window.currentUser.branch = branch;
+            const localData = JSON.parse(localStorage.getItem('guest_session') || '{}');
+            localData.name = name;
+            localData.college = college;
+            localData.branch = branch;
+            localStorage.setItem('guest_session', JSON.stringify(localData));
+            if (window.showToast) window.showToast('Guest profile updated locally!', 'success');
+            this.toggleProfileEdit();
+            this.refreshContent();
+            if (window.updateUserProfileUI) window.updateUserProfileUI();
+            return;
+        }
 
         const { db, doc, updateDoc } = window.firebaseServices;
 
         try {
             const userRef = doc(db, 'users', window.currentUser.id);
-            await updateDoc(userRef, { name, college });
+            await updateDoc(userRef, { name, college, branch });
 
             // Update global state
             window.currentUser.name = name;
             window.currentUser.college = college;
+            window.currentUser.branch = branch;
+
+            // Sync local storage cache
+            const localCache = JSON.parse(localStorage.getItem('auth_user_full') || '{}');
+            localCache.name = name;
+            localCache.college = college;
+            localCache.branch = branch;
+            localStorage.setItem('auth_user_full', JSON.stringify(localCache));
 
             if (window.showToast) window.showToast('Profile updated successfully!', 'success');
 
@@ -500,7 +527,8 @@ window.SettingsModule = {
             if (window.updateUserProfileUI) window.updateUserProfileUI();
 
         } catch (e) {
-            alert('Failed to save: ' + e.message);
+            console.error("Save profile error", e);
+            alert('Failed to save profile: ' + e.message);
         }
     },
 
@@ -518,30 +546,82 @@ window.SettingsModule = {
             return;
         }
 
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-            const base64String = event.target.result;
+        const btn = document.getElementById('avatar-upload-btn');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = 'Uploading...';
+        }
 
-            // UI Update Immediate
-            this.state.user.photo = base64String;
-            this.refreshContent();
-            if (window.updateUserProfileUI) {
-                window.currentUser.photo = base64String;
-                window.updateUserProfileUI();
-            }
+        // Guest Fallback
+        if (window.currentUser && window.currentUser.isGuest) {
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const base64String = event.target.result;
+                this.state.user.photo = base64String;
+                this.refreshContent();
+                if (window.updateUserProfileUI) {
+                    window.currentUser.photo = base64String;
+                    window.updateUserProfileUI();
+                }
+                const localData = JSON.parse(localStorage.getItem('guest_session') || '{}');
+                localData.photo = base64String;
+                localStorage.setItem('guest_session', JSON.stringify(localData));
+                if (window.showToast) window.showToast('Guest Avatar updated locally!');
+                if (btn) { btn.disabled = false; btn.innerText = 'Change Photo'; }
+            };
+            reader.readAsDataURL(file);
+            return;
+        }
 
-            // Save to Backend
-            const { db, doc, updateDoc } = window.firebaseServices;
-            try {
-                const userRef = doc(db, 'users', window.currentUser.id);
-                await updateDoc(userRef, { photo: base64String }); // Saving Base64 to Firestore (OK for small images)
-                if (window.showToast) window.showToast('Avatar updated!');
-            } catch (err) {
-                console.error("Failed to save avatar", err);
-                if (window.showToast) window.showToast('Failed to save avatar', 'error');
-            }
-        };
-        reader.readAsDataURL(file);
+        const { db, doc, updateDoc, storage, ref, uploadBytesResumable, getDownloadURL } = window.firebaseServices;
+
+        try {
+            // Upload to Firebase Storage
+            const metadata = { contentType: file.type };
+            const storageRef = ref(storage, 'profile_photos/' + window.currentUser.id + '_' + Date.now());
+            const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    // Progress can be handled here if needed
+                },
+                (error) => {
+                    console.error("Storage upload error details:", error);
+                    if (window.showToast) window.showToast('Upload failed: ' + error.message, 'error');
+                    if (btn) { btn.disabled = false; btn.innerText = 'Change Photo'; }
+                },
+                async () => {
+                    try {
+                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
+                        this.state.user.photo = downloadURL;
+                        this.refreshContent();
+                        if (window.updateUserProfileUI) {
+                            window.currentUser.photo = downloadURL;
+                            window.updateUserProfileUI();
+                        }
+
+                        const userRef = doc(db, 'users', window.currentUser.id);
+                        await updateDoc(userRef, { photo: downloadURL });
+
+                        const localCache = JSON.parse(localStorage.getItem('auth_user_full') || '{}');
+                        localCache.photo = downloadURL;
+                        localStorage.setItem('auth_user_full', JSON.stringify(localCache));
+
+                        if (window.showToast) window.showToast('Avatar updated successfully!');
+                    } catch (dbErr) {
+                        console.error("Database update failed:", dbErr);
+                        if (window.showToast) window.showToast('Database sync failed', 'error');
+                    } finally {
+                        if (btn) { btn.disabled = false; btn.innerText = 'Change Photo'; }
+                    }
+                }
+            );
+        } catch (err) {
+            console.error("Failed to process avatar", err);
+            if (window.showToast) window.showToast('Unexpected err: ' + err.message, 'error');
+            if (btn) { btn.disabled = false; btn.innerText = 'Change Photo'; }
+        }
     },
 
     triggerPasswordReset: async function (email) {
