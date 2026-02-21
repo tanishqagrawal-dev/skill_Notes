@@ -900,8 +900,17 @@ function renderTabContent(tabId) {
 
     // Synchronize URL with Tab (Exclude notes as it has sub-routing)
     if (tabId !== 'notes' && !window.location.hash.startsWith('#/notes') && !window.location.pathname.startsWith('/notes')) {
-        const targetPath = tabId === 'overview' ? '/pages/dashboard' : `/pages/dashboard/${tabId}`;
-        if (window.location.pathname !== targetPath) {
+        let base = window.location.pathname;
+        const pathParts = base.split('/');
+        const pagesIdx = pathParts.indexOf('pages');
+
+        // Ensure we explicitly refer to dashboard.html to prevent GitHub pages 404s
+        if (pagesIdx !== -1) {
+            base = pathParts.slice(0, pagesIdx + 1).join('/') + '/dashboard.html';
+        }
+
+        const targetPath = tabId === 'overview' ? base : `${base}?tab=${tabId}`;
+        if (window.location.pathname + window.location.search !== targetPath) {
             window.history.pushState({ tab: tabId }, '', targetPath);
         }
     }
