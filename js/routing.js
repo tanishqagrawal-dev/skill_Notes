@@ -5,20 +5,18 @@
 
 export const RoutingSystem = {
     /**
-     * Parses the current URL for filters (handles both path /notes/col/br and query ?col=...).
+     * Parses the current URL for filters (handles hash #/notes/col/br and query ?col=...).
      */
     parseURLFilters() {
-        const path = window.location.pathname;
+        const hash = window.location.hash;
         const searchParams = new URLSearchParams(window.location.search);
 
-        // Try path segments first
-        // We filter out common structural segments to reach the actual filters
-        const parts = path.split('/').filter(p =>
+        // Try hash segments first (e.g. #/notes/medicaps/cs/2/dbms)
+        const parts = hash.split('/').filter(p =>
             p !== '' &&
-            p !== 'notes' &&
-            p !== 'pages' &&
-            p !== 'dashboard' &&
-            p !== 'dashboard.html'
+            p !== '#' &&
+            p !== '#notes' &&
+            p !== 'notes'
         );
 
         return {
@@ -31,23 +29,28 @@ export const RoutingSystem = {
     },
 
     /**
-     * Updates the URL based on the current selection state.
+     * Updates the URL based on the current selection state using Hash Routing.
      */
     updateURLOnFilterChange(state) {
-        // Determine base path based on current location
-        let path = '/notes';
-        if (window.location.pathname.includes('/pages/dashboard')) {
-            path = '/pages/dashboard/notes';
-        }
+        let hash = '#/notes';
 
-        if (state.college) path += `/${state.college.id}`;
-        if (state.branch) path += `/${state.branch.id}`;
-        if (state.year) path += `/${state.year.replace(/\s+/g, '-').toLowerCase()}`;
-        if (state.semester) path += `/${state.semester.replace(/\s+/g, '-').toLowerCase()}`;
-        if (state.subject) path += `/${state.subject.id}`;
+        const collegeId = state.college ? (state.college.id || state.college) : null;
+        if (collegeId) hash += `/${collegeId}`;
 
-        if (window.location.pathname !== path) {
-            window.history.pushState(state, '', path);
+        const branchId = state.branch ? (state.branch.id || state.branch) : null;
+        if (branchId) hash += `/${branchId}`;
+
+        const yearVal = state.year ? (state.year.id || state.year) : null;
+        if (yearVal) hash += `/${yearVal.replace(/\s+/g, '-').toLowerCase()}`;
+
+        const semVal = state.semester ? (state.semester.id || state.semester) : null;
+        if (semVal) hash += `/${semVal.replace(/\s+/g, '-').toLowerCase()}`;
+
+        const subjectId = state.subject ? (state.subject.id || state.subject) : null;
+        if (subjectId) hash += `/${subjectId}`;
+
+        if (window.location.hash !== hash) {
+            window.history.replaceState(state, '', window.location.pathname + window.location.search + hash);
         }
     },
 
@@ -97,41 +100,39 @@ export const RoutingSystem = {
     },
 
     /**
-     * Generates a canonical /notes path based on state.
+     * Generates a canonical #/notes path based on state.
      */
     generateCanonicalPath(state) {
-        let path = '/notes';
-        if (state.college) path += `/${state.college.id}`;
-        if (state.branch) path += `/${state.branch.id}`;
-        if (state.year) path += `/${state.year.replace(/\s+/g, '-').toLowerCase()}`;
-        if (state.semester) path += `/${state.semester.replace(/\s+/g, '-').toLowerCase()}`;
-        if (state.subject) path += `/${state.subject.id}`;
-        return path;
+        let hash = '#/notes';
+
+        const collegeId = state.college ? (state.college.id || state.college) : null;
+        if (collegeId) hash += `/${collegeId}`;
+
+        const branchId = state.branch ? (state.branch.id || state.branch) : null;
+        if (branchId) hash += `/${branchId}`;
+
+        const yearVal = state.year ? (state.year.id || state.year) : null;
+        if (yearVal) hash += `/${yearVal.replace(/\s+/g, '-').toLowerCase()}`;
+
+        const semVal = state.semester ? (state.semester.id || state.semester) : null;
+        if (semVal) hash += `/${semVal.replace(/\s+/g, '-').toLowerCase()}`;
+
+        const subjectId = state.subject ? (state.subject.id || state.subject) : null;
+        if (subjectId) hash += `/${subjectId}`;
+
+        return hash;
     },
 
     /**
-     * Generates a full shareable URL, ensuring it always points to the /notes deep link.
-     * Handles subfolders (like GitHub Pages) and root domains automatically.
+     * Generates a full shareable URL, ensuring it always points to the #/notes deep link.
      */
     getShareableURL(state) {
         const origin = window.location.origin;
+        const pathname = window.location.pathname;
+        const search = window.location.search;
         const canonical = this.generateCanonicalPath(state);
 
-        // Detect if we are in a subfolder (e.g., /skill_notes/pages/notes.html)
-        const pathParts = window.location.pathname.split('/');
-        let subfolder = '';
-        const pagesIdx = pathParts.indexOf('pages');
-        const notesIdx = pathParts.indexOf('notes');
-
-        if (pagesIdx > 1) subfolder = '/' + pathParts.slice(1, pagesIdx).join('/');
-        else if (notesIdx > 1) subfolder = '/' + pathParts.slice(1, notesIdx).join('/');
-
-        // Localhost fallback: Use query-path to avoid 404s on generic local servers
-        if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-            return origin + (subfolder || '') + '/index.html?' + canonical;
-        }
-
-        return origin + subfolder + canonical;
+        return origin + pathname + search + canonical;
     },
 
     /**

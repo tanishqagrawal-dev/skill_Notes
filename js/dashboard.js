@@ -164,7 +164,16 @@ function handleAuthReady(data) {
             const urlParams = new URLSearchParams(window.location.search);
             let tabParam = urlParams.get('tab') || window.pendingTab;
 
-            // Deep link support via URL path (/pages/dashboard/notes)
+            // Deep link support via Hash (#/notes/...)
+            if (!tabParam && window.location.hash.startsWith('#/')) {
+                const hashParts = window.location.hash.split('/');
+                if (hashParts[1]) {
+                    tabParam = hashParts[1];
+                    console.log("📍 Detected Tab from Hash:", tabParam);
+                }
+            }
+
+            // Fallback for old URL path logic
             if (!tabParam) {
                 const pathParts = window.location.pathname.split('/');
                 const dashIdx = pathParts.findIndex(p => p === 'dashboard' || p === 'dashboard.html');
@@ -178,7 +187,7 @@ function handleAuthReady(data) {
                 renderTabContent(tabParam);
 
                 // Deep Link Restoration
-                if (tabParam === 'notes' && window.location.pathname.includes('/notes/')) {
+                if (tabParam === 'notes' && (window.location.hash.includes('#/notes/') || window.location.pathname.includes('/notes/'))) {
                     initDynamicColleges().then(() => {
                         const nextStep = RoutingSystem.applyFiltersToUI(GlobalData, (k, v) => { selState[k] = v; });
                         if (nextStep === "SHOW_NOTES") showNotes();
@@ -890,7 +899,7 @@ function renderTabContent(tabId) {
     }
 
     // Synchronize URL with Tab (Exclude notes as it has sub-routing)
-    if (tabId !== 'notes' && !window.location.pathname.startsWith('/notes')) {
+    if (tabId !== 'notes' && !window.location.hash.startsWith('#/notes') && !window.location.pathname.startsWith('/notes')) {
         const targetPath = tabId === 'overview' ? '/pages/dashboard' : `/pages/dashboard/${tabId}`;
         if (window.location.pathname !== targetPath) {
             window.history.pushState({ tab: tabId }, '', targetPath);
@@ -902,7 +911,7 @@ function renderTabContent(tabId) {
             console.log("➡️ Rendering Overview...");
             contentArea.innerHTML = renderOverview();
         } else if (tabId === 'notes') {
-            const hasPathFilters = window.location.pathname.split('/').length > 4; // /pages/dashboard/notes/...
+            const hasPathFilters = window.location.hash.split('/').length > 2 || window.location.pathname.split('/').length > 4; // #/notes/medicaps...
             if (!hasPathFilters) {
                 selState.college = null; selState.branch = null; selState.year = null; selState.subject = null; selState.semester = null;
             }
