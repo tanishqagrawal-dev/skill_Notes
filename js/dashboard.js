@@ -59,18 +59,24 @@ const GlobalData = {
     years: ['1st Year', '2nd Year', '3rd Year', '4th Year'],
     subjects: {
         'cse-Semester 1': [
-            { id: 'math-1', name: 'Engineering Mathematics I', icon: '📐', code: 'MA101', description: 'Calculus, Linear Algebra and differential equations.' },
-            { id: 'physics', name: 'Engineering Physics', icon: '⚛️', code: 'PH101', description: 'Quantum physics, optics and semiconductor theory.' },
-            { id: 'pps', name: 'Programming With C', icon: '💻', code: 'CS101', description: 'Introduction to algorithmic logic and C programming.' },
-            { id: 'bee', name: 'Basic Electrical & Electronics Engineering', icon: '🔌', code: 'EE101', description: 'AC/DC circuits, transformers and machines.' },
-            { id: 'comm-skills', name: 'Communication Skills', icon: '🗣️', code: 'HS101', description: 'Professional writing and verbal communication.' }
+            { id: 'math-1', name: 'Engineering Mathematics-I', icon: '📐', code: 'EN3BS11', description: 'Calculus, Linear Algebra and differential equations.' },
+            { id: 'physics', name: 'Engineering Physics', icon: '⚛️', code: 'EN3BS16', description: 'Quantum physics, optics and semiconductor theory.' },
+            { id: 'bee', name: 'Basic Electrical Engineering', icon: '🔌', code: 'EN3ES17', description: 'AC/DC circuits, transformers and machines.' },
+            { id: 'graphics', name: 'Engineering Graphics', icon: '📐', code: 'EN3ES26', description: 'Technical drawing, projection and CAD basics.' },
+            { id: 'c-prog', name: 'Basic Programming with C', icon: '💻', code: 'EN3ES27', description: 'Introduction to algorithmic logic and C programming.' },
+            { id: 'civil-mech', name: 'Basic Civil Engineering & Mechanics', icon: '🏗️', code: 'EN3ES30', description: 'Civil engineering fundamentals and applied mechanics.' },
+            { id: 'evs', name: 'Environmental Science', icon: '🌍', code: 'EN3NG01', description: 'Ecosystems, biodiversity and environmental conservation.' },
+            { id: 'hst', name: 'History of Science and Technology', icon: '📜', code: 'EN3HS01', description: 'Evolution of scientific thought and technological advancements.' }
         ],
         'cse-Semester 2': [
-            { id: 'chemistry', name: 'Engineering Chemistry', icon: '🧪', code: 'EN3BS14', description: 'Water treatment, thermodynamics and material science.' },
             { id: 'math-2', name: 'Engineering Mathematics-II', icon: '📉', code: 'EN3BS12', description: 'Advanced calculus, Fourier series and complex variables.' },
-            { id: 'graphics', name: 'Engineering Graphics', icon: '📐', code: 'EN3ES26', description: 'Technical drawing, projection and CAD basics.' },
-            { id: 'electronics', name: 'Basic Civil Engineering', icon: '📟', code: 'EN3ES16', description: 'Semiconductor devices and circuits.' },
-            { id: 'mech', name: 'Basic Mechanical Engineering', icon: '⚙️', code: 'EN3ES18', description: 'Thermodynamics and IC engines.' }
+            { id: 'chemistry', name: 'Engineering Chemistry', icon: '🧪', code: 'EN3BS14', description: 'Water treatment, thermodynamics and material science.' },
+            { id: 'electronics', name: 'Basic Electronics Engineering', icon: '📟', code: 'EN3ES16', description: 'Semiconductor devices and circuits.' },
+            { id: 'mech', name: 'Basic Mechanical Engineering', icon: '⚙️', code: 'EN3ES18', description: 'Thermodynamics and IC engines.' },
+            { id: 'adv-c', name: 'Advanced Programming with C', icon: '💻', code: 'EN3ES28', description: 'Pointers, dynamic memory allocation and file handling.' },
+            { id: 'workshop', name: 'Engineering Workshop', icon: '🛠️', code: 'EN3ES29', description: 'Hands-on practice with tools, carpentry and welding.' },
+            { id: 'uhv', name: 'Universal Human Values & Professional Ethics', icon: '🤝', code: 'EN3NG02', description: 'Understanding human values and ethical practices.' },
+            { id: 'comm-skills', name: 'Communication Skills', icon: '🗣️', code: 'EN3HS10', description: 'Professional writing and verbal communication.' }
         ],
         'cse-Semester 3': [
             { id: 'dm', name: 'Discrete Mathematics', icon: '🧩', code: 'CS301', description: 'Logic, sets, graph theory and combinatorics.' },
@@ -2265,6 +2271,7 @@ window.showNotes = function (activeTab = 'notes') {
                         <div class="ai-btns-row" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
                             <button class="btn btn-primary btn-sm" onclick="showAIModal('summary', '${selState.subject.name}')">✨ AI Summary</button>
                             <button class="btn btn-ghost btn-sm ai-questions-btn" style="border: 1px solid var(--primary);" onclick="showAIModal('questions', '${selState.subject.name}')">📝 Generate Model Questions</button>
+                            <button class="btn btn-ghost btn-sm syllabus-btn" style="border: 1px solid var(--primary);" onclick="showAIModal('syllabus', '${selState.subject.name}')">📖 Syllabus</button>
                         </div>
                     </div>
                     <div class="subject-actions-top" style="display:flex; gap: 1rem;">
@@ -2610,12 +2617,133 @@ function formatDate(timestamp) {
 }
 
 window.showAIModal = function (type, subject) {
-    const title = type === 'summary' ? 'AI Concept Summary' : 'Model Exam Questions';
-    const content = type === 'summary'
-        ? `Gemini is generating a high-yield summary for <b>${subject}</b> based on the latest Medi-Caps syllabus...`
-        : `Generating a mock question paper for <b>${subject}</b> including 2-mark and 10-mark questions...`;
+    let title, content;
+    let isSyllabusAvailable = false;
 
-    alert(`✨ [AI Agent Mode]\n\n${title}\nTarget: ${subject}\n\n${content}\n\n(Feature processing available in Pro Sandbox)`);
+    // Base helper for standard syllabus generation
+    const genSyllabusHTML = (units) => {
+        return `<div style="text-align: left; max-height: 60vh; overflow-y: auto; padding-right: 10px;">
+            ${units.map(u => `
+                <h4 style="color: var(--primary); margin-bottom: 0.5rem;">${u.title}</h4>
+                <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.6;">${u.desc}</p>
+            `).join('')}
+        </div>`;
+    };
+
+    const syllabiDB = {
+        'Engineering Mathematics-I': genSyllabusHTML([
+            { title: 'Unit 1: Matrices and Linear Systems', desc: "Rank and Nullity of a Matrix by reducing it into Echelon and Normal Forms, Solution of Simultaneous equations by elementary transformation methods, Consistency and Inconsistency of Equations, Eigen Values and Eigen Vectors." },
+            { title: 'Unit 2: Differential Calculus', desc: "Introduction to limit continuity, differentiability, Rolle’s theorem, Mean value theorem, Taylor's and Maclaurin’s series expansions. Functions of Several variables, Partial differentiation, Euler’s Theorem, Total Derivative, Maxima and Minima of function of two variables." },
+            { title: 'Unit 3: Integral Calculus', desc: "Definite Integral as a limit of sum and its application in summation of series, Beta and Gamma functions (Definitions, Relation between Beta and Gamma functions without proof, Duplication formula without proof). Multiple Integral (Double and Triple Integrals), Change the Order of Integration, Applications of Multiple Integral in Area, Volume." },
+            { title: 'Unit 4: Ordinary Differential Equations', desc: "First order differential equations (Separable, Exact, Homogeneous, Linear), Linear differential Equations of second and higher order with constant coefficients, Homogeneous linear differential equations, Simultaneous linear differential equations." },
+            { title: 'Unit 5: Complex Variable', desc: "Basics of Complex number, Functions of complex variable: Analytic functions, Harmonic Conjugate functions, Cauchy-Riemann Equations, Complex Line Integral, Cauchy’s Theorem, Cauchy’s Integral Formula." }
+        ]),
+        'Engineering Physics': genSyllabusHTML([
+            { title: 'Unit 1: Quantum mechanics', desc: "Limitations of Classical Mechanics, De-Broglie hypothesis for matter waves, phase and group velocity, wave packet, Heisenberg’s uncertainty principle, Compton scattering, wave function, Schrodinger’s Time dependent and time independent wave equation, Particle in a box problem." },
+            { title: 'Unit 2: Wave Optics', desc: "Interference: Fresnel’s biprism experiment, Newton’s ring experiment. Diffraction of light: Fraunhofer diffraction for single slit, Grating and its types, and Rayleigh criterion of Resolution. Polarization: General concept of Polarization, Huygens theory of double refraction, Engineering Applications of Polarization." },
+            { title: 'Unit 3: Nuclear Physics', desc: "Nuclear Structure, Nuclear model: Liquid drop model, Semi- empirical mass formula (Qualitative study) , Shell model, Particle accelerators: LINAC, Cyclotron, Synchrotron (Qualitative study), Betatron. Geiger-Muller (GM) counter, Bainbridge Mass Spectrograph." },
+            { title: 'Unit 4: Solid State Physics', desc: "Crystal Physics: Unit cell, Crystal System, Types of Unit cell: Simple cubic, Face centred cubic, Body centred cubic Crystal, Number of atoms per unit cell, Packing fraction in different cubic lattices, Miller indices. Band theory of solids: Free Electron model, Band Model, Fermi level for Intrinsic and Extrinsic Semiconductors, Hall effect. Superconductivity: Zero resistance, persistent currents, superconducting transition temperature (Tc), Meissner effect, Type-I and Type-II superconductors, Engineering applications of superconductivity." },
+            { title: 'Unit 5: Laser and Fiber Optics', desc: "Lasers: Properties of lasers, Spontaneous and Stimulated emission of radiation, Einstein’s A & B coefficient, Population inversion, Components of Laser, Ruby Laser, He-Ne Laser, Engineering applications of lasers. Fiber Optics: Fundamental idea about optical fibre, propagation of light through optical fibre acceptance angle, numerical aperture, fractional refractive index change, Classification of fibre, V number, Engineering applications of fibre." }
+        ]),
+        'Basic Civil Engineering & Mechanics': genSyllabusHTML([
+            { title: 'Unit 1: Building Materials & Construction', desc: "Stones, bricks, cement, lime, timber-types, properties, test & uses, laboratory tests concrete and mortar Materials: Workability, Strength properties of Concrete, Nominal proportion of Concrete preparation of concrete, compaction, curing. Elements of Building Construction, Foundations conventional spread footings, RCC footings, floors, staircases – types and their suitability." },
+            { title: 'Unit 2: Surveying & Levelling', desc: "Surveying-classification, general principles of surveying–Basic terms and definitions of chain, Chain survey, Compass survey and levelling." },
+            { title: 'Unit 3: Mapping & Sensing', desc: "Mapping details and contouring, Profile Cross sectioning and measurement of areas, volumes, application of measurements in quantity computations, Survey stations." },
+            { title: 'Unit 4: Forces & its applications', desc: "Graphical and Analytical Treatment of Concurrent and nonconcurrent Co- planner forces, Free Body Diagram, Force Diagram and Bow’s notations. Application of Equilibrium Concepts: Analysis of plane Trusses: Method of joints, Method of Sections. Frictional force in equilibrium problems." },
+            { title: 'Unit 5: Shear force and Bending moment', desc: "Introduction of shear force and bending moment and their sign conventions, Types of loads, Types of beams, Types of supports; Shear force and bending moment diagrams for simply supported, overhang and cantilever beams subjected to any combination of point loads, uniformly distributed load, and point moment; Relationship between load, shear force and bending moment." }
+        ]),
+        'Basic Electrical Engineering': genSyllabusHTML([
+            { title: 'Unit 1: DC circuit analysis', desc: "Elements and characteristics of electric circuits, ideal and practical sources, independent and dependent electrical sources, Ohm’s law, source transformation, Kirchhoff’s laws. Mesh analysis, nodal analysis, voltage and current division rules, star- delta conversions, Thevenin’s and Norton’s theorems." },
+            { title: 'Unit 2: AC Circuit Analysis', desc: "Generation of sinusoidal AC voltage, average and RMS values, concept of phasor, analysis of series RL, RC and RLC circuits, power triangle, power factor, series resonance and Q factor. Generation of three phase voltages, advantages of three phase systems, star and delta connections (balanced only), relation between line and phase quantities." },
+            { title: 'Unit 3: Electrical Machines', desc: "Definition, working principle and construction of transformer, construction & working principle of DC motor and three phase induction motor, single phase induction motor, application of rotating machines." },
+            { title: 'Unit 4: Industrial Electrical Engineering', desc: "Power supply: linear power supply, switch mode power supply (SMPS), block diagram of UPS. Safety and protection: electric hazards and precautions, earthing, fuses, MCB, types of wires and cables, components of domestic wiring, electricity metering and billing." },
+            { title: 'Unit 5: Electrical Energy Systems and Utilization', desc: "Power generation to distribution through overhead lines and underground cables with single line diagram, block schematic representation of hydroelectric and thermal power plants. Advantages of electrical heating, induction heating and its applications, dielectric heating and its applications, welding transformer." }
+        ]),
+        'Basic Programming with C': genSyllabusHTML([
+            { title: 'Unit 1: Introduction to Computer and Problem-Solving Methodology', desc: "Computer System, Computing Environments, Software, Types of Software and Features of Software. Design Tools (Algorithm, Flow-Chart, Pseudo-Code). Types and Generations of Programming Languages. Compiler, Interpreter, Linker, Loader, Execution of Program. Develop an Algorithm for Simple Problems." },
+            { title: 'Unit 2: Basics of Language', desc: "Character set, Identifier, Keywords, Constants, Data Types, Preprocessor Directives, Variables and Declaration, White Space and Escape Sequence, Operators and Expressions, Type Conversions, Operator Precedence and Associativity, Expression Evaluation, Input and Output Functions. Computational Problems Solving Based on the above Constructs." },
+            { title: 'Unit 3: Control Statements', desc: "Selection (If, Else), Conditional Operator, Iteration (For, While, Do-While), Branching (Switch, Break, Continue, Goto), Nesting of Control Statements. Problem Solving Based on Control Statements." },
+            { title: 'Unit 4: Arrays and Strings', desc: "Defining an Array, One Dimensional Array, Two-Dimensional Array, Multi-Dimensional Array. Basic Array Operations and Matrix Manipulation Operations (Addition, Subtraction, and Multiplication). Problem Solving Based on Array. Strings Definition, String Operations and String Functions. Problem Solving Based on Strings." },
+            { title: 'Unit 5: Functions', desc: "Introduction, Functions Declaration, Definition, Calling, Return Statement, Parameter Passing (By Value), Recursion, Library Functions. Problem Solving Based on Functions." }
+        ]),
+        'Engineering Graphics': genSyllabusHTML([
+            { title: 'Unit 1: Orthographic Projection of Point and line', desc: "Introduction of orthographic projection: Reference planes, types of orthographic projections– First angle projections, Third angle projection. Projections of points: Including points in all four quadrants Projections of lines: Line parallel to reference plane, perpendicular to reference plane, inclined to one reference plane, inclined to both reference planes, traces of line." },
+            { title: 'Unit 2: Orthographic Projection of Planes and solids', desc: "Orthographic Projections of Planes: Projections of Planes in different Positions Orthographic Projection of Solids: Classification of solid. Projections in simple and complex positions of the axis of the solid." },
+            { title: 'Unit 3: Section of solids and development of surfaces', desc: "Sections of Solids: Sectional views and true shape of the section. Development of Surfaces: Prism, Pyramid, Cone and Cylinder." },
+            { title: 'Unit 4: Introduction to Auto CAD and its basic commands', desc: "User Interface – Menu system – coordinate systems, axesTool bars (draw, modify, annotations, layers, Blocks etc.) Status bar (ortho, grid, snap, iso etc.), Utility commands. Drawing Tools : Line, polyline, Circle, arc Rectangle, polygon Ellipse, Elliptical arc, spline Spline Edit, Xline, Ray, Points Measure, Divide , Donut, , hatch, Gradient, CAD, advantages and limitation of auto cad." },
+            { title: 'Unit 5: Some advance commands of auto cad and orthographic projection using auto cad', desc: "Advance commands: Annotations Dimensions, dimension setting Linear dimension, Aligned dimension, Angular dimensions, arc length, Radius Diameter, ordinates, jogged Base line dimension, Dim base Continuous dimension TEXT: Text style, single text, multi text TOOLS Property: color, line type, Line weight, Match properties LAYERS Create layers, Edit layers properties Layer control (hide, freeze, lock Layout lock, print lock) Orthographic Projection using Auto CAD: Various Objects (Conversion of Pictorial Views to Orthographic Views)." }
+        ]),
+        'History of Science and Technology': genSyllabusHTML([
+            { title: 'Unit 1: Historical Perspective', desc: "Nature of science and technology, Roots of science and technology in India, Role of Science and Scientists in Society, Science and Faith." },
+            { title: 'Unit 2: Research and Development (R&D) in India', desc: "Science and Technology Education, Research activities and promotion of technology development, Technology mission, Programs aimed at technological self-reliance, activities of council of scientific and industrial research (CSIR)." },
+            { title: 'Unit 3: Policies and Plans after Independence', desc: "Nehru’s vision of science for independent India, Science and technology developments in the new era, science and technology developments during the Five-Year Plan Periods and science and technology policy resolutions." },
+            { title: 'Unit 4: Science and Technological Developments in Major Areas', desc: "Space – Objectives of space programs, Geostationary Satellite Services – INSAT system and INSAT services remote sensing applications, Launch Vehicle Technology. Ocean Development. Objectives of ocean development, marine research. Biotechnology - Applications of biotechnology in medicine, agriculture, food, and fuel. Energy – Research and development in the field of nonconventional energy resources, India’s nuclear energy program." },
+            { title: 'Unit 5: Nexus between Technologies', desc: "Transfer of Technology – Types, Methods, Mechanisms, Process, Channels and Techniques, Appropriate technology, Technology assessment, Technological forecasting, Technological innovations and barriers of technological change." }
+        ]),
+        'Environmental Science': genSyllabusHTML([
+            { title: 'Unit 1: Ecosystem and Biodiversity', desc: "Concept of Ecosystem, Food Chains, Food Webs, Energy flow in an ecosystem. Biodiversity: Introduction, Types, Significance and Conservation." },
+            { title: 'Unit 2: Air Pollution', desc: "Causes, Effects and Control of Air Pollution, Greenhouse Effect - Climate changes and Global warming, Ozone layer depletion, Acid Rain. Case studies on recent cases of air pollution and management." },
+            { title: 'Unit 3: Water Pollution', desc: "Causes, Effects and Control of Water Pollution, DO, BOD and COD, Water sampling, Municipal water treatment." },
+            { title: 'Unit 4: Solid Waste Management', desc: "Introduction, Types of solid waste, Harmful effects of solid waste, Methods to manage and modern techniques for solid waste management." },
+            { title: 'Unit 5: Disaster Management', desc: "Concept of Disaster, Types of Disaster, Pre-disaster risk and vulnerability reduction, Post disaster recovery and rehabilitation. Case studies on recent disasters and management." }
+        ])
+    };
+
+    if (type === 'summary') {
+        title = '✨ AI Concept Summary';
+        content = `<div style="text-align: center; padding: 2rem;"><p style="color: var(--text-dim); line-height: 1.6;">Gemini is generating a high-yield summary for <b style="color: white;">${subject}</b> based on the latest syllabus...</p><div class="loader-pro" style="margin: 2rem auto;"></div><p style="font-size: 0.8rem; color: var(--secondary); margin-top: 1rem;">(Feature processing available in Pro Sandbox)</p></div>`;
+    } else if (type === 'questions') {
+        title = '📝 Model Exam Questions';
+        content = `<div style="text-align: center; padding: 2rem;"><p style="color: var(--text-dim); line-height: 1.6;">Generating a mock question paper for <b style="color: white;">${subject}</b> including 2-mark and 10-mark questions...</p><div class="loader-pro" style="margin: 2rem auto;"></div><p style="font-size: 0.8rem; color: var(--secondary); margin-top: 1rem;">(Feature processing available in Pro Sandbox)</p></div>`;
+    } else if (type === 'syllabus') {
+        title = '📖 Subject Syllabus';
+
+        let exactMatch = syllabiDB[subject];
+        if (!exactMatch) {
+            // fuzzy fallback check
+            for (let key in syllabiDB) {
+                if (subject.toLowerCase().includes(key.toLowerCase())) {
+                    exactMatch = syllabiDB[key];
+                    break;
+                }
+            }
+        }
+
+        if (exactMatch) {
+            content = exactMatch;
+            isSyllabusAvailable = true;
+        } else {
+            content = `<div style="text-align: center; padding: 2rem;"><p style="color: var(--text-dim); line-height: 1.6;">Loading the official syllabus structure for <b style="color: white;">${subject}</b>...</p><div class="loader-pro" style="margin: 2rem auto;"></div><p style="font-size: 0.8rem; color: var(--secondary); margin-top: 1rem;">(Feature processing available in Pro Sandbox)</p></div>`;
+        }
+    }
+
+    // Create custom modal if it doesn't exist
+    let modal = document.getElementById('dynamic-ai-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'dynamic-ai-modal';
+        modal.style.cssText = `
+            display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
+            align-items: center; justify-content: center;
+        `;
+
+        modal.innerHTML = `
+            <div style="background: rgba(23, 23, 23, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; width: 90%; max-width: 600px; padding: 2.5rem; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); animation: modalFadeIn 0.3s ease-out;">
+                <button onclick="document.getElementById('dynamic-ai-modal').style.display='none'" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: var(--text-dim); font-size: 1.5rem; cursor: pointer;">&times;</button>
+                <div style="margin-bottom: 2rem; text-align: center;">
+                    <h2 id="dynamic-ai-modal-title" style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; font-family: 'JetBrains Mono', monospace;"></h2>
+                </div>
+                <div id="dynamic-ai-modal-content"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    document.getElementById('dynamic-ai-modal-title').innerText = title;
+    document.getElementById('dynamic-ai-modal-content').innerHTML = content;
+
+    modal.style.display = 'flex';
 };
 
 window.processNote = async function (noteId, status) {
