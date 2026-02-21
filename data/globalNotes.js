@@ -2,7 +2,7 @@ export const globalNotes = {
     global: {
         "Advanced Java Programming": [
             {
-                id: "static-adv-java-unit-1",
+                id: "adv-java-unit-1",
                 subject: "Advanced Java Programming",
                 subjectName: "Advanced Java Programming",
                 subjectId: "Advanced Java Programming",
@@ -14,7 +14,7 @@ export const globalNotes = {
                 url: "https://drive.google.com/file/d/1oWspWtT2VdTwdmQCxrnmgShSZ2cW-ze2/view"
             },
             {
-                id: "static-adv-java-unit-2",
+                id: "adv-java-unit-2",
                 subject: "Advanced Java Programming",
                 subjectName: "Advanced Java Programming",
                 subjectId: "Advanced Java Programming",
@@ -26,7 +26,7 @@ export const globalNotes = {
                 url: "https://firebasestorage.googleapis.com/v0/b/skill-notes.firebasestorage.app/o/notes_uploads%2Fmedicaps%2FAdvance%20Java%20Programming%2FUNIT-2.pdf?alt=media&token=73a0ea15-ab8d-4118-8f36-0add28324779"
             },
             {
-                id: "static-adv-java-unit-3",
+                id: "adv-java-unit-3",
                 subject: "Advanced Java Programming",
                 subjectName: "Advanced Java Programming",
                 subjectId: "Advanced Java Programming",
@@ -42,7 +42,7 @@ export const globalNotes = {
     medicaps: {
         "Advanced Java Programming": [
             {
-                id: "static-adv-java-unit-1-medicaps",
+                id: "adv-java-unit-1-medicaps",
                 subject: "Advanced Java Programming",
                 subjectName: "Advanced Java Programming",
                 subjectId: "Advanced Java Programming",
@@ -54,7 +54,7 @@ export const globalNotes = {
                 url: "https://drive.google.com/file/d/1oWspWtT2VdTwdmQCxrnmgShSZ2cW-ze2/view"
             },
             {
-                id: "static-adv-java-unit-2-medicaps",
+                id: "adv-java-unit-2-medicaps",
                 subject: "Advanced Java Programming",
                 subjectName: "Advanced Java Programming",
                 subjectId: "Advanced Java Programming",
@@ -66,7 +66,7 @@ export const globalNotes = {
                 url: "https://firebasestorage.googleapis.com/v0/b/skill-notes.firebasestorage.app/o/notes_uploads%2Fmedicaps%2FAdvance%20Java%20Programming%2FUNIT-2.pdf?alt=media&token=73a0ea15-ab8d-4118-8f36-0add28324779"
             },
             {
-                id: "static-adv-java-unit-3-medicaps",
+                id: "adv-java-unit-3-medicaps",
                 subject: "Advanced Java Programming",
                 subjectName: "Advanced Java Programming",
                 subjectId: "Advanced Java Programming",
@@ -80,7 +80,7 @@ export const globalNotes = {
         ],
         "DBMS": [
             {
-                id: "static-dbms-unit-1",
+                id: "dbms-unit-1",
                 subject: "DBMS",
                 subjectName: "DBMS",
                 subjectId: "dbms",

@@ -64,7 +64,7 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 // EAGER INIT (Standard for shared usage)
-const db = getFirestore(app);
+const db = getFirestore(app, "notes");
 const storage = getStorage(app);
 const functions = getFunctions(app);
 

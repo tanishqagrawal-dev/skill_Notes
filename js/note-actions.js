@@ -132,109 +132,36 @@ window.incrementNoteView = async function (noteId) {
  * Toggle Like Status
  * Handles likes subcollection + main doc counter
  */
-window.toggleNoteLike = async function (noteId) {
-    const { db, auth, doc, runTransaction, increment } = getFirebase();
-    if (!db || !noteId) return;
+window.likeNote = async function (noteId) {
 
-    const user = auth?.currentUser || window.currentUser;
-    if (!user || user.isGuest) {
-        if (typeof showToast === 'function') showToast("Please login to like", "info");
-        else alert("Please login to like");
-        return;
-    }
+    const { db, auth, doc, getDoc, setDoc, deleteDoc, updateDoc, increment } = getFirebase();
 
-    const isCurrentlyLiked = window.likedNoteIds.has(noteId);
-    const isCurrentlyDisliked = window.dislikedNoteIds.has(noteId);
+    if (!noteId) return alert("Missing Firestore ID");
 
-    let delta = 1;
-    let isActive = true;
-    let dislikeDelta = 0;
-
-    if (isCurrentlyLiked) {
-        window.likedNoteIds.delete(noteId);
-        delta = -1;
-        isActive = false;
-    } else {
-        window.likedNoteIds.add(noteId);
-        delta = 1;
-        isActive = true;
-        // Enforce Mutual Exclusivity
-        if (isCurrentlyDisliked) {
-            window.dislikedNoteIds.delete(noteId);
-            dislikeDelta = -1;
-        }
-    }
-
-    // --- OPTIMISTIC UI UPDATE ---
-    document.querySelectorAll(`[data-note-id="${noteId}"]`).forEach(card => {
-        const likeBtn = card.querySelector('.like-btn, [title="Like"], [onclick="likeNote(\'' + noteId + '\')"]');
-        if (likeBtn) {
-            const countSpan = likeBtn.querySelector('.like-count');
-            if (isActive) {
-                likeBtn.classList.add('active');
-                if (countSpan && !isCurrentlyLiked) countSpan.innerText = (parseInt(countSpan.innerText) || 0) + 1;
-            } else {
-                likeBtn.classList.remove('active');
-                if (countSpan && isCurrentlyLiked) countSpan.innerText = Math.max(0, (parseInt(countSpan.innerText) || 1) - 1);
-            }
-        }
-
-        if (dislikeDelta === -1) {
-            const dislikeBtn = card.querySelector('[title="Dislike"]');
-            if (dislikeBtn) {
-                dislikeBtn.classList.remove('active');
-                const disCountSpan = dislikeBtn.querySelector('.dislike-count');
-                if (disCountSpan) disCountSpan.innerText = Math.max(0, (parseInt(disCountSpan.innerText) || 1) - 1);
-            }
-        }
-    });
-
-    if (typeof showToast === 'function') {
-        showToast(delta === 1 ? "Added to your favorites ❤️" : "Removed from favorites");
-    }
-
-    if (window.statServices && typeof window.statServices.trackGlobalLike === 'function') {
-        window.statServices.trackGlobalLike(delta);
-    }
-
-    if (typeof gtag === 'function') {
-        gtag('event', 'notes_like', { note_id: noteId, action: delta === 1 ? 'like' : 'unlike' });
-    }
-
-    // --- BYPASS FIRESTORE IF HARDCODED STATIC NOTE ---
-    if (noteId.startsWith('static-')) return;
+    const user = auth.currentUser || window.currentUser;
+    if (!user) return alert("Login required");
 
     try {
         const noteRef = doc(db, "notes", noteId);
-        const userId = user.uid || user.id;
-        const likeRef = doc(db, "notes", noteId, "likes", userId);
+        const engagementRef = doc(db, "notes", noteId, "engagement", user.uid || user.id);
 
-        await runTransaction(db, async (transaction) => {
-            const noteSnap = await transaction.get(noteRef);
-            const likeSnap = await transaction.get(likeRef);
+        const snap = await getDoc(engagementRef);
 
-            if (!noteSnap.exists()) {
-                transaction.set(noteRef, { views: 0, likes: 0, dislikes: 0, downloads: 0, createdAt: Date.now() });
-            }
+        if (snap.exists()) {
+            await deleteDoc(engagementRef);
+            await updateDoc(noteRef, { likes: increment(-1) });
+            window.likedNoteIds.delete(noteId);
+        } else {
+            await setDoc(engagementRef, { liked: true });
+            await updateDoc(noteRef, { likes: increment(1) });
+            window.likedNoteIds.add(noteId);
+        }
 
-            if (!isActive) { // We toggled it off
-                transaction.delete(likeRef);
-                transaction.update(noteRef, { likes: increment(-1) });
-            } else { // We toggled it on
-                transaction.set(likeRef, { liked: true, timestamp: Date.now() });
-                transaction.update(noteRef, { likes: increment(1) });
-            }
-
-            // Clean up mutually exclusive dislikes natively via transaction
-            if (dislikeDelta === -1) {
-                const dislikeRef = doc(db, "notes", noteId, "dislikes", userId);
-                transaction.delete(dislikeRef);
-                transaction.update(noteRef, { dislikes: increment(-1) });
-            }
-        });
+        if (typeof syncAllInteractionIcons === 'function') syncAllInteractionIcons();
     } catch (e) {
-        console.error("Like system error:", e);
+        console.error("Like error:", e);
     }
+
 };
 
 /**
@@ -304,9 +231,6 @@ window.toggleNoteDislike = async function (noteId) {
     if (typeof gtag === 'function') {
         gtag('event', 'notes_dislike', { note_id: noteId, action: isActive ? 'dislike' : 'undislike' });
     }
-
-    // --- BYPASS FIRESTORE IF HARDCODED STATIC NOTE ---
-    if (noteId.startsWith('static-')) return;
 
     try {
         const noteRef = doc(db, "notes", noteId);
@@ -383,7 +307,7 @@ window.updateNoteStat = async function (noteId, type) {
     }
 
     // --- BYPASS FIRESTORE IF HARDCODED STATIC NOTE ---
-    if (noteId.startsWith('static-')) return;
+    // REMOVED to allow global scaling
 
     try {
         if (type === 'download' || type === 'view') {
@@ -513,8 +437,8 @@ window.attachNoteRealtimeListeners = function (containerId = 'tab-content') {
         const userId = user && !user.isGuest ? (user.uid || user.id) : null;
 
         // Asynchronously hydrate Personal Engagement states directly from subcollections
-        if (userId && !noteId.startsWith('static-')) {
-            getDoc(doc(db, "notes", noteId, "likes", userId)).then(snap => {
+        if (userId) {
+            getDoc(doc(db, "notes", noteId, "engagement", userId)).then(snap => {
                 if (snap.exists()) window.likedNoteIds.add(noteId);
                 else window.likedNoteIds.delete(noteId);
                 if (typeof syncAllInteractionIcons === 'function') syncAllInteractionIcons();

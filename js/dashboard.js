@@ -280,7 +280,7 @@ window.showToast = function (message, type = 'success') {
     }, 3000);
 };
 
-window.likeNote = function (id) { if (window.toggleNoteLike) window.toggleNoteLike(id); };
+// Re-wired to native window methods inside note-actions.js
 window.downloadNote = function (id) { if (window.updateNoteStat) window.updateNoteStat(id, 'download'); };
 window.viewNote = function (id) { if (window.updateNoteStat) window.updateNoteStat(id, 'view'); };
 window.incrementNoteView = window.viewNote;
@@ -2489,8 +2489,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
     const deduplicatedNotes = Array.from(uniqueMap.values());
 
     const filtered = deduplicatedNotes.filter(n => {
-        const isStatic = n.id && n.id.startsWith('static-');
-        const semMatch = isStatic || n.semester === querySem || (altSem && n.semester === altSem);
+        const semMatch = !n.semester || n.semester === querySem || (altSem && n.semester === altSem);
         const isCorrectSubject = ((n.subjectId === subjectId) || (n.subject === subjectId) || (n.subjectName === selState.subject.name)) &&
             (n.collegeId === selState.college.id || n.college === selState.college.id || n.collegeId === 'global') &&
             (n.type === tabType || !n.type);
