@@ -162,7 +162,17 @@ function handleAuthReady(data) {
 
         if (isNewSession || roleChanged || isSkeleton) {
             const urlParams = new URLSearchParams(window.location.search);
-            const tabParam = urlParams.get('tab') || window.pendingTab;
+            let tabParam = urlParams.get('tab') || window.pendingTab;
+
+            // Deep link support via URL path (/pages/dashboard/notes)
+            if (!tabParam) {
+                const pathParts = window.location.pathname.split('/');
+                const dashIdx = pathParts.findIndex(p => p === 'dashboard' || p === 'dashboard.html');
+                if (dashIdx !== -1 && pathParts[dashIdx + 1]) {
+                    tabParam = pathParts[dashIdx + 1];
+                    console.log("📍 Detected Tab from Path:", tabParam);
+                }
+            }
 
             if (tabParam) {
                 renderTabContent(tabParam);
@@ -250,6 +260,7 @@ window.showToast = function (message, type = 'success') {
     }, 3000);
 };
 
+<<<<<<< HEAD
 window.likeNote = async function (noteId) {
 
     console.log("REAL NOTE ID:", noteId);
@@ -336,6 +347,9 @@ window.downloadNote = async function (noteId) {
 };
 
 window.incrementNoteView = window.viewNote;
+=======
+// Redundant functions removed: updateNoteStat, toggleNoteDislike (Handled by note-actions.js)
+>>>>>>> 54d1a9523972d3cd2b2f30a8b4cd0858d743dc53
 
 function initDynamicColleges() {
     const { db, collection, onSnapshot } = getFirebase();
@@ -370,10 +384,7 @@ function initNotesSync() {
     });
 }
 
-window.toggleNoteBookmark = function (noteId) {
-    alert("📑 Note added to your bookmarks!");
-    // In a real app, this would save to user's personal bookmark collection in Firestore
-}
+// Redundant toggleNoteBookmark removed (Handled by toggleBookmark in note-actions.js)
 
 // --- CORE DASHBOARD LOGIC ---
 // Handled by consolidated listener at the bottom of the file
@@ -951,6 +962,14 @@ function renderTabContent(tabId) {
     // GA4 SPA Tracking
     if (window.trackSPAView) {
         window.trackSPAView(`/dashboard/${tabId}`);
+    }
+
+    // Synchronize URL with Tab (Exclude notes as it has sub-routing)
+    if (tabId !== 'notes' && !window.location.pathname.startsWith('/notes')) {
+        const targetPath = tabId === 'overview' ? '/pages/dashboard' : `/pages/dashboard/${tabId}`;
+        if (window.location.pathname !== targetPath) {
+            window.history.pushState({ tab: tabId }, '', targetPath);
+        }
     }
 
     try {
@@ -2325,6 +2344,10 @@ window.showNotes = function (activeTab = 'notes') {
 
 function renderInstantStaticNotes(notes) {
     const createNoteCard = (note, idx) => {
+<<<<<<< HEAD
+=======
+        const noteId = note.id || `static-${(note.title || 'note').replace(/\s+/g, '-').toLowerCase()}`;
+>>>>>>> 54d1a9523972d3cd2b2f30a8b4cd0858d743dc53
         return `
             <div class="note-card-pro card-reveal" data-note-id="${note.id}" style="animation-delay: ${idx * 0.1}s;">
                 <div class="note-info-pro">
@@ -2376,7 +2399,14 @@ function renderInstantStaticNotes(notes) {
 
     setTimeout(() => {
         if (typeof attachNoteRealtimeListeners === 'function') attachNoteRealtimeListeners('tab-content');
+<<<<<<< HEAD
         notes.forEach(n => { if (n.id) window.incrementNoteView?.(n.id); });
+=======
+        notes.forEach(n => {
+            const staticId = n.id || `static-${(n.title || 'note').replace(/\s+/g, '-').toLowerCase()}`;
+            incrementNoteView(staticId);
+        });
+>>>>>>> 54d1a9523972d3cd2b2f30a8b4cd0858d743dc53
     }, 100);
 
     return html;
