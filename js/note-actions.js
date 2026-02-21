@@ -143,23 +143,49 @@ window.toggleNoteLike = async function (noteId) {
         return;
     }
 
+    const isCurrentlyLiked = window.likedNoteIds.has(noteId);
+    const isCurrentlyDisliked = window.dislikedNoteIds.has(noteId);
+
     let delta = 1;
     let isActive = true;
+    let dislikeDelta = 0;
+
+    if (isCurrentlyLiked) {
+        window.likedNoteIds.delete(noteId);
+        delta = -1;
+        isActive = false;
+    } else {
+        window.likedNoteIds.add(noteId);
+        delta = 1;
+        isActive = true;
+        // Enforce Mutual Exclusivity
+        if (isCurrentlyDisliked) {
+            window.dislikedNoteIds.delete(noteId);
+            dislikeDelta = -1;
+        }
+    }
 
     // --- OPTIMISTIC UI UPDATE ---
-    document.querySelectorAll(`[data-note-id="${noteId}"] .like-btn, [data-note-id="${noteId}"] [title="Like"], [onclick="likeNote('${noteId}')"]`).forEach(btn => {
-        const countSpan = btn.querySelector('.like-count');
+    document.querySelectorAll(`[data-note-id="${noteId}"]`).forEach(card => {
+        const likeBtn = card.querySelector('.like-btn, [title="Like"], [onclick="likeNote(\'' + noteId + '\')"]');
+        if (likeBtn) {
+            const countSpan = likeBtn.querySelector('.like-count');
+            if (isActive) {
+                likeBtn.classList.add('active');
+                if (countSpan && !isCurrentlyLiked) countSpan.innerText = (parseInt(countSpan.innerText) || 0) + 1;
+            } else {
+                likeBtn.classList.remove('active');
+                if (countSpan && isCurrentlyLiked) countSpan.innerText = Math.max(0, (parseInt(countSpan.innerText) || 1) - 1);
+            }
+        }
 
-        if (btn.classList.contains('active')) {
-            if (countSpan) countSpan.innerText = Math.max(0, (parseInt(countSpan.innerText) || 1) - 1);
-            btn.classList.remove('active');
-            delta = -1;
-            isActive = false;
-        } else {
-            if (countSpan) countSpan.innerText = (parseInt(countSpan.innerText) || 0) + 1;
-            btn.classList.add('active');
-            delta = 1;
-            isActive = true;
+        if (dislikeDelta === -1) {
+            const dislikeBtn = card.querySelector('[title="Dislike"]');
+            if (dislikeBtn) {
+                dislikeBtn.classList.remove('active');
+                const disCountSpan = dislikeBtn.querySelector('.dislike-count');
+                if (disCountSpan) disCountSpan.innerText = Math.max(0, (parseInt(disCountSpan.innerText) || 1) - 1);
+            }
         }
     });
 
@@ -198,6 +224,13 @@ window.toggleNoteLike = async function (noteId) {
                 transaction.set(likeRef, { liked: true, timestamp: Date.now() });
                 transaction.update(noteRef, { likes: increment(1) });
             }
+
+            // Clean up mutually exclusive dislikes natively via transaction
+            if (dislikeDelta === -1) {
+                const dislikeRef = doc(db, "notes", noteId, "dislikes", userId);
+                transaction.delete(dislikeRef);
+                transaction.update(noteRef, { dislikes: increment(-1) });
+            }
         });
     } catch (e) {
         console.error("Like system error:", e);
@@ -208,19 +241,68 @@ window.toggleNoteLike = async function (noteId) {
  * Toggle Note Dislike
  */
 window.toggleNoteDislike = async function (noteId) {
-    const { db, doc, updateDoc, increment, setDoc, getDoc } = getFirebase();
+    const { db, auth, doc, runTransaction, increment } = getFirebase();
     if (!db || !noteId) return;
 
+    const user = auth?.currentUser || window.currentUser;
+    if (!user || user.isGuest) {
+        if (typeof showToast === 'function') showToast("Please login to dislike", "info");
+        else alert("Please login to dislike");
+        return;
+    }
+
+    const isCurrentlyDisliked = window.dislikedNoteIds.has(noteId);
+    const isCurrentlyLiked = window.likedNoteIds.has(noteId);
+
+    let delta = 1;
+    let isActive = true;
+    let likeDelta = 0;
+
+    if (isCurrentlyDisliked) {
+        window.dislikedNoteIds.delete(noteId);
+        delta = -1;
+        isActive = false;
+    } else {
+        window.dislikedNoteIds.add(noteId);
+        delta = 1;
+        isActive = true;
+        // Enforce Mutual Exclusivity
+        if (isCurrentlyLiked) {
+            window.likedNoteIds.delete(noteId);
+            likeDelta = -1;
+        }
+    }
+
     // --- OPTIMISTIC UI UPDATE ---
-    document.querySelectorAll(`[data-note-id="${noteId}"] .dislike-count`).forEach(countSpan => {
-        let current = parseInt(countSpan.innerText) || 0;
-        countSpan.innerText = current + 1;
+    document.querySelectorAll(`[data-note-id="${noteId}"]`).forEach(card => {
+        const dislikeBtn = card.querySelector('[title="Dislike"]');
+        if (dislikeBtn) {
+            const countSpan = dislikeBtn.querySelector('.dislike-count');
+            if (isActive) {
+                dislikeBtn.classList.add('active');
+                if (countSpan && !isCurrentlyDisliked) countSpan.innerText = (parseInt(countSpan.innerText) || 0) + 1;
+            } else {
+                dislikeBtn.classList.remove('active');
+                if (countSpan && isCurrentlyDisliked) countSpan.innerText = Math.max(0, (parseInt(countSpan.innerText) || 1) - 1);
+            }
+        }
+
+        if (likeDelta === -1) {
+            const likeBtn = card.querySelector('.like-btn, [title="Like"], [onclick="likeNote(\'' + noteId + '\')"]');
+            if (likeBtn) {
+                likeBtn.classList.remove('active');
+                const likeCountSpan = likeBtn.querySelector('.like-count');
+                if (likeCountSpan) likeCountSpan.innerText = Math.max(0, (parseInt(likeCountSpan.innerText) || 1) - 1);
+            }
+        }
     });
 
-    if (typeof showToast === 'function') showToast("Note disliked 👎", "info");
+    if (typeof showToast === 'function') {
+        showToast(isActive ? "Note disliked 👎" : "Dislike removed", "info");
+    }
 
     if (typeof gtag === 'function') {
-        gtag('event', 'notes_dislike', { note_id: noteId });
+        gtag('event', 'notes_dislike', { note_id: noteId, action: isActive ? 'dislike' : 'undislike' });
     }
 
     // --- BYPASS FIRESTORE IF HARDCODED STATIC NOTE ---
@@ -228,26 +310,32 @@ window.toggleNoteDislike = async function (noteId) {
 
     try {
         const noteRef = doc(db, "notes", noteId);
-        const snap = await getDoc(noteRef);
+        const userId = user.uid || user.id;
+        const dislikeRef = doc(db, "notes", noteId, "dislikes", userId);
 
-        let delta = 1;
-        if (window.dislikedNoteIds.has(noteId)) {
-            delta = -1;
-            window.dislikedNoteIds.delete(noteId);
-        } else {
-            window.dislikedNoteIds.add(noteId);
-            window.likedNoteIds.delete(noteId);
-        }
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
+        await runTransaction(db, async (transaction) => {
+            const noteSnap = await transaction.get(noteRef);
+            const dislikeSnap = await transaction.get(dislikeRef);
 
-        if (!snap.exists()) {
-            await setDoc(noteRef, { views: 0, likes: 0, dislikes: delta > 0 ? 1 : 0, downloads: 0, createdAt: Date.now() });
-        } else {
-            await updateDoc(noteRef, { dislikes: increment(delta) });
-        }
+            if (!noteSnap.exists()) {
+                transaction.set(noteRef, { views: 0, likes: 0, dislikes: 0, downloads: 0, createdAt: Date.now() });
+            }
+
+            if (!isActive) { // We toggled it off
+                transaction.delete(dislikeRef);
+                transaction.update(noteRef, { dislikes: increment(-1) });
+            } else { // We toggled it on
+                transaction.set(dislikeRef, { disliked: true, timestamp: Date.now() });
+                transaction.update(noteRef, { dislikes: increment(1) });
+            }
+
+            // Clean up mutually exclusive likes natively via transaction
+            if (likeDelta === -1) {
+                const likeRef = doc(db, "notes", noteId, "likes", userId);
+                transaction.delete(likeRef);
+                transaction.update(noteRef, { likes: increment(-1) });
+            }
+        });
     } catch (e) {
         console.error("Dislike fail:", e);
     }
@@ -420,6 +508,24 @@ window.attachNoteRealtimeListeners = function (containerId = 'tab-content') {
         }
 
         const noteRef = doc(db, "notes", noteId);
+        const { auth, getDoc } = getFirebase();
+        const user = auth?.currentUser || window.currentUser;
+        const userId = user && !user.isGuest ? (user.uid || user.id) : null;
+
+        // Asynchronously hydrate Personal Engagement states directly from subcollections
+        if (userId && !noteId.startsWith('static-')) {
+            getDoc(doc(db, "notes", noteId, "likes", userId)).then(snap => {
+                if (snap.exists()) window.likedNoteIds.add(noteId);
+                else window.likedNoteIds.delete(noteId);
+                if (typeof syncAllInteractionIcons === 'function') syncAllInteractionIcons();
+            }).catch(() => { });
+
+            getDoc(doc(db, "notes", noteId, "dislikes", userId)).then(snap => {
+                if (snap.exists()) window.dislikedNoteIds.add(noteId);
+                else window.dislikedNoteIds.delete(noteId);
+                if (typeof syncAllInteractionIcons === 'function') syncAllInteractionIcons();
+            }).catch(() => { });
+        }
 
         window.noteUnsubscribers[noteId] = onSnapshot(noteRef, (snap) => {
             const data = snap.exists() ? snap.data() : { views: 0, likes: 0, dislikes: 0, downloads: 0 };
