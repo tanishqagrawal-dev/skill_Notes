@@ -12,6 +12,18 @@
         gtag('js', new Date());
 
         gtag('config', 'G-KSCJTPP875');
+
+        // Single Page Apps for GitHub Pages decoder
+        (function (l) {
+            if (l.search[1] === '/') {
+                var decoded = l.search.slice(1).split('&').map(function (s) {
+                    return s.replace(/~and~/g, '&')
+                }).join('?');
+                window.history.replaceState(null, null,
+                    l.pathname.slice(0, -1) + decoded + l.hash
+                );
+            }
+        }(window.location))
     </script>
     <link rel="shortcut icon" href="../assets/logo.jpg" type="image/jpeg">
     <title>Dashboard | SKiL MATRiX Notes</title>
@@ -83,20 +95,20 @@
                 </div>
             </div>
             <script>
-                // --- 00. SIDEBAR HYDRATION (Blocking for instant paint) ---
-                (function () {
-                    const raw = localStorage.getItem('auth_user_full') || localStorage.getItem('guest_session');
-                    if (raw) {
-                        try {
-                            const u = JSON.parse(raw);
-                            document.getElementById('instant-name').innerText = u.name || (u.email ? u.email.split('@')[0] : 'Scholar');
-                            document.getElementById('instant-role').innerText = (u.role || 'USER').toUpperCase();
-                            const av = document.getElementById('instant-avatar');
-                            if (u.photo) av.innerHTML = `<img src="${u.photo}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-                            else av.innerText = (u.name || 'U').charAt(0);
-                        } catch (e) { }
-                    }
-                })();
+                    // --- 00. SIDEBAR HYDRATION (Blocking for instant paint) ---
+                    (function () {
+                        const raw = localStorage.getItem('auth_user_full') || localStorage.getItem('guest_session');
+                        if (raw) {
+                            try {
+                                const u = JSON.parse(raw);
+                                document.getElementById('instant-name').innerText = u.name || (u.email ? u.email.split('@')[0] : 'Scholar');
+                                document.getElementById('instant-role').innerText = (u.role || 'USER').toUpperCase();
+                                const av = document.getElementById('instant-avatar');
+                                if (u.photo) av.innerHTML = `<img src="${u.photo}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                                else av.innerText = (u.name || 'U').charAt(0);
+                            } catch (e) { }
+                        }
+                    })();
             </script>
         </aside>
 

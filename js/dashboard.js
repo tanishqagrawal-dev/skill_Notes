@@ -260,85 +260,7 @@ window.showToast = function (message, type = 'success') {
     }, 3000);
 };
 
-window.updateNoteStat = async function (noteId, type) {
-    const { db, doc, updateDoc, increment, setDoc } = getFirebase();
-
-    // 1. Optimistic UI Update (Instant Feedback)
-    const note = NotesDB.find(n => n.id === noteId);
-    if (note) {
-        if (type === 'view') {
-            note.views = (note.views || 0) + 1;
-            window.trackStudyProgress(note.subject || 'misc', 'view');
-        }
-        if (type === 'download') {
-            note.downloads = (note.downloads || 0) + 1;
-            window.trackStudyProgress(note.subject || 'misc', 'download');
-        }
-        if (type === 'like') {
-            note.likes = (note.likes || 0) + 1;
-            showToast("💖 Added to your bookmarks!");
-        }
-    }
-
-    if (!db) return;
-
-    try {
-        // 2. Increment Firestore (Real Source of Truth)
-        if (type === 'save') {
-            const fileId = "saved_" + noteId;
-            const fileRef = doc(db, "privateDrive", currentUser.id, "files", fileId);
-            await setDoc(fileRef, {
-                name: note.title,
-                url: note.url,
-                size: 0, // Metadata only
-                mimeType: "application/pdf",
-                type: "saved",
-                subject: note.subject,
-                semester: note.semester,
-                updatedAt: increment(0), // placeholder for time if needed
-                uploaderUid: currentUser.id
-            }, { merge: true });
-            showToast("🔖 Note saved to Private Drive!");
-            return;
-        }
-
-        const noteRef = doc(db, "notes", noteId);
-        await updateDoc(noteRef, {
-            [type + 's']: increment(1)
-        });
-
-        // 3. Send to GA4 (Reporting)
-        // 3. Send to GA4 (Reporting)
-        if (type === 'download' && typeof gtag === 'function') {
-            gtag('event', 'notes_download', { note_id: noteId });
-        }
-
-        if (type === 'download' && window.statServices?.trackNoteDownload) {
-            window.statServices.trackNoteDownload(noteId);
-        } else if (type === 'view' && window.statServices?.trackNoteView) {
-            window.statServices.trackNoteView(noteId);
-        }
-
-    } catch (error) {
-        console.error("Error updating stats:", error);
-    }
-};
-
-window.toggleNoteDislike = async function (noteId) {
-    const { db, doc, updateDoc, increment } = getFirebase();
-    const note = NotesDB.find(n => n.id === noteId);
-    if (note) note.dislikes = (note.dislikes || 0) + 1; // Optimistic
-
-    if (!db) return;
-    try {
-        const noteRef = doc(db, "notes", noteId);
-        await updateDoc(noteRef, {
-            dislikes: increment(1)
-        });
-    } catch (e) {
-        console.error("Auth Ready Fail:", e);
-    }
-}
+// Redundant functions removed: updateNoteStat, toggleNoteDislike (Handled by note-actions.js)
 
 function initDynamicColleges() {
     const { db, collection, onSnapshot } = getFirebase();
@@ -373,10 +295,7 @@ function initNotesSync() {
     });
 }
 
-window.toggleNoteBookmark = function (noteId) {
-    alert("📑 Note added to your bookmarks!");
-    // In a real app, this would save to user's personal bookmark collection in Firestore
-}
+// Redundant toggleNoteBookmark removed (Handled by toggleBookmark in note-actions.js)
 
 // --- CORE DASHBOARD LOGIC ---
 // Handled by consolidated listener at the bottom of the file
@@ -2343,7 +2262,7 @@ window.showNotes = function (activeTab = 'notes') {
 
 function renderInstantStaticNotes(notes) {
     const createNoteCard = (note, idx) => {
-        const noteId = note.id || `static-${idx}`;
+        const noteId = note.id || `static-${(note.title || 'note').replace(/\s+/g, '-').toLowerCase()}`;
         return `
             <div class="note-card-pro card-reveal" data-note-id="${noteId}" style="animation-delay: ${idx * 0.1}s;">
                 <div class="note-info-pro">
@@ -2395,7 +2314,10 @@ function renderInstantStaticNotes(notes) {
 
     setTimeout(() => {
         if (typeof attachNoteRealtimeListeners === 'function') attachNoteRealtimeListeners('tab-content');
-        notes.forEach(n => incrementNoteView(n.id || `static-${(n.unit || 'UNIT 1').toLowerCase()}-${(n.title || '').toLowerCase()}`));
+        notes.forEach(n => {
+            const staticId = n.id || `static-${(n.title || 'note').replace(/\s+/g, '-').toLowerCase()}`;
+            incrementNoteView(staticId);
+        });
     }, 100);
 
     return html;

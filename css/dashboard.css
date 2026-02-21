@@ -480,8 +480,12 @@
 }
 
 .tool-icon-pro.active {
-    color: var(--accent);
-    background: rgba(255, 45, 149, 0.1);
+    color: var(--secondary);
+    background: rgba(0, 242, 255, 0.1);
+}
+
+.tool-icon-pro.active svg {
+    fill: currentColor;
 }
 
 .btn-download-white {
