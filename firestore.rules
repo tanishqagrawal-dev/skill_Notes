@@ -43,12 +43,20 @@ service cloud.firestore {
       allow update: if hasRole('admin') || hasRole('superadmin') || 
                     (hasRole('coadmin') && getUserData().collegeId == resource.data.collegeId) ||
                     (isSignedIn() && resource.data.uploadedBy == request.auth.uid) ||
-                    (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views', 'downloads', 'likes', 'lastViewed']));
+                    (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views', 'downloads', 'likes', 'lastViewed', 'dislikes']));
 
       allow delete: if hasRole('admin') || hasRole('superadmin') || (isSignedIn() && resource.data.uploadedBy == request.auth.uid);
 
-      // --- Likes Subcollection ---
+      // --- Engagement Subcollections ---
       match /likes/{userId} {
+        allow read: if true;
+        allow write: if isSignedIn() && request.auth.uid == userId;
+      }
+      match /dislikes/{userId} {
+        allow read: if true;
+        allow write: if isSignedIn() && request.auth.uid == userId;
+      }
+      match /engagement/{userId} {
         allow read: if true;
         allow write: if isSignedIn() && request.auth.uid == userId;
       }
