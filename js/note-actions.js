@@ -133,35 +133,140 @@ window.incrementNoteView = async function (noteId) {
  * Handles likes subcollection + main doc counter
  */
 window.likeNote = async function (noteId) {
+    const { db, auth, doc, runTransaction, increment } = getFirebase();
+    if (!db || !noteId) return;
 
-    const { db, auth, doc, getDoc, setDoc, deleteDoc, updateDoc, increment } = getFirebase();
+    const user = auth?.currentUser || window.currentUser;
+    if (!user || user.isGuest) {
+        if (typeof showToast === 'function') showToast("Please login to like", "info");
+        else alert("Please login to like");
+        return;
+    }
 
-    if (!noteId) return alert("Missing Firestore ID");
+    const isCurrentlyLiked = window.likedNoteIds.has(noteId);
+    const isCurrentlyDisliked = window.dislikedNoteIds.has(noteId);
 
-    const user = auth.currentUser || window.currentUser;
-    if (!user) return alert("Login required");
+    let delta = 1;
+    let isActive = true;
+    let dislikeDelta = 0;
+
+    if (isCurrentlyLiked) {
+        window.likedNoteIds.delete(noteId);
+        delta = -1;
+        isActive = false;
+    } else {
+        window.likedNoteIds.add(noteId);
+        delta = 1;
+        isActive = true;
+        // Enforce Mutual Exclusivity
+        if (isCurrentlyDisliked) {
+            window.dislikedNoteIds.delete(noteId);
+            dislikeDelta = -1;
+        }
+    }
+
+    // --- OPTIMISTIC UI UPDATE ---
+    document.querySelectorAll(`[data-note-id="${noteId}"]`).forEach(card => {
+        const likeBtn = card.querySelector('.like-btn, [title="Like"], [onclick="likeNote(\'' + noteId + '\')"]');
+        if (likeBtn) {
+            const countSpan = likeBtn.querySelector('.like-count');
+            if (isActive) {
+                likeBtn.classList.add('active');
+                if (countSpan && !isCurrentlyLiked) countSpan.innerText = (parseInt(countSpan.innerText) || 0) + 1;
+            } else {
+                likeBtn.classList.remove('active');
+                if (countSpan && isCurrentlyLiked) countSpan.innerText = Math.max(0, (parseInt(countSpan.innerText) || 1) - 1);
+            }
+        }
+
+        if (dislikeDelta === -1) {
+            const dislikeBtn = card.querySelector('[title="Dislike"]');
+            if (dislikeBtn) {
+                dislikeBtn.classList.remove('active');
+                const disCountSpan = dislikeBtn.querySelector('.dislike-count');
+                if (disCountSpan) disCountSpan.innerText = Math.max(0, (parseInt(disCountSpan.innerText) || 1) - 1);
+            }
+        }
+    });
+
+    if (typeof showToast === 'function') {
+        showToast(delta === 1 ? "Added to your favorites ❤️" : "Removed from favorites");
+    }
+
+    if (typeof gtag === 'function') {
+        gtag('event', 'notes_like', { note_id: noteId, action: delta === 1 ? 'like' : 'unlike' });
+    }
 
     try {
-        const noteRef = doc(db, "notes", noteId);
-        const engagementRef = doc(db, "notes", noteId, "engagement", user.uid || user.id);
-
-        const snap = await getDoc(engagementRef);
-
-        if (snap.exists()) {
-            await deleteDoc(engagementRef);
-            await updateDoc(noteRef, { likes: increment(-1) });
-            window.likedNoteIds.delete(noteId);
-        } else {
-            await setDoc(engagementRef, { liked: true });
-            await updateDoc(noteRef, { likes: increment(1) });
-            window.likedNoteIds.add(noteId);
+        // Halt network transmission until Firebase Auth fully establishes a secure token payload
+        if (!auth || !auth.currentUser) {
+            console.log("⏳ Queueing like for " + noteId + " pending secure auth resolution...");
+            window._pendingInteractions = window._pendingInteractions || [];
+            window._pendingInteractions.push(() => likeNote(noteId));
+            return; // Abort this execution flow, it will run again automatically
         }
+
+        const noteRef = doc(db, "notes", noteId);
+        const userId = user.uid || user.id;
+        const likeRef = doc(db, "notes", noteId, "likes", userId);
+
+        await runTransaction(db, async (transaction) => {
+            const noteSnap = await transaction.get(noteRef);
+
+            if (!noteSnap.exists()) {
+                transaction.set(noteRef, {
+                    views: 0,
+                    likes: isActive ? 1 : 0,
+                    dislikes: 0,
+                    downloads: 0,
+                    createdAt: Date.now()
+                });
+                if (isActive) {
+                    transaction.set(likeRef, { liked: true, timestamp: Date.now() });
+                }
+            } else {
+                let updates = {};
+
+                if (!isActive) { // We toggled it off
+                    transaction.delete(likeRef);
+                    updates.likes = increment(-1);
+                } else { // We toggled it on
+                    transaction.set(likeRef, { liked: true, timestamp: Date.now() });
+                    updates.likes = increment(1);
+                }
+
+                // Clean up mutually exclusive dislikes natively via transaction
+                if (dislikeDelta === -1) {
+                    const dislikeRef = doc(db, "notes", noteId, "dislikes", userId);
+                    transaction.delete(dislikeRef);
+                    updates.dislikes = increment(-1);
+                }
+
+                transaction.update(noteRef, updates);
+            }
+        });
 
         if (typeof syncAllInteractionIcons === 'function') syncAllInteractionIcons();
     } catch (e) {
-        console.error("Like error:", e);
-    }
+        console.warn("Transaction failed, executing graceful fallback:", e);
+        try {
+            const { setDoc, deleteDoc } = getFirebase();
+            const noteRef = doc(db, "notes", noteId);
+            const likeRef = doc(db, "notes", noteId, "likes", user.uid || user.id);
 
+            if (isActive) {
+                await setDoc(likeRef, { liked: true, timestamp: Date.now() });
+                await setDoc(noteRef, { likes: increment(1) }, { merge: true });
+            } else {
+                await deleteDoc(likeRef);
+                await setDoc(noteRef, { likes: increment(-1) }, { merge: true });
+            }
+            if (typeof syncAllInteractionIcons === 'function') syncAllInteractionIcons();
+        } catch (fallbackError) {
+            console.error("Like sync critical failure:", fallbackError);
+            if (typeof showToast === 'function') showToast("Failed to sync like. Please try again.", "error");
+        }
+    }
 };
 
 /**
@@ -233,35 +338,75 @@ window.toggleNoteDislike = async function (noteId) {
     }
 
     try {
+        // Halt network transmission until Firebase Auth fully establishes a secure token payload
+        if (!auth || !auth.currentUser) {
+            console.log("⏳ Queueing dislike for " + noteId + " pending secure auth resolution...");
+            window._pendingInteractions = window._pendingInteractions || [];
+            window._pendingInteractions.push(() => toggleNoteDislike(noteId));
+            return; // Abort this execution flow, it will run again automatically
+        }
+
         const noteRef = doc(db, "notes", noteId);
         const userId = user.uid || user.id;
         const dislikeRef = doc(db, "notes", noteId, "dislikes", userId);
 
         await runTransaction(db, async (transaction) => {
             const noteSnap = await transaction.get(noteRef);
-            const dislikeSnap = await transaction.get(dislikeRef);
 
             if (!noteSnap.exists()) {
-                transaction.set(noteRef, { views: 0, likes: 0, dislikes: 0, downloads: 0, createdAt: Date.now() });
-            }
+                transaction.set(noteRef, {
+                    views: 0,
+                    likes: 0,
+                    dislikes: isActive ? 1 : 0,
+                    downloads: 0,
+                    createdAt: Date.now()
+                });
+                if (isActive) {
+                    transaction.set(dislikeRef, { disliked: true, timestamp: Date.now() });
+                }
+            } else {
+                let updates = {};
 
-            if (!isActive) { // We toggled it off
-                transaction.delete(dislikeRef);
-                transaction.update(noteRef, { dislikes: increment(-1) });
-            } else { // We toggled it on
-                transaction.set(dislikeRef, { disliked: true, timestamp: Date.now() });
-                transaction.update(noteRef, { dislikes: increment(1) });
-            }
+                if (!isActive) { // We toggled it off
+                    transaction.delete(dislikeRef);
+                    updates.dislikes = increment(-1);
+                } else { // We toggled it on
+                    transaction.set(dislikeRef, { disliked: true, timestamp: Date.now() });
+                    updates.dislikes = increment(1);
+                }
 
-            // Clean up mutually exclusive likes natively via transaction
-            if (likeDelta === -1) {
-                const likeRef = doc(db, "notes", noteId, "likes", userId);
-                transaction.delete(likeRef);
-                transaction.update(noteRef, { likes: increment(-1) });
+                // Clean up mutually exclusive likes natively via transaction
+                if (likeDelta === -1) {
+                    const likeRef = doc(db, "notes", noteId, "likes", userId);
+                    transaction.delete(likeRef);
+                    updates.likes = increment(-1);
+                }
+
+                transaction.update(noteRef, updates);
             }
         });
+
+        if (typeof syncAllInteractionIcons === 'function') syncAllInteractionIcons();
     } catch (e) {
-        console.error("Dislike fail:", e);
+        console.warn("Transaction failed, executing graceful fallback:", e);
+        try {
+            const { setDoc, deleteDoc } = getFirebase();
+            const noteRef = doc(db, "notes", noteId);
+            const dislikeRef = doc(db, "notes", noteId, "dislikes", user.uid || user.id);
+
+            if (isActive) {
+                await setDoc(dislikeRef, { disliked: true, timestamp: Date.now() });
+                // We cautiously initialize/update the parent doc
+                await setDoc(noteRef, { dislikes: increment(1) }, { merge: true });
+            } else {
+                await deleteDoc(dislikeRef);
+                await setDoc(noteRef, { dislikes: increment(-1) }, { merge: true });
+            }
+            if (typeof syncAllInteractionIcons === 'function') syncAllInteractionIcons();
+        } catch (fallbackError) {
+            console.error("Dislike sync critical failure:", fallbackError);
+            if (typeof showToast === 'function') showToast("Failed to sync dislike. Please try again.", "error");
+        }
     }
 };
 
@@ -452,30 +597,31 @@ window.attachNoteRealtimeListeners = function (containerId = 'tab-content') {
         }
 
         window.noteUnsubscribers[noteId] = onSnapshot(noteRef, (snap) => {
-            const data = snap.exists() ? snap.data() : { views: 0, likes: 0, dislikes: 0, downloads: 0 };
+            if (!snap.exists()) return; // Preserve hardcoded UI placeholders until a real Firebase interaction occurs
 
+            const data = snap.data();
             const allInstances = document.querySelectorAll(`[data-note-id="${noteId}"]`);
 
             allInstances.forEach(instance => {
                 // 1. Sync Views
                 let viewEl = instance.querySelector('.view-count');
                 if (!viewEl) viewEl = instance.querySelector('.views-pro');
-                if (viewEl) {
+                if (viewEl && data.views !== undefined) {
                     const icon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
-                    viewEl.innerHTML = (viewEl.classList.contains('views-pro')) ? `${icon} ${data.views || 0}` : (data.views || 0);
+                    viewEl.innerHTML = (viewEl.classList.contains('views-pro')) ? `${icon} ${data.views}` : (data.views);
                 }
 
                 // 2. Sync Likes
                 const likeEl = instance.querySelector('.like-count');
-                if (likeEl) likeEl.innerText = data.likes || 0;
+                if (likeEl && data.likes !== undefined) likeEl.innerText = data.likes;
 
                 // 3. Sync Dislikes
                 const dislikeEl = instance.querySelector('.dislike-count');
-                if (dislikeEl) dislikeEl.innerText = data.dislikes || 0;
+                if (dislikeEl && data.dislikes !== undefined) dislikeEl.innerText = data.dislikes;
 
                 // 4. Sync Downloads
                 const downEl = instance.querySelector('.download-count');
-                if (downEl) downEl.innerText = data.downloads || 0;
+                if (downEl && data.downloads !== undefined) downEl.innerText = data.downloads;
 
                 // 5. Sync Interaction states (Local user specific)
                 const sync = (title, set) => {

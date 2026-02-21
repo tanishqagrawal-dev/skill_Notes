@@ -163,6 +163,14 @@ export async function initAuth() {
 
                 // Execute Redirection logic
                 triggerRedirect(userData.role);
+
+                // Flush pending interactions that happened during boot
+                if (window._pendingInteractions && window._pendingInteractions.length > 0) {
+                    console.log("⚡ Executing " + window._pendingInteractions.length + " pending queued interactions natively...");
+                    const queue = [...window._pendingInteractions];
+                    window._pendingInteractions = [];
+                    queue.forEach(action => action());
+                }
             }, (err) => {
                 console.error("User Snapshot Error:", err);
             });
