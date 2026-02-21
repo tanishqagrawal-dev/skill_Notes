@@ -191,38 +191,6 @@ window.toggleNoteLike = async function (noteId) {
                 transaction.set(noteRef, { views: 0, likes: 0, dislikes: 0, downloads: 0, createdAt: Date.now() });
             }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-            if (!likeSnap.exists()) {
-                transaction.set(likeRef, { liked: true, timestamp: Date.now() });
-                transaction.update(noteRef, { likes: increment(1) });
-                delta = 1;
-                window.likedNoteIds.add(noteId);
-                window.dislikedNoteIds.delete(noteId); // Mutually exclusive
-            } else {
-                transaction.delete(likeRef);
-                transaction.update(noteRef, { likes: increment(-1) });
-                delta = -1;
-                window.likedNoteIds.delete(noteId);
-            }
-        });
-
-        syncAllInteractionIcons();
-        if (typeof showToast === 'function') {
-            showToast(delta === 1 ? "Added to your favorites ❤️" : "Removed from favorites");
-        }
-
-        if (window.statServices && typeof window.statServices.trackGlobalLike === 'function') {
-            window.statServices.trackGlobalLike(delta);
-        }
-
-        if (typeof gtag === 'function') {
-            gtag('event', 'notes_like', { note_id: noteId, action: delta === 1 ? 'like' : 'unlike' });
-        }
-=======
             if (!isActive) { // We toggled it off
                 transaction.delete(likeRef);
                 transaction.update(noteRef, { likes: increment(-1) });
@@ -231,47 +199,6 @@ window.toggleNoteLike = async function (noteId) {
                 transaction.update(noteRef, { likes: increment(1) });
             }
         });
->>>>>>> Stashed changes
-=======
-            if (!isActive) { // We toggled it off
-                transaction.delete(likeRef);
-                transaction.update(noteRef, { likes: increment(-1) });
-            } else { // We toggled it on
-                transaction.set(likeRef, { liked: true, timestamp: Date.now() });
-                transaction.update(noteRef, { likes: increment(1) });
-            }
-        });
->>>>>>> Stashed changes
-=======
-            if (!isActive) { // We toggled it off
-                transaction.delete(likeRef);
-                transaction.update(noteRef, { likes: increment(-1) });
-            } else { // We toggled it on
-                transaction.set(likeRef, { liked: true, timestamp: Date.now() });
-                transaction.update(noteRef, { likes: increment(1) });
-            }
-        });
->>>>>>> Stashed changes
-=======
-            if (!isActive) { // We toggled it off
-                transaction.delete(likeRef);
-                transaction.update(noteRef, { likes: increment(-1) });
-            } else { // We toggled it on
-                transaction.set(likeRef, { liked: true, timestamp: Date.now() });
-                transaction.update(noteRef, { likes: increment(1) });
-            }
-        });
->>>>>>> Stashed changes
-=======
-            if (!isActive) { // We toggled it off
-                transaction.delete(likeRef);
-                transaction.update(noteRef, { likes: increment(-1) });
-            } else { // We toggled it on
-                transaction.set(likeRef, { liked: true, timestamp: Date.now() });
-                transaction.update(noteRef, { likes: increment(1) });
-            }
-        });
->>>>>>> Stashed changes
     } catch (e) {
         console.error("Like system error:", e);
     }
@@ -321,24 +248,6 @@ window.toggleNoteDislike = async function (noteId) {
         } else {
             await updateDoc(noteRef, { dislikes: increment(delta) });
         }
-<<<<<<< Updated upstream
-
-        syncAllInteractionIcons();
-        if (typeof showToast === 'function') showToast(delta > 0 ? "Note disliked 👎" : "Dislike removed", "info");
-
-        if (typeof gtag === 'function') {
-            gtag('event', 'notes_dislike', { note_id: noteId });
-        }
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     } catch (e) {
         console.error("Dislike fail:", e);
     }
