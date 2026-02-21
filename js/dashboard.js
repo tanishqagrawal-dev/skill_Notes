@@ -95,7 +95,7 @@ window.GlobalData = GlobalData;
 let NotesDB = [];
 let unsubscribeNotes = null;
 let currentUser = null;
-let selState = { college: null, branch: null, year: null, subject: null };
+let selState = window.selState || { college: null, branch: null, year: null, subject: null, semester: null };
 let userNotifications = [];
 let notificationsUnsubscribe = null;
 
@@ -176,6 +176,17 @@ function handleAuthReady(data) {
 
             if (tabParam) {
                 renderTabContent(tabParam);
+
+                // Deep Link Restoration
+                if (tabParam === 'notes' && window.location.pathname.includes('/notes/')) {
+                    initDynamicColleges().then(() => {
+                        const nextStep = RoutingSystem.applyFiltersToUI(GlobalData, (k, v) => { selState[k] = v; });
+                        if (nextStep === "SHOW_NOTES") showNotes();
+                        else if (nextStep === "SUBJECT_STEP") renderSubjectStep();
+                        else if (nextStep === "SEMESTER_STEP" || nextStep === "YEAR_STEP") renderCombinedSemesterStep();
+                        else if (nextStep === "BRANCH_STEP") renderBranchStep();
+                    });
+                }
             } else if (currentUser && (currentUser.role === 'superadmin' || currentUser.role === 'admin')) {
                 renderTabContent('admin-console');
             } else if (currentUser && currentUser.role === 'coadmin') {
@@ -888,12 +899,15 @@ function renderTabContent(tabId) {
             console.log("➡️ Rendering Overview...");
             contentArea.innerHTML = renderOverview();
         } else if (tabId === 'notes') {
-            selState.college = null; selState.branch = null; selState.year = null; selState.subject = null; selState.semester = null;
+            const hasPathFilters = window.location.pathname.split('/').length > 4; // /pages/dashboard/notes/...
+            if (!hasPathFilters) {
+                selState.college = null; selState.branch = null; selState.year = null; selState.subject = null; selState.semester = null;
+            }
             contentArea.innerHTML = renderNotesHub();
-            renderCollegeStep();
-            // Force URL update to reflect /notes tab entry in address bar
-            if (typeof RoutingSystem !== 'undefined') {
-                RoutingSystem.updateURL(selState);
+
+            if (!hasPathFilters) {
+                renderCollegeStep();
+                if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
             }
         } else if (tabId === 'planner') {
             if (window.lockOverlay) {
@@ -4228,7 +4242,7 @@ async function loadLiveDashboardStats() {
 // Global hook for tracking progress
 window.trackStudyProgress = async function (subjectId, action = 'view') {
     const { db, doc, setDoc, increment } = getFirebase();
-    if (!db || !currentUser || currentUser.id === 'guest') return;
+    if (!db || !currentUser || currentUser.isGuest) return;
 
     const statsRef = doc(db, "user_stats", currentUser.id);
     const weight = action === 'download' ? 5 : 1;

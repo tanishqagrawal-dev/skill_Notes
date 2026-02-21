@@ -180,7 +180,15 @@ export async function initAuth() {
 
             dispatchAuthReady({ user: null, currentUser: null });
 
+            // SECURITY GATE: Redirect to auth only if NOT logged in AND NOT a guest
+            const isGuest = localStorage.getItem('guest_session');
+            if (isGuest) {
+                console.log("🎟️ Guest detected in non-auth state. Proceeding...");
+                return;
+            }
+
             if (isAdminDashboard || isCoAdminDashboard || isUserDashboard) {
+                console.log("🛑 Unauthorized access attempt. Redirecting to login...");
                 const prefix = path.includes('/pages/') ? '' : 'pages/';
                 window.location.href = prefix + 'auth.html';
             }
@@ -290,6 +298,19 @@ window.handleLogout = async function () {
     localStorage.removeItem('auth_user');
     localStorage.removeItem('auth_user_full');
     localStorage.removeItem('global_stats_cache');
-    await signOut(auth);
-    window.location.href = '../index.html';
+    try {
+        await signOut(auth);
+    } catch (e) {
+        console.warn("Signout error:", e);
+    }
+
+    // Redirect to landing page (root index.html)
+    const path = window.location.pathname;
+    const pagesIndex = path.indexOf('/pages/');
+    if (pagesIndex !== -1) {
+        window.location.href = path.substring(0, pagesIndex) + '/index.html';
+    } else {
+        // If not in pages dir, we're likely in root or some other top-level dir
+        window.location.href = 'index.html';
+    }
 };

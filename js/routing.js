@@ -75,7 +75,7 @@ export const RoutingSystem = {
                                 if (sem) {
                                     stateApplier('semester', sem);
                                     if (route.subject) {
-                                        const key = `${branch.id}-${year}`;
+                                        const key = `${branch.id}-${sem}`;
                                         const subject = (GlobalData.subjects[key] || []).find(s => s.id === route.subject);
                                         if (subject) {
                                             stateApplier('subject', { id: subject.id, name: subject.name });
@@ -115,9 +115,10 @@ export const RoutingSystem = {
      */
     getShareableURL(state) {
         const origin = window.location.origin;
+        const canonical = this.generateCanonicalPath(state);
+
         // Detect if we are in a subfolder (e.g., /skill_notes/pages/notes.html)
         const pathParts = window.location.pathname.split('/');
-        // If the 2nd segment is "pages" or "notes", the 1st segment is the subfolder
         let subfolder = '';
         const pagesIdx = pathParts.indexOf('pages');
         const notesIdx = pathParts.indexOf('notes');
@@ -125,7 +126,12 @@ export const RoutingSystem = {
         if (pagesIdx > 1) subfolder = '/' + pathParts.slice(1, pagesIdx).join('/');
         else if (notesIdx > 1) subfolder = '/' + pathParts.slice(1, notesIdx).join('/');
 
-        return origin + subfolder + this.generateCanonicalPath(state);
+        // Localhost fallback: Use query-path to avoid 404s on generic local servers
+        if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+            return origin + (subfolder || '') + '/index.html?' + canonical;
+        }
+
+        return origin + subfolder + canonical;
     },
 
     /**

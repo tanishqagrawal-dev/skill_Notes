@@ -16,21 +16,27 @@
         // Single Page Apps for GitHub Pages
         // https://github.com/rafgraph/spa-github-pages
         (function (l) {
+            var decoded = null;
             if (l.search[1] === '/') {
-                var decoded = l.search.slice(1).split('&').map(function (s) {
+                decoded = l.search.slice(1).split('&').map(function (s) {
                     return s.replace(/~and~/g, '&')
                 }).join('?');
+            } else if (l.pathname.includes('/notes/') || (l.pathname.includes('/dashboard/') && !l.pathname.endsWith('.html'))) {
+                decoded = l.pathname;
+            }
 
+            if (decoded) {
+                const searchStr = l.search[1] === '/' ? l.search : '?' + decoded;
                 // If deep link points to dashboard or standalone notes, redirect to those entry points
                 if (decoded.startsWith('/pages/dashboard') || decoded.startsWith('/dashboard')) {
-                    var target = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + l.pathname.replace(/index\.html$/, '') + 'pages/dashboard.html' + l.search + l.hash;
+                    var target = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + l.pathname.replace(/index\.html$/, '').split('/pages/')[0].replace(/\/$/, '') + '/pages/dashboard.html' + searchStr + l.hash;
                     window.location.replace(target);
-                } else if (decoded.startsWith('/notes')) {
-                    var target = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + l.pathname.replace(/index\.html$/, '') + 'pages/notes.html' + l.search + l.hash;
+                } else if (decoded.startsWith('/notes') || decoded.includes('/notes/')) {
+                    var target = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + l.pathname.replace(/index\.html$/, '').split('/notes/')[0].replace(/\/$/, '') + '/pages/notes.html' + searchStr + l.hash;
                     window.location.replace(target);
-                } else {
+                } else if (l.search[1] === '/') {
                     window.history.replaceState(null, null,
-                        l.pathname.slice(0, -1) + decoded + l.hash
+                        decoded + l.hash
                     );
                 }
             }

@@ -1,0 +1,25 @@
+{
+    "public": ".",
+    "rewrites": [
+        {
+            "source": "/pages/dashboard/notes/**",
+            "destination": "/pages/dashboard.html"
+        },
+        {
+            "source": "/notes/**",
+            "destination": "/pages/notes.html"
+        },
+        {
+            "source": "/pages/dashboard/leaderboard",
+            "destination": "/pages/dashboard.html"
+        },
+        {
+            "source": "/pages/dashboard/profile",
+            "destination": "/pages/dashboard.html"
+        },
+        {
+            "source": "/pages/dashboard/admin",
+            "destination": "/pages/dashboard.html"
+        }
+    ]
+}

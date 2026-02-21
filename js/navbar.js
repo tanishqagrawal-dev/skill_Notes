@@ -76,9 +76,16 @@ function updateNavbarAuthButton(basePath) {
     if (!authBtn) return;
 
     const checkAuth = () => {
-        const user = localStorage.getItem('auth_user') || (window.firebaseServices && window.firebaseServices.auth.currentUser);
-        if (user) {
-            authBtn.textContent = 'Get Started';
+        const fullUser = localStorage.getItem('auth_user_full');
+        const guestUser = localStorage.getItem('guest_session');
+
+        if (fullUser || (window.firebaseServices && window.firebaseServices.auth.currentUser)) {
+            authBtn.textContent = 'Dashboard';
+            authBtn.onclick = () => {
+                window.location.href = `${basePath}pages/dashboard.html`;
+            };
+        } else if (guestUser) {
+            authBtn.textContent = 'Dashboard';
             authBtn.onclick = () => {
                 window.location.href = `${basePath}pages/dashboard.html`;
             };

@@ -13,50 +13,67 @@ function getFirebase() {
 // Global store for unsubscribers to prevent memory leaks
 window.noteUnsubscribers = window.noteUnsubscribers || {};
 window.savedNoteIds = new Set();
+window.likedNoteIds = new Set();
+window.dislikedNoteIds = new Set();
+window.reportedNoteIds = new Set();
+
 let savedUnsubscribe = null;
+let interactionsUnsubscribe = {};
 
 /**
- * Initialize Bookmark Synchronizer
- * Listens to privateDrive/saved collection to keep UI icons in sync
+ * Initialize All User Interaction Listeners
  */
-window.initBookmarkListener = function () {
+window.initInteractionsListeners = function () {
     const { db, auth, collection, query, where, onSnapshot } = getFirebase();
     if (!db) return;
 
     const user = auth?.currentUser || window.currentUser;
     if (!user || user.isGuest) {
         window.savedNoteIds.clear();
-        updateBookmarkIcons();
+        window.likedNoteIds.clear();
+        window.dislikedNoteIds.clear();
+        window.reportedNoteIds.clear();
+        syncAllInteractionIcons();
         return;
     }
 
+    const userId = user.uid || user.id;
+
+    // 1. Listen to Saved/Bookmarks
     if (savedUnsubscribe) savedUnsubscribe();
-
-    const driveRef = collection(db, "privateDrive", user.uid || user.id, "files");
-    const q = query(driveRef, where("type", "==", "saved"));
-
-    savedUnsubscribe = onSnapshot(q, (snapshot) => {
+    const savedRef = collection(db, "privateDrive", userId, "files");
+    const qSaved = query(savedRef, where("type", "==", "saved"));
+    savedUnsubscribe = onSnapshot(qSaved, (snap) => {
         window.savedNoteIds.clear();
-        snapshot.forEach(doc => {
-            // fileId is "saved_" + noteId.replace(/[^a-zA-Z0-9]/g, '_')
-            // We store the original noteId in noteData or try to reverse it, 
-            // but the most reliable way is to store the noteId as a field.
-            // For now, we use the doc ID matching logic.
-            const noteId = doc.data().noteId || doc.id.replace(/^saved_/, '');
-            window.savedNoteIds.add(noteId);
-        });
-        updateBookmarkIcons();
+        snap.forEach(doc => window.savedNoteIds.add(doc.data().noteId || doc.id.replace(/^saved_/, '')));
+        syncAllInteractionIcons();
+    });
+
+    // 2. Listen to Reports
+    const reportsRef = collection(db, "reports");
+    const qReports = query(reportsRef, where("reportedBy", "==", userId));
+    if (interactionsUnsubscribe.reports) interactionsUnsubscribe.reports();
+    interactionsUnsubscribe.reports = onSnapshot(qReports, (snap) => {
+        window.reportedNoteIds.clear();
+        snap.forEach(doc => window.reportedNoteIds.add(doc.data().noteId));
+        syncAllInteractionIcons();
     });
 };
 
-function updateBookmarkIcons() {
+function syncAllInteractionIcons() {
     document.querySelectorAll('[data-note-id]').forEach(card => {
         const id = card.getAttribute('data-note-id');
-        const btn = card.querySelector('[title="Bookmark"]');
-        if (btn) {
-            if (window.savedNoteIds.has(id)) btn.classList.add('active');
-            else btn.classList.remove('active');
-        }
+        const update = (title, set) => {
+            const btn = card.querySelector(`[title="${title}"]`);
+            if (btn) {
+                if (set.has(id)) btn.classList.add('active');
+                else btn.classList.remove('active');
+            }
+        };
+        update('Bookmark', window.savedNoteIds);
+        update('Like', window.likedNoteIds);
+        update('Dislike', window.dislikedNoteIds);
+        update('Report', window.reportedNoteIds);
     });
 }
 
@@ -64,7 +81,7 @@ function updateBookmarkIcons() {
 (function autoInit() {
     const { auth, onAuthStateChanged } = getFirebase();
     if (auth) {
-        onAuthStateChanged(auth, () => window.initBookmarkListener());
+        onAuthStateChanged(auth, () => window.initInteractionsListeners());
     } else {
         setTimeout(autoInit, 1000);
     }
@@ -145,13 +162,17 @@ window.toggleNoteLike = async function (noteId) {
                 transaction.set(likeRef, { liked: true, timestamp: Date.now() });
                 transaction.update(noteRef, { likes: increment(1) });
                 delta = 1;
+                window.likedNoteIds.add(noteId);
+                window.dislikedNoteIds.delete(noteId); // Mutually exclusive
             } else {
                 transaction.delete(likeRef);
                 transaction.update(noteRef, { likes: increment(-1) });
                 delta = -1;
+                window.likedNoteIds.delete(noteId);
             }
         });
 
+        syncAllInteractionIcons();
         if (typeof showToast === 'function') {
             showToast(delta === 1 ? "Added to your favorites ❤️" : "Removed from favorites");
         }
@@ -179,13 +200,23 @@ window.toggleNoteDislike = async function (noteId) {
         const noteRef = doc(db, "notes", noteId);
         const snap = await getDoc(noteRef);
 
-        if (!snap.exists()) {
-            await setDoc(noteRef, { views: 0, likes: 0, dislikes: 1, downloads: 0, createdAt: Date.now() });
+        let delta = 1;
+        if (window.dislikedNoteIds.has(noteId)) {
+            delta = -1;
+            window.dislikedNoteIds.delete(noteId);
         } else {
-            await updateDoc(noteRef, { dislikes: increment(1) });
+            window.dislikedNoteIds.add(noteId);
+            window.likedNoteIds.delete(noteId);
         }
 
-        if (typeof showToast === 'function') showToast("Note disliked 👎", "info");
+        if (!snap.exists()) {
+            await setDoc(noteRef, { views: 0, likes: 0, dislikes: delta > 0 ? 1 : 0, downloads: 0, createdAt: Date.now() });
+        } else {
+            await updateDoc(noteRef, { dislikes: increment(delta) });
+        }
+
+        syncAllInteractionIcons();
+        if (typeof showToast === 'function') showToast(delta > 0 ? "Note disliked 👎" : "Dislike removed", "info");
 
         if (typeof gtag === 'function') {
             gtag('event', 'notes_dislike', { note_id: noteId });
@@ -283,6 +314,8 @@ window.updateNoteStat = async function (noteId, type) {
                 uploaderUid: user.id
             }, { merge: true });
 
+            window.savedNoteIds.add(noteId);
+            syncAllInteractionIcons();
             if (typeof showToast === 'function') showToast("🔖 Saved to Private Drive!", "success");
         }
     } catch (e) {
@@ -313,6 +346,8 @@ window.reportNote = async function (noteId) {
             status: "pending"
         });
 
+        window.reportedNoteIds.add(noteId);
+        syncAllInteractionIcons();
         if (typeof showToast === 'function') showToast("Note reported to moderation 🚩", "warning");
     } catch (e) {
         console.error("Report fail:", e);
@@ -368,12 +403,18 @@ window.attachNoteRealtimeListeners = function (containerId = 'tab-content') {
                 const downEl = instance.querySelector('.download-count');
                 if (downEl) downEl.innerText = data.downloads || 0;
 
-                // 5. Sync Bookmark state (Local user specific)
-                const bookmarkBtn = instance.querySelector('[title="Bookmark"]');
-                if (bookmarkBtn) {
-                    if (window.savedNoteIds.has(noteId)) bookmarkBtn.classList.add('active');
-                    else bookmarkBtn.classList.remove('active');
-                }
+                // 5. Sync Interaction states (Local user specific)
+                const sync = (title, set) => {
+                    const btn = instance.querySelector(`[title="${title}"]`);
+                    if (btn) {
+                        if (set.has(noteId)) btn.classList.add('active');
+                        else btn.classList.remove('active');
+                    }
+                };
+                sync('Bookmark', window.savedNoteIds);
+                sync('Like', window.likedNoteIds);
+                sync('Dislike', window.dislikedNoteIds);
+                sync('Report', window.reportedNoteIds);
             });
 
         }, (err) => { });

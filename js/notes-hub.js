@@ -31,7 +31,7 @@ const LocalData = {
 const GlobalData = window.GlobalData || LocalData;
 
 // Use Dashboard's selState if available, otherwise fallback to local
-let selState = window.selState || { college: null, branch: null, year: null, subject: null };
+let selState = window.selState || { college: null, branch: null, year: null, subject: null, semester: null };
 if (!window.selState) window.selState = selState;
 
 // --- GLOBAL SHOWCASE LOGIC ---
@@ -275,7 +275,7 @@ window.renderSubjectStep = function () {
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Subject</span>`;
 
     const container = document.getElementById('explorer-content');
-    const key = `${selState.branch.id}-${selState.year}`;
+    const key = `${selState.branch.id}-${selState.semester}`;
     const subjects = GlobalData.subjects[key] || [];
 
     if (subjects.length === 0) {
@@ -309,7 +309,7 @@ window.showNotes = function (activeTab = 'notes') {
     const view = document.getElementById('final-notes-view');
     view.style.display = 'block';
 
-    const key = `${selState.branch.id}-${selState.year}`;
+    const key = `${selState.branch.id}-${selState.semester}`;
     const subjectData = (GlobalData.subjects[key] || []).find(s => s.id === selState.subject.id) || {
         name: selState.subject.name,
         code: 'GEN101',
@@ -445,17 +445,20 @@ function renderStaticNotes(notes) {
                 </div>
 
                 <div class="note-tools-pro">
-                    <div class="tool-icon-pro like-btn" onclick="toggleNoteLike('${noteId}'); event.stopPropagation();">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    <button class="tool-icon-pro" onclick="toggleNoteLike('${noteId}'); event.stopPropagation();" title="Like">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
                         <span class="like-count">${likes}</span>
-                    </div>
-                    <div class="tool-icon-pro" onclick="this.classList.toggle('active'); event.stopPropagation();">
+                    </button>
+                    <button class="tool-icon-pro" onclick="toggleNoteDislike('${noteId}'); event.stopPropagation();" title="Dislike">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
+                        <span class="dislike-count">0</span>
+                    </button>
+                    <button class="tool-icon-pro" onclick="toggleBookmark('${noteId}'); event.stopPropagation();" title="Bookmark">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-                    </div>
-                    <div class="tool-icon-pro">
+                    </button>
+                    <button class="tool-icon-pro" title="Share" onclick="alert('Share feature coming soon!'); event.stopPropagation();">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                        <span class="download-count">12</span>
-                    </div>
+                    </button>
                 </div>
 
                 <a href="${url}" target="_blank" class="btn-download-white" onclick="updateNoteStat('${noteId}', 'download');">
