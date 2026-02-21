@@ -2391,7 +2391,7 @@ window.renderMyUploads = function () {
                     ${n.subject.toUpperCase()} • ${new Date(n.created_at || Date.now()).toLocaleDateString()}
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
-                     <a href="${n.fileUrl || n.driveLink}" target="_blank" class="btn btn-sm btn-ghost" style="border: 1px solid var(--border-glass);">View</a>
+                     <a href="${n.url || n.fileUrl || n.driveLink}" target="_blank" class="btn btn-sm btn-ghost" style="border: 1px solid var(--border-glass);">View</a>
                      ${n.status === 'approved' ? `<span style="font-size:0.8rem; margin-left:auto; display:flex; align-items:center;">👁️ ${n.views || 0}</span>` : ''}
                 </div>
             </div>
@@ -2468,7 +2468,7 @@ function renderNotesList(list, tabType) {
                     </div>
                 </div>
                 <div class="download-section-pro">
-                    <a href="${n.fileUrl || n.driveLink}" target="_blank" class="btn-download-white" onclick="downloadNote('${n.id}')">
+                    <a href="${n.url || n.fileUrl || n.driveLink}" target="_blank" class="btn-download-white" onclick="downloadNote('${n.id}')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         Download
                     </a>
@@ -2576,7 +2576,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                     </div>
                 </div>
                 <div class="download-section-pro">
-                    <a href="${n.fileUrl || n.driveLink}" target="_blank" class="btn-download-white" onclick="downloadNote('${n.id}')">
+                    <a href="${n.url || n.fileUrl || n.driveLink}" target="_blank" class="btn-download-white" onclick="downloadNote('${n.id}')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         Download
                     </a>
