@@ -162,7 +162,17 @@ function handleAuthReady(data) {
 
         if (isNewSession || roleChanged || isSkeleton) {
             const urlParams = new URLSearchParams(window.location.search);
-            const tabParam = urlParams.get('tab') || window.pendingTab;
+            let tabParam = urlParams.get('tab') || window.pendingTab;
+
+            // Deep link support via URL path (/pages/dashboard/notes)
+            if (!tabParam) {
+                const pathParts = window.location.pathname.split('/');
+                const dashIdx = pathParts.findIndex(p => p === 'dashboard' || p === 'dashboard.html');
+                if (dashIdx !== -1 && pathParts[dashIdx + 1]) {
+                    tabParam = pathParts[dashIdx + 1];
+                    console.log("📍 Detected Tab from Path:", tabParam);
+                }
+            }
 
             if (tabParam) {
                 renderTabContent(tabParam);
@@ -944,6 +954,14 @@ function renderTabContent(tabId) {
     // GA4 SPA Tracking
     if (window.trackSPAView) {
         window.trackSPAView(`/dashboard/${tabId}`);
+    }
+
+    // Synchronize URL with Tab (Exclude notes as it has sub-routing)
+    if (tabId !== 'notes' && !window.location.pathname.startsWith('/notes')) {
+        const targetPath = tabId === 'overview' ? '/pages/dashboard' : `/pages/dashboard/${tabId}`;
+        if (window.location.pathname !== targetPath) {
+            window.history.pushState({ tab: tabId }, '', targetPath);
+        }
     }
 
     try {

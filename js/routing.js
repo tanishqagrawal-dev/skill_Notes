@@ -12,7 +12,14 @@ export const RoutingSystem = {
         const searchParams = new URLSearchParams(window.location.search);
 
         // Try path segments first
-        const parts = path.split('/').filter(p => p !== '' && p !== 'notes' && p !== 'pages');
+        // We filter out common structural segments to reach the actual filters
+        const parts = path.split('/').filter(p =>
+            p !== '' &&
+            p !== 'notes' &&
+            p !== 'pages' &&
+            p !== 'dashboard' &&
+            p !== 'dashboard.html'
+        );
 
         return {
             college: parts[0] || searchParams.get('college') || null,
@@ -27,7 +34,11 @@ export const RoutingSystem = {
      * Updates the URL based on the current selection state.
      */
     updateURLOnFilterChange(state) {
+        // Determine base path based on current location
         let path = '/notes';
+        if (window.location.pathname.includes('/pages/dashboard')) {
+            path = '/pages/dashboard/notes';
+        }
 
         if (state.college) path += `/${state.college.id}`;
         if (state.branch) path += `/${state.branch.id}`;
@@ -36,7 +47,7 @@ export const RoutingSystem = {
         if (state.subject) path += `/${state.subject.id}`;
 
         if (window.location.pathname !== path) {
-            // window.history.pushState(state, '', path);
+            window.history.pushState(state, '', path);
         }
     },
 

@@ -16,6 +16,10 @@
             {
                 "source": "/notes/**",
                 "destination": "/pages/notes.html"
+            },
+            {
+                "source": "/pages/dashboard/**",
+                "destination": "/pages/dashboard.html"
             }
         ],
         "headers": [
