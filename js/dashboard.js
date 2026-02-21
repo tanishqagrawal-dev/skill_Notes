@@ -271,7 +271,96 @@ window.showToast = function (message, type = 'success') {
     }, 3000);
 };
 
+<<<<<<< HEAD
+window.likeNote = async function (noteId) {
+
+    console.log("REAL NOTE ID:", noteId);
+
+    if (!noteId) {
+        alert("Missing Firestore note ID");
+        return;
+    }
+
+    if (!window.auth || !auth.currentUser) {
+        alert("User not authenticated");
+        return;
+    }
+
+    const uid = auth.currentUser.uid;
+
+    const noteRef = doc(db, "notes", noteId);
+    const engagementRef = doc(db, "notes", noteId, "engagement", uid);
+
+    const snap = await getDoc(engagementRef);
+
+    if (!snap.exists()) {
+        await setDoc(engagementRef, { liked: true });
+        await setDoc(noteRef, { likes: increment(1) }, { merge: true });
+    }
+}
+
+window.viewNote = async function (noteId) {
+    const { db, doc, getDoc, setDoc, increment } = getFirebase();
+    if (!db || !currentUser || !currentUser.id) return;
+
+    const uid = currentUser.id;
+    const noteRef = doc(db, "notes", noteId);
+    const engagementRef = doc(db, "notes", noteId, "engagement", uid);
+
+    try {
+        const snap = await getDoc(engagementRef);
+
+        if (!snap.exists()) {
+            await setDoc(engagementRef, { viewed: true }, { merge: true });
+            await setDoc(noteRef, { views: increment(1) }, { merge: true });
+
+            // Optimistic UI Update
+            const note = NotesDB.find(n => n.id === noteId);
+            if (note) {
+                note.views = (note.views || 0) + 1;
+            }
+            if (window.trackStudyProgress) window.trackStudyProgress(note?.subject || 'misc', 'view');
+
+            if (window.statServices?.trackNoteView) {
+                window.statServices.trackNoteView(noteId);
+            }
+        }
+    } catch (error) {
+        console.error("Error updating views:", error);
+    }
+};
+
+window.downloadNote = async function (noteId) {
+    const { db, doc, setDoc, increment } = getFirebase();
+    if (!db) return;
+
+    try {
+        const noteRef = doc(db, "notes", noteId);
+        await setDoc(noteRef, { downloads: increment(1) }, { merge: true });
+
+        // Optimistic UI Update
+        const note = NotesDB.find(n => n.id === noteId);
+        if (note) {
+            note.downloads = (note.downloads || 0) + 1;
+            if (window.trackStudyProgress) window.trackStudyProgress(note.subject || 'misc', 'download');
+        }
+
+        // Reporting
+        if (typeof gtag === 'function') {
+            gtag('event', 'notes_download', { note_id: noteId });
+        }
+        if (window.statServices?.trackNoteDownload) {
+            window.statServices.trackNoteDownload(noteId);
+        }
+    } catch (error) {
+        console.error("Error updating downloads:", error);
+    }
+};
+
+window.incrementNoteView = window.viewNote;
+=======
 // Redundant functions removed: updateNoteStat, toggleNoteDislike (Handled by note-actions.js)
+>>>>>>> 54d1a9523972d3cd2b2f30a8b4cd0858d743dc53
 
 function initDynamicColleges() {
     const { db, collection, onSnapshot } = getFirebase();
@@ -2026,20 +2115,22 @@ window.renderCollegeStep = function () {
         }
     };
 
-    container.innerHTML = `
-        <div style="grid-column: 1 / -1; margin-bottom: 2rem;">
-            <input type="text" 
-                   placeholder="Search for your university..." 
-                   class="input-field"
-                   onkeyup="handleCollegeSearch(this)"
-                   style="width: 100%; padding: 1.2rem; border-radius: 16px; border: 1px solid var(--border-glass); background: rgba(0,0,0,0.3); color: white; font-size: 1rem; backdrop-filter: blur(10px);">
-        </div>
-        
-        <!-- Nested Grid for Cards -->
-        <div id="college-list-grid" style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
-            ${getCardsHTML(GlobalData.colleges)}
-        </div>
-    `;
+    if (container) {
+        container.innerHTML = `
+            <div style="grid-column: 1 / -1; margin-bottom: 2rem;">
+                <input type="text" 
+                       placeholder="Search for your university..." 
+                       class="input-field"
+                       onkeyup="handleCollegeSearch(this)"
+                       style="width: 100%; padding: 1.2rem; border-radius: 16px; border: 1px solid var(--border-glass); background: rgba(0,0,0,0.3); color: white; font-size: 1rem; backdrop-filter: blur(10px);">
+            </div>
+            
+            <!-- Nested Grid for Cards -->
+            <div id="college-list-grid" style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+                ${getCardsHTML(GlobalData.colleges)}
+            </div>
+        `;
+    }
 };
 
 window.selectCollege = function (id, name) {
@@ -2261,24 +2352,18 @@ window.showNotes = function (activeTab = 'notes') {
     // 2. Instant Static Lookup or Detailed Filtered Data
     const grid = document.getElementById('notes-list-grid');
 
-    // For "notes" tab, we can use static data if available
-    if (activeTab === 'notes') {
-        const staticNotes = globalNotes[selState.college.id]?.[selState.subject.name] || [];
-        if (staticNotes.length > 0) {
-            grid.innerHTML = renderInstantStaticNotes(staticNotes);
-            return;
-        }
-    }
-
-    // Otherwise use the detailed filter (which draws from NotesDB/Firestore)
+    // Completely defer to NotesDB (Firestore snapshot) for rendering
     renderDetailedNotes(selState.subject.id, activeTab);
 };
 
 function renderInstantStaticNotes(notes) {
     const createNoteCard = (note, idx) => {
+<<<<<<< HEAD
+=======
         const noteId = note.id || `static-${(note.title || 'note').replace(/\s+/g, '-').toLowerCase()}`;
+>>>>>>> 54d1a9523972d3cd2b2f30a8b4cd0858d743dc53
         return `
-            <div class="note-card-pro card-reveal" data-note-id="${noteId}" style="animation-delay: ${idx * 0.1}s;">
+            <div class="note-card-pro card-reveal" data-note-id="${note.id}" style="animation-delay: ${idx * 0.1}s;">
                 <div class="note-info-pro">
                     <h3 class="note-title-pro">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -2287,35 +2372,35 @@ function renderInstantStaticNotes(notes) {
                     <div class="meta-pills-row-pro">
                         <div class="meta-pill-pro date-pro">
                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
-                             ${note.date || 'Feb 2026'}
+                             ${formatDate(note.created_at || note.approvedAt || note.date)}
                         </div>
                         <div class="meta-pill-pro uploader-pro">
-                             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(note.uploader || 'Verified')}&backgroundColor=transparent" style="width:18px;height:18px;border-radius:50%; background: #333;">
-                             ${note.uploader || 'Verified'}
+                             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(note.uploaderName || note.uploader || 'Verified')}&backgroundColor=transparent" style="width:18px;height:18px;border-radius:50%; background: #333;">
+                             ${note.uploaderName || note.uploader || 'Verified'}
                         </div>
                         <div class="meta-pill-pro views-pro">
                              ${note.downloads || note.views || 0} downloads
                         </div>
                     </div>
                     <div class="note-actions-pro">
-                        <button class="tool-icon-pro" onclick="toggleNoteLike('${noteId}')" title="Like">
+                        <button class="tool-icon-pro" onclick="likeNote('${note.id}')" title="Like">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
                             <span class="like-count">${note.likes || 1}</span>
                         </button>
-                        <button class="tool-icon-pro" onclick="toggleNoteDislike('${noteId}')" title="Dislike">
+                        <button class="tool-icon-pro" onclick="toggleNoteDislike('${note.id}')" title="Dislike">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
                             <span class="dislike-count">${note.dislikes || 0}</span>
                         </button>
-                        <button class="tool-icon-pro" onclick="toggleBookmark('${noteId}')" title="Bookmark">
+                        <button class="tool-icon-pro" onclick="toggleBookmark('${note.id}')" title="Bookmark">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
                         </button>
-                        <button class="tool-icon-pro" onclick="reportNote('${noteId}')" title="Report">
+                        <button class="tool-icon-pro" onclick="reportNote('${note.id}')" title="Report">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
                         </button>
                     </div>
                 </div>
                 <div class="download-section-pro">
-                    <a href="${note.url}" target="_blank" class="btn-download-white" onclick="updateNoteStat('${noteId}', 'download')">
+                    <a href="${note.url || note.fileUrl || note.driveLink}" target="_blank" class="btn-download-white" onclick="downloadNote('${note.id}')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         Download
                     </a>
@@ -2328,10 +2413,14 @@ function renderInstantStaticNotes(notes) {
 
     setTimeout(() => {
         if (typeof attachNoteRealtimeListeners === 'function') attachNoteRealtimeListeners('tab-content');
+<<<<<<< HEAD
+        notes.forEach(n => { if (n.id) window.incrementNoteView?.(n.id); });
+=======
         notes.forEach(n => {
             const staticId = n.id || `static-${(n.title || 'note').replace(/\s+/g, '-').toLowerCase()}`;
             incrementNoteView(staticId);
         });
+>>>>>>> 54d1a9523972d3cd2b2f30a8b4cd0858d743dc53
     }, 100);
 
     return html;
@@ -2406,9 +2495,8 @@ function renderNotesList(list, tabType) {
     }
 
     const cardsHTML = list.map((n, idx) => {
-        const noteId = n.id || `list-${idx}`;
         return `
-            <div class="note-card-pro card-reveal" data-note-id="${noteId}" style="animation-delay: ${idx * 0.1}s;">
+            <div class="note-card-pro card-reveal" data-note-id="${n.id}" style="animation-delay: ${idx * 0.1}s;">
                 <div class="note-info-pro">
                     <h3 class="note-title-pro">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -2428,24 +2516,24 @@ function renderNotesList(list, tabType) {
                         </div>
                     </div>
                     <div class="note-actions-pro">
-                        <button class="tool-icon-pro" onclick="toggleNoteLike('${noteId}')" title="Like">
+                        <button class="tool-icon-pro" onclick="likeNote('${n.id}')" title="Like">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
                             <span class="like-count">${n.likes || 1}</span>
                         </button>
-                        <button class="tool-icon-pro" onclick="toggleNoteDislike('${noteId}')" title="Dislike">
+                        <button class="tool-icon-pro" onclick="toggleNoteDislike('${n.id}')" title="Dislike">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
                             <span class="dislike-count">${n.dislikes || 0}</span>
                         </button>
-                        <button class="tool-icon-pro" onclick="toggleBookmark('${noteId}')" title="Bookmark">
+                        <button class="tool-icon-pro" onclick="toggleBookmark('${n.id}')" title="Bookmark">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
                         </button>
-                        <button class="tool-icon-pro" onclick="reportNote('${noteId}')" title="Report">
+                        <button class="tool-icon-pro" onclick="reportNote('${n.id}')" title="Report">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
                         </button>
                     </div>
                 </div>
                 <div class="download-section-pro">
-                    <a href="${n.fileUrl || n.driveLink}" target="_blank" class="btn-download-white" onclick="updateNoteStat('${noteId}', 'download')">
+                    <a href="${n.fileUrl || n.driveLink}" target="_blank" class="btn-download-white" onclick="downloadNote('${n.id}')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         Download
                     </a>
@@ -2503,9 +2591,8 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
     }
 
     const cardsHTML = filtered.map((n, idx) => {
-        const noteId = n.id || `unit-${(n.unit || 'RE').replace(/\s+/g, '-').toLowerCase()}-${(n.title || '').replace(/\s+/g, '-').toLowerCase()}`;
         return `
-            <div class="note-card-pro card-reveal" data-note-id="${noteId}" style="animation-delay: ${idx * 0.1}s;">
+            <div class="note-card-pro card-reveal" data-note-id="${n.id}" style="animation-delay: ${idx * 0.1}s;">
                 <div class="note-info-pro">
                     <h3 class="note-title-pro">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -2525,24 +2612,24 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                         </div>
                     </div>
                     <div class="note-actions-pro">
-                        <button class="tool-icon-pro" onclick="toggleNoteLike('${noteId}')" title="Like">
+                        <button class="tool-icon-pro" onclick="likeNote('${n.id}')" title="Like">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
                             <span class="like-count">${n.likes || 1}</span>
                         </button>
-                        <button class="tool-icon-pro" onclick="toggleNoteDislike('${noteId}')" title="Dislike">
+                        <button class="tool-icon-pro" onclick="toggleNoteDislike('${n.id}')" title="Dislike">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
                             <span class="dislike-count">${n.dislikes || 0}</span>
                         </button>
-                        <button class="tool-icon-pro" onclick="toggleBookmark('${noteId}')" title="Bookmark">
+                        <button class="tool-icon-pro" onclick="toggleBookmark('${n.id}')" title="Bookmark">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
                         </button>
-                        <button class="tool-icon-pro" onclick="reportNote('${noteId}')" title="Report">
+                        <button class="tool-icon-pro" onclick="reportNote('${n.id}')" title="Report">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
                         </button>
                     </div>
                 </div>
                 <div class="download-section-pro">
-                    <a href="${n.fileUrl || n.driveLink}" target="_blank" class="btn-download-white" onclick="updateNoteStat('${noteId}', 'download')">
+                    <a href="${n.fileUrl || n.driveLink}" target="_blank" class="btn-download-white" onclick="downloadNote('${n.id}')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         Download
                     </a>
@@ -2554,10 +2641,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
 
     setTimeout(() => {
         if (typeof attachNoteRealtimeListeners === 'function') attachNoteRealtimeListeners('tab-content');
-        filtered.forEach(n => {
-            const noteId = n.id || `unit-${(n.unit || 'unit-1').toLowerCase()}-${(n.title || '').toLowerCase()}`;
-            if (typeof window.incrementNoteView === 'function') window.incrementNoteView(noteId);
-        });
+        filtered.forEach(n => { if (n.id) window.incrementNoteView?.(n.id); });
     }, 150);
 
     return grid.innerHTML;

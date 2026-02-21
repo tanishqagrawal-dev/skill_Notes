@@ -64,25 +64,9 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 // EAGER INIT (Standard for shared usage)
-// Use initializeFirestore with long polling to fix "Offline" issues on some networks
-const db = initializeFirestore(app, {
-    experimentalForceLongPolling: true
-});
+const db = getFirestore(app);
 const storage = getStorage(app);
 const functions = getFunctions(app);
-
-// Enable Persistence (Optional but good) - Skip if flag set
-if (localStorage.getItem('disableFirestorePersistence') !== 'true') {
-    enableIndexedDbPersistence(db).catch(err => {
-        if (err.code == 'failed-precondition') {
-            console.warn("⚠️ Persistence failed: Multiple tabs open");
-        } else if (err.code == 'unimplemented') {
-            console.warn("⚠️ Persistence not supported in this browser");
-        }
-    });
-} else {
-    console.log("🚫 Firestore Persistence is disabled via debug flag.");
-}
 
 // Expose services to window (for legacy compatibility)
 window.firebaseServices = {
@@ -186,3 +170,11 @@ export {
     getDocsFromServer,
     increment
 };
+
+// Global exports for inline interactions
+window.auth = auth;
+window.db = db;
+window.doc = doc;
+window.getDoc = getDoc;
+window.setDoc = setDoc;
+window.increment = increment;
