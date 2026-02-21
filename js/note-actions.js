@@ -192,6 +192,7 @@ window.toggleNoteLike = async function (noteId) {
             }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             if (!likeSnap.exists()) {
                 transaction.set(likeRef, { liked: true, timestamp: Date.now() });
                 transaction.update(noteRef, { likes: increment(1) });
@@ -218,6 +219,16 @@ window.toggleNoteLike = async function (noteId) {
         if (typeof gtag === 'function') {
             gtag('event', 'notes_like', { note_id: noteId, action: delta === 1 ? 'like' : 'unlike' });
         }
+=======
+            if (!isActive) { // We toggled it off
+                transaction.delete(likeRef);
+                transaction.update(noteRef, { likes: increment(-1) });
+            } else { // We toggled it on
+                transaction.set(likeRef, { liked: true, timestamp: Date.now() });
+                transaction.update(noteRef, { likes: increment(1) });
+            }
+        });
+>>>>>>> Stashed changes
 =======
             if (!isActive) { // We toggled it off
                 transaction.delete(likeRef);
@@ -274,6 +285,7 @@ window.toggleNoteDislike = async function (noteId) {
         } else {
             await updateDoc(noteRef, { dislikes: increment(delta) });
         }
+<<<<<<< Updated upstream
 
         syncAllInteractionIcons();
         if (typeof showToast === 'function') showToast(delta > 0 ? "Note disliked 👎" : "Dislike removed", "info");
@@ -281,6 +293,8 @@ window.toggleNoteDislike = async function (noteId) {
         if (typeof gtag === 'function') {
             gtag('event', 'notes_dislike', { note_id: noteId });
         }
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
     } catch (e) {
