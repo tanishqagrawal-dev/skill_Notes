@@ -271,96 +271,10 @@ window.showToast = function (message, type = 'success') {
     }, 3000);
 };
 
-<<<<<<< HEAD
-window.likeNote = async function (noteId) {
-
-    console.log("REAL NOTE ID:", noteId);
-
-    if (!noteId) {
-        alert("Missing Firestore note ID");
-        return;
-    }
-
-    if (!window.auth || !auth.currentUser) {
-        alert("User not authenticated");
-        return;
-    }
-
-    const uid = auth.currentUser.uid;
-
-    const noteRef = doc(db, "notes", noteId);
-    const engagementRef = doc(db, "notes", noteId, "engagement", uid);
-
-    const snap = await getDoc(engagementRef);
-
-    if (!snap.exists()) {
-        await setDoc(engagementRef, { liked: true });
-        await setDoc(noteRef, { likes: increment(1) }, { merge: true });
-    }
-}
-
-window.viewNote = async function (noteId) {
-    const { db, doc, getDoc, setDoc, increment } = getFirebase();
-    if (!db || !currentUser || !currentUser.id) return;
-
-    const uid = currentUser.id;
-    const noteRef = doc(db, "notes", noteId);
-    const engagementRef = doc(db, "notes", noteId, "engagement", uid);
-
-    try {
-        const snap = await getDoc(engagementRef);
-
-        if (!snap.exists()) {
-            await setDoc(engagementRef, { viewed: true }, { merge: true });
-            await setDoc(noteRef, { views: increment(1) }, { merge: true });
-
-            // Optimistic UI Update
-            const note = NotesDB.find(n => n.id === noteId);
-            if (note) {
-                note.views = (note.views || 0) + 1;
-            }
-            if (window.trackStudyProgress) window.trackStudyProgress(note?.subject || 'misc', 'view');
-
-            if (window.statServices?.trackNoteView) {
-                window.statServices.trackNoteView(noteId);
-            }
-        }
-    } catch (error) {
-        console.error("Error updating views:", error);
-    }
-};
-
-window.downloadNote = async function (noteId) {
-    const { db, doc, setDoc, increment } = getFirebase();
-    if (!db) return;
-
-    try {
-        const noteRef = doc(db, "notes", noteId);
-        await setDoc(noteRef, { downloads: increment(1) }, { merge: true });
-
-        // Optimistic UI Update
-        const note = NotesDB.find(n => n.id === noteId);
-        if (note) {
-            note.downloads = (note.downloads || 0) + 1;
-            if (window.trackStudyProgress) window.trackStudyProgress(note.subject || 'misc', 'download');
-        }
-
-        // Reporting
-        if (typeof gtag === 'function') {
-            gtag('event', 'notes_download', { note_id: noteId });
-        }
-        if (window.statServices?.trackNoteDownload) {
-            window.statServices.trackNoteDownload(noteId);
-        }
-    } catch (error) {
-        console.error("Error updating downloads:", error);
-    }
-};
-
+window.likeNote = function (id) { if (window.toggleNoteLike) window.toggleNoteLike(id); };
+window.downloadNote = function (id) { if (window.updateNoteStat) window.updateNoteStat(id, 'download'); };
+window.viewNote = function (id) { if (window.updateNoteStat) window.updateNoteStat(id, 'view'); };
 window.incrementNoteView = window.viewNote;
-=======
-// Redundant functions removed: updateNoteStat, toggleNoteDislike (Handled by note-actions.js)
->>>>>>> 54d1a9523972d3cd2b2f30a8b4cd0858d743dc53
 
 function initDynamicColleges() {
     const { db, collection, onSnapshot } = getFirebase();
@@ -1381,11 +1295,19 @@ function renderOverview() {
 
     const isGuest = !currentUser.email;
 
-    // Flatten globalNotes.global into an array
+    // Aggregate global hardcoded notes
     const allGlobalNotes = [];
     if (globalNotes && globalNotes.global) {
         Object.values(globalNotes.global).forEach(arr => allGlobalNotes.push(...arr));
     }
+
+    // Merge true Firestore nodes securely with formatted hardcoded ones
+    const combinedNotes = [...(window.NotesDB || []), ...allGlobalNotes];
+
+    const topNotes = combinedNotes
+        .filter(n => n.status === 'approved')
+        .sort((a, b) => ((b.likes || 0) + (b.downloads || 0) + (b.views || 0)) - ((a.likes || 0) + (a.downloads || 0) + (a.views || 0)))
+        .slice(0, 3);
 
     // AI Logic: What should they study?
     let aiRec = {
@@ -1447,7 +1369,7 @@ function renderOverview() {
                             Global <span class="highlight">Verified Resources</span>
                          </h3>
                          <div id="dashboard-global-showcase" class="notes-list-container-pro">
-                            ${renderInstantStaticNotes(allGlobalNotes)}
+                            ${topNotes.length > 0 ? renderInstantStaticNotes(topNotes) : '<p style="color:var(--text-dim);">Resources are being synced from global servers...</p>'}
                          </div>
                     </div>
 
@@ -2358,10 +2280,6 @@ window.showNotes = function (activeTab = 'notes') {
 
 function renderInstantStaticNotes(notes) {
     const createNoteCard = (note, idx) => {
-<<<<<<< HEAD
-=======
-        const noteId = note.id || `static-${(note.title || 'note').replace(/\s+/g, '-').toLowerCase()}`;
->>>>>>> 54d1a9523972d3cd2b2f30a8b4cd0858d743dc53
         return `
             <div class="note-card-pro card-reveal" data-note-id="${note.id}" style="animation-delay: ${idx * 0.1}s;">
                 <div class="note-info-pro">
@@ -2412,15 +2330,7 @@ function renderInstantStaticNotes(notes) {
     const html = notes.map((n, idx) => createNoteCard(n, idx)).join('');
 
     setTimeout(() => {
-        if (typeof attachNoteRealtimeListeners === 'function') attachNoteRealtimeListeners('tab-content');
-<<<<<<< HEAD
         notes.forEach(n => { if (n.id) window.incrementNoteView?.(n.id); });
-=======
-        notes.forEach(n => {
-            const staticId = n.id || `static-${(n.title || 'note').replace(/\s+/g, '-').toLowerCase()}`;
-            incrementNoteView(staticId);
-        });
->>>>>>> 54d1a9523972d3cd2b2f30a8b4cd0858d743dc53
     }, 100);
 
     return html;
@@ -2557,11 +2467,24 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
     const semNum = querySem ? querySem.split(' ')[1] : null;
     const altSem = semNum ? (semNum + (semNum === '1' ? 'st' : semNum === '2' ? 'nd' : semNum === '3' ? 'rd' : 'th')) : null;
 
-    const filtered = NotesDB.filter(n => {
-        const semMatch = n.semester === querySem || (altSem && n.semester === altSem);
-        const isCorrectSubject = ((n.subjectId === subjectId) || (n.subject === subjectId)) &&
-            (n.collegeId === selState.college.id || n.college === selState.college.id) &&
-            n.type === tabType;
+    // Combine NotesDB with Global Notes to guarantee hardcoded copies render
+    let staticNotes = globalNotes[selState.college.id]?.[selState.subject.name];
+    if (!staticNotes || staticNotes.length === 0) {
+        staticNotes = globalNotes['global']?.[selState.subject.name] || [];
+    }
+    const combinedNotes = [...(window.NotesDB || []), ...staticNotes];
+
+    // Remove duplicates natively to prioritize DB copies
+    const uniqueMap = new Map();
+    combinedNotes.forEach(n => { if (n.id) uniqueMap.set(n.id, n); });
+    const deduplicatedNotes = Array.from(uniqueMap.values());
+
+    const filtered = deduplicatedNotes.filter(n => {
+        const isStatic = n.id && n.id.startsWith('static-');
+        const semMatch = isStatic || n.semester === querySem || (altSem && n.semester === altSem);
+        const isCorrectSubject = ((n.subjectId === subjectId) || (n.subject === subjectId) || (n.subjectName === selState.subject.name)) &&
+            (n.collegeId === selState.college.id || n.college === selState.college.id || n.collegeId === 'global') &&
+            (n.type === tabType || !n.type);
 
         if (!semMatch || !isCorrectSubject) return false;
 

@@ -39,18 +39,16 @@ function renderGlobalShowcase() {
     const list = document.getElementById('global-notes-list');
     if (!list) return;
 
-    // Aggregate all notes under 'global' category
-    const allGlobalNotes = [];
-    if (globalNotes.global) {
-        Object.values(globalNotes.global).forEach(notesArray => {
-            allGlobalNotes.push(...notesArray);
-        });
-    }
+    // Aggregate top notes from NotesDB (Firestore)
+    const topNotes = (window.NotesDB || [])
+        .filter(n => n.status === 'approved')
+        .sort((a, b) => ((b.likes || 0) + (b.views || 0)) - ((a.likes || 0) + (a.views || 0)))
+        .slice(0, 5);
 
-    if (allGlobalNotes.length === 0) {
-        list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">Coming soon to the global hub.</p>';
+    if (topNotes.length === 0) {
+        list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">Fetching global hub resources...</p>';
     } else {
-        list.innerHTML = renderStaticNotes(allGlobalNotes);
+        list.innerHTML = renderStaticNotes(topNotes);
     }
 }
 
@@ -316,9 +314,31 @@ window.showNotes = function (activeTab = 'notes') {
         description: 'Comprehensive study materials and verified academic resources.'
     };
 
-    // Lookup static notes
-    const staticNotes = globalNotes[selState.college.id]?.[selState.subject.name] || [];
-    window.currentStaticNotes = staticNotes;
+    // Filter from NotesDB (Firestore)
+    const subjectId = selState.subject.id;
+    const collegeId = selState.college.id;
+
+    // Hardcoded static fallback based on chosen subject
+    let staticNotes = globalNotes[selState.college.id]?.[selState.subject.name];
+    if (!staticNotes || staticNotes.length === 0) {
+        staticNotes = globalNotes['global']?.[selState.subject.name] || [];
+    }
+
+    // Merge genuine DB nodes securely with formatted static nodes
+    const combinedNotes = [...(window.NotesDB || []), ...staticNotes];
+
+    // Remove duplicates by ID nately to prioritize DB copies and prevent duplicate key crashes
+    const uniqueMap = new Map();
+    combinedNotes.forEach(n => { if (n.id) uniqueMap.set(n.id, n); });
+    const deduplicatedNotes = Array.from(uniqueMap.values());
+
+    const dynamicNotes = deduplicatedNotes.filter(n =>
+        n.status === 'approved' &&
+        (n.type === activeTab || !n.type) &&
+        ((n.subjectId === subjectId) || (n.subject === subjectId) || (n.subjectName === selState.subject.name)) &&
+        ((n.collegeId === collegeId) || (n.college === collegeId) || !n.collegeId || n.collegeId === 'global')
+    );
+    window.currentStaticNotes = dynamicNotes;
 
     view.innerHTML = `
         <style>
@@ -401,7 +421,7 @@ window.showNotes = function (activeTab = 'notes') {
                     Verified <span class="highlight" style="color: #00f2ff; font-weight: 800; text-transform: uppercase;">${activeTab}</span>
                 </h2>
                 <div class="notes-list-container-pro" id="resource-list-container">
-                    ${(activeTab === 'notes' && staticNotes.length > 0) ? renderStaticNotes(staticNotes) : `
+                    ${(activeTab === 'notes' && dynamicNotes.length > 0) ? renderStaticNotes(dynamicNotes) : `
                         <div style="text-align: center; padding: 5rem; background: rgba(255,255,255,0.01); border: 2px dashed rgba(255,255,255,0.05); border-radius: 20px;">
                             <div style="font-size: 4rem; margin-bottom: 2rem;">📂</div>
                             <h2 class="font-heading">No ${activeTab} found for this subject yet.</h2>
@@ -418,7 +438,7 @@ window.showNotes = function (activeTab = 'notes') {
 function renderStaticNotes(notes) {
     const cards = notes.map((n, idx) => {
         const createNoteCard = (unit, title, url, likes = 8, views = 124, id = '') => {
-            const noteId = id || `hub-${unit.replace(/\s+/g, '-').toLowerCase()}-${title.replace(/\s+/g, '-').toLowerCase()}`;
+            const noteId = id || 'undefined';
             return `
             <div class="note-card-pro card-reveal" data-note-id="${noteId}" style="animation-delay: ${idx * 0.1}s;">
                 <div class="note-icon-pro">
@@ -474,8 +494,7 @@ function renderStaticNotes(notes) {
     setTimeout(() => {
         if (typeof attachNoteRealtimeListeners === 'function') attachNoteRealtimeListeners('final-notes-view');
         notes.forEach(n => {
-            const noteId = n.id || `hub-${(n.unit || 'unit-1').toLowerCase()}-${(n.title || '').toLowerCase()}`;
-            if (typeof window.incrementNoteView === 'function') window.incrementNoteView(noteId);
+            if (n.id && typeof window.incrementNoteView === 'function') window.incrementNoteView(n.id);
         });
     }, 150);
 
