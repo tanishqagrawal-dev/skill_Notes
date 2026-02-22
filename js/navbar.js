@@ -80,12 +80,12 @@ function updateNavbarAuthButton(basePath) {
         const guestUser = localStorage.getItem('guest_session');
 
         if (fullUser || (window.firebaseServices && window.firebaseServices.auth.currentUser)) {
-            authBtn.textContent = 'Dashboard';
+            authBtn.textContent = 'Get Started';
             authBtn.onclick = () => {
                 window.location.href = `${basePath}pages/dashboard.html`;
             };
         } else if (guestUser) {
-            authBtn.textContent = 'Dashboard';
+            authBtn.textContent = 'Get Started';
             authBtn.onclick = () => {
                 window.location.href = `${basePath}pages/dashboard.html`;
             };
