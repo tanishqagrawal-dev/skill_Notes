@@ -59,24 +59,20 @@ const GlobalData = {
     years: ['1st Year', '2nd Year', '3rd Year', '4th Year'],
     subjects: {
         'cse-Semester 1': [
-            { id: 'math-1', name: 'Engineering Mathematics-I', icon: '📐', code: 'EN3BS11', description: 'Calculus, Linear Algebra and differential equations.' },
-            { id: 'physics', name: 'Engineering Physics', icon: '⚛️', code: 'EN3BS16', description: 'Quantum physics, optics and semiconductor theory.' },
-            { id: 'bee', name: 'Basic Electrical Engineering', icon: '🔌', code: 'EN3ES17', description: 'AC/DC circuits, transformers and machines.' },
-            { id: 'graphics', name: 'Engineering Graphics', icon: '📐', code: 'EN3ES26', description: 'Technical drawing, projection and CAD basics.' },
-            { id: 'c-prog', name: 'Basic Programming with C', icon: '💻', code: 'EN3ES27', description: 'Introduction to algorithmic logic and C programming.' },
-            { id: 'civil-mech', name: 'Basic Civil Engineering & Mechanics', icon: '🏗️', code: 'EN3ES30', description: 'Civil engineering fundamentals and applied mechanics.' },
-            { id: 'evs', name: 'Environmental Science', icon: '🌍', code: 'EN3NG01', description: 'Ecosystems, biodiversity and environmental conservation.' },
-            { id: 'hst', name: 'History of Science and Technology', icon: '📜', code: 'EN3HS01', description: 'Evolution of scientific thought and technological advancements.' }
+            { id: 'applied-chemistry', name: 'Applied Chemistry', icon: '🧪', code: 'CH3001T', description: 'Chemical engineering properties and basics.' },
+            { id: 'math-1', name: 'Engineering Mathematics-I', icon: '📐', code: 'MA3001T', description: 'Calculus, Linear Algebra and differential equations.' },
+            { id: 'basic-mech', name: 'Basic Mechanical Engineering', icon: '⚙️', code: 'ME3001T', description: 'Introduction to mechanical engineering systems.' },
+            { id: 'graphics', name: 'Engineering Graphics', icon: '📐', code: 'ME3003T', description: 'Technical drawing, projection and CAD basics.' },
+            { id: 'workshop', name: 'Engineering Workshop', icon: '🛠️', code: 'ME3002P', description: 'Hands-on practice with tools.' },
+            { id: 'c-prog', name: 'Programming with C', icon: '💻', code: 'CS3001T', description: 'Introduction to algorithmic logic and C programming.' },
+            { id: 'comm-skills', name: 'Communication Skills', icon: '🗣️', code: 'LN3001T', description: 'Professional writing and verbal communication.' }
         ],
         'cse-Semester 2': [
-            { id: 'math-2', name: 'Engineering Mathematics-II', icon: '📉', code: 'EN3BS12', description: 'Advanced calculus, Fourier series and complex variables.' },
-            { id: 'chemistry', name: 'Engineering Chemistry', icon: '🧪', code: 'EN3BS14', description: 'Water treatment, thermodynamics and material science.' },
-            { id: 'electronics', name: 'Basic Electronics Engineering', icon: '📟', code: 'EN3ES16', description: 'Semiconductor devices and circuits.' },
-            { id: 'mech', name: 'Basic Mechanical Engineering', icon: '⚙️', code: 'EN3ES18', description: 'Thermodynamics and IC engines.' },
-            { id: 'adv-c', name: 'Advanced Programming with C', icon: '💻', code: 'EN3ES28', description: 'Pointers, dynamic memory allocation and file handling.' },
-            { id: 'workshop', name: 'Engineering Workshop', icon: '🛠️', code: 'EN3ES29', description: 'Hands-on practice with tools, carpentry and welding.' },
-            { id: 'uhv', name: 'Universal Human Values & Professional Ethics', icon: '🤝', code: 'EN3NG02', description: 'Understanding human values and ethical practices.' },
-            { id: 'comm-skills', name: 'Communication Skills', icon: '🗣️', code: 'EN3HS10', description: 'Professional writing and verbal communication.' }
+            { id: 'applied-physics', name: 'Applied Physics', icon: '⚛️', code: 'PH3001T', description: 'Quantum physics, optics and semiconductor theory.' },
+            { id: 'math-2', name: 'Engineering Mathematics -II', icon: '📉', code: 'MA3002T', description: 'Advanced calculus, Fourier series and complex variables.' },
+            { id: 'civil-mech', name: 'Basic Civil Engineering & Mechanics', icon: '🏗️', code: 'CE3001T', description: 'Civil engineering fundamentals and applied mechanics.' },
+            { id: 'bee', name: 'Basic Electrical & Electronics Engineering', icon: '🔌', code: 'EE3001T', description: 'Semiconductor devices and circuits.' },
+            { id: 'python', name: 'Python Programming', icon: '🐍', code: 'CS3002T', description: 'Programming with Python for general applications.' }
         ],
         'cse-Semester 3': [
             { id: 'dm', name: 'Discrete Mathematics', icon: '🧩', code: 'CS3BS04', description: 'Logic, sets, graph theory and combinatorics.' },

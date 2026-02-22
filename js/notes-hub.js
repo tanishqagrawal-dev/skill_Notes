@@ -19,6 +19,22 @@ const LocalData = {
     ],
     years: ['1st Year', '2nd Year', '3rd Year', '4th Year'],
     subjects: {
+        'cse-Semester 1': [
+            { id: 'applied-chemistry', name: 'Applied Chemistry', icon: '🧪', code: 'CH3001T', description: 'Chemical engineering properties and basics.' },
+            { id: 'math-1', name: 'Engineering Mathematics-I', icon: '📐', code: 'MA3001T', description: 'Calculus, Linear Algebra and differential equations.' },
+            { id: 'basic-mech', name: 'Basic Mechanical Engineering', icon: '⚙️', code: 'ME3001T', description: 'Introduction to mechanical engineering systems.' },
+            { id: 'graphics', name: 'Engineering Graphics', icon: '📐', code: 'ME3003T', description: 'Technical drawing, projection and CAD basics.' },
+            { id: 'workshop', name: 'Engineering Workshop', icon: '🛠️', code: 'ME3002P', description: 'Hands-on practice with tools.' },
+            { id: 'c-prog', name: 'Programming with C', icon: '💻', code: 'CS3001T', description: 'Introduction to algorithmic logic and C programming.' },
+            { id: 'comm-skills', name: 'Communication Skills', icon: '🗣️', code: 'LN3001T', description: 'Professional writing and verbal communication.' }
+        ],
+        'cse-Semester 2': [
+            { id: 'applied-physics', name: 'Applied Physics', icon: '⚛️', code: 'PH3001T', description: 'Quantum physics, optics and semiconductor theory.' },
+            { id: 'math-2', name: 'Engineering Mathematics -II', icon: '📉', code: 'MA3002T', description: 'Advanced calculus, Fourier series and complex variables.' },
+            { id: 'civil-mech', name: 'Basic Civil Engineering & Mechanics', icon: '🏗️', code: 'CE3001T', description: 'Civil engineering fundamentals and applied mechanics.' },
+            { id: 'bee', name: 'Basic Electrical & Electronics Engineering', icon: '🔌', code: 'EE3001T', description: 'Semiconductor devices and circuits.' },
+            { id: 'python', name: 'Python Programming', icon: '🐍', code: 'CS3002T', description: 'Programming with Python for general applications.' }
+        ],
         'cse-Semester 3': [
             { id: 'dm', name: 'Discrete Mathematics', icon: '🧩', code: 'CS3BS04', description: 'Logic, sets, graph theory and combinatorics.' },
             { id: 'dc', name: 'Data Communication', icon: '📡', code: 'CS3CO28', description: 'Network models, transmission media, and data link control.' },
