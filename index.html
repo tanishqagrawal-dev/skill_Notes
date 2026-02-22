@@ -440,6 +440,55 @@
     <script src="js/founders.js" defer></script>
     <script src="js/footer.js" defer></script>
     <script src="js/main.js" defer></script>
+    <!-- Cookie Consent Pro -->
+    <div id="cookiePro">
+        <div class="cookie-wrap">
+            <span>
+                🍪 We use cookies to improve experience and analytics.
+            </span>
+            <div class="cookie-btns">
+                <button id="rejectCookie">Reject</button>
+                <button id="acceptCookie">Accept</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cookie Banner Script -->
+    <script>
+        const cookieBar = document.getElementById("cookiePro");
+        const acceptBtn = document.getElementById("acceptCookie");
+        const rejectBtn = document.getElementById("rejectCookie");
+
+        /* Show once */
+        if (!localStorage.getItem("cookieChoice")) {
+            cookieBar.style.display = "block";
+        }
+
+        /* Accept */
+        acceptBtn.onclick = () => {
+            localStorage.setItem("cookieChoice", "accepted");
+            cookieBar.style.display = "none";
+        };
+
+        /* Reject */
+        rejectBtn.onclick = () => {
+            localStorage.setItem("cookieChoice", "rejected");
+            cookieBar.style.display = "none";
+        };
+
+        /* Theme Sync */
+        function syncTheme() {
+            if (document.body.classList.contains("light")) {
+                document.body.classList.remove("dark");
+            }
+        }
+
+        syncTheme();
+
+        /* If your toggle changes class */
+        const observer = new MutationObserver(syncTheme);
+        observer.observe(document.body, { attributes: true });
+    </script>
 </body>
 
 </html>
