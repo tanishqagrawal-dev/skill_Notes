@@ -56,6 +56,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&family=Poppins:wght@600;700&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- CSS -->
     <link rel="stylesheet" href="css/main.css">
@@ -64,6 +65,7 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js" defer></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js" defer></script>
+    <script src="https://unpkg.com/lucide@latest" defer></script>
 </head>
 
 <body>
@@ -199,25 +201,64 @@
     </section>
 
 
-    <!-- Real-time Stats Section -->
-    <section class="live-stats alternate-bg">
-        <div class="container">
-            <div class="glass-card stats-wrapper" data-aos="zoom-in">
-                <div class="stat-box">
-                    <h3 class="stat-val" id="stat-views-2">0</h3>
-                    <p class="stat-label">Total Note Views</p>
+    <!-- Founders Section -->
+    <section id="founders" class="container" style="margin-bottom: 6rem; padding-top: 4rem;">
+        <h2 class="section-title" data-aos="fade-up">Meet Our Founders</h2>
+        <div class="founders-grid">
+            <!-- Founder 1 -->
+            <div class="founder-card" data-aos="zoom-in" data-aos-delay="100" onclick="openFounderModal('tanishq')"
+                style="--primary: #7B61FF; --secondary: #00F2FF;">
+                <div class="founder-inner">
+                    <div class="founder-front">
+                        <div class="founder-img-wrapper">
+                            <div class="founder-border-glow"></div>
+                            <div class="founder-border-ring"></div>
+                            <img src="assets/anoop.jpg" alt="Tanishq Agrawal" onerror="this.src='assets/logo.jpg'">
+                        </div>
+                        <h3>Tanishq Agrawal</h3>
+                        <p class="role">Frontend, UI/UX, Marketing & Features</p>
+                        <div class="tap-hint">
+                            <i data-lucide="external-link"></i> View Full Profile
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-box">
-                    <h3 class="stat-val" id="stat-downloads-2">0</h3>
-                    <p class="stat-label">Notes Downloaded</p>
+            </div>
+
+            <!-- Founder 2 -->
+            <div class="founder-card" data-aos="zoom-in" data-aos-delay="200" onclick="openFounderModal('yash')"
+                style="--primary: #00F2FF; --secondary: #7B61FF;">
+                <div class="founder-inner">
+                    <div class="founder-front">
+                        <div class="founder-img-wrapper">
+                            <div class="founder-border-glow"></div>
+                            <div class="founder-border-ring"></div>
+                            <img src="assets/yash.jpg" alt="Yash Jain" onerror="this.src='assets/logo.jpg'">
+                        </div>
+                        <h3>Yash Jain</h3>
+                        <p class="role">Cloud, Backend & Security</p>
+                        <div class="tap-hint">
+                            <i data-lucide="external-link"></i> View Full Profile
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-box">
-                    <h3 class="stat-val" id="stat-active-2">0</h3>
-                    <p class="stat-label">Active Students</p>
-                </div>
-                <div class="stat-box">
-                    <h3 class="stat-val">9.8/10</h3>
-                    <p class="stat-label">Study Satisfaction</p>
+            </div>
+
+            <!-- Founder 3 -->
+            <div class="founder-card" data-aos="zoom-in" data-aos-delay="300" onclick="openFounderModal('anoop')"
+                style="--primary: #ff007f; --secondary: #00F2FF;">
+                <div class="founder-inner">
+                    <div class="founder-front">
+                        <div class="founder-img-wrapper">
+                            <div class="founder-border-glow"></div>
+                            <div class="founder-border-ring"></div>
+                            <img src="assets/tanishq.jpg" alt="Anoop Verma" onerror="this.src='assets/logo.jpg'">
+                        </div>
+                        <h3>Anoop Verma</h3>
+                        <p class="role">Lead AI & Backend Developer</p>
+                        <div class="tap-hint">
+                            <i data-lucide="external-link"></i> View Full Profile
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -377,12 +418,24 @@
         <button id="back-to-top" class="btn-icon-round" aria-label="Back to Top">↑</button>
     </footer>
 
+    <!-- Founder Modal -->
+    <div id="profile-modal" class="founder-modal">
+        <div class="founder-content">
+            <div class="modal-close" onclick="closeFounderModal()">&times;</div>
+            <div class="modal-header-bg"></div>
+            <div class="modal-body" id="modal-body-content">
+                <!-- Dynamically Filled -->
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="js/firebase-config.js"></script>
     <script type="module">
         import { initRealtimeStats } from './js/stats.js';
         initRealtimeStats();
     </script>
     <script src="js/note-actions.js" defer></script>
+    <script src="js/founders.js" defer></script>
     <script src="js/footer.js" defer></script>
     <script src="js/main.js" defer></script>
 </body>
