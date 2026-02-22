@@ -60,6 +60,7 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/lockOverlay.css">
 
     <!-- Libraries -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js" defer></script>
@@ -168,7 +169,7 @@
                     <li style="margin-bottom: 0.8rem; color: var(--text-muted);">❌ Ad-free Experience</li>
                 </ul>
 
-                <button class="btn btn-ghost" onclick="window.location.href='pages/auth.html'" style="width: 100%;">Get
+                <button class="btn btn-ghost" onclick="window.lockOverlay.show()" style="width: 100%;">Get
                     Started</button>
             </div>
 
@@ -193,7 +194,7 @@
                     <li style="margin-bottom: 0.8rem;">✨ 100% Ad-free Interface</li>
                 </ul>
 
-                <button class="btn btn-primary" onclick="handlePayment()"
+                <button class="btn btn-primary" onclick="window.lockOverlay.show()"
                     style="width: 100%; box-shadow: 0 4px 15px rgba(108, 99, 255, 0.4);">Upgrade to Scholar</button>
             </div>
 
@@ -435,6 +436,7 @@
         initRealtimeStats();
     </script>
     <script src="js/note-actions.js" defer></script>
+    <script src="js/lockOverlay.js" defer></script>
     <script src="js/founders.js" defer></script>
     <script src="js/footer.js" defer></script>
     <script src="js/main.js" defer></script>
