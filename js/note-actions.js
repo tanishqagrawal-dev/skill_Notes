@@ -12,6 +12,28 @@ function getFirebase() {
 
 // Global store for unsubscribers to prevent memory leaks
 window.noteUnsubscribers = window.noteUnsubscribers || {};
+
+function getSeedStats(noteId) {
+    let seeds = { views: 0, likes: 0, dislikes: 0, downloads: 0 };
+    const allCards = document.querySelectorAll(`[data-note-id="${noteId}"]`);
+    if (allCards.length > 0) {
+        const card = allCards[0];
+
+        let viewEl = card.querySelector('.view-count');
+        if (!viewEl) viewEl = card.querySelector('.views-pro');
+        if (viewEl) seeds.views = parseInt(viewEl.innerText.replace(/[^0-9]/g, '')) || 0;
+
+        let likeEl = card.querySelector('.like-count');
+        if (likeEl) seeds.likes = parseInt(likeEl.innerText.replace(/[^0-9]/g, '')) || 0;
+
+        let dislikeEl = card.querySelector('.dislike-count');
+        if (dislikeEl) seeds.dislikes = parseInt(dislikeEl.innerText.replace(/[^0-9]/g, '')) || 0;
+
+        let downEl = card.querySelector('.download-count');
+        if (downEl) seeds.downloads = parseInt(downEl.innerText.replace(/[^0-9]/g, '')) || 0;
+    }
+    return seeds;
+}
 window.savedNoteIds = new Set();
 window.likedNoteIds = new Set();
 window.dislikedNoteIds = new Set();
@@ -92,7 +114,7 @@ function syncAllInteractionIcons() {
  * Uses atomic increment. Creates doc if missing.
  */
 window.incrementNoteView = async function (noteId) {
-    const { db, doc, setDoc, increment } = getFirebase();
+    const { db, doc, setDoc, getDoc, increment } = getFirebase();
     if (!db || !noteId) return;
 
     // Session-based unique view check
@@ -101,11 +123,24 @@ window.incrementNoteView = async function (noteId) {
 
     try {
         const noteRef = doc(db, "notes", noteId);
-        // Use setDoc with merge: true to ensure document exists
-        await setDoc(noteRef, {
-            views: increment(1),
-            lastViewed: Date.now()
-        }, { merge: true });
+
+        const snap = await getDoc(noteRef);
+        if (!snap.exists()) {
+            const seeds = getSeedStats(noteId);
+            await setDoc(noteRef, {
+                views: seeds.views + 1,
+                likes: seeds.likes,
+                dislikes: seeds.dislikes,
+                downloads: seeds.downloads,
+                lastViewed: Date.now(),
+                createdAt: Date.now()
+            });
+        } else {
+            await setDoc(noteRef, {
+                views: increment(1),
+                lastViewed: Date.now()
+            }, { merge: true });
+        }
 
         // XP Logic for uploader and viewer
         if (window.currentUser && window.currentUser.id) {
@@ -214,11 +249,12 @@ window.likeNote = async function (noteId) {
             const noteSnap = await transaction.get(noteRef);
 
             if (!noteSnap.exists()) {
+                const seeds = getSeedStats(noteId);
                 transaction.set(noteRef, {
-                    views: 0,
-                    likes: isActive ? 1 : 0,
-                    dislikes: 0,
-                    downloads: 0,
+                    views: seeds.views,
+                    likes: seeds.likes,
+                    dislikes: seeds.dislikes,
+                    downloads: seeds.downloads,
                     createdAt: Date.now()
                 });
                 if (isActive) {
@@ -354,11 +390,12 @@ window.toggleNoteDislike = async function (noteId) {
             const noteSnap = await transaction.get(noteRef);
 
             if (!noteSnap.exists()) {
+                const seeds = getSeedStats(noteId);
                 transaction.set(noteRef, {
-                    views: 0,
-                    likes: 0,
-                    dislikes: isActive ? 1 : 0,
-                    downloads: 0,
+                    views: seeds.views,
+                    likes: seeds.likes,
+                    dislikes: seeds.dislikes,
+                    downloads: seeds.downloads,
                     createdAt: Date.now()
                 });
                 if (isActive) {
@@ -458,11 +495,12 @@ window.updateNoteStat = async function (noteId, type) {
         if (type === 'download' || type === 'view') {
             const snap = await getDoc(noteRef);
             if (!snap.exists()) {
+                const seeds = getSeedStats(noteId);
                 await setDoc(noteRef, {
-                    views: type === 'view' ? 1 : 0,
-                    likes: 0,
-                    dislikes: 0,
-                    downloads: type === 'download' ? 1 : 0,
+                    views: seeds.views,
+                    likes: seeds.likes,
+                    dislikes: seeds.dislikes,
+                    downloads: seeds.downloads,
                     createdAt: Date.now()
                 });
             } else {

@@ -2363,7 +2363,8 @@ function renderInstantStaticNotes(notes) {
                              ${note.uploaderName || note.uploader || 'Verified'}
                         </div>
                         <div class="meta-pill-pro views-pro">
-                             ${note.downloads || note.views || 0} downloads
+                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                             <span class="view-count">${note.views || 0}</span> Views
                         </div>
                     </div>
                     <div class="note-actions-pro">
@@ -2386,7 +2387,7 @@ function renderInstantStaticNotes(notes) {
                 <div class="download-section-pro">
                     <a href="${note.url || note.fileUrl || note.driveLink}" target="_blank" class="btn-download-white" onclick="downloadNote('${note.id}')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        Download
+                        Download (<span class="download-count">${note.downloads || 0}</span>)
                     </a>
                 </div>
             </div>
@@ -2488,7 +2489,8 @@ function renderNotesList(list, tabType) {
                              ${n.uploaderName || n.uploader || 'Scholar'}
                         </div>
                         <div class="meta-pill-pro views-pro">
-                             ${n.downloads || n.views || 0} downloads
+                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                             <span class="view-count">${n.views || 0}</span> Views
                         </div>
                     </div>
                     <div class="note-actions-pro">
@@ -2511,7 +2513,7 @@ function renderNotesList(list, tabType) {
                 <div class="download-section-pro">
                     <a href="${n.url || n.fileUrl || n.driveLink}" target="_blank" class="btn-download-white" onclick="downloadNote('${n.id}')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        Download
+                        Download (<span class="download-count">${n.downloads || 0}</span>)
                     </a>
                 </div>
             </div>`;
@@ -2596,7 +2598,8 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                              ${n.uploaderName || n.uploader || 'Verified'}
                         </div>
                         <div class="meta-pill-pro views-pro">
-                             ${n.downloads || n.views || 0} downloads
+                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                             <span class="view-count">${n.views || 0}</span> Views
                         </div>
                     </div>
                     <div class="note-actions-pro">
@@ -2619,7 +2622,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                 <div class="download-section-pro">
                     <a href="${n.url || n.fileUrl || n.driveLink}" target="_blank" class="btn-download-white" onclick="downloadNote('${n.id}')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        Download
+                        Download (<span class="download-count">${n.downloads || 0}</span>)
                     </a>
                 </div>
             </div>`;

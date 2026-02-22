@@ -1686,6 +1686,128 @@ export const globalNotes = {
                 title: "JAVA imp ques",
                 url: "https://drive.google.com/file/d/1k0z2mZGrcpwAvDq1pA_XNBjYAjeQQ5-9/view"
             }
+        ],
+        "Microprocessor and Interfacing": [
+            {
+                id: "micro-unit-1-arch",
+                subject: "Microprocessor and Interfacing",
+                subjectName: "Microprocessor and Interfacing",
+                subjectId: "micro",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 1",
+                title: "UNIT 1 Intel architecture 8086",
+                url: "https://drive.google.com/file/d/1cszMZY442NPvp8nNg05xs3jrHdI7sgCc/view"
+            },
+            {
+                id: "micro-unit-1-hw",
+                subject: "Microprocessor and Interfacing",
+                subjectName: "Microprocessor and Interfacing",
+                subjectId: "micro",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 1",
+                title: "UNIT 1 (Handwritten)",
+                url: "https://drive.google.com/file/d/16SKUPI9lDADR5zL_1xAsdam4JCS1nVLq/view"
+            },
+            {
+                id: "micro-unit-1-ppt",
+                subject: "Microprocessor and Interfacing",
+                subjectName: "Microprocessor and Interfacing",
+                subjectId: "micro",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 1",
+                title: "UNIT 1 PPT",
+                url: "https://drive.google.com/file/d/1-DSnifarwu1sLYtBwKUvAIh55EdBPeNB/view"
+            },
+            {
+                id: "micro-unit-2",
+                subject: "Microprocessor and Interfacing",
+                subjectName: "Microprocessor and Interfacing",
+                subjectId: "micro",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 2",
+                title: "UNIT 2 (Handwritten)",
+                url: "https://drive.google.com/file/d/1r0p-fCMd6JFcFvGt6_thAYMCVLfF4pDF/view"
+            },
+            {
+                id: "micro-unit-3",
+                subject: "Microprocessor and Interfacing",
+                subjectName: "Microprocessor and Interfacing",
+                subjectId: "micro",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 3",
+                title: "UNIT 3 (Handwritten)",
+                url: "https://drive.google.com/file/d/1qXI85Gzq6Fu-80ZaSf4ZjsvhLNVZOi4d/view"
+            },
+            {
+                id: "micro-unit-4",
+                subject: "Microprocessor and Interfacing",
+                subjectName: "Microprocessor and Interfacing",
+                subjectId: "micro",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 4",
+                title: "UNIT 4 (Handwritten)",
+                url: "https://drive.google.com/file/d/1gTY-ACjvVjFtmuSVgraI1d5EC7Lgf_gf/view"
+            },
+            {
+                id: "micro-unit-all",
+                subject: "Microprocessor and Interfacing",
+                subjectName: "Microprocessor and Interfacing",
+                subjectId: "micro",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "ALL",
+                title: "UNIT 1-5 (Handwritten)",
+                url: "https://drive.google.com/file/d/1SsbYbOT4Go7KetFN2ePQ1zXlOZcIb4HV/view"
+            },
+            {
+                id: "micro-pyq-2025",
+                subject: "Microprocessor and Interfacing",
+                subjectName: "Microprocessor and Interfacing",
+                subjectId: "micro",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "End sem 2025",
+                url: "https://drive.google.com/file/d/1D9TeNDCmS2QacPHrUttkq07BcVq6mK_w/view"
+            },
+            {
+                id: "micro-pyq-2024",
+                subject: "Microprocessor and Interfacing",
+                subjectName: "Microprocessor and Interfacing",
+                subjectId: "micro",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "End sem 2024",
+                url: "https://drive.google.com/file/d/1uhRMR9wvrQ4GGtiyZrF6Y3goCaf_AkG8/view"
+            },
+            {
+                id: "micro-pyq-2023",
+                subject: "Microprocessor and Interfacing",
+                subjectName: "Microprocessor and Interfacing",
+                subjectId: "micro",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "End sem 2023",
+                url: "https://drive.google.com/file/d/1Plsbla1J4nzP3pVDtH2Esq8rsnIqQj2x/view"
+            }
         ]
     }
 };

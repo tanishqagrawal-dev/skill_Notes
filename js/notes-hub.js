@@ -20,13 +20,13 @@ const LocalData = {
     years: ['1st Year', '2nd Year', '3rd Year', '4th Year'],
     subjects: {
         'cse-Semester 1': [
-            { id: 'applied-chemistry', name: 'Applied Chemistry', icon: '🧪', code: 'CH3001T', description: 'Chemical engineering properties and basics.' },
-            { id: 'math-1', name: 'Engineering Mathematics-I', icon: '📐', code: 'MA3001T', description: 'Calculus, Linear Algebra and differential equations.' },
-            { id: 'basic-mech', name: 'Basic Mechanical Engineering', icon: '⚙️', code: 'ME3001T', description: 'Introduction to mechanical engineering systems.' },
-            { id: 'graphics', name: 'Engineering Graphics', icon: '📐', code: 'ME3003T', description: 'Technical drawing, projection and CAD basics.' },
-            { id: 'workshop', name: 'Engineering Workshop', icon: '🛠️', code: 'ME3002P', description: 'Hands-on practice with tools.' },
-            { id: 'c-prog', name: 'Programming with C', icon: '💻', code: 'CS3001T', description: 'Introduction to algorithmic logic and C programming.' },
-            { id: 'comm-skills', name: 'Communication Skills', icon: '🗣️', code: 'LN3001T', description: 'Professional writing and verbal communication.' }
+            { id: 'applied-chemistry', name: 'Applied Chemistry (CH3001T)', icon: '🧪', code: 'CH3001T', description: `<b>Unit I: Water analysis and its Treatment</b><br>Sources of water, impurities, hard & soft water, industrial & municipal water characteristics, water analysis.<br><b>Unit II: Lubricants</b><br>Classification, mechanisms of lubrication, properties and testing of lubricating oils, numerical problems based on viscosity index.<br><b>Unit III: New Engineering Materials</b><br>Nanomaterials, Fullerenes (C60), Carbon nanotubes (CNTs), Graphene properties and applications.<br><b>Unit IV: Instrumental Techniques in Chemical Analysis</b><br>Electromagnetic radiation, Lambert's and Beer's Law, UV-Visible spectroscopy, Infrared (IR) spectroscopy.<br><b>Unit V: Heritage of Indian Chemistry</b><br>Early foundations, metallurgical techniques, rasas, minerals of Indian alchemy, Ayurveda contributions.` },
+            { id: 'math-1', name: 'Engineering Mathematics-I (MA3001T)', icon: '📐', code: 'MA3001T', description: `<b>Unit I: Matrices and Linear Systems</b><br>Rank, Echelon form, Simultaneous equations, Consistency, Eigen Values and Eigen Vectors.<br><b>Unit II: Differential Calculus</b><br>Taylors and Maclaurin’s series, Partial differentiation, Euler’s Theorem, Total Derivative, Maxima and Minima.<br><b>Unit III: Integral Calculus</b><br>Beta and Gamma functions, Double and Triple Integrals, Area and Volume applications.<br><b>Unit IV: Ordinary Differential Equations</b><br>Exact, Linear, and Homogeneous linear differential equations with constant coefficients.<br><b>Unit V: Complex Analysis</b><br>Analytic functions, Harmonic Conjugate, Cauchy-Riemann Equations, Complex Line Integral, Cauchy’s Theorem/Formula.` },
+            { id: 'basic-mech', name: 'Basic Mechanical Engineering (ME3001T)', icon: '⚙️', code: 'ME3001T', description: `<b>Unit I: Materials & properties</b><br>Classification, Composition of iron/steels, Stress-strain diagram, Hooks law.<br><b>Unit II: Thermodynamics</b><br>Thermodynamic Systems/Properties, First/Second law, heat engine, heat pump, refrigerator.<br><b>Unit III: Internal Combustion Engines</b><br>Basic components, 4-stroke & 2-stroke engines, Otto and Diesel cycle efficiency.<br><b>Unit IV: Steam generators</b><br>Classification, Cochran/Lancashire boilers, Boiler mountings, Steam properties, Draught.<br><b>Unit V: Centroid & Moment of Inertia</b><br>Centroid, Centre of gravity, Parallel & Perpendicular Axis theorems.` },
+            { id: 'graphics', name: 'Engineering Graphics (ME3003T)', icon: '📐', code: 'ME3003T', description: `<b>Unit I: AutoCAD Basics</b><br>UI, coordinate systems, basic tools (Line, Circle, Arc, Hatch).<br><b>Unit II: Orthographic Projection</b><br>Reference planes, Projection of Points and Straight lines.<br><b>Unit III: Projection of Planes & Solids</b><br>Orthographic projections of planes and regular solids.<br><b>Unit IV: Advanced AutoCAD</b><br>Annotations, Dimensions, TEXT, LAYERS.<br><b>Unit V: Section & Development</b><br>Sections of solids, Development of Surfaces (Prism, Pyramid, Cone, Cylinder).` },
+            { id: 'workshop', name: 'Engineering Workshop (ME3002P)', icon: '🛠️', code: 'ME3002P', description: `<b>Unit I: Carpentry Shop</b><br>Tools & operations, Joints, Types of woods.<br><b>Unit II: Fitting Shop</b><br>Marking & fitting tools, chipping, filing, scraping, drilling.<br><b>Unit III: Foundry & Black Smithy</b><br>Pattern making, Molding, Forging operations (Upsetting, drawing down).<br><b>Unit IV: Welding Shop</b><br>Brazing, Soldering, Gas & Arc welding, TIG & MIG processes.<br><b>Unit V: Machine Shop</b><br>Lathe machine operations, drilling machine, CNC machine demonstration.` },
+            { id: 'c-prog', name: 'Programming with C (CS3001T)', icon: '💻', code: 'CS3001T', description: `<b>Unit 1: Basics</b><br>Structure, Data Types, Operators, Input/Output.<br><b>Unit 2: Control Flow & Arrays</b><br>Conditionals, Loops (while, for), 1D/2D array operations.<br><b>Unit 3: Functions & Recursion</b><br>Declaration, Call by value/reference, Recursion, Storage classes.<br><b>Unit 4: Pointers & Structures</b><br>Pointer arithmetic, pointers & arrays, nested structures, unions.<br><b>Unit 5: File Handling & Memory Allocation</b><br>Text/binary files, malloc, calloc, realloc, free, linked lists overview.` },
+            { id: 'comm-skills', name: 'Communication Skills (LN3001T)', icon: '🗣️', code: 'LN3001T', description: `<b>Unit I: Effective Communication</b><br>Seven C’s, verbal/non-verbal, barriers.<br><b>Unit II: Listening & Reading</b><br>SQ3R, Scanning, Skimming, note-making.<br><b>Unit III: Speaking Skills</b><br>Phonetics, Presentations, Debates, Group Discussion.<br><b>Unit IV: Professional Writing</b><br>Business Letters, Resume, E-mail Writing, Reports.<br><b>Unit V: Appreciating Literature</b><br>Poetry (Wordsworth, Tagore), Prose, Fiction (Premchand).` }
         ],
         'cse-Semester 2': [
             { id: 'applied-physics', name: 'Applied Physics', icon: '⚛️', code: 'PH3001T', description: 'Quantum physics, optics and semiconductor theory.' },
@@ -509,7 +509,7 @@ window.showNotes = function (activeTab = 'notes') {
 
 function renderStaticNotes(notes) {
     const cards = notes.map((n, idx) => {
-        const createNoteCard = (unit, title, url, likes = 8, views = 124, id = '') => {
+        const createNoteCard = (unit, title, url, likes = 8, views = 124, id = '', downloads = 10) => {
             const noteId = id || 'undefined';
             return `
             <div class="note-card-pro card-reveal" data-note-id="${noteId}" style="animation-delay: ${idx * 0.1}s;">
@@ -555,12 +555,12 @@ function renderStaticNotes(notes) {
 
                 <a href="${url || n.url || n.fileUrl || n.driveLink}" target="_blank" class="btn-download-white" onclick="updateNoteStat('${noteId}', 'download');">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    Download
+                    Download (<span class="download-count">${downloads}</span>)
                 </a>
             </div>`;
         };
 
-        return createNoteCard(n.unit || `UNIT ${idx + 1}`, n.title || n.subjectName, n.url || n.fileUrl || n.driveLink, n.likes || 12, n.views || 48, n.id);
+        return createNoteCard(n.unit || `UNIT ${idx + 1}`, n.title || n.subjectName, n.url || n.fileUrl || n.driveLink, n.likes || 12, n.views || 48, n.id, n.downloads || 15);
     }).join('');
 
     setTimeout(() => {
