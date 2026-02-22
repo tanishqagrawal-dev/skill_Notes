@@ -2624,6 +2624,200 @@ export const globalNotes = {
                 title: "End sem 2025",
                 url: "https://drive.google.com/file/d/1voUxkYjkelqUGJUpwBpyZzABbItpD9R1/view"
             }
+        ],
+        "Basic Civil Engineering & Mechanics": [
+            {
+                id: "civil-unit-1-handwritten",
+                subject: "Basic Civil Engineering & Mechanics",
+                subjectName: "Basic Civil Engineering & Mechanics",
+                subjectId: "civil-mech",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 1",
+                title: "UNIT 1 Handwritten",
+                url: "https://drive.google.com/file/d/1Hli186SDWsDW611ju6Kebaam5uOZgEU2/view"
+            },
+            {
+                id: "civil-unit-1",
+                subject: "Basic Civil Engineering & Mechanics",
+                subjectName: "Basic Civil Engineering & Mechanics",
+                subjectId: "civil-mech",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 1",
+                title: "UNIT 1",
+                url: "https://drive.google.com/file/d/1nKxTFBC4xQxXUtev4_VlwoaLcsLTf6zt/view"
+            },
+            {
+                id: "civil-unit-2-handwritten",
+                subject: "Basic Civil Engineering & Mechanics",
+                subjectName: "Basic Civil Engineering & Mechanics",
+                subjectId: "civil-mech",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 2",
+                title: "UNIT 2 Handwritten",
+                url: "https://drive.google.com/file/d/18N-94PbxKYnWPlE8svj37FE8FIa7Z-co/view"
+            },
+            {
+                id: "civil-unit-2",
+                subject: "Basic Civil Engineering & Mechanics",
+                subjectName: "Basic Civil Engineering & Mechanics",
+                subjectId: "civil-mech",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 2",
+                title: "UNIT 2",
+                url: "https://drive.google.com/drive/folders/16hBoT6FVbwlHumyqzCI_8jPZw4xI96r8"
+            },
+            {
+                id: "civil-unit-3",
+                subject: "Basic Civil Engineering & Mechanics",
+                subjectName: "Basic Civil Engineering & Mechanics",
+                subjectId: "civil-mech",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 3",
+                title: "UNIT 3",
+                url: "https://drive.google.com/file/d/18hFHtoWmjpThiobyD4E4S9Fy88Oxl0_9/view"
+            },
+            {
+                id: "civil-unit-3-part-2",
+                subject: "Basic Civil Engineering & Mechanics",
+                subjectName: "Basic Civil Engineering & Mechanics",
+                subjectId: "civil-mech",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 3",
+                title: "UNIT 3 (part 2)",
+                url: "https://drive.google.com/file/d/18bIKoISAkHOkDewqI3ajFONzezOS7ot6/view"
+            },
+            {
+                id: "civil-unit-4-handwritten",
+                subject: "Basic Civil Engineering & Mechanics",
+                subjectName: "Basic Civil Engineering & Mechanics",
+                subjectId: "civil-mech",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 4",
+                title: "UNIT 4 Handwritten",
+                url: "https://drive.google.com/file/d/18wOYDICYRQBDXvPiXuYEL-Ed4bgfmNUh/view"
+            },
+            {
+                id: "civil-unit-4",
+                subject: "Basic Civil Engineering & Mechanics",
+                subjectName: "Basic Civil Engineering & Mechanics",
+                subjectId: "civil-mech",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 4",
+                title: "UNIT 4",
+                url: "https://drive.google.com/file/d/18kN2A4XgHDMV1fGd9T5Mk68on8Vb47hg/view"
+            },
+            {
+                id: "civil-unit-5-handwritten",
+                subject: "Basic Civil Engineering & Mechanics",
+                subjectName: "Basic Civil Engineering & Mechanics",
+                subjectId: "civil-mech",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 5",
+                title: "UNIT 5 Handwritten",
+                url: "https://drive.google.com/file/d/1zMR6ivPSIxGxVT0wgKuui7uqmH41OpF2/view"
+            },
+            {
+                id: "civil-lab-file",
+                subject: "Basic Civil Engineering & Mechanics",
+                subjectName: "Basic Civil Engineering & Mechanics",
+                subjectId: "civil-mech",
+                collegeId: "medicaps",
+                type: "practicals",
+                status: "approved",
+                unit: "Lab",
+                title: "CIVIL LAB FILE",
+                url: "https://drive.google.com/file/d/12rXNsKesumDHhW2rtEDPAjmBKJSOqRBz/view"
+            },
+            {
+                id: "civil-pyq-endsem-2025",
+                subject: "Basic Civil Engineering & Mechanics",
+                subjectName: "Basic Civil Engineering & Mechanics",
+                subjectId: "civil-mech",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "End sem 2025",
+                url: "https://drive.google.com/file/d/1CRkA3D6VqAiqiDtX5iN-UtQl6JtJtTAb/view"
+            },
+            {
+                id: "civil-pyq-2022-24",
+                subject: "Basic Civil Engineering & Mechanics",
+                subjectName: "Basic Civil Engineering & Mechanics",
+                subjectId: "civil-mech",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "Civil PYQ 2022-24",
+                url: "https://drive.google.com/file/d/1LmNHjITI8XizdqcrhV_mgUWZR4a3J_8t/view"
+            },
+            {
+                id: "civil-pyq-endsem-2024",
+                subject: "Basic Civil Engineering & Mechanics",
+                subjectName: "Basic Civil Engineering & Mechanics",
+                subjectId: "civil-mech",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "End sem pyq 2024",
+                url: "https://drive.google.com/file/d/1JydRWPDtIbPJRcklmxMocWNqK4jy1WEE/view"
+            },
+            {
+                id: "civil-pyq-mst",
+                subject: "Basic Civil Engineering & Mechanics",
+                subjectName: "Basic Civil Engineering & Mechanics",
+                subjectId: "civil-mech",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "MST",
+                title: "MST (2022,23,24)",
+                url: "https://drive.google.com/file/d/1u-E_iOIB3HotgUGl0KiV-4l-90YUUMvE/view"
+            },
+            {
+                id: "civil-pyq-endsem-2019",
+                subject: "Basic Civil Engineering & Mechanics",
+                subjectName: "Basic Civil Engineering & Mechanics",
+                subjectId: "civil-mech",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "End sem 2019",
+                url: "https://drive.google.com/file/d/12l3Hn8Z2ttmoRu-aVsTbSn2Y7R8Gqlx_/view"
+            },
+            {
+                id: "civil-pyq-endsem-dec-2019",
+                subject: "Basic Civil Engineering & Mechanics",
+                subjectName: "Basic Civil Engineering & Mechanics",
+                subjectId: "civil-mech",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "End sem Dec 2019",
+                url: "https://drive.google.com/file/d/1l_z0uuKn0-B4XsPDJ1IV9aEnVbSIK1_H/view"
+            }
         ]
     }
 };
