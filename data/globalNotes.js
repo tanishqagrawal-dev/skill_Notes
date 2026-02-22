@@ -147,6 +147,104 @@ export const globalNotes = {
                 url: "https://drive.google.com/drive/folders/16XEF2-qQUGoGqGZzgYrT5yxlqTk0bnYj"
             }
         ],
+        "Engineering Mathematics -II": [
+            {
+                id: "m2-unit-1",
+                subject: "Engineering Mathematics -II",
+                subjectName: "Engineering Mathematics -II",
+                subjectId: "math-2",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 1",
+                title: "Unit 1",
+                url: "https://drive.google.com/file/d/1-J_AhWQscFH9xXLBY9M1Mh7wOqM50Fj1/view"
+            },
+            {
+                id: "m2-unit-2",
+                subject: "Engineering Mathematics -II",
+                subjectName: "Engineering Mathematics -II",
+                subjectId: "math-2",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 2",
+                title: "Unit 2",
+                url: "https://drive.google.com/file/d/1hCrRnju3Qdc4CGk7bnvZ1agMHDmED5lJ/view"
+            },
+            {
+                id: "m2-unit-3",
+                subject: "Engineering Mathematics -II",
+                subjectName: "Engineering Mathematics -II",
+                subjectId: "math-2",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 3",
+                title: "Unit 3",
+                url: "https://drive.google.com/file/d/1pqNZPu5XvVm7n-rYFd1qrzc4DcuOStu3/view"
+            },
+            {
+                id: "m2-unit-4",
+                subject: "Engineering Mathematics -II",
+                subjectName: "Engineering Mathematics -II",
+                subjectId: "math-2",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 4",
+                title: "Unit 4",
+                url: "https://drive.google.com/file/d/1r1fgQ-EtswRnDI82HkU0ftDGd-075RxR/view"
+            },
+            {
+                id: "m2-unit-5",
+                subject: "Engineering Mathematics -II",
+                subjectName: "Engineering Mathematics -II",
+                subjectId: "math-2",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 5",
+                title: "Unit 5",
+                url: "https://drive.google.com/file/d/13SOCDhENze9XTamjEw1pT2eENApV1VV5/view"
+            },
+            {
+                id: "m2-pyq-endsem-2025",
+                subject: "Engineering Mathematics -II",
+                subjectName: "Engineering Mathematics -II",
+                subjectId: "math-2",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "End sem 2025",
+                url: "https://drive.google.com/file/d/1VxHMSWLFt9pz91btJuMjJzLSlOWHwN5L/view"
+            },
+            {
+                id: "m2-pyq-mst2-2024",
+                subject: "Engineering Mathematics -II",
+                subjectName: "Engineering Mathematics -II",
+                subjectId: "math-2",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "MST",
+                title: "MST II 2024",
+                url: "https://drive.google.com/file/d/1SmSWGplE1JRn1iHCsM5wUzlpJHysLyyH/view"
+            },
+            {
+                id: "m2-formula-sheet",
+                subject: "Engineering Mathematics -II",
+                subjectName: "Engineering Mathematics -II",
+                subjectId: "math-2",
+                collegeId: "medicaps",
+                type: "formula",
+                status: "approved",
+                unit: "Formulas",
+                title: "M2 Formulas",
+                url: "https://drive.google.com/file/d/1yu2wqGNlvscww5mNbhDgQ3t5WrA7dr6A/view"
+            }
+        ],
         "Engineering Physics": [
             {
                 id: "eng-physics-unit-1",
@@ -2231,6 +2329,300 @@ export const globalNotes = {
                 unit: "Practicals",
                 title: "exp-3",
                 url: "https://drive.google.com/file/d/1uTu8AcL8Xfdkohtpx8G7uk6kbMYf4JqZ/view"
+            }
+        ],
+        "Advanced Java Programming": [
+            {
+                id: "ajp-unit-1",
+                subject: "Advanced Java Programming",
+                subjectName: "Advanced Java Programming",
+                subjectId: "adv-java",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 1",
+                title: "UNIT 1",
+                url: "https://drive.google.com/file/d/1oWspWtT2VdTwdmQCxrnmgShSZ2cW-ze2/view"
+            },
+            {
+                id: "ajp-unit-2",
+                subject: "Advanced Java Programming",
+                subjectName: "Advanced Java Programming",
+                subjectId: "adv-java",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 2",
+                title: "UNIT 2",
+                url: "https://drive.google.com/file/d/14X98uA0vIN3cn6yW3OoVqWhzww4ct4MR/view"
+            },
+            {
+                id: "ajp-unit-3",
+                subject: "Advanced Java Programming",
+                subjectName: "Advanced Java Programming",
+                subjectId: "adv-java",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 3",
+                title: "UNIT 3",
+                url: "https://drive.google.com/file/d/1svySBhY0d4m_1ULWmX_Naouttd16tW5B/view"
+            },
+            {
+                id: "ajp-unit-4",
+                subject: "Advanced Java Programming",
+                subjectName: "Advanced Java Programming",
+                subjectId: "adv-java",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 4",
+                title: "UNIT 4",
+                url: "https://drive.google.com/file/d/1ZHOTdyvTVZbFNjsLuyPANxGood9Md4on/view"
+            },
+            {
+                id: "ajp-unit-5",
+                subject: "Advanced Java Programming",
+                subjectName: "Advanced Java Programming",
+                subjectId: "adv-java",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 5",
+                title: "UNIT 5",
+                url: "https://drive.google.com/file/d/15Eq5HlIlERRQblhinKMYJMH_lsyZglD1/view"
+            },
+            {
+                id: "ajp-oneshot",
+                subject: "Advanced Java Programming",
+                subjectName: "Advanced Java Programming",
+                subjectId: "adv-java",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Oneshot",
+                title: "AJP Oneshot",
+                url: "https://docs.google.com/presentation/d/1v9dkGUOMk9vBBk8Dr0b_dDR7lGyhZLsy/edit?slide=id.p1#slide=id.p1"
+            },
+            {
+                id: "ajp-oneshot-handwritten",
+                subject: "Advanced Java Programming",
+                subjectName: "Advanced Java Programming",
+                subjectId: "adv-java",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Oneshot",
+                title: "AJP Oneshot (handwritten)",
+                url: "https://drive.google.com/file/d/1Si8hnVUru-SsJeOX4zjQvP8TZ9Gfus9c/view"
+            },
+            {
+                id: "ajp-lab-manual",
+                subject: "Advanced Java Programming",
+                subjectName: "Advanced Java Programming",
+                subjectId: "adv-java",
+                collegeId: "medicaps",
+                type: "practicals",
+                status: "approved",
+                unit: "Lab",
+                title: "Lab manual",
+                url: "https://drive.google.com/file/d/1WddLrpIuhdvtAAJLLlDZCre0WswCd9Ns/view"
+            },
+            {
+                id: "ajp-pyq-2023",
+                subject: "Advanced Java Programming",
+                subjectName: "Advanced Java Programming",
+                subjectId: "adv-java",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "End sem 2023",
+                url: "https://drive.google.com/file/d/1CGUWblY-W5EK6kc5bpNPZoVK79z8HL9U/view"
+            },
+            {
+                id: "ajp-pyq-2024",
+                subject: "Advanced Java Programming",
+                subjectName: "Advanced Java Programming",
+                subjectId: "adv-java",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "End sem 2024",
+                url: "https://drive.google.com/file/d/1x-gLWjVaz27IN5XBBfyPwzHhafQ_zC3O/view"
+            },
+            {
+                id: "ajp-pyq-2025",
+                subject: "Advanced Java Programming",
+                subjectName: "Advanced Java Programming",
+                subjectId: "adv-java",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "End sem 2025",
+                url: "https://drive.google.com/file/d/1JkUE1lgCxlPpNKYJ0NbMFAkzP6z6PFfH/view"
+            }
+        ],
+        "Statistical Analysis": [
+            {
+                id: "sa-unit-all-hw",
+                subject: "Statistical Analysis",
+                subjectName: "Statistical Analysis",
+                subjectId: "stat-analysis",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "All Units",
+                title: "Unit 1-5 (Handwritten)",
+                url: "https://drive.google.com/file/d/14KI36cyhyQldHlICZHMIFGqiAG7s9yhS/view"
+            },
+            {
+                id: "sa-pyq-2023",
+                subject: "Statistical Analysis",
+                subjectName: "Statistical Analysis",
+                subjectId: "stat-analysis",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "End sem 2023",
+                url: "https://drive.google.com/file/d/1ZF0_VbcQJAQnOHVv8XMbkYFNTrnqB4FK/view"
+            },
+            {
+                id: "sa-pyq-dec-2023",
+                subject: "Statistical Analysis",
+                subjectName: "Statistical Analysis",
+                subjectId: "stat-analysis",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "End sem Dec 2023",
+                url: "https://drive.google.com/file/d/124y0BF63pfTOq79NaeWrbYIFO7nm7E17/view"
+            },
+            {
+                id: "sa-pyq-2024",
+                subject: "Statistical Analysis",
+                subjectName: "Statistical Analysis",
+                subjectId: "stat-analysis",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "End sem 2024",
+                url: "https://drive.google.com/file/d/1UnM9Xadp5xLpBoR7H340EYbg6KKycL36/view"
+            },
+            {
+                id: "sa-pyq-2025",
+                subject: "Statistical Analysis",
+                subjectName: "Statistical Analysis",
+                subjectId: "stat-analysis",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "End sem 2025",
+                url: "https://drive.google.com/file/d/1FRR-4HUn8cQA71KlF876cS1khypvslpu/view"
+            }
+        ],
+        "Applied Physics": [
+            {
+                id: "physics-unit-1",
+                subject: "Applied Physics",
+                subjectName: "Applied Physics",
+                subjectId: "physics",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 1",
+                title: "Unit 1",
+                url: "https://drive.google.com/file/d/1FZxLL28jBHfWtmL75KZjg9-Bn-c0exAs/view"
+            },
+            {
+                id: "physics-unit-2",
+                subject: "Applied Physics",
+                subjectName: "Applied Physics",
+                subjectId: "physics",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 2",
+                title: "Unit 2",
+                url: "https://drive.google.com/file/d/1zizAafKMcrBriFNrJ04d7cguKtc8W5-0/view"
+            },
+            {
+                id: "physics-unit-3",
+                subject: "Applied Physics",
+                subjectName: "Applied Physics",
+                subjectId: "physics",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 3",
+                title: "Unit 3",
+                url: "https://drive.google.com/file/d/1q1C-nKa3hp1ul59Q6B2ZCPTri-8pHcEE/view"
+            },
+            {
+                id: "physics-unit-4",
+                subject: "Applied Physics",
+                subjectName: "Applied Physics",
+                subjectId: "physics",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 4",
+                title: "Unit 4",
+                url: "https://drive.google.com/file/d/1_uWDdLFf_jyZb3OW_-t_BwBhLMU6Ho-t/view"
+            },
+            {
+                id: "physics-unit-5",
+                subject: "Applied Physics",
+                subjectName: "Applied Physics",
+                subjectId: "physics",
+                collegeId: "medicaps",
+                type: "notes",
+                status: "approved",
+                unit: "Unit 5",
+                title: "Unit 5",
+                url: "https://docs.google.com/presentation/d/1N_eoEftAi7uK9Xy8y_y6YJIKG-Ommc6d/edit?slide=id.p1#slide=id.p1"
+            },
+            {
+                id: "physics-pyq-2023",
+                subject: "Applied Physics",
+                subjectName: "Applied Physics",
+                subjectId: "physics",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "End sem 2023",
+                url: "https://drive.google.com/file/d/13IWnjVw9xLqY0GJyP873K0_-qA-Aw0X3/view"
+            },
+            {
+                id: "physics-pyq-2024",
+                subject: "Applied Physics",
+                subjectName: "Applied Physics",
+                subjectId: "physics",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "End sem 2024",
+                url: "https://drive.google.com/file/d/11fo7znFp-4oCFDNTuSxeAd77t5qjfkjx/view"
+            },
+            {
+                id: "physics-pyq-2025",
+                subject: "Applied Physics",
+                subjectName: "Applied Physics",
+                subjectId: "physics",
+                collegeId: "medicaps",
+                type: "pyqs",
+                status: "approved",
+                unit: "End Sem",
+                title: "End sem 2025",
+                url: "https://drive.google.com/file/d/1voUxkYjkelqUGJUpwBpyZzABbItpD9R1/view"
             }
         ]
     }
