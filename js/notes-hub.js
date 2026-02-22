@@ -46,12 +46,12 @@ const LocalData = {
             { id: 'soft-skills-1', name: 'Soft Skills-I', icon: '🗣️', code: 'EN3NG03', description: 'Communication, presentation, and interpersonal skills.' }
         ],
         'cse-Semester 4': [
-            { id: 'micro', name: 'Microprocessor and Interfacing', icon: '📟', code: 'CS3CO35', description: '8085/8086 architecture, assembly language and peripheral interfacing.' },
+            { id: 'micro', name: 'Microprocessor and Interfacing', icon: '📟', code: 'CS3CO35', description: `<b>UNIT-1: Introduction to 8-bit microprocessor</b><br>Microcomputers and microprocessors, 8/16/32/64-bit families; Intel 8085 architecture: Registers, Bus Organization, Control signals, Multiplexing. Intel 8086, x86 and Pentium Block diagrams.<br><b>UNIT-2: Assembly Language Programming</b><br>8085 instructions set: Classifications, Addressing modes, Stack and Subroutines, Delay routines, Counters.<br><b>UNIT-3: Interfacing concepts and devices</b><br>Memory interface, I/O mapped I/O vs memory mapped I/O. Programmable devices: 8255 (PPI), 8253/54 (Timer), 8279 (Keyboard/Display), 8251 (Serial communication).<br><b>UNIT- 4: Instruction Timing and Interrupts</b><br>Timing Diagrams: T-state, Machine cycle. Interrupts: h/w and s/w, Maskable / Non maskable.<br><b>UNIT-5: Introduction to Intel Architecture</b><br>Core 2 Duo Processor: CPU, Memory Controller, I/O Controller; Intel Core i7 Architecture, QuickPath Interconnect. Texas Instruments Multi-Core SoC architecture.` },
             { id: 'adv-java', name: 'Advanced Java Programming', icon: '☕', code: 'CS3CO37', description: 'Servlets, JSP, JDBC and enterprise application components.' },
             { id: 'dbms', name: 'Database Management Systems', icon: '🗄️', code: 'CS3CO39', description: 'Relational databases, SQL, normalization and transaction management.' },
             { id: 'toc', name: 'Theory of Computation', icon: '🧠', code: 'CS3CO46', description: 'Finite automata, context-free grammars and Turing machines.' },
             { id: 'os', name: 'Operating Systems', icon: '💾', code: 'CS3CO47', description: 'Process management, synchronization and file systems.' },
-            { id: 'iwt', name: 'Internet & Web Technology', icon: '🌐', code: 'CS3EW04', description: 'Web development, HTML, CSS, JavaScript, and Server-side.' },
+            { id: 'iwt', name: 'Internet and Web Technology', icon: '🌐', code: 'CS3EW04', description: `<b>Unit – I: Introduction</b><br>Concept of WWW, HTTP Protocol, web browser architecture, Web 2.0, TCP/IP, DNS, SMTP, POP3.<br><b>Unit – II: Web Design</b><br>Web architecture, HTML: lists, tables, frames, forms. DTD, DOM. CSS and Javascript (forms, functions, objects).<br><b>Unit – III: XML</b><br>Introduction to XML, XML vs HTML, DTD and schemas. Embedding XML, Transforming XML using CSS, XSL, and XSLT.<br><b>Unit – IV: PHP</b><br>Variables, program flow, functions, arrays, files. Working with forms and databases. Servlet lifecycle and API.<br><b>Unit – V: JSP & Frameworks</b><br>Java Server Pages (JSP), application design, session data. Database programming using JDBC. MVC framework, Bootstrap, AngularJS.` },
             { id: 'stat-analysis', name: 'Statistical Analysis', icon: '📊', code: 'CS3EL11', description: 'Statistical Analysis of data and hypothesis testing.' },
             { id: 'soft-skills-2', name: 'Soft Skills-II', icon: '🗣️', code: 'EN3NG10', description: 'Advanced communication and professional etiquette.' }
         ],
@@ -479,6 +479,7 @@ window.showNotes = function (activeTab = 'notes') {
                     <div class="subject-tab ${activeTab === 'notes' ? 'active' : ''}" onclick="window.switchSubjectTab('notes')">Notes</div>
                     <div class="subject-tab ${activeTab === 'pyqs' ? 'active' : ''}" onclick="window.switchSubjectTab('pyqs')">PYQs</div>
                     <div class="subject-tab ${activeTab === 'formula' ? 'active' : ''}" onclick="window.switchSubjectTab('formula')">Formula Sheets</div>
+                    <div class="subject-tab ${activeTab === 'practicals' ? 'active' : ''}" onclick="window.switchSubjectTab('practicals')">Practicals</div>
                 </div>
                 <div style="position: relative; min-width: 250px;">
                     <input type="text" id="search-notes" placeholder="Search in ${selState.subject.name}..." 
