@@ -4,22 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initAdvancedFooter() {
-    initFooterStats();
     initRoleAwareLinks();
     initBackToTop();
 }
 
-function initFooterStats() {
-    const statsContainer = document.getElementById('footer-stats');
-    if (!statsContainer) return;
 
-    // Provide the skeleton with IDs that stats.js can target
-    statsContainer.innerHTML = `
-        <span class="footer-stats-block">📚 <span id="stat-notes">...</span> notes</span> &bull; 
-        <span class="footer-stats-block">👥 <span id="stat-active">...</span> students</span> &bull; 
-        <span class="footer-stats-block">⬇️ <span id="stat-downloads">...</span> downloads</span>
-    `;
-}
 
 function initRoleAwareLinks() {
     const linksContainer = document.getElementById('footer-role-links');
