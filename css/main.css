@@ -911,7 +911,11 @@ input:checked+.toggle-slider:before {
     }
 
     .hero {
-        padding: 8rem 0 4rem;
+        padding: 6rem 0 3rem;
+    }
+
+    .features {
+        padding: 4.5rem 0;
     }
 
     .hero-content {
@@ -1242,12 +1246,13 @@ input:checked+.toggle-slider:before {
 
     .footer-links {
         gap: 2rem;
-        flex-wrap: wrap;
+        flex-direction: column;
     }
 
     .footer-bottom .container {
         flex-direction: column;
         text-align: center;
+        padding-bottom: 4rem;
     }
 }
 
@@ -1719,10 +1724,11 @@ input:checked+.toggle-slider:before {
 @media (max-width: 768px) {
     .founders-grid {
         gap: 2rem;
+        grid-template-columns: 1fr;
     }
 
     .founder-card {
-        padding: 2.5rem 1.5rem;
+        padding: 0;
     }
 
     .founder-content {
