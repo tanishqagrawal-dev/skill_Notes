@@ -472,16 +472,16 @@ window.AdminConsole = {
         try {
             this.logActivity("🚀 System Seeding: Ensuring core universities are synchronized...");
             const defaults = [
-                { id: 'medicaps', name: 'Medicaps University', city: 'Indore', state: 'MP', logo: '../assets/logos/medicaps.png' },
-                { id: 'ips', name: 'IPS Academy', city: 'Indore', state: 'MP', logo: '../assets/logos/ips.png' },
-                { id: 'lpu', name: 'LPU University', city: 'Phagwara', state: 'Punjab', logo: '../assets/logos/lpu.png' },
-                { id: 'cdgi', name: 'CDGI University', city: 'Indore', state: 'MP', logo: '../assets/logos/cdgi.png' },
-                { id: 'iitd', name: 'IIT Delhi', city: 'Delhi', state: 'Delhi', logo: '../assets/logos/iitd.png' },
-                { id: 'sgsits', name: 'SGSITS Indore', city: 'Indore', state: 'MP', logo: '../assets/logos/sgsits.png' },
-                { id: 'davv', name: 'DAVV Indore', city: 'Indore', state: 'MP', logo: '../assets/logos/davv.png' },
-                { id: 'vit', name: 'VIT Vellore', city: 'Vellore', state: 'Tamil Nadu', logo: '../assets/logos/vit.png' },
-                { id: 'srm', name: 'SRM University', city: 'Chennai', state: 'Tamil Nadu', logo: '../assets/logos/srm.png' },
-                { id: 'manipal', name: 'Manipal University', city: 'Manipal', state: 'Karnataka', logo: '../assets/logos/manipal.png' }
+                { id: 'medicaps', name: 'Medicaps University', city: 'Indore', state: 'MP', logo: '/assets/logos/medicaps.png' },
+                { id: 'ips', name: 'IPS Academy', city: 'Indore', state: 'MP', logo: '/assets/logos/ips.png' },
+                { id: 'lpu', name: 'LPU University', city: 'Phagwara', state: 'Punjab', logo: '/assets/logos/lpu.png' },
+                { id: 'cdgi', name: 'CDGI University', city: 'Indore', state: 'MP', logo: '/assets/logos/cdgi.png' },
+                { id: 'iitd', name: 'IIT Delhi', city: 'Delhi', state: 'Delhi', logo: '/assets/logos/iitd.png' },
+                { id: 'sgsits', name: 'SGSITS Indore', city: 'Indore', state: 'MP', logo: '/assets/logos/sgsits.png' },
+                { id: 'davv', name: 'DAVV Indore', city: 'Indore', state: 'MP', logo: '/assets/logos/davv.png' },
+                { id: 'vit', name: 'VIT Vellore', city: 'Vellore', state: 'Tamil Nadu', logo: '/assets/logos/vit.png' },
+                { id: 'srm', name: 'SRM University', city: 'Chennai', state: 'Tamil Nadu', logo: '/assets/logos/srm.png' },
+                { id: 'manipal', name: 'Manipal University', city: 'Manipal', state: 'Karnataka', logo: '/assets/logos/manipal.png' }
             ];
 
             await Promise.all(defaults.map(c =>

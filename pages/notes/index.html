@@ -25,7 +25,7 @@
             }
         }(window.location))
     </script>
-    <link rel="shortcut icon" href="../assets/logo.jpg" type="image/jpeg">
+    <link rel="shortcut icon" href="/assets/logo.jpg" type="image/jpeg">
     <title>Notes Hub | SKiL MATRiX Notes</title>
 
     <!-- Fonts -->
@@ -36,9 +36,9 @@
         rel="stylesheet">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/dashboard.css">
-    <link rel="stylesheet" href="../css/advanced_dashboard.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/advanced_dashboard.css">
 
     <style>
         .notes-page-container {
@@ -240,7 +240,7 @@
 
     <!-- Navigation Hub -->
     <div id="navbar-container"></div>
-    <script src="../js/navbar.js"></script>
+    <script src="/js/navbar.js"></script>
 
     <div class="notes-page-container">
         <!-- Notes Hub Wizard -->
@@ -316,7 +316,7 @@
             <!-- Left Block: Brand & Intel -->
             <div class="footer-brand">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem;">
-                    <img src="../assets/logo.jpg" alt="SKiL MATRiX" style="height: 30px; border-radius: 50%;">
+                    <img src="/assets/logo.jpg" alt="SKiL MATRiX" style="height: 30px; border-radius: 50%;">
                     <span class="logo-text">SKiL MATRiX <span class="highlight"
                             style="font-weight: 800;">NOTES</span></span>
                 </div>
@@ -336,23 +336,23 @@
                     <h4>Platform</h4>
                     <div id="footer-role-links">
                         <!-- Fallback Links -->
-                        <a href="dashboard.html?tab=notes">Notes Hub</a>
-                        <a href="dashboard.html">AI Tools</a>
+                        <a href="/pages/dashboard/?tab=notes">Notes Hub</a>
+                        <a href="/pages/dashboard/">AI Tools</a>
                         <a href="#">Community</a>
                     </div>
-                    <a href="dashboard.html?tab=leaderboard">Leaderboard</a>
+                    <a href="/pages/dashboard/?tab=leaderboard">Leaderboard</a>
                 </div>
 
                 <!-- Right Block: Company -->
                 <div class="link-group">
                     <h4>Company</h4>
-                    <a href="about.html">About</a>
-                    <a href="contact.html">Contact</a>
+                    <a href="/pages/about/">About</a>
+                    <a href="/pages/contact/">Contact</a>
                     <div class="legal-group">
-                        <a href="privacy.html">Privacy</a>
-                        <a href="terms.html">Terms</a>
+                        <a href="/pages/privacy/">Privacy</a>
+                        <a href="/pages/terms/">Terms</a>
                     </div>
-                    <a href="contact.html" style="color: var(--secondary);">Report an Issue</a>
+                    <a href="/pages/contact/" style="color: var(--secondary);">Report an Issue</a>
                 </div>
             </div>
         </div>
@@ -377,15 +377,15 @@
 
 
     <!-- Scripts -->
-    <script type="module" src="../js/firebase-config.js"></script>
-    <script type="module" src="../js/auth.js"></script>
+    <script type="module" src="/js/firebase-config.js"></script>
+    <script type="module" src="/js/auth.js"></script>
     <script type="module">
-        import { initRealtimeStats } from '../js/stats.js';
+        import { initRealtimeStats } from '/js/stats.js';
         initRealtimeStats();
     </script>
-    <script type="module" src="../js/notes-hub.js"></script>
-    <script src="../js/note-actions.js"></script>
-    <script src="../js/footer.js"></script>
+    <script type="module" src="/js/notes-hub.js"></script>
+    <script src="/js/note-actions.js"></script>
+    <script src="/js/footer.js"></script>
 </body>
 
 </html>

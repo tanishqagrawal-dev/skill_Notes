@@ -22,11 +22,11 @@ window.Roles = {
 
 window.GlobalData = {
     colleges: [
-        { id: 'medicaps', name: 'Medicaps University', logo: '../assets/logos/medicaps.png' },
-        { id: 'lpu', name: 'LPU University', logo: '../assets/logos/lpu.png' },
-        { id: 'ips', name: 'IPS Academy', logo: '../assets/logos/ips.png' },
-        { id: 'cdgi', name: 'CDGI University', logo: '../assets/logos/cdgi.png' },
-        { id: 'iitd', name: 'IIT Delhi', logo: '../assets/logos/iitd.png' }
+        { id: 'medicaps', name: 'Medicaps University', logo: '/assets/logos/medicaps.png' },
+        { id: 'lpu', name: 'LPU University', logo: '/assets/logos/lpu.png' },
+        { id: 'ips', name: 'IPS Academy', logo: '/assets/logos/ips.png' },
+        { id: 'cdgi', name: 'CDGI University', logo: '/assets/logos/cdgi.png' },
+        { id: 'iitd', name: 'IIT Delhi', logo: '/assets/logos/iitd.png' }
     ]
 };
 
@@ -46,7 +46,7 @@ function handleAuthReady(data) {
         // Security Check (Redundant but safe)
         if (currentUser.role !== 'admin' && currentUser.role !== 'superadmin') {
             alert("⛔ Access Denied. Redirecting...");
-            window.location.href = 'dashboard.html';
+            window.location.href = '/pages/dashboard/';
             return;
         }
 

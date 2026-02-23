@@ -30,30 +30,29 @@ function initRoleAwareLinks() {
 
     let links = [];
 
-    // Check if we are in pages/ or root to adjust links
-    const inPages = window.location.pathname.includes('/pages/');
-    const p = (path) => inPages ? path : 'pages/' + path;
-    const r = (path) => inPages ? '../' + path : path; // root link
+    // Use absolute paths for everything
+    const p = (path) => path;
+    const r = (path) => path;
 
     if (userRole === 'admin' || userRole === 'superadmin' || userRole === 'coadmin') {
         links = [
-            { txt: 'Admin Console', url: p('dashboard.html?tab=admin') },
-            { txt: 'Manage Content', url: p('dashboard.html?tab=verification') },
+            { txt: 'Admin Console', url: '/pages/dashboard/?tab=admin' },
+            { txt: 'Manage Content', url: '/pages/dashboard/?tab=verification' },
             { txt: 'System Status', url: '#' }
         ];
     } else if (userRole === 'uploader' || userRole === 'contributor') {
         links = [
-            { txt: 'My Uploads', url: p('dashboard.html?tab=profile') },
+            { txt: 'My Uploads', url: '/pages/dashboard/?tab=profile' },
             { txt: 'Upload New Note', url: '#', onclick: "openUploadModal()" },
             { txt: 'Contributor Guidelines', url: '#' }
         ];
     } else {
         // Default: Student
         links = [
-            { txt: 'Notes Hub', url: p('dashboard.html?tab=notes') },
-            { txt: 'Leaderboard', url: p('dashboard.html?tab=leaderboard') },
-            { txt: 'AI Study Planner', url: p('dashboard.html?tab=planner') },
-            { txt: 'Exam Strategist', url: p('dashboard.html?tab=ai-tools') }
+            { txt: 'Notes Hub', url: '/pages/dashboard/?tab=notes' },
+            { txt: 'Leaderboard', url: '/pages/dashboard/?tab=leaderboard' },
+            { txt: 'AI Study Planner', url: '/pages/dashboard/?tab=planner' },
+            { txt: 'Exam Strategist', url: '/pages/dashboard/?tab=ai-tools' }
         ];
     }
 

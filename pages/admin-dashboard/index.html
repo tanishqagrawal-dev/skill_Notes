@@ -13,7 +13,7 @@
 
         gtag('config', 'G-KSCJTPP875');
     </script>
-    <link rel="shortcut icon" href="../assets/logo.jpg" type="image/jpeg">
+    <link rel="shortcut icon" href="/assets/logo.jpg" type="image/jpeg">
     <title>Dashboard | SKiL MATRiX Notes</title>
 
     <!-- Fonts -->
@@ -22,11 +22,11 @@
         rel="stylesheet">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/dashboard.css">
-    <link rel="stylesheet" href="../css/advanced_dashboard.css">
-    <link rel="stylesheet" href="../css/settings.css">
-    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/advanced_dashboard.css">
+    <link rel="stylesheet" href="/css/settings.css">
+    <link rel="stylesheet" href="/css/admin.css">
 </head>
 
 <body class="dashboard-body">
@@ -35,12 +35,12 @@
         <!-- Sidebar -->
         <aside class="sidebar glass-card">
             <div class="sidebar-header" style="display: flex; align-items: center; gap: 10px;">
-                <img src="../assets/logo.jpg" alt="SKiL MATRiX" style="height: 40px; border-radius: 50%;">
+                <img src="/assets/logo.jpg" alt="SKiL MATRiX" style="height: 40px; border-radius: 50%;">
                 <span class="logo-text font-heading" style="font-size: 1.2rem;">SKiL MATRiX <span class="highlight"
                         style="font-weight: 800;">NOTES</span></span>
             </div>
             <nav class="sidebar-nav">
-                <a href="../index.html" class="nav-item">
+                <a href="/index.html" class="nav-item">
                     <span class="icon">⬅️</span> Back to Home
                 </a>
                 <div class="nav-divider"></div>
@@ -125,13 +125,13 @@
 
     <!-- Dynamic Dashboard Engine -->
     <!-- Dynamic Dashboard Engine (True Lazy Load) -->
-    <script type="module" src="../js/firebase-config.js"></script>
-    <script src="../js/ai-client.js"></script>
-    <script src="../js/settings.js"></script>
-    <script src="../js/upload-helper.js"></script>
-    <script type="module" src="../js/stats.js"></script>
-    <script src="../js/admin-console.js"></script>
-    <script src="../js/email-config.js"></script>
+    <script type="module" src="/js/firebase-config.js"></script>
+    <script src="/js/ai-client.js"></script>
+    <script src="/js/settings.js"></script>
+    <script src="/js/upload-helper.js"></script>
+    <script type="module" src="/js/stats.js"></script>
+    <script src="/js/admin-console.js"></script>
+    <script src="/js/email-config.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script>
         (function () {
@@ -141,15 +141,15 @@
             }
         })();
     </script>
-    <script src="../js/admin-support.js"></script>
-    <script src="../js/coadmin-module.js"></script>
+    <script src="/js/admin-support.js"></script>
+    <script src="/js/coadmin-module.js"></script>
 
     <script type="module">
-        import { initAuth } from '../js/auth.js';
+        import { initAuth } from '/js/auth.js';
 
         const startAdminApp = () => {
             console.log("🛡️ Starting Admin Console...");
-            import('../js/dashboard.js?v=4').then(() => {
+            import('/js/dashboard.js?v=4').then(() => {
                 console.log("📦 Admin Dashboard Module Loaded");
             });
             initAuth();
