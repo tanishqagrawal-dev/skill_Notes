@@ -476,15 +476,23 @@ body.light-mode .skeleton {
 
 @media (max-width: 768px) {
     .leaderboard-controls {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: stretch;
+        width: 100%;
+        justify-content: center;
     }
 
     .lb-tabs,
     .time-filters {
         height: auto;
         flex-wrap: wrap;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .lb-tab,
+    .time-filter {
+        flex: 1 1 auto;
+        text-align: center;
+        white-space: nowrap;
     }
 
     .lb-entry {

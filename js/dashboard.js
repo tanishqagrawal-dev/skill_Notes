@@ -907,6 +907,11 @@ function initTabs() {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             item.classList.add('active');
             renderTabContent(item.dataset.tab);
+            // Close sidebar automatically on mobile
+            if (window.innerWidth <= 768) {
+                const sidebar = document.querySelector('.sidebar');
+                if (sidebar) sidebar.classList.remove('active');
+            }
         };
     });
 }
@@ -1035,7 +1040,7 @@ function renderTabContent(tabId) {
                 contentArea.innerHTML = "<p>Admin Console module loading...</p>";
             }
         } else if (tabId === 'my-uploads') {
-            contentArea.innerHTML = `<div class="tab-pane active fade-in" style="padding: 2rem;">
+            contentArea.innerHTML = `<div class="tab-pane active fade-in my-uploads-pane">
                 <h1 class="font-heading">📤 My <span class="gradient-text">Uploads</span></h1>
                 <p style="color: var(--text-dim); margin-bottom: 2rem;">Track the status of your contributed materials.</p>
                 <div id="my-uploads-grid" class="notes-grid-pro" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;"></div>
@@ -3329,7 +3334,7 @@ function renderLeaderboard() {
     return `
         <div class="tab-pane active fade-in" style="padding: 2rem;">
             <!-- Header -->
-            <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: end;">
+            <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 1.5rem;">
                 <div>
                     <h1 class="font-heading">🏆 Advanced <span class="gradient-text">Leaderboard</span></h1>
                     <p style="color: var(--text-dim);">Compete, contribute, and track your academic standing in real-time.</p>
@@ -3348,8 +3353,8 @@ function renderLeaderboard() {
                 <!-- Main Leaderboard List -->
                 <div class="leaderboard-main glass-card" style="padding: 2rem;">
                     
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
-                        <div class="time-filters">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                        <div class="time-filters" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
                             <div class="time-filter active" data-time="today">Today</div>
                             <div class="time-filter" data-time="week">Week</div>
                             <div class="time-filter" data-time="month">Month</div>
@@ -3936,12 +3941,12 @@ window.renderPrivateDrive = function () {
     return `
         <div class="tab-pane active fade-in" style="padding: 2rem;">
             <!-- Header section -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;">
                 <div>
                     <h1 class="font-heading" style="font-size: 2.5rem; margin-bottom: 0.5rem;">My <span class="gradient-text">Private Drive</span></h1>
                     <p style="color: var(--text-dim); font-size: 1.1rem;">Your personal academic space</p>
                 </div>
-                <div style="text-align: right; width: 300px;">
+                <div style="text-align: right; min-width: 200px; flex: 1; max-width: 300px;">
                     <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-dim);">
                         <span>Storage Usage</span>
                         <span id="storage-usage-text">0MB / 1GB</span>
@@ -3954,7 +3959,7 @@ window.renderPrivateDrive = function () {
 
             <!-- Action Bar -->
             <div class="glass-card" style="padding: 1rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
-                <div style="display: flex; gap: 0.75rem;">
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
                     <button class="btn btn-primary btn-sm" onclick="document.getElementById('drive-upload-input').click()">➕ Upload File</button>
                     <button class="btn btn-ghost btn-sm" onclick="renderTabContent('ai-tools')">✨ Generate AI Notes</button>
                     <button class="btn btn-ghost btn-sm" onclick="alert('Folder support coming soon!')">📂 New Folder</button>
@@ -3967,9 +3972,9 @@ window.renderPrivateDrive = function () {
             </div>
 
             <!-- Tabs -->
-            <div style="display: flex; gap: 2rem; border-bottom: 1px solid var(--border-glass); margin-bottom: 2rem; padding-left: 1rem;">
+            <div style="display: flex; gap: 1rem; border-bottom: 1px solid var(--border-glass); margin-bottom: 2rem; padding-left: 1rem; flex-wrap: wrap; padding-bottom: 0.5rem;">
                 <button class="drive-tab active" onclick="switchDriveTab('files', this)">📁 My Files</button>
-                <button class drive-tab" onclick="switchDriveTab('ai', this)">🤖 AI Notes</button>
+                <button class="drive-tab" onclick="switchDriveTab('ai', this)">🤖 AI Notes</button>
                 <button class="drive-tab" onclick="switchDriveTab('saved', this)">⭐ Saved Notes</button>
                 <button class="drive-tab" onclick="switchDriveTab('drafts', this)">🗂 Drafts</button>
             </div>
