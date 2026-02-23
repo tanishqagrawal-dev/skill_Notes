@@ -2096,7 +2096,7 @@
 
     /* Subject Page Mobile Fixes */
     .subject-page-container {
-        padding-top: 2rem;
+        padding-top: 0;
     }
 
     .subject-title-pro {
@@ -2148,9 +2148,9 @@
 
     /* Note Card Pro Fixes */
     #final-notes-view {
-        padding: 1.5rem 1rem !important;
-        margin-top: 4rem;
-        /* Buffer for sticky top bar */
+        padding: 1rem 1rem !important;
+        margin-top: 1rem;
+        /* Adjusted buffer */
     }
 
     .note-card-pro {
