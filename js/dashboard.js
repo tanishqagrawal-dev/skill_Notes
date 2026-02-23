@@ -1013,9 +1013,17 @@ function renderTabContent(tabId) {
             contentArea.innerHTML = renderAITools();
             if (window.checkServer) window.checkServer();
         } else if (tabId === 'leaderboard') {
+            if (window.lockOverlay) {
+                window.lockOverlay.show();
+                return;
+            }
             contentArea.innerHTML = renderLeaderboard();
             if (typeof initLeaderboardListeners === 'function') initLeaderboardListeners();
         } else if (tabId === 'private-drive') {
+            if (window.lockOverlay) {
+                window.lockOverlay.show();
+                return;
+            }
             contentArea.innerHTML = renderPrivateDrive();
             if (typeof initPrivateDrive === 'function') initPrivateDrive();
         } else if (tabId === 'moderation-hub') {
