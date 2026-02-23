@@ -58,7 +58,9 @@ function countUp(id, target) {
 
 // --- MAIN INIT FUNCTION ---
 export async function initRealtimeStats() {
+    if (window.statServices?.ready) return;
     console.log("🚀 Initializing Production Stats (Organic Growth)...");
+    if (window.statServices) window.statServices.ready = true;
 
     const stats = getStats();
 

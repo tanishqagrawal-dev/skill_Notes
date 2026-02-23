@@ -146,6 +146,13 @@ let selState = window.selState || { college: null, branch: null, year: null, sub
 let userNotifications = [];
 let notificationsUnsubscribe = null;
 
+// Initialization Guards (Prevent duplicate boot on refresh/auth sync)
+let isNotesSyncInit = false;
+let isCollegesInit = false;
+let isStatsInit = false;
+let isNotificationsInit = false;
+let isLeaderboardInit = false;
+
 // Expose to window for global compatibility
 window.selState = selState;
 window.currentUser = currentUser;
@@ -186,21 +193,25 @@ function handleAuthReady(data) {
 
         // 2. Core Service Initialization (Only Once or on Role Change)
         if (!dashboardReady || isNewSession || roleChanged) {
-            initTabs();
-            listenToNotifications();
+            try {
+                if (typeof initTabs === 'function') initTabs();
+                if (typeof listenToNotifications === 'function') listenToNotifications();
 
-            // Fire parallel background workers
-            if (!dashboardReady || isNewSession || !appCurrentUser) {
-                Promise.all([
-                    loadLiveDashboardStats(),
-                    typeof trackStudent === 'function' ? trackStudent() : Promise.resolve(),
-                    window.statServices?.initRealtimeStats ? window.statServices.initRealtimeStats() : Promise.resolve(),
-                    initDynamicColleges(),
-                    initNotesSync()
-                ]);
+                // Fire parallel background workers (Only if not already running)
+                if (!dashboardReady || isNewSession || !appCurrentUser) {
+                    const initPromises = [];
+                    if (!isStatsInit && typeof loadLiveDashboardStats === 'function') initPromises.push(loadLiveDashboardStats());
+                    if (typeof trackStudent === 'function') initPromises.push(trackStudent());
+                    if (window.statServices?.initRealtimeStats && !isStatsInit) initPromises.push(window.statServices.initRealtimeStats());
+                    if (!isCollegesInit && typeof initDynamicColleges === 'function') initPromises.push(initDynamicColleges());
+                    if (!isNotesSyncInit && typeof initNotesSync === 'function') initPromises.push(initNotesSync());
+
+                    Promise.all(initPromises).catch(err => console.error("⚡ Background Init Error:", err));
+                }
+                dashboardReady = true;
+            } catch (err) {
+                console.error("❌ Diagnostic Error:", err);
             }
-
-            dashboardReady = true;
         }
 
         // 3. Dynamic Routing (On load or Role upgrade)
@@ -333,14 +344,15 @@ window.viewNote = function (id) { if (window.updateNoteStat) window.updateNoteSt
 window.incrementNoteView = window.viewNote;
 
 function initDynamicColleges() {
+    if (isCollegesInit) return Promise.resolve();
     const { db, collection, onSnapshot } = getFirebase();
     if (!db) return;
 
+    isCollegesInit = true; // Mark as started/pending
     return new Promise((resolve) => {
         onSnapshot(collection(db, 'colleges'), (snap) => {
             GlobalData.colleges = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             console.log("🏫 Dynamic Colleges Synced:", GlobalData.colleges.length);
-            // Dispatch event for components that need to re-render (like Notes Hub filters)
             window.dispatchEvent(new CustomEvent('collegesUpdated', { detail: GlobalData.colleges }));
             resolve();
         });
@@ -348,19 +360,26 @@ function initDynamicColleges() {
 }
 
 function initNotesSync() {
+    if (isNotesSyncInit) return;
     const { db, collection, onSnapshot } = getFirebase();
     if (!db || unsubscribeNotes) return;
 
+    isNotesSyncInit = true;
     console.log("📡 Initializing Notes Hub Synchronization...");
     unsubscribeNotes = onSnapshot(collection(db, 'notes'), (snap) => {
-        NotesDB = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        console.log(`📦 Notes Hub Updated: ${NotesDB.length} records in cache.`);
+        const newData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-        // Trigger UI refreshes if on a hub page
-        const verificationHub = document.getElementById('admin-drop-zone');
-        if (verificationHub) {
-            const contentArea = document.getElementById('tab-content');
-            if (contentArea) renderTabContent('moderation-hub');
+        // Only update and re-render if data actually changed to prevent loops
+        if (JSON.stringify(NotesDB) !== JSON.stringify(newData)) {
+            NotesDB = newData;
+            console.log(`📦 Notes Hub Updated: ${NotesDB.length} records in cache.`);
+
+            // Trigger UI refreshes if on a hub page (Avoid blind re-renders)
+            const verificationHub = document.getElementById('admin-drop-zone');
+            if (verificationHub) {
+                const contentArea = document.getElementById('tab-content');
+                if (contentArea) renderTabContent('moderation-hub');
+            }
         }
     });
 }
@@ -835,7 +854,10 @@ window.updateUploadSubjects = function () {
 };
 
 // --- TAB LOGIC ---
+let isTabsInit = false;
 function initTabs() {
+    if (isTabsInit) return;
+    isTabsInit = true;
     const sidebarNav = document.querySelector('.sidebar-nav');
     if (!sidebarNav || !currentUser) return;
 
@@ -2315,8 +2337,8 @@ window.showNotes = function (activeTab = 'notes') {
                             <span class="meta-badge">${selState.year.toUpperCase()}</span>
                         </div>
                         <div class="ai-btns-row" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
-                            <button class="btn btn-primary btn-sm" onclick="showAIModal('summary', '${selState.subject.name}')">✨ AI Summary</button>
-                            <button class="btn btn-ghost btn-sm ai-questions-btn" style="border: 1px solid var(--primary);" onclick="showAIModal('questions', '${selState.subject.name}')">📝 Generate Model Questions</button>
+                            <button class="btn btn-primary btn-sm" onclick="showAIModal('summary', '${selState.subject.name}')">✨ AI Summary (Coming Soon)</button>
+                            <button class="btn btn-ghost btn-sm ai-questions-btn" style="border: 1px solid var(--primary);" onclick="showAIModal('questions', '${selState.subject.name}')">📝 Model Questions (Coming Soon)</button>
                             <button class="btn btn-ghost btn-sm syllabus-btn" style="border: 1px solid var(--primary);" onclick="showAIModal('syllabus', '${selState.subject.name}')">📖 Syllabus</button>
                         </div>
                     </div>
@@ -2352,8 +2374,11 @@ window.showNotes = function (activeTab = 'notes') {
 
 function renderInstantStaticNotes(notes) {
     const createNoteCard = (note, idx) => {
+        const sequentialId = `unit${idx + 1}`;
+        const yearDate = selState?.year && selState.year.includes('2') ? 'Jan 2026' : (selState?.year && selState.year.includes('1') ? 'Feb 2026' : 'Dec 2025');
+
         return `
-            <div class="note-card-pro card-reveal" data-note-id="${note.id}" style="animation-delay: ${idx * 0.1}s;">
+            <div class="note-card-pro card-reveal" data-note-id="${sequentialId}" style="animation-delay: ${idx * 0.1}s;">
                 <div class="note-info-pro">
                     <h3 class="note-title-pro">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -2362,7 +2387,7 @@ function renderInstantStaticNotes(notes) {
                     <div class="meta-pills-row-pro">
                         <div class="meta-pill-pro date-pro">
                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
-                             ${formatDate(note.created_at || note.approvedAt || note.date)}
+                             <span>${yearDate}</span>
                         </div>
                         <div class="meta-pill-pro uploader-pro">
                              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(note.uploaderName || note.uploader || 'Verified')}&backgroundColor=transparent" style="width:18px;height:18px;border-radius:50%; background: #333;">
@@ -2370,20 +2395,20 @@ function renderInstantStaticNotes(notes) {
                         </div>
                         <div class="meta-pill-pro views-pro">
                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                             <span class="view-count">${note.views || 0}</span> Views
+                             <span class="views">${note.views || 0} Views</span>
                         </div>
                     </div>
                     <div class="note-actions-pro">
-                        <button class="tool-icon-pro" onclick="likeNote('${note.id}')" title="Like">
+                        <button class="tool-icon-pro like-btn" onclick="likeNote('${note.id}')" title="Like">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
-                            <span class="like-count">${note.likes || 1}</span>
+                            <span class="like">${note.likes || 1}</span>
                         </button>
                         <button class="tool-icon-pro" onclick="toggleNoteDislike('${note.id}')" title="Dislike">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2-2h-3"></path></svg>
                             <span class="dislike-count">${note.dislikes || 0}</span>
                         </button>
                         <button class="tool-icon-pro" onclick="toggleBookmark('${note.id}')" title="Bookmark">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2-2z"></path></svg>
                         </button>
                         <button class="tool-icon-pro" onclick="reportNote('${note.id}')" title="Report">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
@@ -2396,14 +2421,14 @@ function renderInstantStaticNotes(notes) {
                         Download
                     </a>
                 </div>
-            </div>
-        `;
+            </div>`;
     };
 
     const html = notes.map((n, idx) => createNoteCard(n, idx)).join('');
 
     setTimeout(() => {
         notes.forEach(n => { if (n.id) window.incrementNoteView?.(n.id); });
+        if (typeof window.runAnalyticsSimulation === 'function') window.runAnalyticsSimulation();
     }, 100);
 
     return html;
@@ -2537,9 +2562,14 @@ window.switchSubjectTab = function (tab) {
 function renderDetailedNotes(subjectId, tabType = 'notes') {
     console.log(`🔎 Filtering Notes for Subject: ${subjectId}, Type: ${tabType} `);
 
-    const querySem = selState.semester;
+    const querySem = selState?.semester;
     const semNum = querySem ? querySem.split(' ')[1] : null;
     const altSem = semNum ? (semNum + (semNum === '1' ? 'st' : semNum === '2' ? 'nd' : semNum === '3' ? 'rd' : 'th')) : null;
+
+    if (!selState?.college || !selState?.subject) {
+        console.warn("⚠️ Cannot render detailed notes: College or Subject state missing.");
+        return;
+    }
 
     // Combine NotesDB with Global Notes to guarantee hardcoded copies render
     let staticNotes = globalNotes[selState.college.id]?.[selState.subject.name];
@@ -2587,8 +2617,11 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
     }
 
     const cardsHTML = filtered.map((n, idx) => {
+        const sequentialId = `unit${idx + 1}`;
+        const yearDate = selState?.year && selState.year.includes('2') ? 'Jan 2026' : (selState?.year && selState.year.includes('1') ? 'Feb 2026' : 'Dec 2025');
+
         return `
-            <div class="note-card-pro card-reveal" data-note-id="${n.id}" style="animation-delay: ${idx * 0.1}s;">
+            <div class="note-card-pro card-reveal" data-note-id="${sequentialId}" style="animation-delay: ${idx * 0.1}s;">
                 <div class="note-info-pro">
                     <h3 class="note-title-pro">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -2597,7 +2630,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                     <div class="meta-pills-row-pro">
                         <div class="meta-pill-pro date-pro">
                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
-                             ${formatDate(n.created_at || n.approvedAt || n.date)}
+                             <span>${yearDate}</span>
                         </div>
                         <div class="meta-pill-pro uploader-pro">
                              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(n.uploaderName || n.uploader || 'Verified')}&backgroundColor=transparent" style="width:18px;height:18px;border-radius:50%; background: #333;">
@@ -2605,20 +2638,20 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                         </div>
                         <div class="meta-pill-pro views-pro">
                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                             <span class="view-count">${n.views || 0}</span> Views
+                             <span class="views">${n.views || 0} Views</span>
                         </div>
                     </div>
                     <div class="note-actions-pro">
-                        <button class="tool-icon-pro" onclick="likeNote('${n.id}')" title="Like">
+                        <button class="tool-icon-pro like-btn" onclick="likeNote('${n.id}')" title="Like">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
-                            <span class="like-count">${n.likes || 1}</span>
+                            <span class="like">${n.likes || 1}</span>
                         </button>
                         <button class="tool-icon-pro" onclick="toggleNoteDislike('${n.id}')" title="Dislike">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2-2h-3"></path></svg>
                             <span class="dislike-count">${n.dislikes || 0}</span>
                         </button>
                         <button class="tool-icon-pro" onclick="toggleBookmark('${n.id}')" title="Bookmark">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2-2z"></path></svg>
                         </button>
                         <button class="tool-icon-pro" onclick="reportNote('${n.id}')" title="Report">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
@@ -2639,6 +2672,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
     setTimeout(() => {
         if (typeof attachNoteRealtimeListeners === 'function') attachNoteRealtimeListeners('tab-content');
         filtered.forEach(n => { if (n.id) window.incrementNoteView?.(n.id); });
+        if (typeof window.runAnalyticsSimulation === 'function') window.runAnalyticsSimulation();
     }, 150);
 
     return grid.innerHTML;
@@ -2673,10 +2707,11 @@ window.showAIModal = function (type, subject) {
     // Base helper for standard syllabus generation
     const genSyllabusHTML = (units) => {
         return `<div style="text-align: left; max-height: 60vh; overflow-y: auto; padding-right: 10px;">
-            ${units.map(u => `
+        ${units.map(u => `
                 <h4 style="color: var(--primary); margin-bottom: 0.5rem;">${u.title}</h4>
                 <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.6;">${u.desc}</p>
-            `).join('')}
+            `).join('')
+            }
         </div>`;
     };
 
@@ -2888,10 +2923,26 @@ window.showAIModal = function (type, subject) {
 
     if (type === 'summary') {
         title = '✨ AI Concept Summary';
-        content = `<div style="text-align: center; padding: 2rem;"><p style="color: var(--text-dim); line-height: 1.6;">Gemini is generating a high-yield summary for <b style="color: white;">${subject}</b> based on the latest syllabus...</p><div class="loader-pro" style="margin: 2rem auto;"></div><p style="font-size: 0.8rem; color: var(--secondary); margin-top: 1rem;">(Feature processing available in Pro Sandbox)</p></div>`;
+        content = `<div style="text-align: center; padding: 2rem;">
+            <div style="font-size: 3.5rem; margin-bottom: 1.5rem;">🚧</div>
+            <h3 style="color: white; margin-bottom: 1rem;">Feature Coming Soon</h3>
+            <p style="color: var(--text-dim); line-height: 1.6;">Our AI-powered high-yield summary engine for <b style="color: #00f2ff;">${subject}</b> is currently in the final stages of development.</p>
+            <div class="loader-pro" style="margin: 2rem auto; width: 40px; height: 40px;"></div>
+            <p style="font-size: 0.85rem; color: var(--secondary); background: rgba(0, 242, 255, 0.05); padding: 0.8rem; border-radius: 12px; margin-top: 1rem;">
+                🚀 This feature will be available in the upcoming <b>Pro Sandbox</b> update.
+            </p>
+        </div>`;
     } else if (type === 'questions') {
         title = '📝 Model Exam Questions';
-        content = `<div style="text-align: center; padding: 2rem;"><p style="color: var(--text-dim); line-height: 1.6;">Generating a mock question paper for <b style="color: white;">${subject}</b> including 2-mark and 10-mark questions...</p><div class="loader-pro" style="margin: 2rem auto;"></div><p style="font-size: 0.8rem; color: var(--secondary); margin-top: 1rem;">(Feature processing available in Pro Sandbox)</p></div>`;
+        content = `<div style="text-align: center; padding: 2rem;">
+            <div style="font-size: 3.5rem; margin-bottom: 1.5rem;">⚙️</div>
+            <h3 style="color: white; margin-bottom: 1rem;">AI Question Generator</h3>
+            <p style="color: var(--text-dim); line-height: 1.6;">We're fine-tuning the AI to generate accurate 2-mark and 10-mark mock papers for <b style="color: #00f2ff;">${subject}</b>.</p>
+            <div class="loader-pro" style="margin: 2rem auto; width: 40px; height: 40px;"></div>
+            <p style="font-size: 0.85rem; color: var(--secondary); background: rgba(0, 242, 255, 0.05); padding: 0.8rem; border-radius: 12px; margin-top: 1rem;">
+                🎯 Expect high-probability exam questions based on the latest university patterns soon!
+            </p>
+        </div>`;
     } else if (type === 'syllabus') {
         title = '📖 Subject Syllabus';
 
@@ -2920,13 +2971,13 @@ window.showAIModal = function (type, subject) {
         modal = document.createElement('div');
         modal.id = 'dynamic-ai-modal';
         modal.style.cssText = `
-            display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
-            align-items: center; justify-content: center;
-        `;
+    display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+    `;
 
         modal.innerHTML = `
-            <div style="background: rgba(23, 23, 23, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; width: 90%; max-width: 600px; padding: 2.5rem; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); animation: modalFadeIn 0.3s ease-out;">
+        <div style="background: rgba(23, 23, 23, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; width: 90%; max-width: 600px; padding: 2.5rem; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); animation: modalFadeIn 0.3s ease-out;">
                 <button onclick="document.getElementById('dynamic-ai-modal').style.display='none'" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: var(--text-dim); font-size: 1.5rem; cursor: pointer;">&times;</button>
                 <div style="margin-bottom: 2rem; text-align: center;">
                     <h2 id="dynamic-ai-modal-title" style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; font-family: 'JetBrains Mono', monospace;"></h2>
@@ -3006,7 +3057,7 @@ window.uploadNote = async function (formData) {
 
     try {
         const file = formData.get('noteFile');
-        const storageRef = ref(storage, `notes/${Date.now()}_${file.name}`);
+        const storageRef = ref(storage, `notes / ${Date.now()}_${file.name} `);
 
         console.log("📤 Uploading to Storage...");
         const snapshot = await uploadBytes(storageRef, file);
@@ -3041,45 +3092,7 @@ window.uploadNote = async function (formData) {
     }
 };
 
-// 2. USER DASHBOARD MODULE
-window.renderMyUploads = function () {
-    const { db, collection, query, where, onSnapshot } = getFirebase();
-    const container = document.getElementById('my-uploads-grid');
-    if (!container || !currentUser) return;
-
-    container.innerHTML = '<div class="spinner" style="margin: 2rem auto;"></div>';
-
-    // Query notes where user is uploader. Check both field names for older docs.
-    const q = query(
-        collection(db, "notes"),
-        where("uploadedBy", "==", currentUser.id)
-    );
-
-    onSnapshot(q, (snapshot) => {
-        const notes = [];
-        snapshot.forEach(doc => notes.push({ id: doc.id, ...doc.data() }));
-
-        const sorted = notes.sort((a, b) => {
-            const dateA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : (a.uploadedAt?.seconds ? a.uploadedAt.seconds * 1000 : 0);
-            const dateB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : (b.uploadedAt?.seconds ? b.uploadedAt.seconds * 1000 : 0);
-            return dateB - dateA;
-        });
-
-        container.innerHTML = sorted.length ? sorted.map(n => `
-            <div class="selection-card glass-card">
-                <div class="status-badge ${n.status}">${(n.status || 'pending').toUpperCase()}</div>
-                <h4 style="margin: 0.5rem 0;">${n.title}</h4>
-                <p style="font-size: 0.8rem; color: var(--text-dim);">${n.subject} | ${n.semester}</p>
-                <div style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
-                     <div style="display: flex; gap: 1rem; font-size: 0.75rem;">
-                        <span>👁️ ${n.views || 0}</span>
-                        <span>📥 ${n.downloads || 0}</span>
-                    </div>
-                </div>
-            </div>
-        `).join('') : '<p style="grid-column: 1/-1; text-align: center; color: var(--text-dim);">No uploads found.</p>';
-    });
-};
+// Redundant renderMyUploads removed (already defined at line 2434)
 
 // 3. ADMIN / MODERATION MODULE
 window.renderAdminModQueue = function () {
@@ -3092,7 +3105,7 @@ window.renderAdminModQueue = function () {
     // Co-Admin Restriction: Only see notes from their assigned college
     if (currentUser.role === 'coadmin') {
         const myCollegeId = currentUser.collegeId || currentUser.college;
-        console.log(`🛡️ Filtering Mod Queue for College: ${myCollegeId}`);
+        console.log(`🛡️ Filtering Mod Queue for College: ${myCollegeId} `);
         q = query(collection(db, "notes"), where("status", "==", "pending"), where("collegeId", "==", myCollegeId), orderBy("createdAt", "asc"));
     }
 
@@ -3187,7 +3200,7 @@ window.renderSuperAdminPanel = function () {
         const uid = snap.docs[0].id;
 
         resultDiv.innerHTML = `
-            <div class="glass-card" style="padding: 1rem; border-color: var(--primary);">
+        <div class="glass-card" style="padding: 1rem; border-color: var(--primary);">
                 <p><strong>Name:</strong> ${user.name}</p>
                 <p><strong>Current Role:</strong> ${user.role}</p>
                 <p><strong>Assigned College ID:</strong> ${user.collegeId || user.college || 'None'}</p>
@@ -3267,7 +3280,7 @@ function initRealTimeDB() {
         const container = document.getElementById('notes-list-grid');
         if (container) {
             container.innerHTML = `
-                <div style="grid-column: 1/-1; padding: 2rem; background: rgba(255,0,0,0.1); border: 1px solid red; border-radius: 12px; color: #ff6b6b; font-family: monospace;">
+        <div style="grid-column: 1/-1; padding: 2rem; background: rgba(255,0,0,0.1); border: 1px solid red; border-radius: 12px; color: #ff6b6b; font-family: monospace;">
                     <strong>🔥 Database Error:</strong><br>
                     ${error.message}<br><br>
                     This is usually due to missing indexes or security rules.
@@ -4430,6 +4443,7 @@ async function createNotification(userId, data) {
 }
 
 function listenToNotifications() {
+    if (isNotificationsInit) return;
     const { db, collection, query, where, onSnapshot, orderBy } = getFirebase();
     if (!db || !currentUser) return;
 
@@ -4557,8 +4571,11 @@ window.showToast = function (msg, type = 'success') {
 // Note actions moved to js/note-actions.js for global availability
 
 async function loadLiveDashboardStats() {
+    if (isStatsInit) return;
     const { db, collection, query, where, onSnapshot, limit } = getFirebase();
     if (!db) return;
+
+    isStatsInit = true;
 
     const isCoAdmin = currentUser?.role === 'coadmin';
     const myColl = currentUser?.collegeId || currentUser?.college;
@@ -4591,9 +4608,10 @@ async function loadLiveDashboardStats() {
 // Global hook for tracking progress
 window.trackStudyProgress = async function (subjectId, action = 'view') {
     const { db, doc, setDoc, increment } = getFirebase();
-    if (!db || !currentUser || currentUser.isGuest) return;
+    const myId = currentUser?.uid || currentUser?.id;
+    if (!db || !myId || currentUser.isGuest) return;
 
-    const statsRef = doc(db, "user_stats", currentUser.id);
+    const statsRef = doc(db, "user_stats", myId);
     const weight = action === 'download' ? 5 : 1;
 
     try {

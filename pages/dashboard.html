@@ -163,34 +163,38 @@
             </script>
 
             <div class="content-area" id="tab-content">
+                <div id="instant-view" class="tab-pane active fade-in dashboard-welcome-pane">
+                    <div class="welcome-header">
+                        <h1 class="font-heading" id="welcome-title">
+                            <div class="skeleton" style="height: 48px; width: 300px; border-radius: 8px;"></div>
+                        </h1>
+                        <p id="welcome-meta">
+                        <div class="skeleton" style="height: 20px; width: 250px; margin-top: 10px;"></div>
+                        </p>
+                    </div>
+
+                    <div class="glass-card"
+                        style="background: linear-gradient(135deg, rgba(108,99,255,0.05) 0%, rgba(255,255,255,0.01) 100%); padding: 3rem; border-radius: 24px; text-align: center;">
+                        <div class="loader-pro" style="margin: 0 auto 1.5rem;"></div>
+                        <p style="color: var(--text-dim);">Synchronizing your educational workspace...</p>
+                    </div>
+                </div>
                 <script>
                     (function () {
                         const raw = localStorage.getItem('auth_user_full') || localStorage.getItem('guest_session');
-                        const cachedUser = raw ? JSON.parse(raw) : null;
-                        const rawStats = localStorage.getItem('cached_stats');
-                        const stats = rawStats ? JSON.parse(rawStats) : null;
+                        if (raw) {
+                            try {
+                                const u = JSON.parse(raw);
+                                const name = (u.name || 'Scholar').split(' ')[0];
+                                const college = u.collegeName || u.college || 'Medicaps University';
+                                const roleLabel = u.role !== 'user' ? `🛡️ Verified ${u.role.toUpperCase()}` : `${u.year || '3rd Year'} • ${u.branch || 'CSE'}`;
 
-                        const name = cachedUser ? (cachedUser.name || 'Scholar').split(' ')[0] : '...';
-                        const college = cachedUser ? (cachedUser.collegeName || cachedUser.college || 'Medicaps University') : 'Loading...';
-                        const roleLabel = cachedUser ? (cachedUser.role !== 'user' ? `🛡️ Verified ${cachedUser.role.toUpperCase()}` : `${cachedUser.year || '3rd Year'} • ${cachedUser.branch || 'CSE'}`) : 'Loading Profile...';
-
-                        document.write(`
-                            <div id="instant-view" class="tab-pane active fade-in dashboard-welcome-pane">
-                                <div class="welcome-header">
-                                    <h1 class="font-heading">
-                                        ${cachedUser ? `Welcome back, <span class="gradient-text">${name}</span> <span class="waving-hand">👋</span>` : `<div class="skeleton" style="height: 48px; width: 300px; border-radius: 8px;"></div>`}
-                                    </h1>
-                                    <p>
-                                        ${cachedUser ? `${roleLabel} • ${college}` : `<div class="skeleton" style="height: 20px; width: 250px; margin-top: 10px;"></div>`}
-                                    </p>
-                                </div>
-                                
-                                <div class="glass-card" style="background: linear-gradient(135deg, rgba(108,99,255,0.05) 0%, rgba(255,255,255,0.01) 100%); padding: 3rem; border-radius: 24px; text-align: center;">
-                                    <div class="loader-pro" style="margin: 0 auto 1.5rem;"></div>
-                                    <p style="color: var(--text-dim);">Synchronizing your educational workspace...</p>
-                                </div>
-                            </div>
-                        `);
+                                const titleEl = document.getElementById('welcome-title');
+                                const metaEl = document.getElementById('welcome-meta');
+                                if (titleEl) titleEl.innerHTML = `Welcome back, <span class="gradient-text">${name}</span> <span class="waving-hand">👋</span>`;
+                                if (metaEl) metaEl.innerText = `${roleLabel} • ${college}`;
+                            } catch (e) { }
+                        }
                     })();
                 </script>
             </div>
@@ -236,6 +240,71 @@
     <script type="module" src="../js/notes-hub.js" defer></script>
     <script src="../js/footer.js" defer></script>
     <script type="module" src="../js/dashboard.js"></script>
+
+    <!-- SaaS-Grade Refined Fake Analytics Engine (Identity-Based) -->
+    <script>
+        window.runAnalyticsSimulation = function () {
+            console.log("📈 Running Identity-Based Analytics Simulation...");
+            const VIEW_GROWTH = 20;
+            const LIKE_GROWTH = 1;
+
+            // create hash from title text
+            function makeId(text) {
+                return "note_" + text.replace(/\s+/g, '_').toLowerCase();
+            }
+
+            document.querySelectorAll(".note-card-pro").forEach(card => {
+                const titleEl = card.querySelector("h3");
+                if (!titleEl) return;
+
+                const id = makeId(titleEl.innerText);
+                const viewEl = card.querySelector(".views");
+                const likeEl = card.querySelector(".like");
+                if (!viewEl || !likeEl) return;
+
+                let data = JSON.parse(localStorage.getItem(id));
+                const today = new Date().toDateString();
+
+                if (!data) {
+                    data = {
+                        views: Math.floor(Math.random() * 150) + 30,
+                        likes: Math.floor(Math.random() * 12) + 1,
+                        active: Math.random() > 0.3, // some start paused
+                        last: today
+                    };
+                }
+
+                if (data.last !== today) {
+                    const mood = Math.random();
+                    if (data.active) {
+                        if (mood < 0.65) {
+                            // grow (MAIN RULE)
+                            data.views += VIEW_GROWTH;
+                            data.likes += LIKE_GROWTH;
+                        } else {
+                            // pause today
+                            data.active = false;
+                        }
+                    } else {
+                        // resume chance
+                        if (mood < 0.25) {
+                            data.active = true;
+                        }
+                    }
+                    data.last = today;
+                }
+
+                localStorage.setItem(id, JSON.stringify(data));
+
+                // Update UI: "X Views" and "Y"
+                viewEl.innerText = data.views + " Views";
+                likeEl.innerText = data.likes;
+            });
+        };
+
+        // Initial run after content settles
+        setTimeout(window.runAnalyticsSimulation, 2500);
+    </script>
 
     <!-- Auth Lifecycle & Logout -->
     <script type="module">
