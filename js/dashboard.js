@@ -1403,23 +1403,27 @@ function renderOverview() {
                 <p style="color: var(--text-dim); font-size: 1.1rem;">${roleLabel} • ${college}</p>
             </div>
 
-            <!-- 2. Live Activity Widgets (Firestore Real-time) -->
-            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+            <!-- 2. Live Activity Widgets (Growth Simulated) -->
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
                 <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #2ecc71;">
-                    <div style="display:flex; justify-content:space-between;">
-                        <span style="font-size: 0.9rem; color: var(--text-dim);">🔴 Live Students</span>
-                        <span style="font-size: 0.8rem; color: #2ecc71;">● Live</span>
+                    <div class="live-header">
+                        <span class="pulse-dot"></span>
+                        <span style="font-size: 0.9rem; color: var(--text-dim);">Live Students</span>
+                        <span class="live-text">Live</span>
                     </div>
-                    <div id="stat-active" style="font-size: 2.5rem; font-weight: 700; margin-top:0.5rem;">--</div>
+                    <div id="liveStudents" style="font-size: 2.5rem; font-weight: 700; margin-top:0.5rem;">--</div>
                 </div>
                 <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #3498db;">
-                    <div style="font-size: 0.9rem; color: var(--text-dim);">🔥 Trending Now</div>
-                    <div id="stat-notes" style="font-size: 2.5rem; font-weight: 700; margin-top:0.5rem;">--</div>
-                    <div style="font-size: 0.75rem; color: var(--text-dim);">Premium Resources</div>
+                    <div style="font-size: 0.9rem; color: var(--text-dim);">🔥 Global Views</div>
+                    <div id="stat-views" style="font-size: 2.5rem; font-weight: 700; margin-top:0.5rem;">--</div>
                 </div>
                 <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #9b59b6;">
                     <div style="font-size: 0.9rem; color: var(--text-dim);">⬇️ Global Downloads</div>
-                    <div id="stat-downloads" style="font-size: 2.5rem; font-weight: 700; margin-top:0.5rem;">--</div>
+                    <div id="globalDownloads" style="font-size: 2.5rem; font-weight: 700; margin-top:0.5rem;">--</div>
+                </div>
+                <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #f1c40f;">
+                    <div style="font-size: 0.9rem; color: var(--text-dim);">🚀 Trending Now</div>
+                    <div id="trendingNow" style="font-size: 2.5rem; font-weight: 700; margin-top:0.5rem;">--</div>
                 </div>
             </div>
 
@@ -4605,3 +4609,48 @@ window.trackStudyProgress = async function (subjectId, action = 'view') {
 };
 
 window.renderOverviewSkeleton = renderDashboardSkeleton;
+
+// --- DASHBOARD SIMULATION & CHARTS ---
+// Graph logic removed
+
+// Periodic simulations for the dashboard overview
+function startDashboardSimulation() {
+    // 1. Live Students (0-8, every 30 seconds)
+    function updateLiveStudents() {
+        const el = document.getElementById("liveStudents");
+        if (el) el.innerText = Math.floor(Math.random() * 9);
+    }
+    setInterval(updateLiveStudents, 30000);
+    updateLiveStudents();
+
+    // 2. Trending Now (1-15, changes daily)
+    function updateTrendingNow() {
+        const el = document.getElementById("trendingNow");
+        if (el) {
+            // Seeded random based on date to keep it stable for 24h
+            const today = new Date().toDateString();
+            let seed = 0;
+            for (let i = 0; i < today.length; i++) seed += today.charCodeAt(i);
+            const count = (seed % 15) + 1; // 1-15
+            el.innerText = count + " Notes";
+        }
+    }
+    updateTrendingNow();
+
+    // 3. Global Downloads & Views (Sync with stats.js centralized logic)
+    function syncGlobalStats() {
+        if (typeof getStats === 'function') {
+            const stats = getStats();
+            const viewsEl = document.getElementById("stat-views");
+            const downloadsEl = document.getElementById("globalDownloads");
+
+            if (viewsEl) viewsEl.innerText = stats.formattedViews;
+            if (downloadsEl) downloadsEl.innerText = stats.formattedDownloads;
+        }
+    }
+    setInterval(syncGlobalStats, 60000);
+    syncGlobalStats();
+}
+
+// Start simulation once dashboard logic is up
+startDashboardSimulation();

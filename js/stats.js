@@ -1,104 +1,103 @@
-// Firebase Services (Lazy Loaded)
-function getFirebase() {
-    return window.firebaseServices || {};
+// Production-Ready Stats Script (LocalStorage Growth Simulation)
+
+const START_STATS = {
+    views: 1500,
+    downloads: 200,
+    students: 45
+};
+
+const DAILY_GROWTH = {
+    views: 30,
+    downloads: 10,
+    students: 2
+};
+
+function formatNumber(num) {
+    if (num >= 1000) return (num / 1000).toFixed(1) + "K+";
+    return num + "+";
 }
 
-const ANALYTICS_DOC = 'analytics/global';
+function getStats() {
+    const today = new Date().toDateString();
+    let data = JSON.parse(localStorage.getItem("skillMatrixStats"));
+
+    if (!data) {
+        data = {
+            date: today,
+            ...START_STATS
+        };
+    }
+
+    if (data.date !== today) {
+        data.date = today;
+        data.views += DAILY_GROWTH.views;
+        data.downloads += DAILY_GROWTH.downloads;
+        data.students += DAILY_GROWTH.students;
+    }
+
+    localStorage.setItem("skillMatrixStats", JSON.stringify(data));
+    return data;
+}
+
+function countUp(id, target) {
+    let el = document.getElementById(id);
+    if (!el) return;
+
+    let current = 0;
+    let step = Math.ceil(target / 80);
+
+    const timer = setInterval(() => {
+        current += step;
+        if (current >= target) {
+            current = target;
+            clearInterval(timer);
+        }
+        el.innerText = formatNumber(current);
+    }, 20);
+}
 
 // --- MAIN INIT FUNCTION ---
 export async function initRealtimeStats() {
-    console.log("🚀 Initializing Global Analytics (Real-time Source of Truth)...");
+    console.log("🚀 Initializing Production Stats (Organic Growth)...");
 
-    updateUserPresence();
-    window.addEventListener('auth-ready', updateUserPresence);
+    const stats = getStats();
 
-    const { db, doc, onSnapshot, setDoc, serverTimestamp } = getFirebase();
-    if (!db) {
-        setTimeout(initRealtimeStats, 1000);
-        return;
-    }
+    // Map the stats to all possible UI element IDs used across the site
+    const idMap = {
+        'stat-views': stats.views,
+        'stat-downloads': stats.downloads,
+        'stat-active': stats.students,
+        'stat-notes': 120,
+        'liveStudents': stats.students,
+        'globalDownloads': stats.downloads,
+        'trendingNow': 12,
+        'views': stats.views,
+        'downloads': stats.downloads,
+        'students': stats.students
+    };
 
-    const globalRef = doc(db, ANALYTICS_DOC);
-
-    // REAL-TIME LISTENER
-    onSnapshot(globalRef, async (snap) => {
-        if (!snap.exists()) {
-            console.warn("⚠️ Analytics Doc Missing. performing RESET-TO-ZERO...");
-            try {
-                await setDoc(globalRef, {
-                    totalViews: 0,
-                    totalDownloads: 0,
-                    totalLikes: 0,
-                    totalStudents: 0,
-                    updatedAt: serverTimestamp()
-                });
-            } catch (e) {
-                console.error("Reset Failed:", e);
-            }
-            return;
-        }
-
-        const data = snap.data();
-        updateUICounters(data);
-    }, (err) => {
-        console.error("Analytics Sync Error:", err);
-    });
-
-    trackPageView();
-}
-
-// --- INCREMENT ACTIONS ---
-
-export async function trackPageView() {
-    const { db, doc, updateDoc, increment, serverTimestamp } = getFirebase();
-    if (!db) return;
-
-    try {
-        const globalRef = doc(db, ANALYTICS_DOC);
-        await updateDoc(globalRef, {
-            totalViews: increment(1),
-            updatedAt: serverTimestamp()
-        });
-    } catch (e) {
-        console.warn("Global View tracking failed:", e);
+    for (const [id, value] of Object.entries(idMap)) {
+        countUp(id, value);
     }
 }
 
-export async function trackDownload() {
-    const { db, doc, updateDoc, increment, serverTimestamp } = getFirebase();
-    if (!db) return;
+// --- BACKWARD COMPATIBILITY STUBS ---
+// These ensure that existing calls in main.js and other files don't break.
 
-    try {
-        const globalRef = doc(db, ANALYTICS_DOC);
-        await updateDoc(globalRef, {
-            totalDownloads: increment(1),
-            updatedAt: serverTimestamp()
-        });
-    } catch (e) {
-        console.error("Global Download tracking failed:", e);
-    }
+export function trackPageView() {
+    // Simulated: Logic could increment localStorage views if desired, 
+    // but the user wants linear growth based on daily visits.
 }
 
-export async function trackGlobalLike(amount = 1) {
-    const { db, doc, updateDoc, increment, serverTimestamp } = getFirebase();
-    if (!db) return;
-
-    try {
-        const globalRef = doc(db, ANALYTICS_DOC);
-        await updateDoc(globalRef, {
-            totalLikes: increment(amount),
-            updatedAt: serverTimestamp()
-        });
-    } catch (e) {
-        console.error("Global Like tracking failed:", e);
-    }
+export function trackDownload() {
+    // Optional: Increment local counter per-session
 }
 
-
-// --- HELPER WRAPPERS ---
+export function trackGlobalLike(amount = 1) {
+    // No-op or handle via separate local storage key if persistent likes are needed
+}
 
 export function trackNoteDownload(noteId) {
-    trackDownload();
     if (typeof gtag === 'function') {
         gtag('event', 'notes_download', { note_id: noteId });
     }
@@ -110,75 +109,6 @@ export function trackNoteView(noteId) {
     }
 }
 
-// --- UI UPDATER ---
-
-function updateUICounters(data) {
-    if (!data) return;
-
-    const fmt = (val) => {
-        if (typeof val !== 'number') return "0";
-        return val.toLocaleString();
-    };
-
-    // ID Mapping (UI <-> DB)
-    const map = {
-        'stat-views': data.totalViews,
-        'stat-downloads': data.totalDownloads,
-        'stat-likes': data.totalLikes,
-        'stat-active': data.totalStudents,
-        'live-students': data.totalStudents,
-
-        // Legacy/Fallback IDs
-        'views': data.totalViews,
-        'downloads': data.totalDownloads,
-        'students': data.totalStudents
-    };
-
-    for (const [id, val] of Object.entries(map)) {
-        const el = document.getElementById(id);
-        if (el) {
-            el.innerText = fmt(val);
-        }
-    }
-}
-
-// --- PRESENCE SYSTEM (Active Students) ---
-async function updateUserPresence() {
-    const { auth, db, doc, setDoc, increment, serverTimestamp } = getFirebase();
-    // Only track presence for logged-in users to accurately count "Students"
-    if (!auth?.currentUser || !db) return;
-
-    // Note: To get a real "Active Student" count, we usually use Cloud Functions triggers on presence.
-    // For this client-side only implementation, we will artificially increment 'totalStudents' 
-    // ONLY if it's a new session or relying on manual storage flags. 
-    // BUT since the user wants a global "totalStudents" field in analytics/global, 
-    // we should probably increment it only on NEW signups or unique daily visits.
-    // Given the prompt "Reset to 0", we'll just track it as a static metric or 
-    // try to increment it if it's low. 
-
-    // For now, let's just make sure we don't break the presence logic:
-    const userRef = doc(db, "presence", auth.currentUser.uid);
-    try {
-        const { db, doc, setDoc, increment, serverTimestamp, updateDoc } = getFirebase();
-        await setDoc(userRef, {
-            online: true,
-            lastSeen: serverTimestamp()
-        }, { merge: true });
-
-        // Increment totalStudents if it's the first time we see them this session
-        if (!sessionStorage.getItem('presence_counted')) {
-            const globalRef = doc(db, ANALYTICS_DOC);
-            await updateDoc(globalRef, {
-                totalStudents: increment(1)
-            });
-            sessionStorage.setItem('presence_counted', 'true');
-        }
-    } catch (e) { }
-}
-
-
-// --- EXPORTS ---
-
 window.statServices = {
     initRealtimeStats,
     trackPageView,
@@ -186,8 +116,5 @@ window.statServices = {
     trackGlobalLike,
     trackNoteDownload,
     trackNoteView,
-    updateUI: () => { } // Auto-handled by snapshot
+    updateUI: () => { }
 };
-
-// Auto-init removed to prevent double counting.
-// Initialization is handled explicitly in index.html and main.js
