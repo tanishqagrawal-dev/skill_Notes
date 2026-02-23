@@ -322,6 +322,7 @@ input:checked+.toggle-slider:before {
     border: none;
     transition: var(--transition-smooth);
     font-family: var(--font-body);
+    white-space: nowrap;
     display: inline-flex;
     align-items: center;
     justify-content: center;

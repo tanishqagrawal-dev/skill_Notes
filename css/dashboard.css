@@ -359,6 +359,35 @@
     box-shadow: 0 0 10px var(--secondary);
 }
 
+/* Drive Tabs */
+.drive-tab {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-glass);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition-base);
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.drive-tab:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-main);
+}
+
+.drive-tab.active {
+    background: var(--primary);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 15px rgba(123, 97, 255, 0.4);
+}
+
 .notes-list-container-pro {
     display: flex;
     flex-direction: column;
@@ -2067,7 +2096,7 @@
 
     /* Subject Page Mobile Fixes */
     .subject-page-container {
-        padding-top: 2rem;
+        padding-top: 0;
     }
 
     .subject-title-pro {
@@ -2119,9 +2148,9 @@
 
     /* Note Card Pro Fixes */
     #final-notes-view {
-        padding: 1.5rem 1rem !important;
-        margin-top: 4rem;
-        /* Buffer for sticky top bar */
+        padding: 1rem 1rem !important;
+        margin-top: 1rem;
+        /* Adjusted buffer */
     }
 
     .note-card-pro {

@@ -234,4 +234,29 @@ input:checked+.slider:before {
         white-space: nowrap;
         margin-bottom: 0;
     }
+
+    .profile-edit-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .profile-avatar-large {
+        margin: 0 auto !important;
+        flex-shrink: 0;
+    }
+
+    .settings-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .settings-input {
+        width: 100%;
+    }
+
+    .toggle-switch {
+        align-self: flex-start;
+    }
 }
