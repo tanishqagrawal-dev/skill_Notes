@@ -44,14 +44,6 @@
     .grid-2-col {
         grid-template-columns: 1fr !important;
     }
-
-    .my-uploads-pane {
-        padding: 1.5rem 1rem !important;
-    }
-}
-
-.my-uploads-pane {
-    padding: 2rem;
 }
 
 .dashboard-container {

@@ -907,11 +907,6 @@ function initTabs() {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             item.classList.add('active');
             renderTabContent(item.dataset.tab);
-            // Close sidebar automatically on mobile
-            if (window.innerWidth <= 768) {
-                const sidebar = document.querySelector('.sidebar');
-                if (sidebar) sidebar.classList.remove('active');
-            }
         };
     });
 }
@@ -1040,7 +1035,7 @@ function renderTabContent(tabId) {
                 contentArea.innerHTML = "<p>Admin Console module loading...</p>";
             }
         } else if (tabId === 'my-uploads') {
-            contentArea.innerHTML = `<div class="tab-pane active fade-in my-uploads-pane">
+            contentArea.innerHTML = `<div class="tab-pane active fade-in" style="padding: 2rem;">
                 <h1 class="font-heading">📤 My <span class="gradient-text">Uploads</span></h1>
                 <p style="color: var(--text-dim); margin-bottom: 2rem;">Track the status of your contributed materials.</p>
                 <div id="my-uploads-grid" class="notes-grid-pro" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;"></div>
