@@ -234,7 +234,7 @@ function handleAuthReady(data) {
             // Fallback for old URL path logic
             if (!tabParam) {
                 const pathParts = window.location.pathname.split('/');
-                const dashIdx = pathParts.findIndex(p => p === 'dashboard' || p === '/pages/dashboard/');
+                const dashIdx = pathParts.findIndex(p => p === 'dashboard' || p === 'dashboard.html');
                 if (dashIdx !== -1 && pathParts[dashIdx + 1]) {
                     tabParam = pathParts[dashIdx + 1];
                     console.log("📍 Detected Tab from Path:", tabParam);
@@ -973,9 +973,9 @@ function renderTabContent(tabId) {
         const pathParts = base.split('/');
         const pagesIdx = pathParts.indexOf('pages');
 
-        // Ensure we explicitly refer to dashboard subfolder
+        // Ensure we explicitly refer to dashboard.html to prevent GitHub pages 404s
         if (pagesIdx !== -1) {
-            base = pathParts.slice(0, pagesIdx + 1).join('/') + '/dashboard/';
+            base = pathParts.slice(0, pagesIdx + 1).join('/') + '/dashboard.html';
         }
 
         const targetPath = tabId === 'overview' ? base : `${base}?tab=${tabId}`;
@@ -1478,7 +1478,7 @@ function renderOverview() {
                         <h3 class="font-heading" style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--secondary);">✨ ${aiRec.title}</h3>
                         <p style="margin-bottom: 2rem; max-width: 85%; font-size: 1.1rem; line-height: 1.6; color: #eee;">${aiRec.msg}</p>
                         <div style="display: flex; gap: 1rem;">
-                            <button class="btn btn-primary" onclick="${isGuest ? "window.location.href='/pages/auth/'" : (aiRec.actionType === 'ai-tools' || aiRec.actionType === 'planner' ? "window.lockOverlay.show()" : `renderTabContent('${aiRec.actionType}')`)}">${aiRec.actionLabel}</button>
+                            <button class="btn btn-primary" onclick="${isGuest ? "window.location.href='../pages/auth.html'" : (aiRec.actionType === 'ai-tools' || aiRec.actionType === 'planner' ? "window.lockOverlay.show()" : `renderTabContent('${aiRec.actionType}')`)}">${aiRec.actionLabel}</button>
                             ${!isGuest ? '<button class="btn btn-ghost" onclick="renderTabContent(\'planner\')">Schedule Revision</button>' : ''}
                         </div>
                     </div>

@@ -82,9 +82,13 @@ class LockOverlay {
         this.container.classList.remove('active');
 
         // Redirect back for standalone pages
+<<<<<<< HEAD
         const isStandalone = window.location.pathname.includes('/pages/ai-tools/') || window.location.pathname.includes('/pages/study-planner/') || window.location.pathname.includes('/pages/private-drive/') || window.location.pathname.includes('/pages/leaderboard/');
+=======
+        const isStandalone = window.location.pathname.includes('ai-tools.html') || window.location.pathname.includes('study-planner.html');
+>>>>>>> parent of 6ff4f13 (c)
         if (isStandalone) {
-            window.location.href = '/pages/dashboard/';
+            window.location.href = 'dashboard.html';
         }
     }
 }

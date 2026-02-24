@@ -25,7 +25,7 @@
             }
         }(window.location))
     </script>
-    <link rel="shortcut icon" href="/assets/logo.jpg" type="image/jpeg">
+    <link rel="shortcut icon" href="../assets/logo.jpg" type="image/jpeg">
     <title>Dashboard | SKiL MATRiX Notes</title>
 
     <!-- Fonts -->
@@ -37,12 +37,12 @@
         rel="stylesheet">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="/css/main.css">
-    <link rel="stylesheet" href="/css/dashboard.css">
-    <link rel="stylesheet" href="/css/advanced_dashboard.css">
-    <link rel="stylesheet" href="/css/settings.css">
-    <link rel="stylesheet" href="/css/admin.css">
-    <link rel="stylesheet" href="/css/lockOverlay.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/advanced_dashboard.css">
+    <link rel="stylesheet" href="../css/settings.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/lockOverlay.css">
 </head>
 
 <body class="dashboard-body">
@@ -51,12 +51,12 @@
         <!-- Sidebar -->
         <aside class="sidebar glass-card">
             <div class="sidebar-header" style="display: flex; align-items: center; gap: 10px;">
-                <img src="/assets/logo.jpg" alt="SKiL MATRiX" style="height: 40px; border-radius: 50%;">
+                <img src="../assets/logo.jpg" alt="SKiL MATRiX" style="height: 40px; border-radius: 50%;">
                 <span class="logo-text font-heading" style="font-size: 1.2rem;">SKiL MATRiX <span class="highlight"
                         style="font-weight: 800;">NOTES</span></span>
             </div>
             <nav class="sidebar-nav">
-                <a href="/index.html" class="nav-item">
+                <a href="../index.html" class="nav-item">
                     <span class="icon">⬅️</span> Back to Home
                 </a>
                 <div class="nav-divider"></div>
@@ -225,21 +225,21 @@
         })();
     </script>
 
-    <script type="module" src="/js/firebase-config.js"></script>
-    <script src="/js/ai-client.js" defer></script>
-    <script src="/js/settings.js" defer></script>
-    <script src="/js/upload-helper.js" defer></script>
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script src="../js/ai-client.js" defer></script>
+    <script src="../js/settings.js" defer></script>
+    <script src="../js/upload-helper.js" defer></script>
     <script type="module">
-        import { initRealtimeStats } from '/js/stats.js';
+        import { initRealtimeStats } from '../js/stats.js';
         initRealtimeStats();
     </script>
-    <script src="/js/admin-console.js" defer></script>
-    <script src="/js/coadmin-module.js" defer></script>
-    <script src="/js/note-actions.js" defer></script>
-    <script src="/js/lockOverlay.js" defer></script>
-    <script type="module" src="/js/notes-hub.js" defer></script>
-    <script src="/js/footer.js" defer></script>
-    <script type="module" src="/js/dashboard.js"></script>
+    <script src="../js/admin-console.js" defer></script>
+    <script src="../js/coadmin-module.js" defer></script>
+    <script src="../js/note-actions.js" defer></script>
+    <script src="../js/lockOverlay.js" defer></script>
+    <script type="module" src="../js/notes-hub.js" defer></script>
+    <script src="../js/footer.js" defer></script>
+    <script type="module" src="../js/dashboard.js"></script>
 
     <!-- SaaS-Grade Refined Fake Analytics Engine (Identity-Based) -->
     <script>
@@ -308,7 +308,7 @@
 
     <!-- Auth Lifecycle & Logout -->
     <script type="module">
-        import { initAuth } from '/js/auth.js';
+        import { initAuth } from '../js/auth.js';
 
         // Boot up real Firebase auth in background
         // requestIdleCallback keeps the immediate load fast

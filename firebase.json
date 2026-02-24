@@ -18,11 +18,11 @@
         "rewrites": [
             {
                 "source": "/notes/**",
-                "destination": "/pages/notes/index.html"
+                "destination": "/pages/notes.html"
             },
             {
                 "source": "/pages/dashboard/**",
-                "destination": "/pages/dashboard/index.html"
+                "destination": "/pages/dashboard.html"
             }
         ],
         "headers": [

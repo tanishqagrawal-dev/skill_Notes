@@ -27,7 +27,7 @@ function handleAuthReady(data) {
         // STRICT ROLE CHECK
         if (currentUser.role !== 'coadmin' && currentUser.role !== 'superadmin') {
             alert("⛔ Access Denied. Redirecting...");
-            window.location.href = '/pages/dashboard/';
+            window.location.href = 'dashboard.html';
             return;
         }
 
@@ -128,7 +128,7 @@ function initStrictMode() {
     onAuthStateChanged(auth, async u => {
         if (!u) {
             console.log("No user, redirecting...");
-            window.location.href = '/index.html'; // Or auth.html
+            window.location.href = '../index.html'; // Or auth.html
             return;
         }
 
@@ -160,7 +160,7 @@ function initStrictMode() {
                             <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.25rem;">Your Unique ID (UID):</p>
                             <code style="color: #7B61FF; font-weight: bold; font-family: monospace;">${u.uid}</code>
                         </div>
-                        <a href="/pages/dashboard/" style="color:#7B61FF; text-decoration: none; border-bottom: 1px solid #7B61FF;">Return to Member Dashboard</a>
+                        <a href="dashboard.html" style="color:#7B61FF; text-decoration: none; border-bottom: 1px solid #7B61FF;">Return to Member Dashboard</a>
                     </div>
                 `;
             }
@@ -223,7 +223,7 @@ function initRealtimeAccessCheck(uid) {
             const data = docSnap.data();
             if (data.role !== 'coadmin' && data.role !== 'superadmin' && data.role !== 'admin') {
                 console.warn("⛔ Role revoked in realtime. Redirecting...");
-                window.location.href = '/index.html';
+                window.location.href = '../index.html';
             }
         }
     });

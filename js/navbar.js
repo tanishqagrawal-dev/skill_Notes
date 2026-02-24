@@ -15,35 +15,43 @@ function renderNavbar() {
     // Detect if we are in a subdirectory (e.g. /pages/) or root
     // Simplest check: does the path contain '/pages/'?
     const isPagesDir = window.location.pathname.includes('/pages/');
-    const basePath = isPagesDir ? '/' : ''; // Use absolute paths mostly now
+    const basePath = isPagesDir ? '../' : '';
 
-    let pathParts = window.location.pathname.split('/').filter(p => p);
-    let currentPage = window.location.pathname;
-    if (currentPage === '/' || currentPage === '/index.html') currentPage = '/index.html';
-    if (window.location.pathname.includes('/notes/')) currentPage = '/pages/notes/';
+    let pathParts = window.location.pathname.split('/');
+    let currentPage = pathParts.pop() || 'index.html';
+    if (currentPage === '' || window.location.pathname.startsWith('/notes')) currentPage = 'notes.html';
 
     // Helper to get correct relative path for nav links
     const getLinkPath = (page) => {
-        if (page.startsWith('index.html')) return '/index.html';
-        if (page.startsWith('/pages/')) return page;
-        if (page.startsWith('pages/')) return '/' + page;
-        return page;
+        // If we are at root and link is index.html, it's just index.html (or ./index.html)
+        // If we are at pages/ and link is index.html, it's ../index.html
+        if (page.startsWith('index.html')) {
+            return basePath + page;
+        }
+        // If we are at root and link is pages/something, it's pages/something
+        // If we are at pages/ and link is pages/something, it's something (sibling)
+        if (page.startsWith('pages/')) {
+            const targetPage = page.split('/')[1];
+            return isPagesDir ? targetPage : page;
+        }
+        // Fallback for other assets if needed
+        return basePath + page;
     };
 
     container.innerHTML = `
         <nav class="glass-nav">
             <div class="container nav-content">
-                <div class="logo" onclick="window.location.href='/index.html'"
+                <div class="logo" onclick="window.location.href='${basePath}index.html'"
                     style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
-                    <img src="/assets/logo.jpg" alt="SKiL MATRiX" style="height: 40px; border-radius: 50%;">
+                    <img src="${basePath}assets/logo.jpg" alt="SKiL MATRiX" style="height: 40px; border-radius: 50%;">
                     <span class="logo-text">SKiL MATRiX <span class="highlight"
                             style="font-weight: 800;">NOTES</span></span>
                 </div>
                 <div class="nav-links" id="nav-links">
-                    <a href="${getLinkPath('index.html#features')}" class="${currentPage === '/index.html' ? 'active' : ''}">Features</a>
-                    <a href="${getLinkPath('/pages/dashboard/')}?tab=notes" class="${currentPage === '/pages/dashboard/' && window.location.search.includes('tab=notes') ? 'active' : ''}">Notes Hub</a>
-                    <a href="${getLinkPath('/pages/dashboard/')}?tab=leaderboard" class="${currentPage === '/pages/dashboard/' && window.location.search.includes('tab=leaderboard') ? 'active' : ''}">Leaderboard</a>
-                    <a href="${getLinkPath('/pages/dashboard/')}" class="${currentPage === '/pages/dashboard/' && !window.location.search.includes('tab=notes') && !window.location.search.includes('tab=leaderboard') ? 'active' : ''}">Dashboard</a>
+                    <a href="${getLinkPath('index.html#features')}" class="${currentPage === 'index.html' ? 'active' : ''}">Features</a>
+                    <a href="${getLinkPath('pages/dashboard.html')}?tab=notes" class="${currentPage === 'dashboard.html' && window.location.search.includes('tab=notes') ? 'active' : ''}">Notes Hub</a>
+                    <a href="${getLinkPath('pages/dashboard.html')}?tab=leaderboard" class="${currentPage === 'dashboard.html' && window.location.search.includes('tab=leaderboard') ? 'active' : ''}">Leaderboard</a>
+                    <a href="${getLinkPath('pages/dashboard.html')}" class="${currentPage === 'dashboard.html' && !window.location.search.includes('tab=notes') && !window.location.search.includes('tab=leaderboard') ? 'active' : ''}">Dashboard</a>
                     <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" target="_blank" rel="noopener noreferrer">Community</a>
                     <button class="btn btn-primary" id="navbar-auth-btn">Get Started</button>
                 </div>
@@ -74,17 +82,17 @@ function updateNavbarAuthButton(basePath) {
         if (fullUser || (window.firebaseServices && window.firebaseServices.auth.currentUser)) {
             authBtn.textContent = 'Get Started';
             authBtn.onclick = () => {
-                window.location.href = `/pages/dashboard/`;
+                window.location.href = `${basePath}pages/dashboard.html`;
             };
         } else if (guestUser) {
             authBtn.textContent = 'Get Started';
             authBtn.onclick = () => {
-                window.location.href = `/pages/dashboard/`;
+                window.location.href = `${basePath}pages/dashboard.html`;
             };
         } else {
             authBtn.textContent = 'Get Started';
             authBtn.onclick = () => {
-                window.location.href = `/pages/auth/`;
+                window.location.href = `${basePath}pages/auth.html`;
             };
         }
     };
