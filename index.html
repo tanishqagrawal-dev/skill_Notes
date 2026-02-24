@@ -29,10 +29,10 @@
                 const searchStr = l.search[1] === '/' ? l.search : '?' + decoded;
                 // If deep link points to dashboard or standalone notes, redirect to those entry points
                 if (decoded.startsWith('/pages/dashboard') || decoded.startsWith('/dashboard')) {
-                    var target = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + l.pathname.replace(/index\.html$/, '').split('/pages/')[0].replace(/\/$/, '') + '/pages/dashboard.html' + searchStr + l.hash;
+                    var target = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + l.pathname.replace(/index\.html$/, '').split('/pages/')[0].replace(/\/$/, '') + '/pages/dashboard' + searchStr + l.hash;
                     window.location.replace(target);
                 } else if (decoded.startsWith('/notes') || decoded.includes('/notes/')) {
-                    var target = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + l.pathname.replace(/index\.html$/, '').split('/notes/')[0].replace(/\/$/, '') + '/pages/notes.html' + searchStr + l.hash;
+                    var target = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + l.pathname.replace(/index\.html$/, '').split('/notes/')[0].replace(/\/$/, '') + '/pages/notes' + searchStr + l.hash;
                     window.location.replace(target);
                 } else if (l.search[1] === '/') {
                     window.history.replaceState(null, null,

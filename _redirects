@@ -1,14 +1,9 @@
-# 1. Force redirect from .html to clean URLs (301!)
-/pages/:page.html      /pages/:page             301!
-
-# 2. Support sub-path routing for JS-driven pages (200)
+# 1. Support sub-path routing for JS-driven pages (200)
 /pages/dashboard/*     /pages/dashboard.html    200
 /pages/auth/*          /pages/auth.html         200
 
-# 3. Standard clean URL rewrites (200)
-/pages/dashboard       /pages/dashboard.html    200
-/pages/auth            /pages/auth.html         200
+# 2. General clean URL support (200)
 /pages/*               /pages/:splat.html       200
 
-# 4. Global SPA fallback
+# 3. Global SPA fallback
 /*                     /index.html              200
