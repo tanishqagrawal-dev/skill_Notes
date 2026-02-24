@@ -1,5 +1,5 @@
-# 1. Force redirect from .html to clean URLs (301)
-/pages/:page.html      /pages/:page             301
+# 1. Force redirect from .html to clean URLs (301!)
+/pages/:page.html      /pages/:page             301!
 
 # 2. Support sub-path routing for JS-driven pages (200)
 /pages/dashboard/*     /pages/dashboard.html    200
