@@ -1,4 +1,4 @@
-# Redirects for SKiL MATRiX Deep Linking
-/notes/*           /pages/notes.html      200
-/pages/dashboard/* /pages/dashboard.html  200
-/*                 /index.html            200
+/pages/dashboard   /pages/dashboard.html   200
+/pages/auth        /pages/auth.html        200
+/pages/*           /pages/:splat.html      200
+/*                 /index.html             200
