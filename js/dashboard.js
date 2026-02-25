@@ -876,7 +876,7 @@ function initTabs() {
     // 3. Moderation & Admin Tools
     if (currentUser.role === 'coadmin' || currentUser.role === 'admin' || currentUser.role === 'superadmin') {
         // Co-Admin Hub - Locked
-        const modHub = createNavItem('moderation-hub', '🛡️', 'Moderation Hub <span style="font-size:0.6rem; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; margin-left:5px;">🔒 Soon</span>', true);
+        const modHub = createNavItem('moderation-hub', '🛡️', 'Moderation Hub <span style="font-size:0.6rem; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; margin-left:5px;">🔒</span>', true);
         modHub.style.opacity = '0.6';
         modHub.style.cursor = 'not-allowed';
         modHub.onclick = (e) => {
@@ -2345,8 +2345,8 @@ window.showNotes = function (activeTab = 'notes') {
                             <span class="meta-badge">${selState.year.toUpperCase()}</span>
                         </div>
                         <div class="ai-btns-row" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
-                            <button class="btn btn-primary btn-sm" onclick="showAIModal('summary', '${selState.subject.name}')">✨ AI Summary (Coming Soon)</button>
-                            <button class="btn btn-ghost btn-sm ai-questions-btn" style="border: 1px solid var(--primary);" onclick="showAIModal('questions', '${selState.subject.name}')">📝 Model Questions (Coming Soon)</button>
+                            <button class="btn btn-primary btn-sm" onclick="showAIModal('summary', '${selState.subject.name}')">✨ AI Summary</button>
+                            <button class="btn btn-ghost btn-sm ai-questions-btn" style="border: 1px solid var(--primary);" onclick="showAIModal('questions', '${selState.subject.name}')">📝 Model Questions</button>
                             <button class="btn btn-ghost btn-sm syllabus-btn" style="border: 1px solid var(--primary);" onclick="showAIModal('syllabus', '${selState.subject.name}')">📖 Syllabus</button>
                         </div>
                     </div>

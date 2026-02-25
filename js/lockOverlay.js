@@ -32,6 +32,9 @@ class LockOverlay {
                 </div>
                 <h1 class="coming-soon-title">COMING<br>SOON</h1>
                 <p class="development-caption">This feature is currently under development</p>
+                <button class="primary-btn" style="margin-top: 32px; width: 100%; border-radius: 12px; font-weight: 600;" onclick="window.lockOverlay.hide()">
+                    🔙 Back to Dashboard
+                </button>
                 <div style="margin-top:24px; font-size: 0.7rem; color: rgba(255,255,255,0.3); letter-spacing: 2px;">PRESS ESC TO RETURN</div>
             </div>
         `;
@@ -90,6 +93,13 @@ class LockOverlay {
 
         if (isStandalone) {
             window.location.href = 'dashboard';
+        } else if (window.location.pathname.includes('dashboard')) {
+            // For SPA mode in dashboard.html, revert to overview
+            if (typeof renderTabContent === 'function') {
+                const overviewNode = document.querySelector('.nav-item[data-tab="overview"]');
+                if (overviewNode) overviewNode.click();
+                else renderTabContent('overview');
+            }
         }
     }
 }
