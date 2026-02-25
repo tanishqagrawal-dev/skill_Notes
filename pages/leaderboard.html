@@ -136,6 +136,23 @@
     <script type="module" src="../js/firebase-config.js"></script>
     <script src="../js/leaderboard.js"></script>
     <script src="../js/footer.js"></script>
+    <!-- Voiceflow Chatbot -->
+    <script type="text/javascript">
+        (function (d, t) {
+            var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
+            v.onload = function () {
+                window.voiceflow.chat.load({
+                    verify: { projectID: '67a8c08ad2483de383f344c4' },
+                    url: 'https://general-runtime.voiceflow.com',
+                    versionID: 'production',
+                    voice: {
+                        url: "https://runtime-api.voiceflow.com"
+                    }
+                });
+            }
+            v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
+        })(document, 'script');
+    </script>
 </body>
 
 </html>

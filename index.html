@@ -452,6 +452,21 @@
         const observer = new MutationObserver(syncTheme);
         observer.observe(document.body, { attributes: true });
     </script>
-</body>
+    <!-- Voiceflow Chatbot -->
+    <script>
+        (function (d, t) {
+            var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
+            v.onload = function () {
+                window.voiceflow.chat.load({
+                    verify: { projectID: '67a8c08ad2483de383f344c4' },
+                    url: 'https://general-runtime.voiceflow.com',
+                    versionID: 'production',
+                });
+            };
+            v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs";
+            v.type = "text/javascript";
+            s.parentNode.insertBefore(v, s);
+        })(document, 'script');
+    </script>
 
 </html>
