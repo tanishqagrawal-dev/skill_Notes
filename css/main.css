@@ -747,6 +747,8 @@ input:checked+.toggle-slider:before {
 .footer-content {
     display: flex;
     justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
     margin-bottom: 4rem;
 }
 
@@ -758,7 +760,15 @@ input:checked+.toggle-slider:before {
 
 .footer-links {
     display: flex;
-    gap: 4rem;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .footer-links {
+        gap: 2rem;
+        flex-direction: column;
+    }
 }
 
 .link-group h4 {
