@@ -50,3 +50,5 @@ Redirect flows often fail on local environments (`file://`) or due to strict bro
 1.  Click "Continue as Guest".
 2.  Dashboard should load.
 3.  Tools (Notes, Planner) should be clickable.
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/e1131f35-bf93-4bf7-a121-1542c9aa6ad3/deploy-status)](https://app.netlify.com/projects/skillnotes/deploys)
