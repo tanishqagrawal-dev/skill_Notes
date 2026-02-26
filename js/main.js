@@ -1,3 +1,20 @@
+const SITE_VERSION = "2.5";
+
+(function checkVersion() {
+    const storedVersion = localStorage.getItem("site_version");
+    if (storedVersion !== SITE_VERSION) {
+        localStorage.clear();
+        if ('caches' in window) {
+            caches.keys().then(names => {
+                names.forEach(name => caches.delete(name));
+            });
+        }
+        localStorage.setItem("site_version", SITE_VERSION);
+        // Force reload from server
+        window.location.reload(true);
+    }
+})();
+
 // Sample Data
 const notesData = [
     {
