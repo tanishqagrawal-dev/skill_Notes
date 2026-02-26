@@ -1,8 +1,17 @@
-/*
-  Cache-Control: public, max-age=31536000, must-revalidate
+# HTML files should not be cached aggressively to ensure users see recent updates
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+/
+  Cache-Control: public, max-age=0, must-revalidate
 
-# Do not cache sensitive pages
-/pages/dashboard.html
-  Cache-Control: no-cache
-/pages/admin-dashboard.html
-  Cache-Control: no-cache
+# Static assets with versioning (query strings) can be cached longer
+/css/*
+  Cache-Control: public, max-age=31536000, immutable
+/js/*
+  Cache-Control: public, max-age=31536000, immutable
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Fallback for other assets
+/*
+  Cache-Control: public, max-age=86400, must-revalidate

@@ -40,7 +40,12 @@ const Roles = {
 
 // --- GLOBAL STATE ---
 const GlobalData = {
-    colleges: [], // Now fetched dynamically from Firestore
+    colleges: [
+        { id: 'medicaps', name: 'Medi-Caps University', status: 'active' },
+        { id: 'lnct', name: 'LNCT College Bhopal', status: 'active' },
+        { id: 'lpu', name: 'Lovely Professional University', status: 'active' },
+        { id: 'iitd', name: 'IIT Delhi', status: 'locked' }
+    ], // Now fetched dynamically from Firestore, seeded with defaults for refresh reliability
     branches: [
         { id: 'cse', name: 'Computer Science', icon: '💻' },
         { id: 'ece', name: 'Electronics', icon: '⚡' },

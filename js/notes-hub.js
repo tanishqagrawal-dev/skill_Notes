@@ -165,6 +165,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Render Global Showcase
     renderGlobalShowcase();
+
+    // Listen for real-time college updates from dashboard.js
+    window.addEventListener('collegesUpdated', (e) => {
+        console.log("♻️ Notes Hub: Colleges Updated, refreshing UI...");
+        const route = RoutingSystem.parseRoute();
+        if (!route.college) {
+            renderCollegeStep();
+        }
+    });
 });
 
 // Handle browser back/forward buttons
@@ -219,15 +228,24 @@ window.renderCollegeStep = function () {
     const container = document.getElementById('explorer-content');
     if (!container) return;
 
-    // Reset Title
-    document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Institution</span>`;
-    document.getElementById('explorer-sub-title').innerText = `Choose your college to start browsing localized content.`;
+    // Handle empty state (Loading from Firestore)
+    if (!GlobalData.colleges || GlobalData.colleges.length === 0) {
+        container.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 4rem; opacity: 0.7;">
+                <div class="loader-ripple" style="margin: 0 auto 1.5rem;"><div></div><div></div></div>
+                <h3>Syncing Institutions...</h3>
+                <p>Establishing connection to Academic Cloud.</p>
+            </div>`;
+        return;
+    }
 
     container.innerHTML = GlobalData.colleges.map(c => `
-        <div class="selection-card glass-card" onclick="selectCollege('${c.id}', '${c.name}')">
-            <div class="card-icon" style="font-size: 3rem;">${c.logo}</div>
+        <div class="selection-card glass-card ${c.status === 'locked' ? 'locked' : ''}" 
+             onclick="${c.status === 'locked' ? 'window.lockOverlay.show()' : `selectCollege('${c.id}', '${c.name}')`}">
+            <div class="card-icon" style="font-size: 3rem;">${c.logo || '🏛️'}</div>
             <h3 class="font-heading" style="margin-top: 1.5rem;">${c.name}</h3>
-            <p style="color: var(--text-dim); margin-top: 0.5rem;">Verified Academic Partner</p>
+            <p style="color: var(--text-dim); margin-top: 0.5rem;">${c.status === 'locked' ? 'Coming Soon' : 'Verified Academic Partner'}</p>
+            ${c.status === 'locked' ? '<div style="position:absolute; top:10px; right:10px; opacity:0.5;">🔒</div>' : ''}
         </div>
     `).join('');
 };
