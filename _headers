@@ -1,17 +1,9 @@
-# HTML files should not be cached aggressively to ensure users see recent updates
+# HTML files - never cached to ensure immediate updates
 /*.html
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: no-cache, no-store, must-revalidate
 /
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: no-cache, no-store, must-revalidate
 
-# Static assets with versioning (query strings) can be cached longer
-/css/*
-  Cache-Control: public, max-age=31536000, immutable
-/js/*
-  Cache-Control: public, max-age=31536000, immutable
-/assets/*
-  Cache-Control: public, max-age=31536000, immutable
-
-# Fallback for other assets
+# Static assets - aggressively cached (cache busted via ?v= query strings)
 /*
-  Cache-Control: public, max-age=86400, must-revalidate
+  Cache-Control: public, max-age=31536000, immutable
