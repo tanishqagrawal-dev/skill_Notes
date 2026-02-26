@@ -134,6 +134,23 @@ const GlobalData = {
         ],
         'cse-Semester 8': [
             { id: 'proj-2', name: 'Project-II', icon: '🚀', code: 'CS3PC08', description: 'Major project phase II: implementation and testing.' }
+        ],
+        // --- LNCT COLLEGE BHOPAL (Unique Subjects) ---
+        'lnct-cse-Semester 1': [
+            { id: 'chemistry', name: 'Engineering Chemistry', icon: '🧪', code: 'BT101', description: 'Chemical engineering properties and basics.' },
+            { id: 'math-1', name: 'Mathematics I', icon: '📐', code: 'BT102', description: 'Calculus, Linear Algebra and differential equations.' },
+            { id: 'english', name: 'English for Communication', icon: '🗣️', code: 'BT103', description: 'Professional writing and verbal communication.' },
+            { id: 'bee', name: 'Basic Electrical & Electronics Engineering', icon: '🔌', code: 'BT104', description: 'Semiconductor devices and circuits.' },
+            { id: 'graphics', name: 'Engineering Graphics', icon: '📐', code: 'BT105', description: 'Technical drawing, projection and CAD basics.' },
+            { id: 'mfg-prac', name: 'Manufacturing Practices', icon: '🛠️', code: 'BT106', description: 'Hands-on practice with tools.' }
+        ],
+        'lnct-cse-Semester 2': [
+            { id: 'physics', name: 'Engineering Physics', icon: '⚛️', code: 'BT201', description: 'Quantum physics, optics and semiconductor theory.' },
+            { id: 'math-2', name: 'Mathematics II', icon: '📉', code: 'BT202', description: 'Advanced calculus, Fourier series and complex variables.' },
+            { id: 'basic-mech', name: 'Basic Mechanical Engineering', icon: '⚙️', code: 'BT203', description: 'Introduction to mechanical engineering systems.' },
+            { id: 'bcem', name: 'Basic Civil Engineering & Mechanics', icon: '🏗️', code: 'BT204', description: 'Civil engineering fundamentals and applied mechanics.' },
+            { id: 'bce', name: 'Basic Computer Engineering', icon: '💻', code: 'BT205', description: 'Core principles of computer systems and logic.' },
+            { id: 'lab-seminar', name: 'Language Lab & Seminars', icon: '🗣️', code: 'BT206', description: 'Advanced communication and presentation skills.' }
         ]
     }
 };
@@ -2091,18 +2108,22 @@ window.renderCollegeStep = function () {
 
     // Helper to generate HTML for cards
     const getCardsHTML = (items) => {
-        // Sort: Medicaps first
+        // Sort: Unlocked colleges first, then by name
         const sortedItems = [...items].sort((a, b) => {
-            const isMedicapsA = (a.id === 'medicaps' || a.name.toLowerCase().includes('medicaps'));
-            const isMedicapsB = (b.id === 'medicaps' || b.name.toLowerCase().includes('medicaps'));
-            if (isMedicapsA && !isMedicapsB) return -1;
-            if (!isMedicapsA && isMedicapsB) return 1;
-            return 0;
+            const isUnlockedA = (a.id === 'medicaps' || a.id === 'lnct' || a.name.toLowerCase().includes('medicaps'));
+            const isUnlockedB = (b.id === 'medicaps' || b.id === 'lnct' || b.name.toLowerCase().includes('medicaps'));
+
+            if (isUnlockedA && !isUnlockedB) return -1;
+            if (!isUnlockedA && isUnlockedB) return 1;
+
+            // If both are same status, sort alphabetically by name
+            return a.name.localeCompare(b.name);
         });
 
         return sortedItems.map(c => {
             const isMedicaps = (c.id === 'medicaps' || c.name.toLowerCase().includes('medicaps'));
-            const isLocked = !isMedicaps;
+            const isLnct = (c.id === 'lnct' || c.name.toLowerCase().includes('lnct'));
+            const isLocked = !isMedicaps && !isLnct;
 
             return `
         <div class="selection-card glass-card fade-in" 
@@ -2290,8 +2311,11 @@ window.renderSubjectStep = function () {
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Subject</span>`;
 
     const container = document.getElementById('explorer-content');
-    const key = `${selState.branch.id}-${selState.semester}`;
-    const subjects = GlobalData.subjects[key] || [];
+
+    // Try College-Specific Key first, then fallback to Common Key
+    const collegeKey = `${selState.college.id}-${selState.branch.id}-${selState.semester}`;
+    const commonKey = `${selState.branch.id}-${selState.semester}`;
+    const subjects = GlobalData.subjects[collegeKey] || GlobalData.subjects[commonKey] || [];
 
     if (subjects.length === 0) {
         container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 4rem;">

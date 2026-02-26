@@ -479,6 +479,7 @@ window.AdminConsole = {
                 { id: 'iitd', name: 'IIT Delhi', city: 'Delhi', state: 'Delhi', logo: '../assets/logos/iitd.png' },
                 { id: 'sgsits', name: 'SGSITS Indore', city: 'Indore', state: 'MP', logo: '../assets/logos/sgsits.png' },
                 { id: 'davv', name: 'DAVV Indore', city: 'Indore', state: 'MP', logo: '../assets/logos/davv.png' },
+                { id: 'lnct', name: 'LNCT COLLEGE BHOPAL', city: 'Bhopal', state: 'MP', logo: '../assets/logos/lnct.jpg' },
                 { id: 'vit', name: 'VIT Vellore', city: 'Vellore', state: 'Tamil Nadu', logo: '../assets/logos/vit.png' },
                 { id: 'srm', name: 'SRM University', city: 'Chennai', state: 'Tamil Nadu', logo: '../assets/logos/srm.png' },
                 { id: 'manipal', name: 'Manipal University', city: 'Manipal', state: 'Karnataka', logo: '../assets/logos/manipal.png' }

@@ -26,6 +26,7 @@ window.GlobalData = {
         { id: 'lpu', name: 'LPU University', logo: '../assets/logos/lpu.png' },
         { id: 'ips', name: 'IPS Academy', logo: '../assets/logos/ips.png' },
         { id: 'cdgi', name: 'CDGI University', logo: '../assets/logos/cdgi.png' },
+        { id: 'lnct', name: 'LNCT COLLEGE BHOPAL', logo: '../assets/logos/lnct.jpg' },
         { id: 'iitd', name: 'IIT Delhi', logo: '../assets/logos/iitd.png' }
     ]
 };
