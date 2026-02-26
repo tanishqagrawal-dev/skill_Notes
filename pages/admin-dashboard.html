@@ -34,6 +34,8 @@
     <div class="dashboard-container">
         <!-- Sidebar -->
         <aside class="sidebar glass-card">
+            <div class="sidebar-close-btn" onclick="document.querySelector('.sidebar').classList.remove('active')">
+                &times;</div>
             <div class="sidebar-header" style="display: flex; align-items: center; gap: 10px;">
                 <img src="../assets/logo.jpg" alt="SKiL MATRiX" style="height: 40px; border-radius: 50%;">
                 <span class="logo-text font-heading" style="font-size: 1.2rem;">SKiL MATRiX <span class="highlight"
@@ -160,6 +162,23 @@
         } else {
             setTimeout(startAdminApp, 200);
         }
+    </script>
+    <!-- Voiceflow Chatbot -->
+    <script type="text/javascript">
+        (function (d, t) {
+            var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
+            v.onload = function () {
+                window.voiceflow.chat.load({
+                    verify: { projectID: '67a8c08ad2483de383f344c4' },
+                    url: 'https://general-runtime.voiceflow.com',
+                    versionID: 'production',
+                    voice: {
+                        url: "https://runtime-api.voiceflow.com"
+                    }
+                });
+            }
+            v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
+        })(document, 'script');
     </script>
 </body>
 
