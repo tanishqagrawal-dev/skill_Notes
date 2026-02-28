@@ -1,4 +1,4 @@
-const SITE_VERSION = "2.5";
+const SITE_VERSION = "3.0";
 
 (function checkVersion() {
     const storedVersion = localStorage.getItem("site_version");
