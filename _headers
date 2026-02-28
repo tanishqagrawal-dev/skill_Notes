@@ -1,9 +1,17 @@
-# HTML files - never cached to ensure immediate updates
-/*.html
-  Cache-Control: no-cache, no-store, must-revalidate
-/
+/index.html
   Cache-Control: no-cache, no-store, must-revalidate
 
-# Static assets - aggressively cached (cache busted via ?v= query strings)
-/*
+/*.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.jpg
   Cache-Control: public, max-age=31536000, immutable

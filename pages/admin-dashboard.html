@@ -25,11 +25,11 @@
         rel="stylesheet">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="../css/main.css?v=2.6">
-    <link rel="stylesheet" href="../css/dashboard.css?v=2.6">
-    <link rel="stylesheet" href="../css/advanced_dashboard.css?v=2.6">
-    <link rel="stylesheet" href="../css/settings.css?v=2.6">
-    <link rel="stylesheet" href="../css/admin.css?v=2.6">
+    <link rel="stylesheet" href="../css/main.css?v=3.0">
+    <link rel="stylesheet" href="../css/dashboard.css?v=3.0">
+    <link rel="stylesheet" href="../css/advanced_dashboard.css?v=3.0">
+    <link rel="stylesheet" href="../css/settings.css?v=3.0">
+    <link rel="stylesheet" href="../css/admin.css?v=3.0">
 </head>
 
 <body class="dashboard-body">
@@ -130,13 +130,13 @@
 
     <!-- Dynamic Dashboard Engine -->
     <!-- Dynamic Dashboard Engine (True Lazy Load) -->
-    <script type="module" src="../js/firebase-config.js?v=2.6"></script>
-    <script src="../js/ai-client.js?v=2.6"></script>
-    <script src="../js/settings.js?v=2.6"></script>
-    <script src="../js/upload-helper.js?v=2.6"></script>
-    <script type="module" src="../js/stats.js?v=2.6"></script>
-    <script src="../js/admin-console.js?v=2.6"></script>
-    <script src="../js/email-config.js?v=2.6"></script>
+    <script type="module" src="../js/firebase-config.js?v=3.0"></script>
+    <script src="../js/ai-client.js?v=3.0"></script>
+    <script src="../js/settings.js?v=3.0"></script>
+    <script src="../js/upload-helper.js?v=3.0"></script>
+    <script type="module" src="../js/stats.js?v=3.0"></script>
+    <script src="../js/admin-console.js?v=3.0"></script>
+    <script src="../js/email-config.js?v=3.0"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script>
         (function () {
@@ -146,15 +146,15 @@
             }
         })();
     </script>
-    <script src="../js/admin-support.js?v=2.6"></script>
-    <script src="../js/coadmin-module.js?v=2.6"></script>
+    <script src="../js/admin-support.js?v=3.0"></script>
+    <script src="../js/coadmin-module.js?v=3.0"></script>
 
     <script type="module">
         import { initAuth } from '../js/auth.js';
 
         const startAdminApp = () => {
             console.log("🛡️ Starting Admin Console...");
-            import('../js/dashboard.js?v=4').then(() => {
+            import('../js/dashboard.js?v=3.0').then(() => {
                 console.log("📦 Admin Dashboard Module Loaded");
             });
             initAuth();
