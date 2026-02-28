@@ -1,17 +1,19 @@
 const SITE_VERSION = "3.0";
 
-(function checkVersion() {
-    const storedVersion = localStorage.getItem("site_version");
-    if (storedVersion !== SITE_VERSION) {
-        localStorage.clear();
+(function () {
+    const savedVersion = localStorage.getItem("site_version");
+
+    if (savedVersion !== SITE_VERSION) {
         if ('caches' in window) {
             caches.keys().then(names => {
                 names.forEach(name => caches.delete(name));
             });
         }
+
+        localStorage.clear();
         localStorage.setItem("site_version", SITE_VERSION);
-        // Force reload from server
-        window.location.reload(true);
+
+        window.location.reload();
     }
 })();
 
