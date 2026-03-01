@@ -1,4 +1,5 @@
-const SITE_VERSION = "3.0";
+const SITE_VERSION = "5.0";
+const DATA_VERSION = "notes_v5";
 
 (function checkVersion() {
     const storedVersion = localStorage.getItem("site_version");
