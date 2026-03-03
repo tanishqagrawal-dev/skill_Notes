@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Static Pages -->
+  <url>
+    <loc>https://skillnotes.netlify.app/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/pages/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/pages/contact</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/pages/privacy</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/pages/terms</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/pages/ai-tools</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/pages/study-planner</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/pages/leaderboard</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/pages/auth</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Major College Pages -->
+  <url>
+    <loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/lnct</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/lpu</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Medicaps Semester Pages -->
+  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-1</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-2</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-3</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-4</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-5</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-6</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-7</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-8</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+
+  <!-- LNCT Semester Pages -->
+  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/lnct/cse/semester-1</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/lnct/cse/semester-2</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+
+  <!-- Sample Subject Pages (Medicaps CSE) -->
+  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-1/math-1</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-2/applied-physics</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-4/os</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-4/dbms</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+</urlset>
