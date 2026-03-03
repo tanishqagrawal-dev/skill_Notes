@@ -1,86 +1,207 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" ?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Static Pages -->
   <url>
     <loc>https://skillnotes.netlify.app/</loc>
+    <lastmod>2026-03-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://skillnotes.netlify.app/pages/about</loc>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://skillnotes.netlify.app/pages/contact</loc>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://skillnotes.netlify.app/pages/privacy</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://skillnotes.netlify.app/pages/terms</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://skillnotes.netlify.app/pages/ai-tools</loc>
+    <lastmod>2026-03-03</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://skillnotes.netlify.app/pages/study-planner</loc>
+    <lastmod>2026-03-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://skillnotes.netlify.app/pages/leaderboard</loc>
-    <changefreq>daily</changefreq>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://skillnotes.netlify.app/pages/auth</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps</loc>
+    <lastmod>2026-03-03</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- Major College Pages -->
-  <url>
-    <loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/lnct</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/lpu</loc>
-    <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
-
-  <!-- Medicaps Semester Pages -->
-  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-1</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-2</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-3</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-4</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-5</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-6</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-7</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-8</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-
-  <!-- LNCT Semester Pages -->
-  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/lnct/cse/semester-1</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/lnct/cse/semester-2</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-
-  <!-- Sample Subject Pages (Medicaps CSE) -->
-  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-1/math-1</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-2/applied-physics</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-4/os</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://skillnotes.netlify.app/pages/dashboard?tab=notes#/notes/medicaps/cse/semester-4/dbms</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/lnct</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/lpu</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/cse/semester-1</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/cse/semester-2</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/cse/semester-3</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/cse/semester-4</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/cse/semester-5</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/cse/semester-6</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/cse/semester-7</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/cse/semester-8</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/ece/semester-1</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/ece/semester-2</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/ece/semester-3</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/ece/semester-4</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/ece/semester-5</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/ece/semester-6</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/ece/semester-7</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/ece/semester-8</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/lnct/cse/semester-1</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/lnct/cse/semester-2</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/cse/semester-1/math-1</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/cse/semester-2/applied-physics</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/cse/semester-4/os</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillnotes.netlify.app/notes/medicaps/cse/semester-4/dbms</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
 </urlset>
