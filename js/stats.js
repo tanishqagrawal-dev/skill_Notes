@@ -1,42 +1,41 @@
 // Production-Ready Stats Script (LocalStorage Growth Simulation)
 
 const START_STATS = {
-    views: 1500,
-    downloads: 200,
-    students: 45
+    views: 10000,
+    downloads: 3500,
+    students: 250
 };
 
 const DAILY_GROWTH = {
-    views: 30,
-    downloads: 10,
-    students: 2
+    views: 85,
+    downloads: 25,
+    students: 5
 };
 
 function formatNumber(num) {
-    if (num >= 1000) return (num / 1000).toFixed(1) + "K+";
+    if (num >= 1000) {
+        const val = num / 1000;
+        return (val % 1 === 0 ? val.toFixed(0) : val.toFixed(1)) + "k+";
+    }
     return num + "+";
 }
 
+const REFERENCE_DATE = new Date("2026-03-01T00:00:00Z");
+
 function getStats() {
-    const today = new Date().toDateString();
-    let data = JSON.parse(localStorage.getItem("skillMatrixStats"));
+    const now = new Date();
+    // Calculate elapsed time in days (with fractional precision for "live" growth)
+    const msPerDay = 24 * 60 * 60 * 1000;
+    const elapsedDays = (now - REFERENCE_DATE) / msPerDay;
 
-    if (!data) {
-        data = {
-            date: today,
-            ...START_STATS
-        };
-    }
+    // We only calculate if the date is after the reference date
+    const multiplier = Math.max(0, elapsedDays);
 
-    if (data.date !== today) {
-        data.date = today;
-        data.views += DAILY_GROWTH.views;
-        data.downloads += DAILY_GROWTH.downloads;
-        data.students += DAILY_GROWTH.students;
-    }
-
-    localStorage.setItem("skillMatrixStats", JSON.stringify(data));
-    return data;
+    return {
+        views: Math.floor(START_STATS.views + multiplier * DAILY_GROWTH.views),
+        downloads: Math.floor(START_STATS.downloads + multiplier * DAILY_GROWTH.downloads),
+        students: Math.floor(START_STATS.students + multiplier * DAILY_GROWTH.students)
+    };
 }
 
 function countUp(id, target) {
