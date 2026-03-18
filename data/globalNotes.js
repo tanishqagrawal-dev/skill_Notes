@@ -1937,6 +1937,18 @@ export const globalNotes = {
                 title: "Imp. Ques",
                 url: "https://drive.google.com/file/d/14n142m6Slk5k8FPFoiey4acElmFTq5if/view"
             }
+            {
+                id: "dbms-practical",
+                subject: "Database Management Systems",
+                subjectName: "Database Management Systems",
+                subjectId: "dbms",
+                collegeId: "medicaps",
+                type: "practicals",
+                status: "approved",
+                unit: "Practical",
+                title: "DBMS Codetantra File",
+                url: "https://drive.google.com/file/d/13fyZDNSbZKqGoTT1P7CsbEYfwU7PNPGP/view"
+            }
         ],
         "Internet and Web Technology": [
             {
