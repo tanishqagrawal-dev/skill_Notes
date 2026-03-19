@@ -1936,7 +1936,7 @@ export const globalNotes = {
                 unit: "IMP",
                 title: "Imp. Ques",
                 url: "https://drive.google.com/file/d/14n142m6Slk5k8FPFoiey4acElmFTq5if/view"
-            }
+            },
             {
                 id: "dbms-practical",
                 subject: "Database Management Systems",
