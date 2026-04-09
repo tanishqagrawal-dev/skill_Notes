@@ -1,0 +1,18 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[[redirects]]
+  from = "/notes/*"
+  to = "/pages/notes.html"
+  status = 200
+
+[[redirects]]
+  from = "/pages/dashboard/*"
+  to = "/pages/dashboard.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
