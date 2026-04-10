@@ -930,15 +930,7 @@ function initTabs() {
 
     // 3. Moderation & Admin Tools
     if (currentUser.role === 'coadmin' || currentUser.role === 'admin' || currentUser.role === 'superadmin') {
-        // Co-Admin Hub - Locked
-        const modHub = createNavItem('moderation-hub', '🛡️', 'Moderation Hub <span style="font-size:0.6rem; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; margin-left:5px;">🔒</span>', true);
-        modHub.style.opacity = '0.6';
-        modHub.style.cursor = 'not-allowed';
-        modHub.onclick = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            alert("🔒 Moderation Hub is coming soon!");
-        };
+        const modHub = createNavItem('moderation-hub', '🛡️', 'Moderation Hub', true);
         sidebarNav.insertBefore(modHub, settingsNode);
     }
 
