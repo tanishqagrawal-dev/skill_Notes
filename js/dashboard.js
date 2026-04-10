@@ -383,12 +383,15 @@ function initDynamicColleges() {
 
 function initNotesSync() {
     if (isNotesSyncInit) return;
-    const { db, collection, onSnapshot } = getFirebase();
+    const { db, collection, onSnapshot, query, limit } = getFirebase();
     if (!db || unsubscribeNotes) return;
 
     isNotesSyncInit = true;
-    console.log("📡 Initializing Notes Hub Synchronization...");
-    unsubscribeNotes = onSnapshot(collection(db, 'notes'), (snap) => {
+    console.log("📡 Initializing Notes Hub Synchronization (Limited)...");
+    
+    // We limit the global cache to save massively on reads. The Notes Hub handles its own fetching.
+    const q = query(collection(db, 'notes'), limit(50));
+    unsubscribeNotes = onSnapshot(q, (snap) => {
         const newData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
         // Only update and re-render if data actually changed to prevent loops
@@ -2549,9 +2552,12 @@ window.renderMyUploads = function () {
                 <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1rem;">
                     ${subj.toUpperCase()} • ${displayDate}
                 </div>
-                <div style="display: flex; gap: 0.5rem;">
-                    <a href="${n.url || n.fileUrl || n.driveLink || '#'}" target="_blank" class="btn btn-sm btn-ghost" style="border: 1px solid var(--border-glass);">View</a>
-                    ${stat === 'approved' ? `<span style="font-size:0.8rem; margin-left:auto; display:flex; align-items:center;">👁️ ${n.views || 0}</span>` : ''}
+                <div style="display: flex; gap: 0.5rem; justify-content: space-between; width: 100%;">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a href="${n.url || n.fileUrl || n.driveLink || '#'}" target="_blank" class="btn btn-sm btn-ghost" style="border: 1px solid var(--border-glass);">View</a>
+                        <button onclick="deleteUploadedNote('${n.id}')" class="btn btn-sm btn-ghost" style="border: 1px solid #ff4757; color: #ff4757; background: rgba(255, 71, 87, 0.1); cursor: pointer;">Delete</button>
+                    </div>
+                    ${stat === 'approved' ? `<span style="font-size:0.8rem; display:flex; align-items:center;">👁️ ${n.views || 0}</span>` : ''}
                 </div>
             </div>
             `;
@@ -2631,6 +2637,54 @@ window.renderMyUploads = function () {
         const badge = document.getElementById('uploads-sync-badge');
         if (badge) { badge.textContent = '⚠️ Sync failed'; badge.style.color = '#ff6b6b'; }
     });
+};
+
+window.deleteUploadedNote = async function (noteId) {
+    if (!confirm("Are you sure you want to delete this note? This action cannot be undone.")) return;
+    
+    // Optimistic UI removal
+    const deleteBtn = document.querySelector(`button[onclick="deleteUploadedNote('${noteId}')"]`);
+    const cardToRemove = deleteBtn ? deleteBtn.closest('.glass-card') : null;
+    
+    if (cardToRemove) {
+        cardToRemove.style.transition = 'opacity 0.3s ease';
+        cardToRemove.style.opacity = '0.5';
+        cardToRemove.style.pointerEvents = 'none';
+        if (deleteBtn) deleteBtn.innerText = "Deleting...";
+    }
+    
+    const { db, doc, deleteDoc } = window.firebaseServices;
+    try {
+        await deleteDoc(doc(db, "notes", noteId));
+        if (window.showToast) window.showToast("Note deleted successfully!", "success");
+        
+        // Remove from DOM immediately
+        if (cardToRemove) cardToRemove.remove();
+        
+        // Update local cache
+        if (window.currentUser) {
+            const cacheKey = `my_uploads_${window.currentUser.id}`;
+            const cachedUrl = localStorage.getItem(cacheKey);
+            if (cachedUrl) {
+                try {
+                    let cachedNotes = JSON.parse(cachedUrl);
+                    cachedNotes = cachedNotes.filter(n => n.id !== noteId);
+                    localStorage.setItem(cacheKey, JSON.stringify(cachedNotes));
+                } catch(e) {}
+            }
+        }
+    } catch (e) {
+        console.error("Error deleting note:", e);
+        if (window.showToast) window.showToast("Failed to delete note.", "error");
+        else alert("Failed to delete note.");
+        
+        // Revert visual state if failed
+        if (cardToRemove) {
+            cardToRemove.style.opacity = '1';
+            cardToRemove.style.pointerEvents = 'auto';
+            if (deleteBtn) deleteBtn.innerText = "Delete";
+        }
+    }
 };
 
 function renderNotesList(list, tabType) {
