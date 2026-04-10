@@ -390,12 +390,16 @@ window.selectSubject = function (id, name) {
 
 // --- FINAL VIEW: NOTES LIST ---
 
-window.showNotes = function (activeTab = 'notes') {
-    const explorer = document.getElementById('explorer-steps-container');
-    if (explorer) explorer.style.display = 'none';
+window.lastVisibleNote = null;
 
-    const view = document.getElementById('final-notes-view');
-    view.style.display = 'block';
+window.showNotes = async function (activeTab = 'notes', loadMore = false) {
+    if (!loadMore) {
+        const explorer = document.getElementById('explorer-steps-container');
+        if (explorer) explorer.style.display = 'none';
+
+        const view = document.getElementById('final-notes-view');
+        view.style.display = 'block';
+    }
 
     const key = `${selState.branch.id}-${selState.semester}`;
     const subjectData = (GlobalData.subjects[key] || []).find(s => s.id === selState.subject.id) || {
@@ -404,7 +408,6 @@ window.showNotes = function (activeTab = 'notes') {
         description: 'Comprehensive study materials and verified academic resources.'
     };
 
-    // Filter from NotesDB (Firestore)
     const subjectId = selState.subject.id;
     const collegeId = selState.college.id;
 
@@ -414,10 +417,38 @@ window.showNotes = function (activeTab = 'notes') {
         staticNotes = globalNotes['global']?.[selState.subject.name] || [];
     }
 
-    // Merge genuine DB nodes securely with formatted static nodes
-    const combinedNotes = [...(window.NotesDB || []), ...staticNotes];
+    // FETCH FROM FIREBASE INSTANTLY WITH PAGINATION
+    if (!loadMore) {
+        window.lastVisibleNote = null;
+    }
+    let firestoreNotes = [];
+    if (window.firebaseServices && window.firebaseServices.db) {
+        try {
+            const { db, collection, query, where, getDocs, limit, startAfter } = window.firebaseServices;
+            // Simple query to avoid composite index errors. We fetch notes matching subjectId and filter the rest locally.
+            let q;
+            if (loadMore && window.lastVisibleNote) {
+                q = query(collection(db, 'notes'), where('subjectId', '==', subjectId), startAfter(window.lastVisibleNote), limit(12));
+            } else {
+                q = query(collection(db, 'notes'), where('subjectId', '==', subjectId), limit(12));
+            }
+            
+            const snap = await getDocs(q);
+            if (!snap.empty) {
+                window.lastVisibleNote = snap.docs[snap.docs.length - 1]; // Store cursor
+                firestoreNotes = snap.docs.map(d => ({id: d.id, ...d.data()}));
+            } else {
+                window.lastVisibleNote = null; // No more
+            }
+        } catch(e) {
+            console.error("Pagination fetch error:", e);
+        }
+    }
 
-    // Remove duplicates by ID nately to prioritize DB copies and prevent duplicate key crashes
+    // Merge genuine DB nodes securely with formatted static nodes
+    const combinedNotes = [...firestoreNotes, ...staticNotes];
+    
+    // Filter locally to enforce the rest of the constraints without breaking indexes
     const uniqueMap = new Map();
     combinedNotes.forEach(n => { if (n.id) uniqueMap.set(n.id, n); });
     const deduplicatedNotes = Array.from(uniqueMap.values());
@@ -425,11 +456,38 @@ window.showNotes = function (activeTab = 'notes') {
     const dynamicNotes = deduplicatedNotes.filter(n =>
         n.status === 'approved' &&
         (n.type === activeTab || !n.type) &&
-        ((n.subjectId === subjectId) || (n.subject === subjectId) || (n.subjectName === selState.subject.name)) &&
         ((n.collegeId === collegeId) || (n.college === collegeId) || !n.collegeId || n.collegeId === 'global')
     );
-    window.currentStaticNotes = dynamicNotes;
+    
+    // Accumulate if loading more
+    if (loadMore) {
+        window.currentStaticNotes = [...(window.currentStaticNotes || []), ...dynamicNotes];
+    } else {
+        window.currentStaticNotes = dynamicNotes;
+    }
 
+    const loadMoreBtnHtml = window.lastVisibleNote ? 
+        `<div id="load-more-btn-container" style="text-align: center; margin-top: 2rem; width: 100%;">
+            <button class="btn btn-ghost" onclick="showNotes('${activeTab}', true)">Load More Notes ⬇️</button>
+         </div>` : '';
+
+    if (loadMore) {
+        const container = document.getElementById('resource-list-container');
+        if (container) {
+            const oldBtn = document.getElementById('load-more-btn-container');
+            if (oldBtn) oldBtn.remove();
+            
+            if (dynamicNotes.length > 0) {
+                 container.innerHTML += renderStaticNotes(dynamicNotes);
+            }
+            if (window.lastVisibleNote) {
+                 container.innerHTML += loadMoreBtnHtml;
+            }
+        }
+        return;
+    }
+
+    const view = document.getElementById('final-notes-view');
     view.innerHTML = `
         <style>
             .breadcrumb-pro {
@@ -512,7 +570,7 @@ window.showNotes = function (activeTab = 'notes') {
                     Verified <span class="highlight" style="color: #00f2ff; font-weight: 800; text-transform: uppercase;">${activeTab}</span>
                 </h2>
                 <div class="notes-list-container-pro" id="resource-list-container">
-                    ${(activeTab === 'notes' && dynamicNotes.length > 0) ? renderStaticNotes(dynamicNotes) : `
+                    ${(activeTab === 'notes' && dynamicNotes.length > 0) ? renderStaticNotes(dynamicNotes) + loadMoreBtnHtml : `
                         <div style="text-align: center; padding: 5rem; background: rgba(255,255,255,0.01); border: 2px dashed rgba(255,255,255,0.05); border-radius: 20px;">
                             <div style="font-size: 4rem; margin-bottom: 2rem;">📂</div>
                             <h2 class="font-heading">No ${activeTab} found for this subject yet.</h2>

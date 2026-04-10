@@ -383,12 +383,15 @@ function initDynamicColleges() {
 
 function initNotesSync() {
     if (isNotesSyncInit) return;
-    const { db, collection, onSnapshot } = getFirebase();
+    const { db, collection, onSnapshot, query, limit } = getFirebase();
     if (!db || unsubscribeNotes) return;
 
     isNotesSyncInit = true;
-    console.log("📡 Initializing Notes Hub Synchronization...");
-    unsubscribeNotes = onSnapshot(collection(db, 'notes'), (snap) => {
+    console.log("📡 Initializing Notes Hub Synchronization (Limited)...");
+    
+    // We limit the global cache to save massively on reads. The Notes Hub handles its own fetching.
+    const q = query(collection(db, 'notes'), limit(50));
+    unsubscribeNotes = onSnapshot(q, (snap) => {
         const newData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
         // Only update and re-render if data actually changed to prevent loops
