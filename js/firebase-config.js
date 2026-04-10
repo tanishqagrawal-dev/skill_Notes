@@ -64,7 +64,13 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 // EAGER INIT (Standard for shared usage)
-const db = getFirestore(app, "notes");
+const db = initializeFirestore(app, { experimentalForceLongPolling: true });
+try {
+    enableIndexedDbPersistence(db).catch(err => {
+        console.warn("IndexedDB persistence failed (usually multiple tabs open):", err.code);
+    });
+} catch (e) {}
+
 const storage = getStorage(app);
 const functions = getFunctions(app);
 

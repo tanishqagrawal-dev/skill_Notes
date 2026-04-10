@@ -560,8 +560,26 @@ window.syncAdvancedJavaNotes = async function () {
 
 
 window.openUploadModal = async function () {
-    if (!currentUser) {
-        alert("Please login first.");
+    if (!currentUser || currentUser.isGuest || currentUser.id === 'guest') {
+        const overlay = document.createElement('div');
+        overlay.id = 'strict-login-overlay';
+        overlay.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+            z-index: 99999; display: flex; align-items: center; justify-content: center;
+        `;
+        overlay.innerHTML = `
+            <div class="lockCard" style="text-align: center;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+                <h1 class="coming-soon-title" style="font-size: 1.8rem; margin-bottom: 0.5rem; line-height: 1.2;">Login Required</h1>
+                <p class="development-caption" style="margin-bottom: 1.5rem;">Only verified students can upload notes.</p>
+                <div style="display: flex; gap: 1rem; width: 100%;">
+                    <button class="btn btn-ghost" style="flex: 1; border: 1px solid var(--border-glass);" onclick="document.getElementById('strict-login-overlay').remove()">Cancel</button>
+                    <button class="btn btn-primary" style="flex: 1;" onclick="window.location.href='auth.html'">Login Now</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
         return;
     }
 
@@ -745,9 +763,11 @@ window.showToast = window.showToast || function (msg, type = 'success') {
 window.closeDashboardUploadModal = function () {
     const modal = document.getElementById('dashboard-upload-modal');
     if (modal) {
+        modal.style.transition = 'opacity 0.3s ease';
         modal.style.opacity = '0';
         modal.style.pointerEvents = 'none';
         document.body.style.overflow = 'auto';
+        setTimeout(() => { if (modal.parentNode) modal.parentNode.removeChild(modal); }, 350);
     }
 };
 
@@ -825,35 +845,45 @@ async function handleDashboardNoteSubmit(e) {
         uploaderEmail: currentUser.email || "guest@example.com",
         date: new Date().toLocaleDateString(),
         targetCollection: 'notes',
-        status: 'approved', // Auto-approve ALL
-        verified: true, // Auto-verify ALL
-        approvedBy: 'auto_system',
-        approvedAt: new Date().toISOString() // Fallback to ISO string for immediate use
+        status: 'pending', // Restore manual admin verification
+        verified: false,
+        approvedBy: 'pending',
+        approvedAt: null
     };
 
     try {
         const result = await window.uploadNoteToFirebase(file, metadata);
-        statusText.innerText = "✅ Upload and Save Successful!";
-        if (window.showToast) window.showToast("✅ Note uploaded successfully!");
 
+        // Step 1: Show success toast
+        if (window.showToast) window.showToast("✅ Note uploaded successfully! Pending review.");
+        statusText.innerText = "✅ Uploaded! Redirecting...";
+        const pBar = document.querySelector('.dash-progress-fill');
+        if (pBar) pBar.style.width = '100%';
+
+        // Step 2: Immediately close modal + navigate to My Uploads (no delay needed)
         setTimeout(() => {
+            // Close & destroy modal from DOM
             closeDashboardUploadModal();
-            // Clear form
-            document.getElementById('dash-upload-form').reset();
-            document.getElementById('upload-status-area').style.display = 'none';
 
-            // Redirect to My Uploads tab instantly
+            // Reset form state
+            try {
+                document.getElementById('dash-upload-form').reset();
+                document.getElementById('upload-status-area').style.display = 'none';
+            } catch(fe) {}
+
+            // Navigate to My Uploads tab
             const myUploadsTab = document.querySelector('.nav-item[data-tab="my-uploads"]');
             if (myUploadsTab) {
                 myUploadsTab.click();
             } else {
-                renderTabContent('my-uploads');
+                if (typeof renderTabContent === 'function') renderTabContent('my-uploads');
             }
-        }, 1200);
+        }, 800);
+
     } catch (err) {
         console.error("Upload failed:", err);
-        statusText.innerText = "Failed: " + err.message;
-        alert("Error: " + err.message);
+        statusText.innerText = "❌ Failed: " + err.message;
+        if (window.showToast) window.showToast("Upload failed: " + err.message);
     } finally {
         btn.disabled = false;
         btn.innerText = "Upload Note";
@@ -1035,10 +1065,7 @@ function renderTabContent(tabId) {
             contentArea.innerHTML = renderAITools();
             if (window.checkServer) window.checkServer();
         } else if (tabId === 'leaderboard') {
-            if (window.lockOverlay) {
-                window.lockOverlay.show();
-                return;
-            }
+            // Leaderboard is unlocked globally now to display xp
             contentArea.innerHTML = renderLeaderboard();
             if (typeof initLeaderboardListeners === 'function') initLeaderboardListeners();
         } else if (tabId === 'private-drive') {
@@ -1935,13 +1962,18 @@ window.executeAdminUpload = async function () {
 
     try {
         await window.uploadNoteToFirebase(selectedAdminFile, metadata);
-        alert("✅ Upload Successful!");
+        if (window.showToast) {
+            window.showToast("file uploaded successfully");
+        } else {
+            alert("file uploaded successfully");
+        }
         selectedAdminFile = null;
         document.getElementById('selected-filename').innerText = '';
         document.getElementById('upload-progress').style.width = '0%';
         document.getElementById('admin-drop-zone').style.borderColor = 'var(--border-glass)';
     } catch (e) {
-        alert("Upload Failed: " + e.message);
+        if (window.showToast) window.showToast("Upload Failed: " + e.message, "error");
+        else alert("Upload Failed: " + e.message);
     }
 };
 
@@ -2474,13 +2506,19 @@ function renderInstantStaticNotes(notes) {
 
 window.renderMyUploads = function () {
     const container = document.getElementById('my-uploads-grid');
-    if (!container || !currentUser) return;
+    if (!container) return;
 
-    const { db, collection, query, where, onSnapshot } = window.firebaseServices;
-    container.innerHTML = '<div class="loader-pro" style="margin: 2rem auto;"></div>';
+    // Guard: guest users cannot have uploads
+    if (!currentUser || currentUser.isGuest) {
+        container.innerHTML = `<p style="color:var(--text-dim); text-align:center; padding: 2rem;">Please login to see your uploads.</p>`;
+        return;
+    }
 
+    const { db, collection, query, where, getDocs, onSnapshot } = window.firebaseServices;
+
+    // --- RENDER HELPER ---
     const render = (all) => {
-        if (all.length === 0) {
+        if (!all || all.length === 0) {
             container.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; padding: 4rem; opacity: 0.6;">
                     <div style="font-size: 3rem; margin-bottom: 1rem;">📤</div>
@@ -2490,40 +2528,108 @@ window.renderMyUploads = function () {
             `;
             return;
         }
-        container.innerHTML = all.map(n => `
-            <div class="glass-card wobble-hover" style="position: relative; border-left: 4px solid ${n.status === 'approved' ? 'var(--success)' : '#f1c40f'}; padding: 1.5rem;">
-                <div style="position: absolute; top: 1rem; right: 1rem; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); color: ${n.status === 'approved' ? 'var(--success)' : '#f1c40f'}; border: 1px solid ${n.status === 'approved' ? 'var(--success)' : '#f1c40f'};">
-                    ${n.status.toUpperCase()}
+        container.innerHTML = all.map(n => {
+            const stat = (n.status || 'pending').toLowerCase();
+            const color = stat === 'approved' ? 'var(--success)' : '#f1c40f';
+            const subj = n.subject || 'general';
+            const titl = n.title || n.fileName || 'Untitled Note';
+            const ts = n.createdAt || n.created_at;
+            let displayDate = new Date().toLocaleDateString();
+            if (ts) {
+                if (ts.toDate) displayDate = ts.toDate().toLocaleDateString();
+                else displayDate = new Date(ts).toLocaleDateString();
+            }
+            return `
+            <div class="glass-card wobble-hover" style="position: relative; border-left: 4px solid ${color}; padding: 1.5rem;">
+                <div style="position: absolute; top: 1rem; right: 1rem; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); color: ${color}; border: 1px solid ${color};">
+                    ${stat.toUpperCase()}
                 </div>
                 <div style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.8;">📄</div>
-                <h4 style="margin-bottom: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${n.title}</h4>
+                <h4 style="margin-bottom: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${titl}</h4>
                 <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1rem;">
-                    ${n.subject.toUpperCase()} • ${new Date(n.created_at || Date.now()).toLocaleDateString()}
+                    ${subj.toUpperCase()} • ${displayDate}
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
-                     <a href="${n.url || n.fileUrl || n.driveLink}" target="_blank" class="btn btn-sm btn-ghost" style="border: 1px solid var(--border-glass);">View</a>
-                     ${n.status === 'approved' ? `<span style="font-size:0.8rem; margin-left:auto; display:flex; align-items:center;">👁️ ${n.views || 0}</span>` : ''}
+                    <a href="${n.url || n.fileUrl || n.driveLink || '#'}" target="_blank" class="btn btn-sm btn-ghost" style="border: 1px solid var(--border-glass);">View</a>
+                    ${stat === 'approved' ? `<span style="font-size:0.8rem; margin-left:auto; display:flex; align-items:center;">👁️ ${n.views || 0}</span>` : ''}
                 </div>
             </div>
-        `).join('');
+            `;
+        }).join('');
     };
 
-    let approved = [], pending = [];
-    const mergeAndRender = () => {
-        const all = [...approved, ...pending].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-        render(all);
-    };
-
-    if (!currentUser) {
-        const grid = document.getElementById('my-uploads-grid');
-        if (grid) grid.innerHTML = `<p style="color:var(--text-dim); text-align:center; padding: 2rem;">Please login to see your uploads.</p>`;
-        return;
+    // --- STEP 1: Show cached data INSTANTLY (zero network delay) ---
+    const cacheKey = `my_uploads_${currentUser.id}`;
+    try {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+            const cachedNotes = JSON.parse(cached);
+            if (cachedNotes && cachedNotes.length > 0) {
+                render(cachedNotes);
+                // Show a subtle syncing indicator without blocking UI
+                const syncBadge = document.createElement('div');
+                syncBadge.id = 'uploads-sync-badge';
+                syncBadge.style.cssText = 'font-size:0.7rem; color:var(--text-dim); text-align:right; padding: 0 0 0.5rem; opacity:0.5;';
+                syncBadge.textContent = '⟳ Syncing...';
+                container.before(syncBadge);
+            } else {
+                container.innerHTML = '<div class="loader-pro" style="margin: 2rem auto;"></div>';
+            }
+        } else {
+            container.innerHTML = '<div class="loader-pro" style="margin: 2rem auto;"></div>';
+        }
+    } catch (e) {
+        container.innerHTML = '<div class="loader-pro" style="margin: 2rem auto;"></div>';
     }
 
-    const q = query(collection(db, "notes"), where("uploadedBy", "==", currentUser.id));
-    onSnapshot(q, (snap) => {
-        const notes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // --- STEP 2: Fetch fresh data via one-time HTTP (fast, no WebSocket wait) ---
+    // Query by user's profile ID (stored in uploadedBy field)
+    const userId = currentUser.id;
+    const userEmail = currentUser.email;
+    const q = query(collection(db, "notes"), where("uploadedBy", "==", userId));
+
+    getDocs(q).then((snap) => {
+        const notes = snap.docs.map(d => {
+            const data = d.data();
+            // Serialize Firestore Timestamps to ISO strings for localStorage compatibility
+            if (data.createdAt && data.createdAt.toDate) data.createdAt = data.createdAt.toDate().toISOString();
+            if (data.created_at && data.created_at.toDate) data.created_at = data.created_at.toDate().toISOString();
+            return { id: d.id, ...data };
+        });
+
+        // Save to localStorage for instant display on next refresh
+        try { localStorage.setItem(cacheKey, JSON.stringify(notes)); } catch (e) { /* storage full */ }
+
+        // Remove sync badge
+        const badge = document.getElementById('uploads-sync-badge');
+        if (badge) badge.remove();
+
         render(notes);
+
+        // --- STEP 3: After initial fast load, upgrade to real-time listener for live status updates ---
+        onSnapshot(q, (liveSnap) => {
+            const liveNotes = liveSnap.docs.map(d => {
+                const data = d.data();
+                if (data.createdAt && data.createdAt.toDate) data.createdAt = data.createdAt.toDate().toISOString();
+                if (data.created_at && data.created_at.toDate) data.created_at = data.created_at.toDate().toISOString();
+                return { id: d.id, ...data };
+            });
+            try { localStorage.setItem(cacheKey, JSON.stringify(liveNotes)); } catch (e) { /* storage full */ }
+            render(liveNotes);
+        }, (err) => {
+            // Real-time listener failed — we already have the getDocs data shown, so just log silently
+            console.warn("Live uploads sync dropped (non-critical):", err.message);
+        });
+
+    }).catch((error) => {
+        console.error("Firestore Uploads Error:", error);
+        // If we already showed cached data, don't overwrite with error message
+        const hasCachedContent = container.querySelector('.glass-card');
+        if (!hasCachedContent) {
+            container.innerHTML = `<p style="color:red; text-align:center;">Could not load uploads: ${error.message}</p>`;
+        }
+        const badge = document.getElementById('uploads-sync-badge');
+        if (badge) { badge.textContent = '⚠️ Sync failed'; badge.style.color = '#ff6b6b'; }
     });
 };
 

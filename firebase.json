@@ -1,4 +1,7 @@
 {
+    "storage": {
+        "rules": "storage.rules"
+    },
     "functions": {
         "source": "functions"
     },
@@ -27,11 +30,20 @@
         ],
         "headers": [
             {
-                "source": "**/*.@(jpg|jpeg|gif|png|webp|svg|css|js|woff2)",
+                "source": "**/*.@(jpg|jpeg|gif|png|webp|svg|woff2)",
                 "headers": [
                     {
                         "key": "Cache-Control",
                         "value": "public, max-age=31536000, immutable"
+                    }
+                ]
+            },
+            {
+                "source": "**/*.@(css|js)",
+                "headers": [
+                    {
+                        "key": "Cache-Control",
+                        "value": "public, max-age=86400, must-revalidate"
                     }
                 ]
             }

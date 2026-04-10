@@ -8,11 +8,12 @@ service cloud.firestore {
     }
     
     function getUserData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      let u = get(/databases/$(database)/documents/users/$(request.auth.uid));
+      return u != null ? u.data : null;
     }
     
     function hasRole(role) {
-      return isSignedIn() && getUserData().role == role;
+      return isSignedIn() && getUserData() != null && getUserData().role == role;
     }
 
     // --- Colleges Collection ---
@@ -27,7 +28,7 @@ service cloud.firestore {
       allow create: if isSignedIn() && (request.auth.uid == userId);
       allow update: if hasRole('admin') || hasRole('superadmin') || 
                    (request.auth.uid == userId && 
-                    request.resource.data.diff(resource.data).affectedKeys().hasAny(['xp', 'uploads', 'downloads', 'notesCount', 'name', 'avatar', 'views_activity']));
+                    request.resource.data.diff(resource.data).affectedKeys().hasOnly(['xp', 'uploads', 'downloads', 'notesCount', 'name', 'avatar', 'views_activity']));
       allow delete: if hasRole('admin') || hasRole('superadmin');
     }
 

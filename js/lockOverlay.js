@@ -52,7 +52,7 @@ class LockOverlay {
 
     checkAutoLoad() {
         const path = window.location.pathname.toLowerCase();
-        if (path.includes('ai') || path.includes('study') || path.includes('private') || path.includes('leaderboard')) {
+        if (path.includes('ai') || path.includes('study') || path.includes('private')) {
             // Delay slightly to ensure content is there to blur
             setTimeout(() => this.show(), 100);
         }
@@ -88,8 +88,7 @@ class LockOverlay {
         const path = window.location.pathname.toLowerCase();
         const isStandalone = path.includes('ai-tools') ||
             path.includes('study-planner') ||
-            path.includes('private-drive') ||
-            path.includes('leaderboard');
+            path.includes('private-drive');
 
         if (isStandalone) {
             window.location.href = 'dashboard';

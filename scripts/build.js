@@ -93,8 +93,19 @@ async function build() {
 
         } else if (ext === '.html') {
             // MINIFY HTML
-            console.log(`Minifying HTML: ${file}`);
-            const code = fs.readFileSync(absolutePath, 'utf8');
+            console.log(`Minifying & Cache-busting HTML: ${file}`);
+            let code = fs.readFileSync(absolutePath, 'utf8');
+            
+            // Auto cache-busting for JS and CSS files
+            const crypto = require('crypto');
+            const buildHash = crypto.createHash('md5').update(code).digest('hex').substring(0, 8);
+            
+            // Append ?v= to any JS/CSS assets lacking it (avoiding already matched files dynamically handled)
+            code = code.replace(/(\.(?:js|css))"/g, '$1?v=MISSING"');
+
+            // Apply consistent deterministic cache-buster spanning various patterns
+            code = code.replace(/\?v=[0-9a-zA-Z.\-_]+/g, `?v=${buildHash}`);
+
             try {
                 const minifiedCode = htmlMinifier.minify(code, {
                     collapseWhitespace: true,
