@@ -41,6 +41,11 @@ const isCoAdminDashboard = path.endsWith('/coadmin-dashboard.html');
 if (lastUser && (isUserDashboard || isAdminDashboard || isCoAdminDashboard)) {
     try {
         const parsed = JSON.parse(lastUser);
+        const SUPER_ADMINS = ['tanishqagrawal1103@gmail.com', 'skilmatrix3@gmail.com'];
+        if (parsed.email && SUPER_ADMINS.includes(parsed.email.toLowerCase())) {
+             parsed.role = 'superadmin';
+        }
+        
         console.log("⚡ Instant reload: Restoring session from cache [", parsed.role, "]");
         dispatchAuthReady({
             user: { uid: parsed.id, email: parsed.email, displayName: parsed.name },
@@ -73,6 +78,7 @@ export async function initAuth() {
     });
 
     const SUPER_ADMINS = ['tanishqagrawal1103@gmail.com', 'skilmatrix3@gmail.com'];
+    window.SUPER_ADMINS = SUPER_ADMINS;
 
     // --- REDIRECTION & ACCESS CONTROL ENGINE ---
     const triggerRedirect = (currentRole) => {
@@ -149,7 +155,7 @@ export async function initAuth() {
                 }
 
                 // Global SUPER ADMIN check override
-                if (SUPER_ADMINS.includes(user.email)) {
+                if (user.email && SUPER_ADMINS.includes(user.email.toLowerCase())) {
                     userData.role = 'superadmin';
                     console.log("👑 Super Admin Override Active for:", user.email);
                 }
@@ -250,12 +256,13 @@ function initAuthForms() {
                 const user = result.user;
                 console.log("✅ Google Login Success:", user.email);
 
+                const isSuper = ['tanishqagrawal1103@gmail.com', 'skilmatrix3@gmail.com'].includes(user.email.toLowerCase());
                 const optimisticData = {
                     id: user.uid,
                     name: user.displayName || user.email.split('@')[0],
                     email: user.email,
                     photo: user.photoURL,
-                    role: 'user',
+                    role: isSuper ? 'superadmin' : 'user',
                     collegeId: 'medicaps',
                     collegeName: 'Medicaps University',
                     isOptimistic: true
@@ -265,7 +272,7 @@ function initAuthForms() {
                 localStorage.setItem('auth_user', JSON.stringify({
                     uid: user.uid,
                     email: user.email,
-                    role: 'user'
+                    role: isSuper ? 'superadmin' : 'user'
                 }));
 
                 if (window.statServices?.trackSignUp) window.statServices.trackSignUp('google');
