@@ -160,6 +160,9 @@
     filter: brightness(0.9);
 }
 
+.nav-item.active .icon {
+    /* Filter removed to preserve emoji colors */
+}
 
 .nav-divider {
     height: 1px;
