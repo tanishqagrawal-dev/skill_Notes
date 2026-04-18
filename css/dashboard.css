@@ -134,8 +134,8 @@
     transition: var(--transition-base);
     font-weight: 500;
     margin-bottom: 0.5rem;
-    margin-bottom: 0.5rem;
     border: 1px solid transparent;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .nav-item.mt-auto {
@@ -149,14 +149,19 @@
 }
 
 .nav-item.active {
-    background: var(--primary);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: white;
-    box-shadow: 0 0 20px rgba(123, 97, 255, 0.4);
+    box-shadow: 0 4px 15px rgba(123, 97, 255, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.nav-item:active {
+    transform: scale(0.96);
+    filter: brightness(0.9);
+}
+
 .nav-item.active .icon {
-    filter: brightness(0) invert(1);
+    /* Filter removed to preserve emoji colors */
 }
 
 .nav-divider {

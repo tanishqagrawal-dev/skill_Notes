@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+const fs = require('fs');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const admin = require('firebase-admin');
 
@@ -154,7 +155,61 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, "..", "index.html"));
 });
 
+// --- LOCAL PAPER PERSISTENCE (NON-FIREBASE) ---
+const CACHE_DIR = path.join(__dirname, '..', 'data');
+const CACHE_FILE = path.join(CACHE_DIR, 'cached_papers.json');
+
+// Ensure cache directory exists
+if (!fs.existsSync(CACHE_DIR)) fs.mkdirSync(CACHE_DIR, { recursive: true });
+if (!fs.existsSync(CACHE_FILE)) fs.writeFileSync(CACHE_FILE, JSON.stringify([]));
+
+// Save generated paper to local cache
+app.post('/api/save-paper', (req, res) => {
+    try {
+        const { subjectId, subjectName, examType, content } = req.body;
+        const data = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+        
+        // Add new paper (avoid duplicates if needed, but here we want variety)
+        data.push({
+            id: Date.now(),
+            subjectId,
+            subjectName,
+            examType,
+            content,
+            createdAt: new Date().toISOString()
+        });
+        
+        // Keep only last 100 papers or so to avoid huge files
+        if (data.length > 200) data.shift();
+        
+        fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2));
+        res.json({ success: true, message: "Paper saved to local cache" });
+    } catch (e) {
+        console.error("Save Cache Error:", e);
+        res.status(500).json({ error: "Failed to save to local cache" });
+    }
+});
+
+// Get random paper from local cache (Fallback)
+app.get('/api/get-random-paper', (req, res) => {
+    try {
+        const { subjectId, examType } = req.query;
+        const data = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+        
+        const matches = data.filter(p => p.subjectId === subjectId && p.examType === examType);
+        
+        if (matches.length === 0) {
+            return res.status(404).json({ error: "No cached papers found for this subject/type" });
+        }
+        
+        const randomPaper = matches[Math.floor(Math.random() * matches.length)];
+        res.json({ success: true, paper: randomPaper.content });
+    } catch (e) {
+        res.status(500).json({ error: "Failed to read local cache" });
+    }
+});
+
 app.listen(port, () => {
     console.log(`\n🚀 AI Server running at http://localhost:${port}`);
-    console.log(`⚠️  Make sure you have added your GEMINI_API_KEY to server/.env`);
+    console.log(`📂 Local Cache active at data/cached_papers.json`);
 });
