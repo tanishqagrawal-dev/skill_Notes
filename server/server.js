@@ -46,7 +46,7 @@ app.post('/api/generate-paper', async (req, res) => {
             return res.status(500).json({ error: "API Key not configured in server/.env" });
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
         const prompt = `
 You are an experienced university exam paper setter.
@@ -100,7 +100,7 @@ app.post('/api/generate-plan', async (req, res) => {
             return res.status(500).json({ error: "API Key not configured server-side" });
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
         const daysLeft = Math.ceil((new Date(examDate) - new Date()) / (1000 * 60 * 60 * 24));
 
@@ -224,7 +224,7 @@ app.post('/api/ai/generate-model-paper', async (req, res) => {
             ]
         }`;
 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
