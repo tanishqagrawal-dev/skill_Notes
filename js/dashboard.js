@@ -1101,6 +1101,20 @@ function renderTabContent(tabId) {
                 <div id="my-uploads-grid" class="notes-grid-pro" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;"></div>
             </div>`;
             if (typeof renderMyUploads === 'function') renderMyUploads();
+        } else if (tabId === 'focusflow') {
+            if (window.renderFocusFlow) {
+                contentArea.innerHTML = window.renderFocusFlow();
+                if (window.initFocusFlow) window.initFocusFlow();
+            } else {
+                contentArea.innerHTML = `<p>Loading FocusFlow Pro...</p>`;
+            }
+        } else if (tabId === 'cgpa-analyzer') {
+            if (window.renderCGPAAnalyzer) {
+                contentArea.innerHTML = window.renderCGPAAnalyzer();
+                if (window.initCGPAAnalyzer) window.initCGPAAnalyzer();
+            } else {
+                contentArea.innerHTML = `<p>Loading CGPA Analyzer...</p>`;
+            }
         }
         // --- ROLE SPECIFIC ---
         else if (tabId === 'admin-console') {
@@ -3131,15 +3145,43 @@ window.showAIModal = function (type, subject) {
         </div>`;
     } else if (type === 'questions') {
         title = '📝 Model Exam Questions';
-        content = `<div style="text-align: center; padding: 2rem;">
-            <div style="font-size: 3.5rem; margin-bottom: 1.5rem;">⚙️</div>
-            <h3 style="color: white; margin-bottom: 1rem;">AI Question Generator</h3>
-            <p style="color: var(--text-dim); line-height: 1.6;">We're fine-tuning the AI to generate accurate 2-mark and 10-mark mock papers for <b style="color: #00f2ff;">${subject}</b>.</p>
-            <div class="loader-pro" style="margin: 2rem auto; width: 40px; height: 40px;"></div>
-            <p style="font-size: 0.85rem; color: var(--secondary); background: rgba(0, 242, 255, 0.05); padding: 0.8rem; border-radius: 12px; margin-top: 1rem;">
-                🎯 Expect high-probability exam questions based on the latest university patterns soon!
-            </p>
-        </div>`;
+        
+        content = `
+            <div class="ai-selection-pane" id="ai-generator-ui">
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <h3 style="color: white;">Select Examination Type</h3>
+                    <p style="color: var(--text-dim);">Generate high-probability questions for ${subject}.</p>
+                </div>
+                
+                <div class="exam-type-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
+                    <div class="exam-type-card" onclick="window.selectExamType(this, 'MST 1')" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">1️⃣</div>
+                        <div style="font-weight: bold;">MST 1</div>
+                    </div>
+                    <div class="exam-type-card" onclick="window.selectExamType(this, 'MST 2')" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">2️⃣</div>
+                        <div style="font-weight: bold;">MST 2</div>
+                    </div>
+                    <div class="exam-type-card" onclick="window.selectExamType(this, 'End Sem')" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🎓</div>
+                        <div style="font-weight: bold;">End Sem</div>
+                    </div>
+                </div>
+
+                <div id="ai-status-msg" style="text-align: center; margin: 1rem 0; color: #7B61FF; font-size: 0.85rem;"></div>
+
+                <button id="ai-generate-btn" class="btn btn-primary" style="width: 100%; border-radius: 12px; padding: 1rem; font-weight: 700; background: linear-gradient(135deg, #7B61FF, #00F2FF); border: none; color: white; cursor: pointer;" onclick="window.handleAIGeneration('${subject}')" disabled>
+                    ✨ Generate AI Model Paper
+                </button>
+
+                <div class="credit-info" style="text-align: center; margin-top: 1rem;">
+                    <span id="ai-credits-left" style="font-size: 0.85rem; color: var(--text-dim);">Please select an exam type above.</span>
+                </div>
+            </div>`;
+
+        // Cache syllabus for AI usage
+        window._currentSyllabusContext = syllabiDB[subject] || "";
+
     } else if (type === 'syllabus') {
         title = '📖 Subject Syllabus';
 
@@ -4869,3 +4911,76 @@ function startDashboardSimulation() {
 
 // Start simulation once dashboard logic is up
 startDashboardSimulation();
+
+window.selectExamType = function (el, type) {
+    document.querySelectorAll('.exam-type-card').forEach(c => {
+        c.style.background = 'rgba(255,255,255,0.05)';
+        c.style.borderColor = 'rgba(255,255,255,0.1)';
+    });
+    el.style.background = 'rgba(123, 97, 255, 0.2)';
+    el.style.borderColor = '#7B61FF';
+    window.selectedExamType = type;
+    document.getElementById('ai-generate-btn').disabled = false;
+    document.getElementById('ai-credits-left').innerText = `Ready to generate ${type} paper.`;
+};
+
+window.handleAIGeneration = async function (subject) {
+    const btn = document.getElementById('ai-generate-btn');
+    const statusMsg = document.getElementById('ai-status-msg');
+
+    if (!window.selectedExamType) return;
+
+    try {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="loader-pro" style="width: 16px; height: 16px; border-width: 2px;"></span> Processing...`;
+        statusMsg.innerText = "Processing High-Quality Model Paper...";
+        statusMsg.style.color = "var(--secondary)";
+
+        // Fetch syllabus context
+        let syllabusText = "";
+        if (window._currentSyllabusContext) {
+            syllabusText = window.AIGenerator.filterSyllabus(window._currentSyllabusContext, window.selectedExamType);
+        }
+
+        const paperData = await window.AIGenerator.getPaper(subject, subject, window.selectedExamType, syllabusText);
+        const paperHTML = window.AIGenerator.renderPaperHTML(paperData);
+
+        // Update UI to Success State
+        statusMsg.style.color = "#2ed573";
+        statusMsg.innerText = "✨ Paper Generated Successfully!";
+        
+        // Transform the generator area into a Download Center
+        const modalBody = btn.closest('.modal-content-pro') || btn.parentElement;
+        if (modalBody) {
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">📄</div>
+                    <h2 class="font-heading" style="color: white; margin-bottom: 0.5rem;">${window.selectedExamType} Paper Ready</h2>
+                    <p style="color: var(--text-dim); margin-bottom: 2rem;">A professional academic model paper with marking scheme has been generated.</p>
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button id="final-download-btn" class="btn btn-primary" style="padding: 1rem 2rem; border-radius: 12px; font-weight: 700; background: #2ed573; border-color: #2ed573; color: #1a1a1a;">
+                            📥 Download PDF
+                        </button>
+                        <button class="btn" style="padding: 1rem 2rem; border-radius: 12px; background: rgba(255,255,255,0.05); color: white;" onclick="document.getElementById('dynamic-ai-modal').style.display='none'">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Attach download listener
+            document.getElementById('final-download-btn').onclick = () => {
+                const fileName = `SKiL_MATRiX_${subject.replace(/\s+/g, '_')}_${window.selectedExamType.replace(/\s+/g, '_')}.pdf`;
+                window.AIGenerator.downloadAsPDF(paperHTML, fileName);
+            };
+        }
+
+    } catch (e) {
+        console.error(e);
+        statusMsg.style.color = "#ff4757";
+        statusMsg.innerText = "Error: " + e.message;
+        btn.disabled = false;
+        btn.innerHTML = `✨ Try Again`;
+    }
+};
+
