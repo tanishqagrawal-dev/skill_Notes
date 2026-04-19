@@ -388,7 +388,7 @@ function initNotesSync() {
 
     isNotesSyncInit = true;
     console.log("📡 Initializing Notes Hub Synchronization (Limited)...");
-    
+
     // We limit the global cache to save massively on reads. The Notes Hub handles its own fetching.
     const q = query(collection(db, 'notes'), limit(50));
     unsubscribeNotes = onSnapshot(q, (snap) => {
@@ -776,122 +776,148 @@ window.closeDashboardUploadModal = function () {
 
 async function handleDashboardNoteSubmit(e) {
     e.preventDefault();
+    if (window.isSubmittingNote) return;
+
     const btn = document.getElementById('dash-submit-btn');
     const statusArea = document.getElementById('upload-status-area');
     const statusText = document.getElementById('upload-status-text');
 
-    const title = document.getElementById('title').value;
-    const collegeId = document.getElementById('college').value;
-    const stream = document.getElementById('stream').value;
-    const branch = document.getElementById('branch').value;
-    const semester = document.getElementById('semester').value;
-    const subject = document.getElementById('subject').value;
-    const file = document.getElementById('file').files[0];
+    const titleEl = document.getElementById('title');
+    const collegeEl = document.getElementById('college');
+    const streamEl = document.getElementById('stream');
+    const branchEl = document.getElementById('branch');
+    const semesterEl = document.getElementById('semester');
+    const subjectEl = document.getElementById('subject');
+    const fileEl = document.getElementById('file');
 
-    if (!file) {
-        alert("Please select a file.");
-        return;
-    }
+    // 1. Validate ALL fields
+    const fields = [
+        { el: titleEl, name: "Title" },
+        { el: collegeEl, name: "College" },
+        { el: streamEl, name: "Stream" },
+        { el: branchEl, name: "Branch" },
+        { el: semesterEl, name: "Semester" },
+        { el: subjectEl, name: "Subject" },
+        { el: fileEl, name: "File" }
+    ];
 
+    document.querySelectorAll('.inline-error').forEach(el => el.remove());
+
+    let hasError = false;
+    fields.forEach(f => {
+        if (!f.el.value) {
+            hasError = true;
+            const err = document.createElement('span');
+            err.className = 'inline-error';
+            err.style.cssText = "color: #ff4757; font-size: 0.8rem; margin-top: 4px; display: block;";
+            err.innerText = `${f.name} is required.`;
+            f.el.parentNode.appendChild(err);
+        }
+    });
+
+    if (hasError) return;
+
+    window.isSubmittingNote = true;
     btn.disabled = true;
-    btn.innerText = "Processing...";
+    btn.innerHTML = `<span class="spin-loader"></span> Processing...`;
     statusArea.style.display = 'block';
 
-    // Helper to get text from select
-    const getSelectText = (id) => {
-        const el = document.getElementById(id);
-        return el.options[el.selectedIndex]?.text || '';
-    };
-
-    // Metadata construction
-    let finalCollegeId = collegeId;
-    let finalCollegeName = getSelectText('college');
-
-    if (collegeId === 'new_college') {
-        const newName = document.getElementById('college-new-name').value;
-        if (!newName) {
-            alert("Please enter the new college name.");
-            btn.disabled = false;
-            btn.innerText = "Upload Note";
-            return;
-        }
-        finalCollegeId = newName.toLowerCase().trim().replace(/\s+/g, '-');
-        finalCollegeName = newName;
-
-        const { db, doc, setDoc, serverTimestamp } = getFirebase();
-        await setDoc(doc(db, 'colleges', finalCollegeId), {
-            id: finalCollegeId,
-            name: finalCollegeName,
-            status: 'active',
-            createdAt: serverTimestamp()
-        }, { merge: true });
-    }
-
-    const isAdmin = ['admin', 'superadmin', 'super-admin', 'coadmin', 'college-admin'].includes(currentUser.role?.toLowerCase()) ||
-        currentUser.email === 'skilmatrix3@gmail.com';
-    console.log("👤 Current User Role/Email for Upload:", currentUser.role, currentUser.email, "isAdmin:", isAdmin);
-    const metadata = {
-        title: title,
-        college: finalCollegeId || (currentUser.collegeId || 'medicaps'),
-        collegeId: finalCollegeId || (currentUser.collegeId || 'medicaps'),
-        collegeName: finalCollegeName || 'Medicaps University',
-        stream: getSelectText('stream') || 'B.Tech',
-        streamId: stream,
-        branch: getSelectText('branch') || 'CSE',
-        branchId: branch,
-        semester: semester,
-        subject: getSelectText('subject') || 'General',
-        subjectId: subject,
-        type: 'notes',
-        uploader: currentUser.name || "Guest Scholar",
-        uploadedBy: currentUser.id || "guest",
-        uploaderEmail: currentUser.email || "guest@example.com",
-        date: new Date().toLocaleDateString(),
-        targetCollection: 'notes',
-        status: 'pending', // Restore manual admin verification
-        verified: false,
-        approvedBy: 'pending',
-        approvedAt: null
-    };
+    const pBar = document.getElementById('upload-progress');
+    if (pBar) pBar.style.width = '5%';
+    statusText.innerText = "Initializing...";
 
     try {
+        const { db, collection, getDocs, query, where, doc, setDoc } = window.firebaseServices || getFirebase();
+
+        // 2. Duplicate Check
+        statusText.innerText = "Checking for duplicates...";
+        const existingQuery = query(
+            collection(db, "notes"),
+            where("uploadedBy", "==", currentUser.id),
+            where("title", "==", titleEl.value)
+        );
+        const existingDocs = await getDocs(existingQuery);
+        const hasDuplicate = existingDocs.docs.some(d => (d.data().status || '').toUpperCase() !== "REJECTED");
+
+        if (hasDuplicate) {
+            throw new Error("You already uploaded a note with this title.");
+        }
+
+        // 3. Prepare Metadata
+        let finalCollegeId = collegeEl.value;
+        let finalCollegeName = collegeEl.options[collegeEl.selectedIndex]?.text || '';
+        let newCollegeName = null;
+
+        if (finalCollegeId === 'new_college') {
+            newCollegeName = document.getElementById('college-new-name').value;
+            if (!newCollegeName) throw new Error("Please enter the new college name.");
+            finalCollegeId = newCollegeName.toLowerCase().trim().replace(/\s+/g, '-');
+            finalCollegeName = newCollegeName;
+        }
+
+        const metadata = {
+            title: titleEl.value,
+            college: finalCollegeId,
+            collegeId: finalCollegeId,
+            collegeName: finalCollegeName,
+            semester: semesterEl.value,
+            subject: subjectEl.options[subjectEl.selectedIndex]?.text || 'General',
+            subjectId: subjectEl.value,
+            stream: streamEl.options[streamEl.selectedIndex]?.text || 'B.Tech',
+            streamId: streamEl.value,
+            branch: branchEl.value,
+            targetCollection: 'notes',
+            status: "pending"
+        };
+
+        // 4. Handle New College Registration (if needed)
+        if (newCollegeName) {
+            await setDoc(doc(db, 'colleges', finalCollegeId), {
+                id: finalCollegeId,
+                name: finalCollegeName,
+                status: 'pending_verification',
+                createdAt: new Date().toISOString()
+            }, { merge: true }).catch(e => console.warn("College registration deferred:", e));
+        }
+
+        // 5. Trigger Firebase Storage Upload via Helper
+        const file = fileEl.files[0];
         const result = await window.uploadNoteToFirebase(file, metadata);
 
-        // Step 1: Show success toast
-        if (window.showToast) window.showToast("✅ Note uploaded successfully! Pending review.");
-        statusText.innerText = "✅ Uploaded! Redirecting...";
-        const pBar = document.querySelector('.dash-progress-fill');
-        if (pBar) pBar.style.width = '100%';
+        if (result.success) {
+            // 6. Visual Success
+            if (pBar) pBar.style.width = '100%';
+            statusText.innerText = "✅ Upload Completed!";
+            if (window.showToast) window.showToast("✅ Upload Completed!", "success");
 
-        // Step 2: Immediately close modal + navigate to My Uploads (no delay needed)
-        setTimeout(() => {
-            // Close & destroy modal from DOM
-            closeDashboardUploadModal();
+            setTimeout(() => {
+                closeDashboardUploadModal();
+                try {
+                    document.getElementById('dash-upload-form').reset();
+                    document.getElementById('upload-status-area').style.display = 'none';
+                } catch (fe) { }
 
-            // Reset form state
-            try {
-                document.getElementById('dash-upload-form').reset();
-                document.getElementById('upload-status-area').style.display = 'none';
-            } catch(fe) {}
-
-            // Navigate to My Uploads tab
-            const myUploadsTab = document.querySelector('.nav-item[data-tab="my-uploads"]');
-            if (myUploadsTab) {
-                myUploadsTab.click();
-            } else {
-                if (typeof renderTabContent === 'function') renderTabContent('my-uploads');
-            }
-        }, 800);
+                const myUploadsTab = document.querySelector('.nav-item[data-tab="my-uploads"]');
+                if (myUploadsTab) {
+                    myUploadsTab.click();
+                } else if (typeof renderTabContent === 'function') {
+                    renderTabContent('my-uploads');
+                }
+            }, 300);
+        }
 
     } catch (err) {
-        console.error("Upload failed:", err);
-        statusText.innerText = "❌ Failed: " + err.message;
-        if (window.showToast) window.showToast("Upload failed: " + err.message);
+        console.error("Upload Error:", err);
+        if (window.showToast) window.showToast("❌ " + err.message);
+        statusText.innerText = "Failed: " + err.message;
+        if (pBar) pBar.style.background = '#ff4757';
     } finally {
+        window.isSubmittingNote = false;
         btn.disabled = false;
-        btn.innerText = "Upload Note";
+        btn.innerHTML = `Upload Note`;
     }
 }
+
 
 window.updateUploadSubjects = function () {
     const branch = document.getElementById('branch').value;
@@ -929,16 +955,8 @@ function initTabs() {
     sidebarNav.insertBefore(myUploads, settingsNode);
 
     // 3. Moderation & Admin Tools
-    if (currentUser.role === 'coadmin' || currentUser.role === 'admin' || currentUser.role === 'superadmin') {
-        // Co-Admin Hub - Locked
-        const modHub = createNavItem('moderation-hub', '🛡️', 'Moderation Hub <span style="font-size:0.6rem; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; margin-left:5px;">🔒</span>', true);
-        modHub.style.opacity = '0.6';
-        modHub.style.cursor = 'not-allowed';
-        modHub.onclick = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            alert("🔒 Moderation Hub is coming soon!");
-        };
+    if (['skilmatrix3@gmail.com', 'tanishqagrawal1103@gmail.com'].includes(currentUser.email)) {
+        const modHub = createNavItem('moderation-hub', '🛡️', 'Moderation Hub', true);
         sidebarNav.insertBefore(modHub, settingsNode);
     }
 
@@ -1017,6 +1035,16 @@ function renderTabContent(tabId) {
     const contentArea = document.getElementById('tab-content');
     if (!contentArea) return;
 
+    if (window.myUploadsUnsubscribe && tabId !== 'my-uploads') {
+        window.myUploadsUnsubscribe();
+        window.myUploadsUnsubscribe = null;
+    }
+
+    if (window.modHubUnsubscribe && tabId !== 'moderation-hub') {
+        window.modHubUnsubscribe();
+        window.modHubUnsubscribe = null;
+    }
+
     // GA4 SPA Tracking
     if (window.trackSPAView) {
         window.trackSPAView(`/dashboard/${tabId}`);
@@ -1084,7 +1112,7 @@ function renderTabContent(tabId) {
         } else if (tabId === 'verification-hub') {
             contentArea.innerHTML = `<div class="tab-pane active fade-in" style="padding: 2rem;">
                 <h1 class="font-heading">🛡️ Moderation <span class="gradient-text">Queue</span></h1>
-                <p style="color: var(--text-dim); margin-bottom: 2rem;">Approve or reject pending note submissions.</p>
+                <p style="color: var(--text-dim); margin-bottom: 2rem;">approve or reject pending note submissions.</p>
                 <div id="admin-queue" class="grid-1-col" style="display: grid; gap: 1rem;"></div>
             </div>`;
             if (typeof renderAdminModQueue === 'function') renderAdminModQueue();
@@ -1107,8 +1135,8 @@ function renderTabContent(tabId) {
             if (window.AdminConsole) contentArea.innerHTML = window.AdminConsole.render();
             else contentArea.innerHTML = "<p>Loading Admin Console...</p>";
         }
-        else if (tabId === 'coadmin-hub') {
-            if (window.CoAdminModule) contentArea.innerHTML = window.CoAdminModule.render();
+        else if (tabId === 'moderation-hub') {
+            if (typeof window.renderModerationHub === 'function') window.renderModerationHub();
             else contentArea.innerHTML = "<p>Loading Moderation Hub...</p>";
         }
         else if (tabId === 'college-stats') {
@@ -2507,6 +2535,166 @@ function renderInstantStaticNotes(notes) {
 }
 
 
+window.renderModerationHub = function () {
+    const contentArea = document.getElementById('tab-content');
+    if (!contentArea) return;
+
+    // Verify SUPERADMIN strictly
+    if (!['skilmatrix3@gmail.com', 'tanishqagrawal1103@gmail.com'].includes(currentUser.email)) {
+        contentArea.innerHTML = `<p style="color:#ff4757; text-align:center; padding: 2rem;">Access Denied. Superadmin only.</p>`;
+        return;
+    }
+
+    // Set initial layout if not already there
+    if (!document.getElementById('moderation-hub-container')) {
+        contentArea.innerHTML = `
+            <div class="tab-pane active fade-in" style="padding: 2rem;">
+                <h1 class="font-heading">🛡️ Moderation <span class="gradient-text">Hub</span></h1>
+                <p style="color: var(--text-dim); margin-bottom: 2rem;">Review and manage community submissions natively in real-time.</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2.5rem;">
+                    <div class="glass-card" style="padding: 1.5rem; text-align: center; border-bottom: 4px solid #f1c40f;">
+                        <h3 style="font-size: 2.5rem; margin-bottom: 0.5rem;" id="mod-stat-pending">--</h3>
+                        <p style="color: var(--text-dim); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">Pending</p>
+                    </div>
+                    <div class="glass-card" style="padding: 1.5rem; text-align: center; border-bottom: 4px solid var(--success);">
+                        <h3 style="font-size: 2.5rem; margin-bottom: 0.5rem;" id="mod-stat-approved">--</h3>
+                        <p style="color: var(--text-dim); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">Approved</p>
+                    </div>
+                    <div class="glass-card" style="padding: 1.5rem; text-align: center; border-bottom: 4px solid #ff4757;">
+                        <h3 style="font-size: 2.5rem; margin-bottom: 0.5rem;" id="mod-stat-rejected">--</h3>
+                        <p style="color: var(--text-dim); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">Rejected</p>
+                    </div>
+                </div>
+
+                <div class="subject-tabs-nav" style="display: flex; gap: 2.5rem; margin-bottom: 2rem; border-bottom: 2px solid rgba(255, 255, 255, 0.05);">
+                    <div id="mod-tab-pending" class="subject-tab active" onclick="window.switchModTab('pending')" style="padding: 1rem 0; color: #FFFFFF; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; border-bottom: 2px solid #f1c40f;">Pending Review</div>
+                    <div id="mod-tab-approved" class="subject-tab" onclick="window.switchModTab('approved')" style="padding: 1rem 0; color: #FFFFFF; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; opacity: 0.6; border-bottom: 2px solid transparent;">Approved</div>
+                    <div id="mod-tab-rejected" class="subject-tab" onclick="window.switchModTab('rejected')" style="padding: 1rem 0; color: #FFFFFF; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; opacity: 0.6; border-bottom: 2px solid transparent;">Rejected</div>
+                </div>
+
+                <div id="moderation-hub-container" class="notes-grid-pro" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+                    <div class="loader-pro" style="margin: 2rem auto;"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    const { db, collection, query, orderBy, onSnapshot } = window.firebaseServices || getFirebase();
+
+    // Setup overarching onSnapshot
+    if (!window.modHubUnsubscribe) {
+        const q = query(collection(db, "notes"), orderBy("createdAt", "desc"));
+
+        window.modHubUnsubscribe = onSnapshot(q, (snapshot) => {
+            window.moderationDataCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            window.renderModHubList(window.currentModTab || 'pending');
+        }, (error) => {
+            console.error("Moderation Listener Error:", error);
+            const container = document.getElementById('moderation-hub-container');
+            if (container) container.innerHTML = `<p style="color:#ff4757;">Error loading notes: ${error.message}</p>`;
+        });
+    } else if (window.moderationDataCache) {
+        window.renderModHubList(window.currentModTab || 'pending');
+    }
+};
+
+window.switchModTab = function (statusTab) {
+    window.currentModTab = statusTab;
+
+    // Update tab styling natively
+    ['pending', 'approved', 'rejected'].forEach(t => {
+        const el = document.getElementById(`mod-tab-${t}`);
+        if (el) {
+            if (t === statusTab) {
+                el.classList.add('active');
+                el.style.opacity = '1';
+                let color = t === 'pending' ? '#f1c40f' : (t === 'approved' ? 'var(--success)' : '#ff4757');
+                el.style.borderBottom = `2px solid ${color}`;
+            } else {
+                el.classList.remove('active');
+                el.style.opacity = '0.6';
+                el.style.borderBottom = `2px solid transparent`;
+            }
+        }
+    });
+
+    window.renderModHubList(statusTab);
+};
+
+window.renderModHubList = function (statusTab) {
+    if (!window.moderationDataCache) return;
+
+    const allNotes = window.moderationDataCache;
+
+    // Compute Stat Cards natively from the one global snapshot
+    const countPending = allNotes.filter(n => (n.status || 'PENDING').toUpperCase() === 'PENDING').length;
+    const countApproved = allNotes.filter(n => (n.status || '').toLowerCase() === 'approved').length;
+    const countRejected = allNotes.filter(n => (n.status || '').toUpperCase() === 'REJECTED').length;
+
+    const pendingEl = document.getElementById('mod-stat-pending');
+    if (pendingEl) pendingEl.innerText = countPending;
+    const approvedEl = document.getElementById('mod-stat-approved');
+    if (approvedEl) approvedEl.innerText = countApproved;
+    const rejectedEl = document.getElementById('mod-stat-rejected');
+    if (rejectedEl) rejectedEl.innerText = countRejected;
+
+    const container = document.getElementById('moderation-hub-container');
+    if (!container) return;
+
+    const filtered = allNotes.filter(n => (n.status || 'PENDING').toUpperCase() === statusTab.toUpperCase());
+
+    if (filtered.length === 0) {
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 3rem; opacity: 0.5;">No ${statusTab.toUpperCase()} notes found.</div>`;
+        return;
+    }
+
+    container.innerHTML = filtered.map(n => {
+        const uploader = n.uploaderName || n.uploader || 'Unknown';
+        const uploaderMail = n.uploaderEmail || 'No email';
+        let displayDate = "--";
+        if (n.createdAt) {
+            const dateObj = n.createdAt.toDate ? n.createdAt.toDate() : new Date(n.createdAt);
+            displayDate = dateObj.toLocaleDateString();
+        }
+
+        let actionBtns = '';
+        if (statusTab.toUpperCase() === 'PENDING') {
+            actionBtns = `
+                <div style="display:flex; gap:0.5rem; margin-top: 1.5rem; margin-bottom: 0.5rem;">
+                    <button class="btn btn-sm" style="flex:1; background: var(--success); color: #fff;" onclick="window.approveNote('${n.id}', '${n.uploadedBy}')">✅ Approve</button>
+                    <button class="btn btn-sm" style="flex:1; background: #ff4757; color: #fff;" onclick="window.rejectNotePrompt('${n.id}', '${n.uploadedBy}')">❌ Reject</button>
+                </div>
+            `;
+        } else if (statusTab.toUpperCase() === 'REJECTED') {
+            actionBtns = `
+                <div style="margin-top: 1.5rem;">
+                    <button class="btn btn-sm" style="width: 100%; border: 1px solid var(--border-glass);" onclick="window.deleteUploadedNote('${n.id}')">🗑️ Delete Permanently</button>
+                </div>
+            `;
+        }
+
+        return `
+        <div class="glass-card" style="padding: 1.5rem; position: relative;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:0.8rem;">
+                 <a href="${n.url || n.fileUrl || n.driveLink || '#'}" target="_blank" style="color:var(--primary); text-decoration:none; font-weight:bold; font-size:1.1rem; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${n.title || 'Untitled'}">${n.title || 'Untitled'}</a>
+                 <div style="font-size:0.7rem; color:var(--text-dim); white-space:nowrap; margin-left:1rem;">${displayDate}</div>
+            </div>
+            
+            <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1rem; line-height: 1.4; background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 8px;">
+                <strong>From:</strong> ${uploader} <br/><span style="opacity:0.6;">(${uploaderMail})</span><br/>
+                <strong>Subject:</strong> ${n.subject || 'General'}<br/>
+                <strong>Program:</strong> ${n.stream || 'N/A'} • ${n.semester || 'N/A'}<br/>
+                <strong>College:</strong> ${n.collegeName || n.college || 'N/A'}<br/>
+                ${n.rejectionReason ? `<div style="margin-top:0.5rem;"><strong style="color: #ff4757;">Reason:</strong> <span style="color: #ff4757;">${n.rejectionReason}</span></div>` : ''}
+            </div>
+
+            ${actionBtns}
+        </div>
+        `;
+    }).join('');
+};
+
 window.renderMyUploads = function () {
     const container = document.getElementById('my-uploads-grid');
     if (!container) return;
@@ -2517,167 +2705,124 @@ window.renderMyUploads = function () {
         return;
     }
 
-    const { db, collection, query, where, getDocs, onSnapshot } = window.firebaseServices;
+    container.innerHTML = '<div class="loader-pro" style="margin: 2rem auto;"></div>';
 
-    // --- RENDER HELPER ---
-    const render = (all) => {
-        if (!all || all.length === 0) {
+    const { db, collection, query, where, orderBy, onSnapshot } = window.firebaseServices || getFirebase();
+
+    const q = query(
+        collection(db, "notes"),
+        where("uploadedBy", "==", currentUser.id),
+        orderBy("createdAt", "desc")
+    );
+
+    window.myUploadsUnsubscribe = onSnapshot(q, (snapshot) => {
+        if (snapshot.empty) {
             container.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; padding: 4rem; opacity: 0.6;">
                     <div style="font-size: 3rem; margin-bottom: 1rem;">📤</div>
                     <p>You haven't uploaded anything yet.</p>
-                    <button class="btn btn-primary" onclick="openUploadModal()" style="margin-top:1rem;">Upload Your First Note</button>
+                    <button class="btn btn-primary" onclick="window.openUploadModal()" style="margin-top:1rem;">Upload Your First Note</button>
                 </div>
             `;
             return;
         }
-        container.innerHTML = all.map(n => {
-            const stat = (n.status || 'pending').toLowerCase();
-            const color = stat === 'approved' ? 'var(--success)' : '#f1c40f';
-            const subj = n.subject || 'general';
-            const titl = n.title || n.fileName || 'Untitled Note';
-            const ts = n.createdAt || n.created_at;
-            let displayDate = new Date().toLocaleDateString();
-            if (ts) {
-                if (ts.toDate) displayDate = ts.toDate().toLocaleDateString();
-                else displayDate = new Date(ts).toLocaleDateString();
+
+        const html = snapshot.docs.map(doc => {
+            const data = doc.data();
+            const stat = (data.status || 'PENDING').toUpperCase();
+
+            let color = '#f1c40f'; // PENDING
+            if (stat === 'approved') color = 'var(--success, #2ecc71)';
+            if (stat === 'REJECTED') color = '#ff4757';
+
+            let displayDate = "--";
+            if (data.createdAt) {
+                const dateObj = data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt);
+                const options = { day: '2-digit', month: 'short', year: 'numeric' };
+                // Using GB locale gets "DD MMM YYYY" pattern cleanly
+                displayDate = dateObj.toLocaleDateString('en-GB', options).replace(/ /g, ' ').toUpperCase();
             }
+
+            let rejectHtml = '';
+            if (stat === 'REJECTED' && data.rejectionReason) {
+                rejectHtml = `<div style="color: #ff4757; font-size: 0.8rem; margin-top: 0.5rem; background: rgba(255, 71, 87, 0.1); padding: 0.5rem; border-radius: 4px;">Reason: ${data.rejectionReason}</div>`;
+            }
+
+            const fileLink = data.url || data.fileUrl || data.driveLink || data.driveUrl;
+            let actionsHtml = `
+                <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                    ${fileLink ? `<a href="${fileLink}" target="_blank" class="btn btn-sm" style="flex: 1; text-decoration: none; background: rgba(52, 152, 219, 0.15); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.3); text-align: center; border-radius: 6px; padding: 8px 0; font-size: 0.75rem; font-weight: 500; transition: all 0.2s ease;">View</a>` : ''}
+                    <button onclick="deleteUploadedNote('${doc.id}')" class="btn btn-sm" style="flex: 1; background: rgba(231, 76, 60, 0.15); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3); border-radius: 6px; padding: 8px 0; font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: all 0.2s ease;">Delete</button>
+                </div>
+            `;
             return `
-            <div class="glass-card wobble-hover" style="position: relative; border-left: 4px solid ${color}; padding: 1.5rem;">
-                <div style="position: absolute; top: 1rem; right: 1rem; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); color: ${color}; border: 1px solid ${color};">
-                    ${stat.toUpperCase()}
+            <div class="glass-card wobble-hover" style="position: relative; border-left: 4px solid ${color}; padding: 1.5rem; display: flex; flex-direction: column;">
+                <div style="position: absolute; top: 1rem; right: 1rem; font-size: 0.7rem; font-weight: bold; padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); color: ${color}; border: 1px solid ${color};">
+                    ${stat}
                 </div>
                 <div style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.8;">📄</div>
-                <h4 style="margin-bottom: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${titl}</h4>
-                <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1rem;">
-                    ${subj.toUpperCase()} • ${displayDate}
+                <h4 style="margin-bottom: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 60px;" title="${data.title || 'Untitled'}">${data.title || 'Untitled Note'}</h4>
+                
+                <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.5rem; line-height: 1.4;">
+                    <strong>Subject:</strong> ${data.subject || 'General'}<br/>
+                    <strong>College:</strong> ${data.collegeName || data.college || 'N/A'}<br/>
+                    <strong>Program:</strong> ${data.stream || 'N/A'} • ${data.semester || 'N/A'}<br/>
+                    <strong>Uploaded:</strong> ${displayDate}
                 </div>
-                <div style="display: flex; gap: 0.5rem; justify-content: space-between; width: 100%;">
-                    <div style="display: flex; gap: 0.5rem;">
-                        <a href="${n.url || n.fileUrl || n.driveLink || '#'}" target="_blank" class="btn btn-sm btn-ghost" style="border: 1px solid var(--border-glass);">View</a>
-                        <button onclick="deleteUploadedNote('${n.id}')" class="btn btn-sm btn-ghost" style="border: 1px solid #ff4757; color: #ff4757; background: rgba(255, 71, 87, 0.1); cursor: pointer;">Delete</button>
-                    </div>
-                    ${stat === 'approved' ? `<span style="font-size:0.8rem; display:flex; align-items:center;">👁️ ${n.views || 0}</span>` : ''}
+                
+                ${rejectHtml}
+                <div style="margin-top: auto; padding-top: 0.5rem;">
+                    ${actionsHtml}
                 </div>
             </div>
             `;
         }).join('');
-    };
 
-    // --- STEP 1: Show cached data INSTANTLY (zero network delay) ---
-    const cacheKey = `my_uploads_${currentUser.id}`;
-    try {
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-            const cachedNotes = JSON.parse(cached);
-            if (cachedNotes && cachedNotes.length > 0) {
-                render(cachedNotes);
-                // Show a subtle syncing indicator without blocking UI
-                const syncBadge = document.createElement('div');
-                syncBadge.id = 'uploads-sync-badge';
-                syncBadge.style.cssText = 'font-size:0.7rem; color:var(--text-dim); text-align:right; padding: 0 0 0.5rem; opacity:0.5;';
-                syncBadge.textContent = '⟳ Syncing...';
-                container.before(syncBadge);
-            } else {
-                container.innerHTML = '<div class="loader-pro" style="margin: 2rem auto;"></div>';
-            }
-        } else {
-            container.innerHTML = '<div class="loader-pro" style="margin: 2rem auto;"></div>';
-        }
-    } catch (e) {
-        container.innerHTML = '<div class="loader-pro" style="margin: 2rem auto;"></div>';
-    }
-
-    // --- STEP 2: Fetch fresh data via one-time HTTP (fast, no WebSocket wait) ---
-    // Query by user's profile ID (stored in uploadedBy field)
-    const userId = currentUser.id;
-    const userEmail = currentUser.email;
-    const q = query(collection(db, "notes"), where("uploadedBy", "==", userId));
-
-    getDocs(q).then((snap) => {
-        const notes = snap.docs.map(d => {
-            const data = d.data();
-            // Serialize Firestore Timestamps to ISO strings for localStorage compatibility
-            if (data.createdAt && data.createdAt.toDate) data.createdAt = data.createdAt.toDate().toISOString();
-            if (data.created_at && data.created_at.toDate) data.created_at = data.created_at.toDate().toISOString();
-            return { id: d.id, ...data };
-        });
-
-        // Save to localStorage for instant display on next refresh
-        try { localStorage.setItem(cacheKey, JSON.stringify(notes)); } catch (e) { /* storage full */ }
-
-        // Remove sync badge
-        const badge = document.getElementById('uploads-sync-badge');
-        if (badge) badge.remove();
-
-        render(notes);
-
-        // --- STEP 3: After initial fast load, upgrade to real-time listener for live status updates ---
-        onSnapshot(q, (liveSnap) => {
-            const liveNotes = liveSnap.docs.map(d => {
-                const data = d.data();
-                if (data.createdAt && data.createdAt.toDate) data.createdAt = data.createdAt.toDate().toISOString();
-                if (data.created_at && data.created_at.toDate) data.created_at = data.created_at.toDate().toISOString();
-                return { id: d.id, ...data };
-            });
-            try { localStorage.setItem(cacheKey, JSON.stringify(liveNotes)); } catch (e) { /* storage full */ }
-            render(liveNotes);
-        }, (err) => {
-            // Real-time listener failed — we already have the getDocs data shown, so just log silently
-            console.warn("Live uploads sync dropped (non-critical):", err.message);
-        });
-
-    }).catch((error) => {
-        console.error("Firestore Uploads Error:", error);
-        // If we already showed cached data, don't overwrite with error message
-        const hasCachedContent = container.querySelector('.glass-card');
-        if (!hasCachedContent) {
-            container.innerHTML = `<p style="color:red; text-align:center;">Could not load uploads: ${error.message}</p>`;
-        }
-        const badge = document.getElementById('uploads-sync-badge');
-        if (badge) { badge.textContent = '⚠️ Sync failed'; badge.style.color = '#ff6b6b'; }
+        container.innerHTML = html;
+    }, (error) => {
+        console.error("My Uploads onSnapshot Error:", error);
+        container.innerHTML = `<p style="color:#ff4757; text-align:center;">Failed to load uploads: ${error.message}</p>`;
     });
 };
 
 window.deleteUploadedNote = async function (noteId) {
     if (!confirm("Are you sure you want to delete this note? This action cannot be undone.")) return;
-    
+
     // Optimistic UI removal
     const deleteBtn = document.querySelector(`button[onclick="deleteUploadedNote('${noteId}')"]`);
     const cardToRemove = deleteBtn ? deleteBtn.closest('.glass-card') : null;
-    
+
     if (cardToRemove) {
         cardToRemove.style.transition = 'opacity 0.3s ease';
         cardToRemove.style.opacity = '0.5';
         cardToRemove.style.pointerEvents = 'none';
         if (deleteBtn) deleteBtn.innerText = "Deleting...";
     }
-    
+
     const { db, doc, deleteDoc } = window.firebaseServices;
     try {
         await deleteDoc(doc(db, "notes", noteId));
-        if (window.showToast) window.showToast("Note deleted successfully!", "success");
-        
+        if (window.showToast) window.showToast("Note record deleted successfully!", "success");
+
         // Remove from DOM immediately
         if (cardToRemove) cardToRemove.remove();
-        
+
         // Update local cache
         if (window.currentUser) {
             const cacheKey = `my_uploads_${window.currentUser.id}`;
-            const cachedUrl = localStorage.getItem(cacheKey);
-            if (cachedUrl) {
+            const cachedData = localStorage.getItem(cacheKey);
+            if (cachedData) {
                 try {
-                    let cachedNotes = JSON.parse(cachedUrl);
-                    cachedNotes = cachedNotes.filter(n => n.id !== noteId);
+                    let cachedNotes = JSON.parse(cachedData);
+                    cachedNotes = cachedNotes.filter(n => (n.id || n.noteId) !== noteId);
                     localStorage.setItem(cacheKey, JSON.stringify(cachedNotes));
-                } catch(e) {}
+                } catch (e) { }
             }
         }
     } catch (e) {
         console.error("Error deleting note:", e);
         if (window.showToast) window.showToast("Failed to delete note.", "error");
-        else alert("Failed to delete note.");
-        
+
         // Revert visual state if failed
         if (cardToRemove) {
             cardToRemove.style.opacity = '1';
@@ -2685,7 +2830,8 @@ window.deleteUploadedNote = async function (noteId) {
             if (deleteBtn) deleteBtn.innerText = "Delete";
         }
     }
-};
+}
+
 
 function renderNotesList(list, tabType) {
     if (list.length === 0) {
@@ -4479,22 +4625,52 @@ window.initModerationHub = async function () {
 
     if (moderationUnsubscribe) moderationUnsubscribe();
 
+    console.log("?? DIAGNOSTIC: Moderation Hub session check...");
+    console.log("?? DIAGNOSTIC: User ID:", currentUser.id || currentUser.uid);
+    console.log("?? DIAGNOSTIC: User Role (DB):", currentUser.role);
+
     const collegeFilter = document.getElementById('mod-filter-college')?.value || "all";
+    console.log("?? Moderation Hub: Starting SUPER-QUERY Probe...");
 
-    let q = query(collection(db, "notes"), where("status", "==", "pending"));
-    if (collegeFilter !== 'all') {
-        q = query(collection(db, "notes"), where("status", "==", "pending"), where("collegeId", "==", collegeFilter));
-    } else if (currentUser.role === 'coadmin') {
-        const myColl = currentUser.collegeId || currentUser.college || currentUser.assignedCollege;
-        q = query(collection(db, "notes"), where("status", "==", "pending"), where("collegeId", "==", myColl));
-    }
+    try {
+        // Probe 1: Look for EVERYTHING (The target)
+        const qAll = query(collection(db, "notes"));
+        // Probe 2: Look specifically for PENDING (To check indexing)
+        const qPending = query(collection(db, "notes"), where("status", "in", ["pending", "PENDING"]));
+        // Probe 3: Look for CURRENT USER notes (To verify connectivity)
+        const qMine = query(collection(db, "notes"), where("uploadedBy", "==", currentUser.id));
 
-    moderationUnsubscribe = onSnapshot(q, (snapshot) => {
-        moderationQueue = [];
-        snapshot.forEach(doc => moderationQueue.push({ id: doc.id, ...doc.data() }));
+        const [snapAll, snapPend, snapMine] = await Promise.all([
+            getDocs(qAll),
+            getDocs(qPending),
+            getDocs(qMine)
+        ]);
+
+        console.log(`?? PROBE RESULTS:`);
+        console.log(`   - Total Notes in DB: ${snapAll.docs.length}`);
+        console.log(`   - Pending Notes in DB: ${snapPend.docs.length}`);
+        console.log(`   - My Notes in DB: ${snapMine.docs.length}`);
+
+        // Use the most successful snapshot (Ideally snapAll)
+        const targetSnap = snapAll.docs.length > 0 ? snapAll : snapPend;
+        const allNotes = targetSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        moderationQueue = allNotes.filter(note => {
+            const stat = (note.status || 'pending').toLowerCase();
+            const isApproved = stat === 'approved';
+            const noteCollege = (note.collegeId || note.college || '').toLowerCase();
+            const filterCollege = (collegeFilter || 'all').toLowerCase();
+            return !isApproved && (filterCollege === 'all' || noteCollege === filterCollege);
+        });
+
+        console.log(`?? Moderation Hub: Rendering ${moderationQueue.length} pending items.`);
         renderModerationQueue();
         updateModerationStats();
-    });
+
+    } catch (err) {
+        console.error("?? PROBE CRITICAL FAILURE:", err.message);
+        showToast("Database probe failed. See console.", "error");
+    }
 };
 
 function renderModerationQueue() {
@@ -4751,121 +4927,121 @@ window.showToast = function (msg, type = 'success') {
     const toast = document.createElement('div');
     toast.style.cssText = `
         position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-        padding: 1rem 2rem; border-radius: 12px; z-index: 12000;
-        background: ${type === 'error' ? '#e74c3c' : (type === 'info' ? 'var(--primary)' : '#2ecc71')};
-        color: white; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        animation: slideUp 0.3s ease-out;
+
+        background: var(--card-glass);
+        color: white; padding: 12px 24px; border-radius: 8px; z-index: 10000;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     `;
     toast.innerText = msg;
     document.body.appendChild(toast);
-    setTimeout(() => {
-        toast.style.animation = 'fadeOut 0.3s ease-in forwards';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
+    setTimeout(() => toast.remove(), 3000);
 };
 
 
-// Note actions moved to js/note-actions.js for global availability
 
-async function loadLiveDashboardStats() {
-    if (isStatsInit) return;
-    const { db, collection, query, where, onSnapshot, limit } = getFirebase();
+// --- NOTIFICATION SYSTEM (PHASE 1) ---
+window.listenToNotifications = function () {
+    if (!currentUser || currentUser.isGuest) return;
+    const { db, collection, query, orderBy, onSnapshot, doc, updateDoc, writeBatch } = window.firebaseServices || getFirebase();
     if (!db) return;
 
-    isStatsInit = true;
+    if (notificationsUnsubscribe) notificationsUnsubscribe();
 
-    const isCoAdmin = currentUser?.role === 'coadmin';
-    const myColl = currentUser?.collegeId || currentUser?.college;
+    const notifRef = collection(db, "users", currentUser.id, "items");
+    const q = query(notifRef, orderBy("timestamp", "desc"));
 
-    console.log("📊 Loading Dashboard Live Data...");
+    notificationsUnsubscribe = onSnapshot(q, (snap) => {
+        userNotifications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const unreadCount = userNotifications.filter(n => !n.read).length;
 
-    // 1. Live Students (Heartbeat listener)
-    try {
-        let qPresence = query(collection(db, "presence"), where("online", "==", true));
-        if (isCoAdmin && myColl) {
-            qPresence = query(collection(db, "presence"), where("online", "==", true), where("collegeId", "==", myColl));
+        // Update Badge
+        const badge = document.getElementById('unread-badge');
+        if (badge) {
+            badge.innerText = unreadCount > 99 ? '99+' : unreadCount;
+            badge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
         }
-        onSnapshot(qPresence, (snap) => {
-            const el = document.getElementById('stat-active');
-            if (el) el.innerText = snap.size > 0 ? snap.size : "0";
-        });
-    } catch (e) { console.warn("Presence sync fail:", e); }
 
-    // 2. Trending Notes Count
-    try {
-        let qTrending = query(collection(db, "notes"), where("status", "==", "approved"), limit(10));
-        onSnapshot(qTrending, (snap) => {
-            const count = snap.size;
-            const el = document.getElementById('stat-notes');
-            if (el) el.innerText = count > 0 ? count : "0";
-        });
-    } catch (e) { console.warn("Trending sync fail:", e); }
-}
+        // Render Dropdown
+        const listContainer = document.getElementById('notification-list');
+        if (listContainer) {
+            if (userNotifications.length === 0) {
+                listContainer.innerHTML = '<div style="text-align: center; padding: 2rem 1rem; color: var(--text-dim);">Inbox zero 🎉</div>';
+            } else {
+                listContainer.innerHTML = userNotifications.map(n => {
+                    const icon = n.type === 'approved' ? '✅' : n.type === 'rejected' ? '❌' : n.type === 'xp' ? '⭐' : '🔔';
+                    const readClass = n.read ? '' : 'unread';
+                    const titleStr = n.title ? n.title : 'Notification';
+                    const msgStr = n.message ? n.message : '';
+                    const timeStr = new Date(n.timestamp?.toMillis ? n.timestamp.toMillis() : Date.now()).toLocaleString();
+                    const colorStr = n.read ? 'var(--text-dim)' : 'white';
 
-// Global hook for tracking progress
-window.trackStudyProgress = async function (subjectId, action = 'view') {
-    const { db, doc, setDoc, increment } = getFirebase();
-    const myId = currentUser?.uid || currentUser?.id;
-    if (!db || !myId || currentUser.isGuest) return;
-
-    const statsRef = doc(db, "user_stats", myId);
-    const weight = action === 'download' ? 5 : 1;
-
-    try {
-        await setDoc(statsRef, {
-            subjects: {
-                [subjectId]: {
-                    score: increment(weight),
-                    lastActive: new Date().toISOString()
-                }
+                    return '<div class="notification-item ' + readClass + '" data-nid="' + (n.id || '') + '" data-link="' + (n.link || '') + '" onclick="handleNotificationClick(this.getAttribute(\'data-nid\'), this.getAttribute(\'data-link\'))">' +
+                        '<div class="notification-icon">' + icon + '</div>' +
+                        '<div style="flex: 1;">' +
+                        '<div style="font-weight: 600; font-size: 0.9rem; color: ' + colorStr + ';">' + titleStr + '</div>' +
+                        '<div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 2px;">' + msgStr + '</div>' +
+                        '<div style="font-size: 0.7rem; color: var(--primary); margin-top: 4px; opacity: 0.8;">' + timeStr + '</div>' +
+                        '</div>' +
+                        '</div>';
+                }).join('');
             }
-        }, { merge: true });
-    } catch (e) { }
+        }
+    });
+
+    // Attach Toggle and Mark All Read
+    const bellBtn = document.getElementById('bell-btn');
+    if (bellBtn) {
+        bellBtn.onclick = (e) => {
+            e.stopPropagation();
+            const dropdown = document.getElementById('notification-dropdown');
+            if (dropdown.style.display === 'none') {
+                dropdown.style.display = 'block';
+            } else {
+                dropdown.style.display = 'none';
+            }
+        };
+    }
+
+    const markAllReadBtn = document.getElementById('mark-all-read');
+    if (markAllReadBtn) {
+        markAllReadBtn.onclick = async (e) => {
+            e.stopPropagation();
+            if (userNotifications.length === 0) return;
+            const batch = writeBatch(db);
+            userNotifications.forEach(n => {
+                if (!n.read) {
+                    batch.update(doc(db, "users", currentUser.id, "items", n.id), { read: true });
+                }
+            });
+            await batch.commit().catch(e => console.error("Mark read error", e));
+        };
+    }
 };
 
-window.renderOverviewSkeleton = renderDashboardSkeleton;
-
-// --- DASHBOARD SIMULATION & CHARTS ---
-// Graph logic removed
-
-// Periodic simulations for the dashboard overview
-function startDashboardSimulation() {
-    // 1. Live Students (0-8, every 30 seconds)
-    function updateLiveStudents() {
-        const el = document.getElementById("liveStudents");
-        if (el) el.innerText = Math.floor(Math.random() * 9);
+window.handleNotificationClick = async function (notifId, link) {
+    const { db, doc, updateDoc } = window.firebaseServices || getFirebase();
+    if (db && currentUser && currentUser.id) {
+        await updateDoc(doc(db, "users", currentUser.id, "items", notifId), { read: true }).catch(() => { });
     }
-    setInterval(updateLiveStudents, 30000);
-    updateLiveStudents();
-
-    // 2. Trending Now (1-15, changes daily)
-    function updateTrendingNow() {
-        const el = document.getElementById("trendingNow");
-        if (el) {
-            // Seeded random based on date to keep it stable for 24h
-            const today = new Date().toDateString();
-            let seed = 0;
-            for (let i = 0; i < today.length; i++) seed += today.charCodeAt(i);
-            const count = (seed % 15) + 1; // 1-15
-            el.innerText = count + " Notes";
+    document.getElementById('notification-dropdown').style.display = 'none';
+    if (link) {
+        if (link.startsWith('#')) {
+            const tabParam = link.replace('#', '');
+            if (document.querySelector('.nav-item[data-tab="' + tabParam + '"]')) {
+                document.querySelector('.nav-item[data-tab="' + tabParam + '"]').click();
+            }
+        } else {
+            window.location.href = link;
         }
     }
-    updateTrendingNow();
+};
 
-    // 3. Global Downloads & Views (Sync with stats.js centralized logic)
-    function syncGlobalStats() {
-        if (typeof getStats === 'function') {
-            const stats = getStats();
-            const viewsEl = document.getElementById("stat-views");
-            const downloadsEl = document.getElementById("globalDownloads");
-
-            if (viewsEl) viewsEl.innerText = stats.formattedViews;
-            if (downloadsEl) downloadsEl.innerText = stats.formattedDownloads;
-        }
+// Close dropdown on click outside
+document.addEventListener('click', (e) => {
+    const dropdown = document.getElementById('notification-dropdown');
+    const wrapper = document.querySelector('.notification-wrapper');
+    if (dropdown && dropdown.style.display === 'block' && wrapper && !wrapper.contains(e.target)) {
+        dropdown.style.display = 'none';
     }
-    setInterval(syncGlobalStats, 60000);
-    syncGlobalStats();
-}
-
-// Start simulation once dashboard logic is up
-startDashboardSimulation();
+});

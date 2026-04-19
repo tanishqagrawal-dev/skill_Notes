@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-KSCJTPP875"></script>
     <script>
@@ -140,20 +140,75 @@
                         <span class="search-icon">🔍</span>
                     </div>
                 </div>
-                <div class="top-actions">
-                    <button class="btn btn-ghost notification-btn">🔔</button>
+                <div class="top-actions" style="display: flex; align-items: center; gap: 1rem;">
+                    <div class="notification-wrapper" style="position: relative;">
+                        <button class="btn btn-ghost notification-btn" id="bell-btn">
+                            🔔<span id="unread-badge" class="notification-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: #ff4757; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.6rem; font-weight: bold;">0</span>
+                        </button>
+                        <div id="notification-dropdown" class="glass-card" style="display: none; position: absolute; right: 0; top: calc(100% + 10px); width: 320px; z-index: 1000; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); max-height: 400px; overflow-y: auto; overflow-x: hidden;">
+                            <div style="padding: 1rem; border-bottom: 1px solid var(--border-glass); position: sticky; top: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); z-index: 2; display: flex; justify-content: space-between; align-items: center;">
+                                <h4 class="font-heading" style="margin: 0; font-size: 1rem;">Notifications</h4>
+                                <span id="mark-all-read" style="font-size: 0.75rem; color: var(--primary); cursor: pointer;">Mark all read</span>
+                            </div>
+                            <div id="notification-list" style="display: flex; flex-direction: column;">
+                                <div style="text-align: center; padding: 2rem 1rem; color: var(--text-dim);">Inbox zero 🎉</div>
+                            </div>
+                        </div>
+                    </div>
                     <button class="primary-btn upload-btn">+ Upload Note</button>
                 </div>
             </header>
 
             <style>
+                /* Notification Dropdown Styles */
+                .notification-item {
+                    padding: 1rem;
+                    border-bottom: 1px solid var(--border-glass);
+                    display: flex;
+                    gap: 12px;
+                    transition: background 0.3s;
+                    cursor: pointer;
+                    position: relative;
+                }
+                .notification-item:hover {
+                    background: rgba(255,255,255,0.05);
+                }
+                .notification-item.unread {
+                    background: rgba(108, 99, 255, 0.08);
+                }
+                .notification-item.unread::after {
+                    content: '';
+                    position: absolute;
+                    top: 1rem;
+                    right: 1rem;
+                    width: 8px;
+                    height: 8px;
+                    background: #ff4757;
+                    border-radius: 50%;
+                }
+                .notification-icon {
+                    font-size: 1.5rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 40px;
+                    width: 40px;
+                    background: rgba(255,255,255,0.05);
+                    border-radius: 50%;
+                }
                 @media (max-width: 768px) {
                     #sidebar-toggle-btn {
                         display: flex !important;
                     }
-
                     .top-bar {
                         padding: 0.75rem 0.5rem !important;
+                    }
+                    #notification-dropdown {
+                        position: fixed !important;
+                        top: 60px !important;
+                        right: 10px !important;
+                        left: 10px !important;
+                        width: auto !important;
                     }
                 }
             </style>

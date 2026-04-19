@@ -1,154 +1,171 @@
-// Firebase Upload Logic
-window.uploadNoteToFirebase = async function (file, metadata) {
-    const { storage, db, ref, uploadBytesResumable, getDownloadURL, addDoc, collection, serverTimestamp, doc, updateDoc } = window.firebaseServices;
+// 🔥 Senior Helper v4.0 - Drive Bridge
+window.addEventListener('message', (e) => {
+    // Global filter for potential Drive signals
+    if (e.data && (typeof e.data === 'string' && e.data.includes('googledrive'))) {
+        console.log("🌐 Global Watcher caught Drive signal");
+    }
+}, false);
 
-    if (!file) return;
+window.uploadNoteToFirebase = async function (file, metadata) {
+    console.log("🔥 Senior Helper v4.0 Active");
+    const { db, doc, setDoc, collection, serverTimestamp, increment } = window.firebaseServices;
+
+    if (!file) return { success: false, error: "No file" };
+
+    const statusEl = document.getElementById('upload-status-text');
+    const progressBar = document.getElementById('upload-progress');
 
     try {
-        console.log("🔗 Connecting to Google Apps Script (Bypassing Firebase Storage Bound)");
-        const statusEl = document.getElementById('upload-status-text');
-        const progressBar = document.getElementById('upload-progress');
-        if (statusEl) statusEl.innerText = "Encoding file securely...";
-        if (progressBar) progressBar.style.width = '30%';
+        if (statusEl) statusEl.innerText = "Step 1: Preparing file...";
 
         const reader = new FileReader();
         return new Promise((resolve, reject) => {
             reader.onload = async (e) => {
                 try {
                     const base64Data = e.target.result.split(',')[1];
-                    if (statusEl) statusEl.innerText = "Transmitting to Google Drive (Please wait)...";
-                    if (progressBar) progressBar.style.width = '60%';
+                    if (statusEl) statusEl.innerText = "Step 2: Sending to Google Drive...";
+                    if (progressBar) progressBar.style.width = '55%';
 
-                    // 1. Send via Form/Iframe (Absolute CORS Bypass)
                     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwq1zaoR-Jtv8bb3gWaQ2IBMf5UlGK22-1wHQpp4VZ7XzqCCNDhOL1JMS_SCiziKlZn5w/exec";
+                    const payload = { base64: base64Data, mimeType: file.type || 'application/pdf', fileName: file.name };
 
-                    const payload = {
-                        base64: base64Data,
-                        mimeType: file.type || 'application/pdf',
-                        fileName: file.name
-                    };
-
-                    const iframeName = 'upload_iframe_' + Date.now();
+                    const iframeId = 'drive_bridge_' + Date.now();
                     const iframe = document.createElement('iframe');
-                    iframe.name = iframeName;
-                    iframe.style.display = 'none';
+                    iframe.id = iframeId;
+                    iframe.name = iframeId;
+                    iframe.style.cssText = "position:absolute; width:1px; height:1px; left:-500px; opacity:0;";
                     document.body.appendChild(iframe);
 
                     const form = document.createElement('form');
                     form.method = 'POST';
                     form.action = SCRIPT_URL;
-                    form.target = iframeName;
-
+                    form.target = iframeId;
                     const input = document.createElement('input');
                     input.type = 'hidden';
                     input.name = 'data';
                     input.value = JSON.stringify(payload);
                     form.appendChild(input);
-
                     document.body.appendChild(form);
 
-                    // Prevent permanent freezing natively
                     const timeoutId = setTimeout(() => {
+                        cleanup();
+                        reject(new Error("Drive timeout - please refresh."));
+                    }, 120000);
+
+                    const cleanup = () => {
                         window.removeEventListener('message', messageListener);
-                        iframe.remove();
-                        form.remove();
-                        reject(new Error("Google Drive timed out! Please try again."));
-                    }, 45000);
+                        if (iframe.parentNode) iframe.remove();
+                        if (form.parentNode) form.remove();
+                        clearTimeout(timeoutId);
+                    };
 
                     const messageListener = async (event) => {
-                        if (event.data && typeof event.data.success !== 'undefined') {
-                            clearTimeout(timeoutId);
-                            window.removeEventListener('message', messageListener);
-                            
-                            try {
-                                iframe.remove();
-                                form.remove();
-
-                                if (!event.data.success) {
-                                    reject(new Error(event.data.error || "Unknown Apps Script Error"));
-                                    return;
+                        let res = null;
+                        try {
+                            const data = event.data;
+                            if (typeof data === 'string') {
+                                try { res = JSON.parse(data); } catch (e) {
+                                    if (data.includes('http')) res = { success: true, url: data.match(/https?:\/\/[^\s"]+/)[0] };
                                 }
-
-                                const downloadURL = event.data.url;
-                                if (progressBar) progressBar.style.width = '90%';
-                                
-                                // Toast fires immediately when Drive storage is confirmed
-                                if (window.showToast) window.showToast("✅ File uploaded to Drive successfully!");
-                                if (statusEl) statusEl.innerText = "✅ Saved to Drive! Finishing up...";
-
-                                // Build Firestore document data
-                                const targetColl = metadata.targetCollection || 'notes';
-                                const currentUser = window.currentUser || (window.authStatus?.data?.currentUser) || {};
-                                const docData = {
-                                    ...metadata,
-                                    fileUrl: downloadURL,
-                                    driveLink: downloadURL,
-                                    url: downloadURL,
-                                    fileType: file.type || 'application/pdf',
-                                    fileName: file.name,
-                                    status: metadata.status || 'pending',
-                                    uploadedBy: currentUser.id || window.firebaseServices?.auth?.currentUser?.uid || 'guest',
-                                    uploaderName: metadata.uploaderName || metadata.uploader || currentUser.name || "Scholar",
-                                    verified: false,
-                                    approvedBy: 'pending',
-                                    views: 0, downloads: 0, likes: 0,
-                                    createdAt: serverTimestamp ? serverTimestamp() : new Date().toISOString()
-                                };
-                                delete docData.targetCollection;
-
-                                // ✅ RESOLVE IMMEDIATELY — do NOT await Firestore (it's slow)
-                                // Firestore writes fire in background — modal closes right away
-                                if (progressBar) progressBar.style.width = '100%';
-                                console.log("Drive upload sequence completed. Firestore saving in background...");
-                                resolve({ success: true, url: downloadURL });
-
-                                // Background: Save metadata to Firestore (non-blocking)
-                                addDoc(collection(db, targetColl), docData).then((docRef) => {
-                                    console.log("✅ Note metadata saved to Firestore:", docRef.id);
-
-                                    // Background: XP update (non-blocking)
-                                    if (docData.uploadedBy && docData.uploadedBy !== "guest") {
-                                        const fireIncrement = window.increment || window.firebaseServices?.increment;
-                                        if (fireIncrement) {
-                                            const userRef = doc(db, "users", docData.uploadedBy);
-                                            updateDoc(userRef, {
-                                                xp: fireIncrement(20),
-                                                uploads: fireIncrement(1),
-                                                notesCount: fireIncrement(1)
-                                            }).catch(xpErr => {
-                                                const fireSetDoc = window.firebaseServices?.setDoc;
-                                                if (fireSetDoc) {
-                                                    fireSetDoc(userRef, { xp: fireIncrement(20), uploads: fireIncrement(1), notesCount: fireIncrement(1) }, { merge: true }).catch(() => {});
-                                                }
-                                            });
-                                        }
-                                    }
-                                }).catch(firestoreErr => {
-                                    console.error("Firestore metadata save failed:", firestoreErr);
-                                    if (window.showToast) {
-                                        window.showToast("⚠️ Drive upload succeeded, but Database rejected metadata. Please re-login.");
-                                    }
-                                });
-                            } catch (listenerError) {
-                                console.error("Message Handler Error:", listenerError);
-                                reject(listenerError);
+                            } else if (typeof data === 'object' && data !== null) {
+                                res = data.result || data.data || data;
+                                if (typeof res === 'string') try { res = JSON.parse(res); } catch (e) { }
                             }
-                        }
+
+                            const driveUrl = res?.url || res?.driveLink;
+                            if (driveUrl) {
+                                console.log("🎯 Drive success script detected:", driveUrl);
+                                cleanup();
+
+                                if (statusEl) statusEl.innerText = "Step 3: Syncing with Database...";
+                                if (progressBar) progressBar.style.width = '85%';
+
+                                // SENIOR ATOMIC WRITE: Pre-generate ID to avoid separate UpdateDoc
+                                const notesColl = collection(db, metadata.targetCollection || 'notes');
+                                const newDocRef = doc(notesColl);
+                                const noteId = newDocRef.id;
+
+                                const currentUser = window.currentUser || {};
+                                const uid = metadata.uploadedBy || currentUser.id || 'guest';
+
+                                const finalDoc = {
+                                    ...metadata,
+                                    noteId: noteId,
+                                    id: noteId,
+                                    fileUrl: driveUrl,
+                                    driveLink: driveUrl,
+                                    url: driveUrl,
+                                    fileId: res.fileId || "",
+                                    fileName: file.name,
+                                    uploadedBy: uid,
+                                    uploaderName: metadata.uploaderName || currentUser.name || "Scholar",
+                                    status: metadata.status || 'pending',
+                                    verified: false,
+                                    views: 0, downloads: 0, likes: 0,
+                                    createdAt: serverTimestamp()
+                                };
+                                delete finalDoc.targetCollection;
+
+                                try {
+                                    console.log("💾 Firestore write initiated:", noteId);
+                                    
+                                    // Senior Fix: Race setDoc against a 5s timeout to prevent UI hang
+                                    await Promise.race([
+                                        setDoc(newDocRef, finalDoc),
+                                        new Promise((_, reject) => setTimeout(() => reject(new Error("FIREBASE_TIMEOUT")), 5000))
+                                    ]).catch(err => {
+                                        if (err.message === "FIREBASE_TIMEOUT") {
+                                            console.warn("⚠️ Firestore sync is taking time... proceeding with local success.");
+                                        } else {
+                                            throw err;
+                                        }
+                                    });
+
+                                    console.log("✅ Database record ready.");
+                                    if (statusEl) statusEl.innerText = "✅ Upload Completed!";
+                                    if (progressBar) progressBar.style.width = '100%';
+
+                                    // Background task
+                                    updateImpactSafe(uid);
+
+                                    // Final UI dismissal
+                                    setTimeout(() => {
+                                        if (typeof window.closeDashboardUploadModal === 'function') {
+                                            window.closeDashboardUploadModal();
+                                        }
+                                    }, 500);
+
+                                    resolve({ success: true, id: noteId, url: driveUrl });
+                                } catch (fsErr) {
+                                    console.error("❌ Firestore Error:", fsErr);
+                                    reject(new Error("Database sync failed."));
+                                }
+                            }
+                        } catch (err) { console.warn("Listener error", err); }
                     };
 
                     window.addEventListener('message', messageListener);
-                    form.submit(); // Automatically submit the POST trigger!
-
-                } catch (err) {
-                    console.error("❌ Apps Script Upload Error:", err);
-                    reject(err);
-                }
+                    console.log("📤 POSTing data...");
+                    form.submit();
+                } catch (err) { reject(err); }
             };
-            reader.onerror = (err) => reject(err);
             reader.readAsDataURL(file);
         });
     } catch (err) {
-        console.error("Error in upload flow:", err);
+        console.error("❌ Helper Error:", err);
         throw err;
     }
 };
+
+async function updateImpactSafe(uid) {
+    if (!uid || uid === 'guest') return;
+    const { db, doc, updateDoc, increment } = window.firebaseServices;
+    if (!increment) return;
+    try {
+        await updateDoc(doc(db, "users", uid), {
+            xp: increment(20),
+            totalUploads: increment(1),
+            notesCount: increment(1)
+        });
+    } catch (e) { console.warn("Impact update deferred", e); }
+}

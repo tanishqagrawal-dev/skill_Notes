@@ -103,7 +103,7 @@ const LocalData = {
 const GlobalData = window.GlobalData || LocalData;
 
 // Use Dashboard's selState if available, otherwise fallback to local
-let selState = window.selState || { college: null, branch: null, year: null, subject: null, semester: null };
+let selState = window.selState || { college: null, stream: null, branch: null, year: null, subject: null, semester: null };
 if (!window.selState) window.selState = selState;
 
 // --- GLOBAL SHOWCASE LOGIC ---
@@ -159,6 +159,8 @@ document.addEventListener('DOMContentLoaded', () => {
         renderYearStep();
     } else if (nextStep === "BRANCH_STEP") {
         renderBranchStep();
+    } else if (nextStep === "STREAM_STEP") {
+        renderStreamStep();
     } else {
         renderCollegeStep();
     }
@@ -193,6 +195,7 @@ window.addEventListener('popstate', (event) => {
         else if (nextStep === "SEMESTER_STEP") renderSemesterStep();
         else if (nextStep === "YEAR_STEP") renderYearStep();
         else if (nextStep === "BRANCH_STEP") renderBranchStep();
+        else if (nextStep === "STREAM_STEP") renderStreamStep();
         else renderCollegeStep();
     }
 });
@@ -253,6 +256,30 @@ window.renderCollegeStep = function () {
 window.selectCollege = function (id, name) {
     selState.college = { id, name };
     RoutingSystem.updateURL(selState);
+    renderStreamStep();
+};
+
+// STEP 1.5: Stream
+window.renderStreamStep = function () {
+    selState.stream = null; selState.branch = null; selState.year = null; selState.semester = null; selState.subject = null;
+    RoutingSystem.updateURL(selState);
+    ensureWizardVisible();
+    updateStepUI(1);
+    document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Stream</span>`;
+    document.getElementById('explorer-sub-title').innerText = `What's your academic stream at ${selState.college.name}?`;
+
+    const container = document.getElementById('explorer-content');
+    container.innerHTML = (GlobalData.streams || []).map(s => `
+        <div class="selection-card glass-card" onclick="selectStream('${s.id}', '${s.name}')">
+            <div class="card-icon" style="background: rgba(108, 99, 255, 0.1); color: var(--primary); width: 60px; height: 60px; display: flex; align-items:center; justify-content:center; border-radius: 12px; margin: 0 auto; font-size: 1.5rem;">${s.icon}</div>
+            <h3 class="font-heading" style="margin-top: 1.5rem;">${s.name}</h3>
+        </div>
+    `).join('');
+};
+
+window.selectStream = function (id, name) {
+    selState.stream = { id, name };
+    RoutingSystem.updateURL(selState);
     renderBranchStep();
 };
 
@@ -261,12 +288,16 @@ window.renderBranchStep = function () {
     selState.branch = null; selState.year = null; selState.semester = null; selState.subject = null;
     RoutingSystem.updateURL(selState);
     ensureWizardVisible();
-    updateStepUI(1);
+    updateStepUI(2);
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Branch</span>`;
-    document.getElementById('explorer-sub-title').innerText = `What's your field of study at ${selState.college.name}?`;
+    document.getElementById('explorer-sub-title').innerText = `What's your field of study within ${selState.stream.name}?`;
+
+    const streamObj = GlobalData.streams?.find(s => s.id === selState.stream.id);
+    const validBranchRefs = streamObj ? streamObj.branches : [];
+    const validBranches = GlobalData.branches.filter(b => validBranchRefs.includes(b.id));
 
     const container = document.getElementById('explorer-content');
-    container.innerHTML = GlobalData.branches.map(b => `
+    container.innerHTML = validBranches.map(b => `
         <div class="selection-card glass-card" onclick="selectBranch('${b.id}', '${b.name}')">
             <div class="card-icon" style="background: rgba(108, 99, 255, 0.1); color: var(--primary); width: 60px; height: 60px; display: flex; align-items:center; justify-content:center; border-radius: 12px; margin: 0 auto; font-size: 1.5rem;">${b.icon}</div>
             <h3 class="font-heading" style="margin-top: 1.5rem;">${b.name}</h3>
@@ -285,7 +316,7 @@ window.renderYearStep = function () {
     selState.year = null; selState.semester = null; selState.subject = null;
     RoutingSystem.updateURL(selState);
     ensureWizardVisible();
-    updateStepUI(2);
+    updateStepUI(3);
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Academic Year</span>`;
     const container = document.getElementById('explorer-content');
     container.innerHTML = GlobalData.years.map(y => `
@@ -307,7 +338,7 @@ window.renderSemesterStep = function () {
     selState.semester = null; selState.subject = null;
     RoutingSystem.updateURL(selState);
     ensureWizardVisible();
-    updateStepUI(3);
+    updateStepUI(4);
     document.getElementById('explorer-main-title').innerHTML = `Select <span class="gradient-text">Semester</span>`;
     const container = document.getElementById('explorer-content');
     const semesters = ['Semester 1', 'Semester 2', 'Semester 3', 'Semester 4', 'Semester 5', 'Semester 6', 'Semester 7', 'Semester 8'];
@@ -359,7 +390,7 @@ window.renderSubjectStep = function () {
     selState.subject = null;
     RoutingSystem.updateURL(selState);
     ensureWizardVisible();
-    updateStepUI(4);
+    updateStepUI(5);
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Subject</span>`;
 
     const container = document.getElementById('explorer-content');
@@ -428,9 +459,9 @@ window.showNotes = async function (activeTab = 'notes', loadMore = false) {
             // Simple query to avoid composite index errors. We fetch notes matching subjectId and filter the rest locally.
             let q;
             if (loadMore && window.lastVisibleNote) {
-                q = query(collection(db, 'notes'), where('subjectId', '==', subjectId), startAfter(window.lastVisibleNote), limit(12));
+                q = query(collection(db, 'notes'), where('status', '==', 'approved'), where('subjectId', '==', subjectId), startAfter(window.lastVisibleNote), limit(12));
             } else {
-                q = query(collection(db, 'notes'), where('subjectId', '==', subjectId), limit(12));
+                q = query(collection(db, 'notes'), where('status', '==', 'approved'), where('subjectId', '==', subjectId), limit(12));
             }
             
             const snap = await getDocs(q);

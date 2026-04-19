@@ -39,7 +39,8 @@ import {
     clearIndexedDbPersistence,
     limit,
     getCountFromServer,
-    runTransaction
+    runTransaction,
+    writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
@@ -118,6 +119,7 @@ window.firebaseServices = {
     limit,
     getCountFromServer,
     runTransaction, // Exported correctly
+    writeBatch,
 
     // Storage Functions
     ref,
@@ -174,7 +176,8 @@ export {
     terminate,
     clearIndexedDbPersistence,
     getDocsFromServer,
-    increment
+    increment,
+    writeBatch
 };
 
 // Global exports for inline interactions

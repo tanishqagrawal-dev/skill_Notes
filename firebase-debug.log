@@ -1,0 +1,31 @@
+[debug] [2026-04-18T11:58:14.684Z] ----------------------------------------------------------------------
+[debug] [2026-04-18T11:58:14.687Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\yeash\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only hosting
+[debug] [2026-04-18T11:58:14.687Z] CLI Version:   15.5.1
+[debug] [2026-04-18T11:58:14.687Z] Platform:      win32
+[debug] [2026-04-18T11:58:14.687Z] Node Version:  v25.0.0
+[debug] [2026-04-18T11:58:14.687Z] Time:          Sat Apr 18 2026 17:28:14 GMT+0530 (India Standard Time)
+[debug] [2026-04-18T11:58:14.688Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-04-18T11:58:16.543Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-04-18T11:58:16.543Z] > authorizing via signed-in user (06jainyash@gmail.com)
+[debug] [2026-04-18T11:58:16.543Z] [iam] checking project skill-notes for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-04-18T11:58:16.544Z] Checked if tokens are valid: true, expires at: 1776517074036
+[debug] [2026-04-18T11:58:16.544Z] Checked if tokens are valid: true, expires at: 1776517074036
+[debug] [2026-04-18T11:58:16.545Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/skill-notes:testIamPermissions [none]
+[debug] [2026-04-18T11:58:16.545Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/skill-notes:testIamPermissions  x-goog-user-project=skill-notes
+[debug] [2026-04-18T11:58:16.545Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/skill-notes:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-04-18T11:58:18.657Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/skill-notes:testIamPermissions 403
+[debug] [2026-04-18T11:58:18.657Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/skill-notes:testIamPermissions {"error":{"code":403,"message":"Caller does not have required permission to use project skill-notes. Grant the caller the roles/serviceusage.serviceUsageConsumer role, or a custom role with the serviceusage.services.use permission, by visiting https://console.developers.google.com/iam-admin/iam?project=skill-notes and then retry. Propagation of the new permission may take a few minutes.","status":"PERMISSION_DENIED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"USER_PROJECT_DENIED","domain":"googleapis.com","metadata":{"consumer":"projects/skill-notes","consoleUrl":"https://console.developers.google.com/iam-admin/iam?project=skill-notes","service":"cloudresourcemanager.googleapis.com","containerInfo":"skill-notes"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"Caller does not have required permission to use project skill-notes. Grant the caller the roles/serviceusage.serviceUsageConsumer role, or a custom role with the serviceusage.services.use permission, by visiting https://console.developers.google.com/iam-admin/iam?project=skill-notes and then retry. Propagation of the new permission may take a few minutes."},{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Google developer console IAM admin","url":"https://console.developers.google.com/iam-admin/iam?project=skill-notes"}]}]}}
+[debug] [2026-04-18T11:58:18.658Z] [iam] error while checking permissions, command may fail: Request to https://cloudresourcemanager.googleapis.com/v1/projects/skill-notes:testIamPermissions had HTTP Error: 403, Caller does not have required permission to use project skill-notes. Grant the caller the roles/serviceusage.serviceUsageConsumer role, or a custom role with the serviceusage.services.use permission, by visiting https://console.developers.google.com/iam-admin/iam?project=skill-notes and then retry. Propagation of the new permission may take a few minutes.
+[debug] [2026-04-18T11:58:18.659Z] Checked if tokens are valid: true, expires at: 1776517074036
+[debug] [2026-04-18T11:58:18.659Z] Checked if tokens are valid: true, expires at: 1776517074036
+[debug] [2026-04-18T11:58:18.659Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/skill-notes [none]
+[debug] [2026-04-18T11:58:19.453Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/skill-notes 403
+[debug] [2026-04-18T11:58:19.453Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/skill-notes {"error":{"code":403,"message":"The caller does not have permission","status":"PERMISSION_DENIED"}}
+[debug] [2026-04-18T11:58:19.453Z] Request to https://firebase.googleapis.com/v1beta1/projects/skill-notes had HTTP Error: 403, The caller does not have permission
+[debug] [2026-04-18T11:58:20.035Z] FirebaseError: Request to https://firebase.googleapis.com/v1beta1/projects/skill-notes had HTTP Error: 403, The caller does not have permission
+    at responseToError (C:\Users\yeash\AppData\Roaming\npm\node_modules\firebase-tools\lib\responseToError.js:53:12)
+    at RetryOperation._fn (C:\Users\yeash\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:330:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[error] 
+[error] Error: Failed to get Firebase project skill-notes. Please make sure the project exists and your account has permission to access it.

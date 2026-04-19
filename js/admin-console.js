@@ -454,11 +454,12 @@ window.AdminConsole = {
     },
 
     rejectNote: async function (noteId) {
-        if (!confirm("Are you sure you want to reject this note? It will be deleted.")) return;
+        if (!confirm("Are you sure you want to reject this note? It will be removed permanently.")) return;
         const { db, doc, deleteDoc } = window.firebaseServices;
         try {
             await deleteDoc(doc(db, "notes", noteId));
-            if (window.showToast) window.showToast("Note rejected and removed.");
+            if (window.showToast) window.showToast("Note rejected and record removed.");
+            this.logDebug(`Note ${noteId} rejected and record deleted.`, "success");
         } catch (e) {
             console.error("Rejection failed:", e);
             alert("Error: " + e.message);

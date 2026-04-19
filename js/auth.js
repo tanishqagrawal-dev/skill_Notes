@@ -306,6 +306,7 @@ window.handleLogout = async function () {
     localStorage.removeItem('auth_user');
     localStorage.removeItem('auth_user_full');
     localStorage.removeItem('global_stats_cache');
+    if (window.notificationsUnsubscribe) window.notificationsUnsubscribe();
     try {
         await signOut(auth);
     } catch (e) {
