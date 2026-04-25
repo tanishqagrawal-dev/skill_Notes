@@ -256,7 +256,7 @@ function handleAuthReady(data) {
             // Fallback for old URL path logic
             if (!tabParam) {
                 const pathParts = window.location.pathname.split('/');
-                const dashIdx = pathParts.findIndex(p => p === 'dashboard' || p === 'dashboard.html');
+                const dashIdx = pathParts.findIndex(p => p === 'dashboard' || p === 'dashboard');
                 if (dashIdx !== -1 && pathParts[dashIdx + 1]) {
                     tabParam = pathParts[dashIdx + 1];
                     console.log("📍 Detected Tab from Path:", tabParam);
@@ -578,7 +578,7 @@ window.openUploadModal = async function () {
                 <p class="development-caption" style="margin-bottom: 1.5rem;">Only verified students can upload notes.</p>
                 <div style="display: flex; gap: 1rem; width: 100%;">
                     <button class="btn btn-ghost" style="flex: 1; border: 1px solid var(--border-glass);" onclick="document.getElementById('strict-login-overlay').remove()">Cancel</button>
-                    <button class="btn btn-primary" style="flex: 1;" onclick="window.location.href='auth.html'">Login Now</button>
+                    <button class="btn btn-primary" style="flex: 1;" onclick="window.location.href='auth'">Login Now</button>
                 </div>
             </div>
         `;
@@ -1022,19 +1022,26 @@ function renderTabContent(tabId) {
         window.trackSPAView(`/dashboard/${tabId}`);
     }
 
-    // Synchronize URL with Tab (Exclude notes as it has sub-routing)
-    if (tabId !== 'notes' && !window.location.hash.startsWith('#/notes') && !window.location.pathname.startsWith('/notes')) {
-        let base = window.location.pathname;
-        const pathParts = base.split('/');
-        const pagesIdx = pathParts.indexOf('pages');
+    // --- URL SYNCHRONIZATION ---
+    let basePath = window.location.pathname;
+    const pathParts = basePath.split('/');
+    const pagesIdx = pathParts.indexOf('pages');
+    if (pagesIdx !== -1) {
+        basePath = pathParts.slice(0, pagesIdx + 1).join('/') + '/dashboard';
+    }
 
-        // Ensure we explicitly refer to dashboard.html to prevent GitHub pages 404s
-        if (pagesIdx !== -1) {
-            base = pathParts.slice(0, pagesIdx + 1).join('/') + '/dashboard.html';
+    if (tabId === 'notes') {
+        // If moving to notes, we use hash routing. Ensure query params are cleared.
+        if (window.location.search !== '' || !window.location.hash.startsWith('#/notes')) {
+            if (typeof RoutingSystem !== 'undefined') {
+                const notesHash = RoutingSystem.generateCanonicalPath(selState);
+                window.history.pushState({ tab: 'notes' }, '', basePath + notesHash);
+            }
         }
-
-        const targetPath = tabId === 'overview' ? base : `${base}?tab=${tabId}`;
-        if (window.location.pathname + window.location.search !== targetPath) {
+    } else {
+        // Moving to a standard tab. Use query params and clear the hash.
+        const targetPath = tabId === 'overview' ? basePath : `${basePath}?tab=${tabId}`;
+        if (window.location.pathname + window.location.search !== targetPath || window.location.hash !== '') {
             window.history.pushState({ tab: tabId }, '', targetPath);
         }
     }
@@ -1052,6 +1059,7 @@ function renderTabContent(tabId) {
 
             if (!hasPathFilters) {
                 renderCollegeStep();
+                // This is now redundant but kept for safety with UI steps
                 if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
             }
         } else if (tabId === 'planner') {
@@ -1544,7 +1552,7 @@ function renderOverview() {
                         <h3 class="font-heading" style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--secondary);">✨ ${aiRec.title}</h3>
                         <p style="margin-bottom: 2rem; max-width: 85%; font-size: 1.1rem; line-height: 1.6; color: #eee;">${aiRec.msg}</p>
                         <div style="display: flex; gap: 1rem;">
-                            <button class="btn btn-primary" onclick="${isGuest ? "window.location.href='../pages/auth.html'" : (aiRec.actionType === 'ai-tools' || aiRec.actionType === 'planner' ? "window.lockOverlay.show()" : `renderTabContent('${aiRec.actionType}')`)}">${aiRec.actionLabel}</button>
+                            <button class="btn btn-primary" onclick="${isGuest ? "window.location.href='../pages/auth'" : (aiRec.actionType === 'ai-tools' || aiRec.actionType === 'planner' ? "window.lockOverlay.show()" : `renderTabContent('${aiRec.actionType}')`)}">${aiRec.actionLabel}</button>
                             ${!isGuest ? '<button class="btn btn-ghost" onclick="renderTabContent(\'planner\')">Schedule Revision</button>' : ''}
                         </div>
                     </div>
@@ -3541,7 +3549,7 @@ window.toggleTheme = function (forceLight) {
     localStorage.setItem('theme', isLight ? 'light' : 'dark');
 }
 // Removed redundant initAuthSystem, loginWithGoogle, logout, renderLoginScreen
-// as they are handled by auth.js and login.html now.
+// as they are handled by auth.js and login now.
 // --- ADVANCED LEADERBOARD SYSTEM ---
 
 const LeaderboardData = {

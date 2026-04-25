@@ -1836,3 +1836,98 @@ input:checked+.toggle-slider:before {
         /* Changed from block to flex for perfect centering */
     }
 }
+.inline-util-f7571c2e { margin-top: 4rem; margin-bottom: 4rem; }
+
+.inline-util-61f32601 { text-align: center; color: var(--text-muted); margin-bottom: 3rem; }
+
+.inline-util-efe272eb { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 900px; margin: 0 auto; }
+
+.inline-util-9dad5cfb { padding: 2.5rem; border: 1px solid var(--border-glass); position: relative; }
+
+.inline-util-40f24323 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+
+.inline-util-fe08d3ef { color: var(--text-muted); font-size: 0.9rem; }
+
+.inline-util-8870a914 { font-size: 2.5rem; font-weight: 700; margin: 1.5rem 0; }
+
+.inline-util-9eb11956 { font-size: 1rem; color: var(--text-muted); font-weight: 400; }
+
+.inline-util-11dcb948 { list-style: none; padding: 0; margin-bottom: 2rem; text-align: left; }
+
+.inline-util-5aab2bbb { margin-bottom: 0.8rem; }
+
+.inline-util-eb895dc1 { margin-bottom: 0.8rem; color: var(--text-muted); }
+
+.inline-util-199b6f0e { width: 100%; }
+
+.inline-util-14a65865 { padding: 2.5rem; border: 1px solid var(--primary); background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%); position: relative; }
+
+.inline-util-5416a8d3 { position: absolute; top: 0; right: 0; background: var(--secondary); color: white; padding: 0.3rem 1rem; border-bottom-left-radius: 10px; font-size: 0.8rem; font-weight: 600; }
+
+.inline-util-f77eb5d4 { color: var(--secondary); }
+
+.inline-util-da9d7090 { width: 100%; box-shadow: 0 4px 15px rgba(108, 99, 255, 0.4); }
+
+.inline-util-179c05bc { margin-bottom: 6rem; }
+
+.inline-util-a44362ee { display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem; }
+
+.inline-util-8128bf84 { height: 30px; border-radius: 50%; }
+
+.inline-util-a97a3c6f { font-weight: 800; }
+
+.inline-util-4bced53a { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+
+.inline-util-3f2723e5 { font-size: 0.8rem; opacity: 0.6; }
+
+.inline-util-4020fb87 { margin-top:4rem;margin-bottom:4rem }
+
+.inline-util-12d1e204 { text-align:center;color:var(--text-muted);margin-bottom:3rem }
+
+.inline-util-061dc2aa { display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;max-width:900px;margin:0 auto }
+
+.inline-util-6c4918ec { padding:2.5rem;border:1px solid var(--border-glass);position:relative }
+
+.inline-util-6ca2a586 { font-size:1.5rem;margin-bottom:.5rem }
+
+.inline-util-11129c39 { color:var(--text-muted);font-size:.9rem }
+
+.inline-util-159bc1d9 { font-size:2.5rem;font-weight:700;margin:1.5rem 0 }
+
+.inline-util-b91e211b { font-size:1rem;color:var(--text-muted);font-weight:400 }
+
+.inline-util-7319b199 { list-style:none;padding:0;margin-bottom:2rem;text-align:left }
+
+.inline-util-916e3e94 { margin-bottom:.8rem }
+
+.inline-util-2e21d080 { margin-bottom:.8rem;color:var(--text-muted) }
+
+.inline-util-6d567387 { width:100% }
+
+.inline-util-26fad918 { padding:2.5rem;border:1px solid var(--primary);background:linear-gradient(135deg,rgba(108,99,255,.1) 0,rgba(255,255,255,.05) 100%);position:relative }
+
+.inline-util-b14fa4d4 { position:absolute;top:0;right:0;background:var(--secondary);color:#fff;padding:.3rem 1rem;border-bottom-left-radius:10px;font-size:.8rem;font-weight:600 }
+
+.inline-util-f8f0f088 { color:var(--secondary) }
+
+.inline-util-cf01ac18 { width:100%;box-shadow:0 4px 15px rgba(108,99,255,.4) }
+
+.inline-util-3e669764 { margin-bottom:6rem;padding-top:4rem }
+
+.inline-util-68054237 { --primary:#7B61FF;--secondary:#00F2FF }
+
+.inline-util-2e380fc6 { --primary:#00F2FF;--secondary:#7B61FF }
+
+.inline-util-089c5848 { --primary:#ff007f;--secondary:#00F2FF }
+
+.inline-util-17688f5c { margin-bottom:6rem }
+
+.inline-util-faec3eb6 { display:flex;align-items:center;gap:10px;margin-bottom:.5rem }
+
+.inline-util-c1adcbc4 { height:30px;border-radius:50% }
+
+.inline-util-f2ee35f8 { font-weight:800 }
+
+.inline-util-4d97b727 { display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem }
+
+.inline-util-2f1034a5 { font-size:.8rem;opacity:.6 }

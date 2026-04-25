@@ -5,7 +5,7 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8465813445488249"
         crossorigin="anonymous"></script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -16,36 +16,7 @@
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
 
-        gtag('config', 'G-KSCJTPP875');
-
-        // Single Page Apps for GitHub Pages
-        // https://github.com/rafgraph/spa-github-pages
-        (function (l) {
-            var decoded = null;
-            if (l.search[1] === '/') {
-                decoded = l.search.slice(1).split('&').map(function (s) {
-                    return s.replace(/~and~/g, '&')
-                }).join('?');
-            } else if (l.pathname.includes('/notes/') || (l.pathname.includes('/dashboard/') && !l.pathname.endsWith('.html'))) {
-                decoded = l.pathname;
-            }
-
-            if (decoded) {
-                const searchStr = l.search[1] === '/' ? l.search : '?' + decoded;
-                // If deep link points to dashboard or standalone notes, redirect to those entry points
-                if (decoded.startsWith('/pages/dashboard') || decoded.startsWith('/dashboard')) {
-                    var target = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + l.pathname.replace(/index\.html$/, '').split('/pages/')[0].replace(/\/$/, '') + '/pages/dashboard' + searchStr + l.hash;
-                    window.location.replace(target);
-                } else if (decoded.startsWith('/notes') || decoded.includes('/notes/')) {
-                    var target = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + l.pathname.replace(/index\.html$/, '').split('/notes/')[0].replace(/\/$/, '') + '/pages/notes' + searchStr + l.hash;
-                    window.location.replace(target);
-                } else if (l.search[1] === '/') {
-                    window.history.replaceState(null, null,
-                        decoded + l.hash
-                    );
-                }
-            }
-        }(window.location))
+        gtag('config', 'G-KSCJTPP875');;
     </script>
     <link rel="shortcut icon" href="assets/logo.jpg" type="image/jpeg">
     <title>SkillNotes – Free Study Notes, AI Doubt Solver & Model Papers for Students</title>
@@ -101,7 +72,7 @@
                     students, for students.</p>
                 <div class="hero-cta">
                     <button class="btn btn-primary btn-large"
-                        onclick="window.location.href='pages/dashboard.html?tab=notes'">Explore
+                        onclick="window.location.href='pages/dashboard?tab=notes'">Explore
                         Notes</button>
                 </div>
                 <div class="trust-stats">
@@ -154,57 +125,57 @@
     </section>
 
     <!-- Pricing Section -->
-    <section id="pricing" class="pricing container" style="margin-top: 4rem; margin-bottom: 4rem;">
+    <section id="pricing" class="pricing container inline-util-f7571c2e" >
         <h2 class="section-title" data-aos="fade-up">Invest in Your <span class="gradient-text">Future</span></h2>
-        <p style="text-align: center; color: var(--text-muted); margin-bottom: 3rem;" data-aos="fade-up"
+        <p class="inline-util-61f32601"  data-aos="fade-up"
             data-aos-delay="100">Choose the plan that fits your academic goals.</p>
 
-        <div class="pricing-grid"
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 900px; margin: 0 auto;">
+        <div class="pricing-grid inline-util-efe272eb"
+            >
 
             <!-- Free Plans -->
-            <div class="glass-card pricing-card" data-aos="zoom-in" data-aos-delay="100"
-                style="padding: 2.5rem; border: 1px solid var(--border-glass); position: relative;">
-                <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Admit Card</h3>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Essential access for every student.</p>
-                <div class="price" style="font-size: 2.5rem; font-weight: 700; margin: 1.5rem 0;">₹0 <span
-                        style="font-size: 1rem; color: var(--text-muted); font-weight: 400;">/ mo</span></div>
+            <div class="glass-card pricing-card inline-util-9dad5cfb" data-aos="zoom-in" data-aos-delay="100"
+                >
+                <h3 class="inline-util-40f24323" >Admit Card</h3>
+                <p class="inline-util-fe08d3ef" >Essential access for every student.</p>
+                <div class="price inline-util-8870a914" >₹0 <span
+                        class="inline-util-9eb11956" >/ mo</span></div>
 
-                <ul style="list-style: none; padding: 0; margin-bottom: 2rem; text-align: left;">
-                    <li style="margin-bottom: 0.8rem;">✅ Unlimited Note Views</li>
-                    <li style="margin-bottom: 0.8rem;">✅ Basic Dashboard Access</li>
-                    <li style="margin-bottom: 0.8rem;">⚠️ Limited AI Doubts (3/day)</li>
-                    <li style="margin-bottom: 0.8rem; color: var(--text-muted);">❌ Model Paper Generator</li>
-                    <li style="margin-bottom: 0.8rem; color: var(--text-muted);">❌ Ad-free Experience</li>
+                <ul class="inline-util-11dcb948" >
+                    <li class="inline-util-5aab2bbb" >✅ Unlimited Note Views</li>
+                    <li class="inline-util-5aab2bbb" >✅ Basic Dashboard Access</li>
+                    <li class="inline-util-5aab2bbb" >⚠️ Limited AI Doubts (3/day)</li>
+                    <li class="inline-util-eb895dc1" >❌ Model Paper Generator</li>
+                    <li class="inline-util-eb895dc1" >❌ Ad-free Experience</li>
                 </ul>
 
-                <button class="btn btn-ghost" onclick="window.lockOverlay.show()" style="width: 100%;">Get
+                <button class="btn btn-ghost inline-util-199b6f0e" onclick="window.lockOverlay.show()" >Get
                     Started</button>
             </div>
 
             <!-- Pro Plan -->
-            <div class="glass-card pricing-card featured" data-aos="zoom-in" data-aos-delay="200"
-                style="padding: 2.5rem; border: 1px solid var(--primary); background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%); position: relative;">
-                <div class="badge-ribbon"
-                    style="position: absolute; top: 0; right: 0; background: var(--secondary); color: white; padding: 0.3rem 1rem; border-bottom-left-radius: 10px; font-size: 0.8rem; font-weight: 600;">
+            <div class="glass-card pricing-card featured inline-util-14a65865" data-aos="zoom-in" data-aos-delay="200"
+                >
+                <div class="badge-ribbon inline-util-5416a8d3"
+                    >
                     MOST POPULAR</div>
 
-                <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Scholar <span
-                        style="color: var(--secondary);">PRO</span></h3>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Detailed insights & powerful AI tools.</p>
-                <div class="price" style="font-size: 2.5rem; font-weight: 700; margin: 1.5rem 0;">₹99 <span
-                        style="font-size: 1rem; color: var(--text-muted); font-weight: 400;">/ mo</span></div>
+                <h3 class="inline-util-40f24323" >Scholar <span
+                        class="inline-util-f77eb5d4" >PRO</span></h3>
+                <p class="inline-util-fe08d3ef" >Detailed insights & powerful AI tools.</p>
+                <div class="price inline-util-8870a914" >₹99 <span
+                        class="inline-util-9eb11956" >/ mo</span></div>
 
-                <ul style="list-style: none; padding: 0; margin-bottom: 2rem; text-align: left;">
-                    <li style="margin-bottom: 0.8rem;">✅ <strong>Everything in Free</strong></li>
-                    <li style="margin-bottom: 0.8rem;">✨ <strong>Unlimited</strong> AI Model Papers</li>
-                    <li style="margin-bottom: 0.8rem;">✨ Deep Performance Analytics</li>
-                    <li style="margin-bottom: 0.8rem;">✨ Verified "Scholar" Badge</li>
-                    <li style="margin-bottom: 0.8rem;">✨ 100% Ad-free Interface</li>
+                <ul class="inline-util-11dcb948" >
+                    <li class="inline-util-5aab2bbb" >✅ <strong>Everything in Free</strong></li>
+                    <li class="inline-util-5aab2bbb" >✨ <strong>Unlimited</strong> AI Model Papers</li>
+                    <li class="inline-util-5aab2bbb" >✨ Deep Performance Analytics</li>
+                    <li class="inline-util-5aab2bbb" >✨ Verified "Scholar" Badge</li>
+                    <li class="inline-util-5aab2bbb" >✨ 100% Ad-free Interface</li>
                 </ul>
 
-                <button class="btn btn-primary" onclick="window.lockOverlay.show()"
-                    style="width: 100%; box-shadow: 0 4px 15px rgba(108, 99, 255, 0.4);">Upgrade to Scholar</button>
+                <button class="btn btn-primary inline-util-da9d7090" onclick="window.lockOverlay.show()"
+                    >Upgrade to Scholar</button>
             </div>
 
         </div>
@@ -213,7 +184,7 @@
 
 
     <!-- FAQ Section -->
-    <section id="faq" class="faq-section container" style="margin-bottom: 6rem;">
+    <section id="faq" class="faq-section container inline-util-179c05bc" >
         <h2 class="section-title" data-aos="fade-up">Frequently Asked <span class="gradient-text">Questions</span></h2>
         <div class="glass-card faq-container" data-aos="fade-up" data-aos-delay="100">
 
@@ -306,10 +277,10 @@
         <div class="container footer-content">
             <!-- Left Block: Brand & Intel -->
             <div class="footer-brand">
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem;">
-                    <img src="assets/logo.jpg" alt="SKiL MATRiX" style="height: 30px; border-radius: 50%;">
-                    <span class="logo-text">SKiL MATRiX <span class="highlight"
-                            style="font-weight: 800;">NOTES</span></span>
+                <div class="inline-util-a44362ee" >
+                    <img src="assets/logo.jpg" alt="SKiL MATRiX" class="inline-util-8128bf84" >
+                    <span class="logo-text">SKiL MATRiX <span class="highlight inline-util-a97a3c6f"
+                            >NOTES</span></span>
                 </div>
                 <p>Empowering students with intelligent academic tools.</p>
                 <div class="footer-intel-signal">
@@ -323,36 +294,36 @@
                     <h4>Platform</h4>
                     <div id="footer-role-links">
                         <!-- Fallback Links -->
-                        <a href="pages/dashboard.html?tab=notes">Notes Hub</a>
-                        <a href="pages/dashboard.html">AI Tools</a>
+                        <a href="pages/dashboard?tab=notes">Notes Hub</a>
+                        <a href="pages/dashboard">AI Tools</a>
                         <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" target="_blank"
                             rel="noopener noreferrer">Community</a>
                     </div>
-                    <a href="pages/dashboard.html?tab=leaderboard">Leaderboard</a>
+                    <a href="pages/dashboard?tab=leaderboard">Leaderboard</a>
                 </div>
 
                 <!-- Right Block: Company -->
                 <div class="link-group">
                     <h4>Company</h4>
-                    <a href="pages/about.html">About</a>
-                    <a href="pages/contact.html">Contact</a>
+                    <a href="pages/about">About</a>
+                    <a href="pages/contact">Contact</a>
                     <div class="legal-group">
-                        <a href="pages/privacy.html">Privacy</a>
-                        <a href="pages/terms.html">Terms</a>
+                        <a href="pages/privacy">Privacy</a>
+                        <a href="pages/terms">Terms</a>
                     </div>
-                    <a href="pages/contact.html" style="color: var(--secondary);">Report an Issue</a>
+                    <a href="pages/contact" class="inline-util-f77eb5d4" >Report an Issue</a>
                 </div>
             </div>
         </div>
 
         <!-- Bottom Strip -->
         <div class="footer-bottom">
-            <div class="container"
-                style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div class="container inline-util-4bced53a"
+                >
                 <p>&copy; 2026 SKiL MATRiX. All rights reserved.</p>
                 <p class="footer-legal-notice">We respect academic integrity. No copyrighted content is hosted directly.
                 </p>
-                <div style="font-size: 0.8rem; opacity: 0.6;">
+                <div class="inline-util-3f2723e5" >
                     Made with ❤️ for students
                 </div>
             </div>
