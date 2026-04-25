@@ -18,14 +18,14 @@ function renderNavbar() {
     const basePath = isPagesDir ? '../' : '';
 
     let pathParts = window.location.pathname.split('/');
-    let currentPage = pathParts.pop() || 'index.html';
-    if (currentPage === '' || window.location.pathname.startsWith('/notes')) currentPage = 'notes.html';
+    let currentPage = pathParts.pop() || 'index';
+    if (currentPage === '' || window.location.pathname.startsWith('/notes')) currentPage = 'notes';
 
     // Helper to get correct relative path for nav links
     const getLinkPath = (page) => {
-        // If we are at root and link is index.html, it's just index.html (or ./index.html)
-        // If we are at pages/ and link is index.html, it's ../index.html
-        if (page.startsWith('index.html')) {
+        // If we are at root and link is index, it's just index (or ./index)
+        // If we are at pages/ and link is index, it's ../index
+        if (page.startsWith('index')) {
             return basePath + page;
         }
         // If we are at root and link is pages/something, it's pages/something
@@ -41,7 +41,7 @@ function renderNavbar() {
     container.innerHTML = `
         <nav class="glass-nav">
             <div class="container nav-content">
-                <div class="logo" onclick="window.location.href='${basePath}index.html'"
+                <div class="logo" onclick="window.location.href='${basePath}'"
                     style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
                     <img src="${basePath}assets/logo.jpg" alt="SKiL MATRiX" style="height: 40px; border-radius: 50%;">
                     <span class="logo-text">SKiL MATRiX <span class="highlight"
@@ -54,6 +54,10 @@ function renderNavbar() {
                     <a href="${getLinkPath('pages/dashboard.html')}?tab=leaderboard" class="${currentPage === 'dashboard.html' && window.location.search.includes('tab=leaderboard') ? 'active' : ''}">Leaderboard</a>
                     <a href="${getLinkPath('pages/dashboard.html')}?tab=profile" class="${currentPage === 'dashboard.html' && window.location.search.includes('tab=profile') ? 'active' : ''}">Profile</a>
                     <a href="${getLinkPath('pages/dashboard.html')}" class="${currentPage === 'dashboard.html' && !window.location.search.includes('tab=notes') && !window.location.search.includes('tab=leaderboard') && !window.location.search.includes('tab=profile') ? 'active' : ''}">Dashboard</a>
+                    <a href="${getLinkPath('index#features')}" class="${currentPage === 'index' ? 'active' : ''}">Features</a>
+                    <a href="${getLinkPath('pages/dashboard')}?tab=notes" class="${currentPage === 'dashboard' && window.location.search.includes('tab=notes') ? 'active' : ''}">Notes Hub</a>
+                    <a href="${getLinkPath('pages/dashboard')}?tab=leaderboard" class="${currentPage === 'dashboard' && window.location.search.includes('tab=leaderboard') ? 'active' : ''}">Leaderboard</a>
+                    <a href="${getLinkPath('pages/dashboard')}" class="${currentPage === 'dashboard' && !window.location.search.includes('tab=notes') && !window.location.search.includes('tab=leaderboard') ? 'active' : ''}">Dashboard</a>
                     <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" target="_blank" rel="noopener noreferrer">Community</a>
                     <button class="btn btn-primary" id="navbar-auth-btn">Get Started</button>
                 </div>
@@ -84,17 +88,17 @@ function updateNavbarAuthButton(basePath) {
         if (fullUser || (window.firebaseServices && window.firebaseServices.auth.currentUser)) {
             authBtn.textContent = 'Get Started';
             authBtn.onclick = () => {
-                window.location.href = `${basePath}pages/dashboard.html`;
+                window.location.href = `${basePath}pages/dashboard`;
             };
         } else if (guestUser) {
             authBtn.textContent = 'Get Started';
             authBtn.onclick = () => {
-                window.location.href = `${basePath}pages/dashboard.html`;
+                window.location.href = `${basePath}pages/dashboard`;
             };
         } else {
             authBtn.textContent = 'Get Started';
             authBtn.onclick = () => {
-                window.location.href = `${basePath}pages/auth.html`;
+                window.location.href = `${basePath}pages/auth`;
             };
         }
     };

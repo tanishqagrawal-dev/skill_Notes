@@ -5,6 +5,7 @@
 
 const AI_LIMIT = 10;
 window.GEMINI_API_KEY = "AQ.Ab8RN6K4i4IgwmlqWSVQHoBWAE6jUoaQL8YDE7za9yUWdyP1dA";
+window.GEMINI_API_KEY = "AIzaSyCGPMynTaRKkIqO8spgE0LBmTQkRS_SbHI";
 
 window.AIGenerator = {
     // Check usage

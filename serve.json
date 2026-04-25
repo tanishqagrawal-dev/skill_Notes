@@ -1,5 +1,6 @@
 {
     "public": ".",
+    "cleanUrls": true,
     "rewrites": [
         {
             "source": "/pages/dashboard/notes/**",
