@@ -1057,11 +1057,12 @@ function initTabs() {
     // Clear previously injected dynamic items
     document.querySelectorAll('.dynamic-node').forEach(n => n.remove());
 
-    const settingsNode = document.querySelector('[data-tab="settings"]');
+    // Dynamic items are appended at the end of the main navigation
+    const anchorNode = null; 
 
     // 1. My Uploads
     const myUploads = createNavItem('my-uploads', '📤', 'My Uploads', true);
-    sidebarNav.insertBefore(myUploads, settingsNode);
+    sidebarNav.insertBefore(myUploads, anchorNode);
 
     // 3. Moderation & Admin Tools
     if (currentUser.role === 'coadmin' || currentUser.role === 'admin' || currentUser.role === 'superadmin') {
@@ -1074,12 +1075,12 @@ function initTabs() {
             e.stopPropagation();
             alert("🔒 Moderation Hub is coming soon!");
         };
-        sidebarNav.insertBefore(modHub, settingsNode);
+        sidebarNav.insertBefore(modHub, anchorNode);
     }
 
     if (currentUser.role === 'admin' || currentUser.role === 'superadmin') {
         const adminConsole = createNavItem('admin-console', '🚨', 'Command Center', true);
-        sidebarNav.insertBefore(adminConsole, settingsNode);
+        sidebarNav.insertBefore(adminConsole, anchorNode);
     }
 
     // Re-bind listeners and set initial active state
@@ -1224,8 +1225,6 @@ function renderTabContent(tabId) {
                         renderCollegeStep();
                     }
                 }
-                // This is now redundant but kept for safety with UI steps
-                if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
             }
         } else if (tabId === 'planner') {
             if (window.lockOverlay) {
@@ -1755,13 +1754,6 @@ function renderOverview() {
                         <p class="ai-msg">${aiRec.msg}</p>
                         <div class="ai-actions">
                             <button class="btn btn-primary" onclick="${isGuest ? "window.location.href='../pages/auth.html'" : (aiRec.actionType === 'ai-tools' || aiRec.actionType === 'planner' ? "window.lockOverlay.show()" : `renderTabContent('${aiRec.actionType}')`)}">${aiRec.actionLabel}</button>
-                    <div class="glass-card" style="background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 100%); border: 1px solid rgba(108, 99, 255, 0.2); padding: 2.5rem; position: relative; overflow: hidden; border-radius: 24px;">
-                        <div style="position: absolute; top: -20px; right: -20px; font-size: 10rem; opacity: 0.03; transform: rotate(15deg);">🤖</div>
-                        <h3 class="font-heading" style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--secondary);">✨ ${aiRec.title}</h3>
-                        <p style="margin-bottom: 2rem; max-width: 85%; font-size: 1.1rem; line-height: 1.6; color: #eee;">${aiRec.msg}</p>
-                        <div style="display: flex; gap: 1rem;">
-                            <button class="btn btn-primary" onclick="${isGuest ? "window.location.href='../pages/auth'" : (aiRec.actionType === 'ai-tools' || aiRec.actionType === 'planner' ? "window.lockOverlay.show()" : `renderTabContent('${aiRec.actionType}')`)}">${aiRec.actionLabel}</button>
-                            ${!isGuest ? '<button class="btn btn-ghost" onclick="renderTabContent(\'planner\')">Schedule Revision</button>' : ''}
                         </div>
                     </div>
 
@@ -2648,7 +2640,7 @@ window.showNotes = function (activeTab = 'notes') {
                         </div>
                     </div>
                     <div class="subject-actions-top" style="display:flex; gap: 1rem;">
-                        <button class="btn btn-ghost" onclick="copyShareLink()" id="share-btn" style="white-space:nowrap; background: rgba(0, 242, 255, 0.1); color: var(--secondary); padding: 0.6rem 1.2rem; border-radius: 8px;">🔗 Share Subject</button>
+                        <button class="btn btn-ghost" onclick="copyShareLink(this)" id="share-btn" style="white-space:nowrap; background: rgba(0, 242, 255, 0.1); color: var(--secondary); padding: 0.6rem 1.2rem; border-radius: 8px;">🔗 Share Subject</button>
                         <button class="btn btn-ghost" onclick="backToSubjectSelection()" style="white-space:nowrap; background: rgba(255,255,255,0.05); padding: 0.6rem 1.2rem; border-radius: 8px;">⬅ Back</button>
                     </div>
                 </div>

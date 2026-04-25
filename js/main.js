@@ -82,7 +82,6 @@ const notesData = [
 
 // Initialize UI
 document.addEventListener('DOMContentLoaded', () => {
-    initNav();
     initFilters();
     renderNotes(notesData);
     animateCounters();
@@ -102,19 +101,6 @@ function animateCounters() {
     // Left empty: stats.js handles real-time updates now.
 }
 
-// Navigation Scroll Effect
-function initNav() {
-    const nav = document.querySelector('.glass-nav');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            nav.style.background = 'rgba(11, 15, 25, 0.95)';
-            nav.style.padding = '0.75rem 0';
-        } else {
-            nav.style.background = 'rgba(11, 15, 25, 0.7)';
-            nav.style.padding = '1rem 0';
-        }
-    });
-}
 
 // FAQ Logic
 function initFAQ() {

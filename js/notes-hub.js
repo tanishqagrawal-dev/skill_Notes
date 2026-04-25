@@ -124,20 +124,7 @@ function renderGlobalShowcase() {
     }
 }
 
-// --- SHARE LOGIC ---
-window.copyShareLink = async function () {
-    const btn = document.getElementById('share-btn');
-    const success = await RoutingSystem.copyShareLink(selState);
-    if (success) {
-        const originalText = btn.innerText;
-        btn.innerText = '✅ Link Copied!';
-        btn.style.background = 'rgba(0, 255, 127, 0.2)';
-        setTimeout(() => {
-            btn.innerText = originalText;
-            btn.style.background = 'rgba(0, 242, 255, 0.1)';
-        }, 2000);
-    }
-};
+// --- SHARE LOGIC REMOVED (Now in note-actions.js) ---
 
 // --- INITIALIZATION ---
 
@@ -563,7 +550,7 @@ window.showNotes = async function (activeTab = 'notes', loadMore = false) {
                         <p class="subject-description">${subjectData.description}</p>
                     </div>
                     <div style="display: flex; gap: 0.8rem;">
-                        <button class="btn btn-ghost" onclick="copyShareLink()" id="share-btn" style="white-space:nowrap; background: rgba(0, 242, 255, 0.1); color: var(--secondary); padding: 0.6rem 1.2rem; border-radius: 8px;">🔗 Share Subject</button>
+                        <button class="btn btn-ghost" onclick="copyShareLink(this)" id="share-btn" style="white-space:nowrap; background: rgba(0, 242, 255, 0.1); color: var(--secondary); padding: 0.6rem 1.2rem; border-radius: 8px;">🔗 Share Subject</button>
                         <button class="btn btn-ghost" onclick="renderCollegeStep()" style="white-space:nowrap; background: rgba(255,255,255,0.05); padding: 0.6rem 1.2rem; border-radius: 8px;">↺ Switch</button>
                     </div>
                 </div>

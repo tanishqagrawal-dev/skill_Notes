@@ -113,7 +113,39 @@ function syncAllInteractionIcons() {
     });
 }
 
-// Auto-init when auth state is ready
+/**
+ * Share Subject Deep Link
+ */
+window.copyShareLink = async function (btnElement) {
+    const btn = btnElement || document.getElementById('share-btn');
+    const state = window.selState || {};
+    
+    if (!state.subject) {
+        if (window.showToast) window.showToast("Please select a subject to share", "info");
+        return;
+    }
+
+    if (!window.RoutingSystem) {
+        console.error("RoutingSystem not loaded.");
+        return;
+    }
+
+    const success = await window.RoutingSystem.copyShareLink(state);
+    if (success && btn) {
+        const originalText = btn.innerHTML;
+        const originalBg = btn.style.background;
+        
+        btn.innerHTML = '✅ Link Copied!';
+        btn.style.background = 'rgba(0, 255, 127, 0.2)';
+        
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.background = originalBg;
+        }, 2000);
+    }
+};
+
+// Attach to window for HTML onclicks
 (function autoInit() {
     const { auth, onAuthStateChanged } = getFirebase();
     if (auth) {

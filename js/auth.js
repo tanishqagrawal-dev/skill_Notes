@@ -325,14 +325,11 @@ window.handleLogout = async function () {
     window.authStatus = { ready: true, data: { user: null, currentUser: null } };
 
     // 4. Redirect to landing page (root index.html)
-    // Redirect to landing page (root index)
-    const path = window.location.pathname;
     const pagesIndex = path.indexOf('/pages/');
     if (pagesIndex !== -1) {
-        window.location.href = path.substring(0, pagesIndex) + '/index';
+        window.location.href = path.substring(0, pagesIndex) + '/index.html';
     } else {
-        window.location.href = 'index.html';
         // If not in pages dir, we're likely in root or some other top-level dir
-        window.location.href='index';
+        window.location.href = 'index.html';
     }
 };
