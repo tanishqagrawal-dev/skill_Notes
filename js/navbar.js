@@ -48,10 +48,12 @@ function renderNavbar() {
                             style="font-weight: 800;">NOTES</span></span>
                 </div>
                 <div class="nav-links" id="nav-links">
+                    <div class="mobile-close-btn" id="mobile-close-btn">&times;</div>
                     <a href="${getLinkPath('index.html#features')}" class="${currentPage === 'index.html' ? 'active' : ''}">Features</a>
                     <a href="${getLinkPath('pages/dashboard.html')}?tab=notes" class="${currentPage === 'dashboard.html' && window.location.search.includes('tab=notes') ? 'active' : ''}">Notes Hub</a>
                     <a href="${getLinkPath('pages/dashboard.html')}?tab=leaderboard" class="${currentPage === 'dashboard.html' && window.location.search.includes('tab=leaderboard') ? 'active' : ''}">Leaderboard</a>
-                    <a href="${getLinkPath('pages/dashboard.html')}" class="${currentPage === 'dashboard.html' && !window.location.search.includes('tab=notes') && !window.location.search.includes('tab=leaderboard') ? 'active' : ''}">Dashboard</a>
+                    <a href="${getLinkPath('pages/dashboard.html')}?tab=profile" class="${currentPage === 'dashboard.html' && window.location.search.includes('tab=profile') ? 'active' : ''}">Profile</a>
+                    <a href="${getLinkPath('pages/dashboard.html')}" class="${currentPage === 'dashboard.html' && !window.location.search.includes('tab=notes') && !window.location.search.includes('tab=leaderboard') && !window.location.search.includes('tab=profile') ? 'active' : ''}">Dashboard</a>
                     <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" target="_blank" rel="noopener noreferrer">Community</a>
                     <button class="btn btn-primary" id="navbar-auth-btn">Get Started</button>
                 </div>
@@ -134,6 +136,8 @@ function initNavbarLogic() {
         };
 
         toggle.addEventListener('click', toggleMenu);
+        const closeBtn = document.getElementById('mobile-close-btn');
+        if (closeBtn) closeBtn.addEventListener('click', toggleMenu);
         if (overlay) overlay.addEventListener('click', toggleMenu);
 
         // Close menu on link click

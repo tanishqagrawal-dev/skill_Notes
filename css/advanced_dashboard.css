@@ -538,117 +538,215 @@ body.light-mode .skeleton {
 /* --- Premium Notes Cards (Updated Design) --- */
 
 .detailed-item.glass-card {
-    background: rgba(23, 23, 23, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(13, 13, 13, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-left: 3px solid #00f2ff !important;
     border-radius: 12px;
     padding: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    margin-bottom: 1rem;
+    margin-bottom: 1.2rem;
+    position: relative;
+    overflow: hidden;
 }
 
 .detailed-item.glass-card:hover {
-    border-color: rgba(255, 255, 255, 0.1);
-    background: rgba(30, 30, 30, 0.6);
-    transform: translateY(-2px);
-}
-
-.item-left {
-    display: flex;
-    gap: 1.25rem;
-    align-items: flex-start;
+    background: rgba(20, 20, 20, 0.8) !important;
+    border-color: #00f2ff !important;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 .file-type-icon {
-    width: 40px;
-    height: 40px;
-    background: rgba(0, 194, 255, 0.1);
-    color: #00c2ff;
+    width: 48px;
+    height: 48px;
+    background: rgba(0, 242, 255, 0.05);
+    border: 1px solid rgba(0, 242, 255, 0.1);
+    color: #00f2ff;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
-    font-size: 1.25rem;
+    border-radius: 12px;
+    font-size: 1.4rem;
+    transition: 0.3s;
+}
+
+.detailed-item.glass-card:hover .file-type-icon {
+    background: #00f2ff;
+    color: black;
+    transform: rotate(-5deg) scale(1.1);
 }
 
 .item-title {
     font-size: 1.25rem;
-    font-weight: 600;
-    color: white;
-    margin-bottom: 0.25rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.01em;
+}
+
+.unit-tag {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #00f2ff;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 0.2rem;
+    opacity: 0.8;
 }
 
 .item-meta-row {
     display: flex;
     align-items: center;
     gap: 1.5rem;
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
 }
 
-.uploader-mini {
+.uploader-mini, .date-mini, .views-mini {
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
-.uploader-avatar {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #e5e7eb;
-    color: #374151;
+.eng-btn-pro {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    padding: 0.6rem 0.9rem !important;
+    border-radius: 10px !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+    font-weight: 700 !important;
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 0.7rem;
-    font-weight: 700;
+    gap: 0.6rem;
+    transition: all 0.2s ease !important;
 }
 
-.item-engagement-row {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    margin-top: 1rem;
-    color: rgba(255, 255, 255, 0.4);
+.eng-btn-pro:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: white !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
 }
 
-.eng-icon {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    cursor: pointer;
-    transition: color 0.2s;
-    font-size: 0.9rem;
+.eng-btn-pro.active {
+    background: rgba(0, 242, 255, 0.15) !important;
+    color: #00f2ff !important;
+    border-color: #00f2ff !important;
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
 }
 
-.eng-icon:hover {
-    color: white;
+.eng-btn-pro.dislike-btn.active {
+    background: rgba(255, 50, 50, 0.15) !important;
+    color: #ff5252 !important;
+    border-color: #ff5252 !important;
+}
+
+.tool-icon-pro.active {
+    background: rgba(0, 242, 255, 0.15) !important;
+    color: #00f2ff !important;
+    border-color: #00f2ff !important;
+    box-shadow: 0 0 10px rgba(0, 242, 255, 0.1);
+}
+
+.tool-icon-pro.active svg, .eng-btn-pro.active svg {
+    fill: currentColor;
 }
 
 .btn-download-pro {
-    background: white;
-    color: black;
-    border: none;
-    padding: 0.6rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    transition: all 0.2s;
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    padding: 0.8rem 1.6rem !important;
+    border-radius: 10px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
 }
 
 .btn-download-pro:hover {
-    background: #f3f4f6;
-    transform: scale(1.02);
+    background: #f0f0f0 !important;
+    transform: scale(1.03) !important;
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
 }
 
-.btn-download-pro i {
-    font-size: 0.9rem;
+.tab-search-container input:focus {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: #00f2ff !important;
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+}
+
+/* --- Mobile Responsiveness for Resource Cards --- */
+@media (max-width: 768px) {
+    .detailed-item.glass-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+        padding: 1.2rem;
+    }
+
+    .item-left {
+        width: 100%;
+    }
+
+    .item-info {
+        flex: 1;
+    }
+
+    .item-title {
+        font-size: 1.1rem;
+    }
+
+    .item-meta-row {
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        font-size: 0.75rem;
+    }
+
+    .item-right {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .item-actions-inline {
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .eng-btn-pro {
+        flex: 1;
+        justify-content: center;
+        padding: 0.5rem !important;
+    }
+
+    .btn-download-pro {
+        width: 100%;
+        justify-content: center;
+        padding: 0.8rem !important;
+    }
+
+    .subject-tabs-nav {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+
+    .subject-tabs-nav > div:first-child {
+        gap: 1.5rem;
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 0.5rem;
+    }
+
+    .tab-search-container {
+        width: 100%;
+        min-width: 0;
+    }
 }
 
 /* --- Pulse Dot & Graph Header Refinements --- */

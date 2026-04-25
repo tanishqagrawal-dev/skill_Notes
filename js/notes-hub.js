@@ -394,11 +394,30 @@ window.lastVisibleNote = null;
 
 window.showNotes = async function (activeTab = 'notes', loadMore = false) {
     if (!loadMore) {
-        const explorer = document.getElementById('explorer-steps-container');
-        if (explorer) explorer.style.display = 'none';
+        // Hide explorer components
+        ['explorer-steps-container', 'explorer-header', 'explorer-content', 'explorer-back-container'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        });
 
         const view = document.getElementById('final-notes-view');
-        view.style.display = 'block';
+        if (view) {
+            view.style.display = 'block';
+            if (!view.innerHTML.trim() || view.innerHTML.includes('explorer-steps')) {
+                view.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; gap: 1.5rem;">
+                        <span class="loader-pro" style="width: 40px; height: 40px; border-width: 3px;"></span>
+                        <p style="color: var(--text-dim); font-size: 1.1rem; animate: pulse 1.5s infinite;">Opening <b>${selState.subject?.name || 'Subject'}</b> Hub...</p>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    if (!selState.branch || !selState.semester || !selState.subject) {
+        console.warn("🚫 showNotes: Incomplete state, reverting to explorer.");
+        if (window.backToExplorer) window.backToExplorer();
+        return;
     }
 
     const key = `${selState.branch.id}-${selState.semester}`;

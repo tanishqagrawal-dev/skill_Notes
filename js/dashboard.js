@@ -427,40 +427,175 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.onclick = () => openUploadModal();
     });
 
-    // Global Search Engine
     // --- GLOBAL SEARCH IMPLEMENTATION ---
-    const globalSearchInput = document.querySelector('.search-bar input');
+    const globalSearchInput = document.getElementById('global-search-input');
     const searchIcon = document.querySelector('.search-bar .search-icon');
+    const searchBarContainer = document.querySelector('.search-bar');
 
-    // Function to perform search
-    function performGlobalSearch(query) {
-        if (!query.trim()) return;
+    // Remove any existing results to prevent duplicates on re-init
+    document.querySelectorAll('.global-search-results').forEach(el => el.remove());
 
-        // 1. Switch to Notes Hub
-        const notesTab = document.querySelector('.nav-item[data-tab="notes"]');
-        if (notesTab) notesTab.click();
+    // Create Results Dropdown
+    const searchResults = document.createElement('div');
+    searchResults.className = 'global-search-results glass-card';
+    searchResults.style.display = 'none';
+    if (searchBarContainer) searchBarContainer.appendChild(searchResults);
 
-        // 2. Wait for tab to render then search
-        setTimeout(() => {
-            const searchBox = document.getElementById('search-notes');
-            if (searchBox) {
-                searchBox.value = query;
-                searchBox.focus();
-                // Trigger input event to run the filter logic
-                searchBox.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-        }, 100);
+    function updateSearchResults(query) {
+        if (!query.trim() || query.length < 2) {
+            searchResults.style.display = 'none';
+            return;
+        }
+
+        const lowQuery = query.toLowerCase().trim();
+        const matches = [];
+
+        // 1. Search Subjects
+        for (const [key, list] of Object.entries(GlobalData.subjects)) {
+            list.forEach(s => {
+                if (s.name.toLowerCase().includes(lowQuery) || (s.code && s.code.toLowerCase().includes(lowQuery))) {
+                    if (!matches.find(m => m.id === s.id)) {
+                        matches.push({ ...s, type: 'subject', key });
+                    }
+                }
+            });
+        }
+
+        // Limit results to 6 for performance/UX
+        const displayMatches = matches.slice(0, 6);
+
+        if (displayMatches.length > 0) {
+            searchResults.innerHTML = displayMatches.map(m => `
+                <div class="search-result-item" onclick="performGlobalSearch('${m.id}')">
+                    <div class="result-icon-box">${m.icon || '📚'}</div>
+                    <div class="result-info-content">
+                        <div class="result-name-text">${m.name}</div>
+                        <div class="result-meta-text">${m.code || 'Academic'} • ${m.key.split('-')[0].toUpperCase()}</div>
+                    </div>
+                    <span class="result-type-badge">Subject</span>
+                </div>
+            `).join('') + `
+                <div class="search-result-footer-link" onclick="performGlobalSearch('${query}')">
+                    🔍 Deep search all notes for "${query}"
+                </div>
+            `;
+            searchResults.style.display = 'flex';
+        } else {
+            searchResults.innerHTML = `
+                <div class="search-result-footer-link" onclick="performGlobalSearch('${query}')">
+                             🔍 No direct subject match. Search all notes for "${query}"?
+                </div>
+            `;
+            searchResults.style.display = 'flex';
+        }
     }
 
+    // Function to perform search
+    window.performGlobalSearch = function(queryOrId) {
+        if (!queryOrId || !queryOrId.trim()) return;
+        if (searchResults) searchResults.style.display = 'none';
+        
+        const lowQuery = queryOrId.toLowerCase().trim();
+        let foundSubject = null;
+        let foundKey = null;
+
+        // 1. Resolve Subject (by ID or exact Name match)
+        for (const [key, list] of Object.entries(GlobalData.subjects)) {
+            // First try exact ID match (most reliable)
+            const idMatch = list.find(s => s.id === queryOrId);
+            if (idMatch) {
+                foundSubject = idMatch;
+                foundKey = key;
+                break;
+            }
+            
+            // Second try name inclusion
+            const nameMatch = list.find(s => 
+                s.name.toLowerCase() === lowQuery || 
+                s.name.toLowerCase().includes(lowQuery)
+            );
+            if (nameMatch) {
+                foundSubject = nameMatch;
+                foundKey = key;
+                // Don't break yet, exact match preferred
+                if (nameMatch.name.toLowerCase() === lowQuery) break;
+            }
+        }
+
+        if (foundSubject) {
+            const [branchId, sem] = foundKey.split('-');
+            console.log(`✅ Subject Found: ${foundSubject.name} in ${branchId} (${sem})`);
+            
+            const collegeId = localStorage.getItem('user_college_id') || 'medicaps';
+            const college = window.GlobalData.colleges.find(c => c.id === collegeId) || { id: collegeId, name: 'University' };
+            const branch = window.GlobalData.branches.find(b => b.id === branchId) || { id: branchId, name: branchId.toUpperCase() };
+
+            const semToYear = {
+                'Semester 1': '1st Year', 'Semester 2': '1st Year',
+                'Semester 3': '2nd Year', 'Semester 4': '2nd Year',
+                'Semester 5': '3rd Year', 'Semester 6': '3rd Year',
+                'Semester 7': '4th Year', 'Semester 8': '4th Year'
+            };
+
+            // Fully synchronize state
+            window.selState.college = college;
+            window.selState.branch = branch;
+            window.selState.semester = sem;
+            window.selState.year = semToYear[sem] || 'Scholar';
+            window.selState.subject = foundSubject;
+
+            // Trigger navigation
+            if (window.RoutingSystem) {
+                window.RoutingSystem.updateURL(window.selState);
+            }
+
+            // switch tab
+            const notesTab = document.querySelector('.nav-item[data-tab="notes"]');
+            if (notesTab) {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                notesTab.classList.add('active');
+                renderTabContent('notes');
+                setTimeout(() => {
+                    if (window.showNotes) window.showNotes();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 100);
+                return;
+            }
+        }
+
+        // Fallback: Perform general keyword search in notes
+        console.log("🔍 Fallback Search for:", queryOrId);
+        if (globalSearchInput) globalSearchInput.value = queryOrId;
+        const notesTab = document.querySelector('.nav-item[data-tab="notes"]');
+        if (notesTab) {
+            notesTab.click();
+            setTimeout(() => {
+                const searchBox = document.getElementById('search-notes');
+                if (searchBox) {
+                    searchBox.value = queryOrId;
+                    searchBox.focus();
+                    searchBox.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }, 150);
+        }
+    };
+
     if (globalSearchInput) {
-        // Search on Enter key
+        globalSearchInput.addEventListener('input', (e) => updateSearchResults(e.target.value));
+
         globalSearchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 performGlobalSearch(e.target.value);
             }
         });
 
-        // Search on Icon Click
+        // Hide results on blur/outside click
+        document.addEventListener('click', (e) => {
+            if (searchBarContainer && !searchBarContainer.contains(e.target)) {
+                searchResults.style.display = 'none';
+            }
+        });
+
         if (searchIcon) {
             searchIcon.style.cursor = 'pointer';
             searchIcon.onclick = () => performGlobalSearch(globalSearchInput.value);
@@ -1044,15 +1179,44 @@ function renderTabContent(tabId) {
             console.log("➡️ Rendering Overview...");
             contentArea.innerHTML = renderOverview();
         } else if (tabId === 'notes') {
-            const hasPathFilters = window.location.hash.split('/').length > 2 || window.location.pathname.split('/').length > 4; // #/notes/medicaps...
-            if (!hasPathFilters) {
-                selState.college = null; selState.branch = null; selState.year = null; selState.subject = null; selState.semester = null;
+            // 🎯 FAST PATH: If we already have a subject selected (e.g. from Global Search), 
+            // render the hub and show notes immediately, bypassing the onboarding wizard.
+            if (window.selState && window.selState.subject && window.selState.college) {
+                console.log("🚀 Direct Subject Navigation Detected:", window.selState.subject.name);
+                contentArea.innerHTML = renderNotesHub();
+                if (window.showNotes) window.showNotes();
+                return;
             }
+
+            // Standard Explorer Logic
+            const hasPathFilters = window.location.hash.split('/').length > 2 || 
+                                   window.location.pathname.split('/').length > 4;
+            
+            if (!hasPathFilters) {
+                window.selState.college = null; window.selState.branch = null; window.selState.year = null; window.selState.subject = null; window.selState.semester = null;
+            }
+
             contentArea.innerHTML = renderNotesHub();
 
             if (!hasPathFilters) {
                 renderCollegeStep();
-                if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
+                if (window.RoutingSystem) window.RoutingSystem.updateURL(window.selState);
+            } else {
+                // Sync UI with URL filters
+                if (window.RoutingSystem) {
+                    const nextStep = window.RoutingSystem.applyFiltersToUI(GlobalData, (k, v) => { window.selState[k] = v; });
+                    if (nextStep === "SHOW_NOTES") {
+                        if (window.showNotes) window.showNotes();
+                    } else if (nextStep === "SUBJECT_STEP") {
+                        if (window.renderSubjectStep) window.renderSubjectStep();
+                    } else if (nextStep === "SEMESTER_STEP" || nextStep === "YEAR_STEP") {
+                        if (window.renderSemesterStep) window.renderSemesterStep();
+                    } else if (nextStep === "BRANCH_STEP") {
+                        if (window.renderBranchStep) window.renderBranchStep();
+                    } else {
+                        renderCollegeStep();
+                    }
+                }
             }
         } else if (tabId === 'planner') {
             if (window.lockOverlay) {
@@ -1071,13 +1235,12 @@ function renderTabContent(tabId) {
             // Leaderboard is unlocked globally now to display xp
             contentArea.innerHTML = renderLeaderboard();
             if (typeof initLeaderboardListeners === 'function') initLeaderboardListeners();
-        } else if (tabId === 'private-drive') {
-            if (window.lockOverlay) {
-                window.lockOverlay.show();
-                return;
+        } else if (tabId === 'bookmarks') {
+            if (window.renderBookmarks) {
+                window.renderBookmarks();
+            } else {
+                contentArea.innerHTML = `<p>Loading Bookmarks...</p>`;
             }
-            contentArea.innerHTML = renderPrivateDrive();
-            if (typeof initPrivateDrive === 'function') initPrivateDrive();
         } else if (tabId === 'moderation-hub') {
             contentArea.innerHTML = renderModerationHub();
             if (typeof initModerationHub === 'function') initModerationHub();
@@ -1114,6 +1277,20 @@ function renderTabContent(tabId) {
                 if (window.initCGPAAnalyzer) window.initCGPAAnalyzer();
             } else {
                 contentArea.innerHTML = `<p>Loading CGPA Analyzer...</p>`;
+            }
+        } else if (tabId === 'profile') {
+            if (window.profileManager) {
+                contentArea.innerHTML = window.profileManager.render();
+                if (window.profileManager.userData) {
+                    window.profileManager.hydrateUI(window.profileManager.userData);
+                }
+            } else {
+                contentArea.innerHTML = `
+                    <div class="loading-state" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 1.5rem;">
+                        <div class="loader-pro"></div>
+                        <p style="color: var(--text-dim); font-weight: 500; letter-spacing: 1px;">INITIALIZING MATRiX CORE...</p>
+                    </div>
+                `;
             }
         }
         // --- ROLE SPECIFIC ---
@@ -1435,18 +1612,24 @@ function renderOverview() {
     const contentArea = document.getElementById('tab-content');
     if (!contentArea) return "";
 
-    // Simplified guard: Only skeleton if we truly have no identity data at all
     if (!currentUser) {
         return renderDashboardSkeleton();
     }
 
     const userName = (currentUser.name || "Scholar").split(' ')[0];
     const college = currentUser.collegeName || currentUser.college || 'Medicaps University';
-    const year = currentUser.year || '3rd Year';
-    const branch = currentUser.branch || 'CSE';
-    const roleLabel = currentUser.role !== 'user' ? `🛡️ Verified ${currentUser.role.toUpperCase()}` : `${year} • ${branch}`;
+    
+    let rawY = String(currentUser.year || '3');
+    let yLabel = rawY;
+    if (rawY === '1') yLabel = '1st Year';
+    else if (rawY === '2') yLabel = '2nd Year';
+    else if (rawY === '3') yLabel = '3rd Year';
+    else if (rawY === '4') yLabel = '4th Year';
+    else if (rawY && !rawY.toLowerCase().includes('year')) yLabel = rawY + ' Year';
 
-    // Calculate real readiness (from user_stats or mock for first time)
+    const branch = (currentUser.branch || 'CSE').toUpperCase();
+    const roleLabel = currentUser.role !== 'user' ? `🛡️ Verified ${currentUser.role.toUpperCase()}` : `${yLabel} • ${branch}`;
+
     const userStats = currentUser.stats || { subjects: {} };
     const readinessData = [
         { name: 'Discrete Mathematics', progress: userStats.subjects?.dm?.readiness || 85, color: '#2ecc71', id: 'dm' },
@@ -1456,13 +1639,11 @@ function renderOverview() {
 
     const isGuest = !currentUser.email;
 
-    // Aggregate global hardcoded notes
     const allGlobalNotes = [];
     if (globalNotes && globalNotes.global) {
         Object.values(globalNotes.global).forEach(arr => allGlobalNotes.push(...arr));
     }
 
-    // Merge true Firestore nodes securely with formatted hardcoded ones
     const combinedNotes = [...(window.NotesDB || []), ...allGlobalNotes];
 
     const topNotes = combinedNotes
@@ -1470,7 +1651,6 @@ function renderOverview() {
         .sort((a, b) => ((b.likes || 0) + (b.downloads || 0) + (b.views || 0)) - ((a.likes || 0) + (a.downloads || 0) + (a.views || 0)))
         .slice(0, 3);
 
-    // AI Logic: What should they study?
     let aiRec = {
         title: "🤖 AI Recommendation",
         msg: `Your retention in <strong>${readinessData[0].name}</strong> is dropping. We recommend solving a model paper to boost confidence.`,
@@ -1491,46 +1671,67 @@ function renderOverview() {
         aiRec.actionLabel = "Browse Resource Hub";
     }
 
+    const isProfileIncomplete = !currentUser.program || !currentUser.year || !currentUser.branch || !currentUser.college;
+    const alertBannerHtml = (isProfileIncomplete && !isGuest) ? `
+        <div class="profile-alert-banner fade-in">
+            <div class="alert-glass-shine"></div>
+            <div class="alert-main">
+                <div class="alert-icon-box pulse-blue">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <div class="alert-info">
+                    <h4 class="alert-title">Academic Profile <span class="badge-incomplete-premium">ACTION REQUIRED</span></h4>
+                    <p class="alert-desc">Your profile is missing key academic fields. Complete it now to activate <strong>Personalized AI Insights</strong>.</p>
+                </div>
+            </div>
+            <div class="alert-actions">
+                <button class="btn btn-alert-complete-premium" onclick="document.querySelector('.nav-item[data-tab=\\'profile\\']')?.click()">
+                    Complete Now <i class="fa-solid fa-arrow-right-long"></i>
+                </button>
+            </div>
+        </div>
+    ` : "";
+
     return `
-        <div class="tab-pane active fade-in" style="padding: 2rem;">
+        <div class="tab-pane active fade-in dashboard-overview-wrapper">
+            ${alertBannerHtml}
             <!-- 1. Personalized Header -->
-            <div style="margin-bottom: 2.5rem;">
-                <h1 class="font-heading" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Welcome back, <span class="gradient-text">${userName}</span> 👋</h1>
-                <p style="color: var(--text-dim); font-size: 1.1rem;">${roleLabel} • ${college}</p>
+            <div class="welcome-banner">
+                <h1 class="font-heading">Welcome back, <span class="gradient-text">${userName}</span> 👋</h1>
+                <p class="role-badge">${roleLabel} • ${college}</p>
             </div>
 
-            <!-- 2. Live Activity Widgets (Growth Simulated) -->
-            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
-                <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #2ecc71;">
+            <!-- 2. Live Activity Widgets -->
+            <div class="stats-grid overview-stats">
+                <div class="glass-card wobble-hover accent-green">
                     <div class="live-header">
                         <span class="pulse-dot"></span>
-                        <span style="font-size: 0.9rem; color: var(--text-dim);">Live Students</span>
-                        <span class="live-text">Live</span>
+                        <span class="stat-meta">Live Students</span>
                     </div>
-                    <div id="liveStudents" style="font-size: 2.5rem; font-weight: 700; margin-top:0.5rem;">--</div>
+                    <div id="liveStudents" class="big-stat">--</div>
                 </div>
-                <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #3498db;">
-                    <div style="font-size: 0.9rem; color: var(--text-dim);">🔥 Global Views</div>
-                    <div id="stat-views" style="font-size: 2.5rem; font-weight: 700; margin-top:0.5rem;">--</div>
+                <div class="glass-card wobble-hover accent-blue">
+                    <div class="stat-meta">🔥 Global Views</div>
+                    <div id="stat-views" class="big-stat">--</div>
                 </div>
-                <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #9b59b6;">
-                    <div style="font-size: 0.9rem; color: var(--text-dim);">⬇️ Global Downloads</div>
-                    <div id="globalDownloads" style="font-size: 2.5rem; font-weight: 700; margin-top:0.5rem;">--</div>
+                <div class="glass-card wobble-hover accent-purple">
+                    <div class="stat-meta">⬇️ Global Downloads</div>
+                    <div id="globalDownloads" class="big-stat">--</div>
                 </div>
-                <div class="glass-card wobble-hover" style="padding: 1.5rem; border-left: 4px solid #f1c40f;">
-                    <div style="font-size: 0.9rem; color: var(--text-dim);">🚀 Trending Now</div>
-                    <div id="trendingNow" style="font-size: 2.5rem; font-weight: 700; margin-top:0.5rem;">--</div>
+                <div class="glass-card wobble-hover accent-gold">
+                    <div class="stat-meta">🚀 Trending Now</div>
+                    <div id="trendingNow" class="big-stat">--</div>
                 </div>
             </div>
 
-            <div class="grid-2-col" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem; align-items: start;">
+            <div class="dashboard-split-view">
                 
-                <div style="display: flex; flex-direction: column; gap: 2.5rem;">
+                <div class="main-column">
                     
-                    <!-- 3.5 Global Static Showcase (Phase-1 MVP) -->
-                    <div class="glass-card" style="padding: 2.5rem; border: 1px solid rgba(255, 255, 255, 0.05); background: rgba(255, 255, 255, 0.01);">
-                         <h3 class="font-heading" style="margin-bottom: 2rem; display: flex; align-items: center; gap: 0.8rem;">
-                            <span style="font-size: 1.5rem;">🚀</span> 
+                    <!-- 3. Global Resources -->
+                    <div class="glass-card verified-resources-card">
+                         <h3 class="font-heading section-title">
+                            <span class="emoji-icon">🚀</span> 
                             Global <span class="highlight">Verified Resources</span>
                          </h3>
                          <div id="dashboard-global-showcase" class="notes-list-container-pro">
@@ -1539,59 +1740,62 @@ function renderOverview() {
                     </div>
 
                     <!-- 4. AI Insights Card -->
-                    <div class="glass-card" style="background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 100%); border: 1px solid rgba(108, 99, 255, 0.2); padding: 2.5rem; position: relative; overflow: hidden; border-radius: 24px;">
-                        <div style="position: absolute; top: -20px; right: -20px; font-size: 10rem; opacity: 0.03; transform: rotate(15deg);">🤖</div>
-                        <h3 class="font-heading" style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--secondary);">✨ ${aiRec.title}</h3>
-                        <p style="margin-bottom: 2rem; max-width: 85%; font-size: 1.1rem; line-height: 1.6; color: #eee;">${aiRec.msg}</p>
-                        <div style="display: flex; gap: 1rem;">
+                    <div class="glass-card ai-insights-card">
+                        <div class="bg-icon">🤖</div>
+                        <h3 class="font-heading ai-title">✨ ${aiRec.title}</h3>
+                        <p class="ai-msg">${aiRec.msg}</p>
+                        <div class="ai-actions">
                             <button class="btn btn-primary" onclick="${isGuest ? "window.location.href='../pages/auth.html'" : (aiRec.actionType === 'ai-tools' || aiRec.actionType === 'planner' ? "window.lockOverlay.show()" : `renderTabContent('${aiRec.actionType}')`)}">${aiRec.actionLabel}</button>
                             ${!isGuest ? '<button class="btn btn-ghost" onclick="renderTabContent(\'planner\')">Schedule Revision</button>' : ''}
                         </div>
                     </div>
 
                     <!-- 5. Quick Access Path -->
-                    <div>
-                        <h3 class="font-heading" style="margin-bottom: 1.5rem;">🚀 Personalized Track</h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem;">
-                           <div class="glass-card wobble-hover" onclick="renderTabContent('private-drive')" style="cursor: pointer; padding: 2rem; text-align: center; border: 1px solid var(--border-glass);">
-                                <div style="font-size: 2.5rem; margin-bottom:1rem;">📂</div>
-                                <div style="font-weight:600;">My Drive</div>
-                                <div style="font-size:0.7rem; color: var(--text-dim); margin-top:0.3rem;">Stored Notes</div>
+                    <div class="personalized-track">
+                        <h3 class="font-heading section-title">🚀 Personalized Track</h3>
+                        <div class="track-grid">
+                           <div class="glass-card wobble-hover" onclick="renderTabContent('bookmarks')">
+                                <div class="track-icon">🔖</div>
+                                <div class="track-name">Saved</div>
+                                <div class="track-label">Your Bookmarks</div>
                            </div>
-                           <div class="glass-card wobble-hover" onclick="window.lockOverlay ? window.lockOverlay.show() : renderTabContent('ai-tools')" style="cursor: pointer; padding: 2rem; text-align: center; border: 1px solid var(--border-glass);">
-                                <div style="font-size: 2.5rem; margin-bottom:1rem;">🤖</div>
-                                <div style="font-weight:600;">AI Lab</div>
-                                <div style="font-size:0.7rem; color: var(--text-dim); margin-top:0.3rem;">Predict Papers</div>
+                           <div class="glass-card wobble-hover" onclick="window.lockOverlay ? window.lockOverlay.show() : renderTabContent('ai-tools')">
+                                <div class="track-icon">🤖</div>
+                                <div class="track-name">AI Lab</div>
+                                <div class="track-label">Predict Papers</div>
                            </div>
-                           <div class="glass-card wobble-hover" onclick="renderTabContent('leaderboard')" style="cursor: pointer; padding: 2rem; text-align: center; border: 1px solid var(--border-glass);">
-                                <div style="font-size: 2.5rem; margin-bottom:1rem;">🏆</div>
-                                <div style="font-weight:600;">Ranking</div>
-                                <div style="font-size:0.7rem; color: var(--text-dim); margin-top:0.3rem;">View Peers</div>
+                           <div class="glass-card wobble-hover" onclick="renderTabContent('leaderboard')">
+                                <div class="track-icon">🏆</div>
+                                <div class="track-name">Ranking</div>
+                                <div class="track-label">View Peers</div>
                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 3. Readiness Meter (Sidebar) -->
-                <div class="glass-card" style="padding: 2rem; border-radius: 24px;">
-                     <h3 class="font-heading" style="margin-bottom: 2rem; font-size: 1.3rem;">📊 Readiness Analysis</h3>
-                     <div style="display: flex; flex-direction: column; gap: 2rem;">
-                        ${readinessData.map(sub => `
-                            <div>
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.95rem;">
-                                    <span style="color: var(--text-dim);">${sub.name}</span>
-                                    <span style="font-weight: 700; color: ${sub.color};">${sub.progress}%</span>
+                <!-- Sidebar column -->
+                <div class="side-column">
+                    <!-- 3. Readiness Meter -->
+                    <div class="glass-card readiness-card">
+                         <h3 class="font-heading section-title">📊 Readiness Analysis</h3>
+                         <div class="readiness-list">
+                            ${readinessData.map(sub => `
+                                <div class="readiness-item">
+                                    <div class="readiness-info">
+                                        <span class="subject-name">${sub.name}</span>
+                                        <span class="subject-progress" style="color: ${sub.color};">${sub.progress}%</span>
+                                    </div>
+                                    <div class="progress-bar-bg">
+                                        <div class="progress-bar-fill" style="width: ${sub.progress}%; background: linear-gradient(90deg, ${sub.color}, white);"></div>
+                                    </div>
                                 </div>
-                                <div style="width: 100%; background: rgba(255,255,255,0.05); height: 10px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.02);">
-                                    <div style="width: ${sub.progress}%; background: linear-gradient(90deg, ${sub.color}, white); height: 100%; border-radius: 20px; transition: width 1.5s cubic-bezier(0.1, 0.7, 1.0, 0.1);"></div>
-                                </div>
-                            </div>
-                        `).join('')}
-                     </div>
-                     <div style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-glass); text-align: center;">
-                        <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1.5rem;">Calculated based on downloads, views, and AI interactions.</p>
-                        <button class="btn btn-ghost" style="width: 100%;" onclick="renderTabContent('analytics')">Deeper Insights →</button>
-                     </div>
+                            `).join('')}
+                         </div>
+                         <div class="readiness-footer">
+                            <p>Calculated based on downloads, views, and AI interactions.</p>
+                            <button class="btn btn-ghost" style="width: 100%;" onclick="renderTabContent('analytics')">Deeper Insights →</button>
+                         </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2110,7 +2314,7 @@ function renderNotesHub() {
                             <span>⬅</span> Back
                          </button>
                     </div>
-                    <div class="step-indicator" style="display: flex; justify-content: center; gap: 3rem; margin-bottom: 3rem;">
+                    <div id="explorer-steps-container" class="step-indicator" style="display: flex; justify-content: center; gap: 3rem; margin-bottom: 3rem;">
                         ${['College', 'Stream', 'Branch', 'Sem', 'Subject'].map((s, i) => `
                             <div class="step-node" id="step-${i}">
                                 <div class="step-num">${i + 1}</div>
@@ -2425,7 +2629,7 @@ window.showNotes = function (activeTab = 'notes') {
                         <div class="ai-btns-row" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
                             <button class="btn btn-primary btn-sm" onclick="showAIModal('summary', '${selState.subject.name}')">✨ AI Summary</button>
                             <button class="btn btn-ghost btn-sm ai-questions-btn" style="border: 1px solid var(--primary);" onclick="showAIModal('questions', '${selState.subject.name}')">📝 Model Questions</button>
-                            <button class="btn btn-ghost btn-sm syllabus-btn" style="border: 1px solid var(--primary);" onclick="showAIModal('syllabus', '${selState.subject.name}')">📖 Syllabus</button>
+                            <button class="btn btn-ghost btn-sm syllabus-btn" style="border: 1px solid var(--primary);" onclick="switchSubjectTab('syllabus')">📖 Syllabus</button>
                         </div>
                     </div>
                     <div class="subject-actions-top" style="display:flex; gap: 1rem;">
@@ -2435,11 +2639,20 @@ window.showNotes = function (activeTab = 'notes') {
                 </div>
             </div>
 
-            <div class="subject-tabs-nav" style="display: flex; gap: 2.5rem; margin: 2rem 0; border-bottom: 2px solid rgba(255, 255, 255, 0.05); position: relative;">
-                <div class="subject-tab ${activeTab === 'notes' ? 'active' : ''}" onclick="switchSubjectTab('notes')" style="padding: 1rem 0; color: #FFFFFF; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; opacity: ${activeTab === 'notes' ? '1' : '0.6'}; border-bottom: 2px solid ${activeTab === 'notes' ? '#00f2ff' : 'transparent'};">Notes</div>
-                <div class="subject-tab ${activeTab === 'pyqs' ? 'active' : ''}" onclick="switchSubjectTab('pyqs')" style="padding: 1rem 0; color: #FFFFFF; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; opacity: ${activeTab === 'pyqs' ? '1' : '0.6'}; border-bottom: 2px solid ${activeTab === 'pyqs' ? '#00f2ff' : 'transparent'};">PYQs</div>
-                <div class="subject-tab ${activeTab === 'formula' ? 'active' : ''}" onclick="switchSubjectTab('formula')" style="padding: 1rem 0; color: #FFFFFF; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; opacity: ${activeTab === 'formula' ? '1' : '0.6'}; border-bottom: 2px solid ${activeTab === 'formula' ? '#00f2ff' : 'transparent'};">Formula Sheets</div>
-                <div class="subject-tab ${activeTab === 'practicals' ? 'active' : ''}" onclick="switchSubjectTab('practicals')" style="padding: 1rem 0; color: #FFFFFF; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; opacity: ${activeTab === 'practicals' ? '1' : '0.6'}; border-bottom: 2px solid ${activeTab === 'practicals' ? '#00f2ff' : 'transparent'};">Practicals</div>
+            <div class="subject-tabs-nav" style="display: flex; justify-content: space-between; align-items: center; margin: 2rem 0; border-bottom: 2px solid rgba(255, 255, 255, 0.05); position: relative;">
+                <div style="display: flex; gap: 2.5rem;">
+                    <div class="subject-tab ${activeTab === 'notes' ? 'active' : ''}" onclick="switchSubjectTab('notes')" style="padding: 1rem 0; color: #FFFFFF; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; opacity: ${activeTab === 'notes' ? '1' : '0.6'}; border-bottom: 2px solid ${activeTab === 'notes' ? '#00f2ff' : 'transparent'};">Notes</div>
+                    <div class="subject-tab ${activeTab === 'pyqs' ? 'active' : ''}" onclick="switchSubjectTab('pyqs')" style="padding: 1rem 0; color: #FFFFFF; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; opacity: ${activeTab === 'pyqs' ? '1' : '0.6'}; border-bottom: 2px solid ${activeTab === 'pyqs' ? '#00f2ff' : 'transparent'};">PYQs</div>
+                    <div class="subject-tab ${activeTab === 'formula' ? 'active' : ''}" onclick="switchSubjectTab('formula')" style="padding: 1rem 0; color: #FFFFFF; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; opacity: ${activeTab === 'formula' ? '1' : '0.6'}; border-bottom: 2px solid ${activeTab === 'formula' ? '#00f2ff' : 'transparent'};">Formula Sheets</div>
+                    <div class="subject-tab ${activeTab === 'practicals' ? 'active' : ''}" onclick="switchSubjectTab('practicals')" style="padding: 1rem 0; color: #FFFFFF; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; opacity: ${activeTab === 'practicals' ? '1' : '0.6'}; border-bottom: 2px solid ${activeTab === 'practicals' ? '#00f2ff' : 'transparent'};">Practicals</div>
+                    <div class="subject-tab ${activeTab === 'syllabus' ? 'active' : ''}" onclick="switchSubjectTab('syllabus')" style="padding: 1rem 0; color: #FFFFFF; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; opacity: ${activeTab === 'syllabus' ? '1' : '0.6'}; border-bottom: 2px solid ${activeTab === 'syllabus' ? '#00f2ff' : 'transparent'};">Syllabus</div>
+                </div>
+                <div class="tab-search-container" style="position: relative; min-width: 300px; margin-bottom: 0.5rem;">
+                    <input type="text" id="search-notes" placeholder="Search in ${selState.subject.name}..." 
+                           oninput="window.filterInternalNotes(this.value)"
+                           style="width: 100%; padding: 0.8rem 1.5rem; padding-right: 3rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 25px; color: white; outline: none; transition: 0.3s; font-size: 0.9rem;">
+                    <span style="position: absolute; right: 1.2rem; top: 50%; transform: translateY(-50%); opacity: 0.6;">🔍</span>
+                </div>
             </div>
 
             <div class="resource-section">
@@ -2452,7 +2665,7 @@ window.showNotes = function (activeTab = 'notes') {
     `;
 
     // 2. Instant Static Lookup or Detailed Filtered Data
-    const grid = document.getElementById('notes-list-grid');
+
 
     // Completely defer to NotesDB (Firestore snapshot) for rendering
     renderDetailedNotes(selState.subject.id, activeTab);
@@ -2771,6 +2984,20 @@ window.switchSubjectTab = function (tab) {
 };
 
 function renderDetailedNotes(subjectId, tabType = 'notes') {
+    const grid = document.getElementById('notes-list-grid');
+    if (!grid) return;
+
+    if (tabType === 'syllabus') {
+        const subjectName = selState.subject.name;
+        // Search for syllabus in global scope (we'll move it there in a moment)
+        if (typeof window.getSubjectSyllabusHTML === 'function') {
+            grid.innerHTML = window.getSubjectSyllabusHTML(subjectName);
+        } else {
+            grid.innerHTML = '<p style="color:var(--text-dim);">Syllabus details are coming soon for this subject.</p>';
+        }
+        return;
+    }
+
     console.log(`🔎 Filtering Notes for Subject: ${subjectId}, Type: ${tabType} `);
 
     const querySem = selState?.semester;
@@ -2812,7 +3039,6 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
         return isVisible;
     }).sort((a, b) => (b.likes || 0) - (a.likes || 0));
 
-    const grid = document.getElementById('notes-list-grid');
     if (!grid) return;
 
     if (filtered.length === 0) {
@@ -2830,49 +3056,71 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
     const cardsHTML = filtered.map((n, idx) => {
         const sequentialId = `unit${idx + 1}`;
         const yearDate = selState?.year && selState.year.includes('2') ? 'Jan 2026' : (selState?.year && selState.year.includes('1') ? 'Feb 2026' : 'Dec 2025');
+        const unitTag = n.unit || (n.title.toLowerCase().includes('unit') ? n.title.match(/unit\s*\d+/i)?.[0].toUpperCase() : 'UNIT 1');
+
+        // Dynamic Fake Stats Logic
+        const seed = (n.id || sequentialId).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const dayFactor = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+        const isStuck = (seed % 8 === 0);
+        const baseViews = (seed % 400) + 120;
+        const baseLikes = Math.floor(baseViews * 0.15) + (seed % 15);
+        const dailyViews = isStuck ? 0 : (seed % 8 + 2) * (dayFactor % 20);
+        const dailyLikes = isStuck ? 0 : Math.floor(dailyViews * 0.08);
+        
+        const displayViews = (n.views || 0) + baseViews + dailyViews;
+        const displayLikes = (n.likes || 0) + baseLikes + dailyLikes;
+        const displayDislikes = n.dislikes || (seed % 4);
+
+        const isLiked = window.likedNoteIds?.has(n.id);
+        const isDisliked = window.dislikedNoteIds?.has(n.id);
+        const isSaved = window.savedNoteIds?.has(n.id);
 
         return `
-            <div class="note-card-pro card-reveal" data-note-id="${sequentialId}" style="animation-delay: ${idx * 0.1}s;">
-                <div class="note-info-pro">
-                    <h3 class="note-title-pro">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                        ${n.title}
-                    </h3>
-                    <div class="meta-pills-row-pro">
-                        <div class="meta-pill-pro date-pro">
-                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
-                             <span>${yearDate}</span>
-                        </div>
-                        <div class="meta-pill-pro uploader-pro">
-                             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(n.uploaderName || n.uploader || 'Verified')}&backgroundColor=transparent" style="width:18px;height:18px;border-radius:50%; background: #333;">
-                             ${n.uploaderName || n.uploader || 'Verified'}
-                        </div>
-                        <div class="meta-pill-pro views-pro">
-                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                             <span class="views">${n.views || 0} Views</span>
-                        </div>
+            <div class="detailed-item glass-card card-reveal" data-note-id="${n.id}" style="animation-delay: ${idx * 0.1}s; margin-bottom: 1.2rem; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <div class="item-left" style="display: flex; gap: 1.25rem; align-items: flex-start; flex: 1;">
+                    <div class="file-type-icon" style="width: 45px; height: 45px; background: rgba(0, 242, 255, 0.1); color: var(--secondary); display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.2rem; flex-shrink: 0;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
                     </div>
-                    <div class="note-actions-pro">
-                        <button class="tool-icon-pro like-btn" onclick="likeNote('${n.id}')" title="Like">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
-                            <span class="like">${n.likes || 1}</span>
-                        </button>
-                        <button class="tool-icon-pro" onclick="toggleNoteDislike('${n.id}')" title="Dislike">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2-2h-3"></path></svg>
-                            <span class="dislike-count">${n.dislikes || 0}</span>
-                        </button>
-                        <button class="tool-icon-pro" onclick="toggleBookmark('${n.id}')" title="Bookmark">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2-2z"></path></svg>
-                        </button>
-                        <button class="tool-icon-pro" onclick="reportNote('${n.id}')" title="Report">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
-                        </button>
+                    <div class="item-info">
+                        <div class="unit-tag" style="font-size: 0.75rem; color: var(--secondary); font-weight: 800; letter-spacing: 1px; margin-bottom: 0.3rem; text-transform: uppercase;">${unitTag}</div>
+                        <h3 class="item-title" style="font-size: 1.2rem; font-weight: 700; color: white; margin: 0 0 0.4rem 0;">${n.title}</h3>
+                        <div class="item-meta-row" style="display: flex; align-items: center; gap: 1.2rem; font-size: 0.85rem; color: var(--text-dim);">
+                            <div class="uploader-mini" style="display: flex; align-items: center; gap: 0.5rem;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                <span>${n.uploaderName || n.uploader || 'Verified'}</span>
+                            </div>
+                            <div class="date-mini" style="display: flex; align-items: center; gap: 0.4rem;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
+                                <span>${yearDate}</span>
+                            </div>
+                            <div class="views-mini" style="display: flex; align-items: center; gap: 0.4rem;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                <span class="views">${displayViews} Views</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="download-section-pro">
-                    <a href="${n.url || n.fileUrl || n.driveLink}" target="_blank" class="btn-download-white" onclick="downloadNote('${n.id}')">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        Download
+
+                <div class="item-right" style="display: flex; align-items: center; gap: 1.5rem;">
+                    <div class="item-actions-inline" style="display: flex; align-items: center; gap: 0.8rem;">
+                        <button class="eng-btn-pro like-btn ${isLiked ? 'active' : ''}" onclick="likeNote('${n.id}')" style="display: flex; align-items: center; gap: 0.5rem; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.8rem; border-radius: 8px; transition: 0.3s; cursor: pointer;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                            <span class="count" style="font-weight: 700; font-size: 0.9rem;">${displayLikes}</span>
+                        </button>
+                        <button class="eng-btn-pro dislike-btn ${isDisliked ? 'active' : ''}" onclick="toggleNoteDislike('${n.id}')" style="display: flex; align-items: center; gap: 0.5rem; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.8rem; border-radius: 8px; transition: 0.3s; cursor: pointer;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2-2h-3"></path></svg>
+                            <span class="count" style="font-weight: 700; font-size: 0.9rem;">${displayDislikes}</span>
+                        </button>
+                        <button class="tool-icon-pro bookmark-btn ${isSaved ? 'active' : ''}" onclick="toggleBookmark('${n.id}')" style="border: 1px solid rgba(255,255,255,0.1); padding: 0.6rem; border-radius: 8px; transition: 0.3s; cursor: pointer;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                        </button>
+                        <button class="tool-icon-pro share-btn" onclick="shareResource('${n.id}')" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.6rem; border-radius: 8px; color: var(--text-dim); transition: 0.3s; cursor: pointer;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                        </button>
+                    </div>
+                    <a href="${n.url || n.fileUrl || n.driveLink}" target="_blank" class="btn-download-pro" onclick="downloadNote('${n.id}')" style="background: white; color: black; padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 700; font-size: 0.9rem; text-decoration: none; display: flex; align-items: center; gap: 0.6rem; transition: 0.3s;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        View
                     </a>
                 </div>
             </div>`;
@@ -2896,6 +3144,36 @@ window.noteUnsubscribers = window.noteUnsubscribers || {};
 
 
 
+window.filterInternalNotes = function (query) {
+    const cards = document.querySelectorAll('.detailed-item');
+    const lowQuery = query.toLowerCase();
+    
+    cards.forEach(card => {
+        const title = card.querySelector('.item-title')?.innerText.toLowerCase() || "";
+        const tag = card.querySelector('.unit-tag')?.innerText.toLowerCase() || "";
+        if (title.includes(lowQuery) || tag.includes(lowQuery)) {
+            card.style.display = 'flex';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+};
+
+window.shareResource = function(id) {
+    const url = window.location.href;
+    if (navigator.share) {
+        navigator.share({
+            title: 'Study Resource | SKiL MATRiX',
+            text: 'Check out this study resource on SKiL MATRiX!',
+            url: url
+        }).catch(console.error);
+    } else {
+        navigator.clipboard.writeText(url).then(() => {
+            alert("Link copied to clipboard!");
+        });
+    }
+};
+
 function getActiveIcon(url) {
     if (!url) return '📄';
     if (url.includes('.pdf')) return '📕';
@@ -2911,18 +3189,15 @@ function formatDate(timestamp) {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-window.showAIModal = function (type, subject) {
-    let title, content;
-    let isSyllabusAvailable = false;
-
-    // Base helper for standard syllabus generation
+window.getSubjectSyllabusHTML = function(subjectName) {
     const genSyllabusHTML = (units) => {
-        return `<div style="text-align: left; max-height: 60vh; overflow-y: auto; padding-right: 10px;">
+        return `<div style="text-align: left; padding: 1rem 0;">
         ${units.map(u => `
-                <h4 style="color: var(--primary); margin-bottom: 0.5rem;">${u.title}</h4>
-                <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.6;">${u.desc}</p>
-            `).join('')
-            }
+                <div class="glass-card" style="margin-bottom: 1.5rem; padding: 1.5rem; border-left: 4px solid var(--primary);">
+                    <h4 style="color: var(--primary); margin-bottom: 0.5rem; font-size: 1.1rem;">${u.title}</h4>
+                    <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.6;">${u.desc}</p>
+                </div>
+            `).join('')}
         </div>`;
     };
 
@@ -3132,7 +3407,16 @@ window.showAIModal = function (type, subject) {
         ])
     };
 
-    if (type === 'summary') {
+    return syllabiDB[subjectName] || '<p style="color:var(--text-dim);">Syllabus details are coming soon for this subject.</p>';
+};
+
+window.showAIModal = function (type, subject) {
+    let title, content;
+
+    if (type === 'syllabus') {
+        title = `📖 Course Syllabus: ${subject}`;
+        content = window.getSubjectSyllabusHTML(subject);
+    } else if (type === 'summary') {
         title = '✨ AI Concept Summary';
         content = `<div style="text-align: center; padding: 2rem;">
             <div style="font-size: 3.5rem; margin-bottom: 1.5rem;">🚧</div>
@@ -3180,28 +3464,7 @@ window.showAIModal = function (type, subject) {
             </div>`;
 
         // Cache syllabus for AI usage
-        window._currentSyllabusContext = syllabiDB[subject] || "";
-
-    } else if (type === 'syllabus') {
-        title = '📖 Subject Syllabus';
-
-        let exactMatch = syllabiDB[subject];
-        if (!exactMatch) {
-            // fuzzy fallback check
-            for (let key in syllabiDB) {
-                if (subject.toLowerCase().includes(key.toLowerCase())) {
-                    exactMatch = syllabiDB[key];
-                    break;
-                }
-            }
-        }
-
-        if (exactMatch) {
-            content = exactMatch;
-            isSyllabusAvailable = true;
-        } else {
-            content = `<div style="text-align: center; padding: 2rem;"><p style="color: var(--text-dim); line-height: 1.6;">Loading the official syllabus structure for <b style="color: white;">${subject}</b>...</p><div class="loader-pro" style="margin: 2rem auto;"></div><p style="font-size: 0.8rem; color: var(--secondary); margin-top: 1rem;">(Feature processing available in Pro Sandbox)</p></div>`;
-        }
+        window._currentSyllabusContext = window.getSubjectSyllabusHTML(subject);
     }
 
     // Create custom modal if it doesn't exist
@@ -3841,107 +4104,198 @@ if (!window.formatNumber) {
 
 // --- PRIVATE DRIVE MODULE ---
 
-window.renderPrivateDrive = function () {
-    const { db, collection, query, where, onSnapshot, orderBy } = window.firebaseServices;
-    const container = document.getElementById('private-drive');
-    if (!container) return;
+window.renderBookmarks = function () {
+    const contentArea = document.getElementById('tab-content');
+    if (!contentArea) return;
 
-    container.innerHTML = `
-        <div class="fade-in">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <div>
-                    <h1 class="font-heading">🔒 Private <span class="gradient-text">Drive</span></h1>
-                    <p style="color: var(--text-dim);">Secure cloud storage for your personal study materials.</p>
-                </div>
-                <button class="btn btn-primary" onclick="openPrivateUploadModal()">
-                    <span style="margin-right:0.5rem;">☁️</span> Upload File
-                </button>
+    contentArea.innerHTML = `
+        <div class="tab-pane active fade-in" style="padding: 2rem;">
+            <div style="margin-bottom: 2rem;">
+                <h1 class="font-heading">🔖 Your <span class="gradient-text">Bookmarks</span></h1>
+                <p style="color: var(--text-dim);">Quick access to all the notes you've saved for later.</p>
             </div>
-
-            <!-- Stats Row -->
-            <div style="display: flex; gap: 1.5rem; margin-bottom: 2rem;">
-                <div class="stat-card glass-card" style="flex:1; padding: 1.5rem;">
-                    <div style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 0.5rem;">Storage Used</div>
-                    <div style="font-size: 1.8rem; font-weight: 700;" id="pd-storage-used">Loading...</div>
-                </div>
-                <div class="stat-card glass-card" style="flex:1; padding: 1.5rem;">
-                    <div style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 0.5rem;">Total Files</div>
-                    <div style="font-size: 1.8rem; font-weight: 700;" id="pd-file-count">...</div>
-                </div>
-            </div>
-
-            <!-- Process Indicator -->
-            <div id="private-upload-progress" style="display:none; margin-bottom: 2rem; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 1rem; border: 1px solid var(--border-glass);">
-                <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
-                    <span id="p-prog-text">Uploading...</span>
-                    <span id="p-prog-percent">0%</span>
-                </div>
-                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow:hidden;">
-                    <div id="p-prog-bar" style="width: 0%; height: 100%; background: var(--gradient-main); transition: width 0.3s;"></div>
-                </div>
-            </div>
-
-             <div id="private-files-grid" class="private-files-grid-pro" style="display: grid; gap: 1.5rem;">
-                <!-- Files populate here -->
+            <div id="bookmarks-grid" class="notes-list-container-pro">
+                <div class="loader-pro" style="margin: 4rem auto;"></div>
             </div>
         </div>
     `;
 
-    // Subscribe to Files
-    if (!currentUser) return;
+    const grid = document.getElementById('bookmarks-grid');
+    const { db, collection, query, where, onSnapshot, getDocs } = window.firebaseServices;
+    
+    if (!currentUser || currentUser.isGuest) {
+        grid.innerHTML = `
+            <div style="text-align: center; padding: 4rem; opacity: 0.5;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+                <p>Login to see your bookmarks.</p>
+            </div>
+        `;
+        return;
+    }
 
-    // Using userId for strict isolation
-    const q = query(
-        collection(db, "personal_notes"),
-        where("userId", "==", currentUser.id),
-        orderBy("createdAt", "desc")
-    );
+    const userId = currentUser.uid || currentUser.id;
+    const savedRef = collection(db, "privateDrive", userId, "files");
+    const qSaved = query(savedRef, where("type", "==", "saved"));
 
-    const unsub = onSnapshot(q, (snapshot) => {
-        const files = [];
-        let totalBytes = 0;
+    // Cleanup previous listener if any
+    if (window.bookmarksUnsubscribe) window.bookmarksUnsubscribe();
 
-        snapshot.forEach(doc => {
+    window.bookmarksUnsubscribe = onSnapshot(qSaved, async (savedSnap) => {
+        const savedIds = [];
+        savedSnap.forEach(doc => {
             const data = doc.data();
-            files.push({ id: doc.id, ...data });
-            totalBytes += (data.fileSize || 0);
+            savedIds.push(data.noteId || doc.id.replace(/^saved_/, ''));
         });
 
-        // Update Stats
-        document.getElementById('pd-file-count').innerText = files.length;
-        document.getElementById('pd-storage-used').innerText = formatBytes(totalBytes);
-
-        // Render Grid
-        const grid = document.getElementById('private-files-grid');
-
-        if (files.length === 0) {
+        if (savedIds.length === 0) {
             grid.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 4rem; opacity: 0.5;">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">📂</div>
-                    <p>Your drive is empty.</p>
+                <div style="text-align: center; padding: 4rem; opacity: 0.5;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🔖</div>
+                    <p>You haven't bookmarked any notes yet.</p>
                 </div>
             `;
-        } else {
-            grid.innerHTML = files.map(f => `
-                <div class="glass-card card-reveal" style="position: relative;">
-                    <div style="display: flex; align-items: start; gap: 1rem; margin-bottom: 1rem;">
-                        <div style="font-size: 2rem; background: rgba(255,255,255,0.05); padding: 0.8rem; border-radius: 12px;">
-                            ${getFileIcon(f.fileType)}
-                        </div>
-                        <div style="flex:1; overflow:hidden;">
-                            <h4 style="margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${f.title}">${f.title}</h4>
-                            <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 0.3rem;">
-                                ${formatBytes(f.fileSize)} • ${new Date(f.createdAt.toDate()).toLocaleDateString()}
-                            </p>
-                        </div>
-                    </div>
+            return;
+        }
+
+        let allNotes = window.NotesDB || [];
+        
+        // Find existing notes in cache or globalNotes
+        let bookmarkedNotes = allNotes.filter(n => savedIds.includes(n.id));
+
+        // Check globalNotes for static entries
+        if (bookmarkedNotes.length < savedIds.length) {
+            const missingIds = savedIds.filter(id => !bookmarkedNotes.find(n => n.id === id));
+            missingIds.forEach(id => {
+                // Search in globalNotes
+                for (const col in globalNotes) {
+                    for (const sub in globalNotes[col]) {
+                        const found = globalNotes[col][sub].find(n => n.id === id);
+                        if (found && !bookmarkedNotes.find(n => n.id === id)) {
+                            bookmarkedNotes.push(found);
+                        }
+                    }
+                }
+            });
+        }
+
+        // If still missing some notes, fetch them specifically from Firestore
+        if (bookmarkedNotes.length < savedIds.length) {
+            try {
+                const missingIds = savedIds.filter(id => !bookmarkedNotes.find(n => n.id === id));
+                if (missingIds.length > 0) {
+                    const fetchNotesByIds = async (ids) => {
+                        const results = [];
+                        for (let i = 0; i < ids.length; i += 30) {
+                            const chunk = ids.slice(i, i + 30);
+                            const q = query(collection(db, "notes"), where("__name__", "in", chunk));
+                            const snap = await getDocs(q);
+                            snap.forEach(doc => results.push({ id: doc.id, ...doc.data() }));
+                        }
+                        return results;
+                    };
+
+                    const fetchedNotes = await fetchNotesByIds(missingIds);
+                    // Update global cache to avoid refetching
+                    window.NotesDB = [...(window.NotesDB || []), ...fetchedNotes];
+                    allNotes = window.NotesDB;
                     
-                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-                        <button class="btn btn-primary btn-sm" onclick="window.open('${f.fileUrl}', '_blank')" style="flex:1;">Open</button>
-                        <button class="btn btn-ghost btn-sm" onclick="deletePrivateFile('${f.id}', '${f.storagePath}')" style="color: #ff4757;">🗑️</button>
-                    </div>
+                    fetchedNotes.forEach(fn => {
+                        if (!bookmarkedNotes.find(n => n.id === fn.id)) bookmarkedNotes.push(fn);
+                    });
+                }
+            } catch (e) {
+                console.error("Fetch bookmarked notes error:", e);
+            }
+        }
+
+        // Filter out duplicates and ensure valid data
+        const uniqueBookmarks = [];
+        const seenIds = new Set();
+        bookmarkedNotes.forEach(n => {
+            if (n && n.id && !seenIds.has(n.id)) {
+                uniqueBookmarks.push(n);
+                seenIds.add(n.id);
+            }
+        });
+
+        // Only show approved notes
+        const approvedBookmarks = uniqueBookmarks.filter(n => n.status === 'approved' || !n.status);
+
+        if (approvedBookmarks.length === 0) {
+             grid.innerHTML = `
+                <div style="text-align: center; padding: 4rem; opacity: 0.5;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🕳️</div>
+                    <p>The notes you bookmarked are no longer available or pending approval.</p>
+                    <button class="btn btn-ghost btn-sm" style="margin-top: 1rem;" onclick="renderTabContent('notes')">Explore More Notes</button>
                 </div>
-            `).join('');
+            `;
+            return;
+        }
+
+        const cardsHTML = approvedBookmarks.map((n, index) => {
+            // Replicate Premium Stats Logic for consistency
+            const seed = (n.id || `note_${index}`).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const dayFactor = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+            const isStuck = (seed % 8 === 0);
+            const baseViews = (seed % 400) + 120;
+            const baseLikes = Math.floor(baseViews * 0.15) + (seed % 15);
+            const dailyViews = isStuck ? 0 : (seed % 8 + 2) * (dayFactor % 20);
+            const dailyLikes = isStuck ? 0 : Math.floor(dailyViews * 0.08);
+            
+            const displayViews = (n.views || 0) + baseViews + dailyViews;
+            const displayLikes = (n.likes || 0) + baseLikes + dailyLikes;
+            const displayDislikes = n.dislikes || (seed % 4);
+
+            const isLiked = window.likedNoteIds?.has(n.id);
+            const isDisliked = window.dislikedNoteIds?.has(n.id);
+            const isSaved = true;
+
+            const unitTag = n.unit || (n.title.toLowerCase().includes('unit') ? n.title.match(/unit\s*\d+/i)?.[0].toUpperCase() : 'UNIT 1');
+
+            return `
+                <div class="detailed-item glass-card card-reveal" data-note-id="${n.id}" style="animation-delay: ${index * 0.1}s; margin-bottom: 1.2rem; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div class="item-left" style="display: flex; gap: 1.25rem; align-items: flex-start; flex: 1;">
+                        <div class="file-type-icon" style="width: 45px; height: 45px; background: rgba(0, 242, 255, 0.1); color: var(--secondary); display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.2rem; flex-shrink: 0;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                        </div>
+                        <div class="item-info">
+                            <div class="unit-tag" style="font-size: 0.75rem; color: var(--secondary); font-weight: 800; letter-spacing: 1px; margin-bottom: 0.3rem; text-transform: uppercase;">${unitTag}</div>
+                            <h3 class="item-title" style="font-size: 1.2rem; font-weight: 700; color: white; margin: 0 0 0.4rem 0;">${n.title}</h3>
+                            <div class="item-meta-row" style="display: flex; align-items: center; gap: 1.2rem; font-size: 0.85rem; color: var(--text-dim);">
+                                <div class="uploader-mini" style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                    <span>${n.uploaderName || n.uploader || 'Verified'}</span>
+                                </div>
+                                <div class="views-mini" style="display: flex; align-items: center; gap: 0.4rem;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    <span class="views">${displayViews} Views</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="item-right" style="display: flex; align-items: center; gap: 1.5rem;">
+                        <div class="item-actions-inline" style="display: flex; align-items: center; gap: 0.8rem;">
+                            <button class="eng-btn-pro like-btn ${isLiked ? 'active' : ''}" onclick="likeNote('${n.id}')" style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.8rem; border-radius: 8px; color: var(--text-dim); transition: 0.3s; cursor: pointer;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                                <span class="count" style="font-weight: 700; font-size: 0.9rem;">${displayLikes}</span>
+                            </button>
+                            <button class="tool-icon-pro bookmark-btn active" onclick="toggleBookmark('${n.id}')" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.6rem; border-radius: 8px; color: var(--text-dim); transition: 0.3s; cursor: pointer;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2-2z"></path></svg>
+                            </button>
+                        </div>
+                        <a href="${n.url || n.fileUrl || n.driveLink}" target="_blank" class="btn-download-pro" onclick="viewNote('${n.id}')" style="background: white; color: black; padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 700; font-size: 0.9rem; text-decoration: none; display: flex; align-items: center; gap: 0.6rem; transition: 0.3s;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            View
+                        </a>
+                    </div>
+                </div>`;
+        }).join('');
+
+        grid.innerHTML = `<div class="notes-list-container-pro">${cardsHTML}</div>`;
+        
+        if (window.attachNoteRealtimeListeners) {
+            window.attachNoteRealtimeListeners('bookmarks-grid');
         }
     });
 };
@@ -4166,232 +4520,9 @@ function getFileIcon(mimeType) {
 }
 
 
-// --- MODULE 1: PRIVATE DRIVE ---
-let privateDriveFiles = [];
-let privateDriveUnsubscribe = null;
-let currentDriveTab = 'files'; // files, ai, saved, drafts
+// --- MODULE 1: BOOKMARKS (REPLACED PRIVATE DRIVE) ---
+// Note: renderBookmarks is defined above.
 
-window.renderPrivateDrive = function () {
-    return `
-        <div class="tab-pane active fade-in" style="padding: 2rem;">
-            <!-- Header section -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;">
-                <div>
-                    <h1 class="font-heading" style="font-size: 2.5rem; margin-bottom: 0.5rem;">My <span class="gradient-text">Private Drive</span></h1>
-                    <p style="color: var(--text-dim); font-size: 1.1rem;">Your personal academic space</p>
-                </div>
-                <div style="text-align: right; min-width: 200px; flex: 1; max-width: 300px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-dim);">
-                        <span>Storage Usage</span>
-                        <span id="storage-usage-text">0MB / 1GB</span>
-                    </div>
-                    <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; border: 1px solid var(--border-glass);">
-                        <div id="storage-usage-bar" style="width: 0%; height: 100%; background: var(--secondary); transition: width 0.5s ease;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Bar -->
-            <div class="glass-card" style="padding: 1rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
-                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                    <button class="btn btn-primary btn-sm" onclick="document.getElementById('drive-upload-input').click()">➕ Upload File</button>
-                    <button class="btn btn-ghost btn-sm" onclick="renderTabContent('ai-tools')">✨ Generate AI Notes</button>
-                    <button class="btn btn-ghost btn-sm" onclick="alert('Folder support coming soon!')">📂 New Folder</button>
-                    <input type="file" id="drive-upload-input" style="display: none;" onchange="handleDriveFileUpload(this)">
-                </div>
-                <div style="position: relative; flex-grow: 1; max-width: 400px;">
-                    <input type="text" placeholder="Search your drive..." style="width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 10px; color: white;" onkeyup="filterDriveFiles(this.value)">
-                    <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); opacity: 0.5;">🔍</span>
-                </div>
-            </div>
-
-            <!-- Tabs -->
-            <div style="display: flex; gap: 1rem; border-bottom: 1px solid var(--border-glass); margin-bottom: 2rem; padding-left: 1rem; flex-wrap: wrap; padding-bottom: 0.5rem;">
-                <button class="drive-tab active" onclick="switchDriveTab('files', this)">📁 My Files</button>
-                <button class="drive-tab" onclick="switchDriveTab('ai', this)">🤖 AI Notes</button>
-                <button class="drive-tab" onclick="switchDriveTab('saved', this)">⭐ Saved Notes</button>
-                <button class="drive-tab" onclick="switchDriveTab('drafts', this)">🗂 Drafts</button>
-            </div>
-
-            <!-- Content Grid -->
-            <div id="drive-content-grid" class="notes-grid-pro" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
-                <!-- Skeleton Loader -->
-                ${Array(4).fill(0).map(() => `<div class="glass-card skeleton" style="height: 180px; border-radius: 16px;"></div>`).join('')}
-            </div>
-        </div>
-    `;
-};
-
-window.initPrivateDrive = async function () {
-    const { db, collection, query, where, onSnapshot } = getFirebase();
-    if (!db || !currentUser) return;
-
-    if (privateDriveUnsubscribe) privateDriveUnsubscribe();
-
-    const driveRef = collection(db, "privateDrive", currentUser.id, "files");
-    const q = query(driveRef, where("type", "==", currentDriveTab));
-
-    privateDriveUnsubscribe = onSnapshot(q, (snapshot) => {
-        privateDriveFiles = [];
-        snapshot.forEach(doc => privateDriveFiles.push({ id: doc.id, ...doc.data() }));
-        renderDriveFiles();
-        updateStorageUsage();
-    }, (err) => {
-        console.error("Drive error:", err);
-        document.getElementById('drive-content-grid').innerHTML = `<p style="color:red; text-align:center;">Failed to load drive files.</p>`;
-    });
-};
-
-function renderDriveFiles() {
-    const container = document.getElementById('drive-content-grid');
-    if (!container) return;
-
-    if (privateDriveFiles.length === 0) {
-        container.innerHTML = `
-            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; opacity: 0.5;">
-                <div style="font-size: 4rem; marginBottom: 1rem;">🕳️</div>
-                <h3>Your drive is empty</h3>
-                <p>Upload files or save notes to see them here.</p>
-            </div>
-        `;
-        return;
-    }
-
-    container.innerHTML = privateDriveFiles.map(file => `
-        <div class="glass-card file-card fade-in" style="padding: 1.5rem; position: relative;">
-            <div style="display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 1rem;">
-                <div style="font-size: 2.5rem; background: rgba(255,255,255,0.03); width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                    ${getFileIcon(file.mimeType || '')}
-                </div>
-                <div style="flex-grow: 1; overflow: hidden;">
-                    <h4 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0.25rem;" title="${file.name}">${file.name}</h4>
-                    <p style="font-size: 0.75rem; color: var(--text-dim);">${file.subject || 'Personal'} • ${file.semester || 'Misc'}</p>
-                </div>
-            </div>
-            
-            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-dim); margin-bottom: 1.5rem;">
-                <span>📏 ${formatBytes(file.size || 0)}</span>
-                <span>🕒 ${file.updatedAt ? new Date(file.updatedAt.seconds * 1000).toLocaleDateString() : 'Just now'}</span>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-                <button class="btn btn-sm btn-primary" onclick="window.open('${file.driveLink || file.fileUrl || file.url}', '_blank')">Open</button>
-                <div style="display:flex; gap: 0.5rem;">
-                    <button class="btn btn-sm btn-ghost" style="flex-grow:1;" onclick="handleDriveDelete('${file.id}', '${file.path}')">🗑️</button>
-                    <button class="btn btn-sm btn-ghost" style="flex-grow:1;" onclick="handleDriveRename('${file.id}', '${file.name}')">✏️</button>
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
-
-window.handleDriveFileUpload = async function (input) {
-    if (!input.files[0]) return;
-    const { db, storage, ref, uploadBytesResumable, getDownloadURL, doc, setDoc, serverTimestamp } = getFirebase();
-    if (!db || !storage || !currentUser) return;
-
-    const file = input.files[0];
-    const fileId = Math.random().toString(36).substring(7);
-    const storagePath = `private-drive/${currentUser.id}/${fileId}_${file.name}`;
-    const storageRef = ref(storage, storagePath);
-
-    // Show Progress?
-    showToast("Starting upload...", "info");
-
-    try {
-        const uploadTask = uploadBytesResumable(storageRef, file);
-
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                // Optional: update UI with progress
-            },
-            (error) => {
-                console.error("Upload fail:", error);
-                showToast("Upload failed!", "error");
-            },
-            async () => {
-                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                const fileRef = doc(db, "privateDrive", currentUser.id, "files", fileId);
-
-                await setDoc(fileRef, {
-                    name: file.name,
-                    url: downloadURL,
-                    fileUrl: downloadURL,
-                    driveLink: downloadURL,
-                    path: storagePath,
-                    size: file.size,
-                    mimeType: file.type,
-                    type: currentDriveTab,
-                    updatedAt: serverTimestamp(),
-                    uploaderUid: currentUser.id
-                });
-
-                showToast("File uploaded successfully!");
-                input.value = ""; // reset
-            }
-        );
-    } catch (e) {
-        console.error("Upload error:", e);
-        showToast("Upload failed", "error");
-    }
-};
-
-window.handleDriveDelete = async function (fileId, storagePath) {
-    if (!confirm("Are you sure you want to delete this file forever?")) return;
-    const { db, storage, ref, deleteObject, doc, deleteDoc } = getFirebase();
-    if (!db || !storage || !currentUser) return;
-
-    try {
-        // 1. Delete from Storage
-        if (storagePath) {
-            const storageRef = ref(storage, storagePath);
-            await deleteObject(storageRef).catch(e => console.warn("Storage delete skip:", e));
-        }
-
-        // 2. Delete from Firestore
-        await deleteDoc(doc(db, "privateDrive", currentUser.id, "files", fileId));
-        showToast("File deleted", "success");
-    } catch (e) {
-        console.error("Delete err:", e);
-        showToast("Failed to delete", "error");
-    }
-};
-
-window.switchDriveTab = function (tabId, btn) {
-    currentDriveTab = tabId;
-    document.querySelectorAll('.drive-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    initPrivateDrive(); // Re-fetch
-};
-
-function updateStorageUsage() {
-    const totalBytes = privateDriveFiles.reduce((acc, f) => acc + (f.size || 0), 0);
-    const GB = 1024 * 1024 * 1024;
-    const percent = Math.min((totalBytes / GB) * 100, 100);
-
-    const bar = document.getElementById('storage-usage-bar');
-    const text = document.getElementById('storage-usage-text');
-
-    if (bar) bar.style.width = percent + "%";
-    if (text) text.innerText = `${formatBytes(totalBytes)} / 1GB`;
-}
-
-window.handleDriveRename = async function (fileId, oldName) {
-    const newName = prompt("Enter new filename:", oldName);
-    if (!newName || newName === oldName) return;
-
-    const { db, doc, updateDoc } = getFirebase();
-    if (!db || !currentUser) return;
-
-    try {
-        await updateDoc(doc(db, "privateDrive", currentUser.id, "files", fileId), {
-            name: newName
-        });
-        showToast("Renamed successfully");
-    } catch (e) {
-        showToast("Rename failed", "error");
-    }
-};
 
 // --- MODULE 2: MODERATION HUB ---
 let moderationQueue = [];

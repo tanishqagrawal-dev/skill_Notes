@@ -128,6 +128,12 @@ export async function initAuth() {
 
                 if (docSnap.exists()) {
                     userData = { id: user.uid, ...docSnap.data() };
+                    
+                    // FORCED SYNC: Always prioritize current Google Auth photo over stale DB photo
+                    if (user.photoURL && userData.photo !== user.photoURL) {
+                        userData.photo = user.photoURL;
+                        setDoc(doc(db, "users", user.uid), { photo: user.photoURL }, { merge: true });
+                    }
                     console.log("📄 Firestore Profile Found:", userData.role);
                 } else {
                     console.warn("⚠️ No Firestore Profile found for UID:", user.uid);
@@ -141,7 +147,6 @@ export async function initAuth() {
                         name: user.displayName || user.email.split('@')[0],
                         photo: user.photoURL
                     };
-                    // Don't await this to speed up UI
                     setDoc(doc(db, "users", user.uid), {
                         ...userData,
                         createdAt: serverTimestamp()
@@ -302,23 +307,29 @@ window.loginAsGuest = function () {
 };
 
 window.handleLogout = async function () {
-    localStorage.removeItem('guest_session');
-    localStorage.removeItem('auth_user');
+    console.log("🔓 Initializing Secure Logout...");
+    
+    // 1. Clear session cache to prevent "Ghost Session" bug on reload
     localStorage.removeItem('auth_user_full');
-    localStorage.removeItem('global_stats_cache');
+    localStorage.removeItem('auth_user');
+    localStorage.removeItem('guest_session');
+    
+    // 2. Actually sign out from Firebase
     try {
         await signOut(auth);
     } catch (e) {
         console.warn("Signout error:", e);
     }
 
-    // Redirect to landing page (root index.html)
+    // 3. Clear status
+    window.authStatus = { ready: true, data: { user: null, currentUser: null } };
+
+    // 4. Redirect to landing page (root index.html)
     const path = window.location.pathname;
     const pagesIndex = path.indexOf('/pages/');
     if (pagesIndex !== -1) {
         window.location.href = path.substring(0, pagesIndex) + '/index.html';
     } else {
-        // If not in pages dir, we're likely in root or some other top-level dir
         window.location.href = 'index.html';
     }
 };

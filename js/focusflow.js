@@ -21,21 +21,21 @@ window.renderFocusFlow = function() {
                     <h2 class="setup-title">Ready for a Deep Study?</h2>
                     <p class="setup-subtitle">Select your focus goal to begin</p>
                     <div class="duration-presets">
-                        <button class="preset-chip" onclick="selectStudyTime(15)">
-                            <span class="preset-label">Sprint</span>
-                            <span class="preset-val">15m</span>
+                        <button class="preset-chip" onclick="selectStudyTime(30)">
+                            <span class="preset-label">Smart Sprint</span>
+                            <span class="preset-val">30m</span>
                         </button>
-                        <button class="preset-chip secondary" onclick="selectStudyTime(25)">
-                            <span class="preset-label">Classic</span>
-                            <span class="preset-val">25m</span>
-                        </button>
-                        <button class="preset-chip premium" onclick="selectStudyTime(45)">
-                            <span class="preset-label">Deep Work</span>
-                            <span class="preset-val">45m</span>
-                        </button>
-                        <button class="preset-chip pulse" onclick="selectStudyTime(60)">
+                        <button class="preset-chip secondary" onclick="selectStudyTime(60)">
                             <span class="preset-label">Power Hour</span>
-                            <span class="preset-val">60m</span>
+                            <span class="preset-val">1h</span>
+                        </button>
+                        <button class="preset-chip premium" onclick="selectStudyTime(120)">
+                            <span class="preset-label">Deep Dive</span>
+                            <span class="preset-val">2h</span>
+                        </button>
+                        <button class="preset-chip pulse" onclick="selectStudyTime(240)">
+                            <span class="preset-label">Marathon</span>
+                            <span class="preset-val">4h</span>
                         </button>
                     </div>
                     <div class="custom-time-input">
