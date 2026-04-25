@@ -4,7 +4,7 @@
 
 window.SettingsModule = {
     state: {
-        activeTab: 'profile',
+        activeTab: 'account',
         user: {},
         settings: {
             notifications: { email: true, push: true, exam_alerts: true, ai_suggestions: true },
@@ -134,7 +134,6 @@ window.SettingsModule = {
 
     renderNavItems: function () {
         const tabs = [
-            { id: 'profile', icon: '👤', label: 'Profile & Identity' },
             { id: 'account', icon: '🔐', label: 'Account & Security' },
             { id: 'notifications', icon: '🔔', label: 'Notifications' },
             { id: 'appearance', icon: '🎨', label: 'Appearance' },
@@ -187,50 +186,6 @@ window.SettingsModule = {
         const s = this.state.settings;
 
         switch (tab) {
-            case 'profile':
-                return `
-                    <div class="settings-section-title">👤 Profile & Identity</div>
-                    <p class="settings-section-desc">Manage your public presence and academic details.</p>
-
-                    <div class="settings-group">
-                        <div class="profile-edit-header">
-                            <div class="profile-avatar-large" style="position: relative; border-radius: 50%; display: flex; align-items: center; justify-content: center; transform-style: preserve-3d; z-index: 5; width: 140px; height: 140px; margin-right: 2rem;">
-                                <div class="founder-border-glow" style="z-index:-1; inset: -4px;"></div>
-                                <div class="founder-border-ring" style="z-index:-1; inset: -20px;"></div>
-                                ${user.photo ? `<img src="${user.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;position:relative;z-index:5;border: 3px solid rgba(255, 255, 255, 0.9); box-shadow: 0 0 20px rgba(0, 0, 0, 0.5) inset;">` : `<div style="width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#1a1e26;position:relative;z-index:5;font-size:2rem;border: 3px solid rgba(255, 255, 255, 0.9); box-shadow: 0 0 20px rgba(0, 0, 0, 0.5) inset;">${user.name ? user.name[0] : 'U'}</div>`}
-                            </div>
-                            <div>
-                                <h3 style="margin:0 0 0.5rem 0;">${user.name || 'Student'} <span class="meta-badge" style="font-size:0.6rem; vertical-align:middle;">VERIFIED</span></h3>
-                                <p style="color:var(--text-dim); margin-bottom:1rem;">${user.role ? user.role.toUpperCase() : 'USER'}</p>
-                                <button class="btn-sm-ghost" onclick="SettingsModule.triggerAvatarUpload()" id="avatar-upload-btn">Change Photo</button>
-                                <button class="btn-sm-ghost" style="color:#ff4757;">Remove</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="settings-group">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                            <h3>Personal Details</h3>
-                            <button class="btn-sm-ghost" id="edit-profile-btn" onclick="SettingsModule.toggleProfileEdit()">Edit Details</button>
-                        </div>
-                        <div class="settings-row">
-                            <div class="settings-label"><strong>Full Name</strong><span>Your name on certificates and leaderboard</span></div>
-                            <input class="settings-input profile-field" type="text" id="prof-name" value="${user.name || ''}" disabled>
-                        </div>
-                         <div class="settings-row">
-                            <div class="settings-label"><strong>College</strong><span>Your primary academic institution</span></div>
-                            <input class="settings-input profile-field" type="text" id="prof-college" value="${user.college || 'Medi-Caps University'}" disabled>
-                        </div>
-                        <div class="settings-row">
-                            <div class="settings-label"><strong>Branch & Year</strong><span>Used for personalized notes feed</span></div>
-                            <input class="settings-input profile-field" type="text" id="prof-branch" value="${user.branch || ''}" placeholder="e.g. CSE - 2nd Year" disabled>
-                        </div>
-                        <div id="profile-save-actions" style="display:none; margin-top:1.5rem; text-align:right;">
-                            <button class="btn btn-primary" onclick="SettingsModule.saveProfile()">Save Changes</button>
-                        </div>
-                    </div>
-                `;
-
             case 'account':
                 return `
                     <div class="settings-section-title">🔐 Account & Security</div>

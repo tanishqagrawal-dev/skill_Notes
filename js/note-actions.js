@@ -61,13 +61,23 @@ window.initInteractionsListeners = function () {
 
     const userId = user.uid || user.id;
 
-    // 1. Listen to Saved/Bookmarks
+    // 1. Listen to All Engagements (Saved, Likes, Dislikes) in Private Drive
     if (savedUnsubscribe) savedUnsubscribe();
-    const savedRef = collection(db, "privateDrive", userId, "files");
-    const qSaved = query(savedRef, where("type", "==", "saved"));
-    savedUnsubscribe = onSnapshot(qSaved, (snap) => {
+    const driveRef = collection(db, "privateDrive", userId, "files");
+    
+    // We listen to everything in one go to minimize reads
+    savedUnsubscribe = onSnapshot(driveRef, (snap) => {
         window.savedNoteIds.clear();
-        snap.forEach(doc => window.savedNoteIds.add(doc.data().noteId || doc.id.replace(/^saved_/, '')));
+        window.likedNoteIds.clear();
+        window.dislikedNoteIds.clear();
+        
+        snap.forEach(doc => {
+            const data = doc.data();
+            const noteId = data.noteId || doc.id.replace(/^(saved_|like_|dislike_)/, '');
+            if (data.type === 'saved') window.savedNoteIds.add(noteId);
+            else if (data.type === 'like') window.likedNoteIds.add(noteId);
+            else if (data.type === 'dislike') window.dislikedNoteIds.add(noteId);
+        });
         syncAllInteractionIcons();
     });
 
@@ -85,17 +95,21 @@ window.initInteractionsListeners = function () {
 function syncAllInteractionIcons() {
     document.querySelectorAll('[data-note-id]').forEach(card => {
         const id = card.getAttribute('data-note-id');
-        const update = (title, set) => {
-            const btn = card.querySelector(`[title="${title}"]`);
+        const idClean = id.replace(/^unit\d+_/, ''); // handle sequential IDs
+
+        const update = (selector, set) => {
+            const btn = card.querySelector(selector);
             if (btn) {
-                if (set.has(id)) btn.classList.add('active');
+                if (set.has(id) || set.has(idClean)) btn.classList.add('active');
                 else btn.classList.remove('active');
             }
         };
-        update('Bookmark', window.savedNoteIds);
-        update('Like', window.likedNoteIds);
-        update('Dislike', window.dislikedNoteIds);
-        update('Report', window.reportedNoteIds);
+
+        // Universal selectors for different UI versions
+        update('.like-btn, [title="Like"], .eng-btn-pro.like', window.likedNoteIds);
+        update('.dislike-btn, [title="Dislike"]', window.dislikedNoteIds);
+        update('.bookmark-btn, .save-btn, [title="Bookmark"], [title="Save"], [onclick*="toggleBookmark"]', window.savedNoteIds);
+        update('.report-btn, [title="Report"]', window.reportedNoteIds);
     });
 }
 
@@ -202,9 +216,9 @@ window.likeNote = async function (noteId) {
 
     // --- OPTIMISTIC UI UPDATE ---
     document.querySelectorAll(`[data-note-id="${noteId}"]`).forEach(card => {
-        const likeBtn = card.querySelector('.like-btn, [title="Like"], [onclick="likeNote(\'' + noteId + '\')"]');
+        const likeBtn = card.querySelector('.like-btn, [title="Like"], [onclick*="likeNote"]');
         if (likeBtn) {
-            const countSpan = likeBtn.querySelector('.like-count');
+            const countSpan = likeBtn.querySelector('.like-count, .count');
             if (isActive) {
                 likeBtn.classList.add('active');
                 if (countSpan && !isCurrentlyLiked) countSpan.innerText = (parseInt(countSpan.innerText) || 0) + 1;
@@ -215,10 +229,10 @@ window.likeNote = async function (noteId) {
         }
 
         if (dislikeDelta === -1) {
-            const dislikeBtn = card.querySelector('[title="Dislike"]');
+            const dislikeBtn = card.querySelector('.dislike-btn, [title="Dislike"]');
             if (dislikeBtn) {
                 dislikeBtn.classList.remove('active');
-                const disCountSpan = dislikeBtn.querySelector('.dislike-count');
+                const disCountSpan = dislikeBtn.querySelector('.dislike-count, .count');
                 if (disCountSpan) disCountSpan.innerText = Math.max(0, (parseInt(disCountSpan.innerText) || 1) - 1);
             }
         }
@@ -263,12 +277,20 @@ window.likeNote = async function (noteId) {
             } else {
                 let updates = {};
 
+                // --- CENTRALIZED PERSISTENCE (Private Drive Hydration) ---
+                const privLikeRef = doc(db, "privateDrive", userId, "files", "like_" + noteId.replace(/[^a-zA-Z0-9]/g, '_'));
+                const privDislikeRef = doc(db, "privateDrive", userId, "files", "dislike_" + noteId.replace(/[^a-zA-Z0-9]/g, '_'));
+
                 if (!isActive) { // We toggled it off
                     transaction.delete(likeRef);
+                    transaction.delete(privLikeRef);
                     updates.likes = increment(-1);
                 } else { // We toggled it on
                     transaction.set(likeRef, { liked: true, timestamp: Date.now() });
+                    transaction.set(privLikeRef, { noteId, type: 'like', timestamp: Date.now() });
                     updates.likes = increment(1);
+                    // Clean up mutually exclusive dislikes in Private Drive
+                    if (dislikeDelta === -1) transaction.delete(privDislikeRef);
                 }
 
                 // Clean up mutually exclusive dislikes natively via transaction
@@ -343,9 +365,9 @@ window.toggleNoteDislike = async function (noteId) {
 
     // --- OPTIMISTIC UI UPDATE ---
     document.querySelectorAll(`[data-note-id="${noteId}"]`).forEach(card => {
-        const dislikeBtn = card.querySelector('[title="Dislike"]');
+        const dislikeBtn = card.querySelector('.dislike-btn, [title="Dislike"]');
         if (dislikeBtn) {
-            const countSpan = dislikeBtn.querySelector('.dislike-count');
+            const countSpan = dislikeBtn.querySelector('.dislike-count, .count');
             if (isActive) {
                 dislikeBtn.classList.add('active');
                 if (countSpan && !isCurrentlyDisliked) countSpan.innerText = (parseInt(countSpan.innerText) || 0) + 1;
@@ -356,10 +378,10 @@ window.toggleNoteDislike = async function (noteId) {
         }
 
         if (likeDelta === -1) {
-            const likeBtn = card.querySelector('.like-btn, [title="Like"], [onclick="likeNote(\'' + noteId + '\')"]');
+            const likeBtn = card.querySelector('.like-btn, [title="Like"], [onclick*="likeNote"]');
             if (likeBtn) {
                 likeBtn.classList.remove('active');
-                const likeCountSpan = likeBtn.querySelector('.like-count');
+                const likeCountSpan = likeBtn.querySelector('.like-count, .count');
                 if (likeCountSpan) likeCountSpan.innerText = Math.max(0, (parseInt(likeCountSpan.innerText) || 1) - 1);
             }
         }
@@ -404,12 +426,20 @@ window.toggleNoteDislike = async function (noteId) {
             } else {
                 let updates = {};
 
+                // --- CENTRALIZED PERSISTENCE (Private Drive Hydration) ---
+                const privDislikeRef = doc(db, "privateDrive", userId, "files", "dislike_" + noteId.replace(/[^a-zA-Z0-9]/g, '_'));
+                const privLikeRef = doc(db, "privateDrive", userId, "files", "like_" + noteId.replace(/[^a-zA-Z0-9]/g, '_'));
+
                 if (!isActive) { // We toggled it off
                     transaction.delete(dislikeRef);
+                    transaction.delete(privDislikeRef);
                     updates.dislikes = increment(-1);
                 } else { // We toggled it on
                     transaction.set(dislikeRef, { disliked: true, timestamp: Date.now() });
+                    transaction.set(privDislikeRef, { noteId, type: 'dislike', timestamp: Date.now() });
                     updates.dislikes = increment(1);
+                    // Clean up mutually exclusive likes in Private Drive
+                    if (likeDelta === -1) transaction.delete(privLikeRef);
                 }
 
                 // Clean up mutually exclusive likes natively via transaction
@@ -619,20 +649,9 @@ window.attachNoteRealtimeListeners = function (containerId = 'tab-content') {
         const user = auth?.currentUser || window.currentUser;
         const userId = user && !user.isGuest ? (user.uid || user.id) : null;
 
-        // Asynchronously hydrate Personal Engagement states directly from subcollections
-        if (userId) {
-            getDoc(doc(db, "notes", noteId, "engagement", userId)).then(snap => {
-                if (snap.exists()) window.likedNoteIds.add(noteId);
-                else window.likedNoteIds.delete(noteId);
-                if (typeof syncAllInteractionIcons === 'function') syncAllInteractionIcons();
-            }).catch(() => { });
-
-            getDoc(doc(db, "notes", noteId, "dislikes", userId)).then(snap => {
-                if (snap.exists()) window.dislikedNoteIds.add(noteId);
-                else window.dislikedNoteIds.delete(noteId);
-                if (typeof syncAllInteractionIcons === 'function') syncAllInteractionIcons();
-            }).catch(() => { });
-        }
+        // Note: Individual hydration of personal states (likes/dislikes) is now handled 
+        // globally by initInteractionsListeners for better performance and reliability.
+        // We only need to attach the real-time listener for public stats here.
 
         window.noteUnsubscribers[noteId] = onSnapshot(noteRef, (snap) => {
             if (!snap.exists()) return; // Preserve hardcoded UI placeholders until a real Firebase interaction occurs
