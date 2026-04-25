@@ -1,5 +1,3 @@
-import { globalNotes } from "../data/globalNotes.js";
-import { RoutingSystem } from "./routing.js";
 // stats functionality is managed via window.statServices
 // --- FIREBASE SERVICES ---
 // Fallback if firebaseServices failed to load (e.g. CORS or network error)
@@ -1292,14 +1290,22 @@ function renderTabContent(tabId) {
                     </div>
                 `;
             }
-        } else if (tabId === 'admin-console') {
+        }
+        // --- ROLE SPECIFIC ---
+        else if (tabId === 'admin-console') {
             if (window.AdminConsole) contentArea.innerHTML = window.AdminConsole.render();
             else contentArea.innerHTML = "<p>Loading Admin Console...</p>";
-        } else if (tabId === 'coadmin-hub') {
+        }
+        else if (tabId === 'coadmin-hub') {
             if (window.CoAdminModule) contentArea.innerHTML = window.CoAdminModule.render();
             else contentArea.innerHTML = "<p>Loading Moderation Hub...</p>";
-        } else if (tabId === 'college-stats') {
+        }
+        else if (tabId === 'college-stats') {
             contentArea.innerHTML = `<div class="tab-pane active fade-in"><h1 class="font-heading">College Stats</h1><p>Analytics module coming soon.</p></div>`;
+        }
+        // --- SETTINGS ---
+        else if (tabId === 'settings') {
+            contentArea.innerHTML = window.renderSettings ? window.renderSettings() : 'Loading settings...';
         } else {
             contentArea.innerHTML = `<div class="tab-pane active"><h1 class="font-heading">${tabId}</h1><p>Module coming soon...</p></div>`;
         }
