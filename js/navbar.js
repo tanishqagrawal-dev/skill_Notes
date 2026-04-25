@@ -54,10 +54,6 @@ function renderNavbar() {
                     <a href="${getLinkPath('pages/dashboard.html')}?tab=leaderboard" class="${currentPage === 'dashboard.html' && window.location.search.includes('tab=leaderboard') ? 'active' : ''}">Leaderboard</a>
                     <a href="${getLinkPath('pages/dashboard.html')}?tab=profile" class="${currentPage === 'dashboard.html' && window.location.search.includes('tab=profile') ? 'active' : ''}">Profile</a>
                     <a href="${getLinkPath('pages/dashboard.html')}" class="${currentPage === 'dashboard.html' && !window.location.search.includes('tab=notes') && !window.location.search.includes('tab=leaderboard') && !window.location.search.includes('tab=profile') ? 'active' : ''}">Dashboard</a>
-                    <a href="${getLinkPath('index#features')}" class="${currentPage === 'index' ? 'active' : ''}">Features</a>
-                    <a href="${getLinkPath('pages/dashboard')}?tab=notes" class="${currentPage === 'dashboard' && window.location.search.includes('tab=notes') ? 'active' : ''}">Notes Hub</a>
-                    <a href="${getLinkPath('pages/dashboard')}?tab=leaderboard" class="${currentPage === 'dashboard' && window.location.search.includes('tab=leaderboard') ? 'active' : ''}">Leaderboard</a>
-                    <a href="${getLinkPath('pages/dashboard')}" class="${currentPage === 'dashboard' && !window.location.search.includes('tab=notes') && !window.location.search.includes('tab=leaderboard') ? 'active' : ''}">Dashboard</a>
                     <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" target="_blank" rel="noopener noreferrer">Community</a>
                     <button class="btn btn-primary" id="navbar-auth-btn">Get Started</button>
                 </div>
