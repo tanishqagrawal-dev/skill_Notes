@@ -47,7 +47,7 @@ function handleAuthReady(data) {
         // Security Check (Redundant but safe)
         if (currentUser.role !== 'admin' && currentUser.role !== 'superadmin') {
             alert("⛔ Access Denied. Redirecting...");
-            window.location.href = 'dashboard.html';
+            window.location.href='dashboard';
             return;
         }
 

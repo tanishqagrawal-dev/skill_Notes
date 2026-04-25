@@ -34,9 +34,9 @@ function dispatchAuthReady(data) {
 // 1. Instant Session Restoration (Guest or Regular)
 const lastUser = localStorage.getItem('auth_user_full') || localStorage.getItem('guest_session');
 const path = window.location.pathname;
-const isUserDashboard = path.endsWith('/dashboard.html') || path === 'dashboard.html';
-const isAdminDashboard = path.endsWith('/admin-dashboard.html');
-const isCoAdminDashboard = path.endsWith('/coadmin-dashboard.html');
+const isUserDashboard = path.endsWith('/dashboard') || path.includes('dashboard');
+const isAdminDashboard = path.endsWith('/admin-dashboard') || path.includes('admin-dashboard');
+const isCoAdminDashboard = path.endsWith('/coadmin-dashboard') || path.includes('coadmin-dashboard');
 
 if (lastUser && (isUserDashboard || isAdminDashboard || isCoAdminDashboard)) {
     try {
@@ -64,7 +64,7 @@ export async function initAuth() {
     // Persistence
     setPersistence(auth, browserLocalPersistence).catch(e => console.warn("Persistence Error:", e));
 
-    const isAuthPage = path.endsWith('auth.html') || path.endsWith('auth') || path.endsWith('login.html') || path.endsWith('login');
+    const isAuthPage = path.endsWith('auth') || path.endsWith('auth') || path.endsWith('login') || path.endsWith('login');
 
     // Handle Redirect Result
     getRedirectResult(auth).catch((error) => {
@@ -82,30 +82,30 @@ export async function initAuth() {
         console.log(`🛡️ Nav Check: Role=[${currentRole}] Path=[${path}]`);
 
         // 1. Landing/Auth Page Redirects
-        if (isAuthPage || path === '/' || path.endsWith('index.html')) {
+        if (isAuthPage || path === '/' || path.endsWith('index') || path.endsWith('index')) {
             console.log("🚀 Initial Redirect Logic:", currentRole);
-            if (currentRole === 'admin' || currentRole === 'superadmin') window.location.href = prefix + 'admin-dashboard.html';
-            else if (currentRole === 'coadmin') window.location.href = prefix + 'coadmin-dashboard.html';
-            else window.location.href = prefix + 'dashboard.html';
+            if (currentRole === 'admin' || currentRole === 'superadmin') window.location.href = prefix + 'admin-dashboard';
+            else if (currentRole === 'coadmin') window.location.href = prefix + 'coadmin-dashboard';
+            else window.location.href = prefix + 'dashboard';
             return true;
         }
 
         // 2. Cross-Dashboard Enforcement (Wrong Role Check)
         if (isUserDashboard && (currentRole === 'admin' || currentRole === 'superadmin')) {
             console.log("🔄 Redirecting Admin to Admin Dashboard...");
-            window.location.href = 'admin-dashboard.html';
+            window.location.href='admin-dashboard';
         }
         else if (isUserDashboard && currentRole === 'coadmin') {
             console.log("🔄 Redirecting Co-Admin to Co-Admin Dashboard...");
-            window.location.href = ('coadmin-dashboard.html');
+            window.location.href = 'coadmin-dashboard';
         }
         else if (isCoAdminDashboard && currentRole !== 'coadmin' && currentRole !== 'superadmin' && currentRole !== 'admin') {
             console.log("🔄 Redirecting unauthorized from Co-Admin Dashboard...");
-            window.location.href = 'dashboard.html';
+            window.location.href='dashboard';
         }
         else if (isAdminDashboard && currentRole !== 'admin' && currentRole !== 'superadmin') {
             console.log("🔄 Redirecting unauthorized from Admin Dashboard...");
-            window.location.href = 'dashboard.html';
+            window.location.href='dashboard';
         }
 
         return false;
@@ -198,7 +198,7 @@ export async function initAuth() {
             if (isAdminDashboard || isCoAdminDashboard || isUserDashboard) {
                 console.log("🛑 Unauthorized access attempt. Redirecting to login...");
                 const prefix = path.includes('/pages/') ? '' : 'pages/';
-                window.location.href = prefix + 'auth.html';
+                window.location.href = prefix + 'auth';
             }
         }
     });
@@ -272,7 +272,7 @@ function initAuthForms() {
                 if (typeof gtag === 'function') gtag('event', 'login', { method: 'Google' });
 
                 const isInPagesDir = window.location.pathname.includes('/pages/');
-                window.location.href = (isInPagesDir ? '' : 'pages/') + 'dashboard.html';
+                window.location.href = (isInPagesDir ? '' : 'pages/') + 'dashboard';
 
             } catch (err) {
                 console.error("❌ Google Login Error:", err);
@@ -298,7 +298,7 @@ window.loginAsGuest = function () {
     const path = window.location.pathname;
     const isInPagesDir = path.includes('/pages/');
     const prefix = isInPagesDir ? '' : 'pages/';
-    window.location.href = prefix + 'dashboard.html';
+    window.location.href = prefix + 'dashboard';
 };
 
 window.handleLogout = async function () {
@@ -312,13 +312,13 @@ window.handleLogout = async function () {
         console.warn("Signout error:", e);
     }
 
-    // Redirect to landing page (root index.html)
+    // Redirect to landing page (root index)
     const path = window.location.pathname;
     const pagesIndex = path.indexOf('/pages/');
     if (pagesIndex !== -1) {
-        window.location.href = path.substring(0, pagesIndex) + '/index.html';
+        window.location.href = path.substring(0, pagesIndex) + '/index';
     } else {
         // If not in pages dir, we're likely in root or some other top-level dir
-        window.location.href = 'index.html';
+        window.location.href='index';
     }
 };
