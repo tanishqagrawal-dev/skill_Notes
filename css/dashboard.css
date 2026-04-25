@@ -160,6 +160,9 @@
     filter: brightness(0.9);
 }
 
+.nav-item.active .icon {
+    /* Filter removed to preserve emoji colors */
+}
 
 .nav-category {
     font-size: 0.65rem;
@@ -2780,7 +2783,6 @@
     font-size: 0.95rem !important;
     backdrop-filter: blur(12px) !important;
     -webkit-appearance: none;
-    appearance: none;
     outline: none !important;
     transition: all 0.3s ease !important;
 }
@@ -2936,4 +2938,5 @@
         max-height: 70vh;
         border-radius: 16px !important;
     }
+}
 }

@@ -339,7 +339,7 @@ function trackAnalytics(eventType, data) {
     }
 }
 
-function showToast(message, type = 'success') {
+window.showToast = function (message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast-popup ${type}`;
     toast.innerHTML = `
@@ -358,8 +358,7 @@ function showToast(message, type = 'success') {
         toast.classList.remove('active');
         setTimeout(() => toast.remove(), 500);
     }, 3000);
-}
-window.showToast = showToast;
+};
 
 // Re-wired to native window methods inside note-actions.js
 window.downloadNote = function (id) { if (window.updateNoteStat) window.updateNoteStat(id, 'download'); };
@@ -1207,13 +1206,13 @@ function renderTabContent(tabId) {
                 if (window.RoutingSystem) {
                     const nextStep = window.RoutingSystem.applyFiltersToUI(GlobalData, (k, v) => { window.selState[k] = v; });
                     if (nextStep === "SHOW_NOTES") {
-                        showNotes();
+                        if (window.showNotes) window.showNotes();
                     } else if (nextStep === "SUBJECT_STEP") {
-                        renderSubjectStep();
+                        if (window.renderSubjectStep) window.renderSubjectStep();
                     } else if (nextStep === "SEMESTER_STEP" || nextStep === "YEAR_STEP") {
-                        renderCombinedSemesterStep();
+                        if (window.renderSemesterStep) window.renderSemesterStep();
                     } else if (nextStep === "BRANCH_STEP") {
-                        renderBranchStep();
+                        if (window.renderBranchStep) window.renderBranchStep();
                     } else {
                         renderCollegeStep();
                     }
@@ -1237,12 +1236,14 @@ function renderTabContent(tabId) {
             contentArea.innerHTML = renderLeaderboard();
             if (typeof initLeaderboardListeners === 'function') initLeaderboardListeners();
         } else if (tabId === 'bookmarks') {
-            renderBookmarks();
-
+            if (window.renderBookmarks) {
+                window.renderBookmarks();
+            } else {
+                contentArea.innerHTML = `<p>Loading Bookmarks...</p>`;
+            }
         } else if (tabId === 'moderation-hub') {
             contentArea.innerHTML = renderModerationHub();
             if (typeof initModerationHub === 'function') initModerationHub();
-
         } else if (tabId === 'verification-hub') {
             contentArea.innerHTML = `<div class="tab-pane active fade-in" style="padding: 2rem;">
                 <h1 class="font-heading">🛡️ Moderation <span class="gradient-text">Queue</span></h1>
@@ -1262,8 +1263,7 @@ function renderTabContent(tabId) {
                 <p style="color: var(--text-dim); margin-bottom: 2rem;">Track the status of your contributed materials.</p>
                 <div id="my-uploads-grid" class="notes-grid-pro" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;"></div>
             </div>`;
-            renderMyUploads();
-
+            if (typeof renderMyUploads === 'function') renderMyUploads();
         } else if (tabId === 'focusflow') {
             if (window.renderFocusFlow) {
                 contentArea.innerHTML = window.renderFocusFlow();
@@ -1292,14 +1292,22 @@ function renderTabContent(tabId) {
                     </div>
                 `;
             }
-        } else if (tabId === 'admin-console') {
+        }
+        // --- ROLE SPECIFIC ---
+        else if (tabId === 'admin-console') {
             if (window.AdminConsole) contentArea.innerHTML = window.AdminConsole.render();
             else contentArea.innerHTML = "<p>Loading Admin Console...</p>";
-        } else if (tabId === 'coadmin-hub') {
+        }
+        else if (tabId === 'coadmin-hub') {
             if (window.CoAdminModule) contentArea.innerHTML = window.CoAdminModule.render();
             else contentArea.innerHTML = "<p>Loading Moderation Hub...</p>";
-        } else if (tabId === 'college-stats') {
+        }
+        else if (tabId === 'college-stats') {
             contentArea.innerHTML = `<div class="tab-pane active fade-in"><h1 class="font-heading">College Stats</h1><p>Analytics module coming soon.</p></div>`;
+        }
+        // --- SETTINGS ---
+        else if (tabId === 'settings') {
+            contentArea.innerHTML = window.renderSettings ? window.renderSettings() : 'Loading settings...';
         } else {
             contentArea.innerHTML = `<div class="tab-pane active"><h1 class="font-heading">${tabId}</h1><p>Module coming soon...</p></div>`;
         }
@@ -2349,7 +2357,7 @@ function updateStepUI(activeIdx) {
 }
 
 // --- STEP RENDERS ---
-function renderCollegeStep() {
+window.renderCollegeStep = function () {
     updateStepUI(0);
     const backBtn = document.getElementById('explorer-back-btn');
     if (backBtn) backBtn.style.display = 'none';
@@ -2424,18 +2432,16 @@ function renderCollegeStep() {
             </div>
         `;
     }
-}
-window.renderCollegeStep = renderCollegeStep;
+};
 
-function selectCollege(id, name) {
+window.selectCollege = function (id, name) {
     selState.college = { id, name };
     if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
     trackAnalytics('select_college', { id, name });
     renderStreamStep();
-}
-window.selectCollege = selectCollege;
+};
 
-function renderStreamStep() {
+window.renderStreamStep = function () {
     updateStepUI(1);
     const backBtn = document.getElementById('explorer-back-btn');
     if (backBtn) {
@@ -2454,18 +2460,16 @@ function renderStreamStep() {
             <h3 class="font-heading" style="margin-top: 1.5rem;">${s.name}</h3>
         </div>
     `).join('');
-}
-window.renderStreamStep = renderStreamStep;
+};
 
-function selectStream(id, name) {
+window.selectStream = function (id, name) {
     selState.stream = { id, name };
     if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
     trackAnalytics('select_stream', { id, name });
     renderBranchStep();
-}
-window.selectStream = selectStream;
+};
 
-function renderBranchStep() {
+window.renderBranchStep = function () {
     updateStepUI(2);
     const backBtn = document.getElementById('explorer-back-btn');
     if (backBtn) {
@@ -2500,18 +2504,16 @@ function renderBranchStep() {
             <h3 class="font-heading" style="margin-top: 1.5rem;">${b.name}</h3>
         </div>
     `).join('');
-}
-window.renderBranchStep = renderBranchStep;
+};
 
-function selectBranch(id, name) {
+window.selectBranch = function (id, name) {
     selState.branch = { id, name };
     if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
     trackAnalytics('select_branch', { id, name });
     renderCombinedSemesterStep();
-}
-window.selectBranch = selectBranch;
+};
 
-function renderCombinedSemesterStep() {
+window.renderCombinedSemesterStep = function () {
     updateStepUI(3);
     const backBtn = document.getElementById('explorer-back-btn');
     if (backBtn) {
@@ -2545,20 +2547,18 @@ function renderCombinedSemesterStep() {
             </div>
         `).join('')}
     `).join('');
-}
-window.renderCombinedSemesterStep = renderCombinedSemesterStep;
+};
 
-function selectCombinedSemester(sem, year) {
+window.selectCombinedSemester = function (sem, year) {
     selState.semester = sem;
     selState.year = year; // Implicitly set year
     if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
     trackAnalytics('select_semester', { sem, year });
     renderSubjectStep();
-}
-window.selectCombinedSemester = selectCombinedSemester;
+};
 
 
-function renderSubjectStep() {
+window.renderSubjectStep = function () {
     updateStepUI(5);
     const backBtn = document.getElementById('explorer-back-btn');
     if (backBtn) {
@@ -2590,22 +2590,20 @@ function renderSubjectStep() {
             <h3 class="font-heading">${s.name}</h3>
         </div>
     `).join('');
-}
-window.renderSubjectStep = renderSubjectStep;
+};
 
-function selectSubject(id, name) {
+window.selectSubject = function (id, name) {
     selState.subject = { id, name };
     if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
     trackAnalytics('select_subject', { id, name });
     showNotes();
-}
-window.selectSubject = selectSubject;
+};
 
 
 
 let notesUnsubscribe = null;
 
-function showNotes(activeTab = 'notes') {
+window.showNotes = function (activeTab = 'notes') {
     const explorerHeader = document.getElementById('explorer-header');
     const explorerContent = document.getElementById('explorer-content');
     if (explorerHeader) explorerHeader.style.display = 'none';
@@ -2734,9 +2732,9 @@ function renderInstantStaticNotes(notes) {
 
     return html;
 }
-window.showNotes = showNotes;
 
-function renderMyUploads() {
+
+window.renderMyUploads = function () {
     const container = document.getElementById('my-uploads-grid');
     if (!container) return;
 
@@ -2866,9 +2864,7 @@ function renderMyUploads() {
         const badge = document.getElementById('uploads-sync-badge');
         if (badge) { badge.textContent = '⚠️ Sync failed'; badge.style.color = '#ff6b6b'; }
     });
-}
-window.renderMyUploads = renderMyUploads;
-
+};
 
 window.deleteUploadedNote = async function (noteId) {
     if (!confirm("Are you sure you want to delete this note? This action cannot be undone.")) return;
@@ -3601,7 +3597,7 @@ window.uploadNote = async function (formData) {
 // Redundant renderMyUploads removed (already defined at line 2434)
 
 // 3. ADMIN / MODERATION MODULE
-function renderAdminModQueue() {
+window.renderAdminModQueue = function () {
     const { db, query, collection, onSnapshot, where, orderBy, deleteDoc, doc, addDoc } = getFirebase();
     const container = document.getElementById('admin-queue');
     if (!container || !['admin', 'superadmin', 'coadmin'].includes(currentUser.role)) return;
@@ -3672,12 +3668,10 @@ function renderAdminModQueue() {
             console.error("Rejection Error:", err);
         }
     };
-}
-window.renderAdminModQueue = renderAdminModQueue;
-
+};
 
 // 4. SUPER ADMIN MANAGEMENT PANEL
-function renderSuperAdminPanel() {
+window.renderSuperAdminPanel = function () {
     const { db, collection, query, where, getDocs, updateDoc, doc } = getFirebase();
     const container = document.getElementById('superadmin-panel');
     if (!container || currentUser.role !== 'superadmin') return;
@@ -3748,9 +3742,7 @@ function renderSuperAdminPanel() {
             alert("❌ Error: " + err.message);
         }
     };
-}
-window.renderSuperAdminPanel = renderSuperAdminPanel;
-
+};
 
 function initRealTimeDB() {
     const { db, query, collection, onSnapshot, orderBy } = getFirebase();
@@ -3927,9 +3919,8 @@ function renderLeaderboard() {
         </div>
     `;
 }
-window.renderLeaderboard = renderLeaderboard;
 
-function initLeaderboardListeners() {
+window.initLeaderboardListeners = function () {
     // Type Switching
     const typeTabs = document.querySelectorAll('.lb-tab');
     typeTabs.forEach(tab => {
@@ -4113,7 +4104,7 @@ if (!window.formatNumber) {
 
 // --- PRIVATE DRIVE MODULE ---
 
-function renderBookmarks() {
+window.renderBookmarks = function () {
     const contentArea = document.getElementById('tab-content');
     if (!contentArea) return;
 
@@ -4307,9 +4298,7 @@ function renderBookmarks() {
             window.attachNoteRealtimeListeners('bookmarks-grid');
         }
     });
-}
-window.renderBookmarks = renderBookmarks;
-
+};
 
 // Open Upload Modal
 window.openPrivateUploadModal = function () {
@@ -4539,7 +4528,7 @@ function getFileIcon(mimeType) {
 let moderationQueue = [];
 let moderationUnsubscribe = null;
 
-function renderModerationHub() {
+window.renderModerationHub = function () {
     return `
         <div class="tab-pane active fade-in" style="padding: 2rem;">
             <div style="margin-bottom: 2.5rem;">
@@ -4649,14 +4638,13 @@ function renderModerationHub() {
                     <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 0.75rem;">
                         <button class="btn btn-primary" style="background: #2ecc71; border-color: #2ecc71;" onclick="executeModeration('approve')">✅ Approve Note</button>
                         <button class="btn btn-ghost" style="color: #f1c40f;" onclick="executeModeration('request-changes')">📝 Request Changes</button>
+                        <button class="btn btn-ghost" style="color: #e74c3c;" onclick="executeModeration('reject')">❌ Reject Note</button>
                     </div>
                 </div>
             </div>
         </div>
     `;
-}
-window.renderModerationHub = renderModerationHub;
-
+};
 
 window.initModerationHub = async function () {
     const { db, collection, query, where, onSnapshot, getDocs } = getFirebase();
@@ -4932,7 +4920,22 @@ window.markAllNotificationsRead = async () => {
     } catch (e) { console.warn(e); }
 };
 
-
+window.showToast = function (msg, type = 'success') {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+        padding: 1rem 2rem; border-radius: 12px; z-index: 12000;
+        background: ${type === 'error' ? '#e74c3c' : (type === 'info' ? 'var(--primary)' : '#2ecc71')};
+        color: white; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        animation: slideUp 0.3s ease-out;
+    `;
+    toast.innerText = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.animation = 'fadeOut 0.3s ease-in forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+};
 
 
 // Note actions moved to js/note-actions.js for global availability

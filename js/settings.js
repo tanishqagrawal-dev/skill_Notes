@@ -1,5 +1,5 @@
 
-// Settings Module for SKiL MATRiX Notes
+// Settings Module for SKiL MATRIX Notes
 // Handles rendering and logic for the Settings Tab
 
 window.SettingsModule = {
@@ -12,8 +12,7 @@ window.SettingsModule = {
             privacy: { leaderboard: true },
             study: { target_hours: 4, show_verified_only: true, auto_save_activity: true },
             ai: { model: 'flash-2.0', auto_summarize: true, explain_concepts: true, smart_search: false }
-        },
-        isSyncing: true
+        }
     },
     isInitialized: false,
     unsubscribe: null,
@@ -22,29 +21,23 @@ window.SettingsModule = {
         if (this.isInitialized) return;
 
         const { db, doc, onSnapshot } = window.firebaseServices || {};
-        if (!db || !window.currentUser) {
-            this.state.isSyncing = false;
-            return;
-        }
+        if (!db || !window.currentUser) return;
 
         this.state.user = { ...window.currentUser };
 
         // Real-time Settings Listener
-        const settingsRef = doc(db, 'users', window.currentUser.id || window.currentUser.uid, 'settings', 'general');
+        const settingsRef = doc(db, 'users', window.currentUser.id, 'settings', 'general');
         this.unsubscribe = onSnapshot(settingsRef, (docSnap) => {
-            this.state.isSyncing = false;
             if (docSnap.exists()) {
                 // deeply merge settings to preserve defaults
                 this.state.settings = this.deepMerge(this.state.settings, docSnap.data());
-                this.refreshContent();
+                if (this.state.activeTab !== 'profile') { // Don't refresh if editing profile to avoid input loss
+                    this.refreshContent();
+                }
             } else {
                 // Initialize default settings in Firebase
                 this.saveAllSettings(this.state.settings);
             }
-        }, (err) => {
-            console.error("Settings listener error:", err);
-            this.state.isSyncing = false;
-            this.refreshContent();
         });
 
         // Listen for internal navigation clicks
@@ -81,7 +74,7 @@ window.SettingsModule = {
 
     saveAllSettings: async function (data) {
         const { db, doc, setDoc } = window.firebaseServices;
-        const ref = doc(db, 'users', (window.currentUser.id || window.currentUser.uid), 'settings', 'general');
+        const ref = doc(db, 'users', window.currentUser.id, 'settings', 'general');
         try {
             await setDoc(ref, data, { merge: true });
         } catch (e) {
@@ -91,7 +84,7 @@ window.SettingsModule = {
 
     updateSetting: async function (category, key, value) {
         const { db, doc, updateDoc } = window.firebaseServices;
-        const ref = doc(db, 'users', (window.currentUser.id || window.currentUser.uid), 'settings', 'general');
+        const ref = doc(db, 'users', window.currentUser.id, 'settings', 'general');
 
         // Optimistic UI update
         if (!this.state.settings[category]) this.state.settings[category] = {};
@@ -101,12 +94,12 @@ window.SettingsModule = {
             const updatePath = `${category}.${key}`;
             await updateDoc(ref, { [updatePath]: value });
 
-            // Show toast only for explicit user actions
-            if (window.showToast) window.showToast('Setting synced to Matrix', 'success');
+            // Show toast only for explicit user actions (not internal logic)
+            if (window.showToast) window.showToast('Setting saved', 'success');
 
         } catch (e) {
             console.error("Failed to update setting:", e);
-            if (window.showToast) window.showToast('Matrix sync failed', 'error');
+            if (window.showToast) window.showToast('Failed to save setting', 'error');
         }
     },
 
@@ -115,47 +108,18 @@ window.SettingsModule = {
         if (content) {
             content.innerHTML = this.renderActiveTab();
         }
-        this.updateSidebar();
-    },
-
-    updateSidebar: function () {
-        const sidebar = document.querySelector('.settings-sidebar');
-        if (sidebar) {
-            const headerHtml = `
-            <div class="settings-sidebar-header">
-                <h2>Settings</h2>
-            </div>`;
-            const syncStatus = this.state.isSyncing ? 
-                `<div style="margin-top: 1rem; font-size: 0.7rem; color: var(--settings-accent); display: flex; align-items: center; gap: 5px; padding: 0 1rem;">
-                    <i class="fa-solid fa-circle-notch fa-spin"></i> SYNCING DATA...
-                </div>` : 
-                `<div style="margin-top: 1rem; font-size: 0.7rem; color: #2ecc71; display: flex; align-items: center; gap: 5px; padding: 0 1rem;">
-                    <i class="fa-solid fa-check-double"></i> DATA SYNCED
-                </div>`;
-            const logoutHtml = `
-            <div style="margin-top: auto; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05);">
-                 ${syncStatus}
-                 <div class="settings-nav-item" style="color: #ff4757; margin-top: 1rem;" onclick="handleLogout()">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out
-                </div>
-            </div>`;
-            sidebar.innerHTML = headerHtml + this.renderNavItems() + logoutHtml;
-        }
     },
 
     render: function () {
         return `
-            <div class="settings-container">
+            <div class="settings-container fade-in">
                 <!-- Internal Sidebar -->
                 <aside class="settings-sidebar custom-scroll">
-                    <!-- Updated via updateSidebar() -->
-                    <div class="settings-sidebar-header">
-                        <h2>Settings</h2>
-                    </div>
                     ${this.renderNavItems()}
-                    <div style="margin-top: auto; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05);">
+                    
+                    <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05);">
                          <div class="settings-nav-item" style="color: #ff4757;" onclick="handleLogout()">
-                            <i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out
+                            <span class="icon">🚪</span> Log Out
                         </div>
                     </div>
                 </aside>
@@ -170,34 +134,48 @@ window.SettingsModule = {
 
     renderNavItems: function () {
         const tabs = [
-            { id: 'account', icon: 'fa-user-gear', label: 'Account & Security' },
-            { id: 'notifications', icon: 'fa-bell', label: 'Notifications' },
-            { id: 'appearance', icon: 'fa-palette', label: 'Appearance' },
-            { id: 'study', icon: 'fa-book-open', label: 'Study Preferences' },
-            { id: 'privacy', icon: 'fa-shield-halved', label: 'Privacy & Data' },
-            { id: 'ai', icon: 'fa-robot', label: 'AI Features' },
-            { id: 'contributor', icon: 'fa-medal', label: 'Contributor' }
+            { id: 'account', icon: '🔐', label: 'Account & Security' },
+            { id: 'notifications', icon: '🔔', label: 'Notifications' },
+            { id: 'appearance', icon: '🎨', label: 'Appearance' },
+            { id: 'study', icon: '📚', label: 'Study Preferences' },
+            { id: 'privacy', icon: '🛡️', label: 'Privacy & Data' },
+            { id: 'ai', icon: '🤖', label: 'AI Features' },
+            { id: 'contributor', icon: '🏆', label: 'Contributor' }
         ];
 
+        // Add Admin tab if qualified
         if (this.state.user.role === 'superadmin' || this.state.user.role === 'coadmin') {
-            tabs.push({ id: 'admin', icon: 'fa-bolt-lightning', label: 'Admin Controls' });
+            tabs.push({ id: 'admin', icon: '⚡', label: 'Admin Controls' });
         }
 
         return tabs.map(t => `
             <div class="settings-nav-item ${this.state.activeTab === t.id ? 'active' : ''}" data-set-tab="${t.id}">
-                <i class="fa-solid ${t.icon}"></i> ${t.label}
+                <span class="icon">${t.icon}</span> ${t.label}
             </div>
         `).join('');
     },
 
     switchTab: function (tabId) {
         this.state.activeTab = tabId;
-        this.updateSidebar();
+        // Re-render nav (for active class)
+        const sidebar = document.querySelector('.settings-sidebar');
+        if (sidebar) {
+            // Keep the logout button at the bottom
+            const logoutHtml = `
+            <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05);">
+                 <div class="settings-nav-item" style="color: #ff4757;" onclick="handleLogout()">
+                    <span class="icon">🚪</span> Log Out
+                </div>
+            </div>`;
+            sidebar.innerHTML = this.renderNavItems() + logoutHtml;
+        }
+
+        // Render Content
         const content = document.getElementById('settings-content-area');
         if (content) {
             content.innerHTML = this.renderActiveTab();
             content.classList.remove('fade-in');
-            void content.offsetWidth;
+            void content.offsetWidth; // trigger reflow
             content.classList.add('fade-in');
         }
     },
@@ -207,275 +185,222 @@ window.SettingsModule = {
         const user = this.state.user || {};
         const s = this.state.settings;
 
-        if (this.state.isSyncing) {
-            return `
-                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:1.5rem;">
-                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size:3rem; color:var(--settings-accent);"></i>
-                    <p style="color:var(--text-dim); font-weight:500; letter-spacing:1px;">SYNCING MATRiX DATA...</p>
-                </div>
-            `;
-        }
-
         switch (tab) {
             case 'account':
                 return `
-                    <div class="settings-header">
-                        <div class="settings-section-title"><i class="fa-solid fa-user-gear" style="color: var(--settings-accent);"></i> Account & Security</div>
-                        <p class="settings-section-desc">Manage your identity, security credentials, and active sessions.</p>
-                    </div>
+                    <div class="settings-section-title">🔐 Account & Security</div>
+                    <p class="settings-section-desc">Keep your account secure and manage login sessions.</p>
 
                     <div class="settings-group">
-                        <h3><i class="fa-solid fa-id-card"></i> Personal Information</h3>
-                        <div class="settings-row" style="border:none; padding-bottom:0.5rem;">
-                             <div class="profile-edit-header" style="width:100%; gap: 1.5rem;">
-                                <div class="profile-avatar-large" id="avatar-preview">
-                                    ${user.photo ? `<img src="${user.photo}" style="width:100%; height:100%; object-fit:cover;">` : user.name?.charAt(0) || 'S'}
-                                </div>
-                                <div style="flex:1;">
-                                    <h4 style="margin:0; font-size:1.1rem;">${user.name || 'Scholar'}</h4>
-                                    <p style="color:var(--text-dim); font-size:0.85rem; margin:0.2rem 0;">${user.email}</p>
-                                    <button class="btn-sm-ghost" style="margin-top:0.75rem;" onclick="SettingsModule.triggerAvatarUpload()" id="avatar-upload-btn">
-                                        <i class="fa-solid fa-camera"></i> Change Photo
-                                    </button>
-                                </div>
-                             </div>
-                        </div>
-                    </div>
-
-                    <div class="settings-group">
-                        <h3><i class="fa-solid fa-key"></i> Login & Recovery</h3>
+                        <h3>Login & Recovery</h3>
                          <div class="settings-row">
-                            <div class="settings-label"><strong>Primary Email</strong><span>Used for all platform communications</span></div>
-                            <input class="settings-input" type="email" value="${user.email || ''}" disabled>
+                            <div class="settings-label"><strong>Email Address</strong><span>Used for login and recovery</span></div>
+                            <input class="settings-input" type="email" value="${user.email || ''}" disabled style="opacity:0.6;">
                         </div>
                          <div class="settings-row">
-                            <div class="settings-label"><strong>Security Password</strong><span>Update your password regularly</span></div>
-                            <button class="btn-sm-ghost" onclick="SettingsModule.triggerPasswordReset('${user.email}')">
-                                <i class="fa-solid fa-envelope-circle-check"></i> Send Reset Link
-                            </button>
+                            <div class="settings-label"><strong>Password</strong><span>Prevent unauthorized access</span></div>
+                            <button class="btn-sm-ghost" onclick="SettingsModule.triggerPasswordReset('${user.email}')">Reset Password</button>
                         </div>
                     </div>
 
                     <div class="settings-group">
-                        <h3><i class="fa-solid fa-desktop"></i> Device Sessions</h3>
+                        <h3>Active Sessions</h3>
                         <div class="settings-row">
                              <div class="settings-label">
-                                <strong>Current Browser Session</strong>
-                                <span style="color:#2ecc71;">● Authorized & Active Now</span>
+                                <strong>Generic Session</strong>
+                                <span style="color:var(--success);">● Active Now</span>
                              </div>
-                             <div style="display:flex; align-items:center; gap:0.5rem;">
-                                <span class="badge" style="background:rgba(46,204,113,0.1); color:#2ecc71; font-size:0.7rem; padding:2px 8px; border-radius:4px;">PRIMARY</span>
-                                <button class="btn-sm-ghost" disabled>Current</button>
-                             </div>
+                             <button class="btn-sm-ghost" disabled>Current</button>
                         </div>
                     </div>
 
                      <div class="settings-group danger-zone" style="margin-top: 3rem;">
-                        <h3><i class="fa-solid fa-triangle-exclamation"></i> Security Danger Zone</h3>
+                        <h3 style="color:#ff4757;">Danger Zone</h3>
                         <div class="settings-row">
-                            <div class="settings-label"><strong>Deactivate Access</strong><span>Temporary lock your Matrix identity</span></div>
-                            <button class="btn-sm-ghost" style="color:#ff4757; border-color:rgba(255,71,87,0.3);" onclick="handleLogout()">Deactivate</button>
+                            <div class="settings-label"><strong>Deactivate Account</strong><span>Temporarily disable your profile and hide your data</span></div>
+                            <button class="btn-sm-ghost" style="color:#ff4757;" onclick="handleLogout()">Deactivate</button>
                         </div>
                         <div class="settings-row">
-                            <div class="settings-label"><strong>Erase Matrix Profile</strong><span>Permanently delete all notes, analytics, and data</span></div>
-                            <button class="btn-sm-ghost" style="background:#ff4757; color:white; border:none;" onclick="alert('Contact skilmatrix3@gmail.com for data erasure requests.')">Delete Identity</button>
+                            <div class="settings-label"><strong>Delete Account</strong><span>Permanently remove all your notes and scores</span></div>
+                            <button class="btn-sm-ghost" style="background:#ff4757; color:white; border:none;" onclick="alert('Please contact skilmatrix3@gmail.com to request permanent deletion.')">Delete Forever</button>
                         </div>
                     </div>
                 `;
 
             case 'notifications':
                 return `
-                    <div class="settings-header">
-                        <div class="settings-section-title"><i class="fa-solid fa-bell" style="color: #54a0ff;"></i> Notifications</div>
-                        <p class="settings-section-desc">Manage how and when you receive Matrix updates.</p>
-                    </div>
+                    <div class="settings-section-title">🔔 Notifications</div>
+                    <p class="settings-section-desc">Control what alerts you receive and where.</p>
 
                     <div class="settings-group">
-                        <h3><i class="fa-solid fa-envelope"></i> Email Subscriptions</h3>
-                        ${this.toggleRow('notifications', 'email', 'Resource Updates', s.notifications.email)}
-                        ${this.toggleRow('notifications', 'weekly_summary', 'Academic Performance Weekly', s.notifications.weekly_summary !== false)}
-                        ${this.toggleRow('notifications', 'promo', 'Feature Announcements', s.notifications.promo === true)}
+                        <h3>Email Alerts</h3>
+                        ${this.toggleRow('notifications', 'email', 'New notes in my subjects', s.notifications.email)}
+                        ${this.toggleRow('notifications', 'weekly_summary', 'Weekly study summary', s.notifications.weekly_summary !== false)}
+                        ${this.toggleRow('notifications', 'promo', 'Promotional emails', s.notifications.promo === true)}
                     </div>
 
                      <div class="settings-group">
-                        <h3><i class="fa-solid fa-bolt"></i> Real-time Alerts</h3>
-                        ${this.toggleRow('notifications', 'leaderboard', 'Leaderboard Status Changes', s.notifications.push)}
-                        ${this.toggleRow('notifications', 'exam_alerts', 'Exam Schedule Reminders', s.notifications.exam_alerts)}
-                        ${this.toggleRow('notifications', 'ai_suggestions', 'AI Personal Learning Tips', s.notifications.ai_suggestions)}
+                        <h3>In-App Notifications</h3>
+                        ${this.toggleRow('notifications', 'leaderboard', 'Leaderboard rank changes', s.notifications.push)}
+                        ${this.toggleRow('notifications', 'exam_alerts', 'Exam reminders', s.notifications.exam_alerts)}
+                        ${this.toggleRow('notifications', 'ai_suggestions', 'AI suggestions & tips', s.notifications.ai_suggestions)}
                     </div>
                 `;
 
             case 'appearance':
                 const theme = s.appearance && s.appearance.theme ? s.appearance.theme : (localStorage.getItem('theme') || 'dark');
+
                 return `
-                    <div class="settings-header">
-                        <div class="settings-section-title"><i class="fa-solid fa-palette" style="color: #ff9f43;"></i> Appearance</div>
-                        <p class="settings-section-desc">Tailor the visual environment to your learning style.</p>
-                    </div>
+                    <div class="settings-section-title">🎨 Appearance</div>
+                    <p class="settings-section-desc">Customize your visual experience and performance.</p>
 
                     <div class="settings-group">
-                         <h3>Theme Atmosphere</h3>
-                         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-top:0.5rem;">
-                            <div class="theme-card ${theme === 'dark' ? 'active' : ''}" 
-                                 style="background:#0f0f0f; border:1px solid ${theme === 'dark' ? 'var(--settings-accent)' : 'var(--settings-border)'}; padding:1.5rem; border-radius:12px; cursor:pointer; text-align:center;"
-                                 onclick="SettingsModule.updateSetting('appearance', 'theme', 'dark').then(() => window.toggleTheme(false)); SettingsModule.refreshContent();">
-                                <i class="fa-solid fa-moon" style="font-size:2rem; margin-bottom:0.5rem;"></i>
-                                <div style="font-weight:600;">Deep Matrix</div>
-                                <div style="font-size:0.7rem; color:var(--text-dim);">Optimized for focus</div>
-                            </div>
-                            <div class="theme-card ${theme === 'light' ? 'active' : ''}" 
-                                 style="background:#f8f9fa; color:#333; border:1px solid ${theme === 'light' ? 'var(--settings-accent)' : 'var(--settings-border)'}; padding:1.5rem; border-radius:12px; cursor:pointer; text-align:center;"
-                                 onclick="SettingsModule.updateSetting('appearance', 'theme', 'light').then(() => window.toggleTheme(true)); SettingsModule.refreshContent();">
-                                <i class="fa-solid fa-sun" style="font-size:2rem; margin-bottom:0.5rem;"></i>
-                                <div style="font-weight:600;">Light Aurora</div>
-                                <div style="font-size:0.7rem; opacity:0.7;">High clarity</div>
-                            </div>
+                         <h3>Theme</h3>
+                         <div style="display:flex; gap:1rem; margin-top:1rem;">
+                            <button class="btn-sm-ghost ${theme === 'dark' ? 'active' : ''}" 
+                                    style="${theme === 'dark' ? 'border-color:var(--primary); background:rgba(123,97,255,0.1);' : ''}"
+                                    onclick="SettingsModule.updateSetting('appearance', 'theme', 'dark').then(() => window.toggleTheme(false))">🌙 Dark</button>
+                            <button class="btn-sm-ghost ${theme === 'light' ? 'active' : ''}" 
+                                    style="${theme === 'light' ? 'border-color:var(--primary); background:rgba(123,97,255,0.1);' : ''}"
+                                    onclick="SettingsModule.updateSetting('appearance', 'theme', 'light').then(() => window.toggleTheme(true))">☀️ Light</button>
                          </div>
                     </div>
 
                     <div class="settings-group">
-                         <h3>Motion & Effects</h3>
-                         ${this.toggleRow('appearance', 'reduceMotion', 'Optimize for Low Performance (Reduce Motion)', s.appearance.reduceMotion)}
-                         ${this.toggleRow('appearance', 'compact', 'Compact Interface Mode', s.appearance.compact)}
+                         <h3>Interface</h3>
+                         ${this.toggleRow('appearance', 'reduceMotion', 'Reduce Motion (Accessibility)', s.appearance.reduceMotion)}
+                         ${this.toggleRow('appearance', 'compact', 'Compact Mode', s.appearance.compact)}
                     </div>
                 `;
 
             case 'study':
                 const hours = (s.study && s.study.target_hours) || 4;
                 return `
-                    <div class="settings-header">
-                        <div class="settings-section-title"><i class="fa-solid fa-book-open" style="color: #48dbfb;"></i> Study Preferences</div>
-                        <p class="settings-section-desc">Optimize your learning flow and resource filtering.</p>
-                    </div>
+                    <div class="settings-section-title">📚 Study Preferences</div>
+                    <p class="settings-section-desc">Fine-tune your learning environment and goal tracking.</p>
 
                     <div class="settings-group">
-                        <h3><i class="fa-solid fa-bullseye"></i> Productivity Targets</h3>
+                        <h3>Daily Goals</h3>
                          <div class="settings-row">
-                            <div class="settings-label"><strong>Daily Study Goal</strong><span>Target hours for AI strategist recommendations</span></div>
+                            <div class="settings-label"><strong>Study Target</strong><span>Hours per day</span></div>
                             <select class="settings-input" style="width: auto;" onchange="SettingsModule.updateSetting('study', 'target_hours', this.value)">
-                                <option value="2" ${hours == 2 ? 'selected' : ''}>2 Hours / Day</option>
-                                <option value="4" ${hours == 4 ? 'selected' : ''}>4 Hours / Day</option>
-                                <option value="6" ${hours == 6 ? 'selected' : ''}>6 Hours / Day</option>
-                                <option value="8" ${hours == 8 ? 'selected' : ''}>8 Hours / Day</option>
+                                <option value="2" ${hours == 2 ? 'selected' : ''}>2 Hours</option>
+                                <option value="4" ${hours == 4 ? 'selected' : ''}>4 Hours</option>
+                                <option value="6" ${hours == 6 ? 'selected' : ''}>6 Hours</option>
+                                <option value="8" ${hours == 8 ? 'selected' : ''}>8 Hours</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="settings-group">
-                        <h3><i class="fa-solid fa-magnifying-glass-chart"></i> Search & Discovery</h3>
-                        ${this.toggleRow('study', 'show_verified_only', 'Show Verified Resources Only', s.study && s.study.show_verified_only)}
-                        ${this.toggleRow('study', 'auto_save_activity', 'Auto-log Study Sessions', s.study && s.study.auto_save_activity)}
+                        <h3>Content Filters</h3>
+                        ${this.toggleRow('study', 'show_verified_only', 'Show only verified notes', s.study && s.study.show_verified_only)}
+                        ${this.toggleRow('study', 'auto_save_activity', 'Auto-save study activity', s.study && s.study.auto_save_activity)}
+                    </div>
+                `;
+
+            case 'contributor':
+                return `
+                    <div class="settings-section-title">🏆 Contributor Program</div>
+                    <p class="settings-section-desc">Manage your contributions and track your impact on campus.</p>
+
+                    <div class="settings-group" style="background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <h3 style="margin:0;">Contributor Status: <span style="color:#2ecc71;">ACTIVE</span></h3>
+                                <p style="color:var(--text-dim); font-size:0.9rem; margin-top:0.5rem;">You have uploaded shared resources.</p>
+                            </div>
+                            <div style="font-size:2.5rem;">🌟</div>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>Monetization & Recognition</h3>
+                        <div class="settings-row">
+                            <div class="settings-label"><strong>Public Portfolio</strong><span>Showcase your uploads on your profile</span></div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked onchange="window.showToast('Portfolio visibility updated')">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                         <div class="settings-row">
+                            <div class="settings-label"><strong>Enable Tips</strong><span>Allow students to support you (Beta)</span></div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" onchange="window.showToast('Note: This feature is in beta')">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>Preferences</h3>
+                        ${this.toggleRow('contributor', 'anonymous', 'Upload anonymously', false)}
+                        ${this.toggleRow('contributor', 'notify_likes', 'Notify me when someone likes my note', true)}
                     </div>
                 `;
 
             case 'ai':
                 const model = (s.ai && s.ai.model) || 'flash-2.0';
                 return `
-                    <div class="settings-header">
-                        <div class="settings-section-title"><i class="fa-solid fa-robot" style="color: #1dd1a1;"></i> AI Features</div>
-                        <p class="settings-section-desc">Configure Gemini Intelligence for your academic journey.</p>
-                    </div>
+                    <div class="settings-section-title">🤖 AI Features</div>
+                    <p class="settings-section-desc">Configure Gemini-powered learning assistance.</p>
 
                     <div class="settings-group">
-                        <h3><i class="fa-solid fa-brain"></i> Neural Core Selection</h3>
+                        <h3>Model Selection</h3>
                         <div class="settings-row">
-                            <div class="settings-label"><strong>Active Academic Model</strong><span>Flash 2.0 is recommended for rapid summarization</span></div>
+                            <div class="settings-label"><strong>Default AI Model</strong><span>Gemini 2.0 Flash is recommended for speed</span></div>
                             <div style="display:flex; gap:0.5rem;">
                                 <button class="btn-sm-ghost ${model === 'flash-2.0' ? 'active' : ''}" 
-                                        onclick="SettingsModule.updateSetting('ai', 'model', 'flash-2.0').then(() => SettingsModule.refreshContent())">Gemini Flash</button>
+                                        style="${model === 'flash-2.0' ? 'border-color:var(--primary);' : ''}"
+                                        onclick="SettingsModule.updateSetting('ai', 'model', 'flash-2.0').then(() => SettingsModule.refreshContent())">Flash 2.0</button>
                                 <button class="btn-sm-ghost ${model === 'pro-1.5' ? 'active' : ''}" 
-                                        onclick="SettingsModule.updateSetting('ai', 'model', 'pro-1.5').then(() => SettingsModule.refreshContent())">Gemini Pro</button>
+                                        style="${model === 'pro-1.5' ? 'border-color:var(--primary);' : ''}"
+                                        onclick="SettingsModule.updateSetting('ai', 'model', 'pro-1.5').then(() => SettingsModule.refreshContent())">Pro 1.5</button>
                             </div>
                         </div>
                     </div>
 
                     <div class="settings-group">
-                        <h3><i class="fa-solid fa-microchip"></i> AI Toolset</h3>
-                        ${this.toggleRow('ai', 'auto_summarize', 'Intelligent Resource Summarization', s.ai && s.ai.auto_summarize)}
-                        ${this.toggleRow('ai', 'explain_concepts', 'Contextual Concept Explanation', s.ai && s.ai.explain_concepts)}
-                        ${this.toggleRow('ai', 'smart_search', 'Deep Semantic Searching', s.ai && s.ai.smart_search)}
+                        <h3>AI Capabilities</h3>
+                        ${this.toggleRow('ai', 'auto_summarize', 'Auto-summarize long notes', s.ai && s.ai.auto_summarize)}
+                        ${this.toggleRow('ai', 'explain_concepts', 'Inline concept explanation', s.ai && s.ai.explain_concepts)}
+                        ${this.toggleRow('ai', 'smart_search', 'Enable Semantic Search', s.ai && s.ai.smart_search)}
                     </div>
                 `;
 
             case 'privacy':
                 return `
-                    <div class="settings-header">
-                        <div class="settings-section-title"><i class="fa-solid fa-shield-halved" style="color: #ff6b6b;"></i> Privacy & Data</div>
-                        <p class="settings-section-desc">Take control of your data and personal visibility.</p>
-                    </div>
+                    <div class="settings-section-title">🛡️ Privacy & Data</div>
+                    <p class="settings-section-desc">Manage your data visibility and export preferences.</p>
 
                     <div class="settings-group">
-                        <h3><i class="fa-solid fa-eye-slash"></i> Visibility Control</h3>
-                        ${this.toggleRow('privacy', 'leaderboard', 'Public Rank (Leaderboard Visibility)', s.privacy.leaderboard)}
+                        <h3>Visibility</h3>
+                        ${this.toggleRow('privacy', 'leaderboard', 'Leaderboard Privacy (Show my rank)', s.privacy.leaderboard)}
                         <div class="settings-row">
-                            <div class="settings-label"><strong>Incognito Study Mode</strong><span>Temporarily pause activity tracking</span></div>
+                            <div class="settings-label"><strong>Incognito Study Mode</strong><span>Don't track my views for next 24h</span></div>
                             <label class="toggle-switch">
-                                <input type="checkbox" onchange="window.showToast('Incognito active for this session')">
+                                <input type="checkbox" onchange="window.showToast('Incognito mode active for 24h')">
                                 <span class="slider"></span>
                             </label>
                         </div>
                     </div>
 
                     <div class="settings-group">
-                        <h3><i class="fa-solid fa-download"></i> Data Management</h3>
+                        <h3>Your Data</h3>
                         <div class="settings-row">
-                            <div class="settings-label"><strong>Export My Matrix Data</strong><span>Download a portable JSON archive of your activity</span></div>
-                            <button class="btn-sm-ghost" onclick="SettingsModule.exportData()">
-                                <i class="fa-solid fa-file-export"></i> Download JSON
-                            </button>
+                            <div class="settings-label"><strong>Download My Activity</strong><span>JSON format of all your uploads and downloads</span></div>
+                            <button class="btn-sm-ghost" onclick="SettingsModule.exportData()">Export JSON</button>
                         </div>
-                    </div>
-                `;
-
-            case 'contributor':
-                return `
-                    <div class="settings-header">
-                        <div class="settings-section-title"><i class="fa-solid fa-medal" style="color: #f1c40f;"></i> Contributor Program</div>
-                        <p class="settings-section-desc">Manage your campus impact and community contributions.</p>
-                    </div>
-
-                    <div class="settings-group" style="background: linear-gradient(135deg, rgba(46, 204, 113, 0.08) 0%, transparent 100%); border-color: rgba(46, 204, 113, 0.2);">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <h3 style="margin:0; color: #2ecc71;">Status: Verified Contributor</h3>
-                                <p style="color:var(--text-dim); font-size:0.9rem; margin-top:0.5rem;">Thank you for helping your peers! Your notes are helping students every day.</p>
-                            </div>
-                            <div style="font-size:3rem; opacity: 0.8;">🌟</div>
-                        </div>
-                    </div>
-
-                    <div class="settings-group">
-                        <h3><i class="fa-solid fa-earth-americas"></i> Public Reach</h3>
-                        <div class="settings-row">
-                            <div class="settings-label"><strong>Public Contribution Hub</strong><span>Display your shared notes on your public profile</span></div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked onchange="window.showToast('Visibility updated')">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                         <div class="settings-row">
-                            <div class="settings-label"><strong>Enable Student Tips</strong><span>Allow peers to support your work (Coming Soon)</span></div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" disabled>
-                                <span class="slider" style="opacity: 0.5;"></span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="settings-group">
-                        <h3><i class="fa-solid fa-sliders"></i> Preferences</h3>
-                        ${this.toggleRow('contributor', 'anonymous', 'Upload anonymously', false)}
-                        ${this.toggleRow('contributor', 'notify_likes', 'Notify on new likes', true)}
                     </div>
                 `;
 
             default:
                 return `
                     <div style="text-align:center; padding: 6rem 2rem;">
-                        <h1 style="font-size:4rem; margin-bottom:1rem;">⚡</h1>
-                        <h2>Module in Transit</h2>
-                        <p style="color:var(--text-dim);">The <strong>${tab}</strong> module is being optimized for the Matrix.</p>
-                        <button class="btn-sm-ghost" style="margin-top:2rem;" onclick="SettingsModule.switchTab('account')">Back to Identity</button>
+                        <h1 style="font-size:4rem; margin-bottom:1rem;">🚀</h1>
+                        <h2>Coming Soon</h2>
+                        <p style="color:var(--text-dim);">The <strong>${tab}</strong> configuration is being optimized for your campus.</p>
+                        <button class="btn btn-ghost" style="margin-top:2rem;" onclick="SettingsModule.switchTab('profile')">Back to Profile</button>
                     </div>
                 `;
         }
@@ -533,7 +458,7 @@ window.SettingsModule = {
         const { db, doc, updateDoc } = window.firebaseServices;
 
         try {
-            const userRef = doc(db, 'users', (window.currentUser.id || window.currentUser.uid));
+            const userRef = doc(db, 'users', window.currentUser.id);
             await updateDoc(userRef, { name, college, branch });
 
             // Update global state
@@ -579,7 +504,7 @@ window.SettingsModule = {
         const btn = document.getElementById('avatar-upload-btn');
         if (btn) {
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> SYNCING...';
+            btn.innerText = 'Uploading...';
         }
 
         // Guest Fallback
@@ -597,7 +522,7 @@ window.SettingsModule = {
                 localData.photo = base64String;
                 localStorage.setItem('guest_session', JSON.stringify(localData));
                 if (window.showToast) window.showToast('Guest Avatar updated locally!');
-                if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-camera"></i> Change Photo'; }
+                if (btn) { btn.disabled = false; btn.innerText = 'Change Photo'; }
             };
             reader.readAsDataURL(file);
             return;
@@ -608,18 +533,17 @@ window.SettingsModule = {
         try {
             // Upload to Firebase Storage
             const metadata = { contentType: file.type };
-            const storageRef = ref(storage, 'profile_photos/' + (window.currentUser.id || window.currentUser.uid) + '_' + Date.now());
+            const storageRef = ref(storage, 'profile_photos/' + window.currentUser.id + '_' + Date.now());
             const uploadTask = uploadBytesResumable(storageRef, file, metadata);
 
             uploadTask.on('state_changed',
                 (snapshot) => {
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    if (btn) btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> ${Math.round(progress)}%`;
+                    // Progress can be handled here if needed
                 },
                 (error) => {
                     console.error("Storage upload error details:", error);
                     if (window.showToast) window.showToast('Upload failed: ' + error.message, 'error');
-                    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-camera"></i> Change Photo'; }
+                    if (btn) { btn.disabled = false; btn.innerText = 'Change Photo'; }
                 },
                 async () => {
                     try {
@@ -632,7 +556,7 @@ window.SettingsModule = {
                             window.updateUserProfileUI();
                         }
 
-                        const userRef = doc(db, 'users', (window.currentUser.id || window.currentUser.uid));
+                        const userRef = doc(db, 'users', window.currentUser.id);
                         await updateDoc(userRef, { photo: downloadURL });
 
                         const localCache = JSON.parse(localStorage.getItem('auth_user_full') || '{}');
@@ -644,14 +568,14 @@ window.SettingsModule = {
                         console.error("Database update failed:", dbErr);
                         if (window.showToast) window.showToast('Database sync failed', 'error');
                     } finally {
-                        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-camera"></i> Change Photo'; }
+                        if (btn) { btn.disabled = false; btn.innerText = 'Change Photo'; }
                     }
                 }
             );
         } catch (err) {
             console.error("Failed to process avatar", err);
             if (window.showToast) window.showToast('Unexpected err: ' + err.message, 'error');
-            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-camera"></i> Change Photo'; }
+            if (btn) { btn.disabled = false; btn.innerText = 'Change Photo'; }
         }
     },
 
@@ -663,8 +587,7 @@ window.SettingsModule = {
                 const auth = getAuth();
                 try {
                     await sendPasswordResetEmail(auth, email);
-                    if (window.showToast) window.showToast('Reset email dispatched', 'success');
-                    else alert(`Reset email sent to ${email}. Check your inbox.`);
+                    alert(`Reset email sent to ${email}. Check your inbox.`);
                 } catch (e) {
                     alert('Error: ' + e.message);
                 }
@@ -682,7 +605,7 @@ window.SettingsModule = {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `skill-matrix-data-${(window.currentUser.id || window.currentUser.uid)}.json`;
+        a.download = `skill-matrix-data-${window.currentUser.id}.json`;
         a.click();
     }
 };
