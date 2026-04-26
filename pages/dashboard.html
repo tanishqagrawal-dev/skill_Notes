@@ -49,6 +49,7 @@
     <link rel="stylesheet" href="../css/settings.css?v=3.0">
     <link rel="stylesheet" href="../css/admin.css?v=3.0">
     <link rel="stylesheet" href="../css/lockOverlay.css?v=3.0">
+    <link rel="stylesheet" href="../css/attendance-pro.css?v=1.0">
     <link rel="stylesheet" href="../css/cgpa-analyzer.css?v=3.0">
     <link rel="stylesheet" href="../css/focusflow.css?v=3.0">
     <link rel="stylesheet" href="../css/profile.css?v=3.0">
@@ -75,7 +76,6 @@
                         style="font-weight: 800;">NOTES</span></span>
             </div>
             <nav class="sidebar-nav">
-                <div class="nav-category" style="margin-top: 0.5rem;">MAIN</div>
                 <a href="../index.html" class="nav-item">
                     <span class="icon">🏠</span> Home
                 </a>
@@ -84,36 +84,37 @@
                 </a>
 
                 <div class="nav-category">ACADEMIC</div>
+                <a href="#" class="nav-item" data-tab="bookmarks">
+                    <span class="icon">🔖</span> Bookmarks
+                </a>
                 <a href="#" class="nav-item" data-tab="notes">
                     <span class="icon">📚</span> Notes Hub
                 </a>
                 <a href="#" class="nav-item locked" data-tab="planner">
                     <span class="icon">📅</span> Study Planner
                 </a>
-                <a href="#" class="nav-item locked" data-tab="ai-tools">
-                    <span class="icon">🤖</span> AI Tools
-                </a>
 
                 <div class="nav-category">TOOLS</div>
+                <a href="#" class="nav-item locked" data-tab="ai-tools">
+                    <span class="icon">🤖</span> AI Coach
+                </a>
+                <a href="#" class="nav-item" data-tab="attendance">
+                    <span class="icon">🚀</span> Attendance Pro
+                </a>
                 <a href="#" class="nav-item" data-tab="cgpa-analyzer">
                     <span class="icon">🎯</span> CGPA Analyzer
                 </a>
                 <a href="#" class="nav-item" data-tab="focusflow">
                     <span class="icon">⌚</span> FocusFlow Pro
                 </a>
-                <a href="#" class="nav-item" data-tab="bookmarks">
-                    <span class="icon">🔖</span> Bookmarks
-                </a>
 
-                <div class="nav-category">SOCIAL</div>
-                <a href="#" class="nav-item" data-tab="leaderboard">
-                    <span class="icon">🏆</span> Leaderboard
-                </a>
+                <div class="nav-category">PROFILE</div>
                 <a href="#" class="nav-item" data-tab="admin" id="admin-tab" style="display: none;">
                     <span class="icon">⚡</span> Admin Console
                 </a>
-
-                <div class="nav-category">PROFILE</div>
+                <a href="#" class="nav-item" data-tab="leaderboard">
+                    <span class="icon">🏆</span> Leaderboard
+                </a>
                 <a href="#" class="nav-item" data-tab="profile">
                     <span class="icon">👤</span> My Profile
                 </a>
@@ -308,6 +309,7 @@
     <script src="../js/cgpa-analyzer.js?v=3.0" defer></script>
     <script src="../js/focusflow.js?v=3.0"></script>
     <script src="../js/profile.js?v=3.0" defer></script>
+    <script src="../js/attendance-pro.js?v=1.0" defer></script>
     <script type="module" src="../js/dashboard.js?v=3.0"></script>
 
     <!-- SaaS-Grade Refined Fake Analytics Engine (Identity-Based) -->
