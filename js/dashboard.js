@@ -3888,236 +3888,190 @@ const LeaderboardData = {
 
 function renderLeaderboard() {
     return `
-        <div class="tab-pane active fade-in" style="padding: 2rem;">
-            <!-- Header -->
-            <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 1.5rem;">
-                <div>
-                    <h1 class="font-heading">🏆 Advanced <span class="gradient-text">Leaderboard</span></h1>
-                    <p style="color: var(--text-dim);">Compete, contribute, and track your academic standing in real-time.</p>
-                </div>
-                <!-- Controls -->
-                <div class="leaderboard-controls glass-card">
-                    <div class="lb-tabs">
-                        <div class="lb-tab active" data-type="student">🧑🎓 Students</div>
-                        <div class="lb-tab" data-type="contributor">📤 Contributors</div>
-                        <div class="lb-tab" data-type="college">🏫 Colleges</div>
-                    </div>
-                </div>
-            </div>
-
+        <div class="tab-pane active fade-in">
             <div class="leaderboard-container">
-                <!-- Main Leaderboard List -->
-                <div class="leaderboard-main glass-card" style="padding: 2rem;">
+                <!-- Header -->
+                <div class="leaderboard-header">
+                    <div class="hof-badge">🏆 Elite Matrix Hall of Fame</div>
+                    <h1>Leaderboard</h1>
+                    <p>Track the champions of academic excellence and community contribution in real-time.</p>
                     
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-                        <div class="time-filters" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                            <div class="time-filter active" data-time="today">Today</div>
-                            <div class="time-filter" data-time="week">Week</div>
-                            <div class="time-filter" data-time="month">Month</div>
-                            <div class="time-filter" data-time="all">All Time</div>
-                        </div>
-                        <div style="font-size: 0.8rem; color: var(--text-dim);">
-                             Auto-updates every 10s
+                    <div class="lb-tabs-container">
+                        <div class="lb-tabs">
+                            <div class="lb-tab active" data-type="student" onclick="switchLeaderboardTab(this, 'student')">🧑🎓 Academic Elite</div>
+                            <div class="lb-tab" data-type="contributor" onclick="switchLeaderboardTab(this, 'contributor')">📤 Top Uploaders</div>
+                            <div class="lb-tab" data-type="college" onclick="switchLeaderboardTab(this, 'college')">🏫 Power Colleges</div>
                         </div>
                     </div>
+                </div>
 
-                    <div id="lb-list-container" class="leaderboard-list">
+                <!-- Spotlight / Podium Area -->
+                <div id="lb-spotlight-container" class="lb-spotlight">
+                    <!-- Populated via JS -->
+                </div>
+
+                <!-- Honorable Mentions (List) -->
+                <div class="mentions-container">
+                    <div class="mentions-header">
+                        <h3>Honorable Mentions</h3>
+                        <div style="font-size: 0.8rem; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px;">
+                             <span class="pulse-dot"></span> Matrix Sync Active
+                        </div>
+                    </div>
+                    <div id="lb-list-container" class="mentions-list">
                         <!-- Populated via JS -->
                     </div>
-                </div>
-
-                <!-- Sidebar / Widget Area -->
-                <div class="lb-sidebar">
-                    
-                    <!-- 1. Personal Rank Tracker -->
-                    <div class="personal-rank-card">
-                        <div style="position: relative; z-index: 2;">
-                            <h4 style="margin-bottom: 1rem; color: white;">Your Standing</h4>
-                            <div class="rank-stat">
-                                <span class="label">Student Rank</span>
-                                <div style="display:flex; align-items:center; gap: 8px;">
-                                    <span class="value">#1</span>
-                                    <span class="rank-change rank-up">↑ 2</span>
-                                </div>
-                            </div>
-                            <div class="rank-stat">
-                                <span class="label">Contributor Rank</span>
-                                <div style="display:flex; align-items:center; gap: 8px;">
-                                    <span class="value">#12</span>
-                                    <span class="rank-change rank-down">↓ 1</span>
-                                </div>
-                            </div>
-                            <div style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
-                                <span class="label">Score</span>
-                                <span class="value" style="float: right; color: var(--secondary);">2,450 XP</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 2. Live Activity Feed -->
-                    <div class="glass-card" style="padding: 1.5rem;">
-                        <h4 style="margin-bottom: 1rem; font-size: 1rem;">🔴 Live Activity</h4>
-                        <div id="activity-feed" class="activity-feed">
-                            <!-- Populated via JS -->
-                        </div>
-                    </div>
-
-                    <!-- 3. Badges -->
-                    <div class="glass-card" style="padding: 1.5rem;">
-                        <h4 style="margin-bottom: 1rem; font-size: 1rem;">🎖️ Your Badges</h4>
-                        <div style="display:flex; gap: 0.5rem; flex-wrap: wrap;">
-                            <span title="Early Adopter" style="font-size: 1.5rem; cursor: help;">🚀</span>
-                            <span title="Top Viewer" style="font-size: 1.5rem; cursor: help;">👁️</span>
-                            <span title="First Upload" style="font-size: 1.5rem; cursor: help; opacity: 0.3;">📤</span>
-                            <span title="Scholar" style="font-size: 1.5rem; cursor: help; opacity: 0.3;">🎓</span>
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </div>
     `;
 }
 
+window.switchLeaderboardTab = function(el, type) {
+    document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    updateLeaderboardUI(type, 'all');
+};
+
 window.initLeaderboardListeners = function () {
-    // Type Switching
-    const typeTabs = document.querySelectorAll('.lb-tab');
-    typeTabs.forEach(tab => {
-        tab.onclick = () => {
-            document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            updateLeaderboardUI(tab.dataset.type, 'week'); // Default to week
-        };
-    });
-
-    // Time Switching
-    const timeFilters = document.querySelectorAll('.time-filter');
-    timeFilters.forEach(filter => {
-        filter.onclick = () => {
-            document.querySelectorAll('.time-filter').forEach(t => t.classList.remove('active'));
-            filter.classList.add('active');
-            // In a real app, this would fetch filtered data. Here we simulated.
-            const activeType = document.querySelector('.lb-tab.active').dataset.type;
-            updateLeaderboardUI(activeType, filter.dataset.time);
-        };
-    });
-
     // Initial Render
-    updateLeaderboardUI('student', 'today');
-    startActivityFeed();
+    updateLeaderboardUI('student', 'all');
     initLeaderboardRealtime();
 };
 
 function initLeaderboardRealtime() {
-    const { db, collection, onSnapshot, query, orderBy } = getFirebase();
+    const { db, collection, onSnapshot, query } = getFirebase();
     if (!db) return;
 
-    // Listen to users for student leaderboard
-    const usersQ = query(collection(db, "users"));
-    onSnapshot(usersQ, (snapshot) => {
-        const activeType = document.querySelector('.lb-tab.active')?.dataset.type;
-        if (activeType === 'student') {
-            updateLeaderboardUI('student', document.querySelector('.time-filter.active')?.dataset.time || 'all');
+    // Listen for global user updates to refresh current view if needed
+    onSnapshot(query(collection(db, "users")), () => {
+        const activeTab = document.querySelector('.lb-tab.active');
+        if (activeTab && activeTab.dataset.type !== 'college') {
+            updateLeaderboardUI(activeTab.dataset.type, 'all');
         }
     });
 }
 
 function updateLeaderboardUI(type, timeframe) {
     const list = document.getElementById('lb-list-container');
-    if (!list) return;
+    const spotlightContainer = document.getElementById('lb-spotlight-container');
+    if (!list || !spotlightContainer) return;
 
     const { db, collection, query, orderBy, limit, onSnapshot } = window.firebaseServices || {};
-    if (!db) {
-        list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">Syncing with Cloud Hub...</p>';
-        return;
-    }
+    if (!db) return;
 
-    // Determine collection and ordering based on type
     let colRef;
     let orderField;
 
     if (type === 'college') {
         colRef = collection(db, "colleges");
-        orderField = "views"; // Assume views for colleges
+        orderField = "views";
     } else {
         colRef = collection(db, "users");
         orderField = type === 'student' ? "xp" : "uploads";
     }
 
-    const q = query(colRef, orderBy(orderField, "desc"), limit(20));
+    const q = query(colRef, orderBy(orderField, "desc"), limit(15));
 
     onSnapshot(q, (snapshot) => {
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
         if (data.length === 0) {
-            list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">No rankings found yet. Be the first!</p>';
+            list.innerHTML = '<div style="text-align:center; padding: 5rem; color: rgba(255,255,255,0.2);">No elite data synchronized yet.</div>';
+            spotlightContainer.innerHTML = '';
             return;
         }
 
-        // --- Update "Your Standing" Widget ---
-        if (window.currentUser) {
-            const myRank = data.findIndex(item => item.id === window.currentUser.id || item.name === window.currentUser.name) + 1;
-            const myScore = data.find(item => item.id === window.currentUser.id || item.name === window.currentUser.name)?.[orderField] || 0;
+        // --- RENDER SPOTLIGHT (Top 3) ---
+        const spotlightData = data.slice(0, 3);
+        const visualSpotlight = [];
+        if (spotlightData[1]) visualSpotlight.push({ ...spotlightData[1], rank: 2 });
+        if (spotlightData[0]) visualSpotlight.push({ ...spotlightData[0], rank: 1 });
+        if (spotlightData[2]) visualSpotlight.push({ ...spotlightData[2], rank: 3 });
 
-            const valueEls = document.querySelectorAll('.personal-rank-card .value');
-            if (valueEls && valueEls.length >= 3) {
-                if (type === 'student') {
-                    const rankEls = document.querySelectorAll('.personal-rank-card .rank-stat .value');
-                    if (rankEls[0]) rankEls[0].innerText = myRank > 0 ? `#${myRank}` : 'N/A';
-                } else if (type === 'contributor') {
-                    const rankEls = document.querySelectorAll('.personal-rank-card .rank-stat .value');
-                    if (rankEls[1]) rankEls[1].innerText = myRank > 0 ? `#${myRank}` : 'N/A';
-                }
-                valueEls[2].innerText = `${myScore.toLocaleString()} ${type === 'student' ? 'XP' : 'pts'}`;
-            }
-        }
-
-        list.innerHTML = data.map((item, index) => {
-            const rankClass = index < 3 ? `top-3 rank-${index + 1}` : '';
-            const rankIcon = index < 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`;
-
-            // Systematic logo/avatar rendering
-            const imgPath = item.logo || item.avatar;
-            let avatarHtml = '';
-
-            if (imgPath) {
-                avatarHtml = `<img src="${imgPath}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                              <span class="lb-avatar-letter" style="display:none">${item.name ? item.name[0] : '?'}</span>`;
-            } else {
-                avatarHtml = `<span class="lb-avatar-letter">${item.name ? item.name[0] : '?'}</span>`;
-            }
-
-            let metaHtml = '';
-            if (type === 'student') {
-                metaHtml = `<span class="score-val">${item.xp || 0} XP</span><span class="score-label">Points</span>`;
-            } else if (type === 'contributor') {
-                metaHtml = `<span class="score-val">${item.uploads || 0}</span><span class="score-label">Uploads</span>`;
-            } else if (type === 'college') {
-                metaHtml = `<span class="score-val">${formatNumber(item.views || 0)}</span><span class="score-label">Total Views</span>`;
-            }
+        spotlightContainer.innerHTML = visualSpotlight.map(item => {
+            const label = type === 'student' ? 'Experience Points' : (type === 'contributor' ? 'Successful Uploads' : 'Total Network Views');
+            const shortLabel = type === 'student' ? 'XP' : (type === 'contributor' ? 'Uploads' : 'Views');
+            const scoreVal = item[orderField] || 0;
+            const avatar = item.logo || item.avatar || '';
+            const crown = item.rank === 1 ? '<div class="spotlight-crown">👑</div>' : '';
+            
+            const avatarHtml = avatar 
+                ? `<img src="${avatar}" alt="${item.name}">`
+                : `<span style="font-size: 3rem; font-weight: 900; color: #fff; opacity: 0.8;">${item.name ? item.name[0] : '?'}</span>`;
 
             return `
-                <div class="lb-entry ${rankClass}">
-                    <div class="lb-rank rank-${index + 1}">${rankIcon}</div>
-                    
-                    <div class="lb-user-content">
-                        <div class="lb-avatar-container">
+                <div class="spotlight-card rank-${item.rank}">
+                    ${crown}
+                    <div class="spotlight-avatar-wrapper">
+                        <div class="spotlight-avatar">
                             ${avatarHtml}
-                            ${index === 0 ? '<div class="lb-badge">👑</div>' : ''}
                         </div>
-                        <div class="lb-info">
-                            <h4>${item.name || "Anonymous"}</h4>
-                            <p>${type === 'college' ? (item.city || 'University') : (item.collegeName || "Student")}</p>
+                        <div class="rank-badge">${item.rank}</div>
+                    </div>
+                    <div class="spotlight-name">${item.name || "Elite Student"} ${item.rank === 1 ? '✨' : ''}</div>
+                    <div class="spotlight-score count-up" data-value="${scoreVal}">${scoreVal.toLocaleString()}</div>
+                    <div class="spotlight-label">${shortLabel}</div>
+                    <div style="font-size: 0.7rem; color: rgba(255, 255, 255, 0.3); margin-top: 1.5rem; text-transform: uppercase; letter-spacing: 1px;">${label}</div>
+                </div>
+            `;
+        }).join('');
+
+        // --- RENDER LIST (4+) ---
+        const listData = data.slice(3);
+        list.innerHTML = listData.map((item, index) => {
+            const rank = index + 4;
+            const label = type === 'student' ? 'POINTS' : (type === 'contributor' ? 'UPLOADS' : 'VIEWS');
+            const scoreVal = item[orderField] || 0;
+            const avatar = item.logo || item.avatar;
+
+            const avatarHtml = avatar 
+                ? `<img src="${avatar}" alt="${item.name}">`
+                : `<span style="font-size: 1.2rem; font-weight: 900; color: #fff; opacity: 0.5;">${item.name ? item.name[0] : '?'}</span>`;
+
+            return `
+                <div class="mention-row" style="animation-delay: ${index * 0.1}s">
+                    <div class="mention-rank">#${rank < 10 ? '0' + rank : rank}</div>
+                    <div class="mention-avatar">
+                        ${avatarHtml}
+                    </div>
+                    <div class="mention-info">
+                        <h4>${item.name || "Anonymous User"}</h4>
+                        <div class="mention-trend trend-up">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                            Rising Fast
                         </div>
                     </div>
-
-                    <div class="lb-score">
-                        ${metaHtml}
+                    <div class="mention-score">
+                        <span class="val">${scoreVal.toLocaleString()}</span>
+                        <span class="lbl">${label}</span>
                     </div>
                 </div>
             `;
         }).join('');
+
+        // Trigger Count-Up Animation
+        setTimeout(() => {
+            document.querySelectorAll('.count-up').forEach(el => {
+                const target = parseInt(el.dataset.value);
+                if (isNaN(target)) return;
+                animateValue(el, 0, target, 1500);
+            });
+        }, 100);
     });
+}
+
+function animateValue(obj, start, end, duration) {
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        obj.innerHTML = Math.floor(progress * (end - start) + start).toLocaleString();
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        }
+    };
+    window.requestAnimationFrame(step);
 }
 
 function startActivityFeed() {

@@ -34,9 +34,13 @@ function dispatchAuthReady(data) {
 // 1. Instant Session Restoration (Guest or Regular)
 const lastUser = localStorage.getItem('auth_user_full') || localStorage.getItem('guest_session');
 const path = window.location.pathname;
-const isUserDashboard = path.endsWith('/dashboard') || path.includes('dashboard');
-const isAdminDashboard = path.endsWith('/admin-dashboard') || path.includes('admin-dashboard');
-const isCoAdminDashboard = path.endsWith('/coadmin-dashboard') || path.includes('coadmin-dashboard');
+const isUserDashboard = (path.includes('dashboard') || path.endsWith('dashboard')) && 
+                       !path.includes('admin-dashboard') && 
+                       !path.includes('coadmin-dashboard') &&
+                       !path.includes('admin_dashboard') && 
+                       !path.includes('coadmin_dashboard');
+const isAdminDashboard = path.includes('admin-dashboard') || path.includes('admin_dashboard');
+const isCoAdminDashboard = path.includes('coadmin-dashboard') || path.includes('coadmin_dashboard');
 
 if (lastUser && (isUserDashboard || isAdminDashboard || isCoAdminDashboard)) {
     try {
@@ -80,6 +84,11 @@ export async function initAuth() {
         const prefix = isInPagesDir ? '' : 'pages/';
 
         console.log(`🛡️ Nav Check: Role=[${currentRole}] Path=[${path}]`);
+
+        // 0. STOP: Already on correct dashboard? No more redirects.
+        if (isAdminDashboard && (currentRole === 'admin' || currentRole === 'superadmin')) return false;
+        if (isCoAdminDashboard && currentRole === 'coadmin') return false;
+        if (isUserDashboard && currentRole === 'user') return false;
 
         // 1. Landing/Auth Page Redirects
         if (isAuthPage || path === '/' || path.endsWith('index') || path.endsWith('index')) {
