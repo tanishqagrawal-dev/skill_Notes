@@ -128,7 +128,7 @@ function initStrictMode() {
     onAuthStateChanged(auth, async u => {
         if (!u) {
             console.log("No user, redirecting...");
-            window.location.href="../index'; // Or auth.html
+            window.location.href="../index.html"; // Or auth.html
             return;
         }
 
@@ -223,7 +223,7 @@ function initRealtimeAccessCheck(uid) {
             const data = docSnap.data();
             if (data.role !== 'coadmin' && data.role !== 'superadmin' && data.role !== 'admin') {
                 console.warn("⛔ Role revoked in realtime. Redirecting...");
-                window.location.href="../index';
+                window.location.href="../index.html";
             }
         }
     });
