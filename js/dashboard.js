@@ -3892,7 +3892,7 @@ function renderLeaderboard() {
             <div class="leaderboard-container">
                 <!-- Header -->
                 <div class="leaderboard-header">
-                    <div class="hof-badge">🏆 Elite Matrix Hall of Fame</div>
+                    <div class="hof-badge">🏆 SKILL MATRIX: ELITE VANGUARD</div>
                     <h1>Leaderboard</h1>
                     <p>Track the champions of academic excellence and community contribution in real-time.</p>
                     
