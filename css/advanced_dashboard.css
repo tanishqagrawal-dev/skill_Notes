@@ -215,6 +215,17 @@ body.light-mode .skeleton {
     -webkit-text-fill-color: transparent;
 }
 
+@media (max-width: 768px) {
+    .leaderboard-header h1 {
+        font-size: 2.2rem;
+        letter-spacing: -1px;
+    }
+    .leaderboard-header p {
+        font-size: 0.95rem;
+        padding: 0 1rem;
+    }
+}
+
 .leaderboard-header p {
     color: rgba(255, 255, 255, 0.6);
     max-width: 650px;
@@ -267,6 +278,16 @@ body.light-mode .skeleton {
     gap: 2rem;
     align-items: center;
     margin-bottom: 6rem;
+}
+
+@media (max-width: 992px) {
+    .lb-spotlight {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+    .spotlight-card.rank-1 {
+        order: -1;
+    }
 }
 
 .spotlight-card {
@@ -453,6 +474,19 @@ body.light-mode .skeleton {
     padding: 1.5rem 3rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.02);
     transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .mentions-header {
+        padding: 1.5rem;
+    }
+    .mention-row {
+        grid-template-columns: 50px 60px 1fr 100px;
+        padding: 1rem;
+    }
+    .mention-score .val {
+        font-size: 1rem;
+    }
 }
 
 .mention-row:hover {
