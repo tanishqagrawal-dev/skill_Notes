@@ -22,7 +22,7 @@ function formatNumber(num) {
 
 const REFERENCE_DATE = new Date("2026-03-01T00:00:00Z");
 
-function getStats() {
+export function getStats() {
     const now = new Date();
     // Calculate elapsed time in days (with fractional precision for "live" growth)
     const msPerDay = 24 * 60 * 60 * 1000;
@@ -38,9 +38,24 @@ function getStats() {
     };
 }
 
-function countUp(id, target) {
+export function getFormattedStats(realCounts = {}) {
+    const stats = getStats();
+    return {
+        views: formatNumber(stats.views),
+        downloads: formatNumber(stats.downloads + (realCounts.downloads || 0)),
+        students: formatNumber(stats.students + (realCounts.students || 0)),
+        notes: formatNumber((stats.students + 120) + (realCounts.notes || 0))
+    };
+}
+
+function countUp(id, target, instant = false) {
     let el = document.getElementById(id);
     if (!el) return;
+
+    if (instant) {
+        el.innerText = formatNumber(target);
+        return;
+    }
 
     let current = 0;
     let step = Math.ceil(target / 80);
@@ -56,29 +71,33 @@ function countUp(id, target) {
 }
 
 // --- MAIN INIT FUNCTION ---
-export async function initRealtimeStats() {
-    if (window.statServices?.ready) return;
+export async function initRealtimeStats(realCounts = {}, instant = false) {
     console.log("🚀 Initializing Production Stats (Organic Growth)...");
-    if (window.statServices) window.statServices.ready = true;
-
+    
     const stats = getStats();
 
     // Map the stats to all possible UI element IDs used across the site
+    // Logic: Base Organic Growth + Real-time database counts
     const idMap = {
         'stat-views': stats.views,
-        'stat-downloads': stats.downloads,
-        'stat-active': stats.students,
-        'stat-notes': 120,
-        'liveStudents': stats.students,
-        'globalDownloads': stats.downloads,
+        'stat-downloads': stats.downloads + (realCounts.downloads || 0),
+        'stat-active': stats.students + (realCounts.students || 0),
+        'stat-notes': (stats.students + 120) + (realCounts.notes || 0), 
+        'liveStudents': stats.students + (realCounts.students || 0),
+        'globalDownloads': stats.downloads + (realCounts.downloads || 0),
         'trendingNow': 12,
         'views': stats.views,
-        'downloads': stats.downloads,
-        'students': stats.students
+        'downloads': stats.downloads + (realCounts.downloads || 0),
+        'students': stats.students + (realCounts.students || 0)
     };
 
+    if (window.statServices) {
+        window.statServices.currentStats = idMap;
+        window.statServices.ready = true;
+    }
+
     for (const [id, value] of Object.entries(idMap)) {
-        countUp(id, value);
+        countUp(id, value, instant);
     }
 }
 
@@ -112,6 +131,8 @@ export function trackNoteView(noteId) {
 
 window.statServices = {
     initRealtimeStats,
+    getStats,
+    getFormattedStats,
     trackPageView,
     trackDownload,
     trackGlobalLike,

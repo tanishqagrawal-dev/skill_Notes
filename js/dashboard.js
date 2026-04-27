@@ -1818,9 +1818,9 @@ function renderOverview() {
 
     const combinedNotes = [...(NotesDB || []), ...allGlobalNotes];
     
-    // Total numbers for Minimal Stats
-    const totalDownloads = combinedNotes.reduce((acc, n) => acc + (n.downloads || 0), 0) + 1240; // mock base
-    const totalNotes = combinedNotes.length > 0 ? combinedNotes.length : 145;
+    // Total numbers for Minimal Stats (passed to unified stats engine)
+    const totalDownloads = combinedNotes.reduce((acc, n) => acc + (n.downloads || 0), 0);
+    const totalNotes = combinedNotes.length;
 
     let aiRec = {
         title: "🤖 AI Recommendation",
@@ -1883,21 +1883,37 @@ function renderOverview() {
                 </div>
             </div>
 
-            <!-- 2. Minimal Stats -->
+            <!-- 2. Minimal Stats (Instant Load) -->
             <div class="grid-2x3" style="margin-bottom: 1.25rem;">
                 <div class="glass-card hover-3d soft-glow" style="padding: 1.5rem; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5rem; border-color: rgba(0,255,148,0.3);">
-                    <div style="font-size: 1.8rem; font-weight: 800; color: #fff;">1,248</div>
-                    <div style="font-size: 0.8rem; color: var(--success); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">🟢 Active Students</div>
+                    <div id="stat-active" style="font-size: 1.8rem; font-weight: 800; color: #fff;">
+                        ${window.statServices ? window.statServices.getFormattedStats({ notes: totalNotes, downloads: totalDownloads }).students : '...'}
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--success); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">🟢 Total Students</div>
                 </div>
                 <div class="glass-card hover-3d soft-glow" style="padding: 1.5rem; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5rem; border-color: rgba(123,97,255,0.3);">
-                    <div style="font-size: 1.8rem; font-weight: 800; color: #fff;">${totalDownloads.toLocaleString()}</div>
+                    <div id="stat-downloads" style="font-size: 1.8rem; font-weight: 800; color: #fff;">
+                        ${window.statServices ? window.statServices.getFormattedStats({ notes: totalNotes, downloads: totalDownloads }).downloads : '...'}
+                    </div>
                     <div style="font-size: 0.8rem; color: var(--primary-light); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">⬇️ Downloads</div>
                 </div>
                 <div class="glass-card hover-3d soft-glow" style="padding: 1.5rem; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5rem; border-color: rgba(241,196,15,0.3);">
-                    <div style="font-size: 1.8rem; font-weight: 800; color: #fff;">${totalNotes}</div>
-                    <div style="font-size: 0.8rem; color: var(--warning, #f1c40f); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">⭐ Verified Notes</div>
+                    <div id="stat-notes" style="font-size: 1.8rem; font-weight: 800; color: #fff;">
+                        ${window.statServices ? window.statServices.getFormattedStats({ notes: totalNotes, downloads: totalDownloads }).notes : '...'}
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--warning, #f1c40f); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">⭐ Total Resources</div>
                 </div>
             </div>
+
+            <script>
+                // Refresh stats instantly to ensure latest growth logic is applied
+                if (window.statServices && typeof window.statServices.initRealtimeStats === 'function') {
+                    window.statServices.initRealtimeStats({
+                        notes: ${totalNotes},
+                        downloads: ${totalDownloads}
+                    }, true); // Pass true for instant load
+                }
+            </script>
 
             <!-- 3. MEDIUM - Quick Actions Grid (2x3) -->
             <h3 class="font-heading section-title" style="margin-bottom: 1rem;">🚀 Quick Actions</h3>
@@ -1918,20 +1934,20 @@ function renderOverview() {
                         <div class="qa-desc">Predict and track your grades</div>
                     </div>
                 </div>
-                <!-- 3. FocusFlow Pro -->
+                <!-- 3. Attendance Pro -->
+                <div class="quick-action-card hover-3d soft-glow" onclick="renderTabContent('attendance')" style="border-color: rgba(123,97,255,0.3); --glow-color: rgba(123,97,255,0.4);">
+                    <div class="qa-icon" style="background: rgba(123,97,255,0.1); color: var(--secondary);">🚀</div>
+                    <div class="qa-info">
+                        <div class="qa-title">Attendance Pro</div>
+                        <div class="qa-desc">Track and optimize your presence</div>
+                    </div>
+                </div>
+                <!-- 4. FocusFlow Pro -->
                 <div class="quick-action-card hover-3d soft-glow" onclick="renderTabContent('focusflow')" style="border-color: rgba(255,45,149,0.3); --glow-color: rgba(255,45,149,0.4);">
                     <div class="qa-icon" style="background: rgba(255,45,149,0.1); color: #FF2D95;">⌚</div>
                     <div class="qa-info">
                         <div class="qa-title">FocusFlow Pro</div>
                         <div class="qa-desc">Pomodoro timer with lofi</div>
-                    </div>
-                </div>
-                <!-- 4. Bookmarks -->
-                <div class="quick-action-card hover-3d soft-glow" onclick="renderTabContent('bookmarks')" style="border-color: rgba(241,196,15,0.3); --glow-color: rgba(241,196,15,0.4);">
-                    <div class="qa-icon" style="background: rgba(241,196,15,0.1); color: #f1c40f;">🔖</div>
-                    <div class="qa-info">
-                        <div class="qa-title">Bookmarks</div>
-                        <div class="qa-desc">Your saved resources</div>
                     </div>
                 </div>
                 <!-- 5. AI Coach -->
@@ -1942,12 +1958,12 @@ function renderOverview() {
                         <div class="qa-desc">Personalized study guide</div>
                     </div>
                 </div>
-                <!-- 6. Upload Notes -->
-                <div class="quick-action-card hover-3d soft-glow" onclick="openUploadModal()" style="border-color: rgba(255,255,255,0.2); --glow-color: rgba(255,255,255,0.2);">
-                    <div class="qa-icon" style="background: rgba(255,255,255,0.05); color: #fff;">📤</div>
+                <!-- 6. Bookmarks -->
+                <div class="quick-action-card hover-3d soft-glow" onclick="renderTabContent('bookmarks')" style="border-color: rgba(241,196,15,0.3); --glow-color: rgba(241,196,15,0.4);">
+                    <div class="qa-icon" style="background: rgba(241,196,15,0.1); color: #f1c40f;">🔖</div>
                     <div class="qa-info">
-                        <div class="qa-title">Upload Notes</div>
-                        <div class="qa-desc">Contribute to the community</div>
+                        <div class="qa-title">Bookmarks</div>
+                        <div class="qa-desc">Your saved resources</div>
                     </div>
                 </div>
             </div>
@@ -2910,7 +2926,9 @@ window.showNotes = function (activeTab = 'notes') {
             </div>
 
             <div class="resource-section">
-                <h2 class="font-heading" style="margin-bottom: 1.5rem; font-size: 1.6rem; color: rgba(255,255,255,0.7);">Verified <span class="highlight" style="color: #00f2ff; font-weight: 800;">${activeTab.toUpperCase()}</span></h2>
+                ${activeTab !== 'syllabus' ? `
+                    <h2 class="font-heading" style="margin-bottom: 1.5rem; font-size: 1.6rem; color: rgba(255,255,255,0.7);">Verified <span class="highlight" style="color: #00f2ff; font-weight: 800;">${activeTab.toUpperCase()}</span></h2>
+                ` : ''}
                 <div class="notes-list-container-pro" id="notes-list-grid">
                      <!-- Populated instantly from globalNotes or NotesDB -->
                 </div>
@@ -3445,7 +3463,11 @@ function formatDate(timestamp) {
 
 window.getSubjectSyllabusHTML = function(subjectName) {
     const genSyllabusHTML = (units) => {
-        return `<div class="syllabus-grid-pro" style="text-align: left; padding: 1.5rem 0; display: grid; gap: 1.25rem;">
+        return `
+        <div class="syllabus-header-premium">
+            <h2 class="syllabus-label">Verified <span>SYLLABUS</span></h2>
+        </div>
+        <div class="syllabus-grid-pro">
         ${units.map((u, i) => `
                 <div class="premium-syllabus-card" style="animation-delay: ${i * 0.1}s;">
                     <div class="syllabus-card-glow"></div>
@@ -4105,9 +4127,8 @@ function renderLeaderboard() {
             <div class="leaderboard-container">
                 <!-- Header -->
                 <div class="leaderboard-header">
+                    <h1 class="font-heading" style="text-align: center; font-size: 2.5rem; margin-bottom: 0.8rem; background: linear-gradient(to bottom, #fff 30%, rgba(255,255,255,0.4) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; letter-spacing: -1px;">Leaderboard</h1>
                     <div class="hof-badge">🏆 SKILL MATRIX: ELITE VANGUARD</div>
-                    <h1>Leaderboard</h1>
-                    <p>Track the champions of academic excellence and community contribution in real-time.</p>
                     
                     <div class="lb-tabs-container">
                         <div class="lb-tabs">
@@ -5178,27 +5199,8 @@ async function loadLiveDashboardStats() {
 
     console.log("📊 Loading Dashboard Live Data...");
 
-    // 1. Live Students (Heartbeat listener)
-    try {
-        let qPresence = query(collection(db, "presence"), where("online", "==", true));
-        if (isCoAdmin && myColl) {
-            qPresence = query(collection(db, "presence"), where("online", "==", true), where("collegeId", "==", myColl));
-        }
-        onSnapshot(qPresence, (snap) => {
-            const el = document.getElementById('stat-active');
-            if (el) el.innerText = snap.size > 0 ? snap.size : "0";
-        });
-    } catch (e) { console.warn("Presence sync fail:", e); }
-
-    // 2. Trending Notes Count
-    try {
-        let qTrending = query(collection(db, "notes"), where("status", "==", "approved"), limit(10));
-        onSnapshot(qTrending, (snap) => {
-            const count = snap.size;
-            const el = document.getElementById('stat-notes');
-            if (el) el.innerText = count > 0 ? count : "0";
-        });
-    } catch (e) { console.warn("Trending sync fail:", e); }
+    // 1. Live Students (Heartbeat listener removed to prioritize Global Stats)
+    // 2. Trending Notes Count (Moved to separate UI element if needed)
 }
 
 // Global hook for tracking progress

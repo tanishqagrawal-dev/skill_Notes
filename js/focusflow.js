@@ -197,6 +197,7 @@ window.initFocusFlow = function() {
     loadFocusData();
     renderFocusTasks();
     initFocusChart();
+    preloadFocusSounds();
     
     // Auth-sync check for notifications
     if (Notification.permission === 'default') {
@@ -243,7 +244,7 @@ function startTimer() {
         timerState.timeLeft--;
         if (timerState.mode === 'focus') timerState.totalFocusSeconds++;
         
-        if (timerState.timeLeft < 0) {
+        if (timerState.timeLeft <= 0) {
             handleSessionEnd();
         } else {
             updateDisplay();
@@ -414,19 +415,51 @@ window.updateSettings = function() {
 };
 
 const SOUND_BANK = {
-    bell: 'https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg',
-    beep: 'https://actions.google.com/sounds/v1/alarms/beep_short.ogg',
-    chime: 'https://actions.google.com/sounds/v1/alarms/alarm_clock_ringing_rising.ogg'
+    bell: 'https://github.com/rafael-mancini/pomodoro/raw/master/assets/alarm.mp3', // High impact immediate
+    beep: 'https://www.soundjay.com/buttons/beep-07.mp3', 
+    chime: 'https://www.soundjay.com/clock/alarm-clock-01.mp3'
 };
 
+// Pre-load audio to prevent "slow" start
+let preloadedSounds = {};
+function preloadFocusSounds() {
+    Object.keys(SOUND_BANK).forEach(key => {
+        const audio = new Audio(SOUND_BANK[key]);
+        audio.preload = 'auto';
+        audio.load();
+        preloadedSounds[key] = audio;
+    });
+}
+
 window.playAlertSound = function(isTest = false) {
-    if (!isTest && timerState.settings.mute) return; // Silent if muted
+    console.log("🔊 playAlertSound triggered (test:", isTest, ")");
+    if (!isTest && timerState.settings.mute) return; 
     
     const soundKey = isTest ? document.getElementById('set-alert-sound').value : timerState.settings.sound;
     const url = SOUND_BANK[soundKey] || SOUND_BANK.bell;
-    const audio = new Audio(url);
-    if (!isTest) timerState.activeAlarm = audio;
-    audio.play().catch(e => console.warn("Audio play blocked:", e));
+    
+    // Stop any current
+    if (timerState.activeAlarm) {
+        timerState.activeAlarm.pause();
+        timerState.activeAlarm.currentTime = 0;
+    }
+
+    // Use preloaded or new
+    const audio = new Audio(url); 
+    audio.volume = 1.0; 
+    
+    if (!isTest) {
+        audio.loop = true; 
+        timerState.activeAlarm = audio;
+    }
+    
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+        playPromise.catch(e => {
+            console.error("❌ Audio Blocked:", e);
+            showFocusNotification("⏰ Session Complete!", "Click to hear your alarm.");
+        });
+    }
 };
 
 function showFocusNotification(title, body) {
@@ -438,70 +471,124 @@ function showFocusNotification(title, body) {
 
 // --- STORAGE & ANALYTICS ---
 function saveFocusData() {
+    // Map current day (0=Sun, 1=Mon...) to index in ['Mon','Tue',...,'Sun']
+    const dayIndex = (new Date().getDay() + 6) % 7;
+    
+    // Update weekly history
+    const history = timerState.weeklyHistory || [0, 0, 0, 0, 0, 0, 0];
+    history[dayIndex] = parseFloat((timerState.totalFocusSeconds / 3600).toFixed(2));
+
     const snapshot = {
         sessionsToday: timerState.sessionsToday,
         totalFocusSeconds: timerState.totalFocusSeconds,
         tasks: timerState.tasks,
         settings: timerState.settings,
-        lastDate: new Date().toDateString()
+        lastDate: new Date().toDateString(),
+        weeklyHistory: history
     };
     localStorage.setItem('focusflow_pro_data', JSON.stringify(snapshot));
 }
 
 function loadFocusData() {
     const raw = localStorage.getItem('focusflow_pro_data');
+    const today = new Date().toDateString();
+    
+    // Initialize default history
+    timerState.weeklyHistory = [0, 0, 0, 0, 0, 0, 0];
+    
     if (!raw) return;
     
     const data = JSON.parse(raw);
-    const today = new Date().toDateString();
     
+    // Handle daily reset logic
     if (data.lastDate === today) {
         timerState.sessionsToday = data.sessionsToday || 0;
         timerState.totalFocusSeconds = data.totalFocusSeconds || 0;
     } else {
+        // It's a new day! Daily counters reset, but history stays.
         timerState.sessionsToday = 0;
         timerState.totalFocusSeconds = 0;
     }
     
+    // Restore persistent items
     timerState.tasks = data.tasks || [];
     if (data.settings) timerState.settings = data.settings;
+    if (data.weeklyHistory) timerState.weeklyHistory = data.weeklyHistory;
     
     updateStatsUI();
 }
 
 function updateStatsUI() {
-    document.getElementById('stat-sessions').innerText = timerState.sessionsToday;
-    const hours = (timerState.totalFocusSeconds / 3600).toFixed(1);
-    document.getElementById('stat-focus-time').innerText = `${hours}h`;
+    const sessEl = document.getElementById('stat-sessions');
+    const timeEl = document.getElementById('stat-focus-time');
+    
+    if (sessEl) sessEl.innerText = timerState.sessionsToday;
+    if (timeEl) {
+        const hours = (timerState.totalFocusSeconds / 3600).toFixed(1);
+        timeEl.innerText = `${hours}h`;
+    }
+    
+    // Refresh chart if it exists
+    initFocusChart();
 }
 
+let focusChartInstance = null;
+
 function initFocusChart() {
-    const ctx = document.getElementById('focus-analytics-chart')?.getContext('2d');
+    const canvas = document.getElementById('focus-analytics-chart');
+    const ctx = canvas?.getContext('2d');
     if (!ctx) return;
     
-    new Chart(ctx, {
+    // Destroy previous instance to prevent overlaps
+    if (focusChartInstance) {
+        focusChartInstance.destroy();
+    }
+    
+    focusChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
             labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
             datasets: [{
                 label: 'Focus Hours',
-                data: [2.5, 3.8, 1.2, timerState.totalFocusSeconds/3600, 0, 0, 0],
-                borderColor: '#6c63ff',
-                backgroundColor: 'rgba(108, 99, 255, 0.1)',
+                data: timerState.weeklyHistory,
+                borderColor: '#7B61FF',
+                backgroundColor: 'rgba(123, 97, 255, 0.1)',
                 tension: 0.4,
                 fill: true,
-                pointRadius: 0
+                pointRadius: 4,
+                pointBackgroundColor: '#7B61FF',
+                pointBorderColor: 'rgba(255,255,255,0.2)',
+                pointHoverRadius: 6
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(5, 7, 10, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#7B61FF',
+                    padding: 10,
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    displayColors: false,
+                    callbacks: {
+                        label: (context) => ` ${context.parsed.y} Hours`
+                    }
+                }
+            },
             scales: {
-                y: { display: false, beginAtZero: true },
+                y: { 
+                    display: false, 
+                    beginAtZero: true,
+                    suggestedMax: Math.max(...timerState.weeklyHistory, 1) + 1
+                },
                 x: {
                     grid: { display: false },
-                    ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 } }
+                    border: { display: false },
+                    ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 10 } }
                 }
             }
         }

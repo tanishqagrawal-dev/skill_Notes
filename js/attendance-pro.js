@@ -438,9 +438,9 @@ const AttendancePro = {
                     return `
                         <div class="atpro-sub-item">
                             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 1.5rem">
-                                <div class="atpro-sub-circle ${stats.status}" style="width: 70px; height: 70px; border-radius: 20px; display:flex; flex-direction:column; align-items:center; justify-content:center">
-                                    <div style="font-size:1.1rem; font-weight:800">${Math.round(stats.percent)}%</div>
-                                    <div style="font-size:0.55rem; opacity:0.6; font-weight:600; text-transform:uppercase">Score</div>
+                                <div class="atpro-sub-circle ${stats.status}" style="width: 60px; height: 60px; border-radius: 16px; display:flex; flex-direction:column; align-items:center; justify-content:center">
+                                    <div style="font-size:1rem; font-weight:800">${Math.round(stats.percent)}%</div>
+                                    <div style="font-size:0.5rem; opacity:0.6; font-weight:600; text-transform:uppercase">Score</div>
                                 </div>
                                 <button class="atpro-btn-icon" style="background: rgba(255, 71, 87, 0.05); color: var(--atpro-error); border-color: rgba(255, 71, 87, 0.1);" 
                                         onclick="AttendancePro.deleteSubject('${sub.id}')" title="Delete Subject">
@@ -449,30 +449,30 @@ const AttendancePro = {
                             </div>
                             
                             <div class="atpro-sub-info">
-                                <h3 class="font-heading" style="font-size: 1.3rem; margin: 0 0 0.5rem 0; letter-spacing: -0.5px;">${sub.name}</h3>
+                                <h3 class="font-heading" style="font-size: 1.2rem; margin: 0 0 0.4rem 0; letter-spacing: -0.5px;">${sub.name}</h3>
                                 
-                                <div style="font-size:0.85rem; padding: 10px 15px; background: rgba(255,255,255,0.03); border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid rgba(255,255,255,0.05)">
+                                <div style="font-size:0.8rem; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 1.2rem; border: 1px solid rgba(255,255,255,0.05)">
                                     ${stats.status === 'safe' 
-                                        ? `<span style="color:var(--atpro-success); font-weight:600"><i class="fas fa-check-circle" style="margin-right:8px"></i> Can miss ${stats.canMiss} lectures</span>` 
-                                        : `<span style="color:var(--atpro-error); font-weight:600"><i class="fas fa-exclamation-circle" style="margin-right:8px"></i> Need ${stats.need} more lectures</span>`}
+                                        ? `<span style="color:var(--atpro-success); font-weight:600"><i class="fas fa-check-circle" style="margin-right:6px"></i> Can miss ${stats.canMiss} lectures</span>` 
+                                        : `<span style="color:var(--atpro-error); font-weight:600"><i class="fas fa-exclamation-circle" style="margin-right:6px"></i> Need ${stats.need} more lectures</span>`}
                                 </div>
 
-                                <div class="atpro-sub-meta" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-                                    <div style="background: rgba(255,255,255,0.02); padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03)">
-                                        <div style="font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Attended</div>
-                                        <div style="font-size: 1.1rem; font-weight: 800; color: white;">${stats.attended}</div>
+                                <div class="atpro-sub-meta" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                                    <div style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03)">
+                                        <div style="font-size: 0.55rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Attended</div>
+                                        <div style="font-size: 1rem; font-weight: 800; color: white;">${stats.attended}</div>
                                     </div>
-                                    <div style="background: rgba(255,255,255,0.02); padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03)">
-                                        <div style="font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Missed</div>
-                                        <div style="font-size: 1.1rem; font-weight: 800; color: var(--atpro-error);">${stats.missed}</div>
+                                    <div style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03)">
+                                        <div style="font-size: 0.55rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Missed</div>
+                                        <div style="font-size: 1rem; font-weight: 800; color: var(--atpro-error);">${stats.missed}</div>
                                     </div>
-                                    <div style="background: rgba(255,255,255,0.02); padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03)">
-                                        <div style="font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Off Days</div>
-                                        <div style="font-size: 1.1rem; font-weight: 800; color: var(--atpro-warning);">${stats.off}</div>
+                                    <div style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03)">
+                                        <div style="font-size: 0.55rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Off Days</div>
+                                        <div style="font-size: 1rem; font-weight: 800; color: var(--atpro-warning);">${stats.off}</div>
                                     </div>
-                                    <div style="background: rgba(255,255,255,0.02); padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03)">
-                                        <div style="font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Total</div>
-                                        <div style="font-size: 1.1rem; font-weight: 800; color: var(--atpro-cyan);">${stats.total}</div>
+                                    <div style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03)">
+                                        <div style="font-size: 0.55rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Total</div>
+                                        <div style="font-size: 1rem; font-weight: 800; color: var(--atpro-cyan);">${stats.total}</div>
                                     </div>
                                 </div>
                             </div>

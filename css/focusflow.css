@@ -9,6 +9,13 @@
     --focus-glow: rgba(123, 97, 255, 0.4);
 }
 
+/* Fix for invisible select options on some browsers */
+#set-alert-sound, 
+#set-alert-sound option {
+    background-color: #1a1a1a;
+    color: white;
+}
+
 .focusflow-container {
     padding: 2rem;
     max-width: 1200px;

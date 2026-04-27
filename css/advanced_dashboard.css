@@ -619,6 +619,117 @@ body.light-mode .skeleton {
     color: var(--text-dim);
 }
 
+/* --- PREMIUM SYLLABUS STYLES (Synced with global metrics) --- */
+.syllabus-grid-pro {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.premium-syllabus-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.2rem 1.8rem;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(10px);
+    animation: slideUpFade 0.6s ease forwards;
+    opacity: 0;
+}
+
+.premium-syllabus-card:hover {
+    transform: translateY(-3px) scale(1.01);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(0, 242, 255, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.syllabus-card-glow {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(0, 242, 255, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.syllabus-accent-bar {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 35px;
+    background: linear-gradient(to bottom, #00f2ff, #7b61ff);
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 12px rgba(0, 242, 255, 0.4);
+}
+
+.syllabus-content-wrapper {
+    position: relative;
+    z-index: 1;
+}
+
+.syllabus-unit-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.syllabus-unit-title::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: #00f2ff;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #00f2ff;
+}
+
+.syllabus-unit-desc {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.65);
+    font-weight: 400;
+}
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Syllabus Section Header (Synced with global h2) */
+.syllabus-header-premium {
+    margin-bottom: 1.5rem;
+}
+
+.syllabus-label {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0;
+}
+
+.syllabus-label span {
+    color: #00f2ff;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
 .lb-score {
     text-align: right;
     display: flex;

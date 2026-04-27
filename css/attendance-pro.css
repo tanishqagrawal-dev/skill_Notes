@@ -388,8 +388,8 @@
 .atpro-sub-item {
     background: var(--atpro-card-bg);
     border: 1px solid var(--atpro-border);
-    border-radius: 24px;
-    padding: 1.8rem;
+    border-radius: 20px;
+    padding: 1.25rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
@@ -414,7 +414,8 @@
 /* MOBILE RESPONSIVENESS */
 @media (max-width: 1024px) {
     .atpro-sub-list {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
     }
 }
 
@@ -499,6 +500,11 @@
 
     .atpro-sub-info {
         width: 100%;
+    }
+
+    .atpro-sub-item {
+        padding: 1rem;
+        border-radius: 18px;
     }
     
     .atpro-count-row {
