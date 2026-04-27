@@ -41,10 +41,11 @@ const Roles = {
 // --- GLOBAL STATE ---
 const GlobalData = {
     colleges: [
-        { id: 'medicaps', name: 'Medi-Caps University', status: 'active' },
-        { id: 'lnct', name: 'LNCT College Bhopal', status: 'active' },
-        { id: 'lpu', name: 'Lovely Professional University', status: 'active' },
-        { id: 'iitd', name: 'IIT Delhi', status: 'locked' }
+        { id: 'medicaps', name: 'Medicaps University', status: 'active', logo: '../assets/logos/medicaps.png' },
+        { id: 'lnct', name: 'LNCT COLLEGE BHOPAL', status: 'active', logo: '../assets/logos/lnct.jpg' },
+        { id: 'cdgi', name: 'CDGI University', status: 'locked', logo: '../assets/logos/cdgi.png' },
+        { id: 'ips', name: 'IPS Academy', status: 'locked', logo: '../assets/logos/ips.png' },
+        { id: 'iitd', name: 'IIT Delhi', status: 'locked', logo: '../assets/logos/iitd.png' }
     ], // Now fetched dynamically from Firestore, seeded with defaults for refresh reliability
     branches: [
         { id: 'cse', name: 'Computer Science', icon: '💻' },
@@ -207,30 +208,30 @@ window.openPlannerEditor = function() {
     modal.id = 'planner-editor-modal';
     
     let rowsHtml = weeklyPlan.map((item, idx) => `
-        <div class="planner-edit-row" style="display: grid; grid-template-columns: 80px 1fr 120px 40px; gap: 10px; margin-bottom: 15px; align-items: center;">
-            <div style="font-weight: 700; color: var(--primary-light);">Week ${item.week}</div>
-            <input type="text" class="planner-input" value="${item.title}" data-idx="${idx}" placeholder="Topic Name" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); padding: 8px; border-radius: 8px; color: white;">
-            <select class="planner-select" data-idx="${idx}" style="background: #1a1c2c; color: white; border: 1px solid var(--border-glass); padding: 8px; border-radius: 8px;">
+        <div class="planner-edit-row">
+            <div class="planner-week-label">Week ${item.week}</div>
+            <input type="text" class="planner-input" value="${item.title}" data-idx="${idx}" placeholder="Topic Name">
+            <select class="planner-select" data-idx="${idx}">
                 <option value="completed" ${item.status === 'completed' ? 'selected' : ''}>Completed</option>
                 <option value="active" ${item.status === 'active' ? 'selected' : ''}>Active</option>
                 <option value="locked" ${item.status === 'locked' ? 'selected' : ''}>Locked</option>
             </select>
-            <button class="btn-icon-mini" onclick="removeWeekFromPlan(${idx})" style="color: #ff4757;">✕</button>
+            <button class="btn-icon-mini planner-delete-btn" onclick="removeWeekFromPlan(${idx})">✕</button>
         </div>
     `).join('');
 
     modal.innerHTML = `
-        <div class="upload-card" style="width: 550px; max-height: 85vh; overflow-y: auto; height: auto; min-height: auto; padding: 2rem; display: flex; flex-direction: column;">
-            <h2 class="font-heading" style="font-size: 1.5rem;">Design Your Track</h2>
-            <p class="subtitle" style="margin-bottom: 1.5rem;">Customize your weekly learning roadmap</p>
+        <div class="upload-card planner-modal-card">
+            <h2 class="font-heading">Design Your Track</h2>
+            <p class="subtitle">Customize your weekly learning roadmap</p>
             
-            <div id="planner-rows-container" style="margin-top: 0;">
+            <div id="planner-rows-container">
                 ${rowsHtml}
             </div>
             
-            <button class="btn btn-ghost" style="width: 100%; margin-top: 0.5rem; border: 1px dashed var(--border-glass); padding: 0.8rem;" onclick="addWeekToPlan()">+ Add New Week</button>
+            <button class="btn btn-ghost add-week-btn" onclick="addWeekToPlan()">+ Add New Week</button>
             
-            <div class="modal-actions" style="margin-top: 1.5rem; display: flex; gap: 12px; margin-bottom: 0;">
+            <div class="modal-actions">
                 <button class="btn btn-ghost" style="flex: 1;" onclick="document.getElementById('planner-editor-modal').remove()">Cancel</button>
                 <button class="btn btn-primary" style="flex: 2;" onclick="savePlannerChanges()">Save Plan</button>
             </div>
@@ -499,8 +500,12 @@ function initDynamicColleges() {
     isCollegesInit = true; // Mark as started/pending
     return new Promise((resolve) => {
         onSnapshot(collection(db, 'colleges'), (snap) => {
-            GlobalData.colleges = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            console.log("🏫 Dynamic Colleges Synced:", GlobalData.colleges.length);
+            if (!snap.empty) {
+                GlobalData.colleges = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                console.log("🏫 Dynamic Colleges Synced:", GlobalData.colleges.length);
+            } else {
+                console.log("⚠️ Colleges collection empty, using defaults.");
+            }
             window.dispatchEvent(new CustomEvent('collegesUpdated', { detail: GlobalData.colleges }));
             resolve();
         });
@@ -1352,11 +1357,11 @@ function renderTabContent(tabId) {
                     if (nextStep === "SHOW_NOTES") {
                         if (window.showNotes) window.showNotes();
                     } else if (nextStep === "SUBJECT_STEP") {
-                        if (window.renderSubjectStep) window.renderSubjectStep();
+                        renderSubjectStep();
                     } else if (nextStep === "SEMESTER_STEP" || nextStep === "YEAR_STEP") {
-                        if (window.renderSemesterStep) window.renderSemesterStep();
+                        renderCombinedSemesterStep();
                     } else if (nextStep === "BRANCH_STEP") {
-                        if (window.renderBranchStep) window.renderBranchStep();
+                        renderBranchStep();
                     } else {
                         renderCollegeStep();
                     }
@@ -2559,10 +2564,14 @@ function updateStepUI(activeIdx) {
 }
 
 // --- STEP RENDERS ---
-window.renderCollegeStep = function () {
+function renderCollegeStep() {
     updateStepUI(0);
     const backBtn = document.getElementById('explorer-back-btn');
     if (backBtn) backBtn.style.display = 'none';
+
+    // Hide steps indicator for the first step to match user design preference
+    const stepsContainer = document.getElementById('explorer-steps-container');
+    if (stepsContainer) stepsContainer.style.display = 'none';
 
     const container = document.getElementById('explorer-content');
 
@@ -2597,9 +2606,12 @@ window.renderCollegeStep = function () {
             ` : ''}
 
             <div class="card-icon" style="width: 80px; height: 80px; margin: 0 auto 1.5rem auto; background: white; border-radius: 12px; padding: 10px; display: flex; align-items: center; justify-content: center; ${isLocked ? 'filter: grayscale(1); opacity: 0.8;' : ''}">
-                <img src="${c.logo}" alt="${c.name}" style="width: 100%; height: 100%; object-fit: contain;">
+                <img src="${c.logo}" 
+                     alt="${c.name}" 
+                     onerror="this.src='https://cdn-icons-png.flaticon.com/512/2940/2940651.png'"
+                     style="width: 100%; height: 100%; object-fit: contain;">
             </div>
-            <h3 class="font-heading" style="margin-top: 1.5rem; ${isLocked ? 'color: var(--text-dim);' : ''}">${c.name}</h3>
+            <h3 class="font-heading" style="margin-top: 1.5rem; text-transform: uppercase; font-size: 1.1rem; ${isLocked ? 'color: var(--text-dim);' : ''}">${c.name}</h3>
         </div>
     `}).join('');
     };
@@ -2643,13 +2655,19 @@ window.selectCollege = function (id, name) {
     renderStreamStep();
 };
 
-window.renderStreamStep = function () {
+window.renderCollegeStep = renderCollegeStep;
+
+function renderStreamStep() {
     updateStepUI(1);
     const backBtn = document.getElementById('explorer-back-btn');
     if (backBtn) {
         backBtn.style.display = 'flex';
         backBtn.onclick = renderCollegeStep;
     }
+
+    // Show steps indicator again for subsequent steps
+    const stepsContainer = document.getElementById('explorer-steps-container');
+    if (stepsContainer) stepsContainer.style.display = 'flex';
 
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Stream</span>`;
     document.getElementById('explorer-sub-title').innerText = `Which program are you enrolled in at ${selState.college.name}?`;
@@ -2671,7 +2689,9 @@ window.selectStream = function (id, name) {
     renderBranchStep();
 };
 
-window.renderBranchStep = function () {
+window.renderStreamStep = renderStreamStep;
+
+function renderBranchStep() {
     updateStepUI(2);
     const backBtn = document.getElementById('explorer-back-btn');
     if (backBtn) {
@@ -2715,7 +2735,9 @@ window.selectBranch = function (id, name) {
     renderCombinedSemesterStep();
 };
 
-window.renderCombinedSemesterStep = function () {
+window.renderBranchStep = renderBranchStep;
+
+function renderCombinedSemesterStep() {
     updateStepUI(3);
     const backBtn = document.getElementById('explorer-back-btn');
     if (backBtn) {
@@ -2760,7 +2782,9 @@ window.selectCombinedSemester = function (sem, year) {
 };
 
 
-window.renderSubjectStep = function () {
+window.renderCombinedSemesterStep = renderCombinedSemesterStep;
+
+function renderSubjectStep() {
     updateStepUI(5);
     const backBtn = document.getElementById('explorer-back-btn');
     if (backBtn) {
@@ -2800,7 +2824,7 @@ window.selectSubject = function (id, name, code = null) {
     trackAnalytics('select_subject', { id, name, code });
     showNotes();
 };
-
+window.renderSubjectStep = renderSubjectStep;
 
 
 let notesUnsubscribe = null;

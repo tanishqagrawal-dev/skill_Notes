@@ -3810,6 +3810,82 @@
     margin: 0 auto 1.5rem !important;
 }
 
+/* --- Study Planner Editor Styles --- */
+.planner-modal-card {
+    width: 550px !important;
+    max-width: 95vw !important;
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+    padding: 2rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.planner-modal-card h2 {
+    font-size: 1.5rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.planner-modal-card .subtitle {
+    margin-bottom: 1.5rem !important;
+}
+
+.planner-edit-row {
+    display: grid !important;
+    grid-template-columns: 80px 1fr 120px 40px !important;
+    gap: 12px !important;
+    margin-bottom: 15px !important;
+    align-items: center !important;
+}
+
+.planner-week-label {
+    font-weight: 700 !important;
+    color: var(--primary-light) !important;
+}
+
+.planner-input {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--border-glass) !important;
+    padding: 10px !important;
+    border-radius: 10px !important;
+    color: white !important;
+    font-size: 0.9rem !important;
+}
+
+.planner-select {
+    background: #1a1c2c !important;
+    color: white !important;
+    border: 1px solid var(--border-glass) !important;
+    padding: 10px !important;
+    border-radius: 10px !important;
+    font-size: 0.9rem !important;
+    cursor: pointer !important;
+}
+
+.planner-delete-btn {
+    color: #ff4757 !important;
+    font-size: 1.2rem !important;
+    transition: transform 0.2s ease !important;
+}
+
+.planner-delete-btn:hover {
+    transform: scale(1.2) !important;
+}
+
+.add-week-btn {
+    width: 100% !important;
+    margin-top: 0.5rem !important;
+    border: 1px dashed var(--border-glass) !important;
+    padding: 0.8rem !important;
+}
+
+.modal-actions {
+    margin-top: 1.5rem !important;
+    display: flex !important;
+    gap: 12px !important;
+    margin-bottom: 0 !important;
+}
+
 /* --- Senior Expert Responsive Mastery (Global Optimization) --- */
 
 /* 1. Tablet & Large Mobile (1024px and below) */
@@ -3848,23 +3924,30 @@
 
     /* Layout Reset */
     .main-content {
-        padding: 0 !important;
+        padding: 0 1rem 1.5rem 1rem !important;
         width: 100% !important;
+    }
+
+    #tab-content {
+        margin-top: 1.5rem !important;
     }
 
     /* Fixed Top Bar Optimization */
     .top-bar {
         height: auto !important;
         min-height: initial !important;
-        padding: 0.75rem !important;
-        border-radius: 12px !important;
-        margin-bottom: 1rem !important;
-        gap: 0.75rem !important;
+        padding: 1rem !important;
+        border-radius: 0 0 16px 16px !important;
+        margin-bottom: 0 !important;
+        gap: 1.25rem !important;
         flex-direction: column !important;
         align-items: stretch !important;
-        background: rgba(5, 7, 10, 0.8) !important;
-        -webkit-backdrop-filter: blur(20px) !important;
-        backdrop-filter: blur(20px) !important;
+        background: rgba(10, 12, 18, 0.98) !important;
+        -webkit-backdrop-filter: blur(25px) !important;
+        backdrop-filter: blur(25px) !important;
+        z-index: 1000 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
     }
 
     .top-bar-left {
@@ -3932,9 +4015,9 @@
         display: flex !important;
         align-items: center !important;
         justify-content: flex-end !important;
-        /* Span to the right green area */
         gap: 12px !important;
-        margin-top: 4px !important;
+        margin-top: 0 !important;
+        padding-bottom: 4px !important;
     }
 
     .notification-btn {
@@ -4024,6 +4107,39 @@
     .glass-card {
         padding: 1.25rem !important;
     }
+
+    /* Mobile Planner Editor Overrides */
+    .planner-modal-card {
+        padding: 1.5rem !important;
+    }
+
+    .planner-edit-row {
+        grid-template-columns: 1fr 40px !important;
+        grid-template-areas: 
+            "label delete"
+            "input input"
+            "select select" !important;
+        gap: 8px !important;
+        border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+        padding-bottom: 12px !important;
+    }
+
+    .planner-week-label {
+        grid-area: label !important;
+    }
+
+    .planner-delete-btn {
+        grid-area: delete !important;
+        justify-self: end !important;
+    }
+
+    .planner-input {
+        grid-area: input !important;
+    }
+
+    .planner-select {
+        grid-area: select !important;
+    }
 }
 
 /* 3. Small Mobile (480px and below) */
@@ -4046,7 +4162,8 @@
 
     .top-bar {
         gap: 12px !important;
-        padding: 0.75rem !important;
+        padding: 0.75rem 1rem 1rem 1rem !important;
+        margin-bottom: 2rem !important;
     }
 
     .top-bar-left {

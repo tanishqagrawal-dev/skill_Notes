@@ -34,13 +34,9 @@ function dispatchAuthReady(data) {
 // 1. Instant Session Restoration (Guest or Regular)
 const lastUser = localStorage.getItem('auth_user_full') || localStorage.getItem('guest_session');
 const path = window.location.pathname;
-const isUserDashboard = (path.includes('dashboard') || path.endsWith('dashboard')) && 
-                       !path.includes('admin-dashboard') && 
-                       !path.includes('coadmin-dashboard') &&
-                       !path.includes('admin_dashboard') && 
-                       !path.includes('coadmin_dashboard');
-const isAdminDashboard = path.includes('admin-dashboard') || path.includes('admin_dashboard');
-const isCoAdminDashboard = path.includes('coadmin-dashboard') || path.includes('coadmin_dashboard');
+const isUserDashboard = path.endsWith('/dashboard') || path.includes('dashboard');
+const isAdminDashboard = path.endsWith('/admin-dashboard') || path.includes('admin-dashboard');
+const isCoAdminDashboard = path.endsWith('/coadmin-dashboard') || path.includes('coadmin-dashboard');
 
 if (lastUser && (isUserDashboard || isAdminDashboard || isCoAdminDashboard)) {
     try {
@@ -85,11 +81,6 @@ export async function initAuth() {
 
         console.log(`🛡️ Nav Check: Role=[${currentRole}] Path=[${path}]`);
 
-        // 0. STOP: Already on correct dashboard? No more redirects.
-        if (isAdminDashboard && (currentRole === 'admin' || currentRole === 'superadmin')) return false;
-        if (isCoAdminDashboard && currentRole === 'coadmin') return false;
-        if (isUserDashboard && currentRole === 'user') return false;
-
         // 1. Landing/Auth Page Redirects
         if (isAuthPage || path === '/' || path.endsWith('index') || path.endsWith('index')) {
             console.log("🚀 Initial Redirect Logic:", currentRole);
@@ -102,7 +93,7 @@ export async function initAuth() {
         // 2. Cross-Dashboard Enforcement (Wrong Role Check)
         if (isUserDashboard && (currentRole === 'admin' || currentRole === 'superadmin')) {
             console.log("🔄 Redirecting Admin to Admin Dashboard...");
-            window.location.href='admin-dashboard';
+            window.location.href = 'admin-dashboard';
         }
         else if (isUserDashboard && currentRole === 'coadmin') {
             console.log("🔄 Redirecting Co-Admin to Co-Admin Dashboard...");
@@ -110,11 +101,11 @@ export async function initAuth() {
         }
         else if (isCoAdminDashboard && currentRole !== 'coadmin' && currentRole !== 'superadmin' && currentRole !== 'admin') {
             console.log("🔄 Redirecting unauthorized from Co-Admin Dashboard...");
-            window.location.href='dashboard';
+            window.location.href = 'dashboard';
         }
         else if (isAdminDashboard && currentRole !== 'admin' && currentRole !== 'superadmin') {
             console.log("🔄 Redirecting unauthorized from Admin Dashboard...");
-            window.location.href='dashboard';
+            window.location.href = 'dashboard';
         }
 
         return false;
@@ -137,7 +128,7 @@ export async function initAuth() {
 
                 if (docSnap.exists()) {
                     userData = { id: user.uid, ...docSnap.data() };
-                    
+
                     // FORCED SYNC: Always prioritize current Google Auth photo over stale DB photo
                     if (user.photoURL && userData.photo !== user.photoURL) {
                         userData.photo = user.photoURL;
@@ -150,9 +141,9 @@ export async function initAuth() {
                         id: user.uid,
                         email: user.email.toLowerCase(),
                         role: "user",
-                        college: "matrix",
-                        collegeId: "matrix",
-                        collegeName: "SKiL MATRiX Scholar",
+                        college: "medicaps", // Default
+                        collegeId: "medicaps",
+                        collegeName: "Medicaps University",
                         name: user.displayName || user.email.split('@')[0],
                         photo: user.photoURL
                     };
@@ -270,8 +261,8 @@ function initAuthForms() {
                     email: user.email,
                     photo: user.photoURL,
                     role: 'user',
-                    collegeId: 'matrix',
-                    collegeName: 'SKiL MATRiX Scholar',
+                    collegeId: 'medicaps',
+                    collegeName: 'Medicaps University',
                     isOptimistic: true
                 };
 
@@ -303,8 +294,8 @@ window.loginAsGuest = function () {
         name: 'Guest Tester',
         email: 'guest@example.com',
         role: 'student',
-        collegeId: 'matrix',
-        collegeName: 'SKiL MATRiX Scholar',
+        collegeId: 'medicaps',
+        collegeName: 'Medicaps University',
         isGuest: true
     };
     localStorage.setItem('guest_session', JSON.stringify(guest));
@@ -317,12 +308,12 @@ window.loginAsGuest = function () {
 
 window.handleLogout = async function () {
     console.log("🔓 Initializing Secure Logout...");
-    
+
     // 1. Clear session cache to prevent "Ghost Session" bug on reload
     localStorage.removeItem('auth_user_full');
     localStorage.removeItem('auth_user');
     localStorage.removeItem('guest_session');
-    
+
     // 2. Actually sign out from Firebase
     try {
         await signOut(auth);
