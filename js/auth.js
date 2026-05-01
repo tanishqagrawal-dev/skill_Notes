@@ -141,9 +141,9 @@ export async function initAuth() {
                         id: user.uid,
                         email: user.email.toLowerCase(),
                         role: "user",
-                        college: "matrix",
-                        collegeId: "matrix",
-                        collegeName: "SKiL MATRiX Scholar",
+                        college: "medicaps", // Default
+                        collegeId: "medicaps",
+                        collegeName: "Medicaps University",
                         name: user.displayName || user.email.split('@')[0],
                         photo: user.photoURL
                     };
@@ -261,8 +261,8 @@ function initAuthForms() {
                     email: user.email,
                     photo: user.photoURL,
                     role: 'user',
-                    collegeId: 'matrix',
-                    collegeName: 'SKiL MATRiX Scholar',
+                    collegeId: 'medicaps',
+                    collegeName: 'Medicaps University',
                     isOptimistic: true
                 };
 
@@ -294,8 +294,8 @@ window.loginAsGuest = function () {
         name: 'Guest Tester',
         email: 'guest@example.com',
         role: 'student',
-        collegeId: 'matrix',
-        collegeName: 'SKiL MATRiX Scholar',
+        collegeId: 'medicaps',
+        collegeName: 'Medicaps University',
         isGuest: true
     };
     localStorage.setItem('guest_session', JSON.stringify(guest));

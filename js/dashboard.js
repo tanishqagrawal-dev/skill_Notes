@@ -180,130 +180,6 @@ window.selState = selState;
 window.currentUser = currentUser;
 window.NotesDB = NotesDB;
 
-// --- WEEKLY PLAN SYSTEM ---
-let weeklyPlan = [
-    { week: 1, title: 'OOP Basics', status: 'completed', progress: 100 },
-    { week: 2, title: 'Advanced OOP', status: 'active', progress: 60 },
-    { week: 3, title: 'Practice', status: 'locked', progress: 0 }
-];
-
-async function initWeeklyPlanSync() {
-    const { db, doc, onSnapshot } = getFirebase();
-    if (!currentUser || currentUser.isGuest || !db) return;
-
-    const planRef = doc(db, "users", currentUser.id, "planner", "weeklyPlan");
-    onSnapshot(planRef, (snap) => {
-        if (snap.exists()) {
-            weeklyPlan = snap.data().plan || weeklyPlan;
-            console.log("📅 Weekly Plan Synced:", weeklyPlan.length, "weeks");
-        }
-    });
-}
-window.initWeeklyPlanSync = initWeeklyPlanSync;
-
-window.openPlannerEditor = function() {
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay fade-in';
-    modal.id = 'planner-editor-modal';
-    
-    let rowsHtml = weeklyPlan.map((item, idx) => `
-        <div class="planner-edit-row" style="display: grid; grid-template-columns: 80px 1fr 120px 40px; gap: 10px; margin-bottom: 15px; align-items: center;">
-            <div style="font-weight: 700; color: var(--primary-light);">Week ${item.week}</div>
-            <input type="text" class="planner-input" value="${item.title}" data-idx="${idx}" placeholder="Topic Name" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); padding: 8px; border-radius: 8px; color: white;">
-            <select class="planner-select" data-idx="${idx}" style="background: #1a1c2c; color: white; border: 1px solid var(--border-glass); padding: 8px; border-radius: 8px;">
-                <option value="completed" ${item.status === 'completed' ? 'selected' : ''}>Completed</option>
-                <option value="active" ${item.status === 'active' ? 'selected' : ''}>Active</option>
-                <option value="locked" ${item.status === 'locked' ? 'selected' : ''}>Locked</option>
-            </select>
-            <button class="btn-icon-mini" onclick="removeWeekFromPlan(${idx})" style="color: #ff4757;">✕</button>
-        </div>
-    `).join('');
-
-    modal.innerHTML = `
-        <div class="upload-card" style="width: 550px; max-height: 85vh; overflow-y: auto; height: auto; min-height: auto; padding: 2rem; display: flex; flex-direction: column;">
-            <h2 class="font-heading" style="font-size: 1.5rem;">Design Your Track</h2>
-            <p class="subtitle" style="margin-bottom: 1.5rem;">Customize your weekly learning roadmap</p>
-            
-            <div id="planner-rows-container" style="margin-top: 0;">
-                ${rowsHtml}
-            </div>
-            
-            <button class="btn btn-ghost" style="width: 100%; margin-top: 0.5rem; border: 1px dashed var(--border-glass); padding: 0.8rem;" onclick="addWeekToPlan()">+ Add New Week</button>
-            
-            <div class="modal-actions" style="margin-top: 1.5rem; display: flex; gap: 12px; margin-bottom: 0;">
-                <button class="btn btn-ghost" style="flex: 1;" onclick="document.getElementById('planner-editor-modal').remove()">Cancel</button>
-                <button class="btn btn-primary" style="flex: 2;" onclick="savePlannerChanges()">Save Plan</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(modal);
-};
-
-window.addWeekToPlan = function() {
-    const nextWeek = weeklyPlan.length + 1;
-    weeklyPlan.push({ week: nextWeek, title: '', status: 'locked', progress: 0 });
-    document.getElementById('planner-editor-modal').remove();
-    window.openPlannerEditor();
-};
-
-window.removeWeekFromPlan = function(idx) {
-    weeklyPlan.splice(idx, 1);
-    // Re-index weeks
-    weeklyPlan.forEach((w, i) => w.week = i + 1);
-    document.getElementById('planner-editor-modal').remove();
-    window.openPlannerEditor();
-};
-
-window.savePlannerChanges = async function() {
-    try {
-        const modal = document.getElementById('planner-editor-modal');
-        if (!modal) return;
-
-        const inputs = Array.from(modal.querySelectorAll('.planner-input'));
-        const selects = Array.from(modal.querySelectorAll('.planner-select'));
-        
-        // 1. Capture Data with safety checks
-        const newPlan = weeklyPlan.map((item, idx) => {
-            const input = inputs[idx];
-            const select = selects[idx];
-            const status = select ? select.value : item.status;
-            return {
-                ...item,
-                title: input ? (input.value || `Week ${idx + 1}`) : item.title,
-                status: status,
-                progress: status === 'completed' ? 100 : (status === 'active' ? 50 : 0)
-            };
-        });
-
-        // 2. Update Global State Immediately
-        weeklyPlan = newPlan;
-
-        // 3. Save to Cloud (Fire and Forget or handle error silently)
-        const firebase = getFirebase();
-        if (currentUser && !currentUser.isGuest && firebase && firebase.db) {
-            const { db, doc, setDoc } = firebase;
-            setDoc(doc(db, "users", currentUser.id, "planner", "weeklyPlan"), {
-                plan: newPlan,
-                lastUpdated: new Date().toISOString()
-            }, { merge: true }).catch(e => console.error("Cloud Sync Error:", e));
-        }
-        
-        // 4. Close Modal and Notify
-        modal.remove();
-        showToast("Plan Saved! 🚀");
-
-        // 5. Hard Refresh Overview UI
-        if (typeof renderTabContent === 'function') {
-            renderTabContent('overview');
-        }
-    } catch (err) {
-        console.error("Save Logic Error:", err);
-        const m = document.getElementById('planner-editor-modal');
-        if (m) m.remove();
-        showToast("Error updating plan", "error");
-    }
-};
-
 // --- CORE SYSTEM INITIALIZATION ---
 
 // function handleAuthReady removed (duplicate)
@@ -329,8 +205,7 @@ function handleAuthReady(data) {
             id: 'visitor_' + Math.random().toString(36).substr(2, 9),
             name: 'Guest Scholar',
             role: 'user',
-            college: 'matrix',
-            collegeName: 'SKiL MATRiX Scholar',
+            college: 'medicaps',
             isGuest: true
         };
         window.currentUser = currentUser;
@@ -352,7 +227,6 @@ function handleAuthReady(data) {
                     if (window.statServices?.initRealtimeStats && !isStatsInit) initPromises.push(window.statServices.initRealtimeStats());
                     if (!isCollegesInit && typeof initDynamicColleges === 'function') initPromises.push(initDynamicColleges());
                     if (!isNotesSyncInit && typeof initNotesSync === 'function') initPromises.push(initNotesSync());
-                    if (typeof initWeeklyPlanSync === 'function') initPromises.push(initWeeklyPlanSync());
 
                     Promise.all(initPromises).catch(err => console.error("⚡ Background Init Error:", err));
                 }
@@ -786,8 +660,8 @@ window.syncAdvancedJavaNotes = async function () {
                 title: title,
                 url: url,
                 driveLink: url, // For compatibility
-                collegeId: 'matrix',
-                collegeName: 'SKiL MATRiX Scholar',
+                collegeId: 'medicaps',
+                collegeName: 'Medicaps University',
                 branchId: 'cse',
                 branch: 'Computer Science',
                 semester: 'Semester 4', // Mapped to 4th Sem in GlobalData
@@ -1095,7 +969,7 @@ async function handleDashboardNoteSubmit(e) {
         title: title,
         college: finalCollegeId || (currentUser.collegeId || 'medicaps'),
         collegeId: finalCollegeId || (currentUser.collegeId || 'medicaps'),
-        collegeName: finalCollegeName || 'SKiL MATRiX Scholar',
+        collegeName: finalCollegeName || 'Medicaps University',
         stream: getSelectText('stream') || 'B.Tech',
         streamId: stream,
         branch: getSelectText('branch') || 'CSE',
@@ -1275,19 +1149,9 @@ function updateUserProfileUI() {
 
 
 
-window.renderTabContent = renderTabContent;
 function renderTabContent(tabId) {
     const contentArea = document.getElementById('tab-content');
     if (!contentArea) return;
-
-    // 1. Sync Sidebar Active State (Crucial for Dashboard Cards)
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-        if (item.dataset.tab === tabId) item.classList.add('active');
-    });
-
-    // 2. Scroll to top for fresh view
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // GA4 SPA Tracking
     if (window.trackSPAView) {
@@ -1761,35 +1625,18 @@ function renderOverview() {
     }
 
     const userName = (currentUser.name || "Scholar").split(' ')[0];
-    const collegeName = currentUser.collegeName || currentUser.college || 'SKiL MATRiX Scholar';
+    const college = currentUser.collegeName || currentUser.college || 'Medicaps University';
     
-    // 1. Resolve Dynamic Year
-    let yLabel = "";
-    if (currentUser.year) {
-        let rawY = String(currentUser.year);
-        if (rawY === '1') yLabel = '1st Year';
-        else if (rawY === '2') yLabel = '2nd Year';
-        else if (rawY === '3') yLabel = '3rd Year';
-        else if (rawY === '4') yLabel = '4th Year';
-        else if (rawY.toLowerCase().includes('year')) yLabel = rawY;
-        else yLabel = rawY + ' Year';
-    }
+    let rawY = String(currentUser.year || '3');
+    let yLabel = rawY;
+    if (rawY === '1') yLabel = '1st Year';
+    else if (rawY === '2') yLabel = '2nd Year';
+    else if (rawY === '3') yLabel = '3rd Year';
+    else if (rawY === '4') yLabel = '4th Year';
+    else if (rawY && !rawY.toLowerCase().includes('year')) yLabel = rawY + ' Year';
 
-    // 2. Resolve Dynamic Branch
-    const branchLabel = currentUser.branch ? currentUser.branch.toUpperCase() : "";
-    
-    // 3. Construct Unified Subtitle
-    let profileSummary = "";
-    if (currentUser.role !== 'user') {
-        profileSummary = `🛡️ Verified ${currentUser.role.toUpperCase()}`;
-    } else {
-        const parts = [];
-        if (yLabel) parts.push(yLabel);
-        if (branchLabel) parts.push(branchLabel);
-        profileSummary = parts.length > 0 ? parts.join(' • ') : "Scholar";
-    }
-
-    const greetingSubtitle = `${profileSummary} • ${collegeName}`;
+    const branch = (currentUser.branch || 'CSE').toUpperCase();
+    const roleLabel = currentUser.role !== 'user' ? `🛡️ Verified ${currentUser.role.toUpperCase()}` : `${yLabel} • ${branch}`;
 
     const userStats = currentUser.stats || { subjects: {} };
     const readinessData = [
@@ -1805,15 +1652,16 @@ function renderOverview() {
         Object.values(globalNotes.global).forEach(arr => allGlobalNotes.push(...arr));
     }
 
-    const combinedNotes = [...(NotesDB || []), ...allGlobalNotes];
-    
-    // Total numbers for Minimal Stats
-    const totalDownloads = combinedNotes.reduce((acc, n) => acc + (n.downloads || 0), 0) + 1240; // mock base
-    const totalNotes = combinedNotes.length > 0 ? combinedNotes.length : 145;
+    const combinedNotes = [...(window.NotesDB || []), ...allGlobalNotes];
+
+    const topNotes = combinedNotes
+        .filter(n => n.status === 'approved')
+        .sort((a, b) => ((b.likes || 0) + (b.downloads || 0) + (b.views || 0)) - ((a.likes || 0) + (a.downloads || 0) + (a.views || 0)))
+        .slice(0, 3);
 
     let aiRec = {
         title: "🤖 AI Recommendation",
-        msg: `Your retention in <strong>${readinessData[0].name}</strong> is dropping. We recommend solving a model paper.`,
+        msg: `Your retention in <strong>${readinessData[0].name}</strong> is dropping. We recommend solving a model paper to boost confidence.`,
         actionType: "ai-tools",
         actionLabel: "Generate Model Paper"
     };
@@ -1821,176 +1669,139 @@ function renderOverview() {
     if (isGuest) {
         aiRec = {
             title: "🔐 Unlock AI Insights",
-            msg: "Create a free account to track your study progress and see your exam readiness.",
+            msg: "Create a free account to track your study progress, get personalized AI recommendations, and see your exam readiness.",
             actionType: "login",
             actionLabel: "Join Now"
         };
     } else if (readinessData[2].progress < 40) {
-        aiRec.msg = `We noticed you're struggling with <strong>${readinessData[2].name}</strong>. Check out some verified formula sheets!`;
+        aiRec.msg = `We noticed you're struggling with <strong>${readinessData[2].name}</strong>. Why not check out some verified formula sheets?`;
         aiRec.actionType = "notes";
         aiRec.actionLabel = "Browse Resource Hub";
     }
 
     const isProfileIncomplete = !currentUser.program || !currentUser.year || !currentUser.branch || !currentUser.college;
     const alertBannerHtml = (isProfileIncomplete && !isGuest) ? `
-        <div class="profile-alert-banner-modern fade-in">
-            <div class="alert-inner-row">
-                <div class="alert-left">
-                    <div class="alert-icon-magic">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    </div>
-                    <div class="alert-content-stack">
-                        <div class="alert-top-meta">
-                            <span class="alert-label">Academic Profile</span>
-                            <span class="alert-badge-new">ACTION REQUIRED</span>
-                        </div>
-                        <span class="alert-text">Your profile is missing key fields. Complete it now to activate <strong>Personalized AI Insights</strong>.</span>
-                    </div>
+        <div class="profile-alert-banner fade-in">
+            <div class="alert-glass-shine"></div>
+            <div class="alert-main">
+                <div class="alert-icon-box pulse-blue">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
                 </div>
-                <div class="alert-right">
-                    <button class="btn-premium-alert" onclick="document.querySelector('.nav-item[data-tab=\\'profile\\']')?.click()">
-                        Complete Now <i class="fa-solid fa-arrow-right-long"></i>
-                    </button>
+                <div class="alert-info">
+                    <h4 class="alert-title">Academic Profile <span class="badge-incomplete-premium">ACTION REQUIRED</span></h4>
+                    <p class="alert-desc">Your profile is missing key academic fields. Complete it now to activate <strong>Personalized AI Insights</strong>.</p>
                 </div>
+            </div>
+            <div class="alert-actions">
+                <button class="btn btn-alert-complete-premium" onclick="document.querySelector('.nav-item[data-tab=\\'profile\\']')?.click()">
+                    Complete Now <i class="fa-solid fa-arrow-right-long"></i>
+                </button>
             </div>
         </div>
     ` : "";
 
     return `
-        <div class="tab-pane active fade-in dashboard-overview-wrapper" style="padding: 0;">
+        <div class="tab-pane active fade-in dashboard-overview-wrapper">
             ${alertBannerHtml}
+            <!-- 1. Personalized Header -->
+            <div class="welcome-banner">
+                <h1 class="font-heading">Welcome back, <span class="gradient-text">${userName}</span> 👋</h1>
+                <p class="role-badge">${roleLabel} • ${college}</p>
+            </div>
 
-            <!-- 1. BIG - Hero Section 3D -->
-            <div class="hero-section-3d fade-in" style="margin-bottom: 0.75rem;">
-                <div class="hero-section-inner">
-                    <h1 class="font-heading" style="font-size: 2.2rem; margin-bottom: 0.3rem;">
-                        Welcome back, <span class="gradient-text">${userName}</span> 👋
-                    </h1>
-                    <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 0;">
-                        ${greetingSubtitle}
-                    </p>
+            <!-- 2. Live Activity Widgets -->
+            <div class="stats-grid overview-stats">
+                <div class="glass-card wobble-hover accent-green">
+                    <div class="live-header">
+                        <span class="pulse-dot"></span>
+                        <span class="stat-meta">Live Students</span>
+                    </div>
+                    <div id="liveStudents" class="big-stat">--</div>
+                </div>
+                <div class="glass-card wobble-hover accent-blue">
+                    <div class="stat-meta">🔥 Global Views</div>
+                    <div id="stat-views" class="big-stat">--</div>
+                </div>
+                <div class="glass-card wobble-hover accent-purple">
+                    <div class="stat-meta">⬇️ Global Downloads</div>
+                    <div id="globalDownloads" class="big-stat">--</div>
+                </div>
+                <div class="glass-card wobble-hover accent-gold">
+                    <div class="stat-meta">🚀 Trending Now</div>
+                    <div id="trendingNow" class="big-stat">--</div>
                 </div>
             </div>
 
-            <!-- 2. Minimal Stats -->
-            <div class="grid-2x3" style="margin-bottom: 1.25rem;">
-                <div class="glass-card hover-3d soft-glow" style="padding: 1.5rem; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5rem; border-color: rgba(0,255,148,0.3);">
-                    <div style="font-size: 1.8rem; font-weight: 800; color: #fff;">1,248</div>
-                    <div style="font-size: 0.8rem; color: var(--success); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">🟢 Active Students</div>
-                </div>
-                <div class="glass-card hover-3d soft-glow" style="padding: 1.5rem; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5rem; border-color: rgba(123,97,255,0.3);">
-                    <div style="font-size: 1.8rem; font-weight: 800; color: #fff;">${totalDownloads.toLocaleString()}</div>
-                    <div style="font-size: 0.8rem; color: var(--primary-light); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">⬇️ Downloads</div>
-                </div>
-                <div class="glass-card hover-3d soft-glow" style="padding: 1.5rem; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5rem; border-color: rgba(241,196,15,0.3);">
-                    <div style="font-size: 1.8rem; font-weight: 800; color: #fff;">${totalNotes}</div>
-                    <div style="font-size: 0.8rem; color: var(--warning, #f1c40f); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">⭐ Verified Notes</div>
-                </div>
-            </div>
-
-            <!-- 3. MEDIUM - Quick Actions Grid (2x3) -->
-            <h3 class="font-heading section-title" style="margin-bottom: 1rem;">🚀 Quick Actions</h3>
-            <div class="grid-2x3" style="margin-bottom: 1.5rem;">
-                <!-- 1. Notes Hub -->
-                <div class="quick-action-card hover-3d soft-glow" onclick="renderTabContent('notes')" style="border-color: rgba(123,97,255,0.3); --glow-color: rgba(123,97,255,0.4);">
-                    <div class="qa-icon" style="background: rgba(123,97,255,0.1); color: var(--secondary);">📚</div>
-                    <div class="qa-info">
-                        <div class="qa-title">Notes Hub</div>
-                        <div class="qa-desc">Browse syllabus-wise materials</div>
-                    </div>
-                </div>
-                <!-- 2. CGPA Analyzer -->
-                <div class="quick-action-card hover-3d soft-glow" onclick="renderTabContent('cgpa-analyzer')" style="border-color: rgba(46,204,113,0.3); --glow-color: rgba(46,204,113,0.4);">
-                    <div class="qa-icon" style="background: rgba(46,204,113,0.1); color: #2ecc71;">🎯</div>
-                    <div class="qa-info">
-                        <div class="qa-title">CGPA Analyzer</div>
-                        <div class="qa-desc">Predict and track your grades</div>
-                    </div>
-                </div>
-                <!-- 3. FocusFlow Pro -->
-                <div class="quick-action-card hover-3d soft-glow" onclick="renderTabContent('focusflow')" style="border-color: rgba(255,45,149,0.3); --glow-color: rgba(255,45,149,0.4);">
-                    <div class="qa-icon" style="background: rgba(255,45,149,0.1); color: #FF2D95;">⌚</div>
-                    <div class="qa-info">
-                        <div class="qa-title">FocusFlow Pro</div>
-                        <div class="qa-desc">Pomodoro timer with lofi</div>
-                    </div>
-                </div>
-                <!-- 4. Bookmarks -->
-                <div class="quick-action-card hover-3d soft-glow" onclick="renderTabContent('bookmarks')" style="border-color: rgba(241,196,15,0.3); --glow-color: rgba(241,196,15,0.4);">
-                    <div class="qa-icon" style="background: rgba(241,196,15,0.1); color: #f1c40f;">🔖</div>
-                    <div class="qa-info">
-                        <div class="qa-title">Bookmarks</div>
-                        <div class="qa-desc">Your saved resources</div>
-                    </div>
-                </div>
-                <!-- 5. AI Coach -->
-                <div class="quick-action-card hover-3d soft-glow" onclick="window.lockOverlay ? window.lockOverlay.show() : renderTabContent('ai-tools')" style="border-color: rgba(0,242,255,0.3); --glow-color: rgba(0,242,255,0.4);">
-                    <div class="qa-icon" style="background: rgba(0,242,255,0.1); color: var(--secondary);">🤖</div>
-                    <div class="qa-info">
-                        <div class="qa-title">AI Coach</div>
-                        <div class="qa-desc">Personalized study guide</div>
-                    </div>
-                </div>
-                <!-- 6. Upload Notes -->
-                <div class="quick-action-card hover-3d soft-glow" onclick="openUploadModal()" style="border-color: rgba(255,255,255,0.2); --glow-color: rgba(255,255,255,0.2);">
-                    <div class="qa-icon" style="background: rgba(255,255,255,0.05); color: #fff;">📤</div>
-                    <div class="qa-info">
-                        <div class="qa-title">Upload Notes</div>
-                        <div class="qa-desc">Contribute to the community</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 4. SMALL - Analytics Split View -->
-            <div class="dashboard-split-view" style="gap: 1.5rem;">
+            <div class="dashboard-split-view">
                 
-                <!-- Left: Live Activity -->
                 <div class="main-column">
-                    <div class="glass-card hover-3d" style="padding: 2rem; border-color: rgba(0, 242, 255, 0.2);">
-                        <h3 class="font-heading section-title" style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
-                            🌍 Live Activity <span style="display:inline-block; width:8px; height:8px; background:var(--success); border-radius:50%; box-shadow:0 0 10px var(--success); animation: pulse 2s infinite;"></span>
-                        </h3>
-                        <div class="live-activity-list">
-                            <div class="live-activity-item">
-                                <div class="live-activity-icon">🔥</div>
-                                <div class="live-activity-text"><strong>120 students</strong> studying OOP right now</div>
-                            </div>
-                            <div class="live-activity-item">
-                                <div class="live-activity-icon" style="color: var(--primary-light);">📥</div>
-                                <div class="live-activity-text"><strong>45 new notes</strong> uploaded today</div>
-                            </div>
-                            <div class="live-activity-item">
-                                <div class="live-activity-icon" style="color: #f1c40f;">⭐</div>
-                                <div class="live-activity-text">Top note: <strong>"OOP Cheatsheet"</strong></div>
-                            </div>
-                        </div>
+                    
+                    <!-- 3. Global Resources -->
+                    <div class="glass-card verified-resources-card">
+                         <h3 class="font-heading section-title">
+                            <span class="emoji-icon">🚀</span> 
+                            Global <span class="highlight">Verified Resources</span>
+                         </h3>
+                         <div id="dashboard-global-showcase" class="notes-list-container-pro">
+                            ${topNotes.length > 0 ? renderInstantStaticNotes(topNotes) : '<p style="color:var(--text-dim);">Resources are being synced from global servers...</p>'}
+                         </div>
+                    </div>
 
+                    <!-- 4. AI Insights Card -->
+                    <div class="glass-card ai-insights-card">
+                        <div class="bg-icon">🤖</div>
+                        <h3 class="font-heading ai-title">✨ ${aiRec.title}</h3>
+                        <p class="ai-msg">${aiRec.msg}</p>
+                        <div class="ai-actions">
+                            <button class="btn btn-primary" onclick="${isGuest ? "window.location.href='../pages/auth.html'" : (aiRec.actionType === 'ai-tools' || aiRec.actionType === 'planner' ? "window.lockOverlay.show()" : `renderTabContent('${aiRec.actionType}')`)}">${aiRec.actionLabel}</button>
+                        </div>
+                    </div>
+
+                    <!-- 5. Quick Access Path -->
+                    <div class="personalized-track">
+                        <h3 class="font-heading section-title">🚀 Personalized Track</h3>
+                        <div class="track-grid">
+                           <div class="glass-card wobble-hover" onclick="renderTabContent('bookmarks')">
+                                <div class="track-icon">🔖</div>
+                                <div class="track-name">Saved</div>
+                                <div class="track-label">Your Bookmarks</div>
+                           </div>
+                           <div class="glass-card wobble-hover" onclick="window.lockOverlay ? window.lockOverlay.show() : renderTabContent('ai-tools')">
+                                <div class="track-icon">🤖</div>
+                                <div class="track-name">AI Lab</div>
+                                <div class="track-label">Predict Papers</div>
+                           </div>
+                           <div class="glass-card wobble-hover" onclick="renderTabContent('leaderboard')">
+                                <div class="track-icon">🏆</div>
+                                <div class="track-name">Ranking</div>
+                                <div class="track-label">View Peers</div>
+                           </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Right: Personalized Track -->
+                <!-- Sidebar column -->
                 <div class="side-column">
-                    <div class="glass-card hover-3d" style="padding: 2rem; border-color: rgba(123, 97, 255, 0.2);">
-                         <h3 class="font-heading section-title" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
-                            🚀 Your Track
-                            <button class="btn btn-ghost btn-sm" style="font-size: 0.7rem; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border-glass);" onclick="openPlannerEditor()">Edit Plan ✏️</button>
-                         </h3>
-                         
-                         ${weeklyPlan.map(item => `
-                            <div class="track-step-pro ${item.status}">
-                                <div class="track-icon-wrapper">${item.status === 'completed' ? '✓' : (item.status === 'active' ? '⌛' : '🔒')}</div>
-                                <div class="track-content">
-                                    <h4>Week ${item.week}: ${item.title || 'Topic Pending'}</h4>
-                                    ${item.status === 'active' ? `
-                                        <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 5px; overflow: hidden;">
-                                            <div class="progress-animated" style="width: ${item.progress}%; height: 100%;"></div>
-                                        </div>
-                                    ` : `<p>${item.status === 'completed' ? 'Completed 100%' : 'Unlocks after previous week'}</p>`}
+                    <!-- 3. Readiness Meter -->
+                    <div class="glass-card readiness-card">
+                         <h3 class="font-heading section-title">📊 Readiness Analysis</h3>
+                         <div class="readiness-list">
+                            ${readinessData.map(sub => `
+                                <div class="readiness-item">
+                                    <div class="readiness-info">
+                                        <span class="subject-name">${sub.name}</span>
+                                        <span class="subject-progress" style="color: ${sub.color};">${sub.progress}%</span>
+                                    </div>
+                                    <div class="progress-bar-bg">
+                                        <div class="progress-bar-fill" style="width: ${sub.progress}%; background: linear-gradient(90deg, ${sub.color}, white);"></div>
+                                    </div>
                                 </div>
-                            </div>
-                         `).join('')}
-                         
-                         <button class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;" onclick="renderTabContent('notes')">[ Continue Track ]</button>
+                            `).join('')}
+                         </div>
+                         <div class="readiness-footer">
+                            <p>Calculated based on downloads, views, and AI interactions.</p>
+                            <button class="btn btn-ghost" style="width: 100%;" onclick="renderTabContent('analytics')">Deeper Insights →</button>
+                         </div>
                     </div>
                 </div>
             </div>
@@ -3769,7 +3580,7 @@ window.uploadNote = async function (formData) {
             year: formData.get('year'),
             college: formData.get('collegeId') || currentUser.collegeId || currentUser.college || 'medicaps',
             collegeId: formData.get('collegeId') || currentUser.collegeId || currentUser.college || 'medicaps',
-            collegeName: formData.get('collegeName') || currentUser.collegeName || 'SKiL MATRiX Scholar',
+            collegeName: formData.get('collegeName') || currentUser.collegeName || 'Medicaps University',
             stream: formData.get('stream') || 'B.Tech',
             fileUrl: downloadURL,
             uploaderName: currentUser.name,
