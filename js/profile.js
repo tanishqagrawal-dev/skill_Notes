@@ -8,9 +8,7 @@ class ProfileManager {
         this.userData = null;
         this.saveTimeout = null;
         this.radarChart = null;
-        this.userData = null;
-        this.saveTimeout = null;
-        this.radarChart = null;
+        this.isEditing = false; // Add state for locking/unlocking
         this.isInitialized = false; 
         this.parallaxInitialized = false;
         this.init();
@@ -36,7 +34,7 @@ class ProfileManager {
         }
 
         return `
-            <div class="profile-wrapper fade-in mode-editing">
+            <div class="profile-wrapper fade-in ${this.isEditing ? 'mode-editing' : 'mode-view'}">
                 <!-- Header Card -->
                 <div class="profile-header-card" data-tilt>
                     <div class="completion-container">
@@ -67,12 +65,13 @@ class ProfileManager {
                     </div>
 
                     <div class="profile-info">
-                        <div class="greeting-row">
-                            <div class="greeting-text" id="dynamic-greeting">${this.getGreeting()}</div>
-                        </div>
-                        <h1 class="user-name" id="profile-name">${(this.userData?.name || 'Scholar').toUpperCase()}</h1>
+                        <div class="greeting-text" id="dynamic-greeting">${this.getGreeting()}</div>
+                        <h1 class="user-name" id="profile-name">${this.userData?.name || 'Scholar'}</h1>
                         <p class="user-email" id="profile-email">${this.userData?.email || 'Student ID'}</p>
                         <div class="profile-header-btns">
+                            <button class="btn btn-primary btn-sm" onclick="profileManager.toggleEdit()">
+                                <i class="fas ${this.isEditing ? 'fa-save' : 'fa-edit'}"></i> ${this.isEditing ? 'Save Changes' : 'Edit Profile'}
+                            </button>
                             <button class="btn btn-ghost btn-sm" onclick="handleLogout()">
                                 <i class="fas fa-sign-out-alt"></i> Logout
                             </button>
@@ -87,7 +86,7 @@ class ProfileManager {
                         <div class="form-row contact-row">
                             <div class="input-group country-group">
                                 <label class="input-label">Country Code</label>
-                                <select id="country-code" class="cyber-input cyber-select">
+                                <select id="country-code" class="cyber-input cyber-select" ${this.isEditing ? '' : 'disabled'}>
                                     <option value="" disabled selected>Code</option>
                                     <option value="+91">🇮🇳 +91 (India)</option>
                                     <option value="+1">🇺🇸 +1 (USA)</option>
@@ -113,14 +112,14 @@ class ProfileManager {
                             </div>
                             <div class="input-group">
                                 <label class="input-label">Phone Number</label>
-                                <input type="text" id="phone-input" class="cyber-input" placeholder="Enter number" oninput="window.profileManager.handleAutoSave()">
+                                <input type="text" id="phone-input" class="cyber-input" placeholder="Enter number" oninput="profileManager.handleAutoSave()" ${this.isEditing ? '' : 'readonly'}>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="input-group">
                                 <label class="input-label">Gender</label>
-                                <select id="gender-select" class="cyber-input cyber-select">
+                                <select id="gender-select" class="cyber-input cyber-select" ${this.isEditing ? '' : 'disabled'}>
                                     <option value="" disabled selected>Select Gender</option>
                                     <option value="Male">Male</option>
                                     <option value="Female">Female</option>
@@ -136,13 +135,13 @@ class ProfileManager {
                         <div class="form-row">
                             <div class="input-group">
                                 <label class="input-label">Institution</label>
-                                <input type="text" id="college-input" class="cyber-input" placeholder="College Name" oninput="window.profileManager.handleAutoSave()">
+                                <input type="text" id="college-input" class="cyber-input" placeholder="College Name" oninput="profileManager.handleAutoSave()" ${this.isEditing ? '' : 'readonly'}>
                             </div>
                         </div>
                         <div class="form-row academic-details">
                             <div class="input-group">
                                 <label class="input-label">Program</label>
-                                <select id="program-select" class="cyber-input cyber-select">
+                                <select id="program-select" class="cyber-input cyber-select" ${this.isEditing ? '' : 'disabled'}>
                                     <option value="" disabled selected>Program</option>
                                     <option value="B.Tech">B.Tech</option>
                                     <option value="BCA">BCA</option>
@@ -152,7 +151,7 @@ class ProfileManager {
                             </div>
                             <div class="input-group">
                                 <label class="input-label">Year of Study</label>
-                                <select id="year-select" class="cyber-input cyber-select">
+                                <select id="year-select" class="cyber-input cyber-select" ${this.isEditing ? '' : 'disabled'}>
                                     <option value="" disabled selected>Year</option>
                                     <option value="1">1st Year</option>
                                     <option value="2">2nd Year</option>
@@ -164,11 +163,11 @@ class ProfileManager {
                         <div class="form-row academic-details">
                             <div class="input-group">
                                 <label class="input-label">Branch/Degree</label>
-                                <input type="text" id="branch-input" class="cyber-input" placeholder="e.g. CSE" oninput="window.profileManager.handleAutoSave()">
+                                <input type="text" id="branch-input" class="cyber-input" placeholder="e.g. CSE" oninput="profileManager.handleAutoSave()" ${this.isEditing ? '' : 'readonly'}>
                             </div>
                             <div class="input-group">
                                 <label class="input-label">Semester</label>
-                                <select id="semester-select" class="cyber-input cyber-select">
+                                <select id="semester-select" class="cyber-input cyber-select" ${this.isEditing ? '' : 'disabled'}>
                                     <option value="" disabled selected>Semester</option>
                                     <option value="Sem 1">Sem 1</option>
                                     <option value="Sem 2">Sem 2</option>
@@ -198,15 +197,15 @@ class ProfileManager {
                                     <div class="input-group">
                                         <label class="input-label">Add Skill</label>
                                         <div class="skills-entry">
-                                            <input type="text" id="skill-input" class="cyber-input" placeholder="Add a skill (e.g. Python, AI)">
-                                            <button class="btn btn-ghost" onclick="window.profileManager.addSkill()">Add</button>
+                                            <input type="text" id="skill-input" class="cyber-input" placeholder="Add a skill (e.g. Python, AI)" ${this.isEditing ? '' : 'readonly'}>
+                                            <button class="btn btn-ghost" onclick="profileManager.addSkill()" ${this.isEditing ? '' : 'style="display:none"'}>Add</button>
                                         </div>
                                     </div>
                                     <div class="input-group skill-level-group">
                                         <label class="input-label">Level: <span id="skill-level-label">Intermediate</span></label>
                                         <input type="range" id="skill-level" min="1" max="5" value="3" style="width:100%;">
                                     </div>
-                                    <button class="btn btn-primary btn-add-skill-mobile" onclick="window.profileManager.addSkill()">
+                                    <button class="btn btn-primary btn-add-skill-mobile" onclick="profileManager.addSkill()">
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </div>
@@ -361,23 +360,17 @@ class ProfileManager {
     }
 
     loadGuestProfile() {
-        console.log("👤 Loading Guest Profile...");
         const cacheKey = 'profile_cache_guest';
         const cached = localStorage.getItem(cacheKey);
         
         if (cached) {
-            try {
-                this.userData = JSON.parse(cached);
-            } catch (e) {
-                console.error("Guest cache error:", e);
-                this.userData = this.getInitialData('guest');
-            }
+            this.userData = JSON.parse(cached);
         } else {
             const guestFromSession = JSON.parse(localStorage.getItem('guest_session'));
             if (guestFromSession) {
                 this.userData = { ...this.getInitialData(guestFromSession.id), ...guestFromSession };
             } else {
-                this.userData = this.getInitialData('guest');
+                this.userData = null;
             }
         }
         this.updateActiveTabUI();
@@ -397,17 +390,11 @@ class ProfileManager {
 
     updateActiveTabUI() {
         const activeTab = document.querySelector('.nav-item.active')?.dataset.tab;
-        console.log("🎯 Profile UI Update Triggered. Active Tab:", activeTab);
-        
         if (activeTab === 'profile') {
             const contentArea = document.getElementById('tab-content');
             if (contentArea) {
                 contentArea.innerHTML = this.render();
-                if (this.userData) {
-                    this.hydrateUI(this.userData);
-                }
-            } else {
-                console.warn("⚠️ Profile UI Update failed: #tab-content not found in DOM");
+                this.hydrateUI(this.userData);
             }
         }
     }
@@ -444,6 +431,11 @@ class ProfileManager {
         }
     }
 
+    loadGuestProfile() {
+        const local = localStorage.getItem('guest_profile');
+        this.userData = local ? JSON.parse(local) : this.getInitialData('guest');
+        this.hydrateUI(this.userData);
+    }
 
     getInitialData(uid) {
         const authData = JSON.parse(localStorage.getItem('auth_user_full')) || {};
@@ -521,10 +513,9 @@ class ProfileManager {
 
     getGreeting() {
         const hour = new Date().getHours();
-        if (hour < 12) return "GOOD MORNING 🌅";
-        if (hour < 17) return "GOOD AFTERNOON 🌤️";
-        if (hour < 21) return "GOOD EVENING 🌆";
-        return "GOOD NIGHT 🌙";
+        if (hour < 12) return "Good Morning";
+        if (hour < 18) return "Good Afternoon";
+        return "Good Evening";
     }
 
     renderSkills() {
@@ -535,7 +526,7 @@ class ProfileManager {
             <div class="skill-tag" data-idx="${idx}">
                 <span>${s.name}</span>
                 <span style="font-size: 0.7rem; opacity: 0.7;">Lvl ${s.level}</span>
-                <i class="fas fa-times" onclick="window.profileManager.removeSkill(${idx})"></i>
+                <i class="fas fa-times" onclick="profileManager.removeSkill(${idx})"></i>
             </div>
         `).join('');
     }
@@ -557,11 +548,38 @@ class ProfileManager {
         this.handleAutoSave();
     }
 
+    toggleEdit() {
+        this.isEditing = !this.isEditing;
+        this.updateActiveTabUI(); 
+        if (this.isEditing) {
+            setTimeout(() => this.scrollToEdit(), 50);
+        } else {
+            this.saveData(); // Save manually when finishing
+        }
+    }
+
+    scrollToEdit() {
+        const grid = document.querySelector('.profile-grid');
+        if (grid) {
+            grid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Highlight first empty field or just phone
+            const inputs = grid.querySelectorAll('input');
+            for (let input of inputs) {
+                if (!input.value) {
+                    input.focus();
+                    input.style.borderColor = 'var(--accent-blue)';
+                    setTimeout(() => input.style.borderColor = '', 2000);
+                    break;
+                }
+            }
+        }
+    }
+
     removeSkill(idx) {
         this.userData.skills.splice(idx, 1);
         this.renderSkills();
         this.updateRadarChart();
-        this.saveData();
+        this.handleAutoSave();
     }
 
     updateRadarChart() {
@@ -648,8 +666,8 @@ class ProfileManager {
         if (!phoneField) return; 
 
         // Check if we are accidentally saving empty values while background sync is pending
-        // Check if critical fields are empty but we know we have data, abort.
-        if (!phoneField.value && this.userData.phone) {
+        // If critical fields are empty but we know we have data, abort.
+        if (!phoneField.value && this.userData.phone && !this.isEditing) {
              console.warn("🛑 Aborting save: DOM fields appear empty but userData has values.");
              return;
         }
@@ -852,7 +870,7 @@ class ProfileManager {
                         </div>
                     </div>
 
-                    <button class="btn btn-primary guard-btn" onclick="window.profileManager.triggerLogin()">
+                    <button class="btn btn-primary guard-btn" onclick="profileManager.triggerLogin()">
                         <i class="fas fa-sign-in-alt"></i> Access My Profile
                     </button>
                     

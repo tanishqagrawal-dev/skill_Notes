@@ -1422,12 +1422,6 @@ function renderTabContent(tabId) {
             } else {
                 contentArea.innerHTML = `<p>Loading CGPA Analyzer...</p>`;
             }
-        } else if (tabId === 'attendance') {
-            if (window.AttendancePro) {
-                contentArea.innerHTML = window.AttendancePro.render();
-            } else {
-                contentArea.innerHTML = `<p>Loading Attendance Pro...</p>`;
-            }
         } else if (tabId === 'profile') {
             if (window.profileManager) {
                 contentArea.innerHTML = window.profileManager.render();
@@ -2786,7 +2780,7 @@ window.renderSubjectStep = function () {
     }
 
     container.innerHTML = subjects.map(s => `
-        <div class="selection-card glass-card fade-in" onclick="selectSubject('${s.id}', '${s.name}', '${s.code || ''}')">
+        <div class="selection-card glass-card fade-in" onclick="selectSubject('${s.id}', '${s.name}')">
             <div class="card-icon" style="font-size: 2.5rem; margin-bottom: 0.5rem;">${s.icon}</div>
             <div style="font-size: 0.7rem; color: var(--primary); font-weight: 700; margin-bottom: 0.5rem; background: rgba(108, 99, 255, 0.1); padding: 2px 8px; border-radius: 4px; display: inline-block;">${s.code}</div>
             <h3 class="font-heading">${s.name}</h3>
@@ -2794,10 +2788,10 @@ window.renderSubjectStep = function () {
     `).join('');
 };
 
-window.selectSubject = function (id, name, code = null) {
-    selState.subject = { id, name, code };
+window.selectSubject = function (id, name) {
+    selState.subject = { id, name };
     if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
-    trackAnalytics('select_subject', { id, name, code });
+    trackAnalytics('select_subject', { id, name });
     showNotes();
 };
 
@@ -2817,54 +2811,26 @@ window.showNotes = function (activeTab = 'notes') {
     // 1. Render Shell
     view.innerHTML = `
         <div class="subject-page-container fade-in">
-             <div class="breadcrumb-pro" style="display: flex; flex-wrap: nowrap; gap: 0.4rem; align-items: center; font-size: 0.78rem; margin-bottom: 1.5rem; color: var(--text-dim); background: rgba(255,255,255,0.02); padding: 0.4rem 0.8rem; border-radius: 10px; width: fit-content; border: 1px solid rgba(255,255,255,0.03); position: relative; z-index: 10; max-width: 100%; overflow-x: auto; white-space: nowrap; scrollbar-width: none; -ms-overflow-style: none;">
-                <span class="breadcrumb-item" onclick="window.jumpToExplorerStep('renderCollegeStep')" style="cursor:pointer; display:flex; align-items:center; gap:4px; -webkit-tap-highlight-color: transparent;">🏠 Home</span>
-                <span style="opacity:0.3; font-size: 0.7rem;">/</span>
-                <span class="breadcrumb-item" onclick="window.jumpToExplorerStep('renderBranchStep')" style="cursor:pointer; -webkit-tap-highlight-color: transparent;">${selState.branch.name}</span>
-                <span style="opacity:0.3; font-size: 0.7rem;">/</span>
-                <span class="breadcrumb-item" onclick="window.jumpToExplorerStep('renderCombinedSemesterStep')" style="cursor:pointer; -webkit-tap-highlight-color: transparent;">${selState.semester}</span>
-                <span style="opacity:0.3; font-size: 0.7rem;">/</span>
-                <span class="breadcrumb-item active" style="color: var(--secondary); font-weight: 600;">${selState.subject.name}</span>
+             <div class="breadcrumb-pro" style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; font-size: 0.85rem; margin-bottom: 1.5rem; color: var(--text-dim);">
+                🏠 <span style="opacity:0.5;">›</span> ${selState.branch.name} <span style="opacity:0.5;">›</span> ${selState.semester} <span style="opacity:0.5;">›</span> ${selState.subject.name}
             </div>
-             <div class="subject-page-hero" style="margin-bottom: 2.5rem; padding: 2.5rem; background: linear-gradient(135deg, rgba(123, 97, 255, 0.08) 0%, rgba(0, 242, 255, 0.05) 100%); border-radius: 28px; border: 1px solid rgba(255, 255, 255, 0.08); position: relative; overflow: hidden; animation: heroEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;">
-                <!-- Premium Animated Background Blobs -->
-                <div class="hero-glow-blob" style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(0, 242, 255, 0.1) 0%, transparent 70%); pointer-events: none; filter: blur(40px);"></div>
-                <div class="hero-glow-blob" style="position: absolute; bottom: -150px; left: -100px; width: 350px; height: 350px; background: radial-gradient(circle, rgba(123, 97, 255, 0.08) 0%, transparent 70%); pointer-events: none; filter: blur(50px); animation-delay: -5s;"></div>
-                
-                <div class="hero-layout-pro" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem; position: relative; z-index: 2;">
-                    <div style="flex: 1;">
-                        <div class="stagger-1" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem;">
-                             <span class="subject-code-badge" style="background: linear-gradient(135deg, var(--primary), #6366f1); color: white; padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; letter-spacing: 1.5px; box-shadow: 0 4px 12px rgba(123, 97, 255, 0.3); border: 1px solid rgba(255,255,255,0.2); text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                                ${(() => {
-                                    // Robust lookup for official code
-                                    const allSubs = Object.values(GlobalData.subjects).flat();
-                                    const match = allSubs.find(s => s.name === selState.subject.name || s.id === selState.subject.id);
-                                    return match?.code || selState.subject.code || selState.subject.id.toUpperCase();
-                                })()}
-                             </span>
-                             <div class="sub-badges" style="display: flex; gap: 0.6rem;">
-                                <span class="meta-badge" style="background: rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); font-weight: 600; letter-spacing: 0.5px;">${selState.branch.id.toUpperCase()}</span>
-                                <span class="meta-badge" style="background: rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); font-weight: 600; letter-spacing: 0.5px;">${selState.year.toUpperCase()}</span>
-                            </div>
+             <div class="subject-page-hero">
+                <div style="display:flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h1 class="font-heading subject-title-pro" style="margin: 0; line-height: 1.1;">${selState.subject.name}</h1>
+                        <div class="sub-badges" style="margin-top: 0.8rem;">
+                            <span class="meta-badge">${selState.branch.id.toUpperCase()}</span>
+                            <span class="meta-badge">${selState.year.toUpperCase()}</span>
                         </div>
-                        <h1 class="font-heading subject-title-pro stagger-2" style="margin: 0; font-size: 2.8rem; font-weight: 900; background: linear-gradient(to right, #fff 20%, #00f2ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.1; letter-spacing: -0.5px;">${selState.subject.name}</h1>
-                        
-                        <div class="ai-btns-row stagger-3" style="margin-top: 2.2rem; display: flex; flex-wrap: wrap; gap: 1.25rem;">
-                            <button class="btn-premium" onclick="window.showAIModal('summary', '${selState.subject.name}')" style="background: linear-gradient(135deg, var(--primary), #00f2ff); color: white; border: none; padding: 0.9rem 1.8rem; border-radius: 14px; font-weight: 700; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden;">
-                                <span style="font-size: 1.1rem;">✨</span> AI Summary
-                            </button>
-                            <button class="btn-premium-outline" onclick="window.showAIModal('questions', '${selState.subject.name}')" style="background: rgba(255,255,255,0.03); color: white; border: 1px solid rgba(123, 97, 255, 0.5); padding: 0.9rem 1.8rem; border-radius: 14px; font-weight: 700; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.3s; backdrop-filter: blur(5px);">📝 Model Questions</button>
-                            <button class="btn-premium-outline" onclick="window.switchSubjectTab('syllabus')" style="background: rgba(255,255,255,0.03); color: white; border: 1px solid rgba(0, 242, 255, 0.4); padding: 0.9rem 1.8rem; border-radius: 14px; font-weight: 700; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.3s; backdrop-filter: blur(5px);">📖 View Syllabus</button>
+                        <div class="ai-btns-row" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                            <button class="btn btn-primary btn-sm" onclick="showAIModal('summary', '${selState.subject.name}')">✨ AI Summary</button>
+                            <button class="btn btn-ghost btn-sm ai-questions-btn" style="border: 1px solid var(--primary);" onclick="showAIModal('questions', '${selState.subject.name}')">📝 Model Questions</button>
+                            <button class="btn btn-ghost btn-sm syllabus-btn" style="border: 1px solid var(--primary);" onclick="switchSubjectTab('syllabus')">📖 Syllabus</button>
                         </div>
                     </div>
-                    
-                    <div class="subject-actions-top stagger-4" style="display: flex; flex-direction: column; gap: 1rem;">
-                        <button class="btn-action-pro" onclick="window.copyShareLink(this)" id="share-btn" style="background: rgba(0, 242, 255, 0.1); color: var(--secondary); border: 1px solid rgba(0, 242, 255, 0.25); padding: 0.8rem 1.8rem; border-radius: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; transition: all 0.3s ease; white-space: nowrap; backdrop-filter: blur(10px);">
-                            <span style="font-size: 1.1rem;">🔗</span> Share Subject
-                        </button>
-                        <button class="btn-action-pro" onclick="window.backToSubjectSelection()" style="background: rgba(255, 255, 255, 0.05); color: white; border: 1px solid rgba(255, 255, 255, 0.12); padding: 0.8rem 1.8rem; border-radius: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; transition: all 0.3s ease; backdrop-filter: blur(10px);">
-                            <span>⬅</span> Back to List
-                        </button>
+                    <div class="subject-actions-top" style="display:flex; gap: 1rem;">
+                        <button class="btn btn-ghost" onclick="copyShareLink(this)" id="share-btn" style="white-space:nowrap; background: rgba(0, 242, 255, 0.1); color: var(--secondary); padding: 0.6rem 1.2rem; border-radius: 8px;">🔗 Share Subject</button>
+                        <button class="btn btn-ghost" onclick="backToSubjectSelection()" style="white-space:nowrap; background: rgba(255,255,255,0.05); padding: 0.6rem 1.2rem; border-radius: 8px;">⬅ Back</button>
                     </div>
                 </div>
             </div>
@@ -3421,15 +3387,11 @@ function formatDate(timestamp) {
 
 window.getSubjectSyllabusHTML = function(subjectName) {
     const genSyllabusHTML = (units) => {
-        return `<div class="syllabus-grid-pro" style="text-align: left; padding: 1.5rem 0; display: grid; gap: 1.25rem;">
-        ${units.map((u, i) => `
-                <div class="premium-syllabus-card" style="animation-delay: ${i * 0.1}s;">
-                    <div class="syllabus-card-glow"></div>
-                    <div class="syllabus-accent-bar"></div>
-                    <div class="syllabus-content-wrapper">
-                        <h4 class="syllabus-unit-title">${u.title}</h4>
-                        <p class="syllabus-unit-desc">${u.desc}</p>
-                    </div>
+        return `<div style="text-align: left; padding: 1rem 0;">
+        ${units.map(u => `
+                <div class="glass-card" style="margin-bottom: 1.5rem; padding: 1.5rem; border-left: 4px solid var(--primary);">
+                    <h4 style="color: var(--primary); margin-bottom: 0.5rem; font-size: 1.1rem;">${u.title}</h4>
+                    <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.6;">${u.desc}</p>
                 </div>
             `).join('')}
         </div>`;
@@ -3652,50 +3614,48 @@ window.showAIModal = function (type, subject) {
         content = window.getSubjectSyllabusHTML(subject);
     } else if (type === 'summary') {
         title = '✨ AI Concept Summary';
-        content = `<div class="ai-modal-content-wrapper" style="text-align: center;">
-            <div style="font-size: 3.5rem; margin-bottom: 1.2rem; filter: drop-shadow(0 0 15px rgba(255, 184, 0, 0.3)); animation-delay: 0.1s;">🚧</div>
-            <h3 style="color: white; margin-bottom: 0.8rem; font-size: 1.6rem; font-weight: 800; animation-delay: 0.2s;">Feature Coming Soon</h3>
-            <p style="color: var(--text-dim); line-height: 1.6; font-size: 0.95rem; max-width: 340px; margin: 0 auto; animation-delay: 0.3s;">Our AI-powered summary engine for <b style="color: var(--secondary); text-shadow: 0 0 10px rgba(0, 242, 255, 0.3);">${subject}</b> is currently in development.</p>
-            <div class="loader-pro" style="margin: 2rem auto; animation-delay: 0.4s;"></div>
-            <div style="font-size: 0.8rem; color: var(--secondary); background: rgba(0, 242, 255, 0.06); padding: 0.8rem 1.2rem; border-radius: 14px; margin-top: 1.2rem; border: 1px solid rgba(0, 242, 255, 0.12); display: inline-flex; align-items: center; gap: 8px; animation-delay: 0.5s;">
-                <span>🚀</span> <span>Available in <b>Pro Sandbox</b> update.</span>
-            </div>
+        content = `<div style="text-align: center; padding: 2rem;">
+            <div style="font-size: 3.5rem; margin-bottom: 1.5rem;">🚧</div>
+            <h3 style="color: white; margin-bottom: 1rem;">Feature Coming Soon</h3>
+            <p style="color: var(--text-dim); line-height: 1.6;">Our AI-powered high-yield summary engine for <b style="color: #00f2ff;">${subject}</b> is currently in the final stages of development.</p>
+            <div class="loader-pro" style="margin: 2rem auto; width: 40px; height: 40px;"></div>
+            <p style="font-size: 0.85rem; color: var(--secondary); background: rgba(0, 242, 255, 0.05); padding: 0.8rem; border-radius: 12px; margin-top: 1rem;">
+                🚀 This feature will be available in the upcoming <b>Pro Sandbox</b> update.
+            </p>
         </div>`;
     } else if (type === 'questions') {
         title = '📝 Model Exam Questions';
         
         content = `
-            <div class="ai-modal-content-wrapper" id="ai-generator-ui">
-                <div style="text-align: center; margin-bottom: 1.5rem; animation-delay: 0.1s;">
-                    <h3 style="color: white; font-size: 1.4rem;">Select Examination Type</h3>
-                    <p style="color: var(--text-dim); font-size: 0.9rem;">Generate high-probability questions for ${subject}.</p>
+            <div class="ai-selection-pane" id="ai-generator-ui">
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <h3 style="color: white;">Select Examination Type</h3>
+                    <p style="color: var(--text-dim);">Generate high-probability questions for ${subject}.</p>
                 </div>
                 
-                <div class="exam-type-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; animation-delay: 0.2s;">
-                    <div class="exam-type-card" onclick="window.selectExamType(this, 'MST 1')" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 1rem; border-radius: 16px; cursor: pointer; text-align: center; transition: 0.3s;">
-                        <div style="font-size: 1.6rem; margin-bottom: 0.4rem;">1️⃣</div>
-                        <div style="font-weight: 700; color: white; font-size: 0.9rem;">MST 1</div>
+                <div class="exam-type-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
+                    <div class="exam-type-card" onclick="window.selectExamType(this, 'MST 1')" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">1️⃣</div>
+                        <div style="font-weight: bold;">MST 1</div>
                     </div>
-                    <div class="exam-type-card" onclick="window.selectExamType(this, 'MST 2')" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 1rem; border-radius: 16px; cursor: pointer; text-align: center; transition: 0.3s;">
-                        <div style="font-size: 1.6rem; margin-bottom: 0.4rem;">2️⃣</div>
-                        <div style="font-weight: 700; color: white; font-size: 0.9rem;">MST 2</div>
+                    <div class="exam-type-card" onclick="window.selectExamType(this, 'MST 2')" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">2️⃣</div>
+                        <div style="font-weight: bold;">MST 2</div>
                     </div>
-                    <div class="exam-type-card" onclick="window.selectExamType(this, 'End Sem')" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 1rem; border-radius: 16px; cursor: pointer; text-align: center; transition: 0.3s;">
-                        <div style="font-size: 1.6rem; margin-bottom: 0.4rem;">🎓</div>
-                        <div style="font-weight: 700; color: white; font-size: 0.9rem;">End Sem</div>
+                    <div class="exam-type-card" onclick="window.selectExamType(this, 'End Sem')" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🎓</div>
+                        <div style="font-weight: bold;">End Sem</div>
                     </div>
                 </div>
 
-                <div id="ai-status-msg" style="text-align: center; margin: 0.5rem 0; color: #7B61FF; font-size: 0.8rem; animation-delay: 0.3s;"></div>
+                <div id="ai-status-msg" style="text-align: center; margin: 1rem 0; color: #7B61FF; font-size: 0.85rem;"></div>
 
-                <div style="animation-delay: 0.4s;">
-                    <button id="ai-generate-btn" class="btn btn-primary" style="width: 100%; border-radius: 14px; padding: 0.85rem; font-weight: 800; background: linear-gradient(135deg, #7B61FF, #00F2FF); border: none; color: white; cursor: pointer; box-shadow: 0 10px 20px rgba(123, 97, 255, 0.2); transition: 0.3s;" onclick="window.handleAIGeneration('${subject}')" disabled>
-                        ✨ Generate AI Model Paper
-                    </button>
-                </div>
+                <button id="ai-generate-btn" class="btn btn-primary" style="width: 100%; border-radius: 12px; padding: 1rem; font-weight: 700; background: linear-gradient(135deg, #7B61FF, #00F2FF); border: none; color: white; cursor: pointer;" onclick="window.handleAIGeneration('${subject}')" disabled>
+                    ✨ Generate AI Model Paper
+                </button>
 
-                <div class="credit-info" style="text-align: center; margin-top: 1rem; animation-delay: 0.5s;">
-                    <span id="ai-credits-left" style="font-size: 0.8rem; color: var(--text-dim);">Please select an exam type above.</span>
+                <div class="credit-info" style="text-align: center; margin-top: 1rem;">
+                    <span id="ai-credits-left" style="font-size: 0.85rem; color: var(--text-dim);">Please select an exam type above.</span>
                 </div>
             </div>`;
 
@@ -3715,18 +3675,12 @@ window.showAIModal = function (type, subject) {
     `;
 
         modal.innerHTML = `
-        <div style="background: #050505; border: 1.5px solid rgba(123, 97, 255, 0.3); border-radius: 30px; width: 92%; max-width: 420px; padding: 2rem; position: relative; box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9); animation: modalFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1), premium-glow-border 4s ease-in-out infinite; overflow: hidden;">
-                <!-- Subtle Decorative Glows -->
-                <div style="position: absolute; top: -80px; right: -80px; width: 160px; height: 160px; background: radial-gradient(circle, rgba(123, 97, 255, 0.12) 0%, transparent 70%); pointer-events: none;"></div>
-                <div style="position: absolute; bottom: -80px; left: -80px; width: 160px; height: 160px; background: radial-gradient(circle, rgba(0, 242, 255, 0.08) 0%, transparent 70%); pointer-events: none;"></div>
-
-                <button class="ai-modal-close" onclick="document.getElementById('dynamic-ai-modal').style.display='none'" style="position: absolute; top: 1.25rem; right: 1.25rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; transition: 0.3s; font-size: 1rem;">&times;</button>
-                
-                <div style="margin-bottom: 1.5rem; text-align: center; position: relative; z-index: 1;">
-                    <h2 id="dynamic-ai-modal-title" style="font-size: 1.3rem; font-weight: 800; color: white; letter-spacing: -0.5px; opacity: 0; animation: fadeSlideUp 0.6s ease-out forwards; animation-delay: 0.1s;"></h2>
-                    <div style="width: 40px; height: 3px; background: linear-gradient(90deg, var(--primary), var(--secondary)); margin: 12px auto; border-radius: 10px; opacity: 0; animation: fadeSlideUp 0.6s ease-out forwards; animation-delay: 0.15s;"></div>
+        <div style="background: rgba(23, 23, 23, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; width: 90%; max-width: 600px; padding: 2.5rem; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); animation: modalFadeIn 0.3s ease-out;">
+                <button onclick="document.getElementById('dynamic-ai-modal').style.display='none'" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: var(--text-dim); font-size: 1.5rem; cursor: pointer;">&times;</button>
+                <div style="margin-bottom: 2rem; text-align: center;">
+                    <h2 id="dynamic-ai-modal-title" style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; font-family: 'JetBrains Mono', monospace;"></h2>
                 </div>
-                <div id="dynamic-ai-modal-content" style="position: relative; z-index: 1;"></div>
+                <div id="dynamic-ai-modal-content"></div>
             </div>
         `;
         document.body.appendChild(modal);
@@ -3759,21 +3713,15 @@ window.backToExplorer = function () {
 };
 
 window.backToSubjectSelection = function () {
-    window.jumpToExplorerStep('renderSubjectStep');
-};
-
-window.jumpToExplorerStep = function (stepFunc) {
     const explorerHeader = document.getElementById('explorer-header');
     const explorerContent = document.getElementById('explorer-content');
     const view = document.getElementById('final-notes-view');
 
     if (view) view.style.display = 'none';
-    if (explorerHeader) explorerHeader.style.display = 'block';
-    if (explorerContent) explorerContent.style.display = 'grid';
+    if (explorerHeader) explorerHeader.style.display = 'block'; // Or flex/grid depending on orig styles, but block usually works for div containers or use empty to revert
+    if (explorerContent) explorerContent.style.display = 'grid'; // Grid was the original display type
 
-    if (window[stepFunc]) {
-        window[stepFunc]();
-    }
+    renderSubjectStep();
 };
 
 // Checked for auth above in system initialization
@@ -4077,190 +4025,236 @@ const LeaderboardData = {
 
 function renderLeaderboard() {
     return `
-        <div class="tab-pane active fade-in">
+        <div class="tab-pane active fade-in" style="padding: 2rem;">
+            <!-- Header -->
+            <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 1.5rem;">
+                <div>
+                    <h1 class="font-heading">🏆 Advanced <span class="gradient-text">Leaderboard</span></h1>
+                    <p style="color: var(--text-dim);">Compete, contribute, and track your academic standing in real-time.</p>
+                </div>
+                <!-- Controls -->
+                <div class="leaderboard-controls glass-card">
+                    <div class="lb-tabs">
+                        <div class="lb-tab active" data-type="student">🧑🎓 Students</div>
+                        <div class="lb-tab" data-type="contributor">📤 Contributors</div>
+                        <div class="lb-tab" data-type="college">🏫 Colleges</div>
+                    </div>
+                </div>
+            </div>
+
             <div class="leaderboard-container">
-                <!-- Header -->
-                <div class="leaderboard-header">
-                    <div class="hof-badge">🏆 SKILL MATRIX: ELITE VANGUARD</div>
-                    <h1>Leaderboard</h1>
-                    <p>Track the champions of academic excellence and community contribution in real-time.</p>
+                <!-- Main Leaderboard List -->
+                <div class="leaderboard-main glass-card" style="padding: 2rem;">
                     
-                    <div class="lb-tabs-container">
-                        <div class="lb-tabs">
-                            <div class="lb-tab active" data-type="student" onclick="switchLeaderboardTab(this, 'student')">🧑🎓 Academic Elite</div>
-                            <div class="lb-tab" data-type="contributor" onclick="switchLeaderboardTab(this, 'contributor')">📤 Top Uploaders</div>
-                            <div class="lb-tab" data-type="college" onclick="switchLeaderboardTab(this, 'college')">🏫 Power Colleges</div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                        <div class="time-filters" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                            <div class="time-filter active" data-time="today">Today</div>
+                            <div class="time-filter" data-time="week">Week</div>
+                            <div class="time-filter" data-time="month">Month</div>
+                            <div class="time-filter" data-time="all">All Time</div>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-dim);">
+                             Auto-updates every 10s
                         </div>
                     </div>
-                </div>
 
-                <!-- Spotlight / Podium Area -->
-                <div id="lb-spotlight-container" class="lb-spotlight">
-                    <!-- Populated via JS -->
-                </div>
-
-                <!-- Honorable Mentions (List) -->
-                <div class="mentions-container">
-                    <div class="mentions-header">
-                        <h3>Honorable Mentions</h3>
-                        <div style="font-size: 0.8rem; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px;">
-                             <span class="pulse-dot"></span> Matrix Sync Active
-                        </div>
-                    </div>
-                    <div id="lb-list-container" class="mentions-list">
+                    <div id="lb-list-container" class="leaderboard-list">
                         <!-- Populated via JS -->
                     </div>
+                </div>
+
+                <!-- Sidebar / Widget Area -->
+                <div class="lb-sidebar">
+                    
+                    <!-- 1. Personal Rank Tracker -->
+                    <div class="personal-rank-card">
+                        <div style="position: relative; z-index: 2;">
+                            <h4 style="margin-bottom: 1rem; color: white;">Your Standing</h4>
+                            <div class="rank-stat">
+                                <span class="label">Student Rank</span>
+                                <div style="display:flex; align-items:center; gap: 8px;">
+                                    <span class="value">#1</span>
+                                    <span class="rank-change rank-up">↑ 2</span>
+                                </div>
+                            </div>
+                            <div class="rank-stat">
+                                <span class="label">Contributor Rank</span>
+                                <div style="display:flex; align-items:center; gap: 8px;">
+                                    <span class="value">#12</span>
+                                    <span class="rank-change rank-down">↓ 1</span>
+                                </div>
+                            </div>
+                            <div style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                                <span class="label">Score</span>
+                                <span class="value" style="float: right; color: var(--secondary);">2,450 XP</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Live Activity Feed -->
+                    <div class="glass-card" style="padding: 1.5rem;">
+                        <h4 style="margin-bottom: 1rem; font-size: 1rem;">🔴 Live Activity</h4>
+                        <div id="activity-feed" class="activity-feed">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+
+                    <!-- 3. Badges -->
+                    <div class="glass-card" style="padding: 1.5rem;">
+                        <h4 style="margin-bottom: 1rem; font-size: 1rem;">🎖️ Your Badges</h4>
+                        <div style="display:flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <span title="Early Adopter" style="font-size: 1.5rem; cursor: help;">🚀</span>
+                            <span title="Top Viewer" style="font-size: 1.5rem; cursor: help;">👁️</span>
+                            <span title="First Upload" style="font-size: 1.5rem; cursor: help; opacity: 0.3;">📤</span>
+                            <span title="Scholar" style="font-size: 1.5rem; cursor: help; opacity: 0.3;">🎓</span>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
     `;
 }
 
-window.switchLeaderboardTab = function(el, type) {
-    document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    updateLeaderboardUI(type, 'all');
-};
-
 window.initLeaderboardListeners = function () {
+    // Type Switching
+    const typeTabs = document.querySelectorAll('.lb-tab');
+    typeTabs.forEach(tab => {
+        tab.onclick = () => {
+            document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            updateLeaderboardUI(tab.dataset.type, 'week'); // Default to week
+        };
+    });
+
+    // Time Switching
+    const timeFilters = document.querySelectorAll('.time-filter');
+    timeFilters.forEach(filter => {
+        filter.onclick = () => {
+            document.querySelectorAll('.time-filter').forEach(t => t.classList.remove('active'));
+            filter.classList.add('active');
+            // In a real app, this would fetch filtered data. Here we simulated.
+            const activeType = document.querySelector('.lb-tab.active').dataset.type;
+            updateLeaderboardUI(activeType, filter.dataset.time);
+        };
+    });
+
     // Initial Render
-    updateLeaderboardUI('student', 'all');
+    updateLeaderboardUI('student', 'today');
+    startActivityFeed();
     initLeaderboardRealtime();
 };
 
 function initLeaderboardRealtime() {
-    const { db, collection, onSnapshot, query } = getFirebase();
+    const { db, collection, onSnapshot, query, orderBy } = getFirebase();
     if (!db) return;
 
-    // Listen for global user updates to refresh current view if needed
-    onSnapshot(query(collection(db, "users")), () => {
-        const activeTab = document.querySelector('.lb-tab.active');
-        if (activeTab && activeTab.dataset.type !== 'college') {
-            updateLeaderboardUI(activeTab.dataset.type, 'all');
+    // Listen to users for student leaderboard
+    const usersQ = query(collection(db, "users"));
+    onSnapshot(usersQ, (snapshot) => {
+        const activeType = document.querySelector('.lb-tab.active')?.dataset.type;
+        if (activeType === 'student') {
+            updateLeaderboardUI('student', document.querySelector('.time-filter.active')?.dataset.time || 'all');
         }
     });
 }
 
 function updateLeaderboardUI(type, timeframe) {
     const list = document.getElementById('lb-list-container');
-    const spotlightContainer = document.getElementById('lb-spotlight-container');
-    if (!list || !spotlightContainer) return;
+    if (!list) return;
 
     const { db, collection, query, orderBy, limit, onSnapshot } = window.firebaseServices || {};
-    if (!db) return;
+    if (!db) {
+        list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">Syncing with Cloud Hub...</p>';
+        return;
+    }
 
+    // Determine collection and ordering based on type
     let colRef;
     let orderField;
 
     if (type === 'college') {
         colRef = collection(db, "colleges");
-        orderField = "views";
+        orderField = "views"; // Assume views for colleges
     } else {
         colRef = collection(db, "users");
         orderField = type === 'student' ? "xp" : "uploads";
     }
 
-    const q = query(colRef, orderBy(orderField, "desc"), limit(15));
+    const q = query(colRef, orderBy(orderField, "desc"), limit(20));
 
     onSnapshot(q, (snapshot) => {
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
         if (data.length === 0) {
-            list.innerHTML = '<div style="text-align:center; padding: 5rem; color: rgba(255,255,255,0.2);">No elite data synchronized yet.</div>';
-            spotlightContainer.innerHTML = '';
+            list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">No rankings found yet. Be the first!</p>';
             return;
         }
 
-        // --- RENDER SPOTLIGHT (Top 3) ---
-        const spotlightData = data.slice(0, 3);
-        const visualSpotlight = [];
-        if (spotlightData[1]) visualSpotlight.push({ ...spotlightData[1], rank: 2 });
-        if (spotlightData[0]) visualSpotlight.push({ ...spotlightData[0], rank: 1 });
-        if (spotlightData[2]) visualSpotlight.push({ ...spotlightData[2], rank: 3 });
+        // --- Update "Your Standing" Widget ---
+        if (window.currentUser) {
+            const myRank = data.findIndex(item => item.id === window.currentUser.id || item.name === window.currentUser.name) + 1;
+            const myScore = data.find(item => item.id === window.currentUser.id || item.name === window.currentUser.name)?.[orderField] || 0;
 
-        spotlightContainer.innerHTML = visualSpotlight.map(item => {
-            const label = type === 'student' ? 'Experience Points' : (type === 'contributor' ? 'Successful Uploads' : 'Total Network Views');
-            const shortLabel = type === 'student' ? 'XP' : (type === 'contributor' ? 'Uploads' : 'Views');
-            const scoreVal = item[orderField] || 0;
-            const avatar = item.logo || item.avatar || '';
-            const crown = item.rank === 1 ? '<div class="spotlight-crown">👑</div>' : '';
-            
-            const avatarHtml = avatar 
-                ? `<img src="${avatar}" alt="${item.name}">`
-                : `<span style="font-size: 3rem; font-weight: 900; color: #fff; opacity: 0.8;">${item.name ? item.name[0] : '?'}</span>`;
-
-            return `
-                <div class="spotlight-card rank-${item.rank}">
-                    ${crown}
-                    <div class="spotlight-avatar-wrapper">
-                        <div class="spotlight-avatar">
-                            ${avatarHtml}
-                        </div>
-                        <div class="rank-badge">${item.rank}</div>
-                    </div>
-                    <div class="spotlight-name">${item.name || "Elite Student"} ${item.rank === 1 ? '✨' : ''}</div>
-                    <div class="spotlight-score count-up" data-value="${scoreVal}">${scoreVal.toLocaleString()}</div>
-                    <div class="spotlight-label">${shortLabel}</div>
-                    <div style="font-size: 0.7rem; color: rgba(255, 255, 255, 0.3); margin-top: 1.5rem; text-transform: uppercase; letter-spacing: 1px;">${label}</div>
-                </div>
-            `;
-        }).join('');
-
-        // --- RENDER LIST (4+) ---
-        const listData = data.slice(3);
-        list.innerHTML = listData.map((item, index) => {
-            const rank = index + 4;
-            const label = type === 'student' ? 'POINTS' : (type === 'contributor' ? 'UPLOADS' : 'VIEWS');
-            const scoreVal = item[orderField] || 0;
-            const avatar = item.logo || item.avatar;
-
-            const avatarHtml = avatar 
-                ? `<img src="${avatar}" alt="${item.name}">`
-                : `<span style="font-size: 1.2rem; font-weight: 900; color: #fff; opacity: 0.5;">${item.name ? item.name[0] : '?'}</span>`;
-
-            return `
-                <div class="mention-row" style="animation-delay: ${index * 0.1}s">
-                    <div class="mention-rank">#${rank < 10 ? '0' + rank : rank}</div>
-                    <div class="mention-avatar">
-                        ${avatarHtml}
-                    </div>
-                    <div class="mention-info">
-                        <h4>${item.name || "Anonymous User"}</h4>
-                        <div class="mention-trend trend-up">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-                            Rising Fast
-                        </div>
-                    </div>
-                    <div class="mention-score">
-                        <span class="val">${scoreVal.toLocaleString()}</span>
-                        <span class="lbl">${label}</span>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        // Trigger Count-Up Animation
-        setTimeout(() => {
-            document.querySelectorAll('.count-up').forEach(el => {
-                const target = parseInt(el.dataset.value);
-                if (isNaN(target)) return;
-                animateValue(el, 0, target, 1500);
-            });
-        }, 100);
-    });
-}
-
-function animateValue(obj, start, end, duration) {
-    let startTimestamp = null;
-    const step = (timestamp) => {
-        if (!startTimestamp) startTimestamp = timestamp;
-        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        obj.innerHTML = Math.floor(progress * (end - start) + start).toLocaleString();
-        if (progress < 1) {
-            window.requestAnimationFrame(step);
+            const valueEls = document.querySelectorAll('.personal-rank-card .value');
+            if (valueEls && valueEls.length >= 3) {
+                if (type === 'student') {
+                    const rankEls = document.querySelectorAll('.personal-rank-card .rank-stat .value');
+                    if (rankEls[0]) rankEls[0].innerText = myRank > 0 ? `#${myRank}` : 'N/A';
+                } else if (type === 'contributor') {
+                    const rankEls = document.querySelectorAll('.personal-rank-card .rank-stat .value');
+                    if (rankEls[1]) rankEls[1].innerText = myRank > 0 ? `#${myRank}` : 'N/A';
+                }
+                valueEls[2].innerText = `${myScore.toLocaleString()} ${type === 'student' ? 'XP' : 'pts'}`;
+            }
         }
-    };
-    window.requestAnimationFrame(step);
+
+        list.innerHTML = data.map((item, index) => {
+            const rankClass = index < 3 ? `top-3 rank-${index + 1}` : '';
+            const rankIcon = index < 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`;
+
+            // Systematic logo/avatar rendering
+            const imgPath = item.logo || item.avatar;
+            let avatarHtml = '';
+
+            if (imgPath) {
+                avatarHtml = `<img src="${imgPath}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                              <span class="lb-avatar-letter" style="display:none">${item.name ? item.name[0] : '?'}</span>`;
+            } else {
+                avatarHtml = `<span class="lb-avatar-letter">${item.name ? item.name[0] : '?'}</span>`;
+            }
+
+            let metaHtml = '';
+            if (type === 'student') {
+                metaHtml = `<span class="score-val">${item.xp || 0} XP</span><span class="score-label">Points</span>`;
+            } else if (type === 'contributor') {
+                metaHtml = `<span class="score-val">${item.uploads || 0}</span><span class="score-label">Uploads</span>`;
+            } else if (type === 'college') {
+                metaHtml = `<span class="score-val">${formatNumber(item.views || 0)}</span><span class="score-label">Total Views</span>`;
+            }
+
+            return `
+                <div class="lb-entry ${rankClass}">
+                    <div class="lb-rank rank-${index + 1}">${rankIcon}</div>
+                    
+                    <div class="lb-user-content">
+                        <div class="lb-avatar-container">
+                            ${avatarHtml}
+                            ${index === 0 ? '<div class="lb-badge">👑</div>' : ''}
+                        </div>
+                        <div class="lb-info">
+                            <h4>${item.name || "Anonymous"}</h4>
+                            <p>${type === 'college' ? (item.city || 'University') : (item.collegeName || "Student")}</p>
+                        </div>
+                    </div>
+
+                    <div class="lb-score">
+                        ${metaHtml}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    });
 }
 
 function startActivityFeed() {
@@ -5247,9 +5241,11 @@ startDashboardSimulation();
 
 window.selectExamType = function (el, type) {
     document.querySelectorAll('.exam-type-card').forEach(c => {
-        c.classList.remove('active');
+        c.style.background = 'rgba(255,255,255,0.05)';
+        c.style.borderColor = 'rgba(255,255,255,0.1)';
     });
-    el.classList.add('active');
+    el.style.background = 'rgba(123, 97, 255, 0.2)';
+    el.style.borderColor = '#7B61FF';
     window.selectedExamType = type;
     document.getElementById('ai-generate-btn').disabled = false;
     document.getElementById('ai-credits-left').innerText = `Ready to generate ${type} paper.`;
