@@ -1381,6 +1381,68 @@
     transform: translateY(-2px);
 }
 
+@media (min-width: 769px) and (max-width: 1180px) {
+    .subject-tabs-nav {
+        flex-wrap: wrap !important;
+        align-items: flex-start !important;
+        row-gap: 0.75rem !important;
+    }
+
+    .subject-tabs-nav > div:first-child {
+        width: 100% !important;
+        min-width: 0 !important;
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+    }
+
+    .subject-tabs-nav .tab-search-container {
+        flex: 0 0 100% !important;
+        min-width: 0 !important;
+        max-width: 300px !important;
+        margin-left: auto !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .detailed-item.glass-card {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.9rem !important;
+    }
+
+    .detailed-item.glass-card .item-left {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    .detailed-item.glass-card .item-info {
+        min-width: 0 !important;
+    }
+
+    .detailed-item.glass-card .item-title {
+        overflow-wrap: anywhere;
+    }
+
+    .detailed-item.glass-card .item-meta-row {
+        flex-wrap: wrap !important;
+        row-gap: 0.4rem !important;
+    }
+
+    .detailed-item.glass-card .item-right {
+        width: 100% !important;
+        justify-content: space-between !important;
+        gap: 0.75rem !important;
+    }
+
+    .detailed-item.glass-card .item-actions-inline {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+
+    .detailed-item.glass-card .btn-download-pro {
+        flex-shrink: 0 !important;
+    }
+}
+
 .modal-overlay {
     position: fixed;
     top: 0;
