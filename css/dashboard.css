@@ -4378,58 +4378,28 @@
         text-align: center !important;
         background: linear-gradient(165deg, rgba(21, 19, 34, 0.98) 0%, rgba(12, 10, 18, 1) 100%) !important;
         border: 1px solid rgba(123, 97, 255, 0.3) !important;
-<<<<<<< HEAD
         margin: 0 0 1rem 0 !important;
         width: 100% !important;
         box-sizing: border-box !important;
-=======
-        box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 20px rgba(123, 97, 255, 0.15) !important;
-        margin: 0 0.25rem 1rem 0.25rem !important;
-        width: calc(100% - 0.5rem) !important;
-        box-sizing: border-box !important;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .profile-alert-banner-modern::after {
-        content: '';
-        position: absolute;
-        top: -50%; left: -50%; width: 200%; height: 200%;
-        background: radial-gradient(circle at center, rgba(123, 97, 255, 0.08) 0%, transparent 70%);
-        pointer-events: none;
->>>>>>> parent of bccfa7c (fix issue)
     }
 
     .alert-inner-row {
         flex-direction: column !important;
         align-items: center !important;
-<<<<<<< HEAD
         gap: 0.4rem !important;
-=======
-        text-align: center !important;
-        gap: 0.6rem !important; /* Significantly reduced vertical gap */
->>>>>>> parent of bccfa7c (fix issue)
     }
 
     .alert-left {
         flex-direction: column !important;
         align-items: center !important;
-<<<<<<< HEAD
         justify-content: center !important;
         gap: 0.4rem !important;
-=======
-        gap: 0.5rem !important;
->>>>>>> parent of bccfa7c (fix issue)
         width: 100% !important;
     }
 
     .alert-top-meta {
         display: flex !important;
-<<<<<<< HEAD
         flex-direction: row !important;
-=======
-        flex-direction: row !important; /* Force single line */
->>>>>>> parent of bccfa7c (fix issue)
         flex-wrap: nowrap !important;
         justify-content: center !important;
         align-items: center !important;
@@ -4439,7 +4409,6 @@
     }
 
     .alert-label {
-<<<<<<< HEAD
         font-size: 0.7rem !important;
         font-weight: 800 !important;
         white-space: nowrap !important;
@@ -4458,47 +4427,12 @@
         width: 100% !important;
         padding: 0 0.5rem !important;
         white-space: normal !important;
-=======
-        font-size: 0.7rem !important; /* Decreased size */
-        font-weight: 800 !important;
-        white-space: nowrap !important;
-        color: rgba(255, 255, 255, 0.9) !important;
-    }
-
-    .alert-badge-new {
-        font-size: 0.45rem !important; /* Decreased size */
-        font-weight: 900 !important;
-        padding: 1px 5px !important;
-        white-space: nowrap !important;
-        letter-spacing: 0.5px !important;
-    }
-
-    .alert-content-stack {
-        align-items: center !important;
-        gap: 0.2rem !important;
-        width: 100% !important;
-        text-align: center !important;
-    }
-
-    .alert-text {
-        font-size: 0.68rem !important; /* Decreased size */
-        line-height: 1.3 !important;
-        display: block !important;
-        text-align: center !important;
-        width: 100% !important;
-        padding: 0 0.8rem !important;
-        color: rgba(255, 255, 255, 0.7) !important;
->>>>>>> parent of bccfa7c (fix issue)
     }
 
     .btn-premium-alert {
         width: 100% !important;
         max-width: 200px !important;
-<<<<<<< HEAD
         padding: 0.55rem 0.8rem !important;
-=======
-        padding: 0.55rem 0.8rem !important; /* Slimmer button */
->>>>>>> parent of bccfa7c (fix issue)
         font-size: 0.75rem !important;
         border-radius: 8px !important;
     }
@@ -4507,11 +4441,7 @@
         width: 24px !important;
         height: 24px !important;
         font-size: 0.7rem !important;
-<<<<<<< HEAD
         margin-bottom: 0.2rem !important;
-=======
-        margin-bottom: 0.4rem !important;
->>>>>>> parent of bccfa7c (fix issue)
     }
 
     /* --- DASHBOARD MOBILE HERO SYSTEM --- */
@@ -4566,14 +4496,6 @@
         margin: 0.2rem auto 0 auto !important;
         letter-spacing: 0.5px !important;
         white-space: normal !important;
-<<<<<<< HEAD
-=======
-    }
-
-    .waving-hand {
-        display: inline-block !important;
-        margin-left: 2px !important;
->>>>>>> parent of bccfa7c (fix issue)
     }
 
     .dashboard-split-view {
