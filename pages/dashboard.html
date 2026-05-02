@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-KSCJTPP875"></script>
     <script>
@@ -49,7 +49,6 @@
     <link rel="stylesheet" href="../css/settings.css?v=3.0">
     <link rel="stylesheet" href="../css/admin.css?v=3.0">
     <link rel="stylesheet" href="../css/lockOverlay.css?v=3.0">
-    <link rel="stylesheet" href="../css/attendance-pro.css?v=1.0">
     <link rel="stylesheet" href="../css/cgpa-analyzer.css?v=3.0">
     <link rel="stylesheet" href="../css/focusflow.css?v=3.0">
     <link rel="stylesheet" href="../css/profile.css?v=3.0">
@@ -70,9 +69,10 @@
         <aside class="sidebar glass-card">
             <div class="sidebar-close-btn" onclick="document.querySelector('.sidebar').classList.remove('active')">
                 &times;</div>
-            <div class="sidebar-header sidebar-header-flex">
-                <img src="../assets/logo.jpg" alt="SKiL MATRiX" class="sidebar-logo-img">
-                <span class="logo-text font-heading sidebar-logo-text">SKILL MATRIX <span class="highlight sidebar-logo-highlight">NOTES</span></span>
+            <div class="sidebar-header" style="display: flex; align-items: center; gap: 10px;">
+                <img src="../assets/logo.jpg" alt="SKiL MATRiX" style="height: 40px; border-radius: 50%;">
+                <span class="logo-text font-heading" style="font-size: 1.2rem;">SKiL MATRiX <span class="highlight"
+                        style="font-weight: 800;">NOTES</span></span>
             </div>
             <nav class="sidebar-nav">
                 <a href="../index.html" class="nav-item">
@@ -97,9 +97,6 @@
                 <a href="#" class="nav-item locked" data-tab="ai-tools">
                     <span class="icon">🤖</span> AI Coach
                 </a>
-                <a href="#" class="nav-item" data-tab="attendance">
-                    <span class="icon">🚀</span> Attendance Pro
-                </a>
                 <a href="#" class="nav-item" data-tab="cgpa-analyzer">
                     <span class="icon">🎯</span> CGPA Analyzer
                 </a>
@@ -111,9 +108,6 @@
                 <a href="#" class="nav-item" data-tab="leaderboard">
                     <span class="icon">🏆</span> Leaderboard
                 </a>
-                <a href="#" class="nav-item hidden" data-tab="admin" id="admin-tab">
-                    <span class="icon">⚡</span> Admin Console
-                </a>
                 <a href="#" class="nav-item" data-tab="profile">
                     <span class="icon">👤</span> My Profile
                 </a>
@@ -122,7 +116,8 @@
                 <div class="avatar" id="instant-avatar">...</div>
                 <div class="user-info">
                     <span class="name" id="instant-name">Loading...</span>
-                    <span class="meta user-meta-small" id="instant-role">Profile</span>
+                    <span class="meta" id="instant-role"
+                        style="font-size: 0.75rem; color: var(--text-dim); display: block;">Profile</span>
                 </div>
             </div>
             <script>
@@ -162,35 +157,25 @@
                             
                             if (titleEl || metaEl) {
                                 const firstName = (u.name || 'Scholar').split(' ')[0];
-                                const college = u.collegeName || u.college || 'SKiL MATRiX Scholar';
+                                const college = u.collegeName || u.college || 'Medicaps University';
                                 
-                                let yLabel = "";
-                                if (u.year) {
-                                    let y = String(u.year);
-                                    if (y === '1') yLabel = '1st Year';
-                                    else if (y === '2') yLabel = '2nd Year';
-                                    else if (y === '3') yLabel = '3rd Year';
-                                    else if (y === '4') yLabel = '4th Year';
-                                    else if (y.toLowerCase().includes('year')) yLabel = y;
-                                    else yLabel = y + ' Year';
-                                }
+                                // Beautiful year formatting (Handle numbers and strings)
+                                let y = String(u.year || '');
+                                let yLabel = y;
+                                if (y === '1') yLabel = '1st Year';
+                                else if (y === '2') yLabel = '2nd Year';
+                                else if (y === '3') yLabel = '3rd Year';
+                                else if (y === '4') yLabel = '4th Year';
+                                else if (y && !y.toLowerCase().includes('year')) yLabel = y + ' Year';
+                                else if (!y) yLabel = 'Scholar';
 
-                                const branch = u.branch ? u.branch.toUpperCase() : "";
-                                
-                                let profileSummary = "";
-                                if (u.role !== 'user' && u.role) {
-                                    profileSummary = `🛡️ Verified ${u.role.toUpperCase()}`;
-                                } else {
-                                    const parts = [];
-                                    if (yLabel) parts.push(yLabel);
-                                    if (branch) parts.push(branch);
-                                    profileSummary = parts.length > 0 ? parts.join(' • ') : "Scholar";
-                                }
+                                const branch = (u.branch || 'CSE').toUpperCase();
+                                const roleText = u.role !== 'user' ? `🛡️ Verified ${u.role.toUpperCase()}` : `${yLabel} • ${branch}`;
 
                                 if (titleEl && !titleEl.innerHTML.includes('Welcome')) {
                                     titleEl.innerHTML = `Welcome back, <span class="gradient-text">${firstName}</span> <span class="waving-hand">👋</span>`;
                                 }
-                                if (metaEl) metaEl.innerText = `${profileSummary} • ${college}`;
+                                if (metaEl) metaEl.innerText = `${roleText} • ${college}`;
                             }
                         } catch (e) { console.error("Hydration Error:", e); }
                     };
@@ -204,30 +189,27 @@
         </aside>
 
         <!-- Private Drive Content -->
-        <div id="bookmarks" class="tab-content hidden">
+        <div id="bookmarks" class="tab-content" style="display: none;">
             <!-- Content injected by JS -->
         </div>
 
         <!-- Main Content -->
         <main class="main-content">
-            <header class="top-bar">
-                <div class="top-bar-left">
-                    <div class="mobile-dashboard-toggle mobile-toggle-hidden" id="sidebar-toggle-btn">
+            <header class="top-bar glass-card">
+                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                    <div class="mobile-dashboard-toggle" id="sidebar-toggle-btn" style="display: none;">
                         <span></span>
                         <span></span>
                         <span></span>
                     </div>
-                    <div class="search-bar">
+                    <div class="search-bar" style="flex: 1; max-width: 500px;">
                         <input type="text" id="global-search-input" name="q" placeholder="Search any subject (e.g. Physics)..." autocomplete="off">
                         <span class="search-icon">🔍</span>
                     </div>
                 </div>
                 <div class="top-actions">
                     <button class="btn btn-ghost notification-btn">🔔</button>
-                    <button class="primary-btn upload-btn" onclick="openUploadModal()">
-                        <i class="fa-solid fa-plus"></i>
-                        <span class="btn-text">Upload Note</span>
-                    </button>
+                    <button class="primary-btn upload-btn" onclick="openUploadModal()">+ Upload Note</button>
                 </div>
             </header>
 
@@ -260,16 +242,17 @@
                 <div id="instant-view" class="tab-pane active fade-in dashboard-welcome-pane">
                     <div class="welcome-header">
                         <h1 class="font-heading" id="welcome-title">
-                            <div class="skeleton skeleton-h1"></div>
+                            <div class="skeleton" style="height: 48px; width: 300px; border-radius: 8px;"></div>
                         </h1>
-                        <div id="welcome-meta">
-                            <div class="skeleton skeleton-p"></div>
-                        </div>
+                        <p id="welcome-meta">
+                        <div class="skeleton" style="height: 20px; width: 250px; margin-top: 10px;"></div>
+                        </p>
                     </div>
 
-                    <div class="glass-card welcome-loader-card">
-                        <div class="loader-pro loader-centered"></div>
-                        <p class="text-dimmed">Synchronizing your educational workspace...</p>
+                    <div class="glass-card"
+                        style="background: linear-gradient(135deg, rgba(108,99,255,0.05) 0%, rgba(255,255,255,0.01) 100%); padding: 3rem; border-radius: 24px; text-align: center;">
+                        <div class="loader-pro" style="margin: 0 auto 1.5rem;"></div>
+                        <p style="color: var(--text-dim);">Synchronizing your educational workspace...</p>
                     </div>
                 </div>
                 <!-- Handled by Unified Hydration Script in Sidebar Section -->
@@ -319,7 +302,6 @@
     <script src="../js/cgpa-analyzer.js?v=3.0" defer></script>
     <script src="../js/focusflow.js?v=3.0"></script>
     <script src="../js/profile.js?v=3.0" defer></script>
-    <script src="../js/attendance-pro.js?v=1.0" defer></script>
     <script type="module" src="../js/dashboard.js?v=3.0"></script>
 
     <!-- SaaS-Grade Refined Fake Analytics Engine (Identity-Based) -->

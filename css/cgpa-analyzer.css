@@ -180,21 +180,41 @@
 }
 
 @media (max-width: 768px) {
-    .cgpa-container { padding: 0.75rem; overflow-x: hidden; }
+    .cgpa-container {
+        width: 100%;
+        max-width: 100%;
+        padding: 0.75rem;
+        overflow-x: hidden;
+    }
+
+    .cgpa-grid,
+    .left-col,
+    .right-col {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
     
     .cgpa-title-group h1 { font-size: 1.5rem; }
     .cgpa-title-group p { font-size: 0.85rem; }
     
     .header-actions {
         width: 100%;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
+        display: flex !important;
+        justify-content: center !important;
         gap: 0.5rem;
     }
     
-    .header-actions .btn { width: 100%; padding: 10px 5px; font-size: 0.8rem; }
+    .header-actions .btn {
+        width: min(100%, 220px);
+        flex: none !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        padding: 10px 5px;
+        font-size: 0.8rem;
+    }
     
-    .cgpa-header { text-align: center; gap: 1rem; margin-bottom: 1.5rem; }
+    .cgpa-header { text-align: center; justify-content: center; gap: 1rem; margin-bottom: 1.5rem; }
     
     .subject-row {
         grid-template-columns: 1fr 1fr;
@@ -229,7 +249,14 @@
     .score-card { padding: 1rem; }
     .score-card .val { font-size: 2rem; }
     
-    .glass-card-premium { padding: 1rem; border-radius: 16px; min-width: 0; }
+    .glass-card-premium {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        padding: 1rem;
+        border-radius: 16px;
+        box-sizing: border-box;
+    }
     
     .btn-circle { width: 45px; height: 45px; bottom: 0.75rem; right: 0.75rem; font-size: 1.2rem; }
     
@@ -239,6 +266,52 @@
     .sgpa-engine-header div { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
     .sgpa-engine-header .btn { width: 100%; }
 
+    .left-col .module-card:nth-child(2) > div:first-child {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .left-col .module-card:nth-child(2) h3 {
+        min-width: 0;
+        font-size: 1rem;
+        line-height: 1.25;
+        white-space: nowrap;
+    }
+
+    .left-col .module-card:nth-child(2) .cgpa-badge {
+        flex-shrink: 0;
+        margin-left: 0;
+        padding: 4px 10px;
+        font-size: 0.7rem;
+    }
+
+    .planner-form > div[style*="grid-template-columns"] {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    }
+
+    .planner-form > div[style*="display: flex"] {
+        flex-wrap: wrap;
+    }
+
+    .planner-form .btn {
+        min-width: 0;
+    }
+
+    #ai-insights-list {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .insight-chip {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
     .semester-slot {
         grid-template-columns: 1.5fr 1fr 1fr !important;
         padding: 10px;
@@ -247,10 +320,49 @@
 }
 
 @media (max-width: 480px) {
+    .cgpa-container {
+        padding: 0.5rem;
+    }
+
+    .cgpa-grid .glass-card-premium {
+        width: calc(100% - 0.75rem);
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .module-card {
+        margin-bottom: 1rem;
+    }
+
     .subject-row {
         grid-template-columns: 1fr; /* Stack everything on very small screens */
     }
+
     .subject-row .sub-name, .subject-row div:first-child { grid-column: auto; }
+
+    .planner-form > div[style*="grid-template-columns"],
+    .planner-form > div[style*="display: flex"] {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+    }
+
+    .planner-form .btn {
+        width: 100% !important;
+    }
+
+    .right-col .glass-card-premium:last-child {
+        margin-bottom: 5rem;
+    }
+
+    .left-col .module-card:nth-child(2) h3 {
+        font-size: 0.9rem;
+    }
+
+    .left-col .module-card:nth-child(2) .cgpa-badge {
+        padding: 4px 8px;
+        font-size: 0.65rem;
+    }
 }
 
 .score-card {
