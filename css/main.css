@@ -62,26 +62,14 @@ body.light-mode {
     --glow-secondary: 0 0 15px rgba(0, 242, 255, 0.15);
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - Hidden but functional */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    display: none !important;
 }
 
-::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
-}
-
-::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    border: 2px solid transparent;
-    background-clip: content-box;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
-    background-clip: content-box;
+* {
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important;  /* IE and Edge */
 }
 
 * {

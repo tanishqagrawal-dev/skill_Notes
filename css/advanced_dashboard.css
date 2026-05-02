@@ -681,22 +681,45 @@ body.light-mode .skeleton {
 
 .premium-syllabus-card {
     position: relative;
-    background: rgba(255, 255, 255, 0.03);
+    background: linear-gradient(145deg, rgba(23, 26, 35, 0.4), rgba(15, 17, 26, 0.6));
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    padding: 1.2rem 1.8rem;
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
     overflow: hidden;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
     animation: slideUpFade 0.6s ease forwards;
     opacity: 0;
+    margin-bottom: 1rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
 .premium-syllabus-card:hover {
-    transform: translateY(-3px) scale(1.01);
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(0, 242, 255, 0.3);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transform: translateY(-5px) scale(1.005);
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(0, 242, 255, 0.4);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 242, 255, 0.1);
+}
+
+/* Internal HUD Accents for Cards */
+.premium-syllabus-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    border-bottom: 2px solid var(--secondary);
+    border-right: 2px solid var(--secondary);
+    border-radius: 0 0 20px 0;
+    opacity: 0.2;
+    transition: 0.3s;
+}
+
+.premium-syllabus-card:hover::after {
+    opacity: 0.6;
+    width: 30px;
+    height: 30px;
 }
 
 .syllabus-card-glow {
@@ -716,10 +739,28 @@ body.light-mode .skeleton {
     transform: translateY(-50%);
     width: 4px;
     height: 35px;
-    background: linear-gradient(to bottom, #00f2ff, #7b61ff);
     border-radius: 0 4px 4px 0;
-    box-shadow: 0 0 12px rgba(0, 242, 255, 0.4);
+    transition: all 0.3s ease;
 }
+
+/* Color Variants */
+.premium-syllabus-card.color-0 .syllabus-accent-bar { background: linear-gradient(to bottom, #00f2ff, #00c2cc); box-shadow: 0 0 12px rgba(0, 242, 255, 0.4); }
+.premium-syllabus-card.color-1 .syllabus-accent-bar { background: linear-gradient(to bottom, #7b61ff, #5a4ccb); box-shadow: 0 0 12px rgba(123, 97, 255, 0.4); }
+.premium-syllabus-card.color-2 .syllabus-accent-bar { background: linear-gradient(to bottom, #FF2D95, #d6247d); box-shadow: 0 0 12px rgba(255, 45, 149, 0.4); }
+.premium-syllabus-card.color-3 .syllabus-accent-bar { background: linear-gradient(to bottom, #00FF94, #00cc76); box-shadow: 0 0 12px rgba(0, 255, 148, 0.4); }
+.premium-syllabus-card.color-4 .syllabus-accent-bar { background: linear-gradient(to bottom, #FFB800, #cc9300); box-shadow: 0 0 12px rgba(255, 184, 0, 0.4); }
+
+.premium-syllabus-card.color-0 .syllabus-unit-title::before { background: #00f2ff; box-shadow: 0 0 10px #00f2ff; --glow-color: #00f2ff; }
+.premium-syllabus-card.color-1 .syllabus-unit-title::before { background: #7b61ff; box-shadow: 0 0 10px #7b61ff; --glow-color: #7b61ff; }
+.premium-syllabus-card.color-2 .syllabus-unit-title::before { background: #FF2D95; box-shadow: 0 0 10px #FF2D95; --glow-color: #FF2D95; }
+.premium-syllabus-card.color-3 .syllabus-unit-title::before { background: #00FF94; box-shadow: 0 0 10px #00FF94; --glow-color: #00FF94; }
+.premium-syllabus-card.color-4 .syllabus-unit-title::before { background: #FFB800; box-shadow: 0 0 10px #FFB800; --glow-color: #FFB800; }
+
+.premium-syllabus-card.color-0 .syllabus-unit-title { color: #00f2ff; }
+.premium-syllabus-card.color-1 .syllabus-unit-title { color: #9D8AFF; }
+.premium-syllabus-card.color-2 .syllabus-unit-title { color: #FF7EB3; }
+.premium-syllabus-card.color-3 .syllabus-unit-title { color: #73FFC1; }
+.premium-syllabus-card.color-4 .syllabus-unit-title { color: #FFD666; }
 
 .syllabus-content-wrapper {
     position: relative;
@@ -740,11 +781,17 @@ body.light-mode .skeleton {
 
 .syllabus-unit-title::before {
     content: '';
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     background: #00f2ff;
     border-radius: 50%;
-    box-shadow: 0 0 8px #00f2ff;
+    box-shadow: 0 0 10px #00f2ff;
+    animation: unitDotPulse 2s infinite ease-in-out;
+}
+
+@keyframes unitDotPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 10px var(--glow-color, #00f2ff); }
+    50% { transform: scale(1.3); box-shadow: 0 0 20px var(--glow-color, #00f2ff), 0 0 30px var(--glow-color, rgba(0, 242, 255, 0.4)); }
 }
 
 .syllabus-unit-desc {
@@ -1270,4 +1317,63 @@ body.light-mode .skeleton {
 
 #monthSelector:hover {
     border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* --- PREMIUM NOTE ITEM STYLES --- */
+.premium-note-item {
+    position: relative;
+    background: linear-gradient(145deg, rgba(23, 26, 35, 0.4), rgba(15, 17, 26, 0.6));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(10px);
+    margin-bottom: 1.2rem !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden;
+}
+
+.premium-note-item::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(123, 97, 255, 0.2), transparent);
+    opacity: 0.5;
+}
+
+.premium-note-item:hover {
+    transform: translateY(-4px) scale(1.005);
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(123, 97, 255, 0.4);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(123, 97, 255, 0.1);
+}
+
+.premium-note-item .file-type-icon {
+    transition: transform 0.4s ease;
+}
+
+.premium-note-item:hover .file-type-icon {
+    transform: rotate(10deg) scale(1.1);
+    color: var(--primary-light);
+}
+
+.premium-note-item .btn-download-pro {
+    background: white !important;
+    color: black !important;
+    padding: 0.7rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(255,255,255,0.1);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.premium-note-item .btn-download-pro:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(255,255,255,0.2);
 }

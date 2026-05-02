@@ -2553,13 +2553,19 @@ function renderNotesHub() {
     return `
         <div class="tab-pane active" style="padding:0;">
             <div class="notes-hub-wrapper" style="flex-direction: column; overflow-x: hidden; padding-bottom: 4rem;">
-                <div class="explorer-header" id="explorer-header" style="position: relative; padding: 3rem 2rem; border-bottom: 1px solid var(--border-glass); background: rgba(108, 99, 255, 0.02);">
-                    <div id="explorer-back-container" style="position: absolute; top: 2rem; left: 2rem; z-index: 10;">
+                <div class="explorer-header premium-explorer-header" id="explorer-header">
+                    <!-- HUD Decorative Elements -->
+                    <div class="corner-tag corner-top-left"></div>
+                    <div class="corner-tag corner-top-right"></div>
+                    <div class="corner-tag corner-bottom-left"></div>
+                    <div class="corner-tag corner-bottom-right"></div>
+
+                    <div id="explorer-back-container" style="position: absolute; top: 1.5rem; left: 1.5rem; z-index: 20;">
                          <button id="explorer-back-btn" class="btn btn-ghost" style="display: none; padding: 0.5rem 1rem; gap: 0.5rem;">
                             <span>⬅</span> Back
                          </button>
                     </div>
-                    <div id="explorer-steps-container" class="step-indicator" style="display: flex; justify-content: center; gap: 3rem; margin-bottom: 3rem;">
+                    <div id="explorer-steps-container" class="step-indicator" style="display: flex; justify-content: center; gap: 3rem; margin-bottom: 1.5rem;">
                         ${['College', 'Stream', 'Branch', 'Sem', 'Subject'].map((s, i) => `
                             <div class="step-node" id="step-${i}">
                                 <div class="step-num">${i + 1}</div>
@@ -2569,7 +2575,7 @@ function renderNotesHub() {
                     </div>
                     <div id="explorer-title-container" style="text-align: center;">
                         <h1 class="font-heading" id="explorer-main-title">Select your <span class="gradient-text">Institution</span></h1>
-                        <p id="explorer-sub-title" style="color: var(--text-dim); margin-top: 1rem;">Choose your college to start browsing localized content.</p>
+                        <p id="explorer-sub-title" style="color: var(--text-dim); margin-top: 0.5rem;">Choose your college to start browsing localized content.</p>
                     </div>
                 </div>
 
@@ -2577,7 +2583,7 @@ function renderNotesHub() {
                     <!-- Step-specific cards will be injected here -->
                 </div>
 
-                <div id="final-notes-view" style="display:none; padding: 4rem;">
+                <div id="final-notes-view" style="display:none; padding: 1rem 2.5rem 4rem 2.5rem;">
                     <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
                         <div>
                             <span id="notes-breadcrumb" style="font-size: 0.9rem; color: var(--text-dim); display:block; margin-bottom: 0.5rem;"></span>
@@ -2823,7 +2829,7 @@ window.selectCombinedSemester = function (sem, year) {
 window.renderCombinedSemesterStep = renderCombinedSemesterStep;
 
 function renderSubjectStep() {
-    updateStepUI(5);
+    updateStepUI(4);
     const backBtn = document.getElementById('explorer-back-btn');
     if (backBtn) {
         backBtn.style.display = 'flex';
@@ -3370,7 +3376,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
         const isSaved = window.savedNoteIds?.has(n.id);
 
         return `
-            <div class="detailed-item glass-card card-reveal" data-note-id="${n.id}" style="animation-delay: ${idx * 0.1}s; margin-bottom: 1.2rem; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+            <div class="premium-note-item card-reveal" data-note-id="${n.id}" style="animation-delay: ${idx * 0.1}s;">
                 <div class="item-left" style="display: flex; gap: 1.25rem; align-items: flex-start; flex: 1;">
                     <div class="file-type-icon" style="width: 45px; height: 45px; background: rgba(0, 242, 255, 0.1); color: var(--secondary); display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.2rem; flex-shrink: 0;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
@@ -3412,7 +3418,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                         </button>
                     </div>
-                    <a href="${n.url || n.fileUrl || n.driveLink}" target="_blank" class="btn-download-pro" onclick="downloadNote('${n.id}')" style="background: white; color: black; padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 700; font-size: 0.9rem; text-decoration: none; display: flex; align-items: center; gap: 0.6rem; transition: 0.3s;">
+                    <a href="${n.url || n.fileUrl || n.driveLink}" target="_blank" class="btn-download-pro" onclick="downloadNote('${n.id}')">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         View
                     </a>
@@ -3439,14 +3445,14 @@ window.noteUnsubscribers = window.noteUnsubscribers || {};
 
 
 window.filterInternalNotes = function (query) {
-    const cards = document.querySelectorAll('.detailed-item');
+    const cards = document.querySelectorAll('.premium-note-item, .note-card-pro, .detailed-item');
     const lowQuery = query.toLowerCase();
     
     cards.forEach(card => {
-        const title = card.querySelector('.item-title')?.innerText.toLowerCase() || "";
+        const title = card.querySelector('.item-title, .note-title-pro')?.innerText.toLowerCase() || "";
         const tag = card.querySelector('.unit-tag')?.innerText.toLowerCase() || "";
         if (title.includes(lowQuery) || tag.includes(lowQuery)) {
-            card.style.display = 'flex';
+            card.style.display = '';
         } else {
             card.style.display = 'none';
         }
@@ -3491,7 +3497,11 @@ window.getSubjectSyllabusHTML = function(subjectName) {
         </div>
         <div class="syllabus-grid-pro">
         ${units.map((u, i) => `
-                <div class="premium-syllabus-card" style="animation-delay: ${i * 0.1}s;">
+                <div class="premium-syllabus-card color-1" style="animation-delay: ${i * 0.1}s;">
+                    <!-- HUD Decorative Tags -->
+                    <div class="corner-tag corner-top-left" style="width: 10px; height: 10px; border-width: 1.5px; opacity: 0.2;"></div>
+                    <div class="corner-tag corner-top-right" style="width: 10px; height: 10px; border-width: 1.5px; opacity: 0.2;"></div>
+                    
                     <div class="syllabus-card-glow"></div>
                     <div class="syllabus-accent-bar"></div>
                     <div class="syllabus-content-wrapper">
