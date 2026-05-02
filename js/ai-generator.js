@@ -4,8 +4,8 @@
  */
 
 const AI_LIMIT = 10;
-window.GEMINI_API_KEY = "AQ.Ab8RN6K4i4IgwmlqWSVQHoBWAE6jUoaQL8YDE7za9yUWdyP1dA";
-window.GEMINI_API_KEY = "AIzaSyCGPMynTaRKkIqO8spgE0LBmTQkRS_SbHI";
+window.GEMINI_API_KEY = "AIzaSyAKgqGl4bFlZUgokFcJkVgTSN0BshQ4pag";
+/**window.GEMINI_API_KEY = "AIzaSyCGPMynTaRKkIqO8spgE0LBmTQkRS_SbHI";*/
 
 window.AIGenerator = {
     // Check usage
@@ -46,11 +46,20 @@ window.AIGenerator = {
             const paper = await window.AIGenerator.callGemini(subjectName, examType, filteredSyllabus);
 
             // 2. Background Save to Local Backend (Filesystem)
-            fetch('/api/save-paper', {
+            console.log("💾 Attempting to save paper to local cache...");
+            // Force port 3000 if on localhost to match the server.js port
+            const saveUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                ? 'http://localhost:3000/api/save-paper' 
+                : '/api/save-paper'; 
+            
+            fetch(saveUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ subjectId, subjectName, examType, content: paper })
-            }).catch(e => console.warn("Local cache save failed:", e));
+            })
+            .then(res => res.json())
+            .then(data => console.log("✅ Local cache save result:", data))
+            .catch(e => console.warn("❌ Local cache save failed. Ensure you are running 'npm start' on port 3000.", e));
 
             // 3. Background Save to Firebase (if available)
             if (db) {

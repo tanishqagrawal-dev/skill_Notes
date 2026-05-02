@@ -32,7 +32,8 @@ const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -148,13 +149,6 @@ Constraint:
     }
 });
 
-// Serve frontend files
-app.use(express.static(path.join(__dirname, "..")));
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, "..", "index.html"));
-});
-
 // --- LOCAL PAPER PERSISTENCE (NON-FIREBASE) ---
 const CACHE_DIR = path.join(__dirname, '..', 'data');
 const CACHE_FILE = path.join(CACHE_DIR, 'cached_papers.json');
@@ -163,13 +157,17 @@ const CACHE_FILE = path.join(CACHE_DIR, 'cached_papers.json');
 if (!fs.existsSync(CACHE_DIR)) fs.mkdirSync(CACHE_DIR, { recursive: true });
 if (!fs.existsSync(CACHE_FILE)) fs.writeFileSync(CACHE_FILE, JSON.stringify([]));
 
+// Serve frontend files (Moved below API for priority)
+app.use(express.static(path.join(__dirname, "..")));
+
 // Save generated paper to local cache
 app.post('/api/save-paper', (req, res) => {
     try {
         const { subjectId, subjectName, examType, content } = req.body;
         const data = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
         
-        // Add new paper (avoid duplicates if needed, but here we want variety)
+        // Add new paper
+        console.log(`📝 Saving paper to cache: ${subjectName} (${examType})`);
         data.push({
             id: Date.now(),
             subjectId,

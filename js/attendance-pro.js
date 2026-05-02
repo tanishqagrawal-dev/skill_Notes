@@ -7,7 +7,7 @@ const AttendancePro = {
     state: {
         subjects: [],
         target: 75,
-        history: {}, 
+        history: {},
         timetable: {
             'Mon': [], 'Tue': [], 'Wed': [], 'Thu': [], 'Fri': [], 'Sat': [], 'Sun': []
         },
@@ -47,18 +47,18 @@ const AttendancePro = {
     calculateStats(subjectId) {
         const sub = this.state.subjects.find(s => s.id === subjectId);
         if (!sub) return null;
-        
+
         // Ensure counts aren't negative
         const attended = Math.max(0, sub.attended);
         const missed = Math.max(0, sub.missed);
         const off = Math.max(0, sub.off);
-        
+
         const total = attended + missed;
         let percent = total === 0 ? 0 : (attended / total) * 100;
-        
+
         // Clamp percentage
         percent = Math.min(100, Math.max(0, percent));
-        
+
         const target = this.state.target / 100;
         let canMiss = 0, need = 0;
         if (percent >= this.state.target) {
@@ -66,7 +66,7 @@ const AttendancePro = {
         } else {
             need = Math.ceil((target * total - attended) / (1 - target));
         }
-        
+
         return {
             percent: percent.toFixed(1),
             attended, missed, off, total,
@@ -77,9 +77,9 @@ const AttendancePro = {
 
     getOverallStats() {
         let att = 0, miss = 0;
-        this.state.subjects.forEach(s => { 
-            att += Math.max(0, s.attended); 
-            miss += Math.max(0, s.missed); 
+        this.state.subjects.forEach(s => {
+            att += Math.max(0, s.attended);
+            miss += Math.max(0, s.missed);
         });
         const total = att + miss;
         let percent = total === 0 ? 0 : (att / total) * 100;
@@ -96,7 +96,7 @@ const AttendancePro = {
         const overall = this.getOverallStats();
         const container = document.createElement('div');
         container.className = 'attendance-container fade-in';
-        
+
         container.innerHTML = `
             <div class="atpro-top-section">
                 <div class="atpro-header-row">
@@ -147,7 +147,7 @@ const AttendancePro = {
     },
 
     renderView() {
-        switch(this.state.activeTab) {
+        switch (this.state.activeTab) {
             case 'today': return this.renderToday();
             case 'timetable': return this.renderTimetable();
             case 'calendar': return this.renderCalendar();
@@ -210,10 +210,10 @@ const AttendancePro = {
 
             <div class="atpro-timetable-grid">
                 ${displayDays.map(day => {
-                    const isToday = day === todayName;
-                    const lectures = this.state.timetable[day] || [];
-                    
-                    return `
+            const isToday = day === todayName;
+            const lectures = this.state.timetable[day] || [];
+
+            return `
                         <div class="atpro-day-card ${isToday ? 'today' : ''}">
                             <div class="atpro-day-name">
                                 ${isToday ? '<span class="atpro-today-tag">Today</span>' : ''}
@@ -221,14 +221,14 @@ const AttendancePro = {
                             </div>
                             <div class="atpro-day-lectures">
                                 ${lectures.length > 0 ? lectures.map(lec => {
-                                    const sub = this.state.subjects.find(s => s.id === lec.subjectId);
-                                    return `
+                const sub = this.state.subjects.find(s => s.id === lec.subjectId);
+                return `
                                         <div class="atpro-lecture-cell ${isEditing ? 'editable' : ''}" onclick="${isEditing ? `AttendancePro.editLecture('${day}', '${lec.id}')` : ''}">
                                             <div class="lec-subject-name">${sub ? sub.name : 'Unknown'}</div>
                                             ${isEditing ? '<i class="fas fa-pencil-alt" style="font-size:0.6rem; opacity:0.4"></i>' : ''}
                                         </div>
                                     `;
-                                }).join('') : '<p style="text-align:center; font-size:0.75rem; color:var(--text-dim); margin: 3rem 0; opacity:0.3; font-style: italic;">No classes</p>'}
+            }).join('') : '<p style="text-align:center; font-size:0.75rem; color:var(--text-dim); margin: 3rem 0; opacity:0.3; font-style: italic;">No classes</p>'}
                             </div>
                             ${isEditing ? `
                                 <button class="atpro-btn-sm" style="width:100%; margin-top:1rem; border: 1px dashed var(--atpro-purple); background:rgba(123,97,255,0.05); color:var(--atpro-purple); border-radius: 12px; padding: 12px" onclick="AttendancePro.addLecture('${day}')">
@@ -237,7 +237,7 @@ const AttendancePro = {
                             ` : ''}
                         </div>
                     `;
-                }).join('')}
+        }).join('')}
             </div>
         `;
     },
@@ -246,7 +246,7 @@ const AttendancePro = {
         const year = this.state.viewYear;
         const month = this.state.viewMonth;
         const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const firstDay = (new Date(year, month, 1).getDay() + 6) % 7; 
+        const firstDay = (new Date(year, month, 1).getDay() + 6) % 7;
 
         const monthName = new Date(year, month).toLocaleString('default', { month: 'long' });
 
@@ -303,18 +303,18 @@ const AttendancePro = {
                         ${['M', 'T', 'W', 'T', 'F', 'S', 'S'].map(d => `<div class="atpro-cal-label">${d}</div>`).join('')}
                         ${Array(firstDay).fill('<div class="atpro-cal-day empty" style="background:transparent; border:none"></div>').join('')}
                         ${(() => {
-                            const now = new Date();
-                            const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                const now = new Date();
+                const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-                            return Array.from({ length: daysInMonth }, (_, i) => {
-                                const day = i + 1;
-                                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                                const isSelected = this.state.selectedDates.includes(dateStr);
-                                const isToday = todayStr === dateStr;
-                                const dayActivity = this.state.history[dateStr] || {};
-                                const statuses = Object.values(dayActivity);
-                                
-                                return `
+                return Array.from({ length: daysInMonth }, (_, i) => {
+                    const day = i + 1;
+                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    const isSelected = this.state.selectedDates.includes(dateStr);
+                    const isToday = todayStr === dateStr;
+                    const dayActivity = this.state.history[dateStr] || {};
+                    const statuses = Object.values(dayActivity);
+
+                    return `
                                     <div class="atpro-cal-day ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''}" 
                                          onclick="AttendancePro.selectDate('${dateStr}')">
                                         <span style="font-size:0.8rem">${day}</span>
@@ -322,8 +322,8 @@ const AttendancePro = {
                                             ${statuses.slice(0, 3).map(s => `<div class="atpro-cal-dot ${s}"></div>`).join('')}
                                         </div>
                                     </div>`;
-                            }).join('');
-                        })()}
+                }).join('');
+            })()}
                     </div>
                 </div>
 
@@ -345,9 +345,9 @@ const AttendancePro = {
                 ` : ''}
                 
                 <div class="atpro-date-panel" id="atpro-date-panel" style="margin-top:2rem; border-top: 1px solid var(--atpro-border); padding-top: 2rem">
-                    ${this.state.selectedDates.length === 1 ? this.renderDateDetails(this.state.selectedDates[0]) : 
-                      (this.state.selectedDates.length > 1 ? '<p style="text-align:center; color:var(--text-dim); padding:2rem; background: rgba(255,255,255,0.02); border-radius: 16px;">Multiple dates selected. Use the action bar above.</p>' : 
-                      '<p style="text-align:center; color:var(--text-dim); padding:2rem; background: rgba(255,255,255,0.02); border-radius: 16px;">Select a date to see details or multiple dates to bulk mark.</p>')}
+                    ${this.state.selectedDates.length === 1 ? this.renderDateDetails(this.state.selectedDates[0]) :
+                (this.state.selectedDates.length > 1 ? '<p style="text-align:center; color:var(--text-dim); padding:2rem; background: rgba(255,255,255,0.02); border-radius: 16px;">Multiple dates selected. Use the action bar above.</p>' :
+                    '<p style="text-align:center; color:var(--text-dim); padding:2rem; background: rgba(255,255,255,0.02); border-radius: 16px;">Select a date to see details or multiple dates to bulk mark.</p>')}
                 </div>
             </div>
         `;
@@ -414,9 +414,9 @@ const AttendancePro = {
                 <div style="flex:1; min-width: 150px;">
                     <h4 class="font-heading" style="margin:0; font-size:1.1rem; letter-spacing:-0.3px">${sub.name}</h4>
                     <div style="font-size:0.75rem; margin-top:4px; font-weight:600">
-                        ${stats.status === 'safe' 
-                            ? `<span style="color:var(--atpro-success)">✅ Can miss ${stats.canMiss}</span>` 
-                            : `<span style="color:var(--atpro-error)">⚠️ Need ${stats.need} more</span>`}
+                        ${stats.status === 'safe'
+                ? `<span style="color:var(--atpro-success)">✅ Can miss ${stats.canMiss}</span>`
+                : `<span style="color:var(--atpro-error)">⚠️ Need ${stats.need} more</span>`}
                     </div>
                 </div>
                 
@@ -434,8 +434,8 @@ const AttendancePro = {
         return `
             <div class="atpro-sub-list" style="animation: atproFadeIn 0.5s ease;">
                 ${this.state.subjects.map(sub => {
-                    const stats = this.calculateStats(sub.id);
-                    return `
+            const stats = this.calculateStats(sub.id);
+            return `
                         <div class="atpro-sub-item">
                             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 1.5rem">
                                 <div class="atpro-sub-circle ${stats.status}" style="width: 60px; height: 60px; border-radius: 16px; display:flex; flex-direction:column; align-items:center; justify-content:center">
@@ -452,9 +452,9 @@ const AttendancePro = {
                                 <h3 class="font-heading" style="font-size: 1.2rem; margin: 0 0 0.4rem 0; letter-spacing: -0.5px;">${sub.name}</h3>
                                 
                                 <div style="font-size:0.8rem; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 1.2rem; border: 1px solid rgba(255,255,255,0.05)">
-                                    ${stats.status === 'safe' 
-                                        ? `<span style="color:var(--atpro-success); font-weight:600"><i class="fas fa-check-circle" style="margin-right:6px"></i> Can miss ${stats.canMiss} lectures</span>` 
-                                        : `<span style="color:var(--atpro-error); font-weight:600"><i class="fas fa-exclamation-circle" style="margin-right:6px"></i> Need ${stats.need} more lectures</span>`}
+                                    ${stats.status === 'safe'
+                    ? `<span style="color:var(--atpro-success); font-weight:600"><i class="fas fa-check-circle" style="margin-right:6px"></i> Can miss ${stats.canMiss} lectures</span>`
+                    : `<span style="color:var(--atpro-error); font-weight:600"><i class="fas fa-exclamation-circle" style="margin-right:6px"></i> Need ${stats.need} more lectures</span>`}
                                 </div>
 
                                 <div class="atpro-sub-meta" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
@@ -478,7 +478,7 @@ const AttendancePro = {
                             </div>
                         </div>
                     `;
-                }).join('')}
+        }).join('')}
             </div>
         `;
     },
@@ -517,14 +517,14 @@ const AttendancePro = {
 
 
     // --- LOGIC FUNCTIONS ---
-    selectDate(dateStr) { 
+    selectDate(dateStr) {
         if (this.state.selectedDates.includes(dateStr)) {
             this.state.selectedDates = this.state.selectedDates.filter(d => d !== dateStr);
         } else {
             this.state.selectedDates.push(dateStr);
         }
         this.refreshUI();
-        
+
         // Auto-scroll to details if only one selected
         if (this.state.selectedDates.length === 1) {
             setTimeout(() => {
@@ -577,7 +577,7 @@ const AttendancePro = {
         const d = new Date(dateStr);
         const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()];
         const lectures = this.state.timetable[dayName] || [];
-        
+
         lectures.forEach(lec => {
             this.markAttendance(dateStr, lec.id, status, true); // Use forceSet=true for bulk actions
         });
@@ -634,19 +634,19 @@ const AttendancePro = {
     saveSubject() {
         const name = document.getElementById('new-sub-name').value;
         if (!name) return;
-        
+
         const attended = parseInt(document.getElementById('new-sub-att').value) || 0;
         const missed = parseInt(document.getElementById('new-sub-miss').value) || 0;
         const off = parseInt(document.getElementById('new-sub-off').value) || 0;
 
-        this.state.subjects.push({ 
-            id: 'sub-' + Date.now(), 
-            name, 
-            attended, 
-            missed, 
-            off 
+        this.state.subjects.push({
+            id: 'sub-' + Date.now(),
+            name,
+            attended,
+            missed,
+            off
         });
-        
+
         this.saveData(); this.closeModal(); this.refreshUI();
     },
 
@@ -724,7 +724,7 @@ const AttendancePro = {
     },
 
     deleteSubject(id) {
-        if(confirm('Delete subject and all related attendance history?')) {
+        if (confirm('Delete subject and all related attendance history?')) {
             this.state.subjects = this.state.subjects.filter(s => s.id !== id);
             // Clear from timetable
             Object.keys(this.state.timetable).forEach(day => {
@@ -740,7 +740,7 @@ const AttendancePro = {
     },
 
     resetAllData() {
-        if(confirm('CRITICAL: Wipe all attendance data?')) {
+        if (confirm('CRITICAL: Wipe all attendance data?')) {
             localStorage.removeItem('atpro_data_v2');
             location.reload();
         }

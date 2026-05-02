@@ -182,7 +182,7 @@ window.currentUser = currentUser;
 window.NotesDB = NotesDB;
 
 // --- WEEKLY PLAN SYSTEM ---
-let weeklyPlan = [
+let weeklyPlan = JSON.parse(localStorage.getItem('weeklyPlan')) || [
     { week: 1, title: 'OOP Basics', status: 'completed', progress: 100 },
     { week: 2, title: 'Advanced OOP', status: 'active', progress: 60 },
     { week: 3, title: 'Practice', status: 'locked', progress: 0 }
@@ -208,32 +208,32 @@ window.openPlannerEditor = function() {
     modal.id = 'planner-editor-modal';
     
     let rowsHtml = weeklyPlan.map((item, idx) => `
-        <div class="planner-edit-row">
-            <div class="planner-week-label">Week ${item.week}</div>
-            <input type="text" class="planner-input" value="${item.title}" data-idx="${idx}" placeholder="Topic Name">
-            <select class="planner-select" data-idx="${idx}">
-                <option value="completed" ${item.status === 'completed' ? 'selected' : ''}>Completed</option>
-                <option value="active" ${item.status === 'active' ? 'selected' : ''}>Active</option>
-                <option value="locked" ${item.status === 'locked' ? 'selected' : ''}>Locked</option>
+        <div class="planner-edit-row" style="display: flex; gap: 10px; align-items: center; margin-bottom: 1rem; background: rgba(15,17,26,0.6); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease;">
+            <div class="planner-week-label" style="font-weight: 800; font-size: 0.9rem; color: #a1b0c8; width: 70px;">Week ${item.week}</div>
+            <input type="text" class="planner-input" style="flex: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #ffffff; padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; outline: none; transition: border-color 0.3s ease;" value="${item.title}" data-idx="${idx}" placeholder="Topic Name">
+            <select class="planner-select" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #ffffff; padding: 10px; border-radius: 8px; font-size: 0.9rem; outline: none; appearance: none; cursor: pointer; min-width: 110px;" data-idx="${idx}">
+                <option style="background: #11131a; color: white;" value="completed" ${item.status === 'completed' ? 'selected' : ''}>✅ Completed</option>
+                <option style="background: #11131a; color: white;" value="active" ${item.status === 'active' ? 'selected' : ''}>⏳ Active</option>
+                <option style="background: #11131a; color: white;" value="locked" ${item.status === 'locked' ? 'selected' : ''}>🔒 Locked</option>
             </select>
-            <button class="btn-icon-mini planner-delete-btn" onclick="removeWeekFromPlan(${idx})">✕</button>
+            <button class="btn-icon-mini planner-delete-btn" style="background: rgba(255,45,149,0.1); color: #FF2D95; border: 1px solid rgba(255,45,149,0.3); padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; font-size: 1rem;" onclick="removeWeekFromPlan(${idx})" onmouseover="this.style.background='rgba(255,45,149,0.2)'" onmouseout="this.style.background='rgba(255,45,149,0.1)'">✕</button>
         </div>
     `).join('');
 
     modal.innerHTML = `
-        <div class="upload-card planner-modal-card">
-            <h2 class="font-heading">Design Your Track</h2>
-            <p class="subtitle">Customize your weekly learning roadmap</p>
+        <div class="upload-card planner-modal-card" style="background: linear-gradient(145deg, #151322, #0c0a12); border: 1px solid rgba(123, 97, 255, 0.15); box-shadow: 0 10px 40px rgba(0,0,0,0.5); padding: 2rem; border-radius: 16px; max-width: 600px; width: 90%; margin: auto;">
+            <h2 class="font-heading" style="color: #ffffff; margin-bottom: 0.5rem; font-size: 1.5rem;">Design Your Track</h2>
+            <p class="subtitle" style="color: #aebacd; margin-bottom: 2rem;">Customize your weekly learning roadmap</p>
             
-            <div id="planner-rows-container">
+            <div id="planner-rows-container" style="max-height: 400px; overflow-y: auto; padding-right: 10px; margin-bottom: 1.5rem;">
                 ${rowsHtml}
             </div>
             
-            <button class="btn btn-ghost add-week-btn" onclick="addWeekToPlan()">+ Add New Week</button>
+            <button class="btn btn-ghost add-week-btn" style="width: 100%; border: 1px dashed rgba(255,255,255,0.2); border-radius: 10px; padding: 12px; font-weight: 700; color: #b4a2ff; transition: all 0.3s ease;" onclick="addWeekToPlan()" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">+ Add New Week</button>
             
-            <div class="modal-actions">
-                <button class="btn btn-ghost" style="flex: 1;" onclick="document.getElementById('planner-editor-modal').remove()">Cancel</button>
-                <button class="btn btn-primary" style="flex: 2;" onclick="savePlannerChanges()">Save Plan</button>
+            <div class="modal-actions" style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-ghost" style="flex: 1; padding: 12px; border-radius: 10px; font-weight: 700;" onclick="document.getElementById('planner-editor-modal').remove()">Cancel</button>
+                <button class="btn" style="flex: 2; background: linear-gradient(90deg, #6D5DF2, #00f2ff); border: none; color: white; padding: 12px; border-radius: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(0, 242, 255, 0.3);" onclick="savePlannerChanges()">Save Plan</button>
             </div>
         </div>
     `;
@@ -278,6 +278,9 @@ window.savePlannerChanges = async function() {
 
         // 2. Update Global State Immediately
         weeklyPlan = newPlan;
+        
+        // Save locally to localStorage so it persists for guests
+        localStorage.setItem('weeklyPlan', JSON.stringify(weeklyPlan));
 
         // 3. Save to Cloud (Fire and Forget or handle error silently)
         const firebase = getFirebase();
@@ -1818,8 +1821,12 @@ function renderOverview() {
     const isGuest = !currentUser.email;
 
     const allGlobalNotes = [];
-    if (globalNotes && globalNotes.global) {
-        Object.values(globalNotes.global).forEach(arr => allGlobalNotes.push(...arr));
+    if (typeof globalNotes !== 'undefined') {
+        for (const col in globalNotes) {
+            for (const sub in globalNotes[col]) {
+                allGlobalNotes.push(...globalNotes[col][sub]);
+            }
+        }
     }
 
     const combinedNotes = [...(NotesDB || []), ...allGlobalNotes];
@@ -1850,7 +1857,7 @@ function renderOverview() {
 
     const isProfileIncomplete = !currentUser.program || !currentUser.year || !currentUser.branch || !currentUser.college;
     const alertBannerHtml = (isProfileIncomplete && !isGuest) ? `
-        <div class="profile-alert-banner-modern fade-in">
+        <div class="profile-alert-banner-modern stagger-1">
             <div class="alert-inner-row">
                 <div class="alert-left">
                     <div class="alert-icon-magic">
@@ -1876,97 +1883,86 @@ function renderOverview() {
     return `
         <div class="tab-pane active fade-in dashboard-overview-wrapper" style="padding: 0;">
             ${alertBannerHtml}
-
-            <!-- 1. BIG - Hero Section 3D -->
-            <div class="hero-section-3d fade-in" style="margin-bottom: 0.75rem;">
-                <div class="hero-section-inner">
-                    <h1 class="font-heading" style="font-size: 2.2rem; margin-bottom: 0.3rem;">
-                        Welcome back, <span class="gradient-text">${userName}</span> 👋
+            <!-- 1. Welcome Section -->
+            <div class="premium-welcome-card stagger-2">
+                <div class="welcome-header" style="margin-bottom: 0;">
+                    <h1 class="font-heading" style="font-size: 2.2rem; margin-bottom: 0.2rem; font-weight: 700;">
+                        Welcome back, <span style="background: linear-gradient(90deg, #00f2ff, #6D5DF2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${userName}</span> 👋
                     </h1>
-                    <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 0;">
-                        ${greetingSubtitle}
-                    </p>
+                    <p style="color: var(--text-dim); font-size: 0.85rem; font-weight: 500;">Scholar • Scholar</p>
                 </div>
             </div>
 
-            <!-- 2. Minimal Stats (Instant Load) -->
-            <div class="grid-2x3" style="margin-bottom: 1.25rem;">
-                <div class="glass-card hover-3d soft-glow" style="padding: 1.5rem; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5rem; border-color: rgba(0,255,148,0.3);">
-                    <div id="stat-active" style="font-size: 1.8rem; font-weight: 800; color: #fff;">
-                        ${window.statServices ? window.statServices.getFormattedStats({ notes: totalNotes, downloads: totalDownloads }).students : '...'}
+            <!-- 2. Stats Grid (Force 3 columns) -->
+            <div class="grid-2x3 stagger-3" style="margin-bottom: 2rem;">
+                <div class="qa-card-wrapper" style="border-color: rgba(0,255,148,0.2);">
+                    <div style="flex: 1; text-align: center;">
+                        <div style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">561+</div>
+                        <div style="font-size: 0.75rem; color: var(--success); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <span style="width: 8px; height: 8px; background: var(--success); border-radius: 50%;"></span> TOTAL STUDENTS
+                        </div>
                     </div>
-                    <div style="font-size: 0.8rem; color: var(--success); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">🟢 Total Students</div>
                 </div>
-                <div class="glass-card hover-3d soft-glow" style="padding: 1.5rem; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5rem; border-color: rgba(123,97,255,0.3);">
-                    <div id="stat-downloads" style="font-size: 1.8rem; font-weight: 800; color: #fff;">
-                        ${window.statServices ? window.statServices.getFormattedStats({ notes: totalNotes, downloads: totalDownloads }).downloads : '...'}
+                <div class="qa-card-wrapper" style="border-color: rgba(123,97,255,0.2);">
+                    <div style="flex: 1; text-align: center;">
+                        <div style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">5.1k+</div>
+                        <div style="font-size: 0.75rem; color: var(--primary-light); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <span>⬇️</span> DOWNLOADS
+                        </div>
                     </div>
-                    <div style="font-size: 0.8rem; color: var(--primary-light); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">⬇️ Downloads</div>
                 </div>
-                <div class="glass-card hover-3d soft-glow" style="padding: 1.5rem; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5rem; border-color: rgba(241,196,15,0.3);">
-                    <div id="stat-notes" style="font-size: 1.8rem; font-weight: 800; color: #fff;">
-                        ${window.statServices ? window.statServices.getFormattedStats({ notes: totalNotes, downloads: totalDownloads }).notes : '...'}
+                <div class="qa-card-wrapper" style="border-color: rgba(241,196,15,0.2);">
+                    <div style="flex: 1; text-align: center;">
+                        <div id="total-resources-count" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">${totalNotes > 0 ? totalNotes : 0}</div>
+                        <div style="font-size: 0.75rem; color: #f1c40f; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <span>⭐</span> TOTAL RESOURCES
+                        </div>
                     </div>
-                    <div style="font-size: 0.8rem; color: var(--warning, #f1c40f); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">⭐ Total Resources</div>
                 </div>
             </div>
 
-            <script>
-                // Refresh stats instantly to ensure latest growth logic is applied
-                if (window.statServices && typeof window.statServices.initRealtimeStats === 'function') {
-                    window.statServices.initRealtimeStats({
-                        notes: ${totalNotes},
-                        downloads: ${totalDownloads}
-                    }, true); // Pass true for instant load
-                }
-            </script>
-
-            <!-- 3. MEDIUM - Quick Actions Grid (2x3) -->
-            <h3 class="font-heading section-title" style="margin-bottom: 1rem;">🚀 Quick Actions</h3>
-            <div class="grid-2x3" style="margin-bottom: 1.5rem;">
-                <!-- 1. Notes Hub -->
-                <div class="quick-action-card hover-3d soft-glow" onclick="renderTabContent('notes')" style="border-color: rgba(123,97,255,0.3); --glow-color: rgba(123,97,255,0.4);">
-                    <div class="qa-icon" style="background: rgba(123,97,255,0.1); color: var(--secondary);">📚</div>
+            <!-- 3. Quick Actions -->
+            <h3 class="font-heading stagger-4" style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; font-size: 1.4rem; font-weight: 800; letter-spacing: 0.5px;">
+                <span>🚀</span> <span style="background: linear-gradient(90deg, #5b8df8, #00e5ff, #a27cf6, #f355a2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Quick Actions</span>
+            </h3>
+            <div class="grid-2x3 stagger-4" style="margin-bottom: 2.5rem;">
+                <div class="qa-card-wrapper stagger-box" onclick="renderTabContent('notes')">
+                    <div class="qa-icon-box qa-icon-purple">📚</div>
                     <div class="qa-info">
                         <div class="qa-title">Notes Hub</div>
                         <div class="qa-desc">Browse syllabus-wise materials</div>
                     </div>
                 </div>
-                <!-- 2. CGPA Analyzer -->
-                <div class="quick-action-card hover-3d soft-glow" onclick="renderTabContent('cgpa-analyzer')" style="border-color: rgba(46,204,113,0.3); --glow-color: rgba(46,204,113,0.4);">
-                    <div class="qa-icon" style="background: rgba(46,204,113,0.1); color: #2ecc71;">🎯</div>
+                <div class="qa-card-wrapper stagger-box" onclick="renderTabContent('attendance-pro')">
+                    <div class="qa-icon-box qa-icon-purple">📅</div>
+                    <div class="qa-info">
+                        <div class="qa-title">Attendance Pro</div>
+                        <div class="qa-desc">Track your attendance</div>
+                    </div>
+                </div>
+                <div class="qa-card-wrapper stagger-box" onclick="renderTabContent('cgpa-analyzer')">
+                    <div class="qa-icon-box qa-icon-green">🎯</div>
                     <div class="qa-info">
                         <div class="qa-title">CGPA Analyzer</div>
                         <div class="qa-desc">Predict and track your grades</div>
                     </div>
                 </div>
-                <!-- 3. Attendance Pro -->
-                <div class="quick-action-card hover-3d soft-glow" onclick="renderTabContent('attendance')" style="border-color: rgba(123,97,255,0.3); --glow-color: rgba(123,97,255,0.4);">
-                    <div class="qa-icon" style="background: rgba(123,97,255,0.1); color: var(--secondary);">🚀</div>
-                    <div class="qa-info">
-                        <div class="qa-title">Attendance Pro</div>
-                        <div class="qa-desc">Track and optimize your presence</div>
-                    </div>
-                </div>
-                <!-- 4. FocusFlow Pro -->
-                <div class="quick-action-card hover-3d soft-glow" onclick="renderTabContent('focusflow')" style="border-color: rgba(255,45,149,0.3); --glow-color: rgba(255,45,149,0.4);">
-                    <div class="qa-icon" style="background: rgba(255,45,149,0.1); color: #FF2D95;">⌚</div>
+                <div class="qa-card-wrapper stagger-box" onclick="renderTabContent('focusflow')">
+                    <div class="qa-icon-box qa-icon-pink">⌚</div>
                     <div class="qa-info">
                         <div class="qa-title">FocusFlow Pro</div>
                         <div class="qa-desc">Pomodoro timer with lofi</div>
                     </div>
                 </div>
-                <!-- 5. AI Coach -->
-                <div class="quick-action-card hover-3d soft-glow" onclick="window.lockOverlay ? window.lockOverlay.show() : renderTabContent('ai-tools')" style="border-color: rgba(0,242,255,0.3); --glow-color: rgba(0,242,255,0.4);">
-                    <div class="qa-icon" style="background: rgba(0,242,255,0.1); color: var(--secondary);">🤖</div>
+                <div class="qa-card-wrapper stagger-box" onclick="window.lockOverlay ? window.lockOverlay.show() : renderTabContent('ai-tools')">
+                    <div class="qa-icon-box qa-icon-cyan">🤖</div>
                     <div class="qa-info">
                         <div class="qa-title">AI Coach</div>
                         <div class="qa-desc">Personalized study guide</div>
                     </div>
                 </div>
-                <!-- 6. Bookmarks -->
-                <div class="quick-action-card hover-3d soft-glow" onclick="renderTabContent('bookmarks')" style="border-color: rgba(241,196,15,0.3); --glow-color: rgba(241,196,15,0.4);">
-                    <div class="qa-icon" style="background: rgba(241,196,15,0.1); color: #f1c40f;">🔖</div>
+                <div class="qa-card-wrapper stagger-box" onclick="renderTabContent('bookmarks')">
+                    <div class="qa-icon-box qa-icon-gold">🔖</div>
                     <div class="qa-info">
                         <div class="qa-title">Bookmarks</div>
                         <div class="qa-desc">Your saved resources</div>
@@ -1974,59 +1970,79 @@ function renderOverview() {
                 </div>
             </div>
 
-            <!-- 4. SMALL - Analytics Split View -->
-            <div class="dashboard-split-view" style="gap: 1.5rem;">
-                
-                <!-- Left: Live Activity -->
-                <div class="main-column">
-                    <div class="glass-card hover-3d" style="padding: 2rem; border-color: rgba(0, 242, 255, 0.2);">
-                        <h3 class="font-heading section-title" style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
-                            🌍 Live Activity <span style="display:inline-block; width:8px; height:8px; background:var(--success); border-radius:50%; box-shadow:0 0 10px var(--success); animation: pulse 2s infinite;"></span>
-                        </h3>
-                        <div class="live-activity-list">
-                            <div class="live-activity-item">
-                                <div class="live-activity-icon">🔥</div>
-                                <div class="live-activity-text"><strong>120 students</strong> studying OOP right now</div>
-                            </div>
-                            <div class="live-activity-item">
-                                <div class="live-activity-icon" style="color: var(--primary-light);">📥</div>
-                                <div class="live-activity-text"><strong>45 new notes</strong> uploaded today</div>
-                            </div>
-                            <div class="live-activity-item">
-                                <div class="live-activity-icon" style="color: #f1c40f;">⭐</div>
-                                <div class="live-activity-text">Top note: <strong>"OOP Cheatsheet"</strong></div>
-                            </div>
-                        </div>
 
+            <!-- 4. SMALL - Analytics Split View -->
+            <div class="dashboard-split-view stagger-5" style="gap: 2rem;">
+                <!-- Left: Live Activity -->
+                <div class="main-column glass-card" style="padding: 2rem;">
+                    <h3 class="font-heading" style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; font-size: 1.4rem; font-weight: 800; letter-spacing: 0.5px;">
+                        <span>🌍</span> <span style="background: linear-gradient(90deg, #5b8df8, #00e5ff, #a27cf6, #f355a2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Live Activity</span> <span class="live-status-dot"></span>
+                    </h3>
+                    <div class="live-activity-list" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                        <div class="live-activity-item glow-orange">
+                            <span style="font-size: 1.2rem;">🔥</span>
+                            <div style="font-weight: 700;">120 students <span style="font-weight: 400; color: var(--text-dim);">studying OOP right now</span></div>
+                        </div>
+                        <div class="live-activity-item glow-blue">
+                            <span style="font-size: 1.2rem;">📥</span>
+                            <div style="font-weight: 700;">45 new notes <span style="font-weight: 400; color: var(--text-dim);">uploaded today</span></div>
+                        </div>
+                        <div class="live-activity-item glow-gold">
+                            <span style="font-size: 1.2rem;">⭐</span>
+                            <div style="font-weight: 700;">Top note: <span style="font-weight: 400; color: var(--text-dim);">"OOP Cheatsheet"</span></div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Right: Personalized Track -->
-                <div class="side-column">
-                    <div class="glass-card hover-3d" style="padding: 2rem; border-color: rgba(123, 97, 255, 0.2);">
-                         <h3 class="font-heading section-title" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
-                            🚀 Your Track
-                            <button class="btn btn-ghost btn-sm" style="font-size: 0.7rem; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border-glass);" onclick="openPlannerEditor()">Edit Plan ✏️</button>
-                         </h3>
-                         
-                         ${weeklyPlan.map(item => `
-                            <div class="track-step-pro ${item.status}">
-                                <div class="track-icon-wrapper">${item.status === 'completed' ? '✓' : (item.status === 'active' ? '⌛' : '🔒')}</div>
-                                <div class="track-content">
-                                    <h4>Week ${item.week}: ${item.title || 'Topic Pending'}</h4>
-                                    ${item.status === 'active' ? `
-                                        <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 5px; overflow: hidden;">
-                                            <div class="progress-animated" style="width: ${item.progress}%; height: 100%;"></div>
-                                        </div>
-                                    ` : `<p>${item.status === 'completed' ? 'Completed 100%' : 'Unlocks after previous week'}</p>`}
-                                </div>
-                            </div>
-                         `).join('')}
-                         
-                         <button class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;" onclick="renderTabContent('notes')">[ Continue Track ]</button>
+                <!-- Right: Your Track -->
+                <div class="side-column glass-card" style="padding: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h3 class="font-heading" style="font-size: 1.4rem; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.75rem;">
+                            <span>🚀</span> <span style="background: linear-gradient(90deg, #5b8df8, #00e5ff, #a27cf6, #f355a2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Your Track</span>
+                        </h3>
+                        <button class="btn-edit-plan" onclick="openPlannerEditor()">Edit Plan ✏️</button>
                     </div>
+                    <div class="track-list timeline-container">
+                        ${weeklyPlan.map(item => {
+                            let icon = "🔒";
+                            let extraHtml = "";
+                            let statusClass = item.status;
+                            let subtitle = "";
+
+                            if (item.status === 'completed') {
+                                icon = "✅";
+                                subtitle = "Completed 100%";
+                            } else if (item.status === 'active') {
+                                icon = "⏳";
+                                subtitle = `In Progress - ${item.progress || 0}%`;
+                                extraHtml = `
+                                    <div class="track-progress-bar-bg">
+                                        <div class="track-progress-bar-fill" style="width: ${item.progress || 0}%;">
+                                            <div class="progress-shimmer"></div>
+                                        </div>
+                                    </div>
+                                `;
+                            } else {
+                                icon = "🔒";
+                                subtitle = "Unlocks after previous week";
+                            }
+
+                            return `
+                                <div class="track-step-pro ${statusClass}">
+                                    <div class="track-icon-wrapper">${icon}</div>
+                                    <div class="track-content" style="${item.status === 'active' ? 'flex: 1;' : ''}">
+                                        <h4>Week ${item.week}: ${item.title}</h4>
+                                        ${extraHtml}
+                                        <p style="${item.status === 'active' ? 'color: var(--primary-light);' : ''}">${subtitle}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    <button class="btn-continue-track" onclick="renderTabContent('notes')">[ Continue Track ]</button>
                 </div>
             </div>
+
         </div>
     `;
 }
@@ -3705,12 +3721,16 @@ window.showAIModal = function (type, subject) {
     } else if (type === 'summary') {
         title = '✨ AI Concept Summary';
         content = `<div class="ai-modal-content-wrapper" style="text-align: center;">
-            <div style="font-size: 3.5rem; margin-bottom: 1.2rem; filter: drop-shadow(0 0 15px rgba(255, 184, 0, 0.3)); animation-delay: 0.1s;">🚧</div>
-            <h3 style="color: white; margin-bottom: 0.8rem; font-size: 1.6rem; font-weight: 800; animation-delay: 0.2s;">Feature Coming Soon</h3>
-            <p style="color: var(--text-dim); line-height: 1.6; font-size: 0.95rem; max-width: 340px; margin: 0 auto; animation-delay: 0.3s;">Our AI-powered summary engine for <b style="color: var(--secondary); text-shadow: 0 0 10px rgba(0, 242, 255, 0.3);">${subject}</b> is currently in development.</p>
-            <div class="loader-pro" style="margin: 2rem auto; animation-delay: 0.4s;"></div>
-            <div style="font-size: 0.8rem; color: var(--secondary); background: rgba(0, 242, 255, 0.06); padding: 0.8rem 1.2rem; border-radius: 14px; margin-top: 1.2rem; border: 1px solid rgba(0, 242, 255, 0.12); display: inline-flex; align-items: center; gap: 8px; animation-delay: 0.5s;">
-                <span>🚀</span> <span>Available in <b>Pro Sandbox</b> update.</span>
+            <div style="margin-bottom: 1.5rem;">
+                <div style="font-size: 2.8rem; margin-bottom: 0.8rem; filter: drop-shadow(0 0 15px rgba(255, 184, 0, 0.3));">🚧</div>
+                <h3 style="color: white; font-size: 1.4rem; font-weight: 800; margin-bottom: 0.5rem;">Feature Coming Soon</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem; line-height: 1.5; max-width: 300px; margin: 0 auto;">
+                    Our AI summary engine for <b style="color: var(--secondary);">${subject}</b> is currently in development.
+                </p>
+            </div>
+            
+            <div style="font-size: 0.8rem; color: #00F2FF; background: rgba(0, 242, 255, 0.05); padding: 0.75rem 1.25rem; border-radius: 16px; border: 1px solid rgba(0, 242, 255, 0.12); display: inline-flex; align-items: center; gap: 8px;">
+                <span>🚀</span> <span>Available in <b style="color: white;">Pro Sandbox</b> update.</span>
             </div>
         </div>`;
     } else if (type === 'questions') {
@@ -3767,7 +3787,7 @@ window.showAIModal = function (type, subject) {
     `;
 
         modal.innerHTML = `
-        <div style="background: #050505; border: 1.5px solid rgba(123, 97, 255, 0.3); border-radius: 30px; width: 92%; max-width: 420px; padding: 2rem; position: relative; box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9); animation: modalFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1), premium-glow-border 4s ease-in-out infinite; overflow: hidden;">
+        <div style="background: #050505; border: 1.5px solid rgba(123, 97, 255, 0.3); border-radius: 30px; width: 92%; max-width: 400px; padding: 1.5rem; position: relative; box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9); animation: modalFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1), premium-glow-border 4s ease-in-out infinite; overflow: hidden;">
                 <!-- Subtle Decorative Glows -->
                 <div style="position: absolute; top: -80px; right: -80px; width: 160px; height: 160px; background: radial-gradient(circle, rgba(123, 97, 255, 0.12) 0%, transparent 70%); pointer-events: none;"></div>
                 <div style="position: absolute; bottom: -80px; left: -80px; width: 160px; height: 160px; background: radial-gradient(circle, rgba(0, 242, 255, 0.08) 0%, transparent 70%); pointer-events: none;"></div>
@@ -4066,6 +4086,20 @@ function initRealTimeDB() {
         // Trigger UI updates
         const trendingEl = document.getElementById('trending-notes');
         if (trendingEl) trendingEl.innerText = `${NotesDB.length} Approved Notes`;
+
+        // Update Total Resources Count dynamically
+        const totalResourcesEl = document.getElementById('total-resources-count');
+        if (totalResourcesEl) {
+            let allGlobalCount = 0;
+            if (typeof globalNotes !== 'undefined') {
+                for (const col in globalNotes) {
+                    for (const sub in globalNotes[col]) {
+                        allGlobalCount += globalNotes[col][sub].length;
+                    }
+                }
+            }
+            totalResourcesEl.innerText = NotesDB.length + allGlobalCount;
+        }
 
         const lbList = document.getElementById('lb-list-container');
         if (lbList) {
@@ -5316,15 +5350,17 @@ window.handleAIGeneration = async function (subject) {
         const modalBody = btn.closest('.modal-content-pro') || btn.parentElement;
         if (modalBody) {
             modalBody.innerHTML = `
-                <div style="text-align: center; padding: 2rem;">
-                    <div style="font-size: 4rem; margin-bottom: 1rem;">📄</div>
-                    <h2 class="font-heading" style="color: white; margin-bottom: 0.5rem;">${window.selectedExamType} Paper Ready</h2>
-                    <p style="color: var(--text-dim); margin-bottom: 2rem;">A professional academic model paper with marking scheme has been generated.</p>
-                    <div style="display: flex; gap: 10px; justify-content: center;">
-                        <button id="final-download-btn" class="btn btn-primary" style="padding: 1rem 2rem; border-radius: 12px; font-weight: 700; background: #2ed573; border-color: #2ed573; color: #1a1a1a;">
+                <div style="text-align: center; padding: 1rem 0.5rem; animation: fadeIn 0.5s ease-out;">
+                    <div style="margin-bottom: 1.5rem;">
+                        <h3 style="color: white; font-size: 1.4rem; margin-bottom: 0.5rem;">${window.selectedExamType} Paper Ready</h3>
+                        <p style="color: var(--text-dim); font-size: 0.9rem; line-height: 1.5;">A professional academic model paper with marking scheme has been generated.</p>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 12px; max-width: 320px; margin: 0 auto;">
+                        <button id="final-download-btn" class="btn btn-primary" style="width: 100%; border-radius: 14px; padding: 0.85rem; font-weight: 800; background: linear-gradient(135deg, #2ed573, #1dd1a1); border: none; color: #050505; cursor: pointer; box-shadow: 0 10px 20px rgba(46, 213, 115, 0.2); transition: 0.3s;">
                             📥 Download PDF
                         </button>
-                        <button class="btn" style="padding: 1rem 2rem; border-radius: 12px; background: rgba(255,255,255,0.05); color: white;" onclick="document.getElementById('dynamic-ai-modal').style.display='none'">
+                        <button class="btn" style="width: 100%; border-radius: 14px; padding: 0.85rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; cursor: pointer; font-weight: 600;" onclick="document.getElementById('dynamic-ai-modal').style.display='none'">
                             Close
                         </button>
                     </div>

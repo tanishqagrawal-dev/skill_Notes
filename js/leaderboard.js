@@ -32,11 +32,16 @@ function renderLeaderboard() {
     contentArea.innerHTML = `
         <div class="tab-pane active fade-in" style="padding: 2rem;">
             <!-- Header -->
-            <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: end;">
-                <div>
-                    <h1 class="font-heading">🏆 Advanced <span class="gradient-text">Leaderboard</span></h1>
-                    <p style="color: var(--text-dim);">Compete, contribute, and track your academic standing in real-time.</p>
+            <div style="margin-bottom: 2.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span style="font-size: 2.5rem; filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.4)); animation: float 3s ease-in-out infinite;">🏆</span>
+                    <h1 class="font-heading" style="font-size: 2.5rem; margin: 0; line-height: 1.1; letter-spacing: -1.5px;">
+                        <span style="background: linear-gradient(135deg, #FFFFFF 0%, #A5B4FC 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;">Global</span>
+                        <span style="background: linear-gradient(135deg, #7B61FF 0%, #00F2FF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; text-shadow: 0 10px 20px rgba(123, 97, 255, 0.2);">Leaderboard</span>
+                    </h1>
                 </div>
+                <p style="color: rgba(255, 255, 255, 0.5); font-size: 1.1rem; max-width: 500px; margin-left: 5px;">Compete, contribute, and track your academic standing in real-time across the network.</p>
+            </div>
                 <!-- Controls -->
                 <div class="leaderboard-controls glass-card">
                     <div class="lb-tabs">
@@ -72,9 +77,10 @@ function renderLeaderboard() {
                 <div class="lb-sidebar">
                     
                     <!-- 1. Personal Rank Tracker -->
-                    <div class="personal-rank-card">
+                    <div class="personal-rank-card" style="background: linear-gradient(135deg, rgba(123, 97, 255, 0.12), rgba(0, 242, 255, 0.05)); border: 1.5px solid rgba(123, 97, 255, 0.2); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); border-radius: 24px; padding: 1.8rem; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: -50px; right: -50px; width: 120px; height: 120px; background: radial-gradient(circle, rgba(0, 242, 255, 0.15) 0%, transparent 70%); pointer-events: none;"></div>
                         <div style="position: relative; z-index: 2;">
-                            <h4 style="margin-bottom: 1rem; color: white;">Your Standing</h4>
+                            <h4 style="margin-bottom: 1.25rem; color: white; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; font-size: 0.85rem; opacity: 0.8;">Your Standing</h4>
                             <div class="rank-stat">
                                 <span class="label">Student Rank</span>
                                 <div style="display:flex; align-items:center; gap: 8px;">

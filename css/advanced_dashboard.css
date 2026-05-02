@@ -266,9 +266,10 @@ body.light-mode .skeleton {
 }
 
 .lb-tab.active {
-    background: #fff;
-    color: #000;
-    transform: scale(1.05);
+    background: linear-gradient(135deg, #7B61FF, #00F2FF);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(123, 97, 255, 0.3);
 }
 
 /* --- SPOTLIGHT CARDS --- */
@@ -613,10 +614,62 @@ body.light-mode .skeleton {
     text-overflow: ellipsis;
 }
 
-.lb-info p {
-    margin: 0.2rem 0 0 0;
-    font-size: 0.8rem;
+/* --- LEADERBOARD ENTRIES --- */
+.lb-entry {
+    display: grid;
+    grid-template-columns: 80px 1fr 120px;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+    gap: 1.5rem;
+    margin-bottom: 0.8rem;
+}
+
+.lb-entry:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.lb-entry.top-3 {
+    background: linear-gradient(90deg, rgba(123, 97, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
+
+.lb-entry.rank-1 { border-color: rgba(255, 215, 0, 0.3); }
+.lb-entry.rank-2 { border-color: rgba(192, 192, 192, 0.3); }
+.lb-entry.rank-3 { border-color: rgba(205, 127, 50, 0.3); }
+
+.lb-rank {
+    font-size: 1.25rem;
+    font-weight: 800;
+    text-align: center;
     color: var(--text-dim);
+}
+
+.lb-rank.rank-1 { font-size: 2rem; }
+
+.lb-user-content {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    overflow: hidden;
+}
+
+.lb-avatar-container {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: visible;
 }
 
 /* --- PREMIUM SYLLABUS STYLES (Synced with global metrics) --- */
