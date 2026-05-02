@@ -202,11 +202,11 @@ async function initWeeklyPlanSync() {
 }
 window.initWeeklyPlanSync = initWeeklyPlanSync;
 
-window.openPlannerEditor = function() {
+window.openPlannerEditor = function () {
     const modal = document.createElement('div');
     modal.className = 'modal-overlay fade-in';
     modal.id = 'planner-editor-modal';
-    
+
     let rowsHtml = weeklyPlan.map((item, idx) => `
         <div class="planner-edit-row" style="display: flex; gap: 10px; align-items: center; margin-bottom: 1rem; background: rgba(15,17,26,0.6); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease;">
             <div class="planner-week-label" style="font-weight: 800; font-size: 0.9rem; color: #a1b0c8; width: 70px;">Week ${item.week}</div>
@@ -240,14 +240,14 @@ window.openPlannerEditor = function() {
     document.body.appendChild(modal);
 };
 
-window.addWeekToPlan = function() {
+window.addWeekToPlan = function () {
     const nextWeek = weeklyPlan.length + 1;
     weeklyPlan.push({ week: nextWeek, title: '', status: 'locked', progress: 0 });
     document.getElementById('planner-editor-modal').remove();
     window.openPlannerEditor();
 };
 
-window.removeWeekFromPlan = function(idx) {
+window.removeWeekFromPlan = function (idx) {
     weeklyPlan.splice(idx, 1);
     // Re-index weeks
     weeklyPlan.forEach((w, i) => w.week = i + 1);
@@ -255,14 +255,14 @@ window.removeWeekFromPlan = function(idx) {
     window.openPlannerEditor();
 };
 
-window.savePlannerChanges = async function() {
+window.savePlannerChanges = async function () {
     try {
         const modal = document.getElementById('planner-editor-modal');
         if (!modal) return;
 
         const inputs = Array.from(modal.querySelectorAll('.planner-input'));
         const selects = Array.from(modal.querySelectorAll('.planner-select'));
-        
+
         // 1. Capture Data with safety checks
         const newPlan = weeklyPlan.map((item, idx) => {
             const input = inputs[idx];
@@ -278,7 +278,7 @@ window.savePlannerChanges = async function() {
 
         // 2. Update Global State Immediately
         weeklyPlan = newPlan;
-        
+
         // Save locally to localStorage so it persists for guests
         localStorage.setItem('weeklyPlan', JSON.stringify(weeklyPlan));
 
@@ -291,7 +291,7 @@ window.savePlannerChanges = async function() {
                 lastUpdated: new Date().toISOString()
             }, { merge: true }).catch(e => console.error("Cloud Sync Error:", e));
         }
-        
+
         // 4. Close Modal and Notify
         modal.remove();
         showToast("Plan Saved! 🚀");
@@ -522,7 +522,7 @@ function initNotesSync() {
 
     isNotesSyncInit = true;
     console.log("📡 Initializing Notes Hub Synchronization (Limited)...");
-    
+
     // We limit the global cache to save massively on reads. The Notes Hub handles its own fetching.
     const q = query(collection(db, 'notes'), limit(50));
     unsubscribeNotes = onSnapshot(q, (snap) => {
@@ -625,10 +625,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Function to perform search
-    window.performGlobalSearch = function(queryOrId) {
+    window.performGlobalSearch = function (queryOrId) {
         if (!queryOrId || !queryOrId.trim()) return;
         if (searchResults) searchResults.style.display = 'none';
-        
+
         const lowQuery = queryOrId.toLowerCase().trim();
         let foundSubject = null;
         let foundKey = null;
@@ -642,10 +642,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 foundKey = key;
                 break;
             }
-            
+
             // Second try name inclusion
-            const nameMatch = list.find(s => 
-                s.name.toLowerCase() === lowQuery || 
+            const nameMatch = list.find(s =>
+                s.name.toLowerCase() === lowQuery ||
                 s.name.toLowerCase().includes(lowQuery)
             );
             if (nameMatch) {
@@ -659,7 +659,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (foundSubject) {
             const [branchId, sem] = foundKey.split('-');
             console.log(`✅ Subject Found: ${foundSubject.name} in ${branchId} (${sem})`);
-            
+
             const collegeId = localStorage.getItem('user_college_id') || 'medicaps';
             const college = window.GlobalData.colleges.find(c => c.id === collegeId) || { id: collegeId, name: 'University' };
             const branch = window.GlobalData.branches.find(b => b.id === branchId) || { id: branchId, name: branchId.toUpperCase() };
@@ -1141,7 +1141,7 @@ async function handleDashboardNoteSubmit(e) {
             try {
                 document.getElementById('dash-upload-form').reset();
                 document.getElementById('upload-status-area').style.display = 'none';
-            } catch(fe) {}
+            } catch (fe) { }
 
             // Navigate to My Uploads tab
             const myUploadsTab = document.querySelector('.nav-item[data-tab="my-uploads"]');
@@ -1347,9 +1347,9 @@ function renderTabContent(tabId) {
             }
 
             // Standard Explorer Logic
-            const hasPathFilters = window.location.hash.split('/').length > 2 || 
-                                   window.location.pathname.split('/').length > 4;
-            
+            const hasPathFilters = window.location.hash.split('/').length > 2 ||
+                window.location.pathname.split('/').length > 4;
+
             if (!hasPathFilters) {
                 window.selState.college = null; window.selState.branch = null; window.selState.year = null; window.selState.subject = null; window.selState.semester = null;
             }
@@ -1782,7 +1782,7 @@ function renderOverview() {
 
     const userName = (currentUser.name || "Scholar").split(' ')[0];
     const collegeName = currentUser.collegeName || currentUser.college || 'SKiL MATRiX Scholar';
-    
+
     // 1. Resolve Dynamic Year
     let yLabel = "";
     if (currentUser.year) {
@@ -1797,7 +1797,7 @@ function renderOverview() {
 
     // 2. Resolve Dynamic Branch
     const branchLabel = currentUser.branch ? currentUser.branch.toUpperCase() : "";
-    
+
     // 3. Construct Unified Subtitle
     let profileSummary = "";
     if (currentUser.role !== 'user') {
@@ -1830,7 +1830,7 @@ function renderOverview() {
     }
 
     const combinedNotes = [...(NotesDB || []), ...allGlobalNotes];
-    
+
     // Total numbers for Minimal Stats (passed to unified stats engine)
     const totalDownloads = combinedNotes.reduce((acc, n) => acc + (n.downloads || 0), 0);
     const totalNotes = combinedNotes.length;
@@ -2004,30 +2004,30 @@ function renderOverview() {
                     </div>
                     <div class="track-list timeline-container">
                         ${weeklyPlan.map(item => {
-                            let icon = "🔒";
-                            let extraHtml = "";
-                            let statusClass = item.status;
-                            let subtitle = "";
+        let icon = "🔒";
+        let extraHtml = "";
+        let statusClass = item.status;
+        let subtitle = "";
 
-                            if (item.status === 'completed') {
-                                icon = "✅";
-                                subtitle = "Completed 100%";
-                            } else if (item.status === 'active') {
-                                icon = "⏳";
-                                subtitle = `In Progress - ${item.progress || 0}%`;
-                                extraHtml = `
+        if (item.status === 'completed') {
+            icon = "✅";
+            subtitle = "Completed 100%";
+        } else if (item.status === 'active') {
+            icon = "⏳";
+            subtitle = `In Progress - ${item.progress || 0}%`;
+            extraHtml = `
                                     <div class="track-progress-bar-bg">
                                         <div class="track-progress-bar-fill" style="width: ${item.progress || 0}%;">
                                             <div class="progress-shimmer"></div>
                                         </div>
                                     </div>
                                 `;
-                            } else {
-                                icon = "🔒";
-                                subtitle = "Unlocks after previous week";
-                            }
+        } else {
+            icon = "🔒";
+            subtitle = "Unlocks after previous week";
+        }
 
-                            return `
+        return `
                                 <div class="track-step-pro ${statusClass}">
                                     <div class="track-icon-wrapper">${icon}</div>
                                     <div class="track-content" style="${item.status === 'active' ? 'flex: 1;' : ''}">
@@ -2037,7 +2037,7 @@ function renderOverview() {
                                     </div>
                                 </div>
                             `;
-                        }).join('')}
+    }).join('')}
                     </div>
                     <button class="btn-continue-track" onclick="renderTabContent('notes')">[ Continue Track ]</button>
                 </div>
@@ -2904,11 +2904,11 @@ window.showNotes = function (activeTab = 'notes') {
                         <div class="stagger-1" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem;">
                              <span class="subject-code-badge" style="background: linear-gradient(135deg, var(--primary), #6366f1); color: white; padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; letter-spacing: 1.5px; box-shadow: 0 4px 12px rgba(123, 97, 255, 0.3); border: 1px solid rgba(255,255,255,0.2); text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                                 ${(() => {
-                                    // Robust lookup for official code
-                                    const allSubs = Object.values(GlobalData.subjects).flat();
-                                    const match = allSubs.find(s => s.name === selState.subject.name || s.id === selState.subject.id);
-                                    return match?.code || selState.subject.code || selState.subject.id.toUpperCase();
-                                })()}
+            // Robust lookup for official code
+            const allSubs = Object.values(GlobalData.subjects).flat();
+            const match = allSubs.find(s => s.name === selState.subject.name || s.id === selState.subject.id);
+            return match?.code || selState.subject.code || selState.subject.id.toUpperCase();
+        })()}
                              </span>
                              <div class="sub-badges" style="display: flex; gap: 0.6rem;">
                                 <span class="meta-badge" style="background: rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); font-weight: 600; letter-spacing: 0.5px;">${selState.branch.id.toUpperCase()}</span>
@@ -3168,26 +3168,26 @@ window.renderMyUploads = function () {
 
 window.deleteUploadedNote = async function (noteId) {
     if (!confirm("Are you sure you want to delete this note? This action cannot be undone.")) return;
-    
+
     // Optimistic UI removal
     const deleteBtn = document.querySelector(`button[onclick="deleteUploadedNote('${noteId}')"]`);
     const cardToRemove = deleteBtn ? deleteBtn.closest('.glass-card') : null;
-    
+
     if (cardToRemove) {
         cardToRemove.style.transition = 'opacity 0.3s ease';
         cardToRemove.style.opacity = '0.5';
         cardToRemove.style.pointerEvents = 'none';
         if (deleteBtn) deleteBtn.innerText = "Deleting...";
     }
-    
+
     const { db, doc, deleteDoc } = window.firebaseServices;
     try {
         await deleteDoc(doc(db, "notes", noteId));
         if (window.showToast) window.showToast("Note deleted successfully!", "success");
-        
+
         // Remove from DOM immediately
         if (cardToRemove) cardToRemove.remove();
-        
+
         // Update local cache
         if (window.currentUser) {
             const cacheKey = `my_uploads_${window.currentUser.id}`;
@@ -3197,14 +3197,14 @@ window.deleteUploadedNote = async function (noteId) {
                     let cachedNotes = JSON.parse(cachedUrl);
                     cachedNotes = cachedNotes.filter(n => n.id !== noteId);
                     localStorage.setItem(cacheKey, JSON.stringify(cachedNotes));
-                } catch(e) {}
+                } catch (e) { }
             }
         }
     } catch (e) {
         console.error("Error deleting note:", e);
         if (window.showToast) window.showToast("Failed to delete note.", "error");
         else alert("Failed to delete note.");
-        
+
         // Revert visual state if failed
         if (cardToRemove) {
             cardToRemove.style.opacity = '1';
@@ -3366,7 +3366,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
         const baseLikes = Math.floor(baseViews * 0.15) + (seed % 15);
         const dailyViews = isStuck ? 0 : (seed % 8 + 2) * (dayFactor % 20);
         const dailyLikes = isStuck ? 0 : Math.floor(dailyViews * 0.08);
-        
+
         const displayViews = (n.views || 0) + baseViews + dailyViews;
         const displayLikes = (n.likes || 0) + baseLikes + dailyLikes;
         const displayDislikes = n.dislikes || (seed % 4);
@@ -3447,7 +3447,7 @@ window.noteUnsubscribers = window.noteUnsubscribers || {};
 window.filterInternalNotes = function (query) {
     const cards = document.querySelectorAll('.premium-note-item, .note-card-pro, .detailed-item');
     const lowQuery = query.toLowerCase();
-    
+
     cards.forEach(card => {
         const title = card.querySelector('.item-title, .note-title-pro')?.innerText.toLowerCase() || "";
         const tag = card.querySelector('.unit-tag')?.innerText.toLowerCase() || "";
@@ -3459,7 +3459,7 @@ window.filterInternalNotes = function (query) {
     });
 };
 
-window.shareResource = function(id) {
+window.shareResource = function (id) {
     const url = window.location.href;
     if (navigator.share) {
         navigator.share({
@@ -3489,7 +3489,7 @@ function formatDate(timestamp) {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-window.getSubjectSyllabusHTML = function(subjectName) {
+window.getSubjectSyllabusHTML = function (subjectName) {
     const genSyllabusHTML = (units) => {
         return `
         <div class="syllabus-header-premium">
@@ -3745,7 +3745,7 @@ window.showAIModal = function (type, subject) {
         </div>`;
     } else if (type === 'questions') {
         title = '📝 Model Exam Questions';
-        
+
         content = `
             <div class="ai-modal-content-wrapper" id="ai-generator-ui">
                 <div style="text-align: center; margin-bottom: 1.5rem; animation-delay: 0.1s;">
@@ -4211,7 +4211,7 @@ function renderLeaderboard() {
     `;
 }
 
-window.switchLeaderboardTab = function(el, type) {
+window.switchLeaderboardTab = function (el, type) {
     document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
     updateLeaderboardUI(type, 'all');
@@ -4279,8 +4279,8 @@ function updateLeaderboardUI(type, timeframe) {
             const scoreVal = item[orderField] || 0;
             const avatar = item.logo || item.avatar || '';
             const crown = item.rank === 1 ? '<div class="spotlight-crown">👑</div>' : '';
-            
-            const avatarHtml = avatar 
+
+            const avatarHtml = avatar
                 ? `<img src="${avatar}" alt="${item.name}">`
                 : `<span style="font-size: 3rem; font-weight: 900; color: #fff; opacity: 0.8;">${item.name ? item.name[0] : '?'}</span>`;
 
@@ -4309,7 +4309,7 @@ function updateLeaderboardUI(type, timeframe) {
             const scoreVal = item[orderField] || 0;
             const avatar = item.logo || item.avatar;
 
-            const avatarHtml = avatar 
+            const avatarHtml = avatar
                 ? `<img src="${avatar}" alt="${item.name}">`
                 : `<span style="font-size: 1.2rem; font-weight: 900; color: #fff; opacity: 0.5;">${item.name ? item.name[0] : '?'}</span>`;
 
@@ -4419,7 +4419,7 @@ window.renderBookmarks = function () {
 
     const grid = document.getElementById('bookmarks-grid');
     const { db, collection, query, where, onSnapshot, getDocs } = window.firebaseServices;
-    
+
     if (!currentUser || currentUser.isGuest) {
         grid.innerHTML = `
             <div style="text-align: center; padding: 4rem; opacity: 0.5;">
@@ -4455,7 +4455,7 @@ window.renderBookmarks = function () {
         }
 
         let allNotes = window.NotesDB || [];
-        
+
         // Find existing notes in cache or globalNotes
         let bookmarkedNotes = allNotes.filter(n => savedIds.includes(n.id));
 
@@ -4495,7 +4495,7 @@ window.renderBookmarks = function () {
                     // Update global cache to avoid refetching
                     window.NotesDB = [...(window.NotesDB || []), ...fetchedNotes];
                     allNotes = window.NotesDB;
-                    
+
                     fetchedNotes.forEach(fn => {
                         if (!bookmarkedNotes.find(n => n.id === fn.id)) bookmarkedNotes.push(fn);
                     });
@@ -4519,7 +4519,7 @@ window.renderBookmarks = function () {
         const approvedBookmarks = uniqueBookmarks.filter(n => n.status === 'approved' || !n.status);
 
         if (approvedBookmarks.length === 0) {
-             grid.innerHTML = `
+            grid.innerHTML = `
                 <div style="text-align: center; padding: 4rem; opacity: 0.5;">
                     <div style="font-size: 3rem; margin-bottom: 1rem;">🕳️</div>
                     <p>The notes you bookmarked are no longer available or pending approval.</p>
@@ -4538,7 +4538,7 @@ window.renderBookmarks = function () {
             const baseLikes = Math.floor(baseViews * 0.15) + (seed % 15);
             const dailyViews = isStuck ? 0 : (seed % 8 + 2) * (dayFactor % 20);
             const dailyLikes = isStuck ? 0 : Math.floor(dailyViews * 0.08);
-            
+
             const displayViews = (n.views || 0) + baseViews + dailyViews;
             const displayLikes = (n.likes || 0) + baseLikes + dailyLikes;
             const displayDislikes = n.dislikes || (seed % 4);
@@ -4590,7 +4590,7 @@ window.renderBookmarks = function () {
         }).join('');
 
         grid.innerHTML = `<div class="notes-list-container-pro">${cardsHTML}</div>`;
-        
+
         if (window.attachNoteRealtimeListeners) {
             window.attachNoteRealtimeListeners('bookmarks-grid');
         }
@@ -5355,7 +5355,7 @@ window.handleAIGeneration = async function (subject) {
         // Update UI to Success State
         statusMsg.style.color = "#2ed573";
         statusMsg.innerText = "✨ Paper Generated Successfully!";
-        
+
         // Transform the generator area into a Download Center
         const modalBody = btn.closest('.modal-content-pro') || btn.parentElement;
         if (modalBody) {

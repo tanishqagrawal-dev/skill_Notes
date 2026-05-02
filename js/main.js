@@ -104,31 +104,29 @@ function animateCounters() {
 
 // FAQ Logic
 function initFAQ() {
-    const faqItems = document.querySelectorAll('.faq-item');
-    faqItems.forEach(item => {
-        const header = item.querySelector('.faq-header');
-        if (!header) return;
+  document.querySelectorAll('.faq-header').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const item   = btn.closest('.faq-item');
+      const answer = item.querySelector('.faq-body');
+      const icon   = btn.querySelector('.faq-toggle');
+      const isOpen = item.classList.contains('active');
 
-        header.addEventListener('click', () => {
-            // Close other items
-            faqItems.forEach(otherItem => {
-                if (otherItem !== item && otherItem.classList.contains('active')) {
-                    otherItem.classList.remove('active');
-                    const otherBody = otherItem.querySelector('.faq-body');
-                    if (otherBody) otherBody.style.maxHeight = null;
-                }
-            });
+      // Close all open items first
+      document.querySelectorAll('.faq-item.active').forEach((el) => {
+        el.classList.remove('active');
+        el.querySelector('.faq-body').style.maxHeight = null;
+        const i = el.querySelector('.faq-toggle');
+        if (i) i.style.transform = 'rotate(0deg)';
+      });
 
-            // Toggle current
-            item.classList.toggle('active');
-            const body = item.querySelector('.faq-body');
-            if (item.classList.contains('active')) {
-                body.style.maxHeight = body.scrollHeight + "px";
-            } else {
-                body.style.maxHeight = null;
-            }
-        });
+      // Open clicked item if it was closed
+      if (!isOpen) {
+        item.classList.add('active');
+        answer.style.maxHeight = answer.scrollHeight + "px";
+        if (icon) icon.style.transform = 'rotate(45deg)';
+      }
     });
+  });
 }
 
 // Filter Logic
@@ -280,3 +278,84 @@ window.handlePayment = function () {
 };
 
 // Redundant advanced footer removed. Handled by footer.js.
+
+/* ============================================================
+   SKiL MATRiX — Enhancement Additions
+   Append to bottom of js/main.js
+   ============================================================ */
+
+// --- Custom Cursor (mouse/trackpad devices only) ---
+const initCustomCursor = () => {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  
+  const cursor = document.querySelector('.custom-cursor');
+  const aura   = document.querySelector('.cursor-aura');
+  if (!cursor || !aura) return;
+
+  // Add class to hide native cursor
+  document.body.classList.add('has-custom-cursor');
+
+  // Make visible on first move
+  let hasMoved = false;
+
+  document.addEventListener('mousemove', (e) => {
+    if (!hasMoved) {
+      cursor.style.opacity = '1';
+      aura.style.opacity = '0.4';
+      hasMoved = true;
+    }
+    
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top  = e.clientY + 'px';
+    
+    // Slight delay on aura for trailing effect
+    requestAnimationFrame(() => {
+      aura.style.left = e.clientX + 'px';
+      aura.style.top  = e.clientY + 'px';
+    });
+  });
+
+  // Hover effects using event delegation (works for dynamic elements)
+  document.addEventListener('mouseover', (e) => {
+    const target = e.target.closest('a, button, .glass-card, .faq-header, .stat-item, input, select');
+    if (target) {
+      cursor.classList.add('hover');
+      aura.classList.add('hover');
+    }
+  });
+
+  document.addEventListener('mouseout', (e) => {
+    const target = e.target.closest('a, button, .glass-card, .faq-header, .stat-item, input, select');
+    if (target) {
+      cursor.classList.remove('hover');
+      aura.classList.remove('hover');
+    }
+  });
+};
+
+initCustomCursor();
+
+// --- Scroll: Parallax Blobs + Back-to-Top Visibility ---
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+
+  // Parallax — only on wider screens for performance
+  if (window.innerWidth > 768) {
+    const blob1 = document.querySelector('.blob-1');
+    const blob2 = document.querySelector('.blob-2');
+    if (blob1) blob1.style.transform = `translateY(${y * 0.15}px)`;
+    if (blob2) blob2.style.transform = `translateY(${y * -0.1}px)`;
+  }
+
+  // Back to top
+  const btn = document.getElementById('back-to-top');
+  if (btn) btn.classList.toggle('visible', y > 300);
+});
+
+// --- Back to Top: Smooth Scroll ---
+const backBtn = document.getElementById('back-to-top');
+if (backBtn) {
+  backBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
