@@ -1182,20 +1182,25 @@ function initTabs() {
     const sidebarNav = document.querySelector('.sidebar-nav');
     if (!sidebarNav || !currentUser) return;
 
-    // Reset Sidebar to Base State (Overview, Notes, Planner, AI Tools, Leaderboard)
-    // We assume HTML has the base items. We just append.
+    // Reset Sidebar to Base State. Static items are already grouped and ordered in dashboard.html.
 
     // Clear previously injected dynamic items
     document.querySelectorAll('.dynamic-node').forEach(n => n.remove());
 
-    // Dynamic items are appended at the end of the main navigation
-    const anchorNode = null; 
+    const profileItem = sidebarNav.querySelector('.nav-item[data-tab="profile"]');
+    const insertAfter = (node, referenceNode) => {
+        if (referenceNode && referenceNode.parentNode) {
+            referenceNode.parentNode.insertBefore(node, referenceNode.nextSibling);
+        } else {
+            sidebarNav.appendChild(node);
+        }
+    };
 
-    // 1. My Uploads
+    // Profile section: Leaderboard, My Profile, My Uploads
     const myUploads = createNavItem('my-uploads', '📤', 'My Uploads', true);
-    sidebarNav.insertBefore(myUploads, anchorNode);
+    insertAfter(myUploads, profileItem);
 
-    // 3. Moderation & Admin Tools
+    // Moderation & Admin Tools
     if (currentUser.role === 'coadmin' || currentUser.role === 'admin' || currentUser.role === 'superadmin') {
         // Co-Admin Hub - Locked
         const modHub = createNavItem('moderation-hub', '🛡️', 'Moderation Hub <span style="font-size:0.6rem; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; margin-left:5px;">🔒</span>', true);
@@ -1206,12 +1211,13 @@ function initTabs() {
             e.stopPropagation();
             alert("🔒 Moderation Hub is coming soon!");
         };
-        sidebarNav.insertBefore(modHub, anchorNode);
+        insertAfter(modHub, myUploads);
     }
 
     if (currentUser.role === 'admin' || currentUser.role === 'superadmin') {
         const adminConsole = createNavItem('admin-console', '🚨', 'Command Center', true);
-        sidebarNav.insertBefore(adminConsole, anchorNode);
+        const moderationHub = sidebarNav.querySelector('.nav-item[data-tab="moderation-hub"]');
+        insertAfter(adminConsole, moderationHub || myUploads);
     }
 
     // Re-bind listeners and set initial active state
