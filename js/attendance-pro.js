@@ -16,6 +16,7 @@ const AttendancePro = {
         viewMonth: new Date().getMonth(),
         viewYear: new Date().getFullYear(),
         isEditingTimetable: false,
+        notifiedSubjects: {},
         lastSync: null
     },
 
@@ -42,6 +43,36 @@ const AttendancePro = {
     saveData() {
         this.state.lastSync = new Date().toISOString();
         localStorage.setItem('atpro_data_v2', JSON.stringify(this.state));
+        this.checkAttendanceThresholds();
+    },
+
+    checkAttendanceThresholds() {
+        if (!window.createNotification || !window.currentUser || window.currentUser.isGuest) return;
+
+        if (!this.state.notifiedSubjects) this.state.notifiedSubjects = {};
+
+        this.state.subjects.forEach(sub => {
+            const stats = this.calculateStats(sub.id);
+            if (!stats) return;
+            const percent = parseFloat(stats.percent);
+            
+            if (percent < 75 && stats.total > 0) {
+                const lastNotifiedPercent = this.state.notifiedSubjects[sub.id] || 100;
+                
+                if (lastNotifiedPercent >= 75 || (lastNotifiedPercent - percent) >= 1) {
+                    window.createNotification(window.currentUser.id || window.currentUser.uid, {
+                        title: "Low Attendance Alert ⚠️",
+                        message: `Your attendance in ${sub.name} has dropped to ${percent}%. Keep it above 75%!`,
+                        type: "warning",
+                        category: "academic"
+                    });
+                    this.state.notifiedSubjects[sub.id] = percent;
+                    // Note: No saveData() here to avoid recursion, it's called after this
+                }
+            } else if (percent >= 75) {
+                delete this.state.notifiedSubjects[sub.id];
+            }
+        });
     },
 
     calculateStats(subjectId) {
@@ -433,19 +464,25 @@ const AttendancePro = {
     renderSubjects() {
         return `
             <div class="atpro-sub-list" style="animation: atproFadeIn 0.5s ease;">
-                ${this.state.subjects.map(sub => {
+                ${this.state.subjects.map((sub, index) => {
             const stats = this.calculateStats(sub.id);
             return `
-                        <div class="atpro-sub-item">
+                        <div class="atpro-sub-item" style="animation: atproFadeInUp 0.4s ease backwards; animation-delay: ${index * 0.1}s">
                             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 1.5rem">
                                 <div class="atpro-sub-circle ${stats.status}" style="width: 60px; height: 60px; border-radius: 16px; display:flex; flex-direction:column; align-items:center; justify-content:center">
                                     <div style="font-size:1rem; font-weight:800">${Math.round(stats.percent)}%</div>
                                     <div style="font-size:0.5rem; opacity:0.6; font-weight:600; text-transform:uppercase">Score</div>
                                 </div>
-                                <button class="atpro-btn-icon" style="background: rgba(255, 71, 87, 0.05); color: var(--atpro-error); border-color: rgba(255, 71, 87, 0.1);" 
-                                        onclick="AttendancePro.deleteSubject('${sub.id}')" title="Delete Subject">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
+                                <div style="display:flex; gap:8px">
+                                    <button class="atpro-btn-icon" style="background: rgba(123, 97, 255, 0.05); color: var(--atpro-purple); border-color: rgba(123, 97, 255, 0.1);" 
+                                            onclick="AttendancePro.openEditSubjectModal('${sub.id}')" title="Edit Subject">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="atpro-btn-icon" style="background: rgba(255, 71, 87, 0.05); color: var(--atpro-error); border-color: rgba(255, 71, 87, 0.1);" 
+                                            onclick="AttendancePro.deleteSubject('${sub.id}')" title="Delete Subject">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
                             </div>
                             
                             <div class="atpro-sub-info">
@@ -558,17 +595,18 @@ const AttendancePro = {
         if (!this.state.history[dateStr]) this.state.history[dateStr] = {};
         const prevStatus = this.state.history[dateStr][lectureId];
 
-        if (prevStatus === 'present') subject.attended--;
-        if (prevStatus === 'absent') subject.missed--;
-        if (prevStatus === 'off') subject.off--;
+        // Safely decrement with Math.max to prevent negative values
+        if (prevStatus === 'present') subject.attended = Math.max(0, (subject.attended || 0) - 1);
+        if (prevStatus === 'absent') subject.missed = Math.max(0, (subject.missed || 0) - 1);
+        if (prevStatus === 'off') subject.off = Math.max(0, (subject.off || 0) - 1);
 
         if (status === 'none' || (!forceSet && prevStatus === status)) {
             delete this.state.history[dateStr][lectureId];
         } else {
             this.state.history[dateStr][lectureId] = status;
-            if (status === 'present') subject.attended++;
-            if (status === 'absent') subject.missed++;
-            if (status === 'off') subject.off++;
+            if (status === 'present') subject.attended = (subject.attended || 0) + 1;
+            if (status === 'absent') subject.missed = (subject.missed || 0) + 1;
+            if (status === 'off') subject.off = (subject.off || 0) + 1;
         }
         this.saveData(); this.refreshUI();
     },
@@ -635,9 +673,9 @@ const AttendancePro = {
         const name = document.getElementById('new-sub-name').value;
         if (!name) return;
 
-        const attended = parseInt(document.getElementById('new-sub-att').value) || 0;
-        const missed = parseInt(document.getElementById('new-sub-miss').value) || 0;
-        const off = parseInt(document.getElementById('new-sub-off').value) || 0;
+        const attended = Math.max(0, parseInt(document.getElementById('new-sub-att').value) || 0);
+        const missed = Math.max(0, parseInt(document.getElementById('new-sub-miss').value) || 0);
+        const off = Math.max(0, parseInt(document.getElementById('new-sub-off').value) || 0);
 
         this.state.subjects.push({
             id: 'sub-' + Date.now(),
@@ -683,6 +721,91 @@ const AttendancePro = {
         checks.forEach(check => {
             this.state.timetable[day].push({ id: 'lec-' + Math.random().toString(36).substr(2, 9), subjectId: check.value });
         });
+        this.saveData(); this.closeModal(); this.refreshUI();
+    },
+
+    openEditSubjectModal(id) {
+        const sub = this.state.subjects.find(s => s.id === id);
+        if (!sub) return;
+
+        const historyList = [];
+        Object.entries(this.state.history).forEach(([date, lectures]) => {
+            Object.entries(lectures).forEach(([lecId, status]) => {
+                const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date(date).getDay()];
+                const lecture = (this.state.timetable[dayName] || []).find(l => l.id === lecId);
+                if (lecture && lecture.subjectId === id) {
+                    historyList.push({ date, lecId, status });
+                }
+            });
+        });
+        historyList.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        const sheet = document.getElementById('atpro-sheet');
+        sheet.innerHTML = `
+            <div class="atpro-modal-close" onclick="AttendancePro.closeModal()"><i class="fas fa-times"></i></div>
+            <div class="atpro-modal-header" style="margin-bottom: 2rem">
+                <h3 class="font-heading" style="font-size:1.6rem">Edit <span class="gradient-text">Subject</span></h3>
+                <p style="font-size:0.85rem; color:var(--text-dim); margin-top:5px">Refine counts or modify individual records.</p>
+            </div>
+
+            <div class="atpro-form-scroll" style="max-height: 60vh; overflow-y: auto; padding-right: 5px; margin-bottom: 1.5rem">
+                <div class="atpro-field" style="margin-bottom: 1.5rem">
+                    <div class="atpro-field-border">
+                        <span class="atpro-field-label">Subject Name</span>
+                        <input type="text" id="edit-sub-name" class="atpro-field-input" value="${sub.name}">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 2rem">
+                    <div class="atpro-field" style="margin-bottom:0">
+                        <div class="atpro-field-border" style="padding: 10px">
+                            <span class="atpro-field-label">Attended</span>
+                            <input type="number" id="edit-sub-att" class="atpro-field-input" value="${sub.attended}" style="text-align:center" min="0">
+                        </div>
+                    </div>
+                    <div class="atpro-field" style="margin-bottom:0">
+                        <div class="atpro-field-border" style="padding: 10px">
+                            <span class="atpro-field-label">Missed</span>
+                            <input type="number" id="edit-sub-miss" class="atpro-field-input" value="${sub.missed}" style="text-align:center" min="0">
+                        </div>
+                    </div>
+                    <div class="atpro-field" style="margin-bottom:0">
+                        <div class="atpro-field-border" style="padding: 10px">
+                            <span class="atpro-field-label">Off</span>
+                            <input type="number" id="edit-sub-off" class="atpro-field-input" value="${sub.off}" style="text-align:center" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="font-heading" style="font-size: 1.1rem; margin-bottom: 1rem">Attendance History</h4>
+                <div class="atpro-history-list" style="display:flex; flex-direction:column; gap:8px">
+                    ${historyList.length > 0 ? historyList.map(h => `
+                        <div class="atpro-history-item" style="display:flex; justify-content:space-between; align-items:center; background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05)">
+                            <div style="font-size:0.85rem; font-weight:600">${new Date(h.date).toLocaleDateString('default', { day: 'numeric', month: 'short', weekday: 'short' })}</div>
+                            <div style="display:flex; gap:8px">
+                                <button class="atpro-action-btn present ${h.status === 'present' ? 'active' : ''}" onclick="AttendancePro.markAttendance('${h.date}', '${h.lecId}', 'present', true); AttendancePro.openEditSubjectModal('${id}')"><i class="fas fa-check"></i></button>
+                                <button class="atpro-action-btn absent ${h.status === 'absent' ? 'active' : ''}" onclick="AttendancePro.markAttendance('${h.date}', '${h.lecId}', 'absent', true); AttendancePro.openEditSubjectModal('${id}')"><i class="fas fa-times"></i></button>
+                                <button class="atpro-action-btn warning ${h.status === 'off' ? 'active' : ''}" onclick="AttendancePro.markAttendance('${h.date}', '${h.lecId}', 'off', true); AttendancePro.openEditSubjectModal('${id}')"><i class="far fa-circle"></i></button>
+                            </div>
+                        </div>
+                    `).join('') : '<p style="text-align:center; padding: 20px; color: var(--text-dim); font-size: 0.8rem">No individual records found.</p>'}
+                </div>
+            </div>
+
+            <button class="atpro-btn-large" style="width:100%; height:55px" onclick="AttendancePro.updateSubject('${id}')">
+                <i class="fas fa-save" style="margin-right:10px"></i> Save All Changes
+            </button>
+        `;
+        this.openModal();
+    },
+
+    updateSubject(id) {
+        const sub = this.state.subjects.find(s => s.id === id);
+        if (!sub) return;
+        sub.name = document.getElementById('edit-sub-name').value;
+        sub.attended = Math.max(0, parseInt(document.getElementById('edit-sub-att').value) || 0);
+        sub.missed = Math.max(0, parseInt(document.getElementById('edit-sub-miss').value) || 0);
+        sub.off = Math.max(0, parseInt(document.getElementById('edit-sub-off').value) || 0);
         this.saveData(); this.closeModal(); this.refreshUI();
     },
 

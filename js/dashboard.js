@@ -1238,6 +1238,9 @@ function initTabs() {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             item.classList.add('active');
             renderTabContent(item.dataset.tab);
+            
+            // ⚡ Mobile UX: Auto-close sidebar on item selection
+            document.querySelector('.sidebar')?.classList.remove('active');
         };
     });
 }
@@ -1403,9 +1406,11 @@ function renderTabContent(tabId) {
             contentArea.innerHTML = renderModerationHub();
             if (typeof initModerationHub === 'function') initModerationHub();
         } else if (tabId === 'verification-hub') {
-            contentArea.innerHTML = `<div class="tab-pane active fade-in" style="padding: 2rem;">
-                <h1 class="font-heading">🛡️ Moderation <span class="gradient-text">Queue</span></h1>
-                <p style="color: var(--text-dim); margin-bottom: 2rem;">Approve or reject pending note submissions.</p>
+            contentArea.innerHTML = `<div class="tab-pane active fade-in" style="padding: 1.5rem;">
+                <div class="welcome-header" style="text-align: center;">
+                    <h1 class="font-heading">🛡️ Moderation <span class="gradient-text">Queue</span></h1>
+                    <p style="color: var(--text-dim); margin-bottom: 2rem;">Approve or reject pending note submissions.</p>
+                </div>
                 <div id="admin-queue" class="grid-1-col" style="display: grid; gap: 1rem;"></div>
             </div>`;
             if (typeof renderAdminModQueue === 'function') renderAdminModQueue();
@@ -1416,10 +1421,12 @@ function renderTabContent(tabId) {
                 contentArea.innerHTML = "<p>Admin Console module loading...</p>";
             }
         } else if (tabId === 'my-uploads') {
-            contentArea.innerHTML = `<div class="tab-pane active fade-in" style="padding: 2rem;">
-                <h1 class="font-heading">📤 My <span class="gradient-text">Uploads</span></h1>
-                <p style="color: var(--text-dim); margin-bottom: 2rem;">Track the status of your contributed materials.</p>
-                <div id="my-uploads-grid" class="notes-grid-pro" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;"></div>
+            contentArea.innerHTML = `<div class="tab-pane active fade-in" style="padding: 1.5rem;">
+                <div class="welcome-header" style="text-align: center; margin-bottom: 2rem;">
+                    <h1 class="font-heading" style="white-space: nowrap; font-size: clamp(1.5rem, 6vw, 2.5rem);">📤 My <span class="gradient-text">Uploads</span></h1>
+                    <p style="color: var(--text-dim); margin-bottom: 2rem;">Track the status of your contributed materials.</p>
+                </div>
+                <div id="my-uploads-grid" class="notes-grid-pro" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; justify-content: center; width: 100%;"></div>
             </div>`;
             if (typeof renderMyUploads === 'function') renderMyUploads();
         } else if (tabId === 'focusflow') {
@@ -1494,8 +1501,8 @@ function renderPlanner() {
     const mySubjects = (GlobalData.subjects['cse-Semester 3'] || GlobalData.subjects['cse-Semester 1']).map(s => s.name);
 
     return `
-        <div class="tab-pane active fade-in" style="padding: 2rem;">
-            <div style="margin-bottom: 2rem;">
+        <div class="tab-pane active fade-in" style="padding: 1.5rem;">
+            <div class="welcome-header" style="margin-bottom: 2.5rem; text-align: center;">
                 <h1 class="font-heading">📅 AI Exam <span class="gradient-text">Strategist</span></h1>
                 <p style="color: var(--text-dim);">Let Gemini create your perfect daily schedule based on exam proximity and weak topics.</p>
             </div>
@@ -1664,13 +1671,11 @@ function renderAITools() {
     });
 
     return `
-        <div class="tab-pane active fade-in" style="padding: 2rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
-                <div>
-                    <h1 class="font-heading">🤖 AI <span class="gradient-text">Model Paper Generator</span></h1>
-                    <p style="color: var(--text-dim);">Upload your PYQs (PDF/Image) and let Gemini generate a model paper.</p>
-                </div>
-                <div class="status-badge" id="server-status-badge" style="font-size: 0.8rem; padding: 0.5rem 1rem; border-radius: 20px; background: rgba(255,255,255,0.05);">
+        <div class="tab-pane active fade-in" style="padding: 1.5rem;">
+            <div class="welcome-header" style="text-align: center; margin-bottom: 2rem;">
+                <h1 class="font-heading">🤖 AI <span class="gradient-text">Model Paper</span></h1>
+                <p style="color: var(--text-dim);">Upload your PYQs and let Gemini generate a model paper.</p>
+                <div class="status-badge" id="server-status-badge" style="font-size: 0.8rem; padding: 0.5rem 1rem; border-radius: 20px; background: rgba(255,255,255,0.05); width: fit-content; margin: 1rem auto 0;">
                     Checking Server...
                 </div>
             </div>
@@ -3040,7 +3045,14 @@ window.renderMyUploads = function () {
 
     // Guard: guest users cannot have uploads
     if (!currentUser || currentUser.isGuest) {
-        container.innerHTML = `<p style="color:var(--text-dim); text-align:center; padding: 2rem;">Please login to see your uploads.</p>`;
+        container.innerHTML = `
+            <div style="grid-column: 1/-1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 6rem 2rem; opacity: 0.9;">
+                <div style="font-size: 4.5rem; margin-bottom: 2rem; filter: drop-shadow(0 0 20px rgba(123, 97, 255, 0.4));">📤</div>
+                <h3 style="margin-bottom: 1rem; color: #fff;">Sign in to view your uploads</h3>
+                <p style="color: var(--text-dim); margin-bottom: 2.5rem; max-width: 350px; line-height: 1.6;">Track your contributed materials and monitor their approval status by logging into your account.</p>
+                <button class="btn btn-primary" onclick="window.location.href='/login.html'" style="padding: 1rem 2rem; border-radius: 12px; font-weight: 600; min-width: 200px;">Login to Account</button>
+            </div>
+        `;
         return;
     }
 
@@ -3050,10 +3062,11 @@ window.renderMyUploads = function () {
     const render = (all) => {
         if (!all || all.length === 0) {
             container.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 4rem; opacity: 0.6;">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">📤</div>
-                    <p>You haven't uploaded anything yet.</p>
-                    <button class="btn btn-primary" onclick="openUploadModal()" style="margin-top:1rem;">Upload Your First Note</button>
+                <div style="grid-column: 1/-1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 6rem 2rem; opacity: 0.9;">
+                    <div style="font-size: 4.5rem; margin-bottom: 2rem; filter: drop-shadow(0 0 20px rgba(123, 97, 255, 0.4));">📤</div>
+                    <h3 style="margin-bottom: 1rem; color: #fff;">Your contribution queue is empty</h3>
+                    <p style="color: var(--text-dim); margin-bottom: 2.5rem; max-width: 350px; line-height: 1.6;">Share your academic resources with fellow students and track their status here once they are submitted.</p>
+                    <button class="btn btn-primary" onclick="openUploadModal()" style="padding: 1rem 2rem; border-radius: 12px; font-weight: 600; min-width: 200px;">Upload Your First Note</button>
                 </div>
             `;
             return;
@@ -3106,13 +3119,13 @@ window.renderMyUploads = function () {
                 syncBadge.textContent = '⟳ Syncing...';
                 container.before(syncBadge);
             } else {
-                container.innerHTML = '<div class="loader-pro" style="margin: 2rem auto;"></div>';
+                container.innerHTML = '<div style="grid-column: 1/-1; display: flex; justify-content: center; padding: 4rem;"><div class="loader-pro"></div></div>';
             }
         } else {
-            container.innerHTML = '<div class="loader-pro" style="margin: 2rem auto;"></div>';
+            container.innerHTML = '<div style="grid-column: 1/-1; display: flex; justify-content: center; padding: 4rem;"><div class="loader-pro"></div></div>';
         }
     } catch (e) {
-        container.innerHTML = '<div class="loader-pro" style="margin: 2rem auto;"></div>';
+        container.innerHTML = '<div style="grid-column: 1/-1; display: flex; justify-content: center; padding: 4rem;"><div class="loader-pro"></div></div>';
     }
 
     // --- STEP 2: Fetch fresh data via one-time HTTP (fast, no WebSocket wait) ---
@@ -3385,15 +3398,15 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                         <div class="unit-tag" style="font-size: 0.75rem; color: var(--secondary); font-weight: 800; letter-spacing: 1px; margin-bottom: 0.3rem; text-transform: uppercase;">${unitTag}</div>
                         <h3 class="item-title" style="font-size: 1.2rem; font-weight: 700; color: white; margin: 0 0 0.4rem 0;">${n.title}</h3>
                         <div class="item-meta-row" style="display: flex; align-items: center; gap: 1.2rem; font-size: 0.85rem; color: var(--text-dim);">
-                            <div class="uploader-mini" style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div class="uploader-mini" style="display: flex; align-items: center; gap: 0.5rem; white-space: nowrap;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                                 <span>${n.uploaderName || n.uploader || 'Verified'}</span>
                             </div>
-                            <div class="date-mini" style="display: flex; align-items: center; gap: 0.4rem;">
+                            <div class="date-mini" style="display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
                                 <span>${yearDate}</span>
                             </div>
-                            <div class="views-mini" style="display: flex; align-items: center; gap: 0.4rem;">
+                            <div class="views-mini" style="display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                 <span class="views">${displayViews} Views</span>
                             </div>
@@ -3426,7 +3439,11 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
             </div>`;
     }).join('');
 
-    grid.innerHTML = `<div class="notes-list-container-pro">${cardsHTML}</div>`;
+    grid.innerHTML = cardsHTML;
+    grid.className = "notes-list-container-pro";
+    grid.style.display = "flex";
+    grid.style.flexDirection = "column";
+    grid.style.gap = "1.25rem";
 
     setTimeout(() => {
         if (typeof attachNoteRealtimeListeners === 'function') attachNoteRealtimeListeners('tab-content');
@@ -4180,7 +4197,7 @@ function renderLeaderboard() {
                     <h1 class="font-heading lb-main-title" style="text-align: center; margin-bottom: 0.8rem; font-weight: 800; letter-spacing: -1px;">
                         <span class="lb-title-emoji">🏆</span> <span class="lb-glow-text">Leaderboard</span>
                     </h1>
-                    <div class="hof-badge">🏆 SKILL MATRIX: ELITE VANGUARD</div>
+                    <div class="hof-badge">🏆 SKiL MATRiX: ELITE VANGUARD</div>
                     
                     <div class="lb-tabs-wrapper">
                         <div class="lb-tabs-container" onscroll="if(window.syncLeaderboardScroll) window.syncLeaderboardScroll(this)">
@@ -4422,13 +4439,15 @@ window.renderBookmarks = function () {
     if (!contentArea) return;
 
     contentArea.innerHTML = `
-        <div class="tab-pane active fade-in" style="padding: 2rem;">
-            <div style="margin-bottom: 2rem;">
-                <h1 class="font-heading">🔖 Your <span class="gradient-text">Bookmarks</span></h1>
-                <p style="color: var(--text-dim);">Quick access to all the notes you've saved for later.</p>
+        <div class="tab-pane active fade-in" style="padding: 1.5rem;">
+            <div class="welcome-header" style="text-align: center; margin-bottom: 2rem;">
+                <h1 class="font-heading" style="white-space: nowrap; font-size: clamp(1.5rem, 6vw, 2.5rem);">🔖 Your <span class="gradient-text">Bookmarks</span></h1>
+                <p style="color: var(--text-dim); margin-bottom: 2rem;">Quick access to all the notes you've saved for later.</p>
             </div>
-            <div id="bookmarks-grid" class="notes-list-container-pro">
-                <div class="loader-pro" style="margin: 4rem auto;"></div>
+            <div id="bookmarks-grid" style="max-width: 1000px; margin: 0 auto; width: 100%;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6rem 2rem;">
+                    <div class="loader-pro"></div>
+                </div>
             </div>
         </div>
     `;
@@ -4438,9 +4457,11 @@ window.renderBookmarks = function () {
     
     if (!currentUser || currentUser.isGuest) {
         grid.innerHTML = `
-            <div style="text-align: center; padding: 4rem; opacity: 0.5;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
-                <p>Login to see your bookmarks.</p>
+            <div style="grid-column: 1/-1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 6rem 2rem; opacity: 0.9;">
+                <div style="font-size: 4.5rem; margin-bottom: 2rem; filter: drop-shadow(0 0 20px rgba(123, 97, 255, 0.4));">🔒</div>
+                <h3 style="margin-bottom: 1rem; color: #fff;">Private Collection</h3>
+                <p style="color: var(--text-dim); margin-bottom: 2.5rem; max-width: 350px; line-height: 1.6;">Your bookmarked notes are private. Log in to your account to access your saved resources.</p>
+                <button class="btn btn-primary" onclick="window.location.href='/login.html'" style="padding: 1rem 2rem; border-radius: 12px; font-weight: 600; min-width: 200px;">Login to Account</button>
             </div>
         `;
         return;
@@ -4454,161 +4475,165 @@ window.renderBookmarks = function () {
     if (window.bookmarksUnsubscribe) window.bookmarksUnsubscribe();
 
     window.bookmarksUnsubscribe = onSnapshot(qSaved, async (savedSnap) => {
-        const savedIds = [];
-        savedSnap.forEach(doc => {
-            const data = doc.data();
-            savedIds.push(data.noteId || doc.id.replace(/^saved_/, ''));
-        });
-
-        if (savedIds.length === 0) {
-            grid.innerHTML = `
-                <div style="text-align: center; padding: 4rem; opacity: 0.5;">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">🔖</div>
-                    <p>You haven't bookmarked any notes yet.</p>
-                </div>
-            `;
-            return;
-        }
-
-        let allNotes = window.NotesDB || [];
-        
-        // Find existing notes in cache or globalNotes
-        let bookmarkedNotes = allNotes.filter(n => savedIds.includes(n.id));
-
-        // Check globalNotes for static entries
-        if (bookmarkedNotes.length < savedIds.length) {
-            const missingIds = savedIds.filter(id => !bookmarkedNotes.find(n => n.id === id));
-            missingIds.forEach(id => {
-                // Search in globalNotes
-                for (const col in globalNotes) {
-                    for (const sub in globalNotes[col]) {
-                        const found = globalNotes[col][sub].find(n => n.id === id);
-                        if (found && !bookmarkedNotes.find(n => n.id === id)) {
-                            bookmarkedNotes.push(found);
-                        }
-                    }
-                }
+        const processSnap = (snap) => {
+            const notes = [];
+            snap.forEach(doc => {
+                const data = doc.data();
+                const noteId = data.noteId || doc.id.replace(/^saved_/, '');
+                
+                // Try to find in global cache for stats
+                const cached = (window.NotesDB || []).find(n => n.id === noteId);
+                
+                notes.push(cached || {
+                    id: noteId,
+                    title: data.name || data.title || "Untitled Note",
+                    url: data.url || data.fileUrl || "#",
+                    subject: data.subject || "General Resources",
+                    status: 'approved',
+                    isInstant: true // Flag to indicate partial data
+                });
             });
-        }
+            return notes;
+        };
 
-        // If still missing some notes, fetch them specifically from Firestore
-        if (bookmarkedNotes.length < savedIds.length) {
-            try {
-                const missingIds = savedIds.filter(id => !bookmarkedNotes.find(n => n.id === id));
-                if (missingIds.length > 0) {
-                    const fetchNotesByIds = async (ids) => {
-                        const results = [];
-                        for (let i = 0; i < ids.length; i += 30) {
-                            const chunk = ids.slice(i, i + 30);
-                            const q = query(collection(db, "notes"), where("__name__", "in", chunk));
-                            const snap = await getDocs(q);
-                            snap.forEach(doc => results.push({ id: doc.id, ...doc.data() }));
-                        }
-                        return results;
-                    };
+        let currentNotes = processSnap(savedSnap);
 
-                    const fetchedNotes = await fetchNotesByIds(missingIds);
-                    // Update global cache to avoid refetching
-                    window.NotesDB = [...(window.NotesDB || []), ...fetchedNotes];
-                    allNotes = window.NotesDB;
-                    
-                    fetchedNotes.forEach(fn => {
-                        if (!bookmarkedNotes.find(n => n.id === fn.id)) bookmarkedNotes.push(fn);
-                    });
-                }
-            } catch (e) {
-                console.error("Fetch bookmarked notes error:", e);
-            }
-        }
-
-        // Filter out duplicates and ensure valid data
-        const uniqueBookmarks = [];
-        const seenIds = new Set();
-        bookmarkedNotes.forEach(n => {
-            if (n && n.id && !seenIds.has(n.id)) {
-                uniqueBookmarks.push(n);
-                seenIds.add(n.id);
-            }
-        });
-
-        // Only show approved notes
-        const approvedBookmarks = uniqueBookmarks.filter(n => n.status === 'approved' || !n.status);
-
-        if (approvedBookmarks.length === 0) {
-             grid.innerHTML = `
-                <div style="text-align: center; padding: 4rem; opacity: 0.5;">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">🕳️</div>
-                    <p>The notes you bookmarked are no longer available or pending approval.</p>
-                    <button class="btn btn-ghost btn-sm" style="margin-top: 1rem;" onclick="renderTabContent('notes')">Explore More Notes</button>
+        if (currentNotes.length === 0) {
+            grid.innerHTML = `
+                <div style="grid-column: 1/-1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 6rem 2rem; opacity: 0.9;">
+                    <div style="font-size: 4.5rem; margin-bottom: 2rem; filter: drop-shadow(0 0 20px rgba(123, 97, 255, 0.4));">🔖</div>
+                    <h3 style="margin-bottom: 1rem; color: #fff;">No Bookmarks Yet</h3>
+                    <p style="color: var(--text-dim); margin-bottom: 2.5rem; max-width: 350px; line-height: 1.6;">You haven't saved any notes yet. Browse the Notes Hub and click the bookmark icon to save materials here.</p>
+                    <button class="btn btn-primary" onclick="renderTabContent('notes')" style="padding: 1rem 2rem; border-radius: 12px; font-weight: 600; min-width: 200px;">Browse Notes Hub</button>
                 </div>
             `;
             return;
         }
 
-        const cardsHTML = approvedBookmarks.map((n, index) => {
-            // Replicate Premium Stats Logic for consistency
-            const seed = (n.id || `note_${index}`).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-            const dayFactor = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-            const isStuck = (seed % 8 === 0);
-            const baseViews = (seed % 400) + 120;
-            const baseLikes = Math.floor(baseViews * 0.15) + (seed % 15);
-            const dailyViews = isStuck ? 0 : (seed % 8 + 2) * (dayFactor % 20);
-            const dailyLikes = isStuck ? 0 : Math.floor(dailyViews * 0.08);
+        // --- INSTANT RENDER ---
+        const renderUI = (notesToRender) => {
+            const grouped = {};
+            notesToRender.forEach(n => {
+                const sub = n.subject || n.subjectName || 'General Resources';
+                if (!grouped[sub]) grouped[sub] = [];
+                grouped[sub].push(n);
+            });
+
+            const sortedSubjects = Object.keys(grouped).sort();
+            let fullHTML = '';
             
-            const displayViews = (n.views || 0) + baseViews + dailyViews;
-            const displayLikes = (n.likes || 0) + baseLikes + dailyLikes;
-            const displayDislikes = n.dislikes || (seed % 4);
+            sortedSubjects.forEach(subName => {
+                const notes = grouped[subName];
+                const cardsHTML = notes.map((n, index) => {
+                    const seed = (n.id || `note_${index}`).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                    const dayFactor = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+                    const isStuck = (seed % 8 === 0);
+                    const baseViews = (seed % 400) + 120;
+                    const baseLikes = Math.floor(baseViews * 0.15) + (seed % 15);
+                    const dailyViews = isStuck ? 0 : (seed % 8 + 2) * (dayFactor % 20);
+                    const dailyLikes = isStuck ? 0 : Math.floor(dailyViews * 0.08);
+                    
+                    const displayViews = (n.views || 0) + baseViews + dailyViews;
+                    const displayLikes = (n.likes || 0) + baseLikes + dailyLikes;
+                    const isLiked = window.likedNoteIds?.has(n.id);
+                    
+                    // Improved Unit Tag Extraction
+                    let unitTag = 'UNIT 1';
+                    if (n.unit && n.unit !== 'undefined') {
+                        unitTag = n.unit;
+                    } else {
+                        const unitMatch = n.title?.match(/unit\s*[-_]?\s*\d+/i);
+                        if (unitMatch) unitTag = unitMatch[0];
+                    }
+                    unitTag = unitTag.toUpperCase();
 
-            const isLiked = window.likedNoteIds?.has(n.id);
-            const isDisliked = window.dislikedNoteIds?.has(n.id);
-            const isSaved = true;
-
-            const unitTag = n.unit || (n.title.toLowerCase().includes('unit') ? n.title.match(/unit\s*\d+/i)?.[0].toUpperCase() : 'UNIT 1');
-
-            return `
-                <div class="detailed-item glass-card card-reveal" data-note-id="${n.id}" style="animation-delay: ${index * 0.1}s; margin-bottom: 1.2rem; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
-                    <div class="item-left" style="display: flex; gap: 1.25rem; align-items: flex-start; flex: 1;">
-                        <div class="file-type-icon" style="width: 45px; height: 45px; background: rgba(0, 242, 255, 0.1); color: var(--secondary); display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.2rem; flex-shrink: 0;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                        </div>
-                        <div class="item-info">
-                            <div class="unit-tag" style="font-size: 0.75rem; color: var(--secondary); font-weight: 800; letter-spacing: 1px; margin-bottom: 0.3rem; text-transform: uppercase;">${unitTag}</div>
-                            <h3 class="item-title" style="font-size: 1.2rem; font-weight: 700; color: white; margin: 0 0 0.4rem 0;">${n.title}</h3>
-                            <div class="item-meta-row" style="display: flex; align-items: center; gap: 1.2rem; font-size: 0.85rem; color: var(--text-dim);">
-                                <div class="uploader-mini" style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                                    <span>${n.uploaderName || n.uploader || 'Verified'}</span>
+                    return `
+                        <div class="detailed-item glass-card card-reveal" data-note-id="${n.id}" style="animation-delay: ${index * 0.05}s; margin-bottom: 1rem; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                            <div class="item-left" style="display: flex; gap: 1.25rem; align-items: flex-start; flex: 1;">
+                                <div class="file-type-icon" style="width: 45px; height: 45px; background: rgba(0, 242, 255, 0.1); color: var(--secondary); display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.2rem; flex-shrink: 0;">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
                                 </div>
-                                <div class="views-mini" style="display: flex; align-items: center; gap: 0.4rem;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                                    <span class="views">${displayViews} Views</span>
+                                <div class="item-info">
+                                    <div class="unit-tag" style="font-size: 0.75rem; color: var(--secondary); font-weight: 800; letter-spacing: 1px; margin-bottom: 0.3rem; text-transform: uppercase;">${unitTag}</div>
+                                    <h3 class="item-title" style="font-size: 1.15rem; font-weight: 700; color: white; margin: 0 0 0.4rem 0;">${n.title}</h3>
+                                    <div class="item-meta-row" style="display: flex; align-items: center; gap: 1.2rem; font-size: 0.8rem; color: var(--text-dim);">
+                                        <div class="uploader-mini" style="display: flex; align-items: center; gap: 0.5rem; white-space: nowrap;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                            <span>${n.uploaderName || n.uploader || 'Verified'}</span>
+                                        </div>
+                                        <div class="views-mini" style="display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                            <span class="views">${displayViews} Views</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                            <div class="item-right" style="display: flex; align-items: center; gap: 1.25rem;">
+                                <div class="item-actions-inline" style="display: flex; align-items: center; gap: 0.8rem;">
+                                    <button class="eng-btn-pro like-btn ${isLiked ? 'active' : ''}" onclick="likeNote('${n.id}')" style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.8rem; border-radius: 8px; color: var(--text-dim); transition: 0.3s; cursor: pointer;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                                        <span class="count" style="font-weight: 700; font-size: 0.9rem;">${displayLikes}</span>
+                                    </button>
+                                    <button class="tool-icon-pro bookmark-btn active" onclick="toggleBookmark('${n.id}')" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.6rem; border-radius: 8px; color: var(--text-dim); transition: 0.3s; cursor: pointer;">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                                    </button>
+                                </div>
+                                <a href="${n.url || '#'}" target="_blank" class="btn-download-pro" onclick="viewNote('${n.id}')" style="background: white; color: black; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; transition: 0.3s;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    View
+                                </a>
+                            </div>
+                        </div>`;
+                }).join('');
+
+                fullHTML += `
+                    <div class="subject-bookmarks-section" style="margin-bottom: 3rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.75rem;">
+                            <h2 class="font-heading" style="font-size: 1.35rem; display: flex; align-items: center; gap: 10px; margin: 0;">
+                                <span style="color: var(--secondary); font-size: 1.1rem;">📚</span> ${subName}
+                            </h2>
+                            <span style="font-size: 0.75rem; background: rgba(123, 97, 255, 0.1); color: var(--secondary); padding: 3px 10px; border-radius: 20px; font-weight: 700; border: 1px solid rgba(123, 97, 255, 0.2);">
+                                ${notes.length} ${notes.length === 1 ? 'Note' : 'Notes'}
+                            </span>
+                        </div>
+                        <div class="notes-list-container-pro" style="display: flex; flex-direction: column; gap: 1rem;">
+                            ${cardsHTML}
                         </div>
                     </div>
+                `;
+            });
 
-                    <div class="item-right" style="display: flex; align-items: center; gap: 1.5rem;">
-                        <div class="item-actions-inline" style="display: flex; align-items: center; gap: 0.8rem;">
-                            <button class="eng-btn-pro like-btn ${isLiked ? 'active' : ''}" onclick="likeNote('${n.id}')" style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.8rem; border-radius: 8px; color: var(--text-dim); transition: 0.3s; cursor: pointer;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
-                                <span class="count" style="font-weight: 700; font-size: 0.9rem;">${displayLikes}</span>
-                            </button>
-                            <button class="tool-icon-pro bookmark-btn active" onclick="toggleBookmark('${n.id}')" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.6rem; border-radius: 8px; color: var(--text-dim); transition: 0.3s; cursor: pointer;">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2-2z"></path></svg>
-                            </button>
-                        </div>
-                        <a href="${n.url || n.fileUrl || n.driveLink}" target="_blank" class="btn-download-pro" onclick="viewNote('${n.id}')" style="background: white; color: black; padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 700; font-size: 0.9rem; text-decoration: none; display: flex; align-items: center; gap: 0.6rem; transition: 0.3s;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                            View
-                        </a>
-                    </div>
-                </div>`;
-        }).join('');
+            grid.innerHTML = fullHTML;
+            if (window.attachNoteRealtimeListeners) window.attachNoteRealtimeListeners('bookmarks-grid');
+        };
 
-        grid.innerHTML = `<div class="notes-list-container-pro">${cardsHTML}</div>`;
-        
-        if (window.attachNoteRealtimeListeners) {
-            window.attachNoteRealtimeListeners('bookmarks-grid');
+        renderUI(currentNotes);
+
+        // --- BACKGROUND FETCH MISSING DATA ---
+        const missingIds = currentNotes.filter(n => n.isInstant).map(n => n.id);
+        if (missingIds.length > 0) {
+            try {
+                const fetchNotesByIds = async (ids) => {
+                    const results = [];
+                    for (let i = 0; i < ids.length; i += 30) {
+                        const chunk = ids.slice(i, i + 30);
+                        const q = query(collection(db, "notes"), where("__name__", "in", chunk));
+                        const snap = await getDocs(q);
+                        snap.forEach(doc => results.push({ id: doc.id, ...doc.data() }));
+                    }
+                    return results;
+                };
+
+                const fetched = await fetchNotesByIds(missingIds);
+                if (fetched.length > 0) {
+                    window.NotesDB = [...(window.NotesDB || []), ...fetched];
+                    // Final UI Refresh with full stats
+                    const finalNotes = processSnap(savedSnap);
+                    renderUI(finalNotes);
+                }
+            } catch (e) {
+                console.warn("Background bookmark fetch failed:", e);
+            }
         }
     });
 };
@@ -5112,7 +5137,7 @@ async function updateModerationStats() {
 
 // --- NOTIFICATIONS SYSTEM ---
 
-async function createNotification(userId, data) {
+window.createNotification = async function(userId, data) {
     const { db, collection, addDoc, serverTimestamp } = getFirebase();
     if (!db || !userId) return;
     try {
@@ -5123,7 +5148,7 @@ async function createNotification(userId, data) {
             timestamp: serverTimestamp()
         });
     } catch (e) { console.error("Notify fail:", e); }
-}
+};
 
 function listenToNotifications() {
     if (isNotificationsInit) return;
@@ -5145,12 +5170,17 @@ function listenToNotifications() {
             updateNotificationBadge();
         }, (err) => {
             console.warn("Notification listener failed (likely index missing):", err);
-            // Fallback: simpler query without order if index is missing
             const qBasic = query(collection(db, "notifications"), where("userId", "==", currentUser.id));
-            onSnapshot(qBasic, (snap) => {
-                userNotifications = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+            const subFallback = onSnapshot(qBasic, (snap) => {
+                userNotifications = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                    .sort((a, b) => {
+                        const timeA = a.timestamp?.seconds || (Date.now() / 1000);
+                        const timeB = b.timestamp?.seconds || (Date.now() / 1000);
+                        return timeB - timeA;
+                    });
                 updateNotificationBadge();
             });
+            notificationsUnsubscribe = subFallback;
         });
     } catch (e) { console.warn("Notify listen error:", e); }
 }
@@ -5170,35 +5200,58 @@ function updateNotificationBadge() {
 }
 
 function toggleNotificationPanel(e) {
-    e.stopPropagation();
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
     let panel = document.getElementById('notification-panel');
     if (panel) {
-        panel.remove();
+        panel.classList.remove('active');
+        setTimeout(() => panel.remove(), 200);
         return;
     }
 
     panel = document.createElement('div');
     panel.id = 'notification-panel';
+    panel.className = 'glass-card active';
     panel.style.cssText = `
-        position: absolute; top: 75px; right: 20px; width: 350px; 
-        max-height: 500px; display: flex; flex-direction: column; z-index: 11000;
-        background: rgba(15,15,15,0.95); backdrop-filter: blur(20px); 
-        border: 1px solid var(--border-glass); border-radius: 16px; 
-        box-shadow: 0 20px 50px rgba(0,0,0,0.8); animation: fadeInScale 0.2s ease-out;
+        position: fixed; top: 85px; right: 25px; width: 380px; 
+        max-height: 80vh; display: flex; flex-direction: column; z-index: 99999;
+        background: rgba(10, 10, 15, 0.98); backdrop-filter: blur(30px); 
+        border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; 
+        box-shadow: 0 25px 60px rgba(0,0,0,0.9), 0 0 20px rgba(123, 97, 255, 0.1); 
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        transform-origin: top right;
     `;
 
     panel.innerHTML = `
-        <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-glass); display: flex; justify-content: space-between; align-items: center;">
-            <h3 class="font-heading" style="margin:0; font-size: 1.1rem;">Notifications</h3>
-            <span onclick="window.markAllNotificationsRead()" style="font-size: 0.75rem; color: var(--primary); cursor: pointer; font-weight: 600;">Mark all as read</span>
+        <div style="padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 class="font-heading" style="margin:0; font-size: 1.2rem; letter-spacing: -0.5px;">Notifications</h3>
+                <p style="margin:0; font-size:0.7rem; color:var(--text-dim)">Your recent activity and alerts</p>
+            </div>
+            <button onclick="window.markAllNotificationsRead()" class="btn-ghost" style="font-size: 0.7rem; color: var(--secondary); cursor: pointer; font-weight: 700; background: rgba(0, 242, 255, 0.05); padding: 6px 12px; border-radius: 8px; border: none;">
+                Mark Read
+            </button>
         </div>
-        <div style="flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
-            ${userNotifications.length === 0 ? '<div style="text-align:center; padding: 3rem; opacity:0.5;">No notifications yet.</div>' :
-            userNotifications.map(n => `
-                <div class="glass-card" style="padding: 1rem; ${n.read ? 'opacity: 0.5;' : 'border-left: 3px solid var(--secondary); background: rgba(255,255,255,0.03);'}">
-                    <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 0.25rem;">${n.title}</div>
-                    <p style="font-size: 0.8rem; line-height: 1.4; color: #ccc;">${n.message}</p>
-                    <div style="font-size: 0.65rem; color: var(--text-dim); margin-top: 0.75rem;">${n.timestamp ? new Date(n.timestamp.seconds * 1000).toLocaleString() : 'Just now'}</div>
+        <div class="notif-scroll" style="flex: 1; overflow-y: auto; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;">
+            ${userNotifications.length === 0 ? `
+                <div style="text-align:center; padding: 4rem 1rem; display:flex; flex-direction:column; align-items:center; gap:15px">
+                    <div style="font-size: 3rem; filter: grayscale(1); opacity: 0.3;">🔔</div>
+                    <div style="opacity:0.4; font-size: 0.9rem; font-weight: 500;">No notifications yet.</div>
+                </div>
+            ` :
+            userNotifications.map((n, idx) => `
+                <div class="glass-card notif-item" style="padding: 1.25rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); animation: fadeInUp 0.4s ease backwards; animation-delay: ${idx * 0.05}s; ${n.read ? 'opacity: 0.6;' : 'background: rgba(123, 97, 255, 0.03); border-left: 3px solid var(--primary);'}">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 0.5rem">
+                        <div style="font-weight: 800; font-size: 0.95rem; color: #fff;">${n.title}</div>
+                        ${!n.read ? '<div style="width:8px; height:8px; background:var(--secondary); border-radius:50%; box-shadow: 0 0 10px var(--secondary)"></div>' : ''}
+                    </div>
+                    <p style="font-size: 0.85rem; line-height: 1.5; color: #bbb; margin: 0;">${n.message}</p>
+                    <div style="font-size: 0.65rem; color: var(--text-dim); margin-top: 1rem; display:flex; align-items:center; gap:5px">
+                        <i class="far fa-clock"></i> ${n.timestamp ? new Date(n.timestamp.seconds * 1000).toLocaleString('default', {hour: '2-digit', minute:'2-digit', day:'numeric', month:'short'}) : 'Just now'}
+                    </div>
                 </div>
             `).join('')}
         </div>
@@ -5206,10 +5259,11 @@ function toggleNotificationPanel(e) {
 
     document.body.appendChild(panel);
 
-    // Close on outside click
     const closer = (event) => {
-        if (!panel.contains(event.target)) {
-            panel.remove();
+        const btn = document.querySelector('.notification-btn');
+        if (panel && !panel.contains(event.target) && (!btn || !btn.contains(event.target))) {
+            panel.classList.remove('active');
+            setTimeout(() => panel.remove(), 200);
             document.removeEventListener('click', closer);
         }
     };
