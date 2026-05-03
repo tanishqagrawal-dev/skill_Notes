@@ -16,7 +16,12 @@
 .attendance-container {
     padding: 1.5rem;
     animation: atproFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    max-width: 1200px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.atpro-cal-view {
+    max-width: 500px;
     margin: 0 auto;
 }
 
@@ -163,21 +168,70 @@
     background: rgba(255, 255, 255, 0.03);
     border-radius: 24px;
     padding: 1.5rem;
-    border: 1px solid var(--atpro-border);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     flex-direction: column;
     min-height: 200px;
     animation: atproFadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
     position: relative;
-    overflow: visible;
+    overflow: hidden; /* Needed for the electric effect */
+}
+
+.atpro-day-card::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 250%;
+    height: 250%;
+    background: conic-gradient(
+        from 0deg,
+        transparent 0%,
+        transparent 40%,
+        #fff 50%,
+        #fff 55%,
+        transparent 65%,
+        transparent 100%
+    );
+    animation: atproLiquidBorder 3s linear infinite;
+    opacity: 0.2;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(10px);
+    transform-origin: center;
+}
+
+.atpro-day-card::after {
+    content: '';
+    position: absolute;
+    inset: 1.5px;
+    background: #05070A;
+    border-radius: 23px;
+    z-index: 0;
+}
+
+.atpro-day-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes atproLiquidBorder {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 .atpro-day-card:hover {
     transform: translateY(-8px);
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(123, 97, 255, 0.3);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.atpro-day-card:hover::before {
+    opacity: 0.5;
+    animation-duration: 1.5s;
+    filter: blur(15px);
 }
 
 .atpro-day-card.today {
@@ -221,11 +275,38 @@
 .atpro-lecture-cell::before {
     content: '';
     position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: var(--atpro-purple);
-    opacity: 0;
-    transition: opacity 0.3s;
+    top: 50%;
+    left: 50%;
+    width: 300%;
+    height: 300%;
+    background: conic-gradient(
+        from 0deg,
+        transparent 0%,
+        transparent 45%,
+        #fff 50%,
+        #fff 52%,
+        transparent 57%,
+        transparent 100%
+    );
+    animation: atproLiquidBorder 2s linear infinite;
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(6px);
+}
+
+.atpro-lecture-cell::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    background: rgba(13, 17, 23, 0.85);
+    border-radius: 13px;
+    z-index: 0;
+}
+
+.atpro-lecture-cell > * {
+    position: relative;
+    z-index: 1;
 }
 
 .atpro-lecture-cell:hover {
@@ -246,27 +327,166 @@
 
 .atpro-bulk-select-bar {
     margin-top: 1.5rem;
-    background: var(--atpro-purple);
+    background: rgba(20, 20, 30, 0.7);
+    border: 1px solid rgba(123, 97, 255, 0.3);
     border-radius: 20px;
     padding: 12px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     animation: atproFadeIn 0.3s ease;
-    box-shadow: 0 15px 30px rgba(123, 97, 255, 0.4);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(123, 97, 255, 0.05);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
 }
 
 /* CALENDAR REFINEMENT */
-.atpro-cal-view {
-    max-width: 650px;
-    margin: 0 auto;
+.atpro-cal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.atpro-month-title {
+    font-size: 1.1rem;
+    margin: 0;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: white;
+}
+
+.atpro-month-title .year-text {
+    color: var(--atpro-purple);
+    font-weight: 500;
+    margin-left: 5px;
+}
+
+.atpro-cal-nav-btn {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+.atpro-cal-nav-btn:hover {
+    background: var(--atpro-purple);
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(123, 97, 255, 0.4);
 }
 
 .atpro-stats-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
 }
+
+.atpro-cal-card-main {
+    background: linear-gradient(135deg, rgba(123, 97, 255, 0.08) 0%, rgba(0, 242, 255, 0.05) 100%);
+    border-radius: 18px;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.atpro-cal-card-main::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 200%; height: 200%;
+    background: conic-gradient(from 0deg, transparent 45%, #fff 50%, transparent 55%);
+    animation: atproLiquidBorder 4s linear infinite;
+    opacity: 0.1;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(10px);
+}
+
+.atpro-cal-card-main::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    background: #05070A;
+    border-radius: 23px;
+    z-index: 0;
+}
+
+.atpro-cal-card-main > * { position: relative; z-index: 1; }
+
+.atpro-cal-card-main .stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-bottom: 0.5rem;
+}
+
+.atpro-cal-card-main .stat-value {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: white;
+}
+
+.atpro-cal-card-main .stat-sub {
+    font-size: 0.8rem;
+    color: var(--atpro-cyan);
+    font-weight: 700;
+    margin-top: 0.25rem;
+}
+
+.atpro-mini-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.atpro-cal-stat-box {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 18px;
+    padding: 0.75rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.atpro-cal-stat-box:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.atpro-cal-stat-box .val { font-size: 1.25rem; font-weight: 900; margin-bottom: 2px; }
+.atpro-cal-stat-box .lab { font-size: 0.6rem; text-transform: uppercase; color: var(--text-dim); letter-spacing: 1px; }
+
+.atpro-cal-stat-box.success { border-bottom: 3px solid var(--atpro-success); }
+.atpro-cal-stat-box.success .val { color: var(--atpro-success); }
+
+.atpro-cal-stat-box.error { border-bottom: 3px solid var(--atpro-error); }
+.atpro-cal-stat-box.error .val { color: var(--atpro-error); }
+
+.atpro-cal-stat-box.warning { border-bottom: 3px solid var(--atpro-warning); }
+.atpro-cal-stat-box.warning .val { color: var(--atpro-warning); }
+
+.atpro-cal-stat-box.total { border-bottom: 3px solid white; }
+.atpro-cal-stat-box.total .val { color: white; }
 
 .atpro-bulk-bar {
     background: rgba(255, 255, 255, 0.05);
@@ -321,41 +541,44 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     cursor: pointer;
     position: relative;
-    box-shadow: inset 0 1px 2px rgba(255,255,255,0.05);
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.75rem;
 }
 
 .atpro-cal-day:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: scale(1.08);
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+    color: white;
     z-index: 2;
 }
 
 .atpro-cal-day.selected {
-    background: rgba(123, 97, 255, 0.15);
-    border: 2px solid var(--atpro-purple);
-    box-shadow: 0 8px 25px rgba(123, 97, 255, 0.3);
-    transform: scale(1.05) translateY(-2px);
-    z-index: 5;
+    background: rgba(123, 97, 255, 0.1);
+    border: 1px solid var(--atpro-purple);
+    box-shadow: 0 0 15px rgba(123, 97, 255, 0.2);
     color: white;
+    z-index: 5;
 }
 
 .atpro-cal-day.today {
-    background: rgba(255, 255, 255, 0.02);
-    border: 2px solid transparent !important;
-    background: linear-gradient(var(--atpro-card-bg), var(--atpro-card-bg)) padding-box,
-                linear-gradient(135deg, var(--atpro-cyan), var(--atpro-purple)) border-box !important;
-    font-weight: 800;
-    color: white;
-    position: relative;
-    z-index: 3;
-    overflow: hidden;
-    animation: atproTodayGlow 3s ease-in-out infinite;
+    background: linear-gradient(135deg, var(--atpro-cyan), var(--atpro-purple)) !important;
+    color: black !important;
+    font-weight: 900;
+    box-shadow: 0 10px 30px rgba(0, 242, 255, 0.4);
+    border: none !important;
+    z-index: 10;
+}
+
+.atpro-cal-day.today span {
+    color: black !important;
 }
 
 @keyframes atproTodayGlow {
@@ -383,14 +606,24 @@
 }
 
 .atpro-cal-dot {
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
+    width: 6px;
+    height: 2px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
 }
 
-.atpro-cal-dot.present { background: var(--atpro-success); box-shadow: 0 0 5px var(--atpro-success); }
-.atpro-cal-dot.absent { background: var(--atpro-error); box-shadow: 0 0 5px var(--atpro-error); }
-.atpro-cal-dot.off { background: var(--atpro-warning); box-shadow: 0 0 5px var(--atpro-warning); }
+.atpro-cal-dot.present { 
+    background: var(--atpro-success); 
+    box-shadow: 0 0 8px var(--atpro-success); 
+}
+.atpro-cal-dot.absent { 
+    background: var(--atpro-error); 
+    box-shadow: 0 0 8px var(--atpro-error); 
+}
+.atpro-cal-dot.off { 
+    background: var(--atpro-warning); 
+    box-shadow: 0 0 8px var(--atpro-warning); 
+}
 
 /* SUBJECT CARDS */
 .atpro-sub-list {
@@ -400,29 +633,169 @@
 }
 
 .atpro-sub-item {
-    background: var(--atpro-card-bg);
-    border: 1px solid var(--atpro-border);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 20px;
     padding: 1.25rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.atpro-sub-item.lecture-detail-card {
+    flex-direction: row;
+}
+
+.atpro-sub-item::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 250%;
+    height: 250%;
+    background: conic-gradient(
+        from 0deg,
+        transparent 0%,
+        transparent 45%,
+        #fff 50%,
+        transparent 55%,
+        transparent 100%
+    );
+    animation: atproLiquidBorder 4s linear infinite;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 0;
+    transform-origin: center;
+    transition: opacity 0.4s ease;
 }
 
 .atpro-sub-item::after {
     content: '';
     position: absolute;
-    top: 0; right: 0;
-    width: 100px; height: 100px;
-    background: radial-gradient(circle at top right, rgba(123, 97, 255, 0.1), transparent 70%);
-    pointer-events: none;
+    inset: 1px;
+    background: #05070A;
+    border-radius: 19px;
+    z-index: 0;
 }
+
+.atpro-sub-item > * { position: relative; z-index: 1; }
 
 .atpro-sub-item:hover {
     transform: translateY(-8px);
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 15px rgba(123, 97, 255, 0.1);
+}
+
+.atpro-sub-item:hover::before {
+    opacity: 0.15;
+}
+
+.atpro-sub-name {
+    font-size: 1.4rem;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.5px;
+    font-weight: 800;
+    color: white;
+}
+
+.atpro-sub-circle.premium-badge {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 2px 10px rgba(255, 255, 255, 0.05);
+}
+
+.atpro-sub-circle.premium-badge.safe { 
+    border-color: rgba(0, 255, 148, 0.3); 
+    box-shadow: 0 0 15px rgba(0, 255, 148, 0.15);
+}
+.atpro-sub-circle.premium-badge.safe .val { color: var(--atpro-success); }
+
+.atpro-sub-circle.premium-badge.danger { 
+    border-color: rgba(255, 71, 87, 0.3); 
+    box-shadow: 0 0 15px rgba(255, 71, 87, 0.15);
+}
+.atpro-sub-circle.premium-badge.danger .val { color: var(--atpro-error); }
+
+.atpro-sub-circle.premium-badge .val { font-size: 1.1rem; font-weight: 900; }
+.atpro-sub-circle.premium-badge .lab { font-size: 0.55rem; opacity: 0.6; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px;}
+
+.atpro-action-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.atpro-action-icon.edit {
+    background: rgba(123, 97, 255, 0.05);
+    color: var(--atpro-purple);
+    border-color: rgba(123, 97, 255, 0.1);
+}
+
+.atpro-action-icon.edit:hover {
+    background: var(--atpro-purple);
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(123, 97, 255, 0.3);
+}
+
+.atpro-action-icon.delete {
+    background: rgba(255, 71, 87, 0.05);
+    color: var(--atpro-error);
+    border-color: rgba(255, 71, 87, 0.1);
+}
+
+.atpro-action-icon.delete:hover {
+    background: var(--atpro-error);
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(255, 71, 87, 0.3);
+}
+
+.atpro-sub-status-badge {
+    font-size: 0.8rem;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    margin-bottom: 1.2rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.atpro-sub-status-badge.safe {
+    color: var(--atpro-success);
+    background: rgba(0, 255, 148, 0.05);
+    border-color: rgba(0, 255, 148, 0.1);
+}
+
+.atpro-sub-status-badge.danger {
+    color: var(--atpro-error);
+    background: rgba(255, 71, 87, 0.05);
+    border-color: rgba(255, 71, 87, 0.1);
+}
+
+.atpro-sub-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: auto;
 }
 
 /* MOBILE RESPONSIVENESS */
@@ -471,12 +844,60 @@
 }
 
 @media (max-width: 480px) {
+    .attendance-container {
+        padding: 0.3rem !important;
+    }
+
+    .atpro-top-section {
+        padding: 0.6rem !important;
+        border-radius: 10px;
+    }
+
+    /* HEADER FIX - PREVENT OVERLAP */
+    .atpro-header-row {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        gap: 0.4rem !important;
+        margin-bottom: 0.8rem !important;
+    }
+
+    .atpro-title h2 {
+        font-size: 1.3rem !important;
+        margin: 0 !important;
+    }
+
+    .atpro-header-actions {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 0.6rem !important;
+    }
+
+    .atpro-stat-pill {
+        padding: 6px 12px !important;
+        font-size: 0.8rem !important;
+        white-space: nowrap !important;
+        border-radius: 10px !important;
+        margin: 0 !important;
+    }
+
+    .atpro-btn-icon {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 10px !important;
+    }
+
+    /* NAV FIX */
     .atpro-nav {
-        width: 100%;
-        overflow-x: auto;
-        justify-content: flex-start;
-        padding: 8px 8px 5px 8px; /* Refined for scrollbar indicator */
-        -webkit-overflow-scrolling: touch;
+        display: flex !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        padding: 4px 4px 12px 4px !important;
+        gap: 6px !important;
+        width: 100% !important;
+        -webkit-overflow-scrolling: touch !important;
         scrollbar-width: none;
     }
 
@@ -484,89 +905,464 @@
         display: none;
     }
 
+    .atpro-nav-item {
+        flex: 0 0 auto !important;
+        padding: 6px 14px !important;
+        font-size: 0.75rem !important;
+    }
+
+    .atpro-view-card {
+        padding: 0.6rem !important;
+        border-radius: 14px !important;
+        margin-top: 0 !important;
+    }
+
     .atpro-scroll-indicator {
         display: block !important;
-        margin-top: -5px;
-        box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+        background: rgba(255, 255, 255, 0.03) !important;
+        width: 60px !important;
+        height: 3px !important;
+        margin: -8px auto 12px auto !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-radius: 10px;
+        overflow: hidden;
     }
 
-    .atpro-nav-item {
-        padding: 10px 18px;
-        font-size: 0.85rem;
-        flex-shrink: 0;
+    #atpro-nav-thumb {
+        background: linear-gradient(90deg, var(--atpro-cyan), var(--atpro-purple)) !important;
+        height: 100%;
+        border-radius: 10px;
     }
 
-    .atpro-header-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1.2rem;
+    /* CALENDAR STATS FIX */
+    .atpro-stats-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        margin-bottom: 1.2rem !important;
     }
 
-    .atpro-header-actions {
-        width: 100%;
-        justify-content: space-between;
+    .atpro-cal-card-main {
+        padding: 0.8rem !important;
+        width: 100% !important;
+        text-align: center !important;
+        flex-direction: column !important;
+        height: auto !important;
     }
 
-    .atpro-stat-pill {
-        font-size: 0.85rem;
-        padding: 6px 14px;
+    .atpro-cal-card-main .stat-value {
+        font-size: 1.4rem !important;
     }
 
-    .atpro-sub-info {
-        width: 100%;
+    .atpro-mini-stats {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
     }
 
-    .atpro-sub-item {
-        padding: 1rem;
-        border-radius: 18px;
-    }
-    
-    .atpro-count-row {
-        flex-wrap: wrap;
-    }
-
-    .atpro-cal-grid-wrapper {
-        padding: 12px 8px !important;
-        border-radius: 20px !important;
-    }
-
-    .atpro-cal-grid {
+    .atpro-cal-stat-box {
+        padding: 10px 6px !important;
+        height: auto !important;
+        min-height: 60px !important;
+        justify-content: center !important;
+        align-items: center !important;
+        flex-direction: column !important;
         gap: 4px !important;
     }
 
+    .atpro-cal-stat-box .val {
+        font-size: 1rem !important;
+        margin: 0 !important;
+    }
+
+    .atpro-cal-stat-box .lab {
+        font-size: 0.55rem !important;
+        margin: 0 !important;
+        opacity: 0.7;
+    }
+
+    /* CALENDAR GRID FIX - ENSURE 7 DAYS FIT AT 346PX */
+    .atpro-cal-grid-wrapper {
+        padding: 10px 2px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        margin-top: 10px !important;
+    }
+
+    .atpro-cal-grid {
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+        gap: 2px !important;
+        width: 100% !important;
+    }
+
+    .atpro-cal-day {
+        min-height: 36px !important;
+        min-width: 0 !important;
+        padding: 1px !important;
+        width: 100% !important;
+        border-radius: 6px !important;
+    }
+
+    .atpro-cal-day .date-num {
+        font-size: 0.7rem !important;
+    }
+
+    .atpro-cal-label {
+        font-size: 0.55rem !important;
+    }
+
+    /* BULK SELECT BAR FIX */
     .atpro-bulk-select-bar {
         flex-direction: row !important;
+        justify-content: space-between !important;
         gap: 8px !important;
         padding: 10px 12px !important;
-        border-radius: 20px !important;
-        justify-content: space-between !important;
+        align-items: center !important;
+        border-radius: 12px !important;
+        width: 100% !important;
         flex-wrap: nowrap !important;
     }
 
     .atpro-bulk-select-bar > div:first-child {
+        white-space: nowrap !important;
         font-size: 0.8rem !important;
-        white-space: nowrap;
+        flex-shrink: 0 !important;
     }
 
+    .atpro-bulk-select-bar > div:last-child {
+        display: flex !important;
+        gap: 5px !important;
+        align-items: center !important;
+        flex-shrink: 0;
+        width: auto !important;
+    }
+
+    .atpro-bulk-select-bar .atpro-action-btn {
+        width: 32px !important;
+        height: 32px !important;
+        flex: none !important;
+        border-radius: 8px !important;
+    }
+
+    /* DAY DETAILS FIX */
     .atpro-bulk-bar {
         flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 15px !important;
-        padding: 15px !important;
+        gap: 8px !important;
+        padding: 8px !important;
+        align-items: center !important;
     }
 
     .atpro-bulk-bar-actions {
-        width: 100%;
-        flex-wrap: wrap;
-        gap: 8px !important;
-        justify-content: flex-start;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 5px !important;
+        width: 100% !important;
     }
 
-    .atpro-bulk-bar-actions .atpro-action-btn {
-        flex: 1;
-        min-width: 75px;
-        justify-content: center;
+    /* SUBJECT CARDS FIX */
+    .atpro-sub-item.lecture-detail-card {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        gap: 8px !important;
+        padding: 0.8rem !important;
+        width: 92% !important;
+        margin: 0 auto !important;
+        max-width: 320px !important;
     }
+
+    .atpro-day-lectures-list {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+
+    .atpro-card-actions {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 4px !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+
+    .atpro-action-btn {
+        width: 100% !important;
+        max-width: none !important;
+        height: 32px !important;
+        font-size: 0.7rem !important;
+    }
+
+    .atpro-sub-status-badge {
+        justify-content: center !important;
+        font-size: 0.55rem !important;
+        padding: 3px 8px !important;
+        margin-bottom: 0.6rem !important;
+        width: fit-content !important;
+        margin-left: 0 !important;
+    }
+
+    .atpro-sub-meta {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 6px !important;
+    }
+
+    .atpro-sub-meta .atpro-cal-stat-box {
+        min-height: 38px !important;
+        padding: 4px !important;
+        border-radius: 8px !important;
+        border-bottom-width: 2px !important;
+    }
+
+    .atpro-sub-meta .atpro-cal-stat-box .val {
+        font-size: 0.85rem !important;
+    }
+
+    .atpro-sub-meta .atpro-cal-stat-box .lab {
+        font-size: 0.45rem !important;
+        letter-spacing: 0.2px !important;
+    }
+
+    .atpro-sub-item {
+        padding: 0.7rem 0.8rem !important;
+        border-radius: 14px !important;
+        gap: 4px !important;
+        width: 94% !important;
+        margin: 0 auto !important;
+        max-width: 320px !important;
+    }
+
+    .atpro-sub-list {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 10px !important;
+        width: 100% !important;
+    }
+
+    .atpro-sub-header {
+        margin-bottom: 0.3rem !important;
+    }
+
+    .atpro-sub-name {
+        font-size: 1rem !important;
+        margin-bottom: 0.2rem !important;
+        letter-spacing: -0.2px !important;
+    }
+
+    .atpro-sub-circle.premium-badge {
+        width: 44px !important;
+        height: 44px !important;
+        border-radius: 10px !important;
+    }
+
+    .atpro-sub-circle.premium-badge .val {
+        font-size: 0.85rem !important;
+    }
+
+    .atpro-sub-circle.premium-badge .lab {
+        font-size: 0.45rem !important;
+    }
+
+    .atpro-action-icon {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 0.75rem !important;
+        border-radius: 7px !important;
+    }
+
+    .atpro-sub-info {
+        gap: 2px !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    /* EDIT MODAL MOBILE FIXES */
+    .atpro-edit-stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    .atpro-edit-stats-grid > div:last-child {
+        grid-column: span 2 !important;
+    }
+
+    .atpro-history-item {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 10px !important;
+        padding: 12px !important;
+        text-align: center !important;
+    }
+
+    .atpro-history-actions {
+        width: 100% !important;
+        justify-content: center !important;
+        gap: 6px !important;
+    }
+
+    .atpro-history-actions .atpro-action-btn {
+        flex: 1 !important;
+        max-width: 80px !important;
+    }
+
+    /* MODAL SIZE FIXES */
+    .atpro-sheet {
+        padding: 1.2rem !important;
+        border-radius: 20px !important;
+        width: 92% !important;
+    }
+
+    .atpro-modal-header {
+        margin-bottom: 1.2rem !important;
+    }
+
+    .atpro-modal-header h3 {
+        font-size: 1.3rem !important;
+    }
+
+    .atpro-modal-header p {
+        font-size: 0.7rem !important;
+    }
+
+    .atpro-field {
+        margin-bottom: 0.8rem !important;
+    }
+
+    .atpro-field-border {
+        padding: 8px 15px !important;
+        border-radius: 12px !important;
+    }
+
+    .atpro-field-label {
+        font-size: 0.5rem !important;
+        margin-bottom: 1px !important;
+    }
+
+    .atpro-field-input {
+        font-size: 0.9rem !important;
+    }
+
+    .atpro-btn-large {
+        height: 45px !important;
+        font-size: 0.85rem !important;
+        border-radius: 12px !important;
+        margin-top: 10px !important;
+    }
+
+    .atpro-form-scroll {
+        max-height: 55vh !important;
+        margin-bottom: 1rem !important;
+    }
+
+    /* SETTINGS SYSTEM MOBILE FIXES */
+    .atpro-premium-title {
+        font-size: 1.4rem !important;
+        margin-bottom: 1.5rem !important;
+        line-height: 1.2 !important;
+    }
+
+    .atpro-settings-card {
+        padding: 1.2rem !important;
+        border-radius: 20px !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .atpro-settings-header {
+        gap: 10px !important;
+        margin-bottom: 0.8rem !important;
+    }
+
+    .atpro-settings-header h4 {
+        font-size: 1rem !important;
+    }
+
+    .atpro-settings-desc {
+        font-size: 0.75rem !important;
+        margin-bottom: 1.2rem !important;
+    }
+
+    .atpro-target-control .atpro-btn-premium {
+        width: 100% !important;
+        height: 45px !important;
+        font-size: 0.85rem !important;
+    }
+
+    .atpro-btn-danger-premium {
+        width: 100% !important;
+        height: 45px !important;
+        font-size: 0.85rem !important;
+        justify-content: center !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+
+    /* TIMETABLE MOBILE FIXES */
+    .atpro-timetable-header {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        gap: 15px !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    .atpro-timetable-header h2 {
+        font-size: 1.4rem !important;
+    }
+
+    .atpro-timetable-header p {
+        font-size: 0.75rem !important;
+    }
+
+    .atpro-timetable-header .atpro-btn-icon {
+        width: 100% !important;
+        height: 45px !important;
+        font-size: 0.85rem !important;
+        justify-content: center !important;
+    }
+
+    /* TODAY HEADER MOBILE FIXES */
+    .atpro-today-header {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        gap: 12px !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    .atpro-today-titles h3 {
+        font-size: 1.4rem !important;
+        margin-bottom: 5px !important;
+    }
+
+    .atpro-today-titles p {
+        font-size: 0.75rem !important;
+        margin-top: 2px !important;
+    }
+
+    .atpro-today-date {
+        font-size: 0.75rem !important;
+        padding: 5px 14px !important;
+        margin-bottom: 0 !important;
+    }
+}
+
+.atpro-bulk-bar-actions {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px !important;
+    justify-content: flex-start;
+}
+
+.atpro-bulk-bar-actions .atpro-action-btn {
+    flex: 1;
+    min-width: 75px;
+    justify-content: center;
 }
 
 /* UTILS & ANIMATIONS */
@@ -1052,4 +1848,354 @@
 .atpro-history-item:hover {
     background: rgba(255, 255, 255, 0.05) !important;
     transform: translateX(5px);
-}
+}
+
+/* PREMIUM GLOWING TITLE */
+.atpro-premium-title {
+    font-size: 2.8rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+    margin: 0;
+    color: white;
+    position: relative;
+    display: inline-block;
+}
+
+.atpro-glow-text {
+    background: linear-gradient(to right, var(--atpro-cyan), var(--atpro-purple), var(--atpro-pink), var(--atpro-cyan));
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: atproShineText 4s linear infinite;
+    text-shadow: 0 0 20px rgba(0, 242, 255, 0.4), 0 0 40px rgba(123, 97, 255, 0.2);
+    display: inline-block;
+    padding-right: 5px; /* Prevent clipping */
+}
+
+@keyframes atproShineText {
+    to {
+        background-position: 300% center;
+    }
+}
+
+/* SETTINGS PREMIUM */
+.atpro-settings-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 1.8rem;
+    margin-bottom: 2rem;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.atpro-settings-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(123, 97, 255, 0.05), transparent 70%);
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    opacity: 0;
+}
+
+.atpro-settings-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(123, 97, 255, 0.2);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(123, 97, 255, 0.1);
+}
+
+.atpro-settings-card:hover::before {
+    opacity: 1;
+}
+
+.atpro-settings-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 1.2rem;
+}
+
+.atpro-settings-header i {
+    font-size: 1.4rem;
+}
+
+.atpro-settings-header h4 {
+    margin: 0;
+    font-size: 1.2rem;
+    letter-spacing: -0.3px;
+}
+
+.atpro-settings-desc {
+    font-size: 0.95rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 1.8rem;
+}
+
+.atpro-target-control {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.atpro-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.atpro-glass-input {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 12px 18px;
+    color: white;
+    font-size: 1.4rem;
+    font-weight: 800;
+    width: 120px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.atpro-glass-input:focus {
+    background: rgba(123, 97, 255, 0.08);
+    border-color: var(--atpro-purple);
+    box-shadow: 0 0 15px rgba(123, 97, 255, 0.2);
+}
+
+.atpro-input-suffix {
+    position: absolute;
+    right: 15px;
+    font-weight: 800;
+    color: var(--atpro-cyan);
+    font-size: 1.2rem;
+}
+
+.atpro-btn-premium {
+    background: linear-gradient(135deg, var(--atpro-cyan), var(--atpro-purple));
+    border: none;
+    padding: 14px 28px;
+    border-radius: 14px;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 10px 20px rgba(123, 97, 255, 0.2);
+}
+
+.atpro-btn-premium:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(123, 97, 255, 0.4);
+    filter: brightness(1.1);
+}
+
+.atpro-settings-card.danger {
+    border-color: rgba(255, 71, 87, 0.1);
+}
+
+.atpro-settings-card.danger:hover {
+    border-color: rgba(255, 71, 87, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 71, 87, 0.1);
+}
+
+.atpro-settings-card.danger .atpro-settings-header {
+    color: var(--atpro-error);
+}
+
+.atpro-btn-danger-premium {
+    background: rgba(255, 71, 87, 0.05);
+    border: 1px solid rgba(255, 71, 87, 0.2);
+    padding: 14px 28px;
+    border-radius: 14px;
+    color: var(--atpro-error);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.atpro-btn-danger-premium:hover {
+    background: var(--atpro-error);
+    color: white;
+    border-color: var(--atpro-error);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
+}
+
+/* EDIT MODAL REFINEMENTS */
+.atpro-edit-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 2rem;
+}
+
+.atpro-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.atpro-history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 12px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.atpro-history-date {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.atpro-history-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.atpro-action-btn.active {
+    background: rgba(123, 97, 255, 0.2);
+    border-color: var(--atpro-purple);
+    color: white;
+}
+
+/* SETTINGS PAGE REFINEMENTS */
+.atpro-settings-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.atpro-settings-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-5px);
+}
+
+.atpro-settings-card.danger {
+    border-color: rgba(255, 71, 87, 0.2);
+}
+
+.atpro-settings-card.danger:hover {
+    border-color: rgba(255, 71, 87, 0.4);
+    background: rgba(255, 71, 87, 0.05);
+}
+
+.atpro-settings-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 1.5rem;
+}
+
+.atpro-settings-header i {
+    font-size: 1.5rem;
+}
+
+.atpro-settings-header h4 {
+    font-size: 1.2rem;
+    margin: 0;
+    font-weight: 700;
+}
+
+.atpro-settings-desc {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.atpro-target-control {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.atpro-btn-danger-premium {
+    background: rgba(255, 71, 87, 0.1);
+    border: 1px solid rgba(255, 71, 87, 0.3);
+    color: #ff4757;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.atpro-btn-danger-premium:hover {
+    background: #ff4757;
+    color: white;
+    box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
+    transform: translateY(-2px);
+}
+
+
+/* TODAY HEADER REFINEMENTS */
+.atpro-today-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2.5rem;
+    gap: 20px;
+}
+
+.atpro-today-titles h3 {
+    font-size: 1.8rem;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.atpro-today-titles p {
+    color: var(--text-dim);
+    margin-top: 8px;
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+.atpro-today-date {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--atpro-cyan);
+    font-weight: 800;
+    background: rgba(0, 242, 255, 0.08);
+    padding: 6px 18px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 242, 255, 0.2);
+    white-space: nowrap;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    margin-bottom: 5px;
+}
+
+/* TIMETABLE REFINEMENTS */
+.atpro-timetable-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+    gap: 15px;
+    animation: atproFadeIn 0.5s ease;
+}
+

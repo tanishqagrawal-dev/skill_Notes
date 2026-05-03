@@ -4721,4 +4721,53 @@
 .notif-scroll::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
+}
+
+/* NOTIFICATION PANEL MOBILE FIXES */
+@media (max-width: 480px) {
+    #notification-panel {
+        top: 65px !important;
+        right: 10px !important;
+        left: 10px !important;
+        width: auto !important;
+        max-width: calc(100vw - 20px) !important;
+        border-radius: 20px !important;
+        transform-origin: top center !important;
+    }
+
+    #notification-panel > div:first-child {
+        padding: 1rem !important;
+    }
+
+    #notification-panel h3 {
+        font-size: 1rem !important;
+    }
+
+    #notification-panel .btn-ghost {
+        padding: 4px 10px !important;
+        font-size: 0.65rem !important;
+    }
+
+    .notif-item {
+        padding: 0.8rem !important;
+        gap: 10px !important;
+    }
+
+    .notif-icon {
+        width: 35px !important;
+        height: 35px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .notif-text b {
+        font-size: 0.85rem !important;
+    }
+
+    .notif-text p {
+        font-size: 0.75rem !important;
+    }
+
+    .notif-time {
+        font-size: 0.65rem !important;
+    }
 }

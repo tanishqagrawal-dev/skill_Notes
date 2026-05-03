@@ -11,7 +11,7 @@ const AttendancePro = {
         timetable: {
             'Mon': [], 'Tue': [], 'Wed': [], 'Thu': [], 'Fri': [], 'Sat': [], 'Sun': []
         },
-        activeTab: 'today',
+        activeTab: 'calendar',
         selectedDates: [new Date().toLocaleDateString('sv').split(' ')[0]],
         viewMonth: new Date().getMonth(),
         viewYear: new Date().getFullYear(),
@@ -22,6 +22,7 @@ const AttendancePro = {
 
     init() {
         this.loadData();
+        this.state.activeTab = 'calendar';
         console.log('🚀 Attendance Pro Systematic UI Initialized');
     },
 
@@ -121,6 +122,14 @@ const AttendancePro = {
     setTab(tabId) {
         this.state.activeTab = tabId;
         this.refreshUI();
+        
+        // Ensure the active tab is visible and centered on mobile
+        setTimeout(() => {
+            const activeItem = document.querySelector('.atpro-nav-item.active');
+            if (activeItem) {
+                activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+        }, 50);
     },
 
     render() {
@@ -132,7 +141,7 @@ const AttendancePro = {
             <div class="atpro-top-section">
                 <div class="atpro-header-row">
                     <div class="atpro-title">
-                        <h2 class="font-heading">Attendance <span class="gradient-text">Pro</span></h2>
+                        <h2 class="font-heading atpro-premium-title">Attendance <span class="atpro-glow-text">Pro</span></h2>
                         <p style="font-size:0.75rem; color:var(--text-dim); margin-top:4px">Sync: ${new Date(this.state.lastSync).toLocaleTimeString()}</p>
                     </div>
                     <div class="atpro-header-actions">
@@ -206,12 +215,12 @@ const AttendancePro = {
         }
 
         return `
-            <div class="section-header" style="margin-bottom: 2.5rem; display: flex; justify-content: space-between; align-items: flex-end;">
-                <div>
-                    <h3 class="font-heading" style="font-size: 1.8rem; margin: 0">${dayName}'s <span class="gradient-text">Schedule</span></h3>
-                    <p style="color:var(--text-dim); margin-top: 5px">Mark your attendance for today's sessions.</p>
+            <div class="atpro-today-header">
+                <div class="atpro-today-titles">
+                    <h3 class="font-heading">${dayName}'s <span class="gradient-text">Schedule</span></h3>
+                    <p>Mark your attendance for today's sessions.</p>
                 </div>
-                <div style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--atpro-purple); font-weight: 700; background: rgba(123, 97, 255, 0.1); padding: 5px 15px; border-radius: 10px; border: 1px solid rgba(123, 97, 255, 0.2);">
+                <div class="atpro-today-date">
                     ${now.toLocaleDateString('default', { day: 'numeric', month: 'short' })}
                 </div>
             </div>
@@ -225,11 +234,11 @@ const AttendancePro = {
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         const todayIndex = new Date().getDay();
         const todayName = days[todayIndex];
-        const displayDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const displayDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
         const isEditing = this.state.isEditingTimetable;
 
         return `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2.5rem; flex-wrap:wrap; gap:15px; animation: atproFadeIn 0.5s ease;">
+            <div class="atpro-timetable-header">
                 <div>
                     <h2 class="font-heading" style="margin:0; font-size: 1.8rem">Weekly <span class="gradient-text">Schedule</span></h2>
                     <p style="font-size:0.85rem; color:var(--text-dim); margin-top:5px">${isEditing ? 'Manage your lecture slots for each day.' : 'Your weekly academic routine.'}</p>
@@ -297,34 +306,34 @@ const AttendancePro = {
 
         return `
             <div class="atpro-cal-view">
-                <div class="atpro-cal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem; background: rgba(255,255,255,0.03); padding: 15px 20px; border-radius: 20px; border: 1px solid var(--atpro-border);">
-                    <button class="atpro-btn-icon" style="width:36px; height:36px; background: rgba(255,255,255,0.05); border-radius: 10px;" onclick="AttendancePro.changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
-                    <h3 class="font-heading" style="font-size:1.3rem; margin:0; font-weight:800; letter-spacing: -0.5px;">${monthName} <span style="color: var(--atpro-purple)">${year}</span></h3>
-                    <button class="atpro-btn-icon" style="width:36px; height:36px; background: rgba(255,255,255,0.05); border-radius: 10px;" onclick="AttendancePro.changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                <div class="atpro-cal-header glass-card">
+                    <button class="atpro-cal-nav-btn" onclick="AttendancePro.changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                    <h3 class="font-heading atpro-month-title">${monthName} <span class="year-text">${year}</span></h3>
+                    <button class="atpro-cal-nav-btn" onclick="AttendancePro.changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
                 </div>
 
-                <div class="atpro-stats-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 2rem;">
-                    <div class="atpro-stat-card premium" style="background: linear-gradient(135deg, rgba(123, 97, 255, 0.1), rgba(0, 242, 255, 0.05)); border-radius: 20px; padding: 1.2rem; border: 1px solid rgba(123, 97, 255, 0.2); text-align: center;">
-                        <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 5px;">Month Score</div>
-                        <div style="font-size: 1.8rem; font-weight: 800; color: white;">${monthPercent}%</div>
-                        <div style="font-size: 0.75rem; color: var(--atpro-cyan); font-weight: 600;">${monthStats.attended} / ${monthStats.total} Sessions</div>
+                <div class="atpro-stats-grid">
+                    <div class="atpro-cal-card-main">
+                        <div class="stat-label">Month Score</div>
+                        <div class="stat-value highlight">${monthPercent}%</div>
+                        <div class="stat-sub">${monthStats.attended} / ${monthStats.total} Sessions</div>
                     </div>
-                    <div class="atpro-mini-stats" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <div style="background: rgba(0, 255, 148, 0.05); border: 1px solid rgba(0, 255, 148, 0.1); border-radius: 14px; padding: 10px; text-align: center;">
-                            <div style="font-size: 1rem; font-weight: 800; color: var(--atpro-success);">${monthStats.attended}</div>
-                            <div style="font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase;">Attended</div>
+                    <div class="atpro-mini-stats">
+                        <div class="atpro-cal-stat-box success">
+                            <div class="val">${monthStats.attended}</div>
+                            <div class="lab">Attended</div>
                         </div>
-                        <div style="background: rgba(255, 71, 87, 0.05); border: 1px solid rgba(255, 71, 87, 0.1); border-radius: 14px; padding: 10px; text-align: center;">
-                            <div style="font-size: 1rem; font-weight: 800; color: var(--atpro-error);">${monthStats.missed}</div>
-                            <div style="font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase;">Missed</div>
+                        <div class="atpro-cal-stat-box error">
+                            <div class="val">${monthStats.missed}</div>
+                            <div class="lab">Missed</div>
                         </div>
-                        <div style="background: rgba(255, 184, 0, 0.05); border: 1px solid rgba(255, 184, 0, 0.1); border-radius: 14px; padding: 10px; text-align: center;">
-                            <div style="font-size: 1rem; font-weight: 800; color: var(--atpro-warning);">${monthStats.off}</div>
-                            <div style="font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase;">Off Days</div>
+                        <div class="atpro-cal-stat-box warning">
+                            <div class="val">${monthStats.off}</div>
+                            <div class="lab">Off Days</div>
                         </div>
-                        <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 10px; text-align: center;">
-                            <div style="font-size: 1rem; font-weight: 800; color: white;">${monthStats.total}</div>
-                            <div style="font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase;">Total</div>
+                        <div class="atpro-cal-stat-box total">
+                            <div class="val">${monthStats.total}</div>
+                            <div class="lab">Total</div>
                         </div>
                     </div>
                 </div>
@@ -401,6 +410,24 @@ const AttendancePro = {
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         const dayName = days[d.getDay()];
         const lectures = this.state.timetable[dayName] || [];
+        const history = this.state.history[dateStr] || {};
+
+        let overallStatus = "No Lectures";
+        let statusColor = "rgba(255, 255, 255, 0.2)";
+
+        if (lectures.length > 0) {
+            const statuses = lectures.map(l => history[l.id] || 'none');
+            const allPresent = statuses.every(s => s === 'present');
+            const allAbsent = statuses.every(s => s === 'absent');
+            const allOff = statuses.every(s => s === 'off');
+            const allNone = statuses.every(s => s === 'none');
+
+            if (allPresent) { overallStatus = "Attended All"; statusColor = "var(--atpro-success)"; }
+            else if (allAbsent) { overallStatus = "Missed All"; statusColor = "var(--atpro-error)"; }
+            else if (allOff) { overallStatus = "Off Day"; statusColor = "var(--atpro-warning)"; }
+            else if (allNone) { overallStatus = "Unmarked"; statusColor = "rgba(255, 255, 255, 0.5)"; }
+            else { overallStatus = "Mixed"; statusColor = "var(--atpro-cyan)"; }
+        }
 
         return `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem">
@@ -410,8 +437,8 @@ const AttendancePro = {
             <!-- Bulk Action Bar -->
             <div class="atpro-bulk-bar">
                 <div style="display:flex; align-items:center; gap:10px; font-size:0.85rem">
-                    <div style="width:12px; height:12px; border-radius:50%; background:var(--atpro-success)"></div>
-                    <span>Day status: <strong id="day-status-text">Mixed</strong></span>
+                    <div style="width:12px; height:12px; border-radius:50%; background:${statusColor}; box-shadow: 0 0 10px ${statusColor}"></div>
+                    <span>Day status: <strong id="day-status-text">${overallStatus}</strong></span>
                 </div>
                 <div class="atpro-bulk-bar-actions" style="font-size:0.65rem; color:var(--text-dim); font-weight:700; text-transform:uppercase">
                     <div class="atpro-action-btn close" style="width:auto; padding:0 10px; height:32px; font-size:0.7rem" onclick="AttendancePro.markDay('${dateStr}', 'none')"><i class="fas fa-ban" style="margin-right:5px"></i> Clear</div>
@@ -437,17 +464,17 @@ const AttendancePro = {
 
         return `
             <div class="atpro-sub-item lecture-detail-card" style="padding: 1.2rem; display:flex; gap: 15px; align-items:center; flex-wrap: wrap;">
-                <div class="atpro-sub-circle ${stats.status}" style="width:55px; height:55px; flex-shrink:0; border-radius:15px; display:flex; flex-direction:column; align-items:center; justify-content:center; background: rgba(255,255,255,0.03);">
-                    <div style="font-size:0.95rem; font-weight:800">${Math.round(stats.percent)}%</div>
-                    <div style="font-size:0.5rem; opacity:0.5; text-transform:uppercase">Goal</div>
+                <div class="atpro-sub-circle premium-badge ${stats.status}" style="width:55px; height:55px;">
+                    <div class="val" style="font-size:0.95rem;">${Math.round(stats.percent)}%</div>
+                    <div class="lab">Goal</div>
                 </div>
                 
                 <div style="flex:1; min-width: 150px;">
-                    <h4 class="font-heading" style="margin:0; font-size:1.1rem; letter-spacing:-0.3px">${sub.name}</h4>
-                    <div style="font-size:0.75rem; margin-top:4px; font-weight:600">
+                    <h4 class="font-heading" style="margin:0 0 0.4rem 0; font-size:1.2rem; letter-spacing:-0.3px">${sub.name}</h4>
+                    <div class="atpro-sub-status-badge ${stats.status === 'safe' ? 'safe' : 'danger'}" style="margin-bottom: 0; padding: 4px 8px; font-size: 0.7rem;">
                         ${stats.status === 'safe'
-                ? `<span style="color:var(--atpro-success)">✅ Can miss ${stats.canMiss}</span>`
-                : `<span style="color:var(--atpro-error)">⚠️ Need ${stats.need} more</span>`}
+                ? `<i class="fas fa-check-circle"></i> Can miss ${stats.canMiss}`
+                : `<i class="fas fa-exclamation-circle"></i> Need ${stats.need} more`}
                     </div>
                 </div>
                 
@@ -469,47 +496,45 @@ const AttendancePro = {
             return `
                         <div class="atpro-sub-item" style="animation: atproFadeInUp 0.4s ease backwards; animation-delay: ${index * 0.1}s">
                             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 1.5rem">
-                                <div class="atpro-sub-circle ${stats.status}" style="width: 60px; height: 60px; border-radius: 16px; display:flex; flex-direction:column; align-items:center; justify-content:center">
-                                    <div style="font-size:1rem; font-weight:800">${Math.round(stats.percent)}%</div>
-                                    <div style="font-size:0.5rem; opacity:0.6; font-weight:600; text-transform:uppercase">Score</div>
+                                <div class="atpro-sub-circle premium-badge ${stats.status}">
+                                    <div class="val">${Math.round(stats.percent)}%</div>
+                                    <div class="lab">Score</div>
                                 </div>
                                 <div style="display:flex; gap:8px">
-                                    <button class="atpro-btn-icon" style="background: rgba(123, 97, 255, 0.05); color: var(--atpro-purple); border-color: rgba(123, 97, 255, 0.1);" 
-                                            onclick="AttendancePro.openEditSubjectModal('${sub.id}')" title="Edit Subject">
+                                    <button class="atpro-action-icon edit" onclick="AttendancePro.openEditSubjectModal('${sub.id}')" title="Edit Subject">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="atpro-btn-icon" style="background: rgba(255, 71, 87, 0.05); color: var(--atpro-error); border-color: rgba(255, 71, 87, 0.1);" 
-                                            onclick="AttendancePro.deleteSubject('${sub.id}')" title="Delete Subject">
+                                    <button class="atpro-action-icon delete" onclick="AttendancePro.deleteSubject('${sub.id}')" title="Delete Subject">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </div>
                             </div>
                             
                             <div class="atpro-sub-info">
-                                <h3 class="font-heading" style="font-size: 1.2rem; margin: 0 0 0.4rem 0; letter-spacing: -0.5px;">${sub.name}</h3>
+                                <h3 class="font-heading atpro-sub-name">${sub.name}</h3>
                                 
-                                <div style="font-size:0.8rem; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 1.2rem; border: 1px solid rgba(255,255,255,0.05)">
+                                <div class="atpro-sub-status-badge ${stats.status === 'safe' ? 'safe' : 'danger'}">
                                     ${stats.status === 'safe'
-                    ? `<span style="color:var(--atpro-success); font-weight:600"><i class="fas fa-check-circle" style="margin-right:6px"></i> Can miss ${stats.canMiss} lectures</span>`
-                    : `<span style="color:var(--atpro-error); font-weight:600"><i class="fas fa-exclamation-circle" style="margin-right:6px"></i> Need ${stats.need} more lectures</span>`}
+                    ? `<i class="fas fa-check-circle"></i> Can miss ${stats.canMiss} lectures`
+                    : `<i class="fas fa-exclamation-circle"></i> Need ${stats.need} more lectures`}
                                 </div>
 
-                                <div class="atpro-sub-meta" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
-                                    <div style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03)">
-                                        <div style="font-size: 0.55rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Attended</div>
-                                        <div style="font-size: 1rem; font-weight: 800; color: white;">${stats.attended}</div>
+                                <div class="atpro-sub-meta">
+                                    <div class="atpro-cal-stat-box success">
+                                        <div class="lab">Attended</div>
+                                        <div class="val">${stats.attended}</div>
                                     </div>
-                                    <div style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03)">
-                                        <div style="font-size: 0.55rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Missed</div>
-                                        <div style="font-size: 1rem; font-weight: 800; color: var(--atpro-error);">${stats.missed}</div>
+                                    <div class="atpro-cal-stat-box error">
+                                        <div class="lab">Missed</div>
+                                        <div class="val">${stats.missed}</div>
                                     </div>
-                                    <div style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03)">
-                                        <div style="font-size: 0.55rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Off Days</div>
-                                        <div style="font-size: 1rem; font-weight: 800; color: var(--atpro-warning);">${stats.off}</div>
+                                    <div class="atpro-cal-stat-box warning">
+                                        <div class="lab">Off Days</div>
+                                        <div class="val">${stats.off}</div>
                                     </div>
-                                    <div style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03)">
-                                        <div style="font-size: 0.55rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Total</div>
-                                        <div style="font-size: 1rem; font-weight: 800; color: var(--atpro-cyan);">${stats.total}</div>
+                                    <div class="atpro-cal-stat-box total">
+                                        <div class="lab">Total</div>
+                                        <div class="val">${stats.total}</div>
                                     </div>
                                 </div>
                             </div>
@@ -522,31 +547,40 @@ const AttendancePro = {
 
     renderSettings() {
         return `
-            <div style="max-width: 550px; animation: atproFadeIn 0.5s ease;">
-                <h2 class="font-heading" style="margin-bottom: 2rem; font-size: 1.8rem">System Preferences</h2>
+            <div style="max-width: 600px; animation: atproFadeIn 0.5s ease;">
+                <h2 class="font-heading atpro-premium-title" style="font-size: 2rem; margin-bottom: 2.5rem">System <span class="atpro-glow-text">Preferences</span></h2>
                 
-                <div class="atpro-field primary" style="margin-bottom: 2rem">
-                    <div class="atpro-field-border">
-                        <span class="atpro-field-label">Attendance Target Percentage (%)</span>
-                        <div style="display:flex; gap:15px; align-items:center">
-                            <input type="number" id="atpro-target-input" class="atpro-field-input" value="${this.state.target}" style="font-size: 1.4rem; width: 100px">
-                            <button class="atpro-btn-large" style="margin-top:0; padding: 10px 30px" onclick="AttendancePro.updateTarget(document.getElementById('atpro-target-input').value)">Save Changes</button>
+                <div class="atpro-settings-card">
+                    <div class="atpro-settings-header">
+                        <i class="fas fa-bullseye" style="color: var(--atpro-cyan)"></i>
+                        <h4 class="font-heading">Attendance Goal</h4>
+                    </div>
+                    <div class="atpro-settings-body">
+                        <p class="atpro-settings-desc">Set your minimum required attendance percentage. Most universities require 75% for eligibility.</p>
+                        <div class="atpro-target-control">
+                            <div class="atpro-input-wrapper">
+                                <input type="number" id="atpro-target-input" class="atpro-glass-input" value="${this.state.target}" min="1" max="100">
+                                <span class="atpro-input-suffix">%</span>
+                            </div>
+                            <button class="atpro-btn-premium" onclick="AttendancePro.updateTarget(document.getElementById('atpro-target-input').value)">
+                                <span>Save Changes</span>
+                            </button>
                         </div>
                     </div>
-                    <p class="atpro-hint">Most universities require 75% attendance for exam eligibility.</p>
                 </div>
 
-                <div style="margin-top:4rem; background: rgba(255, 71, 87, 0.05); border: 1px solid rgba(255, 71, 87, 0.1); border-radius: 24px; padding: 2rem">
-                    <div style="display:flex; align-items:center; gap:15px; margin-bottom: 1.2rem; color: var(--atpro-error)">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 1.4rem"></i>
-                        <h4 class="font-heading" style="margin:0; font-size: 1.1rem">Danger Zone</h4>
+                <div class="atpro-settings-card danger">
+                    <div class="atpro-settings-header">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h4 class="font-heading">Danger Zone</h4>
                     </div>
-                    <p style="font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 1.5rem">
-                        Performing a factory reset will permanently clear all your subjects, timetable data, and attendance history. This action cannot be undone.
-                    </p>
-                    <button class="atpro-btn-icon" onclick="AttendancePro.resetAllData()" style="width:auto; padding: 12px 24px; border-radius: 12px; border-color: rgba(255, 71, 87, 0.3); color: var(--atpro-error); background: rgba(255, 71, 87, 0.1)">
-                        <i class="fas fa-trash-alt" style="margin-right: 10px"></i> Reset All Data
-                    </button>
+                    <div class="atpro-settings-body">
+                        <p class="atpro-settings-desc">Resetting will permanently wipe all your subjects, timetable, and history. This cannot be undone.</p>
+                        <button class="atpro-btn-danger-premium" onclick="AttendancePro.resetAllData()">
+                            <i class="fas fa-trash-alt"></i>
+                            <span>Factory Reset</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
@@ -756,21 +790,21 @@ const AttendancePro = {
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 2rem">
-                    <div class="atpro-field" style="margin-bottom:0">
-                        <div class="atpro-field-border" style="padding: 10px">
+                <div class="atpro-edit-stats-grid">
+                    <div class="atpro-field">
+                        <div class="atpro-field-border">
                             <span class="atpro-field-label">Attended</span>
                             <input type="number" id="edit-sub-att" class="atpro-field-input" value="${sub.attended}" style="text-align:center" min="0">
                         </div>
                     </div>
-                    <div class="atpro-field" style="margin-bottom:0">
-                        <div class="atpro-field-border" style="padding: 10px">
+                    <div class="atpro-field">
+                        <div class="atpro-field-border">
                             <span class="atpro-field-label">Missed</span>
                             <input type="number" id="edit-sub-miss" class="atpro-field-input" value="${sub.missed}" style="text-align:center" min="0">
                         </div>
                     </div>
-                    <div class="atpro-field" style="margin-bottom:0">
-                        <div class="atpro-field-border" style="padding: 10px">
+                    <div class="atpro-field">
+                        <div class="atpro-field-border">
                             <span class="atpro-field-label">Off</span>
                             <input type="number" id="edit-sub-off" class="atpro-field-input" value="${sub.off}" style="text-align:center" min="0">
                         </div>
@@ -778,11 +812,11 @@ const AttendancePro = {
                 </div>
 
                 <h4 class="font-heading" style="font-size: 1.1rem; margin-bottom: 1rem">Attendance History</h4>
-                <div class="atpro-history-list" style="display:flex; flex-direction:column; gap:8px">
+                <div class="atpro-history-list">
                     ${historyList.length > 0 ? historyList.map(h => `
-                        <div class="atpro-history-item" style="display:flex; justify-content:space-between; align-items:center; background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05)">
-                            <div style="font-size:0.85rem; font-weight:600">${new Date(h.date).toLocaleDateString('default', { day: 'numeric', month: 'short', weekday: 'short' })}</div>
-                            <div style="display:flex; gap:8px">
+                        <div class="atpro-history-item">
+                            <div class="atpro-history-date">${new Date(h.date).toLocaleDateString('default', { day: 'numeric', month: 'short', weekday: 'short' })}</div>
+                            <div class="atpro-history-actions">
                                 <button class="atpro-action-btn present ${h.status === 'present' ? 'active' : ''}" onclick="AttendancePro.markAttendance('${h.date}', '${h.lecId}', 'present', true); AttendancePro.openEditSubjectModal('${id}')"><i class="fas fa-check"></i></button>
                                 <button class="atpro-action-btn absent ${h.status === 'absent' ? 'active' : ''}" onclick="AttendancePro.markAttendance('${h.date}', '${h.lecId}', 'absent', true); AttendancePro.openEditSubjectModal('${id}')"><i class="fas fa-times"></i></button>
                                 <button class="atpro-action-btn warning ${h.status === 'off' ? 'active' : ''}" onclick="AttendancePro.markAttendance('${h.date}', '${h.lecId}', 'off', true); AttendancePro.openEditSubjectModal('${id}')"><i class="far fa-circle"></i></button>
