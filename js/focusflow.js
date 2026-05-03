@@ -1,4 +1,4 @@
-/* FocusFlow Pro - Advanced Productivity Engine */
+/* NeuroSprint Pro - Advanced Productivity Engine */
 
 window.renderFocusFlow = function() {
     return `
@@ -193,7 +193,7 @@ window.resetToSetup = function() {
 };
 
 window.initFocusFlow = function() {
-    console.log("⌚ FocusFlow Pro Initializing...");
+    console.log("⌚ NeuroSprint Pro Initializing...");
     loadFocusData();
     renderFocusTasks();
     initFocusChart();
@@ -294,7 +294,7 @@ function updateDisplay() {
     }
     
     // Update Browser Tab Title
-    document.title = `${mins}:${secs.toString().padStart(2, '0')} - FocusFlow`;
+    document.title = `${mins}:${secs.toString().padStart(2, '0')} - NeuroSprint`;
 }
 
 function updatePlayIcon() {

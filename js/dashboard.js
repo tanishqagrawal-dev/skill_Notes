@@ -1434,7 +1434,7 @@ function renderTabContent(tabId) {
                 contentArea.innerHTML = window.renderFocusFlow();
                 if (window.initFocusFlow) window.initFocusFlow();
             } else {
-                contentArea.innerHTML = `<p>Loading FocusFlow Pro...</p>`;
+                contentArea.innerHTML = `<p>Loading NeuroSprint Pro...</p>`;
             }
         } else if (tabId === 'cgpa-analyzer') {
             if (window.renderCGPAAnalyzer) {
@@ -1955,7 +1955,7 @@ function renderOverview() {
                 <div class="qa-card-wrapper stagger-box" onclick="renderTabContent('focusflow')">
                     <div class="qa-icon-box qa-icon-pink">⌚</div>
                     <div class="qa-info">
-                        <div class="qa-title">FocusFlow Pro</div>
+                        <div class="qa-title">NeuroSprint Pro</div>
                         <div class="qa-desc">Pomodoro timer with lofi</div>
                     </div>
                 </div>
