@@ -1436,7 +1436,7 @@ function renderTabContent(tabId) {
             } else {
                 contentArea.innerHTML = `<p>Loading CGPA Analyzer...</p>`;
             }
-        } else if (tabId === 'attendance') {
+        } else if (tabId === 'attendance' || tabId === 'attendance-pro') {
             if (window.AttendancePro) {
                 contentArea.innerHTML = window.AttendancePro.render();
             } else {
@@ -1933,7 +1933,7 @@ function renderOverview() {
                         <div class="qa-desc">Browse syllabus-wise materials</div>
                     </div>
                 </div>
-                <div class="qa-card-wrapper stagger-box" onclick="renderTabContent('attendance-pro')">
+                <div class="qa-card-wrapper stagger-box" onclick="renderTabContent('attendance')">
                     <div class="qa-icon-box qa-icon-purple">📅</div>
                     <div class="qa-info">
                         <div class="qa-title">Attendance Pro</div>
@@ -4177,14 +4177,21 @@ function renderLeaderboard() {
             <div class="leaderboard-container">
                 <!-- Header -->
                 <div class="leaderboard-header">
-                    <h1 class="font-heading" style="text-align: center; font-size: 2.5rem; margin-bottom: 0.8rem; background: linear-gradient(to bottom, #fff 30%, rgba(255,255,255,0.4) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; letter-spacing: -1px;">Leaderboard</h1>
+                    <h1 class="font-heading lb-main-title" style="text-align: center; margin-bottom: 0.8rem; font-weight: 800; letter-spacing: -1px;">
+                        <span class="lb-title-emoji">🏆</span> <span class="lb-glow-text">Leaderboard</span>
+                    </h1>
                     <div class="hof-badge">🏆 SKILL MATRIX: ELITE VANGUARD</div>
                     
-                    <div class="lb-tabs-container">
-                        <div class="lb-tabs">
-                            <div class="lb-tab active" data-type="student" onclick="switchLeaderboardTab(this, 'student')">🧑🎓 Academic Elite</div>
-                            <div class="lb-tab" data-type="contributor" onclick="switchLeaderboardTab(this, 'contributor')">📤 Top Uploaders</div>
-                            <div class="lb-tab" data-type="college" onclick="switchLeaderboardTab(this, 'college')">🏫 Power Colleges</div>
+                    <div class="lb-tabs-wrapper">
+                        <div class="lb-tabs-container" onscroll="if(window.syncLeaderboardScroll) window.syncLeaderboardScroll(this)">
+                            <div class="lb-tabs">
+                            <div class="lb-tab active" data-type="student" onclick="switchLeaderboardTab(this, 'student')">🎓 Academic Elite</div>
+                                <div class="lb-tab" data-type="contributor" onclick="switchLeaderboardTab(this, 'contributor')">📤 Top Uploaders</div>
+                                <div class="lb-tab" data-type="college" onclick="switchLeaderboardTab(this, 'college')">🏫 Power Colleges</div>
+                            </div>
+                        </div>
+                        <div class="lb-scroll-indicator">
+                            <div id="lb-scroll-thumb"></div>
                         </div>
                     </div>
                 </div>
@@ -4198,7 +4205,7 @@ function renderLeaderboard() {
                 <div class="mentions-container">
                     <div class="mentions-header">
                         <h3>Honorable Mentions</h3>
-                        <div style="font-size: 0.8rem; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px;">
+                        <div class="mentions-status" style="font-size: 0.8rem; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px;">
                              <span class="pulse-dot"></span> Matrix Sync Active
                         </div>
                     </div>
@@ -4210,6 +4217,15 @@ function renderLeaderboard() {
         </div>
     `;
 }
+
+window.syncLeaderboardScroll = function(el) {
+    const thumb = document.getElementById('lb-scroll-thumb');
+    if (!thumb) return;
+    const scrollPercent = el.scrollLeft / (el.scrollWidth - el.clientWidth);
+    const indicator = thumb.parentElement;
+    const maxLeft = indicator.clientWidth - thumb.clientWidth;
+    thumb.style.left = (scrollPercent * maxLeft) + 'px';
+};
 
 window.switchLeaderboardTab = function(el, type) {
     document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));

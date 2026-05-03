@@ -42,7 +42,10 @@ window.renderCGPAAnalyzer = function() {
                     <!-- SGPA CALCULATOR -->
                     <div class="glass-card-premium module-card">
                         <div class="sgpa-engine-header">
-                            <h3 class="font-heading">📘 Real-Time SGPA Engine</h3>
+                            <h3 class="font-heading subtitle-glow">
+                                <span class="premium-emoji">📘</span> 
+                                <span class="gradient-text-glow">Real-Time SGPA Engine</span>
+                            </h3>
                             <div style="display: flex; gap: 10px; align-items: center;">
                                 <button class="btn btn-sm btn-primary" onclick="addNewSubject()">+ Subject</button>
                             </div>
@@ -60,7 +63,10 @@ window.renderCGPAAnalyzer = function() {
                     <!-- CGPA TRACKER -->
                     <div class="glass-card-premium module-card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                            <h3 class="font-heading">🎓 Multi-Semester CGPA Hub</h3>
+                            <h3 class="font-heading subtitle-glow">
+                                <span class="premium-emoji">🎓</span> 
+                                <span class="gradient-text-glow">Multi-Semester CGPA Hub</span>
+                            </h3>
                             <span class="cgpa-badge" style="background: rgba(255,255,255,0.05); border: 1px solid var(--cgpa-border);">Grade 1-8</span>
                         </div>
                         <div id="semesters-container">
@@ -76,7 +82,10 @@ window.renderCGPAAnalyzer = function() {
                     
                     <!-- SCORE DASHBOARD -->
                     <div class="glass-card-premium module-card">
-                        <h3 class="font-heading" style="margin-bottom: 2rem;">📊 Live Insights</h3>
+                        <h3 class="font-heading subtitle-glow" style="margin-bottom: 2rem;">
+                            <span class="premium-emoji">📊</span> 
+                            <span class="gradient-text-glow">Live Insights</span>
+                        </h3>
                         
                         <div class="analytics-summary">
                             <div class="score-card">
@@ -103,7 +112,10 @@ window.renderCGPAAnalyzer = function() {
 
                     <!-- TARGET PLANNER -->
                     <div class="glass-card-premium module-card">
-                        <h3 class="font-heading" style="margin-bottom: 1.5rem;">🎯 CGPA Goal Planner</h3>
+                        <h3 class="font-heading subtitle-glow" style="margin-bottom: 1.5rem;">
+                            <span class="premium-emoji">🎯</span> 
+                            <span class="gradient-text-glow">CGPA Goal Planner</span>
+                        </h3>
                         <div class="planner-form">
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                                 <div class="form-group">
@@ -143,7 +155,10 @@ window.renderCGPAAnalyzer = function() {
 
                     <!-- AI INSIGHTS -->
                     <div class="glass-card-premium module-card">
-                        <h3 class="font-heading" style="margin-bottom: 1rem;">🧠 AI Smart Insights</h3>
+                        <h3 class="font-heading subtitle-glow" style="margin-bottom: 1rem;">
+                            <span class="premium-emoji">🧠</span> 
+                            <span class="gradient-text-glow">AI Smart Insights</span>
+                        </h3>
                         <div id="ai-insights-list">
                             <div class="insight-chip"><i class="fas fa-info-circle"></i> Add your marks to see academic suggestions.</div>
                         </div>

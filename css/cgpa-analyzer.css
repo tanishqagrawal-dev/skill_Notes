@@ -7,6 +7,44 @@
     --cgpa-border: rgba(255, 255, 255, 0.1);
     --cgpa-bg-dark: #0a0a0c;
     --grad-premium: linear-gradient(135deg, var(--cgpa-primary) 0%, var(--cgpa-secondary) 100%);
+    --glow-cyan: 0 0 15px rgba(0, 242, 255, 0.4);
+    --glow-purple: 0 0 15px rgba(108, 99, 255, 0.4);
+}
+
+.gradient-text-glow {
+    background: linear-gradient(90deg, #00f2ff, #6c63ff, #ff007f);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 3s linear infinite;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(0, 242, 255, 0.1); /* Reduced brightness */
+}
+
+.subtitle-glow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: 0.5px;
+    filter: drop-shadow(0 0 4px rgba(0, 242, 255, 0.1)); /* Softened glow */
+}
+
+.premium-emoji {
+    display: inline-flex;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.2)); /* Softened emoji glow */
+    transform: scale(1.1);
+    margin-right: 4px;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes shine {
+    to { background-position: 200% center; }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) scale(1.1); }
+    50% { transform: translateY(-4px) scale(1.15); }
 }
 
 .cgpa-container {
@@ -195,127 +233,226 @@
         min-width: 0;
     }
     
-    .cgpa-title-group h1 { font-size: 1.5rem; }
-    .cgpa-title-group p { font-size: 0.85rem; }
-    
-    .header-actions {
-        width: 100%;
-        display: flex !important;
-        justify-content: center !important;
-        gap: 0.5rem;
-    }
-    
-    .header-actions .btn {
-        width: min(100%, 220px);
-        flex: none !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-        padding: 10px 5px;
-        font-size: 0.8rem;
-    }
-    
-    .cgpa-header { text-align: center; justify-content: center; gap: 1rem; margin-bottom: 1.5rem; }
-    
-    .subject-row {
-        grid-template-columns: 1fr 1fr;
-        gap: 0.5rem;
-        padding: 0.75rem;
-        position: relative;
-    }
-    
-    .subject-row .sub-name { grid-column: 1 / -1; font-weight: 600; padding: 10px; }
-    
-    /* Handle Semester Rows too */
-    .subject-row div:first-child { grid-column: 1 / -1; font-size: 0.9rem; }
-    
-    .subject-row .input-minimal { padding: 8px 10px; font-size: 0.85rem; }
-    
-    .subject-row .remove-btn { 
-        position: absolute;
-        top: 6px;
-        right: 6px;
-        background: rgba(255,71,87,0.15) !important;
-        border-radius: 50%;
-        width: 26px;
-        height: 26px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 5;
+    .cgpa-header { 
+        text-align: center; 
+        justify-content: center; 
+        flex-direction: column;
+        gap: 0.25rem; /* Ultra tight gap */
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
     }
 
-    .analytics-summary { grid-template-columns: 1fr; gap: 1rem; }
+    .glass-card-premium {
+        padding: 1.25rem 0.75rem !important;
+    }
+
+    .cgpa-title-group h1 { 
+        font-size: clamp(1rem, 4.5vw, 1.2rem);
+        line-height: 1.2;
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
     
-    .score-card { padding: 1rem; }
-    .score-card .val { font-size: 2rem; }
+    .cgpa-title-group p { 
+        display: none;
+    }
+    
+    .header-actions {
+        margin-top: 0.5rem;
+    }
+
+    .header-actions .btn {
+        padding: 6px 14px;
+        font-size: 0.75rem;
+        min-height: 34px;
+    }
+
+    .cgpa-badge {
+        display: inline-flex;
+        align-items: center;
+        margin: 0;
+        font-size: 0.55rem;
+        padding: 2px 8px;
+        letter-spacing: 0.5px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .sgpa-engine-header { 
+        flex-direction: column; 
+        align-items: center; 
+        text-align: center;
+        gap: 1.25rem; 
+        margin-bottom: 2rem;
+    }
+    
+    .sgpa-engine-header h3,
+    .subtitle-glow {
+        font-size: clamp(0.85rem, 3.8vw, 1rem) !important;
+        width: 100%;
+        margin: 0;
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center;
+        justify-content: center;
+        gap: 4px !important;
+        text-align: center;
+    }
+
+    .gradient-text-glow {
+        white-space: nowrap !important;
+        overflow: visible;
+    }
+
+    .premium-emoji {
+        transform: scale(0.85) !important;
+        margin-right: 0 !important;
+    }
+
+    .sgpa-engine-header div { 
+        width: 100%; 
+        display: flex; 
+        flex-direction: column;
+        gap: 1rem; 
+    }
+    
+    .sgpa-engine-header .btn { 
+        width: 100%; 
+        padding: 12px;
+    }
+
+    .subject-row {
+        display: grid !important;
+        grid-template-columns: 1fr 1.2fr 45px !important; /* Forces single line for inputs */
+        gap: 0.5rem;
+        padding: 0.75rem;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+    }
+    
+    .subject-row .sub-name { 
+        grid-column: 1 / 4 !important; /* Takes full top row (3 columns) */
+        width: 100% !important;
+        font-weight: 600; 
+        padding: 10px;
+        font-size: 0.9rem;
+        margin-bottom: 2px;
+    }
+    
+    .subject-row .sub-credits,
+    .subject-row .sub-grade {
+        width: 100% !important;
+        padding: 10px 6px !important; /* Tighter padding for fit */
+        font-size: 0.85rem !important;
+        min-width: 0; /* Prevents grid blowout */
+    }
+    
+    .subject-row .remove-btn {
+        width: 38px !important;
+        height: 38px !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: rgba(255, 71, 87, 0.1) !important;
+        color: #ff4757;
+        font-size: 1.1rem !important;
+        position: static !important; /* Back into grid flow */
+        margin: 0 !important;
+    }
+
+    .subject-row .remove-btn:active {
+        background: rgba(255, 71, 87, 0.2);
+        transform: scale(0.95);
+    }
+
+    .analytics-summary { 
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.75rem !important; 
+        justify-content: center;
+    }
+
+    .score-card:last-child {
+        grid-column: 1 / -1; /* Spans full width for centering logic */
+        width: 100%;
+        max-width: 200px; /* Limits width to match others */
+        margin: 0 auto; /* Centers the card horizontally */
+    }
+
+    .score-card {
+        padding: 1rem 0.5rem !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .score-card .val {
+        font-size: 1.5rem !important;
+    }
+
+    .score-card .label {
+        font-size: 0.65rem !important;
+    }
+
+    .chart-container {
+        height: 220px !important; /* Slightly taller for better label visibility */
+        margin-top: 1rem;
+        padding: 0 5px;
+    }
     
     .glass-card-premium {
         width: 100%;
-        max-width: 100%;
-        min-width: 0;
-        padding: 1rem;
-        border-radius: 16px;
-        box-sizing: border-box;
+        padding: 1.25rem;
+        border-radius: 20px;
     }
     
     .btn-circle { width: 45px; height: 45px; bottom: 0.75rem; right: 0.75rem; font-size: 1.2rem; }
     
     .chart-container { height: 180px; margin-top: 1rem; }
-    
-    .sgpa-engine-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
-    .sgpa-engine-header div { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-    .sgpa-engine-header .btn { width: 100%; }
 
     .left-col .module-card:nth-child(2) > div:first-child {
-        display: grid !important;
-        grid-template-columns: minmax(0, 1fr) auto;
+        display: flex !important;
+        flex-direction: column;
         align-items: center;
-        gap: 0.75rem;
+        text-align: center;
+        gap: 1rem;
     }
 
     .left-col .module-card:nth-child(2) h3 {
-        min-width: 0;
-        font-size: 1rem;
-        line-height: 1.25;
-        white-space: nowrap;
-    }
-
-    .left-col .module-card:nth-child(2) .cgpa-badge {
-        flex-shrink: 0;
-        margin-left: 0;
-        padding: 4px 10px;
-        font-size: 0.7rem;
+        width: 100%;
+        font-size: 1.1rem;
+        white-space: normal;
     }
 
     .planner-form > div[style*="grid-template-columns"] {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-    }
-
-    .planner-form > div[style*="display: flex"] {
-        flex-wrap: wrap;
-    }
-
-    .planner-form .btn {
-        min-width: 0;
-    }
-
-    #ai-insights-list {
-        width: 100%;
-        max-width: 100%;
-        min-width: 0;
-    }
-
-    .insight-chip {
-        width: 100%;
-        max-width: 100%;
-        min-width: 0;
-        overflow-wrap: anywhere;
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
     }
 
     .semester-slot {
-        grid-template-columns: 1.5fr 1fr 1fr !important;
-        padding: 10px;
-        font-size: 0.85rem;
+        grid-template-columns: 1.5fr 1fr 1fr !important; /* Balanced for Semester X | SGPA | Credits */
+        padding: 0.85rem !important;
+        gap: 0.5rem !important;
+        align-items: center;
+    }
+
+    .semester-slot div:first-child {
+        white-space: nowrap !important; /* Prevents Semester X from wrapping */
+        font-size: 0.85rem !important;
+        min-width: 0;
+    }
+
+    .semester-slot .input-minimal {
+        padding: 8px 6px !important;
+        font-size: 0.8rem !important;
     }
 }
 
@@ -340,15 +477,38 @@
 
     .subject-row .sub-name, .subject-row div:first-child { grid-column: auto; }
 
-    .planner-form > div[style*="grid-template-columns"],
-    .planner-form > div[style*="display: flex"] {
+    .planner-form > div[style*="grid-template-columns"] {
         display: grid !important;
-        grid-template-columns: 1fr !important;
+        grid-template-columns: 1fr 1fr !important; /* Matches desktop two-column layout */
         gap: 0.75rem !important;
     }
 
+    .planner-form label {
+        font-size: 0.65rem !important; /* Smaller to prevent wrapping */
+        letter-spacing: 0.2px;
+        white-space: nowrap;
+    }
+
+    .planner-form > div[style*="display: flex"] {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 0.5rem !important;
+        margin-top: 1rem !important;
+    }
+
     .planner-form .btn {
-        width: 100% !important;
+        padding: 8px 4px !important; /* Tighter padding for mobile fit */
+        font-size: 0.8rem !important;
+        height: 42px !important;
+        flex: 1; /* Equal width for both buttons */
+    }
+
+    .planner-form .btn-primary {
+        flex: 1.5; /* Slightly more weight to the primary action */
+    }
+
+    .planner-form .btn i {
+        margin-right: 4px;
     }
 
     .right-col .glass-card-premium:last-child {

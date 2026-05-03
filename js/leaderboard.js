@@ -30,22 +30,21 @@ function renderLeaderboard() {
     if (!contentArea) return;
 
     contentArea.innerHTML = `
-        <div class="tab-pane active fade-in" style="padding: 2rem;">
+        <div class="tab-pane active fade-in leaderboard-pane">
             <!-- Header -->
-            <div style="margin-bottom: 2.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+            <div class="leaderboard-header-section">
                 <div style="display: flex; align-items: center; gap: 15px;">
-                    <span style="font-size: 2.5rem; filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.4)); animation: float 3s ease-in-out infinite;">🏆</span>
-                    <h1 class="font-heading" style="font-size: 2.5rem; margin: 0; line-height: 1.1; letter-spacing: -1.5px;">
-                        <span style="background: linear-gradient(135deg, #FFFFFF 0%, #A5B4FC 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;">Global</span>
-                        <span style="background: linear-gradient(135deg, #7B61FF 0%, #00F2FF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; text-shadow: 0 10px 20px rgba(123, 97, 255, 0.2);">Leaderboard</span>
+                    <h1 class="font-heading lb-main-title" style="margin: 0; line-height: 1.1; letter-spacing: -1.5px;">
+                        <span class="lb-title-emoji" style="font-size: 2.5rem; filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.4)); animation: float 3s ease-in-out infinite;">🏆</span>
+                        <span class="lb-glow-text" style="font-size: 2.5rem; background: linear-gradient(135deg, #7B61FF 0%, #00F2FF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; text-shadow: 0 10px 20px rgba(123, 97, 255, 0.2);">Leaderboard</span>
                     </h1>
                 </div>
                 <p style="color: rgba(255, 255, 255, 0.5); font-size: 1.1rem; max-width: 500px; margin-left: 5px;">Compete, contribute, and track your academic standing in real-time across the network.</p>
             </div>
                 <!-- Controls -->
-                <div class="leaderboard-controls glass-card">
+                <div class="lb-tabs-container">
                     <div class="lb-tabs">
-                        <div class="lb-tab active" data-type="user">🧑🎓 Students</div>
+                        <div class="lb-tab active" data-type="student">🧑🎓 Students</div>
                         <div class="lb-tab" data-type="contributor">📤 Contributors</div>
                         <div class="lb-tab" data-type="college">🏫 Colleges</div>
                     </div>
