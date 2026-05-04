@@ -327,17 +327,24 @@
         const taglineEl = document.querySelector('.tagline');
 
         function triggerSend(formData, isFirstTime = true) {
+            // --- GUEST PROTECTION ---
+            if (localStorage.getItem('guest_session')) {
+                console.log("🛡️ Guest User detected. Skipping email trigger.");
+                setTimeout(() => { window.location.href = "pages/dashboard.html"; }, 1000);
+                return;
+            }
+            
             console.log("📨 Attempting to send packet:", formData);
             
-            // --- QUOTA PROTECTION LOGIC (7-Day Cooldown) ---
+            // --- QUOTA PROTECTION LOGIC (30-Day Cooldown) ---
             const userEmail = formData ? formData.email : 'unknown';
-            const lastSentKey = `last_mail_sent_${userEmail}`;
+            const lastSentKey = `last_mail_sent_${userEmail.replace(/[^a-zA-Z0-9]/g, '_')}`;
             const lastSentTime = localStorage.getItem(lastSentKey);
             const now = Date.now();
-            const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+            const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
-            if (lastSentTime && (now - parseInt(lastSentTime) < SEVEN_DAYS_MS)) {
-                console.log("⏳ Quota Protection: Email already sent to this user within 7 days. Skipping.");
+            if (lastSentTime && (now - parseInt(lastSentTime) < THIRTY_DAYS_MS)) {
+                console.log("⏳ Quota Protection: Email already sent to this user within 30 days. Skipping.");
                 statusDiv.innerHTML = `<span class="status-success">✅ Session Verified! Redirecting...</span>`;
                 setTimeout(() => {
                     window.location.href = "pages/dashboard.html";

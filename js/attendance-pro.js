@@ -20,30 +20,84 @@ const AttendancePro = {
         lastSync: null
     },
 
-    init() {
-        this.loadData();
+    async init() {
+        await this.loadData();
         this.state.activeTab = 'calendar';
+        this.refreshUI();
         console.log('🚀 Attendance Pro Systematic UI Initialized');
+        
+        // Handle late auth initialization
+        if (!window.currentUser) {
+            document.addEventListener('userStateChanged', () => {
+                console.log("👤 User detected, re-syncing cloud data...");
+                this.loadData();
+            });
+        }
     },
 
-    loadData() {
-        const saved = localStorage.getItem('atpro_data_v2');
+    getStorageKey() {
+        try {
+            let user = JSON.parse(localStorage.getItem('auth_user_full'));
+            if (!user) user = JSON.parse(localStorage.getItem('guest_session'));
+            
+            const userId = user ? (user.email || user.uid || user.id || 'guest') : 'guest';
+            const safeId = userId.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+            return `atpro_data_v2_${safeId}`;
+        } catch (e) {
+            return 'atpro_data_v2_guest';
+        }
+    },
+
+    async loadData() {
+        const key = this.getStorageKey();
+        
+        // 1. Try Local Storage first
+        const saved = localStorage.getItem(key);
         if (saved) {
             const parsed = JSON.parse(saved);
             this.state = { ...this.state, ...parsed };
-        } else {
-            this.state.subjects = [
-                { id: 'sub-1', name: 'Mathematics-III', attended: 0, missed: 0, off: 0 },
-                { id: 'sub-2', name: 'Operating Systems', attended: 0, missed: 0, off: 0 },
-                { id: 'sub-3', name: 'DBMS', attended: 0, missed: 0, off: 0 }
-            ];
+        }
+
+        // 2. Try Cloud Sync (Firestore)
+        if (window.db && window.currentUser && !window.currentUser.isGuest) {
+            try {
+                const docRef = window.doc(window.db, "attendance", window.currentUser.uid);
+                const docSnap = await window.getDoc(docRef);
+                if (docSnap.exists()) {
+                    const cloudData = docSnap.data();
+                    // Merge cloud data (priority)
+                    this.state = { ...this.state, ...cloudData };
+                    localStorage.setItem(key, JSON.stringify(this.state));
+                    this.refreshUI();
+                }
+            } catch (e) {
+                console.warn("☁️ Cloud load failed, using local fallback", e);
+            }
+        }
+
+        if (this.state.subjects.length === 0 && !saved) {
+            this.state.subjects = [];
             this.saveData();
         }
     },
 
-    saveData() {
+    async saveData() {
+        const key = this.getStorageKey();
         this.state.lastSync = new Date().toISOString();
-        localStorage.setItem('atpro_data_v2', JSON.stringify(this.state));
+        
+        // 1. Local Save
+        localStorage.setItem(key, JSON.stringify(this.state));
+        
+        // 2. Cloud Save
+        if (window.db && window.currentUser && !window.currentUser.isGuest) {
+            try {
+                const docRef = window.doc(window.db, "attendance", window.currentUser.uid);
+                await window.setDoc(docRef, this.state);
+            } catch (e) {
+                console.error("☁️ Cloud save failed:", e);
+            }
+        }
+        
         this.checkAttendanceThresholds();
     },
 

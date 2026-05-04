@@ -435,6 +435,13 @@
             v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
         })(document, 'script');
     </script>
+
+    <!-- Weekly Mail System -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script type="module">
+        import { sendWeeklyMailIfEligible } from "../js/weekly-mailer.js";
+        sendWeeklyMailIfEligible();
+    </script>
 </body>
 
 </html>

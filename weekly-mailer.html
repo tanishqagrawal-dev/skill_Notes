@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Mail System | SKiL MATRiX</title>
+    
+    <!-- EmailJS CDN -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Poppins:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #7B61FF;
+            --secondary: #00F2FF;
+            --accent: #FF2D95;
+            --bg-dark: #05070A;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #FFFFFF;
+            --text-dim: rgba(255, 255, 255, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg-dark);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: var(--text-main);
+            position: relative;
+        }
+
+        /* Animated Background */
+        .bg-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, #1a1b26 0%, #05070a 100%);
+            z-index: -2;
+        }
+
+        .blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            filter: blur(120px);
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0.15;
+            animation: float 20s infinite alternate;
+        }
+
+        .blob-1 { top: -10%; left: -10%; }
+        .blob-2 { bottom: -10%; right: -10%; background: linear-gradient(135deg, var(--accent), var(--primary)); }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(100px, 50px) scale(1.1); }
+        }
+
+        .glass-card {
+            background: rgba(15, 15, 20, 0.7);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 3rem 2.5rem;
+            text-align: center;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.02);
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .logo-box {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .logo-box img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 20px rgba(123, 97, 255, 0.4);
+        }
+
+        h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.85rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tagline {
+            color: var(--secondary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+        }
+
+        #status-box {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            text-align: left;
+            border: 1px solid var(--glass-border);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        .status-item.active { color: #fff; }
+        .status-item .icon { font-size: 1.1rem; }
+        
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--glass-border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .btn-back {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            background: var(--glass);
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-gradient"></div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <div class="glass-card">
+        <div class="logo-box">
+            <img src="assets/logo.jpg" alt="SKiL MATRiX Logo">
+        </div>
+        
+        <p class="tagline">Automated Intelligence</p>
+        <h1>Weekly Mail System</h1>
+        
+        <div id="status-box">
+            <div id="step-data" class="status-item">
+                <span class="icon">🔍</span> Checking user data...
+            </div>
+            <div id="step-week" class="status-item">
+                <span class="icon">📅</span> Validating schedule...
+            </div>
+            <div id="step-send" class="status-item">
+                <span class="icon">📨</span> Sending packet...
+            </div>
+        </div>
+
+        <a href="pages/dashboard.html" class="btn-back">Return to Dashboard</a>
+    </div>
+
+    <script type="text/javascript">
+        const EMAIL_CONFIG = {
+            PUBLIC_KEY: "TFlGH0NvNrebJlGuw",
+            SERVICE_ID: "service_m8e5uq7",
+            TEMPLATE_ID: "template_h8nzrqd"
+        };
+
+        (function(){
+            emailjs.init(EMAIL_CONFIG.PUBLIC_KEY);
+        })();
+
+        function isSameWeek(date1, date2) {
+            const getMon = d => {
+                const dt = new Date(d);
+                const day = dt.getDay();
+                const diff = dt.getDate() - day + (day === 0 ? -6 : 1);
+                dt.setDate(diff);
+                dt.setHours(0,0,0,0);
+                return dt.getTime();
+            };
+            return getMon(date1) === getMon(date2);
+        }
+
+        function generateSubjectsHTML(subjects) {
+            return subjects.map(sub => {
+                let color = "#4af6c3", bg = "#1b2a23";
+                if (sub.attendance < 50) { color = "#ff6b6b"; bg = "#2a1b2b"; }
+                else if (sub.attendance < 75) { color = "#ffd166"; bg = "#2a261b"; }
+                return `<div style="margin-bottom:8px; padding:10px; border-radius:10px; background:${bg}; color:${color}; font-size:13px;">📘 ${sub.name} — <b>${sub.attendance}%</b></div>`;
+            }).join('');
+        }
+
+        function updateStatus(id, text, icon = "✅", active = true) {
+            const el = document.getElementById(id);
+            el.innerHTML = `<span class="icon">${icon}</span> ${text}`;
+            if (active) el.classList.add('active');
+        }
+
+        async function runWeeklyMail() {
+            let user = null;
+            let subjects = null;
+
+            const isTestMode = (new URLSearchParams(window.location.search)).get('test') === 'true';
+
+            if (isTestMode) {
+                user = {
+                    name: "Test User",
+                    email: "test@example.com",
+                    totalAttendance: 85,
+                    attended: 85,
+                    missed: 15,
+                    target: 75
+                };
+                subjects = [
+                    { name: "Mathematics", attendance: 90 },
+                    { name: "Physics", attendance: 45 }
+                ];
+                console.log("🛠️ Test mode enabled. Mock data loaded.");
+            } else {
+                try {
+                    let authUser = localStorage.getItem("auth_user_full");
+                    let guestUser = localStorage.getItem("guest_session");
+
+                    if (!authUser && guestUser) {
+                        updateStatus('step-data', 'Guest user detected. Mail disabled.', '🛡️');
+                        return;
+                    }
+
+                    let storedUser = JSON.parse(authUser || guestUser);
+                    if (!storedUser) return;
+                    
+                    // Construct the same dynamic key used in attendance-pro.js
+                    const userId = storedUser.email || storedUser.uid || storedUser.id || 'guest';
+                    const safeId = userId.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+                    const storageKey = `atpro_data_v2_${safeId}`;
+                    
+                    const atproData = JSON.parse(localStorage.getItem(storageKey));
+                    
+                    if (storedUser && atproData && atproData.subjects) {
+                        user = {
+                            name: storedUser.name || "Scholar",
+                            email: storedUser.email || ""
+                        };
+                        
+                        let att = 0, miss = 0;
+                        atproData.subjects.forEach(s => {
+                            att += Math.max(0, s.attended || 0);
+                            miss += Math.max(0, s.missed || 0);
+                        });
+                        const total = att + miss;
+                        let percent = total === 0 ? 0 : (att / total) * 100;
+                        
+                        user.totalAttendance = percent.toFixed(1);
+                        user.attended = att;
+                        user.missed = miss;
+                        user.target = atproData.target || 75;
+                        
+                        subjects = atproData.subjects.map(s => {
+                            const sAtt = Math.max(0, s.attended || 0);
+                            const sMiss = Math.max(0, s.missed || 0);
+                            const sTotal = sAtt + sMiss;
+                            const sPercent = sTotal === 0 ? 0 : (sAtt / sTotal) * 100;
+                            const dashboardPercent = Math.round(parseFloat(sPercent.toFixed(1)));
+                            return {
+                                name: s.name,
+                                attendance: dashboardPercent
+                            };
+                        });
+                    }
+                } catch (e) {
+                    console.error("Error parsing local storage data", e);
+                }
+            }
+
+            if (!user || !subjects || subjects.length === 0) {
+                updateStatus('step-data', 'No valid data found', '❌');
+                return;
+            }
+            updateStatus('step-data', 'User data synchronized');
+
+            const today = new Date();
+            const userEmail = user.email || "guest";
+            const lastSentKey = `weekly_mail_sent_${userEmail.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            const lastSent = localStorage.getItem(lastSentKey);
+
+            if (!isTestMode) {
+                if (lastSent && isSameWeek(new Date(lastSent), today)) {
+                    updateStatus('step-week', 'Already sent this week', '⏳');
+                    return;
+                }
+                updateStatus('step-week', 'First login of the week');
+            } else {
+                updateStatus('step-week', 'Bypassing schedule checks (Test Mode)', '🛠️');
+            }
+
+            // Triggering
+            updateStatus('step-send', 'Sending Attendance Packet...', '<div class="loader"></div>');
+
+            emailjs.send(
+                EMAIL_CONFIG.SERVICE_ID,
+                EMAIL_CONFIG.TEMPLATE_ID,
+                {
+                    user_name: user.name,
+                    email: user.email,
+                    user_email: user.email,
+                    attendance: user.totalAttendance,
+                    attended: user.attended,
+                    missed: user.missed,
+                    target: user.target,
+                    subjects: generateSubjectsHTML(subjects),
+                    ai_suggestion: subjects.filter(s => s.attendance < 50).length > 0 ? "Focus on weak subjects immediately." : "Great job!"
+                },
+                EMAIL_CONFIG.PUBLIC_KEY
+            ).then(() => {
+                updateStatus('step-send', 'Weekly Packet Sent Successfully');
+                localStorage.setItem(lastSentKey, new Date().toISOString());
+            }).catch(err => {
+                updateStatus('step-send', 'Error: ' + (err.text || 'API Failure'), '❌');
+            });
+        }
+
+        window.onload = runWeeklyMail;
+    </script>
+</body>
+</html>
