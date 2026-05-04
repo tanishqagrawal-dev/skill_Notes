@@ -86,7 +86,7 @@ export async function initAuth() {
             console.log("🚀 Initial Redirect Logic:", currentRole);
             if (currentRole === 'admin' || currentRole === 'superadmin') window.location.href = prefix + 'admin-dashboard';
             else if (currentRole === 'coadmin') window.location.href = prefix + 'coadmin-dashboard';
-            else window.location.href = prefix + 'dashboard';
+            else window.location.href = (isInPagesDir ? '../' : '') + 'welcome.html';
             return true;
         }
 
@@ -277,7 +277,7 @@ function initAuthForms() {
                 if (typeof gtag === 'function') gtag('event', 'login', { method: 'Google' });
 
                 const isInPagesDir = window.location.pathname.includes('/pages/');
-                window.location.href = (isInPagesDir ? '' : 'pages/') + 'dashboard';
+                window.location.href = (isInPagesDir ? '../' : '') + 'welcome.html';
 
             } catch (err) {
                 console.error("❌ Google Login Error:", err);
