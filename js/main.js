@@ -276,7 +276,11 @@ async function handleDownload(id) {
 
 // --- PAYMENT LOGIC ---
 window.handlePayment = function () {
-    alert("🚀 Redirecting to SKiL MATRiX Premium Gateway...\n\n(This makes a placeholder request as no Payment API Key was provided.)");
+    if (window.lockOverlay) {
+        window.lockOverlay.show();
+    } else {
+        alert("🚀 Redirecting to SKiL MATRiX Premium Gateway...\n\n(This feature is currently under development.)");
+    }
 };
 
 // Redundant advanced footer removed. Handled by footer.js.

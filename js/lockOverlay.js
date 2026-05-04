@@ -32,10 +32,10 @@ class LockOverlay {
                 </div>
                 <h1 class="coming-soon-title">COMING<br>SOON</h1>
                 <p class="development-caption">This feature is currently under development</p>
-                <button class="primary-btn" style="margin-top: 32px; width: 100%; border-radius: 12px; font-weight: 600;" onclick="window.lockOverlay.hide()">
-                    🔙 Back to Dashboard
+                <button class="primary-btn coming-soon-btn" onclick="window.lockOverlay.hide()">
+                    BACK TO DASHBOARD
                 </button>
-                <div style="margin-top:24px; font-size: 0.7rem; color: rgba(255,255,255,0.3); letter-spacing: 2px;">PRESS ESC TO RETURN</div>
+                <div class="esc-hint">PRESS ESC TO RETURN</div>
             </div>
         `;
 
