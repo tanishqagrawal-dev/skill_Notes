@@ -121,7 +121,7 @@
     background: rgba(255, 255, 255, 0.03) !important;
 }
 
-.logo-text {
+.sidebar-header .logo-text {
     font-size: 0.95rem !important;
     font-weight: 900 !important;
     letter-spacing: 1.2px !important;
@@ -135,7 +135,7 @@
     text-align: center !important;
 }
 
-.logo-text .highlight {
+.sidebar-header .logo-text .highlight {
     background: linear-gradient(135deg, #00F2FF 0%, #7B61FF 100%) !important;
     -webkit-background-clip: text !important;
     background-clip: text !important;
@@ -2732,14 +2732,6 @@
         padding: 0.8rem !important;
     }
 
-    /* Prevent overlap with back-to-top button */
-    #back-to-top {
-        bottom: 20px !important;
-        right: 20px !important;
-        width: 45px !important;
-        height: 45px !important;
-        z-index: 1000;
-    }
 }
 
 @media (max-width: 480px) {

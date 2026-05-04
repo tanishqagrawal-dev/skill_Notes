@@ -5,7 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initAdvancedFooter() {
     initRoleAwareLinks();
-    initBackToTop();
+    
+    // Initialize icons for any dynamically added content
+    if (window.lucide) {
+        lucide.createIcons();
+    }
 }
 
 
@@ -26,13 +30,13 @@ function initRoleAwareLinks() {
 
     if (userRole === 'admin' || userRole === 'superadmin' || userRole === 'coadmin') {
         links = [
-            { txt: 'Admin Console', url: p('dashboard?tab=admin') },
-            { txt: 'Manage Content', url: p('dashboard?tab=verification') },
+            { txt: 'Admin Console', url: p('dashboard?tab=admin-console') },
+            { txt: 'Manage Content', url: p('dashboard?tab=verification-hub') },
             { txt: 'System Status', url: '#' }
         ];
     } else if (userRole === 'uploader' || userRole === 'contributor') {
         links = [
-            { txt: 'My Uploads', url: p('dashboard?tab=profile') },
+            { txt: 'My Uploads', url: p('dashboard?tab=my-uploads') },
             { txt: 'Upload New Note', url: '#', onclick: "openUploadModal()" },
             { txt: 'Contributor Guidelines', url: '#' }
         ];
@@ -51,19 +55,3 @@ function initRoleAwareLinks() {
     ).join('');
 }
 
-function initBackToTop() {
-    const btn = document.getElementById('back-to-top');
-    if (!btn) return;
-
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 300) {
-            btn.classList.add('visible');
-        } else {
-            btn.classList.remove('visible');
-        }
-    });
-
-    btn.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-}

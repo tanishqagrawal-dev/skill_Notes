@@ -596,62 +596,77 @@
     </section>
 
     <!-- Footer -->
-    <footer class="footer fade-in-scroll">
-        <div class="container footer-content">
-            <!-- Left Block: Brand & Intel -->
-            <div class="footer-brand">
-                <div class="inline-util-a44362ee">
-                    <img src="assets/logo.jpg" alt="SKiL MATRiX" class="inline-util-8128bf84">
-                    <span class="logo-text">SKiL MATRiX <span class="highlight inline-util-a97a3c6f">NOTES</span></span>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <!-- Brand Section -->
+                <div class="footer-brand">
+                    <div class="footer-logo-area">
+                        <img src="assets/logo.jpg" alt="SKiL MATRiX" class="footer-logo-img">
+                        <span class="footer-logo-text">SKiL MATRiX <span class="footer-logo-highlight">NOTES</span></span>
+                    </div>
+                    <p>Empowering students with intelligent academic tools. Built to help you master your curriculum with AI-powered precision.</p>
+                    <div class="footer-intel-signal">
+                        <i data-lucide="zap"></i> Powered by Real-Time AI
+                    </div>
+                    <div class="footer-dynamic-stats" id="footer-stats">
+                        <!-- Loaded by stats.js -->
+                    </div>
+                    <div class="social-links">
+                        <a href="#" class="social-icon instagram" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" class="social-icon whatsapp" target="_blank" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+                        <a href="mailto:skilmatrix3@gmail.com" class="social-icon gmail" aria-label="Gmail"><i class="fa-solid fa-envelope"></i></a>
+                        <a href="#" class="social-icon linkedin" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                    </div>
                 </div>
-                <p>Empowering students with intelligent academic tools.</p>
-                <div class="footer-intel-signal">
-                    ⚡ Powered by real-time data & AI-assisted learning
-                </div>
-            </div>
 
-            <!-- Middle Block: Platform (Role Aware) -->
-            <div class="footer-links">
+                <!-- Platform Column -->
                 <div class="link-group">
                     <h4>Platform</h4>
-                    <div id="footer-role-links">
-                        <!-- Fallback Links -->
-                        <a href="pages/dashboard#/notes">Notes Hub</a>
-                        <a href="pages/dashboard">AI Tools</a>
-                        <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" target="_blank"
-                            rel="noopener noreferrer">Community</a>
+                    <div id="footer-role-links" class="footer-nav-links">
+                        <a href="pages/dashboard?tab=notes">Notes Hub</a>
+                        <a href="pages/dashboard?tab=leaderboard">Leaderboard</a>
+                        <a href="pages/dashboard?tab=planner">AI Study Planner</a>
+                        <a href="pages/dashboard?tab=ai-tools">Exam Strategist</a>
                     </div>
-                    <a href="pages/dashboard?tab=leaderboard">Leaderboard</a>
                 </div>
 
-                <!-- Right Block: Company -->
+                <!-- Tools Column -->
+                <div class="link-group">
+                    <h4>Smart Tools</h4>
+                    <div class="footer-nav-links">
+                        <a href="pages/dashboard?tab=ai-tools">AI Coach</a>
+                        <a href="pages/dashboard?tab=cgpa-analyzer">CGPA Analyzer</a>
+                        <a href="pages/dashboard?tab=attendance">Attendance Pro</a>
+                        <a href="pages/dashboard?tab=focusflow">FocusFlow Pro</a>
+                        <a href="#">Model Papers</a>
+                    </div>
+                </div>
+
+                <!-- Company Column -->
                 <div class="link-group">
                     <h4>Company</h4>
-                    <a href="pages/about">About</a>
-                    <a href="pages/contact">Contact</a>
-                    <div class="legal-group">
-                        <a href="pages/privacy">Privacy</a>
-                        <a href="pages/terms">Terms</a>
+                    <div class="footer-nav-links">
+                        <a href="pages/about">About Us</a>
+                        <a href="pages/contact">Contact Support</a>
+                        <a href="pages/privacy">Privacy Policy</a>
+                        <a href="pages/terms">Terms of Service</a>
+                        <a href="pages/contact">Report an Issue</a>
                     </div>
-                    <a href="pages/contact" class="inline-util-f77eb5d4">Report an Issue</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div class="footer-bottom-content">
+                    <p>&copy; 2026 SKiL MATRiX. All rights reserved.</p>
+                    <p class="footer-legal-notice">We respect academic integrity. No copyrighted content is hosted directly.</p>
+                    <div class="made-with">
+                        Made with <span class="heart-beat">❤️</span> for students
+                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- Bottom Strip -->
-        <div class="footer-bottom">
-            <div class="container inline-util-4bced53a">
-                <p>&copy; 2026 SKiL MATRiX. All rights reserved.</p>
-                <p class="footer-legal-notice">We respect academic integrity. No copyrighted content is hosted directly.
-                </p>
-                <div class="inline-util-3f2723e5">
-                    Made with ❤️ for students
-                </div>
-            </div>
-        </div>
-
         <!-- Back to Top -->
-        <button id="back-to-top" class="btn-icon-round" aria-label="Back to Top">↑</button>
     </footer>
 
     <!-- Founder Modal -->
