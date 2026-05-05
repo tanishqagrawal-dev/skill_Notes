@@ -71,14 +71,54 @@ window.AIGenerator = {
         } catch (e) {
             console.error("AI Generation failed, attempting local fallback:", e);
             
-            // 4. FALLBACK: Fetch Random Paper from Local Backend
+            // 4. FALLBACK: Fetch Random Paper from Static Cache or Local Backend
             try {
-                const res = await fetch(`/api/get-random-paper?subjectId=${encodeURIComponent(subjectId)}&examType=${encodeURIComponent(examType)}`);
-                if (!res.ok) throw new Error("No fallback available");
-                const data = await res.json();
-                console.log("♻️ Fallback paper loaded from local cache");
-                return data.paper;
+                // First try direct fetch of the JSON file (Self-Contained Frontend approach)
+                console.log("📂 Attempting fallback to static cached papers...");
+                
+                // Try multiple paths to accommodate different page locations (root vs pages/ directory)
+                const possiblePaths = ['./data/cached_papers.json', '../data/cached_papers.json', '../../data/cached_papers.json'];
+                let allPapers = null;
+
+                for (const path of possiblePaths) {
+                    try {
+                        const staticRes = await fetch(path);
+                        if (staticRes.ok) {
+                            allPapers = await staticRes.json();
+                            console.log(`✅ Cache found at: ${path}`);
+                            break;
+                        }
+                    } catch (err) { /* ignore and try next path */ }
+                }
+                
+                if (allPapers) {
+                    // Filter by subject and exam type (flexible matching)
+                    const matches = allPapers.filter(p => 
+                        (p.subjectId?.toLowerCase() === subjectId?.toLowerCase() || 
+                         p.subjectName?.toLowerCase() === subjectName?.toLowerCase()) && 
+                        p.examType === examType
+                    );
+
+                    if (matches.length > 0) {
+                        const randomPaper = matches[Math.floor(Math.random() * matches.length)];
+                        console.log("♻️ Fallback paper loaded from static cache");
+                        return randomPaper.content;
+                    } else {
+                        console.warn("⚠️ Cache found, but no matching paper for:", subjectName, examType);
+                    }
+                }
+
+                // Second try: Legacy API (if running with local Node.js server)
+                const apiRes = await fetch(`/api/get-random-paper?subjectId=${encodeURIComponent(subjectId)}&examType=${encodeURIComponent(examType)}`);
+                if (apiRes.ok) {
+                    const data = await apiRes.json();
+                    console.log("♻️ Fallback paper loaded from local server API");
+                    return data.paper;
+                }
+
+                throw new Error("No cached papers found for this subject.");
             } catch (fallbackError) {
+                console.error("Fallback failed:", fallbackError);
                 throw new Error("AI is offline and no cached papers found for this subject. Please try again later.");
             }
         }
