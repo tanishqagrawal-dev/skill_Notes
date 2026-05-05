@@ -108,11 +108,11 @@
 
 .sidebar-header {
     margin-bottom: 1.25rem;
-    padding: 1rem 0.75rem;
+    padding: 1.5rem 0.75rem;
     display: flex;
-    flex-direction: column;
+    flex-direction: column !important;
     align-items: center;
-    gap: 10px;
+    gap: 15px !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -127,24 +127,27 @@
 }
 
 .sidebar-header .logo-text {
-    font-size: 0.95rem !important;
+    font-size: 1.1rem !important;
     font-weight: 900 !important;
-    letter-spacing: 1.2px !important;
+    letter-spacing: 1.5px !important;
     text-transform: uppercase !important;
-    background: linear-gradient(135deg, #fff 0%, #7B61FF 100%) !important;
-    -webkit-background-clip: text !important;
-    background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
+    color: #fff !important;
+    background: none !important;
+    -webkit-text-fill-color: initial !important;
     display: block !important;
     width: 100% !important;
     text-align: center !important;
+    line-height: 1.4 !important;
 }
 
 .sidebar-header .logo-text .highlight {
+    display: block !important;
     background: linear-gradient(135deg, #00F2FF 0%, #7B61FF 100%) !important;
     -webkit-background-clip: text !important;
     background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
+    font-size: 1.2rem !important;
+    margin-top: 2px !important;
 }
 
 .sidebar-nav {
@@ -239,54 +242,66 @@
 .user-profile-mini {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 0.5rem 0.75rem;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 12px;
-    margin-top: 0.5rem;
+    gap: 16px !important;
+    padding: 0.8rem 1.25rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    margin-top: auto;
     width: 100%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.user-profile-mini:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
 }
 
 .avatar {
-    width: 40px;
-    height: 40px;
-    background: var(--primary);
+    width: 42px;
+    height: 42px;
+    background: #FF6B00;
+    color: #fff;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    box-shadow: 0 0 15px rgba(255, 107, 0, 0.2);
 }
 
 .user-info {
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    overflow: hidden;
+    text-align: left;
 }
 
 .user-info .name {
-    display: block;
-    font-weight: 700;
-    font-size: 0.85rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.2;
+    display: block !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    color: #ffffff !important;
+    white-space: nowrap !important;
+    line-height: 1.1 !important;
+    margin-bottom: 2px !important;
 }
 
 .user-info .meta {
     display: block;
-    font-size: 0.7rem;
-    color: var(--text-dim);
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 700;
     text-transform: uppercase;
-    font-weight: 600;
     letter-spacing: 0.5px;
-    white-space: nowrap;
-    line-height: 1;
-    margin-top: 1px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    margin-top: 2px;
 }
 
 /* Main Content Area */
@@ -390,46 +405,17 @@
     }
 
     .logo-text {
-        font-size: 0.85rem !important;
-        letter-spacing: 0.8px !important;
-        white-space: normal !important;
+        font-size: 0.9rem !important;
+        letter-spacing: 1px !important;
+    }
+    .logo-text .highlight {
+        font-size: 1rem !important;
     }
 
     .nav-item {
         padding: 0.6rem 0.75rem;
         font-size: 0.85rem;
         gap: 8px;
-    }
-
-    .user-profile-mini {
-        padding: 0.5rem 0.6rem;
-        gap: 10px;
-    }
-
-    .user-info {
-        gap: 0;
-    }
-
-    .user-profile-mini .avatar {
-        width: 36px;
-        height: 36px;
-        font-size: 0.9rem;
-    }
-
-    .user-info .name {
-        font-size: 0.85rem;
-        display: block;
-        font-weight: 700;
-        line-height: 1.2;
-        margin-bottom: -1px;
-    }
-
-    .user-info .meta {
-        font-size: 0.65rem;
-        display: block;
-        font-weight: 600;
-        line-height: 1;
-        opacity: 0.8;
     }
 
     .nav-category {
@@ -2342,9 +2328,7 @@
     flex-shrink: 0;
 }
 
-.user-profile-mini {
-    flex-shrink: 0;
-}
+/* Removed duplicate .user-profile-mini */
 
 /* --- New Upload Note Modal Styles --- */
 .upload-card {
@@ -4775,7 +4759,8 @@
 
     .user-profile-mini {
         padding: 0.6rem !important;
-        gap: 8px !important;
+        gap: 10px !important;
+        border-radius: 12px !important;
     }
 
     .user-profile-mini .user-info h4 {
