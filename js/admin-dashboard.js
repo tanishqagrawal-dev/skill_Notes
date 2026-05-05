@@ -1,6 +1,6 @@
 
 // Admin Dashboard Entry Point
-import { initRealtimeStats } from './stats.js?v=6.0';
+import { initRealtimeStats } from './stats.js';
 
 // --- FIREBASE CHECK ---
 if (!window.firebaseServices) {
@@ -22,12 +22,12 @@ window.Roles = {
 
 window.GlobalData = {
     colleges: [
-        { id: 'medicaps', name: 'Medicaps University', logo: '../assets/logos/medicaps.png?v=6.0' },
-        { id: 'lpu', name: 'LPU University', logo: '../assets/logos/lpu.png?v=6.0' },
-        { id: 'ips', name: 'IPS Academy', logo: '../assets/logos/ips.png?v=6.0' },
-        { id: 'cdgi', name: 'CDGI University', logo: '../assets/logos/cdgi.png?v=6.0' },
-        { id: 'lnct', name: 'LNCT COLLEGE BHOPAL', logo: '../assets/logos/lnct.jpg?v=6.0' },
-        { id: 'iitd', name: 'IIT Delhi', logo: '../assets/logos/iitd.png?v=6.0' }
+        { id: 'medicaps', name: 'Medicaps University', logo: '../assets/logos/medicaps.png' },
+        { id: 'lpu', name: 'LPU University', logo: '../assets/logos/lpu.png' },
+        { id: 'ips', name: 'IPS Academy', logo: '../assets/logos/ips.png' },
+        { id: 'cdgi', name: 'CDGI University', logo: '../assets/logos/cdgi.png' },
+        { id: 'lnct', name: 'LNCT COLLEGE BHOPAL', logo: '../assets/logos/lnct.jpg' },
+        { id: 'iitd', name: 'IIT Delhi', logo: '../assets/logos/iitd.png' }
     ]
 };
 

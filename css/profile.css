@@ -477,42 +477,6 @@
     transition: stroke-dashoffset 1s ease;
 }
 
-/* Mobile Desktop (Tablet) Responsive */
-@media (max-width: 1024px) {
-    .profile-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-    .contact-row, .academic-details, .form-row {
-        flex-direction: column;
-        gap: 0.8rem;
-    }
-    .profile-header-card {
-        padding: 2rem;
-        gap: 2rem;
-    }
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-    }
-    .stat-card {
-        padding: 1rem;
-    }
-    .skill-matrix-container {
-        grid-column: span 1;
-    }
-    .skills-layout {
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-    .radar-wrapper {
-        width: 100%;
-        max-width: 280px;
-        height: 280px;
-        margin: 0 auto;
-    }
-}
-
 /* Mobile Responsive */
 @media (max-width: 900px) {
     .profile-grid {

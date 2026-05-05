@@ -33,12 +33,12 @@ function cleanFile(filePath) {
 }
 
 const jsFiles = [
-    'js/dashboard.js?v=6.0',
-    'js/auth.js?v=6.0',
-    'js/navbar.js?v=6.0',
-    'js/footer.js?v=6.0',
-    'js/routing.js?v=6.0',
-    'js/main.js?v=6.0'
+    'js/dashboard.js',
+    'js/auth.js',
+    'js/navbar.js',
+    'js/footer.js',
+    'js/routing.js',
+    'js/main.js'
 ];
 
 jsFiles.forEach(file => {
