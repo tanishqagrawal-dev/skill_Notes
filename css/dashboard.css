@@ -242,37 +242,23 @@
 .user-profile-mini {
     display: flex;
     align-items: center;
-    gap: 16px !important;
-    padding: 0.8rem 1.25rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    margin-top: auto;
+    gap: 12px;
+    padding: 0.8rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    margin-top: 0.5rem;
     width: 100%;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.user-profile-mini:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
 }
 
 .avatar {
-    width: 42px;
-    height: 42px;
-    background: #FF6B00;
-    color: #fff;
+    width: 40px;
+    height: 40px;
+    background: var(--primary);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 1.1rem;
-    flex-shrink: 0;
-    box-shadow: 0 0 15px rgba(255, 107, 0, 0.2);
 }
 
 .user-info {
@@ -281,24 +267,23 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    text-align: left;
 }
 
 .user-info .name {
-    display: block !important;
-    font-weight: 700 !important;
-    font-size: 1rem !important;
-    color: #ffffff !important;
-    white-space: nowrap !important;
-    line-height: 1.1 !important;
-    margin-bottom: 2px !important;
+    display: block;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
 }
 
 .user-info .meta {
     display: block;
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.4);
-    font-weight: 700;
+    font-size: 0.7rem;
+    color: var(--text-dim);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-top: 2px;
@@ -2328,7 +2313,9 @@
     flex-shrink: 0;
 }
 
-/* Removed duplicate .user-profile-mini */
+.user-profile-mini {
+    flex-shrink: 0;
+}
 
 /* --- New Upload Note Modal Styles --- */
 .upload-card {
@@ -4759,8 +4746,7 @@
 
     .user-profile-mini {
         padding: 0.6rem !important;
-        gap: 10px !important;
-        border-radius: 12px !important;
+        gap: 8px !important;
     }
 
     .user-profile-mini .user-info h4 {
