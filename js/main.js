@@ -1,17 +1,17 @@
-const SITE_VERSION = "5.0";
+const SITE_VERSION = "6.0";
 const DATA_VERSION = "notes_v5";
 
 (function checkVersion() {
     const storedVersion = localStorage.getItem("site_version");
     if (storedVersion !== SITE_VERSION) {
-        localStorage.clear();
+        // Clear browser caches to force new JS/CSS download
         if ('caches' in window) {
             caches.keys().then(names => {
                 names.forEach(name => caches.delete(name));
             });
         }
+        // Update version and reload
         localStorage.setItem("site_version", SITE_VERSION);
-        // Force reload from server
         window.location.reload(true);
     }
 })();

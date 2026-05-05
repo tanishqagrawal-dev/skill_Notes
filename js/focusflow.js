@@ -464,7 +464,7 @@ window.playAlertSound = function(isTest = false) {
 
 function showFocusNotification(title, body) {
     if (Notification.permission === 'granted') {
-        new Notification(title, { body, icon: '../assets/logo.jpg' });
+        new Notification(title, { body, icon: '../assets/logo.jpg?v=6.0' });
     }
 }
 

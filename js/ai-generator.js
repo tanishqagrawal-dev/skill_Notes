@@ -332,7 +332,7 @@ window.AIGenerator = {
             <!-- Header Section -->
             <div style="display: flex; align-items: center; margin-bottom: 1rem; position: relative; z-index: 1; border-bottom: 1px solid #000; padding-bottom: 10px;">
                 <div style="flex: 0 0 100px;">
-                    <img src="../assets/logo.jpg" alt="Logo" style="width: 70px; height: 70px; object-fit: contain;">
+                    <img src="../assets/logo.jpg?v=6.0" alt="Logo" style="width: 70px; height: 70px; object-fit: contain;">
                 </div>
                 <div style="flex: 1; text-align: center;">
                     <h2 style="margin: 0; font-size: 1.3rem; font-weight: bold; text-transform: uppercase;">Faculty of Engineering</h2>

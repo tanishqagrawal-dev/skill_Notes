@@ -28,7 +28,7 @@
             }
         }(window.location))
     </script>
-    <link rel="shortcut icon" href="../assets/logo.jpg" type="image/jpeg">
+    <link rel="shortcut icon" href="../assets/logo.jpg?v=6.0" type="image/jpeg">
     <title>Dashboard | SKiL MATRiX Notes</title>
 
     <!-- Fonts -->
@@ -43,16 +43,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="../css/main.css?v=3.0">
-    <link rel="stylesheet" href="../css/dashboard.css?v=3.0">
-    <link rel="stylesheet" href="../css/advanced_dashboard.css?v=3.0">
-    <link rel="stylesheet" href="../css/settings.css?v=3.0">
-    <link rel="stylesheet" href="../css/admin.css?v=3.0">
-    <link rel="stylesheet" href="../css/lockOverlay.css?v=3.0">
-    <link rel="stylesheet" href="../css/cgpa-analyzer.css?v=3.0">
-    <link rel="stylesheet" href="../css/focusflow.css?v=3.0">
-    <link rel="stylesheet" href="../css/profile.css?v=3.0">
-    <link rel="stylesheet" href="../css/attendance-pro.css?v=3.0">
+    <link rel="stylesheet" href="../css/main.css?v=6.0">
+    <link rel="stylesheet" href="../css/dashboard.css?v=6.0">
+    <link rel="stylesheet" href="../css/advanced_dashboard.css?v=6.0">
+    <link rel="stylesheet" href="../css/settings.css?v=6.0">
+    <link rel="stylesheet" href="../css/admin.css?v=6.0">
+    <link rel="stylesheet" href="../css/lockOverlay.css?v=6.0">
+    <link rel="stylesheet" href="../css/cgpa-analyzer.css?v=6.0">
+    <link rel="stylesheet" href="../css/focusflow.css?v=6.0">
+    <link rel="stylesheet" href="../css/profile.css?v=6.0">
+    <link rel="stylesheet" href="../css/attendance-pro.css?v=6.0">
 
     <!-- Third Party Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -95,7 +95,7 @@
             <div class="sidebar-close-btn" onclick="document.querySelector('.sidebar').classList.remove('active')">
                 &times;</div>
             <div class="sidebar-header">
-                <img src="../assets/logo.jpg" alt="SKiL MATRiX">
+                <img src="../assets/logo.jpg?v=6.0" alt="SKiL MATRiX">
                 <span class="logo-text font-heading">SKiL MATRiX <span class="highlight">NOTES</span></span>
             </div>
             <nav class="sidebar-nav">
@@ -298,26 +298,26 @@
         })();
     </script>
 
-    <script type="module" src="../js/firebase-config.js?v=3.0"></script>
-    <script src="../js/ai-client.js?v=3.0" defer></script>
-    <script src="../js/settings.js?v=3.0" defer></script>
-    <script src="../js/upload-helper.js?v=3.0" defer></script>
+    <script type="module" src="../js/firebase-config.js?v=6.0"></script>
+    <script src="../js/ai-client.js?v=6.0" defer></script>
+    <script src="../js/settings.js?v=6.0" defer></script>
+    <script src="../js/upload-helper.js?v=6.0" defer></script>
     <script type="module">
-        import { initRealtimeStats } from '../js/stats.js';
+        import { initRealtimeStats } from '../js/stats.js?v=6.0';
         initRealtimeStats();
     </script>
-    <script src="../js/admin-console.js?v=3.0" defer></script>
-    <script src="../js/coadmin-module.js?v=3.0" defer></script>
-    <script src="../js/note-actions.js?v=3.0" defer></script>
-    <script src="../js/lockOverlay.js?v=3.0" defer></script>
+    <script src="../js/admin-console.js?v=6.0" defer></script>
+    <script src="../js/coadmin-module.js?v=6.0" defer></script>
+    <script src="../js/note-actions.js?v=6.0" defer></script>
+    <script src="../js/lockOverlay.js?v=6.0" defer></script>
 
-    <script src="../js/footer.js?v=3.0" defer></script>
-    <script src="../js/ai-generator.js?v=3.0" defer></script>
-    <script src="../js/cgpa-analyzer.js?v=3.0" defer></script>
-    <script src="../js/focusflow.js?v=3.0"></script>
-    <script src="../js/attendance-pro.js?v=3.0" defer></script>
-    <script src="../js/profile.js?v=3.0" defer></script>
-    <script type="module" src="../js/dashboard.js?v=3.0"></script>
+    <script src="../js/footer.js?v=6.0" defer></script>
+    <script src="../js/ai-generator.js?v=6.0" defer></script>
+    <script src="../js/cgpa-analyzer.js?v=6.0" defer></script>
+    <script src="../js/focusflow.js?v=6.0"></script>
+    <script src="../js/attendance-pro.js?v=6.0" defer></script>
+    <script src="../js/profile.js?v=6.0" defer></script>
+    <script type="module" src="../js/dashboard.js?v=6.0"></script>
 
     <!-- SaaS-Grade Refined Fake Analytics Engine (Identity-Based) -->
     <script>
@@ -386,7 +386,7 @@
 
     <!-- Auth Lifecycle & Logout -->
     <script type="module">
-        import { initAuth } from '../js/auth.js';
+        import { initAuth } from '../js/auth.js?v=6.0';
 
         // Boot up real Firebase auth in background
         // requestIdleCallback keeps the immediate load fast
@@ -450,7 +450,7 @@
     <!-- Weekly Mail System -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script type="module">
-        import { sendWeeklyMailIfEligible } from "../js/weekly-mailer.js";
+        import { sendWeeklyMailIfEligible } from "../js/weekly-mailer.js?v=6.0";
         sendWeeklyMailIfEligible();
     </script>
 </body>

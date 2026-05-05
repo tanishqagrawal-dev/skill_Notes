@@ -43,7 +43,7 @@ function renderNavbar() {
             <div class="container nav-content">
                 <div class="logo" onclick="window.location.href='${basePath}'"
                     style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
-                    <img src="${basePath}assets/logo.jpg" alt="SKiL MATRiX" style="height: 40px; border-radius: 50%;">
+                    <img src="${basePath}assets/logo.jpg?v=6.0" alt="SKiL MATRiX" style="height: 40px; border-radius: 50%;">
                     <span class="logo-text">SKiL MATRiX <span class="highlight"
                             style="font-weight: 800;">NOTES</span></span>
                 </div>
