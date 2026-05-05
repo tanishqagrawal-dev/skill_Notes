@@ -135,7 +135,16 @@ async function build() {
             console.log(`Minifying CSS: ${file}`);
             const code = fs.readFileSync(absolutePath, 'utf8');
             try {
-                const minifiedCode = new CleanCSS().minify(code).styles;
+                const minifiedCode = new CleanCSS({
+                    level: {
+                        1: {
+                            all: true,
+                            normalizeUrls: false // Avoid messing with relative paths
+                        },
+                        2: false // Disable level 2 optimizations (restructuring) for safety
+                    }
+                }).minify(code).styles;
+
                 fs.writeFileSync(absolutePath, minifiedCode);
             } catch (e) {
                 console.error(`Failed to minify CSS ${file}: ${e.message}`);

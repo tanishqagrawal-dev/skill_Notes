@@ -63,9 +63,25 @@ body.light-mode {
 }
 
 /* Custom Scrollbar - Hidden but functional */
+/* Unified Scrollbar Handling - Moved to component level for better control */
 ::-webkit-scrollbar {
-    display: none !important;
+    width: 6px;
+    height: 6px;
 }
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(123, 97, 255, 0.2);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(123, 97, 255, 0.4);
+}
+
 
 
 * {
