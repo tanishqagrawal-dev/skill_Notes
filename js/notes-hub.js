@@ -1,8 +1,8 @@
 // Phase-1 Static Notes Hub Wizard Script
 // Handles the "Select Institution -> Branch -> Year -> Notes" flow using static data
 
-import { globalNotes } from "../data/globalNotes.js?v=6.0";
-import { RoutingSystem } from "./routing.js?v=6.0";
+import { globalNotes } from "../data/globalNotes.js";
+import { RoutingSystem } from "./routing.js";
 
 // --- GLOBAL CONSTANTS ---
 const LocalData = {

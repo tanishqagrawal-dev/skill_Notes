@@ -22,5 +22,5 @@ function processFiles(pattern) {
 }
 
 processFiles('pages/**/*');
-processFiles('js/**/*.js?v=6.0');
+processFiles('js/**/*.js');
 processFiles('dist/**/*');

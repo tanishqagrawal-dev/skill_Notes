@@ -83,5 +83,5 @@ function extractInlineStyles(filePath, cssFile) {
     console.log(`Updated ${filePath}`);
 }
 
-extractInlineStyles('index', 'css/main.css?v=6.0');
-extractInlineStyles('dist/index', 'css/main.css?v=6.0');
+extractInlineStyles('index', 'css/main.css');
+extractInlineStyles('dist/index', 'css/main.css');

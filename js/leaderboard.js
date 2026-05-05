@@ -3,7 +3,7 @@
 
 const LeaderboardData = {
     user: [
-        { id: 'l1', name: 'Tanishq', views: 856, score: 2400, rank: 1, avatar: 'assets/avatars/1.png?v=6.0' },
+        { id: 'l1', name: 'Tanishq', views: 856, score: 2400, rank: 1, avatar: 'assets/avatars/1.png' },
         { id: 'l2', name: 'Ankit Sharma', views: 720, score: 2100, rank: 2, avatar: null },
         { id: 'l3', name: 'Riya Patel', views: 690, score: 1950, rank: 3, avatar: null },
         { id: 'l4', name: 'Sneha Gupta', views: 540, score: 1400, rank: 4, avatar: null },

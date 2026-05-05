@@ -17,7 +17,7 @@ import {
     updateDoc,
     serverTimestamp,
     onSnapshot
-} from './firebase-config.js?v=6.0';
+} from './firebase-config.js';
 
 console.log("🚀 Auth Script Loaded (Lazy Mode)");
 

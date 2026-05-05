@@ -1,5 +1,5 @@
-import { globalNotes } from "../data/globalNotes.js?v=6.0";
-import { RoutingSystem } from "./routing.js?v=6.0";
+import { globalNotes } from "../data/globalNotes.js";
+import { RoutingSystem } from "./routing.js";
 // stats functionality is managed via window.statServices
 // --- FIREBASE SERVICES ---
 // Fallback if firebaseServices failed to load (e.g. CORS or network error)
@@ -41,11 +41,11 @@ const Roles = {
 // --- GLOBAL STATE ---
 const GlobalData = {
     colleges: [
-        { id: 'medicaps', name: 'Medicaps University', status: 'active', logo: '../assets/logos/medicaps.png?v=6.0' },
-        { id: 'lnct', name: 'LNCT COLLEGE BHOPAL', status: 'active', logo: '../assets/logos/lnct.jpg?v=6.0' },
-        { id: 'cdgi', name: 'CDGI University', status: 'locked', logo: '../assets/logos/cdgi.png?v=6.0' },
-        { id: 'ips', name: 'IPS Academy', status: 'locked', logo: '../assets/logos/ips.png?v=6.0' },
-        { id: 'iitd', name: 'IIT Delhi', status: 'locked', logo: '../assets/logos/iitd.png?v=6.0' }
+        { id: 'medicaps', name: 'Medicaps University', status: 'active', logo: '../assets/logos/medicaps.png' },
+        { id: 'lnct', name: 'LNCT COLLEGE BHOPAL', status: 'active', logo: '../assets/logos/lnct.jpg' },
+        { id: 'cdgi', name: 'CDGI University', status: 'locked', logo: '../assets/logos/cdgi.png' },
+        { id: 'ips', name: 'IPS Academy', status: 'locked', logo: '../assets/logos/ips.png' },
+        { id: 'iitd', name: 'IIT Delhi', status: 'locked', logo: '../assets/logos/iitd.png' }
     ], // Now fetched dynamically from Firestore, seeded with defaults for refresh reliability
     branches: [
         { id: 'cse', name: 'Computer Science', icon: '💻' },
@@ -1718,7 +1718,7 @@ function renderAITools() {
                             <p style="font-size: 0.9rem; color: var(--text-dim);">Click to upload file</p>
                             <p id="file-name-display" style="font-size: 0.8rem; color: var(--primary); margin-top: 0.5rem; font-weight: 500;"></p>
                         </div>
-                        <input type="file" id="ai-file-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.png,.jpg,.jpeg?v=6.0" style="display: none;" onchange="handleAIFileUpload(this)">
+                        <input type="file" id="ai-file-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.png,.jpg,.jpeg" style="display: none;" onchange="handleAIFileUpload(this)">
                         
                         <!-- Hidden text area for fallback/content passing -->
                         <textarea id="ai-pyqs" style="display:none;"></textarea>
@@ -2151,7 +2151,7 @@ window.generatePaper = async () => {
             <div style="color: #ff4757; text-align: center; padding: 2rem;">
                 <h3>⚠️ Error</h3>
                 <p>${error.message}</p>
-                ${error.message.includes('Server') ? '<p style="font-size:0.8rem; margin-top:1rem; color: var(--text-dim);">Run "node server.js?v=6.0" in the server folder.</p>' : ''}
+                ${error.message.includes('Server') ? '<p style="font-size:0.8rem; margin-top:1rem; color: var(--text-dim);">Run "node server.js" in the server folder.</p>' : ''}
             </div>
         `;
     } finally {
@@ -4175,7 +4175,7 @@ window.toggleTheme = function (forceLight) {
 
 const LeaderboardData = {
     student: [
-        { id: 'l1', name: 'Tanishq', views: 856, score: 2400, rank: 1, avatar: 'assets/avatars/1.png?v=6.0' },
+        { id: 'l1', name: 'Tanishq', views: 856, score: 2400, rank: 1, avatar: 'assets/avatars/1.png' },
         { id: 'l2', name: 'Ankit Sharma', views: 720, score: 2100, rank: 2, avatar: null },
         { id: 'l3', name: 'Riya Patel', views: 690, score: 1950, rank: 3, avatar: null },
         { id: 'l4', name: 'Sneha Gupta', views: 540, score: 1400, rank: 4, avatar: null },
@@ -4655,7 +4655,7 @@ window.openPrivateUploadModal = function () {
         input.type = 'file';
         input.id = 'private-file-input';
         input.style.display = 'none';
-        input.accept = ".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png?v=6.0"; // Allowed types
+        input.accept = ".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png"; // Allowed types
         document.body.appendChild(input);
 
         input.onchange = (e) => {
