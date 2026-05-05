@@ -1,4 +1,4 @@
-import { db, doc, onSnapshot, increment, updateDoc, serverTimestamp } from './firebase-config.js';
+import { db, doc, onSnapshot, increment, updateDoc, serverTimestamp } from './firebase-config.js?v=6.0';
 
 const ANALYTICS_DOC = 'analytics/global';
 
