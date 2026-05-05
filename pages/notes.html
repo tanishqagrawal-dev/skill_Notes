@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-KSCJTPP875"></script>
     <script>
@@ -65,15 +65,19 @@
             border-radius: 24px !important;
             padding: 1.5rem 2rem !important;
             margin-bottom: 2.5rem !important;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4), inset 0 0 15px rgba(123, 97, 255, 0.05) !important;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(123, 97, 255, 0.05) !important;
             overflow: hidden;
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
         }
 
         #explorer-header::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 1px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
             background: linear-gradient(90deg, transparent, rgba(0, 242, 255, 0.3), transparent);
             z-index: 1;
             pointer-events: none !important;
@@ -89,10 +93,37 @@
             pointer-events: none !important;
         }
 
-        .corner-top-left { top: 0; left: 0; border-right: none; border-bottom: none; border-top-left-radius: 24px; }
-        .corner-top-right { top: 0; right: 0; border-left: none; border-bottom: none; border-top-right-radius: 24px; }
-        .corner-bottom-left { bottom: 0; left: 0; border-right: none; border-top: none; border-bottom-left-radius: 24px; }
-        .corner-bottom-right { bottom: 0; right: 0; border-left: none; border-top: none; border-bottom-right-radius: 24px; }
+        .corner-top-left {
+            top: 0;
+            left: 0;
+            border-right: none;
+            border-bottom: none;
+            border-top-left-radius: 24px;
+        }
+
+        .corner-top-right {
+            top: 0;
+            right: 0;
+            border-left: none;
+            border-bottom: none;
+            border-top-right-radius: 24px;
+        }
+
+        .corner-bottom-left {
+            bottom: 0;
+            left: 0;
+            border-right: none;
+            border-top: none;
+            border-bottom-left-radius: 24px;
+        }
+
+        .corner-bottom-right {
+            bottom: 0;
+            right: 0;
+            border-left: none;
+            border-top: none;
+            border-bottom-right-radius: 24px;
+        }
 
         #explorer-content {
             padding: 2rem 0 !important;
@@ -166,6 +197,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.8);
+            -webkit-backdrop-filter: blur(8px);
             backdrop-filter: blur(8px);
             align-items: center;
             justify-content: center;
@@ -286,11 +318,25 @@
                 animation: stepEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
             }
 
-            .step-node:nth-child(1) { animation-delay: 0.1s; }
-            .step-node:nth-child(2) { animation-delay: 0.2s; }
-            .step-node:nth-child(3) { animation-delay: 0.3s; }
-            .step-node:nth-child(4) { animation-delay: 0.4s; }
-            .step-node:nth-child(5) { animation-delay: 0.5s; }
+            .step-node:nth-child(1) {
+                animation-delay: 0.1s;
+            }
+
+            .step-node:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+
+            .step-node:nth-child(3) {
+                animation-delay: 0.3s;
+            }
+
+            .step-node:nth-child(4) {
+                animation-delay: 0.4s;
+            }
+
+            .step-node:nth-child(5) {
+                animation-delay: 0.5s;
+            }
 
             .step-node.active {
                 opacity: 1 !important;
@@ -298,13 +344,31 @@
             }
 
             @keyframes stepActivePulse {
-                0%, 100% { opacity: 1; filter: drop-shadow(0 0 15px rgba(123, 97, 255, 0.4)); transform: scale(1); }
-                50% { opacity: 1; filter: drop-shadow(0 0 25px rgba(0, 242, 255, 0.6)); transform: scale(1.08); }
+
+                0%,
+                100% {
+                    opacity: 1;
+                    filter: drop-shadow(0 0 15px rgba(123, 97, 255, 0.4));
+                    transform: scale(1);
+                }
+
+                50% {
+                    opacity: 1;
+                    filter: drop-shadow(0 0 25px rgba(0, 242, 255, 0.6));
+                    transform: scale(1.08);
+                }
             }
 
             @keyframes stepEntrance {
-                from { opacity: 0; transform: translateY(15px); }
-                to { opacity: 0.3; transform: translateY(0); }
+                from {
+                    opacity: 0;
+                    transform: translateY(15px);
+                }
+
+                to {
+                    opacity: 0.3;
+                    transform: translateY(0);
+                }
             }
 
             .step-indicator {
@@ -360,11 +424,29 @@
                 font-size: 1.5rem;
             }
         }
+
+        /* Fixed Lint Warnings */
+        .notes-hub-column { display: flex; flex-direction: column; }
+        .explorer-steps-flex { display: flex; flex-direction: column; }
+        .explorer-back-abs { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 20; }
+        .explorer-back-btn-ghost { display: none; padding: 0.5rem 1rem; gap: 0.5rem; }
+        .step-indicator-gap { display: flex; gap: 3rem; }
+        .text-center { text-align: center; }
+        .explorer-subtitle { color: var(--text-dim); margin-top: 1rem; }
+        .loader-margin-lg { margin: 4rem auto; }
+        .final-notes-hidden { display: none; padding: 1rem 0; }
+        .global-showcase-border { margin-top: 4rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 4rem; }
+        .global-showcase-header { text-align: center; margin-bottom: 3rem; }
+        .heading-xl { font-size: 2.5rem; }
+        .text-dim-margin { color: var(--text-dim); margin-top: 1rem; }
+        .loader-wrapper-centered-lg { text-align: center; padding: 4rem; }
+        .loader-margin-sm { margin: 0 auto 1rem; }
+        .text-dim-muted { color: var(--text-dim); }
     </style>
 
-<!-- Google AdSense -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8465813445488249"
-     crossorigin="anonymous"></script>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8465813445488249"
+        crossorigin="anonymous"></script>
 </head>
 
 <body class="dashboard-body">
@@ -375,9 +457,8 @@
 
     <div class="notes-page-container">
         <!-- Notes Hub Wizard -->
-        <div class="notes-hub-wrapper" style="flex-direction: column;">
-
-            <div id="explorer-steps-container" style="display:flex; flex-direction:column;">
+        <div class="notes-hub-wrapper notes-hub-column">
+            <div id="explorer-steps-container" class="explorer-steps-flex">
                 <div class="explorer-header premium-explorer-header" id="explorer-header">
                     <!-- HUD Decorative Elements -->
                     <div class="corner-tag corner-top-left"></div>
@@ -385,12 +466,12 @@
                     <div class="corner-tag corner-bottom-left"></div>
                     <div class="corner-tag corner-bottom-right"></div>
 
-                    <div id="explorer-back-container" style="position: absolute; top: 1.5rem; left: 1.5rem; z-index: 20;">
-                         <button id="explorer-back-btn" class="btn btn-ghost" style="display: none; padding: 0.5rem 1rem; gap: 0.5rem;">
+                    <div id="explorer-back-container" class="explorer-back-abs">
+                        <button id="explorer-back-btn" class="btn btn-ghost explorer-back-btn-ghost">
                             <span>⬅</span> Back
-                         </button>
+                        </button>
                     </div>
-                    <div class="step-indicator" style="display: flex; gap: 3rem;">
+                    <div class="step-indicator step-indicator-gap">
                         <!-- Steps -->
                         <div class="step-node active" id="step-0">
                             <div class="step-num">1</div>
@@ -413,55 +494,57 @@
                             <div class="step-label">Subject</div>
                         </div>
                     </div>
-                    <div id="explorer-title-container" style="text-align: center;">
+                    <div id="explorer-title-container" class="text-center">
                         <h1 class="font-heading" id="explorer-main-title">Select your <span
                                 class="gradient-text">Institution</span></h1>
-                        <p id="explorer-sub-title" style="color: var(--text-dim); margin-top: 1rem;">Choose your college
+                        <p id="explorer-sub-title" class="explorer-subtitle">Choose your college
                             to start browsing localized content.</p>
                     </div>
                 </div>
 
                 <div id="explorer-content">
                     <!-- Dynamic Content -->
-                    <div class="loader-pro" style="margin: 4rem auto;"></div>
+                    <div class="loader-pro loader-margin-lg"></div>
                 </div>
             </div>
 
             <!-- Final View -->
-            <div id="final-notes-view" style="display:none; padding: 1rem 0;">
+            <div id="final-notes-view" class="final-notes-hidden">
                 <!-- Filled by JS -->
             </div>
 
             <!-- Global Static Showcase -->
-            <div id="global-static-showcase"
-                style="margin-top: 4rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 4rem;">
-                <div style="text-align: center; margin-bottom: 3rem;">
-                    <h2 class="font-heading" style="font-size: 2.5rem;">Verified <span class="gradient-text">Global
+            <div id="global-static-showcase" class="global-showcase-border">
+                <div class="global-showcase-header">
+                    <h2 class="font-heading heading-xl">Verified <span class="gradient-text">Global
                             Resources</span></h2>
-                    <p style="color: var(--text-dim); margin-top: 1rem;">Premium curated content accessible to all
+                    <p class="text-dim-margin">Premium curated content accessible to all
                         students.</p>
                 </div>
                 <div id="global-notes-list" class="notes-list-container-pro">
                     <!-- Populated by notes-hub.js -->
-                    <div style="text-align: center; padding: 4rem;">
-                        <div class="loader-pro" style="margin: 0 auto 1rem;"></div>
-                        <p style="color: var(--text-dim);">Aggregating global content...</p>
+                    <div class="loader-wrapper-centered-lg">
+                        <div class="loader-pro loader-margin-sm"></div>
+                        <p class="text-dim-muted">Aggregating global content...</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->    <footer class="footer">
+    <!-- Footer -->
+    <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <!-- Brand Section -->
                 <div class="footer-brand">
                     <div class="footer-logo-area">
                         <img src="../assets/logo.jpg" alt="SKiL MATRiX" class="footer-logo-img premium-logo-glow">
-                        <span class="footer-logo-text">SKiL MATRiX <span class="footer-logo-highlight">NOTES</span></span>
+                        <span class="footer-logo-text">SKiL MATRiX <span
+                                class="footer-logo-highlight">NOTES</span></span>
                     </div>
-                    <p>Empowering students with intelligent academic tools. Built to help you master your curriculum with AI-powered precision.</p>
+                    <p>Empowering students with intelligent academic tools. Built to help you master your curriculum
+                        with AI-powered precision.</p>
                     <div class="footer-intel-signal">
                         <i data-lucide="zap"></i> Powered by Real-Time AI
                     </div>
@@ -469,10 +552,14 @@
                         <!-- Loaded by stats.js -->
                     </div>
                     <div class="social-links">
-                        <a href="#" class="social-icon instagram" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" class="social-icon whatsapp" target="_blank" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
-                        <a href="mailto:skilmatrix3@gmail.com" class="social-icon gmail" aria-label="Gmail"><i class="fa-solid fa-envelope"></i></a>
-                        <a href="#" class="social-icon linkedin" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#" class="social-icon instagram" aria-label="Instagram"><i
+                                class="fa-brands fa-instagram"></i></a>
+                        <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" class="social-icon whatsapp"
+                            target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+                        <a href="mailto:skilmatrix3@gmail.com" class="social-icon gmail" aria-label="Gmail"><i
+                                class="fa-solid fa-envelope"></i></a>
+                        <a href="#" class="social-icon linkedin" aria-label="LinkedIn"><i
+                                class="fa-brands fa-linkedin-in"></i></a>
                     </div>
                 </div>
 
@@ -494,7 +581,7 @@
                         <a href="dashboard?tab=ai-tools">AI Coach</a>
                         <a href="dashboard?tab=cgpa-analyzer">CGPA Analyzer</a>
                         <a href="dashboard?tab=attendance">Attendance Pro</a>
-                        <a href="dashboard?tab=focusflow">FocusFlow Pro</a>
+                        <a href="dashboard?tab=focusflow">NeuroSprint Pro</a>
                         <a href="#">Model Papers</a>
                     </div>
                 </div>
@@ -515,7 +602,8 @@
             <div class="footer-bottom">
                 <div class="footer-bottom-content">
                     <p>&copy; 2026 SKiL MATRiX. All rights reserved.</p>
-                    <p class="footer-legal-notice">We respect academic integrity. No copyrighted content is hosted directly.</p>
+                    <p class="footer-legal-notice">We respect academic integrity. No copyrighted content is hosted
+                        directly.</p>
                     <div class="made-with">
                         Made with <span class="heart-beat">❤️</span> for students
                     </div>

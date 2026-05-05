@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-KSCJTPP875"></script>
     <script>
@@ -51,6 +51,20 @@
             border-bottom: 1px solid var(--border-glass);
             margin-bottom: 2rem;
         }
+
+        /* Fixed Lint Warnings */
+        .dashboard-standalone {
+            padding-top: 6rem;
+        }
+
+        .loader-wrapper-centered {
+            text-align: center;
+            padding: 4rem;
+        }
+
+        .loader-centered {
+            margin: 0 auto;
+        }
     </style>
 
 <!-- Google AdSense -->
@@ -64,12 +78,12 @@
     <div id="navbar-container"></div>
     <script src="../js/navbar.js?v=2.6"></script>
 
-    <div class="dashboard-container" style="padding-top: 6rem;">
+    <div class="dashboard-container dashboard-standalone">
         <main class="main-content">
             <div id="tab-content">
                 <!-- LEADERBOARD RENDERED HERE -->
-                <div style="text-align:center; padding: 4rem;">
-                    <div class="loader-pro" style="margin: 0 auto;"></div>
+                <div class="loader-wrapper-centered">
+                    <div class="loader-pro loader-centered"></div>
                 </div>
             </div>
         </main>
@@ -94,7 +108,7 @@
                     </div>
                     <div class="social-links">
                         <a href="#" class="social-icon instagram" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" class="social-icon whatsapp" target="_blank" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+                        <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" class="social-icon whatsapp" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
                         <a href="mailto:skilmatrix3@gmail.com" class="social-icon gmail" aria-label="Gmail"><i class="fa-solid fa-envelope"></i></a>
                         <a href="#" class="social-icon linkedin" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
                     </div>
@@ -118,7 +132,7 @@
                         <a href="dashboard?tab=ai-tools">AI Coach</a>
                         <a href="dashboard?tab=cgpa-analyzer">CGPA Analyzer</a>
                         <a href="dashboard?tab=attendance">Attendance Pro</a>
-                        <a href="dashboard?tab=focusflow">FocusFlow Pro</a>
+                        <a href="dashboard?tab=focusflow">NeuroSprint Pro</a>
                         <a href="#">Model Papers</a>
                     </div>
                 </div>

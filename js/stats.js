@@ -12,12 +12,13 @@ const DAILY_GROWTH = {
     students: 5
 };
 
-function formatNumber(num) {
+function formatNumber(num, includePlus = true) {
+    const suffix = includePlus ? "+" : "";
     if (num >= 1000) {
         const val = num / 1000;
-        return (val % 1 === 0 ? val.toFixed(0) : val.toFixed(1)) + "k+";
+        return (val % 1 === 0 ? val.toFixed(0) : val.toFixed(1)) + "k" + suffix;
     }
-    return num + "+";
+    return num + suffix;
 }
 
 const REFERENCE_DATE = new Date("2026-03-01T00:00:00Z");
@@ -43,17 +44,23 @@ export function getFormattedStats(realCounts = {}) {
     return {
         views: formatNumber(stats.views),
         downloads: formatNumber(stats.downloads + (realCounts.downloads || 0)),
-        students: formatNumber(stats.students + (realCounts.students || 0)),
+        students: formatNumber(stats.students + (realCounts.students || 0), false),
         notes: formatNumber((stats.students + 120) + (realCounts.notes || 0))
     };
 }
 
-function countUp(id, target, instant = false) {
+function countUp(id, target, instant = false, includePlus = true) {
     let el = document.getElementById(id);
     if (!el) return;
+    
+    // Learners (stat-active, liveStudents, students) should NOT have a plus sign
+    const noPlusIds = ['stat-active', 'liveStudents', 'students'];
+    if (noPlusIds.includes(id)) {
+        includePlus = false;
+    }
 
     if (instant) {
-        el.innerText = formatNumber(target);
+        el.innerText = formatNumber(target, includePlus);
         return;
     }
 
@@ -66,7 +73,7 @@ function countUp(id, target, instant = false) {
             current = target;
             clearInterval(timer);
         }
-        el.innerText = formatNumber(current);
+        el.innerText = formatNumber(current, includePlus);
     }, 20);
 }
 

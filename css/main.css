@@ -592,7 +592,18 @@ input:checked+.toggle-slider:before {
     }
 
     .premium-stat-card {
-        padding: 1.25rem;
+        padding: 1.5rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .stat-info {
+        align-items: center;
+    }
+
+    .stat-val {
+        font-size: 1.75rem;
     }
 }
 

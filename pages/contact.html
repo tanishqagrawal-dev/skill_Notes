@@ -67,7 +67,7 @@
             -webkit-backdrop-filter: blur(30px);
             backdrop-filter: blur(30px);
             box-shadow: 0 0 50px rgba(0, 0, 0, 0.8),
-                        0 0 20px rgba(123, 97, 255, 0.05);
+                0 0 20px rgba(123, 97, 255, 0.05);
             max-width: 640px;
             width: 100%;
             position: relative;
@@ -105,7 +105,7 @@
             color: var(--primary);
         }
 
-        .legal-content > p {
+        .legal-content>p {
             font-size: 0.85rem;
             line-height: 1.4;
             color: var(--text-dim);
@@ -333,9 +333,9 @@
         }
     </style>
 
-<!-- Google AdSense -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8465813445488249"
-     crossorigin="anonymous"></script>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8465813445488249"
+        crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -423,9 +423,9 @@
     <script type="module">
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        document.getElementById("submitBtn").addEventListener("click", async function(e) {
+        document.getElementById("submitBtn").addEventListener("click", async function (e) {
             e.preventDefault();
-            
+
             const btn = e.target;
             const originalText = btn.innerText;
 
@@ -504,10 +504,10 @@
                 if (emailSuccess) {
                     document.getElementById('user-confirmation-email').textContent = email;
                     const modalPara = document.querySelector('#contact-success-modal p');
-                    if(modalPara) {
+                    if (modalPara) {
                         modalPara.innerHTML = `Thank you for contacting SKiL MATRiX Support.<br>Your Ticket ID is: <strong style="color:var(--primary)">${ticketID}</strong><br>A confirmation email has been sent to <span id="user-confirmation-email" style="color: var(--primary); font-weight: bold;">${email}</span>.`;
                     }
-                    
+
                     document.getElementById('contact-success-modal').style.display = 'flex';
                     document.getElementById('contactForm').reset();
                 }
@@ -530,9 +530,11 @@
                 <div class="footer-brand">
                     <div class="footer-logo-area">
                         <img src="../assets/logo.jpg" alt="SKiL MATRiX" class="footer-logo-img">
-                        <span class="footer-logo-text">SKiL MATRiX <span class="footer-logo-highlight">NOTES</span></span>
+                        <span class="footer-logo-text">SKiL MATRiX <span
+                                class="footer-logo-highlight">NOTES</span></span>
                     </div>
-                    <p>Empowering students with intelligent academic tools. Built to help you master your curriculum with AI-powered precision.</p>
+                    <p>Empowering students with intelligent academic tools. Built to help you master your curriculum
+                        with AI-powered precision.</p>
                     <div class="footer-intel-signal">
                         <i data-lucide="zap"></i> Powered by Real-Time AI
                     </div>
@@ -540,10 +542,14 @@
                         <!-- Loaded by stats.js -->
                     </div>
                     <div class="social-links">
-                        <a href="#" class="social-icon instagram" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" class="social-icon whatsapp" target="_blank" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
-                        <a href="mailto:skilmatrix3@gmail.com" class="social-icon gmail" aria-label="Gmail"><i class="fa-solid fa-envelope"></i></a>
-                        <a href="#" class="social-icon linkedin" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#" class="social-icon instagram" aria-label="Instagram"><i
+                                class="fa-brands fa-instagram"></i></a>
+                        <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" class="social-icon whatsapp"
+                            target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+                        <a href="mailto:skilmatrix3@gmail.com" class="social-icon gmail" aria-label="Gmail"><i
+                                class="fa-solid fa-envelope"></i></a>
+                        <a href="#" class="social-icon linkedin" aria-label="LinkedIn"><i
+                                class="fa-brands fa-linkedin-in"></i></a>
                     </div>
                 </div>
 
@@ -565,7 +571,7 @@
                         <a href="dashboard?tab=ai-tools">AI Coach</a>
                         <a href="dashboard?tab=cgpa-analyzer">CGPA Analyzer</a>
                         <a href="dashboard?tab=attendance">Attendance Pro</a>
-                        <a href="dashboard?tab=focusflow">FocusFlow Pro</a>
+                        <a href="dashboard?tab=focusflow">NeuroSprint Pro</a>
                         <a href="#">Model Papers</a>
                     </div>
                 </div>
@@ -586,7 +592,8 @@
             <div class="footer-bottom">
                 <div class="footer-bottom-content">
                     <p>&copy; 2026 SKiL MATRiX. All rights reserved.</p>
-                    <p class="footer-legal-notice">We respect academic integrity. No copyrighted content is hosted directly.</p>
+                    <p class="footer-legal-notice">We respect academic integrity. No copyrighted content is hosted
+                        directly.</p>
                     <div class="made-with">
                         Made with <span class="heart-beat">❤️</span> for students
                     </div>
