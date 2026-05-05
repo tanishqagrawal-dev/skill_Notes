@@ -149,6 +149,76 @@ Constraint:
     }
 });
 
+app.post('/api/generate-model-paper', async (req, res) => {
+    try {
+        const { prompt } = req.body;
+        let responseContent = null;
+        let geminiFailed = false;
+
+        // 1. Try Gemini API First
+        try {
+            const geminiKey = process.env.GEMINI_API_KEY;
+            if (geminiKey) {
+                console.log("✨ [Tier 1] Attempting Gemini API Generation...");
+                // Initialize a temporary local genAI with the exact key just in case it differs
+                const localGenAI = new GoogleGenerativeAI(geminiKey);
+                const model = localGenAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                
+                const result = await model.generateContent(prompt);
+                const response = await result.response;
+                responseContent = response.text();
+            } else {
+                throw new Error("GEMINI_API_KEY not found in .env");
+            }
+        } catch (geminiError) {
+            console.warn("⚠️ [Tier 1] Gemini API Failed or Limit Reached:", geminiError.message);
+            geminiFailed = true;
+        }
+
+        // 2. Fallback to Groq API if Gemini fails
+        if (geminiFailed || !responseContent) {
+            console.log("♻️ [Tier 2] Falling back to Groq API Generation...");
+            const groqKey = process.env.GROQ_API_KEY;
+
+            if (!groqKey) {
+                throw new Error("GROQ_API_KEY not configured and Gemini failed.");
+            }
+
+            const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${groqKey}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [{ role: "user", content: prompt }],
+                    response_format: { type: "json_object" }
+                })
+            });
+
+            if (!groqRes.ok) {
+                const errData = await groqRes.json();
+                throw new Error(errData.error?.message || `Groq API Error: ${groqRes.status}`);
+            }
+
+            const data = await groqRes.json();
+            if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                throw new Error("Invalid response from Groq API");
+            }
+
+            responseContent = data.choices[0].message.content;
+        }
+
+        res.json({ content: responseContent });
+
+    } catch (error) {
+        // If both fail, throwing 500 triggers the frontend to use the Local Cache fallback (Tier 3)
+        console.error("❌ Both AI Generations Failed:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // --- LOCAL PAPER PERSISTENCE (NON-FIREBASE) ---
 const CACHE_DIR = path.join(__dirname, '..', 'data');
 const CACHE_FILE = path.join(CACHE_DIR, 'cached_papers.json');

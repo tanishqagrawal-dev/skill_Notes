@@ -4,6 +4,7 @@ const glob = require('glob');
 const JavaScriptObfuscator = require('javascript-obfuscator');
 const htmlMinifier = require('html-minifier');
 const CleanCSS = require('clean-css');
+require('dotenv').config(); // Load local .env if available
 
 const ROOT_DIR = path.join(__dirname, '..');
 const DIST_DIR = path.join(ROOT_DIR, 'dist');
@@ -61,8 +62,19 @@ async function build() {
 
         if (ext === '.js') {
             // OBFUSCATE AND MINIFY JAVASCRIPT
-            console.log(`Obfuscating JS: ${file}`);
-            const code = fs.readFileSync(absolutePath, 'utf8');
+            console.log(`Processing JS: ${file}`);
+            let code = fs.readFileSync(absolutePath, 'utf8');
+
+            // --- INJECT SECURE API KEYS ---
+            if (code.includes('INJECT_GEMINI_API_KEY') || code.includes('INJECT_GROQ_API_KEY')) {
+                console.log(`🔐 Injecting secure API keys into ${file}...`);
+                const geminiKey = process.env.GEMINI_API_KEY || '';
+                const groqKey = process.env.GROQ_API_KEY || '';
+                
+                code = code.replace(/"INJECT_GEMINI_API_KEY"/g, `"${geminiKey}"`);
+                code = code.replace(/"INJECT_GROQ_API_KEY"/g, `"${groqKey}"`);
+            }
+
             try {
                 const obfuscatedCode = JavaScriptObfuscator.obfuscate(code, {
                     compact: true,

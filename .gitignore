@@ -6,4 +6,4 @@ service-account.json
 .env*
 .flaskenv*
 !.env.project
-!.env.vault
+!.env.vaultlocal-env.js
