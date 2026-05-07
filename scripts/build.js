@@ -35,7 +35,9 @@ async function build() {
             '.*/**',           // exclude things like .qodo
             'package*.json',
             '*.md',
-            '*.txt',
+            'error.log',
+            '*_error.txt',
+            '*_log.txt',
             'firebase.json',
             'firestore.rules',
             'storage.rules',
