@@ -601,6 +601,21 @@ window.updateNoteStat = async function (noteId, type) {
                 const found = window.NotesDB.find(n => n.id === noteId);
                 if (found) noteData = found;
             }
+            
+            // Fallback: Search in globalNotes (static notes)
+            if (noteData.url === "#" && window.GlobalData) {
+                const gn = window.globalNotes || {};
+                for (const college in gn) {
+                    for (const subject in gn[college]) {
+                        const found = gn[college][subject].find(n => n.id === noteId);
+                        if (found) {
+                            noteData = found;
+                            break;
+                        }
+                    }
+                    if (noteData.url !== "#") break;
+                }
+            }
 
             await setDoc(fileRef, {
                 noteId: noteId,

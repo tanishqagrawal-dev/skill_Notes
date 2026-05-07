@@ -5063,6 +5063,75 @@
     overflow: hidden;
 }
 
+/* --- PREMIUM SYLLABUS COPY BUTTON --- */
+.syllabus-copy-btn {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    height: 32px;
+    min-width: 32px;
+    padding: 0 8px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 10;
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+}
+
+.syllabus-copy-btn span {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    display: none;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateX(5px);
+    transition: all 0.3s ease;
+}
+
+.syllabus-copy-btn:hover {
+    background: rgba(123, 97, 255, 0.15);
+    border-color: rgba(123, 97, 255, 0.4);
+    color: #fff;
+    padding: 0 14px;
+    transform: translateY(-2px);
+    box-shadow: 
+        0 10px 20px rgba(0, 0, 0, 0.3),
+        0 0 15px rgba(123, 97, 255, 0.2);
+}
+
+.syllabus-copy-btn:hover span {
+    display: block;
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.syllabus-copy-btn:active {
+    transform: scale(0.92);
+}
+
+.syllabus-copy-btn i {
+    font-size: 0.85rem;
+}
+
+.premium-syllabus-card {
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.premium-syllabus-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(123, 97, 255, 0.3);
+}
+
 .exam-type-card.active {
     border-color: #7B61FF !important;
     background: rgba(123, 97, 255, 0.1) !important;

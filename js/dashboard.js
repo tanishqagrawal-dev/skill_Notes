@@ -97,7 +97,7 @@ const GlobalData = {
             { id: 'toc', name: 'Theory of Computation', icon: '🧠', code: 'CS3CO46', description: 'Finite automata, context-free grammars and Turing machines.' },
             { id: 'os', name: 'Operating Systems', icon: '💾', code: 'CS3CO47', description: 'Process management, synchronization and file systems.' },
             { id: 'iwt', name: 'Internet and Web Technology', icon: '🌐', code: 'CS3EW04', description: `<b>Unit – I: Introduction</b><br>Concept of WWW, HTTP Protocol, web browser architecture, Web 2.0, TCP/IP, DNS, SMTP, POP3.<br><b>Unit – II: Web Design</b><br>Web architecture, HTML: lists, tables, frames, forms. DTD, DOM. CSS and Javascript (forms, functions, objects).<br><b>Unit – III: XML</b><br>Introduction to XML, XML vs HTML, DTD and schemas. Embedding XML, Transforming XML using CSS, XSL, and XSLT.<br><b>Unit – IV: PHP</b><br>Variables, program flow, functions, arrays, files. Working with forms and databases. Servlet lifecycle and API.<br><b>Unit – V: JSP & Frameworks</b><br>Java Server Pages (JSP), application design, session data. Database programming using JDBC. MVC framework, Bootstrap, AngularJS.` },
-            { id: 'stat-analysis', name: 'Statistical Analysis', icon: '📊', code: 'CS3EL11', description: 'Statistical Analysis of data and hypothesis testing.' },
+            { id: 'stat-analysis', name: 'Statistical Analysis', icon: '📊', code: 'CS3EL11', description: `<b>Unit I: Summarizing Data using Statistical Measures</b><br>Descriptive Statistics –Measure of dispersion – standard deviation, Variance, Covariance, Coefficient of variation, Quartiles, Quartile deviation and Mean deviation.<br><b>Unit II: Theory of Random variables and Probability</b><br>Random variables- Discrete and Continuous random variables, Mass and Density function (pmf, pdf), CDF, Expectation.<br><b>Unit III: Probability Distribution</b><br>Binomial, Poisson, Normal and Exponential Distribution, MGF (without proof).<br><b>Unit IV: Curve fitting, Correlation, Regression</b><br>Least Square Method (Straight line and Parabola), Correlation, Rank Correlation, Linear Regression.<br><b>Unit V: Testing of Hypothesis and ANOVA</b><br>Level of significance, Type I/II Error, Chi-Square, t-test, F-test, ANOVA.` },
             { id: 'soft-skills-2', name: 'Soft Skills-II', icon: '🗣️', code: 'EN3NG10', description: 'Advanced communication and professional etiquette.' }
         ],
         'cse-Semester 5': [
@@ -161,6 +161,7 @@ const GlobalData = {
     }
 };
 window.GlobalData = GlobalData;
+window.globalNotes = globalNotes;
 
 let NotesDB = [];
 let unsubscribeNotes = null;
@@ -3481,21 +3482,6 @@ window.filterInternalNotes = function (query) {
     });
 };
 
-window.shareResource = function (id) {
-    const url = window.location.href;
-    if (navigator.share) {
-        navigator.share({
-            title: 'Study Resource | SKiL MATRiX',
-            text: 'Check out this study resource on SKiL MATRiX!',
-            url: url
-        }).catch(console.error);
-    } else {
-        navigator.clipboard.writeText(url).then(() => {
-            alert("Link copied to clipboard!");
-        });
-    }
-};
-
 function getActiveIcon(url) {
     if (!url) return '📄';
     if (url.includes('.pdf')) return '📕';
@@ -3511,19 +3497,66 @@ function formatDate(timestamp) {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-window.getSubjectSyllabusHTML = function (subjectName) {
+window.copySyllabusText = function (btn, title, desc) {
+    const textToCopy = `${title.toUpperCase()}\n\n${desc}`;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check" style="color: #00ff88;"></i>';
+        btn.style.borderColor = 'rgba(0, 255, 136, 0.4)';
+        btn.style.background = 'rgba(0, 255, 136, 0.05)';
+
+        if (window.showToast) window.showToast("Copied to clipboard!", "success");
+
+        setTimeout(() => {
+            btn.innerHTML = original;
+            btn.style.borderColor = '';
+            btn.style.background = '';
+        }, 2000);
+    }).catch(err => {
+        console.error('Copy failed:', err);
+        if (window.showToast) window.showToast("Copy failed", "error");
+    });
+};
+
+window.shareResource = function (id) {
+    const url = window.location.href;
+    if (navigator.share) {
+        navigator.share({
+            title: 'Study Resource | SKiL MATRiX',
+            text: 'Check out this study resource on SKiL MATRiX!',
+            url: url
+        }).catch(console.error);
+    } else {
+        navigator.clipboard.writeText(url).then(() => {
+            alert("Link copied to clipboard!");
+        });
+    }
+};
+
+
+
+ window.getSubjectSyllabusHTML = function (subjectName) {
+
     const genSyllabusHTML = (units) => {
         return `
         <div class="syllabus-header-premium">
             <h2 class="syllabus-label">Verified <span>SYLLABUS</span></h2>
         </div>
         <div class="syllabus-grid-pro">
-        ${units.map((u, i) => `
+        ${units.map((u, i) => {
+            const cleanTitle = u.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const cleanDesc = u.desc.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            return `
                 <div class="premium-syllabus-card color-1" style="animation-delay: ${i * 0.1}s;">
                     <!-- HUD Decorative Tags -->
                     <div class="corner-tag corner-top-left" style="width: 10px; height: 10px; border-width: 1.5px; opacity: 0.2;"></div>
                     <div class="corner-tag corner-top-right" style="width: 10px; height: 10px; border-width: 1.5px; opacity: 0.2;"></div>
                     
+                    <button class="syllabus-copy-btn" onclick="window.copySyllabusText(this, '${cleanTitle}', '${cleanDesc}')" title="Copy Unit Text">
+                        <i class="far fa-copy"></i>
+                        <span>COPY</span>
+                    </button>
+
                     <div class="syllabus-card-glow"></div>
                     <div class="syllabus-accent-bar"></div>
                     <div class="syllabus-content-wrapper">
@@ -3531,7 +3564,8 @@ window.getSubjectSyllabusHTML = function (subjectName) {
                         <p class="syllabus-unit-desc">${u.desc}</p>
                     </div>
                 </div>
-            `).join('')}
+            `;
+        }).join('')}
         </div>`;
     };
 
@@ -3733,11 +3767,11 @@ window.getSubjectSyllabusHTML = function (subjectName) {
             { title: 'Unit – V', desc: "Introduction to Java Server Pages (JSP). JSP application design, JSP objects. Conditional processing, declaring variables and methods. Sharing data between JSP pages. Sharing session and application data. Database programming using JDBC. Web application framework, MVC framework. Introduction to Bootstrap and AngularJS." }
         ]),
         'Statistical Analysis': genSyllabusHTML([
-            { title: 'Unit 1: Summarizing Data using Statistical Measures', desc: "Descriptive Statistics – Measure of central tendency - Mean: Arithmetic mean, Geometric mean and Harmonic mean with its Mathematical properties, Properties of mean, Median and mode, Relationship among mean, median and mode, Measure of dispersion – standard deviation, Variance, Covariance and its properties, Coefficient of variation, Quartiles, Quartile deviation and Mean deviation." },
-            { title: 'Unit 2: Theory of Random variables and Probability', desc: "Random variables- Discrete and Continuous random variables, Mass and Density function (pmf, pdf), Cumulative Distribution function, Expectation of a random variables, Expectation of random variable in terms of variance, Introduction to probability theory, Trial and Event, law of probability theory, Introduction to Conditional probability." },
-            { title: 'Unit 3: Probability Distribution', desc: "Discrete Distribution: Binomial, Poisson distribution with mean variance, Moment generating function. Continuous Distribution: Normal and Exponential Distribution with mean variance, Moment generating function." },
-            { title: 'Unit 4: Curve fitting, Correlation, Regression', desc: "Curve fitting (Method of Least Square), linear and nonlinear curves, Correlation, Karl Pearson’s Coefficient of Correlation, Spearman’s Rank Correlation Coefficient, Linear Regression, Regression coefficients, Properties of regression curve." },
-            { title: 'Unit 5: Testing of Hypothesis and Analysis of variance', desc: "Introduction to testing of hypothesis, Statistical assumptions, Level of significance, Confidence level, Type I Error, Type II error, Critical value, Power of the test, sampling distribution, Chi-Square test, small sample test – t test for one and two sample mean, F test, Fisher Z test of population variance, Introduction to one way and two way analysis of variance (ANOVA)." }
+            { title: 'Unit I: Summarizing Data using Statistical Measures', desc: "Descriptive Statistics –Measure of dispersion – standard deviation, Variance, Covariance and its properties, Coefficient of variation, Quartiles, Quartile deviation and Mean deviation." },
+            { title: 'Unit II: Theory of Random variables and Probability', desc: "Random variables- Discrete and Continuous random variables, Mass and Density function (pmf, pdf), Cumulative Distribution function, Expectation of a random variables, Expectation of random variable in terms of variance." },
+            { title: 'Unit III: Probability Distribution', desc: "<b>Discrete Distribution:</b><br>Binomial, Poisson distribution with mean variance, Moment generating function.<br><b>Continuous Distribution:</b><br>Normal and Exponential Distribution with mean variance, Moment generating function (without proof)." },
+            { title: 'Unit IV: Curve fitting, Correlation, Regression', desc: "Curve fitting (Method of Least Square)- Straight line and Parabola, Correlation- Karl Pearson’s Coefficient of Correlation, Spearman’s Rank Correlation Coefficient, Linear Regression, Regression coefficients, Properties of regression curve." },
+            { title: 'Unit V: Testing of Hypothesis and Analysis of variance', desc: "Introduction to testing of hypothesis, Statistical assumptions, Level of significance, Confidence level, Type I Error, Type II error, Critical value, Power of the test, sampling distribution, Chi-Square test, small sample test – t test for one and two sample mean, F test, Fisher Z test of population variance, Introduction to one way and two-way analysis of variance (ANOVA)." }
         ])
     };
 
@@ -4487,12 +4521,27 @@ window.renderBookmarks = function () {
                 const noteId = data.noteId || doc.id.replace(/^saved_/, '');
 
                 // Try to find in global cache for stats
-                const cached = (window.NotesDB || []).find(n => n.id === noteId);
+                let cached = (window.NotesDB || []).find(n => n.id === noteId);
+                
+                // Fallback: Search in globalNotes (static notes)
+                if (!cached && window.globalNotes) {
+                    const gn = window.globalNotes;
+                    for (const col in gn) {
+                        for (const sub in gn[col]) {
+                            const found = gn[col][sub].find(n => n.id === noteId);
+                            if (found) {
+                                cached = found;
+                                break;
+                            }
+                        }
+                        if (cached) break;
+                    }
+                }
 
                 notes.push(cached || {
                     id: noteId,
                     title: data.name || data.title || "Untitled Note",
-                    url: data.url || data.fileUrl || "#",
+                    url: data.url || data.fileUrl || data.driveLink || "#",
                     subject: data.subject || "General Resources",
                     status: 'approved',
                     isInstant: true // Flag to indicate partial data
@@ -4583,7 +4632,7 @@ window.renderBookmarks = function () {
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
                                     </button>
                                 </div>
-                                <a href="${n.url || '#'}" target="_blank" class="btn-download-pro" onclick="viewNote('${n.id}')" style="background: white; color: black; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; transition: 0.3s;">
+                                <a href="${n.driveLink || n.fileUrl || n.url || '#'}" target="_blank" class="btn-download-pro" onclick="viewNote('${n.id}')" style="background: white; color: black; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; transition: 0.3s;">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                     View
                                 </a>
