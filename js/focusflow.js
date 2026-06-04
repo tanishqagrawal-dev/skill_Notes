@@ -84,9 +84,9 @@ window.renderFocusFlow = function() {
                             <label>Alert Sound</label>
                             <div style="display: flex; gap: 10px;">
                                 <select id="set-alert-sound" onchange="updateSettings()" style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--focus-border); color: white; padding: 8px; border-radius: 8px;">
-                                    <option value="bell">Digital Bell</option>
-                                    <option value="beep">Electronic Beep</option>
-                                    <option value="chime">Calm Chime</option>
+                                    <option value="piano">Piano Bell</option>
+                                    <option value="zen">Zen Ambience</option>
+                                    <option value="harry">Harry Potter</option>
                                 </select>
                                 <button class="btn btn-sm btn-ghost" onclick="playAlertSound(true)">Test</button>
                             </div>
@@ -144,7 +144,7 @@ let timerState = {
         focus: 25,
         short: 5,
         long: 15,
-        sound: 'bell',
+        sound: 'piano',
         mute: false
     }
 };
@@ -303,6 +303,45 @@ function updatePlayIcon() {
     btn.innerHTML = timerState.isRunning ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
 }
 
+async function awardStudyXP(minutes) {
+    if (!window.currentUser || window.currentUser.isGuest) return;
+    
+    // Award roughly 1 XP per 3 minutes (e.g., 10 XP for 30 minutes)
+    const xpEarned = Math.max(1, Math.floor(minutes / 3));
+    const userEmail = window.currentUser.email;
+
+    try {
+        const { supabase } = await import('./supabase-config.js?v=1.0');
+        
+        // Ensure user exists
+        const { data: userCheck } = await supabase.from('users').select('id').eq('email', userEmail).single();
+        if (!userCheck) {
+            await supabase.from('users').insert([{
+                id: window.currentUser.id || window.currentUser.uid || Math.random().toString(36).substr(2, 9),
+                email: userEmail,
+                name: window.currentUser.name || userEmail.split('@')[0],
+                avatar: window.currentUser.photo || window.currentUser.avatar || null,
+                collegename: window.currentUser.collegeName || 'Unknown',
+                xp: xpEarned,
+                uploads: 0,
+                focusminutes: minutes
+            }]);
+        } else {
+            const { error: rpcError } = await supabase.rpc('increment_user_stats', {
+                target_email: userEmail,
+                xp_amount: xpEarned,
+                uploads_amount: 0,
+                focus_amount: minutes
+            });
+            if (rpcError) console.error("Supabase RPC error:", rpcError);
+        }
+        console.log(`🌟 Awarded ${xpEarned} XP and logged ${minutes} focus minutes!`);
+        if (window.showToast) window.showToast(`+${xpEarned} XP earned!`, "success");
+    } catch(e) {
+        console.error("Error awarding study XP via Supabase:", e);
+    }
+}
+
 function handleSessionEnd() {
     pauseTimer();
     playAlertSound();
@@ -315,6 +354,10 @@ function handleSessionEnd() {
         timerState.sessionsToday++;
         if (title) title.innerText = "Focus Session Complete!";
         if (msg) msg.innerText = "Great job! Time for a well-deserved break.";
+        
+        // Award XP
+        awardStudyXP(timerState.settings.focus || 25);
+        
         switchMode('short');
     } else {
         if (title) title.innerText = "Break Over!";
@@ -402,8 +445,15 @@ window.toggleFocusSettings = function() {
     panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
     
     if (panel.style.display === 'flex') {
-        document.getElementById('set-alert-sound').value = timerState.settings.sound || 'bell';
+        document.getElementById('set-alert-sound').value = timerState.settings.sound || 'piano';
         document.getElementById('set-audio-mute').checked = timerState.settings.mute || false;
+    } else {
+        // Stop any test sound when settings are closed
+        if (timerState.activeAlarm) {
+            timerState.activeAlarm.pause();
+            timerState.activeAlarm.currentTime = 0;
+            timerState.activeAlarm = null;
+        }
     }
 };
 
@@ -415,9 +465,9 @@ window.updateSettings = function() {
 };
 
 const SOUND_BANK = {
-    bell: 'https://github.com/rafael-mancini/pomodoro/raw/master/assets/alarm.mp3', // High impact immediate
-    beep: 'https://www.soundjay.com/buttons/beep-07.mp3', 
-    chime: 'https://www.soundjay.com/clock/alarm-clock-01.mp3'
+    piano: '../public/sounds/freesound_community-piano-bell-sound-1-27144.mp3',
+    zen: '../public/sounds/lucadialessandro-under-the-rain-256186.mp3',
+    harry: '../public/sounds/luis_humanoide-school-of-magic-inspired-by-harry-potter-289617.mp3'
 };
 
 // Pre-load audio to prevent "slow" start
@@ -436,12 +486,13 @@ window.playAlertSound = function(isTest = false) {
     if (!isTest && timerState.settings.mute) return; 
     
     const soundKey = isTest ? document.getElementById('set-alert-sound').value : timerState.settings.sound;
-    const url = SOUND_BANK[soundKey] || SOUND_BANK.bell;
+    const url = SOUND_BANK[soundKey] || SOUND_BANK.piano;
     
-    // Stop any current
+    // Stop any currently playing audio (prevents overlapping test sounds)
     if (timerState.activeAlarm) {
         timerState.activeAlarm.pause();
         timerState.activeAlarm.currentTime = 0;
+        timerState.activeAlarm = null;
     }
 
     // Use preloaded or new
@@ -450,21 +501,23 @@ window.playAlertSound = function(isTest = false) {
     
     if (!isTest) {
         audio.loop = true; 
-        timerState.activeAlarm = audio;
     }
+    
+    // Keep reference so we can stop it if they click Test again or close settings
+    timerState.activeAlarm = audio;
     
     const playPromise = audio.play();
     if (playPromise !== undefined) {
         playPromise.catch(e => {
             console.error("❌ Audio Blocked:", e);
-            showFocusNotification("⏰ Session Complete!", "Click to hear your alarm.");
+            if (!isTest) showFocusNotification("⏰ Session Complete!", "Click to hear your alarm.");
         });
     }
 };
 
 function showFocusNotification(title, body) {
     if (Notification.permission === 'granted') {
-        new Notification(title, { body, icon: '../assets/logo.jpg?v=6.0' });
+        new Notification(title, { body, icon: '../assets/logo.jpg?v=7.0' });
     }
 }
 

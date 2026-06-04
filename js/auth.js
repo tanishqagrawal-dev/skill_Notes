@@ -16,7 +16,12 @@ import {
     setDoc,
     updateDoc,
     serverTimestamp,
-    onSnapshot
+    onSnapshot,
+    sendPasswordResetEmail,
+    fetchSignInMethodsForEmail,
+    EmailAuthProvider,
+    linkWithCredential,
+    githubProvider
 } from './firebase-config.js?v=6.0';
 
 console.log("🚀 Auth Script Loaded (Lazy Mode)");
@@ -35,10 +40,8 @@ function dispatchAuthReady(data) {
 const lastUser = localStorage.getItem('auth_user_full') || localStorage.getItem('guest_session');
 const path = window.location.pathname;
 const isUserDashboard = path.endsWith('/dashboard') || path.includes('dashboard');
-const isAdminDashboard = path.endsWith('/admin-dashboard') || path.includes('admin-dashboard');
-const isCoAdminDashboard = path.endsWith('/coadmin-dashboard') || path.includes('coadmin-dashboard');
 
-if (lastUser && (isUserDashboard || isAdminDashboard || isCoAdminDashboard)) {
+if (lastUser && isUserDashboard) {
     try {
         const parsed = JSON.parse(lastUser);
         console.log("⚡ Instant reload: Restoring session from cache [", parsed.role, "]");
@@ -72,8 +75,6 @@ export async function initAuth() {
         if (isAuthPage) alert("Login Failed: " + error.message);
     });
 
-    const SUPER_ADMINS = ['tanishqagrawal1103@gmail.com', 'skilmatrix3@gmail.com'];
-
     // --- REDIRECTION & ACCESS CONTROL ENGINE ---
     const triggerRedirect = (currentRole) => {
         const isInPagesDir = path.includes('/pages/');
@@ -84,28 +85,8 @@ export async function initAuth() {
         // 1. Landing/Auth Page Redirects
         if (isAuthPage || path === '/' || path.endsWith('index') || path.endsWith('index')) {
             console.log("🚀 Initial Redirect Logic:", currentRole);
-            if (currentRole === 'admin' || currentRole === 'superadmin') window.location.href = prefix + 'admin-dashboard';
-            else if (currentRole === 'coadmin') window.location.href = prefix + 'coadmin-dashboard';
-            else window.location.href = (isInPagesDir ? '../' : '') + 'welcome.html';
+            window.location.href = (isInPagesDir ? '../' : '') + 'welcome.html';
             return true;
-        }
-
-        // 2. Cross-Dashboard Enforcement (Wrong Role Check)
-        if (isUserDashboard && (currentRole === 'admin' || currentRole === 'superadmin')) {
-            console.log("🔄 Redirecting Admin to Admin Dashboard...");
-            window.location.href = 'admin-dashboard';
-        }
-        else if (isUserDashboard && currentRole === 'coadmin') {
-            console.log("🔄 Redirecting Co-Admin to Co-Admin Dashboard...");
-            window.location.href = 'coadmin-dashboard';
-        }
-        else if (isCoAdminDashboard && currentRole !== 'coadmin' && currentRole !== 'superadmin' && currentRole !== 'admin') {
-            console.log("🔄 Redirecting unauthorized from Co-Admin Dashboard...");
-            window.location.href = 'dashboard';
-        }
-        else if (isAdminDashboard && currentRole !== 'admin' && currentRole !== 'superadmin') {
-            console.log("🔄 Redirecting unauthorized from Admin Dashboard...");
-            window.location.href = 'dashboard';
         }
 
         return false;
@@ -129,11 +110,8 @@ export async function initAuth() {
                 if (docSnap.exists()) {
                     userData = { id: user.uid, ...docSnap.data() };
 
-                    // FORCED SYNC: Always prioritize current Google Auth photo over stale DB photo
-                    if (user.photoURL && userData.photo !== user.photoURL) {
-                        userData.photo = user.photoURL;
-                        setDoc(doc(db, "users", user.uid), { photo: user.photoURL }, { merge: true });
-                    }
+                    // Removed forced Google photo sync so custom avatars are preserved
+
                     console.log("📄 Firestore Profile Found:", userData.role);
                 } else {
                     console.warn("⚠️ No Firestore Profile found for UID:", user.uid);
@@ -152,16 +130,73 @@ export async function initAuth() {
                         createdAt: serverTimestamp()
                     });
                 }
+                // Email-based admin check
+                const adminEmails = ['tanishqagrawal1103@gmail.com', 'skilmatrix3@gmail.com'];
+                if (adminEmails.includes(userData.email?.toLowerCase())) {
+                    userData.role = 'admin';
+                    console.log("🛡️ Admin access granted based on email");
+                } else {
+                    userData.role = 'user';
+                }
 
-                // Global SUPER ADMIN check override
-                if (SUPER_ADMINS.includes(user.email)) {
-                    userData.role = 'superadmin';
-                    console.log("👑 Super Admin Override Active for:", user.email);
+                // 🛡️ Strict Role-Based Access Control (RBAC)
+                if (window.selectedLoginRole) {
+                    const isTryingAdmin = window.selectedLoginRole === 'admin';
+                    const isAdmin = userData.role === 'admin' || userData.role === 'co-admin';
+
+                    if (isTryingAdmin && !isAdmin) {
+                        console.warn("🚫 Access Denied: User attempted to login via Admin portal.");
+                        await signOut(auth);
+                        const err = document.getElementById('auth-error-msg');
+                        if (err) {
+                            err.innerText = "Access Denied: You do not have Admin privileges.";
+                            err.style.display = 'block';
+                            document.querySelectorAll('.btn-login').forEach(b => {
+                                b.innerHTML = 'Sign In <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 4px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+                            });
+                        }
+                        alert("Access Denied: You do not have Admin privileges.");
+                        return; // Halt execution
+                    }
+                    if (!isTryingAdmin && isAdmin) {
+                        console.warn("🚫 Access Denied: Admin attempted to login via Student portal.");
+                        await signOut(auth);
+                        const err = document.getElementById('auth-error-msg');
+                        if (err) {
+                            err.innerText = "Security: Admins must log in through the Admin portal.";
+                            err.style.display = 'block';
+                            document.querySelectorAll('.btn-login').forEach(b => {
+                                b.innerHTML = 'Sign In <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 4px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+                            });
+                        }
+                        alert("Security: Admins must log in through the Admin portal. Please select the Admin tab.");
+                        return; // Halt execution
+                    }
                 }
 
                 // Update Session & Local Storage
+                // Preserve the custom avatar from Supabase (stored in cache) if Firestore doesn't have one
+                try {
+                    const existingCache = JSON.parse(localStorage.getItem('auth_user_full')) || {};
+                    const supabasePhoto = existingCache.photo;
+                    // If the existing cache has a Supabase storage URL, keep it
+                    if (supabasePhoto && supabasePhoto.includes('supabase') && !userData.photo?.includes('supabase')) {
+                        userData.photo = supabasePhoto;
+                    }
+                } catch(e) {}
                 window.currentUser = userData;
                 localStorage.setItem('auth_user_full', JSON.stringify(userData));
+                
+                // ✅ Process any pending referral on successful login
+                if (window.processReferralOnLogin) {
+                    window.processReferralOnLogin(userData.email);
+                }
+
+                // Refresh sidebar avatar with the saved photo
+                const instantAvatar = document.getElementById('instant-avatar');
+                if (instantAvatar && userData.photo && !userData.photo.startsWith('blob:')) {
+                    instantAvatar.innerHTML = `<img src="${userData.photo}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" onerror="this.style.display='none'; this.parentElement.innerText='${(userData.name || 'U').charAt(0)}'">`;
+                }
 
                 // Dispatch event for other scripts
                 dispatchAuthReady({ user, currentUser: userData });
@@ -200,7 +235,7 @@ export async function initAuth() {
                 return;
             }
 
-            if (isAdminDashboard || isCoAdminDashboard || isUserDashboard) {
+            if (isUserDashboard) {
                 console.log("🛑 Unauthorized access attempt. Redirecting to login...");
                 const prefix = path.includes('/pages/') ? '' : 'pages/';
                 window.location.href = prefix + 'auth';
@@ -219,13 +254,44 @@ function initAuthForms() {
     if (loginForm) {
         loginForm.onsubmit = async (e) => {
             e.preventDefault();
-            const email = document.getElementById('login-email').value;
+            const email = document.getElementById('login-email').value.trim();
             const pass = document.getElementById('login-password').value;
+            const submitBtn = loginForm.querySelector('.btn-login');
+            const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) submitBtn.innerHTML = 'Signing in...';
             try {
                 await signInWithEmailAndPassword(auth, email, pass);
                 if (typeof gtag === 'function') gtag('event', 'login', { method: 'Email' });
             } catch (err) {
-                alert("Login Failed: " + err.message);
+                if (submitBtn) submitBtn.innerHTML = originalBtnHtml;
+
+                // Handle the case where user signed up with Google but tries email/password
+                if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+                    try {
+                        // Check if this email has Google sign-in linked
+                        const methods = await fetchSignInMethodsForEmail(auth, email);
+                        if (methods.includes('google.com') && !methods.includes('password')) {
+                            // Silently sign in with Google, then link email/password
+                            const result = await signInWithPopup(auth, provider);
+                            const credential = EmailAuthProvider.credential(email, pass);
+                            await linkWithCredential(result.user, credential);
+                            // Now they can use both methods — no error shown
+                            if (typeof gtag === 'function') gtag('event', 'login', { method: 'Email' });
+                            return;
+                        }
+                    } catch (linkErr) {
+                        // If linking fails (wrong pass after Google), show a clear message
+                        if (linkErr.code === 'auth/weak-password') {
+                            alert('Password must be at least 6 characters.');
+                        } else {
+                            alert('Incorrect password. Try again, or use the Google button to sign in.');
+                        }
+                        return;
+                    }
+                    alert('Incorrect email or password. Please try again.');
+                } else {
+                    alert('Login Failed: ' + err.message);
+                }
             }
         };
     }
@@ -234,54 +300,142 @@ function initAuthForms() {
     if (signupForm) {
         signupForm.onsubmit = async (e) => {
             e.preventDefault();
-            const email = document.getElementById('signup-email').value;
+            const name = document.getElementById('signup-name')?.value?.trim();
+            const email = document.getElementById('signup-email').value.trim();
             const pass = document.getElementById('signup-password').value;
+            const submitBtn = signupForm.querySelector('.btn-login');
+            const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) submitBtn.innerHTML = 'Creating Account...';
             try {
-                await createUserWithEmailAndPassword(auth, email, pass);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                // Also immediately sign out so user must log in fresh
+                await signOut(auth);
                 if (window.statServices?.trackSignUp) window.statServices.trackSignUp('email');
                 if (typeof gtag === 'function') gtag('event', 'sign_up', { method: 'Email' });
+
+                // Show success message and switch to login
+                const errorMsg = document.getElementById('auth-error-msg');
+                if (errorMsg) {
+                    errorMsg.innerText = '✅ Account created successfully! Please log in.';
+                    errorMsg.style.display = 'block';
+                    errorMsg.style.color = '#4ade80';
+                    errorMsg.style.background = 'rgba(74,222,128,0.1)';
+                    errorMsg.style.borderColor = 'rgba(74,222,128,0.3)';
+                }
+                // Pre-fill email in login form and switch back to login card
+                const loginEmailInput = document.getElementById('login-email');
+                if (loginEmailInput) loginEmailInput.value = email;
+
+                // Switch to login card after 1.5s
+                setTimeout(() => {
+                    const loginCard = document.getElementById('login-card');
+                    const signupCard = document.getElementById('signup-card');
+                    if (loginCard && signupCard) {
+                        signupCard.classList.add('hidden');
+                        loginCard.classList.remove('hidden');
+                        // Show success in login error box
+                        const loginErr = document.getElementById('auth-error-msg');
+                        if (loginErr) {
+                            loginErr.innerText = '✅ Account created! Enter your password to log in.';
+                            loginErr.style.display = 'block';
+                            loginErr.style.color = '#4ade80';
+                            loginErr.style.background = 'rgba(74,222,128,0.1)';
+                            loginErr.style.borderColor = 'rgba(74,222,128,0.3)';
+                        }
+                    }
+                    if (submitBtn) submitBtn.innerHTML = originalBtnHtml;
+                }, 1500);
+
             } catch (err) {
-                alert("Signup Failed: " + err.message);
+                if (submitBtn) submitBtn.innerHTML = originalBtnHtml;
+                if (err.code === 'auth/email-already-in-use') {
+                    // Account already exists — switch to login
+                    alert('An account already exists with this email. Please log in.');
+                    const loginCard = document.getElementById('login-card');
+                    const signupCard = document.getElementById('signup-card');
+                    const loginEmailInput = document.getElementById('login-email');
+                    if (loginCard && signupCard) {
+                        signupCard.classList.add('hidden');
+                        loginCard.classList.remove('hidden');
+                    }
+                    if (loginEmailInput) loginEmailInput.value = email;
+                } else if (err.code === 'auth/weak-password') {
+                    alert('Password must be at least 6 characters.');
+                } else {
+                    alert('Signup Failed: ' + err.message);
+                }
             }
         };
     }
 
     const googleBtn = document.getElementById('google-login');
     if (googleBtn) {
+        window.handleLogin = async () => {
+            try {
+                const result = await signInWithPopup(auth, provider);
+                // Handling is done in onSnapshot listener
+            } catch (error) {
+                console.error("Google Auth Error:", error);
+                throw error;
+            }
+        };
+
+        window.triggerPasswordReset = async (email) => {
+            try {
+                await sendPasswordResetEmail(auth, email);
+                alert(`Password reset link sent to ${email}. Please check your inbox.`);
+            } catch (error) {
+                console.error("Password Reset Error:", error);
+                if (error.code === 'auth/user-not-found') {
+                    alert("No account found with this email address.");
+                } else {
+                    alert("Failed to send reset email. Please make sure the email is valid.");
+                }
+            }
+        };
+
         googleBtn.onclick = async () => {
+            const originalHtml = googleBtn.innerHTML;
             try {
                 console.log("🖱️ Google Button Clicked");
-                const result = await signInWithPopup(auth, provider);
-                const user = result.user;
-                console.log("✅ Google Login Success:", user.email);
-
-                const optimisticData = {
-                    id: user.uid,
-                    name: user.displayName || user.email.split('@')[0],
-                    email: user.email,
-                    photo: user.photoURL,
-                    role: 'user',
-                    collegeId: 'medicaps',
-                    collegeName: 'Medicaps University',
-                    isOptimistic: true
-                };
-
-                localStorage.setItem('auth_user_full', JSON.stringify(optimisticData));
-                localStorage.setItem('auth_user', JSON.stringify({
-                    uid: user.uid,
-                    email: user.email,
-                    role: 'user'
-                }));
-
-                if (window.statServices?.trackSignUp) window.statServices.trackSignUp('google');
-                if (typeof gtag === 'function') gtag('event', 'login', { method: 'Google' });
-
-                const isInPagesDir = window.location.pathname.includes('/pages/');
-                window.location.href = (isInPagesDir ? '../' : '') + 'welcome.html';
-
+                googleBtn.innerHTML = 'Signing in...';
+                await signInWithPopup(auth, provider);
+                // RBAC check happens inside onAuthStateChanged/onSnapshot — 
+                // if it fails, the user is signed out and an alert is shown there.
+                // Reset button after short delay in case we stay on page (RBAC block)
+                setTimeout(() => { if (googleBtn) googleBtn.innerHTML = originalHtml; }, 2000);
             } catch (err) {
                 console.error("❌ Google Login Error:", err);
-                alert("Google Login Failed: " + err.message);
+                googleBtn.innerHTML = originalHtml;
+                if (err.code !== 'auth/popup-closed-by-user') {
+                    alert("Google Login Failed: " + err.message);
+                }
+            }
+        };
+    }
+
+    const githubBtn = document.getElementById('github-login');
+    if (githubBtn) {
+        githubBtn.onclick = async () => {
+            const originalHtml = githubBtn.innerHTML;
+            try {
+                console.log("🖱️ GitHub Button Clicked");
+                githubBtn.innerHTML = 'Signing in...';
+                await signInWithPopup(auth, githubProvider);
+                // RBAC check happens inside onAuthStateChanged/onSnapshot — 
+                // if it fails, the user is signed out and an alert is shown there.
+                // Reset button after short delay in case we stay on page (RBAC block)
+                setTimeout(() => { if (githubBtn) githubBtn.innerHTML = originalHtml; }, 2000);
+            } catch (err) {
+                console.error("❌ GitHub Login Error:", err);
+                githubBtn.innerHTML = originalHtml;
+                if (err.code !== 'auth/popup-closed-by-user') {
+                    if (err.code === 'auth/account-exists-with-different-credential') {
+                        alert("An account already exists with the same email address but different sign-in credentials. Sign in using a provider associated with this email address (like Google or Email/Password).");
+                    } else {
+                        alert("GitHub Login Failed: " + err.message);
+                    }
+                }
             }
         };
     }

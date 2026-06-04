@@ -142,12 +142,6 @@ window.SettingsModule = {
             { id: 'ai', icon: '🤖', label: 'AI Features' },
             { id: 'contributor', icon: '🏆', label: 'Contributor' }
         ];
-
-        // Add Admin tab if qualified
-        if (this.state.user.role === 'superadmin' || this.state.user.role === 'coadmin') {
-            tabs.push({ id: 'admin', icon: '⚡', label: 'Admin Controls' });
-        }
-
         return tabs.map(t => `
             <div class="settings-nav-item ${this.state.activeTab === t.id ? 'active' : ''}" data-set-tab="${t.id}">
                 <span class="icon">${t.icon}</span> ${t.label}

@@ -28,13 +28,7 @@ function initRoleAwareLinks() {
     const p = (path) => inPages ? path : 'pages/' + path;
     const r = (path) => inPages ? '../' + path : path; // root link
 
-    if (userRole === 'admin' || userRole === 'superadmin' || userRole === 'coadmin') {
-        links = [
-            { txt: 'Admin Console', url: p('dashboard?tab=admin-console') },
-            { txt: 'Manage Content', url: p('dashboard?tab=verification-hub') },
-            { txt: 'System Status', url: '#' }
-        ];
-    } else if (userRole === 'uploader' || userRole === 'contributor') {
+    if (userRole === 'uploader' || userRole === 'contributor') {
         links = [
             { txt: 'My Uploads', url: p('dashboard?tab=my-uploads') },
             { txt: 'Upload New Note', url: '#', onclick: "openUploadModal()" },

@@ -97,17 +97,18 @@ function syncAllInteractionIcons() {
         const id = card.getAttribute('data-note-id');
         const idClean = id.replace(/^unit\d+_/, ''); // handle sequential IDs
 
-        const update = (selector, set) => {
+        const update = (selector, set, localVoteType) => {
             const btn = card.querySelector(selector);
             if (btn) {
-                if (set.has(id) || set.has(idClean)) btn.classList.add('active');
+                const localVote = localStorage.getItem(`vote_${id}`) || localStorage.getItem(`vote_${idClean}`);
+                if (set.has(id) || set.has(idClean) || (localVoteType && localVote == localVoteType)) btn.classList.add('active');
                 else btn.classList.remove('active');
             }
         };
 
         // Universal selectors for different UI versions
-        update('.like-btn, [title="Like"], .eng-btn-pro.like', window.likedNoteIds);
-        update('.dislike-btn, [title="Dislike"]', window.dislikedNoteIds);
+        update('.like-btn, [title="Like"], .eng-btn-pro.like', window.likedNoteIds, 1);
+        update('.dislike-btn, [title="Dislike"]', window.dislikedNoteIds, -1);
         update('.bookmark-btn, .save-btn, [title="Bookmark"], [title="Save"], [onclick*="toggleBookmark"]', window.savedNoteIds);
         update('.report-btn, [title="Report"]', window.reportedNoteIds);
     });
@@ -145,6 +146,27 @@ window.copyShareLink = async function (btnElement) {
     }
 };
 
+/**
+ * Share Specific Resource deep link
+ */
+window.shareResource = function (id) {
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const baseUrl = isLocal ? window.location.origin : 'https://skillnotes.netlify.app';
+    const url = baseUrl + '/pages/view?id=' + id;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: 'Study Resource | SKiL MATRiX',
+            text: 'Check out this study resource on SKiL MATRiX!',
+            url: url
+        }).catch(console.error);
+    } else {
+        navigator.clipboard.writeText(url).then(() => {
+            alert("Link copied to clipboard!");
+        });
+    }
+};
+
 // Attach to window for HTML onclicks
 (function autoInit() {
     const { auth, onAuthStateChanged } = getFirebase();
@@ -166,6 +188,11 @@ window.incrementNoteView = async function (noteId) {
     // Session-based unique view check
     const sessionKey = `viewed_${noteId}`;
     if (sessionStorage.getItem(sessionKey)) return;
+
+    // --- SYNCHRONIZE WITH SUPABASE POSTGRESQL ---
+    if (window.supabase) {
+        window.supabase.rpc('increment_note_view', { p_note_id: noteId }).catch(e => console.warn('Supabase view sync error:', e));
+    }
 
     try {
         const noteRef = doc(db, "notes", noteId);
@@ -247,6 +274,12 @@ window.likeNote = async function (noteId) {
     }
 
     // --- OPTIMISTIC UI UPDATE ---
+    if (isActive) {
+        localStorage.setItem(`vote_${noteId}`, 1);
+    } else {
+        localStorage.removeItem(`vote_${noteId}`);
+    }
+
     document.querySelectorAll(`[data-note-id="${noteId}"]`).forEach(card => {
         const likeBtn = card.querySelector('.like-btn, [title="Like"], [onclick*="likeNote"]');
         if (likeBtn) {
@@ -276,6 +309,19 @@ window.likeNote = async function (noteId) {
 
     if (typeof gtag === 'function') {
         gtag('event', 'notes_like', { note_id: noteId, action: delta === 1 ? 'like' : 'unlike' });
+    }
+
+    // --- SYNCHRONIZE WITH SUPABASE POSTGRESQL ---
+    if (window.supabase) {
+        try {
+            let voteId = user?.uid || user?.id || localStorage.getItem('anon_vote_id') || 'anon_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('anon_vote_id', voteId);
+            window.supabase.rpc('vote_note', { 
+                p_note_id: noteId, 
+                p_user_id: voteId, 
+                p_vote_type: 1 
+            }).catch(e => console.warn("Supabase like sync error:", e));
+        } catch(e) {}
     }
 
     try {
@@ -396,6 +442,12 @@ window.toggleNoteDislike = async function (noteId) {
     }
 
     // --- OPTIMISTIC UI UPDATE ---
+    if (isActive) {
+        localStorage.setItem(`vote_${noteId}`, -1);
+    } else {
+        localStorage.removeItem(`vote_${noteId}`);
+    }
+
     document.querySelectorAll(`[data-note-id="${noteId}"]`).forEach(card => {
         const dislikeBtn = card.querySelector('.dislike-btn, [title="Dislike"]');
         if (dislikeBtn) {
@@ -425,6 +477,19 @@ window.toggleNoteDislike = async function (noteId) {
 
     if (typeof gtag === 'function') {
         gtag('event', 'notes_dislike', { note_id: noteId, action: isActive ? 'dislike' : 'undislike' });
+    }
+
+    // --- SYNCHRONIZE WITH SUPABASE POSTGRESQL ---
+    if (window.supabase) {
+        try {
+            let voteId = user?.uid || user?.id || localStorage.getItem('anon_vote_id') || 'anon_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('anon_vote_id', voteId);
+            window.supabase.rpc('vote_note', { 
+                p_note_id: noteId, 
+                p_user_id: voteId, 
+                p_vote_type: -1 
+            }).catch(e => console.warn("Supabase dislike sync error:", e));
+        } catch(e) {}
     }
 
     try {

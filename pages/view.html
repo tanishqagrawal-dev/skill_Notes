@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Resource | SKiL MATRiX Notes</title>
+
+    <!-- ═══ Open Graph (WhatsApp / Telegram / LinkedIn / Facebook) ═══ -->
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://skillnotes.netlify.app/pages/view.html" />
+    <meta property="og:site_name" content="SKiL MATRiX Notes" />
+    <meta property="og:title" content="View Academic Resource | SKiL MATRiX Notes" />
+    <meta property="og:description" content="Access free study notes, PYQs, and formula sheets on SKiL MATRiX – Your smartest academic companion 🎓" />
+    <meta property="og:image" content="https://skillnotes.netlify.app/assets/og-banner.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="SKiL MATRiX Notes – Free Study Material" />
+
+    <!-- ═══ Twitter / X Card ═══ -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="View Academic Resource | SKiL MATRiX Notes" />
+    <meta name="twitter:description" content="Access free study notes, PYQs, and formula sheets on SKiL MATRiX – Your smartest academic companion 🎓" />
+    <meta name="twitter:image" content="https://skillnotes.netlify.app/assets/og-banner.png" />
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --primary: #6c63ff;
+            --secondary: #00d2ff;
+            --bg-color: #0f111a;
+            --surface: #1a1a2e;
+            --text-main: #ffffff;
+            --text-dim: rgba(255, 255, 255, 0.6);
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Bar */
+        .viewer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(26, 26, 46, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 0.75rem 1.5rem;
+            z-index: 100;
+            height: 60px;
+            box-sizing: border-box;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-logo {
+            height: 32px;
+            width: 32px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 0 12px rgba(0, 210, 255, 0.3);
+        }
+
+        .note-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .note-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
+        }
+
+        .note-meta {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.15rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .btn-action {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-action:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #9d50bb);
+            border: none;
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #7b73ff, #a860c6);
+            box-shadow: 0 6px 20px rgba(108, 99, 255, 0.4);
+        }
+
+        /* Iframe Container */
+        .viewer-content {
+            flex: 1;
+            width: 100%;
+            position: relative;
+            background: #111;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* Loader & Error */
+        .status-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-color);
+            z-index: 10;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 210, 255, 0.2);
+            border-top-color: var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            text-align: center;
+            max-width: 400px;
+            padding: 2rem;
+            background: rgba(255, 107, 107, 0.05);
+            border: 1px solid rgba(255, 107, 107, 0.2);
+            border-radius: 12px;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .note-title { max-width: 150px; font-size: 0.9rem; }
+            .note-meta { display: none; }
+            .btn-action span { display: none; }
+            .btn-action { padding: 0.5rem 0.6rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="viewer-header">
+        <div class="header-left">
+            <a href="../index.html">
+                <img src="../assets/logo.jpg?v=7.0" alt="Logo" class="brand-logo">
+            </a>
+            <div class="note-info">
+                <h1 class="note-title" id="ui-title">Loading...</h1>
+                <div class="note-meta" id="ui-meta">SKiL MATRiX Notes</div>
+            </div>
+        </div>
+        <div class="header-right" style="display: flex; align-items: center;">
+            <div class="vote-container" id="vote-container" style="display:none; align-items: center; gap: 8px; margin-right: 15px; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 15px;">
+                <button class="btn-action vote-btn" id="btn-upvote" onclick="window.handleVote(1)" style="padding: 0.5rem 0.8rem; border-radius: 8px;">
+                    <i class="fas fa-thumbs-up"></i> <span id="upvote-count" style="margin-left: 4px;">0</span>
+                </button>
+            </div>
+            <button class="btn-action" onclick="window.shareNote()" id="btn-share" style="display:none">
+                <i class="fas fa-share-alt"></i> <span>Share</span>
+            </button>
+            <a href="#" class="btn-action btn-primary" id="btn-download" target="_blank" style="display:none" download>
+                <i class="fas fa-download"></i> <span>Download</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="viewer-content">
+        <div class="status-overlay" id="loader">
+            <div class="spinner"></div>
+            <div style="color:var(--text-dim); font-size:0.9rem;">Fetching Secure Resource...</div>
+        </div>
+        <div class="status-overlay" id="error-overlay" style="display:none; background: transparent;">
+            <div class="error-message" id="error-msg"></div>
+        </div>
+        <iframe id="pdf-frame" title="PDF Viewer" allowfullscreen></iframe>
+    </div>
+
+    <script type="module">
+        import { supabase } from '../js/supabase-config.js?v=6.0';
+        import { globalNotes } from '../data/globalNotes.js?v=6.0';
+
+        const sb = supabase;
+        
+        function findStaticNote(id) {
+            for (const college in globalNotes) {
+                for (const subject in globalNotes[college]) {
+                    const notes = globalNotes[college][subject];
+                    const found = notes.find(n => n.id === id);
+                    if (found) return found;
+                }
+            }
+            return null;
+        }
+
+        async function loadNote() {
+            const params = new URLSearchParams(window.location.search);
+            const noteId = params.get('id');
+            const legacyUrlBase64 = params.get('u');
+            const legacyTitleBase64 = params.get('t');
+
+            // Handle legacy preview links that use ?u=(base64) & t=(base64)
+            if (legacyUrlBase64) {
+                try {
+                    const decodedUrl = decodeURIComponent(atob(legacyUrlBase64));
+                    const decodedTitle = legacyTitleBase64 ? decodeURIComponent(atob(legacyTitleBase64)) : 'Document';
+                    
+                    document.title = `${decodedTitle} | SKiL MATRiX Viewer`;
+                    document.getElementById('ui-title').innerText = decodedTitle;
+                    document.getElementById('ui-meta').innerText = `Direct View`;
+                    
+                    const btnDownload = document.getElementById('btn-download');
+                    btnDownload.style.display = 'inline-flex';
+                    btnDownload.onclick = function(e) {
+                        e.preventDefault();
+                        forceDownload(decodedUrl, `${decodedTitle}.pdf`);
+                    };
+
+                    const btnShare = document.getElementById('btn-share');
+                    btnShare.style.display = 'inline-flex';
+
+                    let finalUrl = decodedUrl;
+                    if (finalUrl.includes('drive.google.com')) {
+                        showDriveLink(finalUrl);
+                        return;
+                    }
+                    if(finalUrl.includes('.pdf') && !finalUrl.includes('#')) {
+                        finalUrl += '#toolbar=0&navpanes=0&scrollbar=0';
+                    }
+                    const frame = document.getElementById('pdf-frame');
+                    frame.src = finalUrl;
+                    document.getElementById('loader').style.display = 'none';
+                    return;
+                } catch(e) {
+                    console.error("Failed to decode direct URL", e);
+                }
+            }
+            
+            if (!noteId) {
+                showError("Invalid link. No resource ID provided.");
+                return;
+            }
+
+            try {
+                let noteData = null;
+
+                // 1. Check if it's an old static note from globalNotes.js
+                const staticNote = findStaticNote(noteId);
+                
+                if (staticNote) {
+                    noteData = {
+                        title: staticNote.title || staticNote.subjectName,
+                        subject: staticNote.subject || staticNote.subjectName,
+                        uploader_name: 'SKiL MATRiX Admin',
+                        file_url: staticNote.url || staticNote.fileUrl || staticNote.driveLink
+                    };
+                } else {
+                    // 2. Fetch from Supabase for new user-uploaded notes
+                    const { data, error } = await sb.from('approved_notes').select('*').eq('id', noteId).single();
+                    if (!error && data) {
+                        noteData = data;
+                    }
+                }
+
+                if (!noteData) {
+                    console.error("Note not found locally or in DB.");
+                    showError("Resource not found or has been removed.");
+                    return;
+                }
+
+                // Update UI
+                document.title = `${noteData.title} | SKiL MATRiX Viewer`;
+                document.getElementById('ui-title').innerText = noteData.title || 'Untitled Note';
+                document.getElementById('ui-meta').innerText = `Uploaded by ${noteData.uploader_name || 'Verified'}`;
+                
+                const btnDownload = document.getElementById('btn-download');
+                if (noteData.allow_download !== false) {
+                    btnDownload.style.display = 'inline-flex';
+                    btnDownload.onclick = function(e) {
+                        e.preventDefault();
+                        window.forceDownload(noteData.file_url, `${noteData.title}.pdf`);
+                    };
+                } else {
+                    btnDownload.style.display = 'none';
+                }
+
+                    const voteContainer = document.getElementById('vote-container');
+                    if (voteContainer) voteContainer.style.display = 'flex';
+                    
+                    const upvoteCountEl = document.getElementById('upvote-count');
+                    if (upvoteCountEl) upvoteCountEl.innerText = noteData.upvotes || 0;
+                    
+                    // Check local storage if user already voted
+                    const userVote = localStorage.getItem(`vote_${noteId}`);
+                    if (userVote === '1') {
+                        const btnUpvote = document.getElementById('btn-upvote');
+                        if (btnUpvote) btnUpvote.style.color = '#00f2ff';
+                    }
+
+                // Remove .html from share link dynamically
+                const btnShare = document.getElementById('btn-share');
+                btnShare.style.display = 'inline-flex';
+
+                // Dynamically update OG tags via JS
+                try {
+                    document.querySelector('meta[property="og:title"]').setAttribute("content", `${noteData.title} | SKiL MATRiX`);
+                } catch(e) {}
+
+                // Load iframe securely
+                let finalUrl = noteData.file_url;
+                if (finalUrl.includes('drive.google.com')) {
+                    showDriveLink(finalUrl);
+                    return;
+                }
+                if(finalUrl.includes('.pdf') && !finalUrl.includes('#')) {
+                    finalUrl += '#toolbar=0&navpanes=0&scrollbar=0';
+                }
+                
+                const frame = document.getElementById('pdf-frame');
+                frame.src = finalUrl;
+                
+                // Hide custom loader instantly so native browser PDF progressive loader appears
+                document.getElementById('loader').style.display = 'none';
+
+                // Track View
+                try {
+                    const viewKey = `viewed_${noteId}`;
+                    if (!localStorage.getItem(viewKey)) {
+                        await sb.rpc('increment_note_view', { p_note_id: noteId });
+                        localStorage.setItem(viewKey, 'true');
+                    }
+                } catch(e){ console.error('View tracking failed', e); }
+
+            } catch (err) {
+                console.error(err);
+                showError("A connection error occurred. Please try again.");
+            }
+        }
+
+        function showError(msg) {
+            document.getElementById('loader').style.display = 'none';
+            const errDiv = document.getElementById('error-overlay');
+            const errMsg = document.getElementById('error-msg');
+            errDiv.style.display = 'flex';
+            errMsg.style.display = 'block';
+            errMsg.innerHTML = `<i class="fas fa-exclamation-triangle" style="font-size:2rem; margin-bottom:1rem; display:block"></i> ${msg}`;
+        }
+
+        function showDriveLink(url) {
+            document.getElementById('loader').style.display = 'none';
+            const errDiv = document.getElementById('error-overlay');
+            const errMsg = document.getElementById('error-msg');
+            errDiv.style.display = 'flex';
+            errMsg.style.display = 'block';
+            
+            errMsg.style.background = 'rgba(0, 255, 136, 0.05)';
+            errMsg.style.borderColor = 'rgba(0, 255, 136, 0.2)';
+            errMsg.style.color = 'var(--text-bright)';
+            errMsg.style.maxWidth = '500px';
+            
+            errMsg.innerHTML = `
+                <i class="fab fa-google-drive" style="font-size:3.5rem; margin-bottom:1.5rem; display:block; color:#00ff88"></i>
+                <h3 style="margin-bottom: 1rem; font-size:1.5rem;">Google Drive Resource</h3>
+                <p style="color:var(--text-dim); margin-bottom: 2rem; font-size:1rem; line-height:1.5;">This file is stored securely on Google Drive and cannot be embedded directly in the viewer.</p>
+                <a href="${url}" target="_blank" class="btn-action btn-primary" style="display:inline-flex; padding:0.9rem 2rem; text-decoration:none; border-radius:10px; font-weight:600; font-size:1.1rem;">
+                    Open in Google Drive <i class="fas fa-external-link-alt" style="margin-left: 8px;"></i>
+                </a>
+            `;
+            document.getElementById('pdf-frame').style.display = 'none';
+        }
+
+        window.forceDownload = async function(url, filename) {
+            try {
+                const btn = document.getElementById('btn-download');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Downloading...</span>';
+                
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const blob = await response.blob();
+                const objectUrl = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = objectUrl;
+                a.download = filename || 'document.pdf';
+                document.body.appendChild(a);
+                a.click();
+                
+                document.body.removeChild(a);
+                URL.revokeObjectURL(objectUrl);
+                
+                btn.innerHTML = originalHTML;
+            } catch(e) {
+                console.error("Forced download failed, falling back to new tab", e);
+                window.open(url, '_blank');
+                const btn = document.getElementById('btn-download');
+                btn.innerHTML = '<i class="fas fa-download"></i> <span>Download</span>';
+            }
+        };
+
+        window.shareNote = function() {
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const baseUrl = isLocal ? window.location.origin : 'https://skillnotes.netlify.app';
+            const url = baseUrl + window.location.pathname + window.location.search;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: document.title,
+                    text: 'Check out this study resource on SKiL MATRiX!',
+                    url: url
+                }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(url).then(() => {
+                    alert("Link copied to clipboard!");
+                });
+            }
+        };
+
+        window.handleVote = async function(voteType) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const noteId = urlParams.get('id');
+            if (!noteId) return;
+
+            // Generate an anonymous user ID if logged out, or use session
+            let userId = localStorage.getItem('auth_user_id') || localStorage.getItem('anon_vote_id');
+            if (!userId) {
+                userId = 'anon_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('anon_vote_id', userId);
+            }
+
+            try {
+                // Call RPC
+                const { error } = await sb.rpc('vote_note', { 
+                    p_note_id: noteId, 
+                    p_user_id: userId, 
+                    p_vote_type: voteType 
+                });
+
+                if (error) {
+                    console.error("Voting failed:", error);
+                    alert("Voting failed. Please try again later.");
+                    return;
+                }
+
+                // Update UI Optimistically
+                const upBtn = document.getElementById('btn-upvote');
+                const upSpan = document.getElementById('upvote-count');
+                
+                let upCount = upSpan ? parseInt(upSpan.innerText) : 0;
+
+                const currentVote = localStorage.getItem(`vote_${noteId}`);
+
+                if (currentVote == voteType) {
+                    // Removing vote
+                    localStorage.removeItem(`vote_${noteId}`);
+                    if (voteType === 1) { upCount--; if(upBtn) upBtn.style.color = ''; }
+                } else {
+                    // Changing or adding vote
+                    localStorage.setItem(`vote_${noteId}`, voteType);
+                    if (voteType === 1) {
+                        upCount++; if(upBtn) upBtn.style.color = '#00f2ff';
+                    }
+                }
+
+                if(upSpan) upSpan.innerText = Math.max(0, upCount);
+
+            } catch (err) {
+                console.error("Vote error:", err);
+            }
+        };
+        // Initialize
+        loadNote();
+    </script>
+</body>
+</html>

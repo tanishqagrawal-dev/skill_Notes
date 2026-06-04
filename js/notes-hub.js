@@ -592,7 +592,7 @@ window.showNotes = async function (activeTab = 'notes', loadMore = false) {
 
 function renderStaticNotes(notes) {
     const cards = notes.map((n, idx) => {
-        const createNoteCard = (unit, title, url, likes = 8, views = 124, id = '', downloads = 10) => {
+        const createNoteCard = (unit, title, url, likes = 0, views = 0, id = '', downloads = 0, dislikes = 0) => {
             const noteId = id || 'undefined';
             return `
             <div class="note-card-pro card-reveal" data-note-id="${noteId}" style="animation-delay: ${idx * 0.1}s;">
@@ -626,28 +626,29 @@ function renderStaticNotes(notes) {
                     </button>
                     <button class="tool-icon-pro" onclick="toggleNoteDislike('${noteId}'); event.stopPropagation();" title="Dislike">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
-                        <span class="dislike-count">0</span>
+                        <span class="dislike-count">${dislikes}</span>
                     </button>
                     <button class="tool-icon-pro" onclick="toggleBookmark('${noteId}'); event.stopPropagation();" title="Bookmark">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
                     </button>
-                    <button class="tool-icon-pro" title="Share" onclick="alert('Share feature coming soon!'); event.stopPropagation();">
+                    <button class="tool-icon-pro share-btn" title="Share" onclick="window.shareResource('${noteId}'); event.stopPropagation();">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                     </button>
                 </div>
 
-                <a href="${url || n.url || n.fileUrl || n.driveLink}" target="_blank" class="btn-download-white" onclick="updateNoteStat('${noteId}', 'download');">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    Download
+                <a href="${window.getViewerUrl(url || n.url || n.fileUrl || n.driveLink, title || n.title, noteId)}" target="_blank" class="btn-download-white" onclick="updateNoteStat('${noteId}', 'view');">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    View
                 </a>
             </div>`;
         };
 
-        return createNoteCard(n.unit || `UNIT ${idx + 1}`, n.title || n.subjectName, n.url || n.fileUrl || n.driveLink, n.likes || 12, n.views || 48, n.id, n.downloads || 15);
+        return createNoteCard(n.unit || `UNIT ${idx + 1}`, n.title || n.subjectName, n.url || n.fileUrl || n.driveLink, n.upvotes || 0, n.views || 0, n.id, n.downloads || 0, n.downvotes || 0);
     }).join('');
 
     setTimeout(() => {
         if (typeof attachNoteRealtimeListeners === 'function') attachNoteRealtimeListeners('final-notes-view');
+        if (typeof syncAllInteractionIcons === 'function') syncAllInteractionIcons();
         notes.forEach(n => {
             if (n.id && typeof window.incrementNoteView === 'function') window.incrementNoteView(n.id);
         });

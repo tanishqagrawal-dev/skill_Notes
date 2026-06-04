@@ -127,7 +127,8 @@ export const RoutingSystem = {
      * Generates a full shareable URL, ensuring it always points to the #/notes deep link.
      */
     getShareableURL(state) {
-        const origin = window.location.origin;
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const origin = isLocal ? window.location.origin : 'https://skillnotes.netlify.app';
         const pathname = window.location.pathname;
         const search = window.location.search;
         const canonical = this.generateCanonicalPath(state);

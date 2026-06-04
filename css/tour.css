@@ -1,0 +1,298 @@
+/* SKiL MATRiX - Dark Cinematic 3D Demo Tour CSS */
+
+#tour-spotlight {
+    position: fixed;
+    border-radius: 12px;
+    box-shadow: 0 0 0 9999px rgba(10, 15, 25, 0.95);
+    z-index: 9998;
+    transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+    pointer-events: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    visibility: hidden;
+}
+#tour-spotlight.active { opacity: 1; visibility: visible; }
+
+/* The Main Transparent 3D Container */
+#tour-card {
+    position: fixed;
+    width: 600px;
+    max-width: 92vw;
+    z-index: 9999;
+    transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+    opacity: 0;
+    visibility: hidden;
+    /* 3D floating and tilting of the entire container */
+    animation: magicalFloat3D 6s ease-in-out infinite alternate;
+}
+#tour-card.active { opacity: 1; visibility: visible; }
+
+@keyframes magicalFloat3D {
+    0% { transform: perspective(1200px) translateY(0) rotateX(2deg) rotateY(1deg); }
+    100% { transform: perspective(1200px) translateY(-12px) rotateX(-1deg) rotateY(-2deg); }
+}
+
+/* The actual Card Content with Split Layout */
+.tour-card-inner {
+    display: flex;
+    flex-direction: row;
+    background: linear-gradient(135deg, rgba(13, 17, 26, 0.98), rgba(6, 9, 15, 1));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9);
+    overflow: hidden;
+    height: 300px;
+    position: relative;
+}
+
+/* Jadhu Transition Effect (Magical Fade) */
+#tour-card.jadhu-transition {
+    opacity: 0 !important;
+    filter: blur(15px) contrast(1.5) !important;
+    transform: perspective(1200px) translateY(30px) scale(0.9) rotateY(15deg) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Left Side: Character Poster */
+.tour-poster {
+    width: 250px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    background: #000;
+}
+
+.tour-poster-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 20%;
+    filter: grayscale(30%) contrast(1.2);
+    /* Breathing 3D effect on the image */
+    animation: posterBreathe 8s ease-in-out infinite alternate;
+}
+
+.tour-poster-overlay {
+    position: absolute;
+    inset: 0;
+    /* Dark gradient overlay to blend smoothly into the card */
+    background: linear-gradient(to right, transparent 50%, rgba(13, 17, 26, 0.98) 100%),
+                linear-gradient(to top, rgba(6, 9, 15, 1) 0%, transparent 40%);
+    pointer-events: none;
+}
+
+@keyframes posterBreathe {
+    0% { transform: scale(1) translateY(0); filter: grayscale(40%) contrast(1.1); }
+    100% { transform: scale(1.1) translateY(-2%); filter: grayscale(20%) contrast(1.3); }
+}
+
+/* Magical Floating Particles over Poster */
+.tour-magical-particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.particle {
+    position: absolute;
+    bottom: -10px;
+    width: 4px;
+    height: 4px;
+    background: #e2e8f0; /* Silver magical ash */
+    border-radius: 50%;
+    box-shadow: 0 0 8px #94a3b8, 0 0 15px #cbd5e1;
+    animation: floatUp 4s infinite linear;
+    opacity: 0;
+}
+
+.particle.p1 { left: 20%; animation-delay: 0s; animation-duration: 3s; }
+.particle.p2 { left: 50%; animation-delay: 1.5s; animation-duration: 4.5s; width: 6px; height: 6px; }
+.particle.p3 { left: 80%; animation-delay: 0.7s; animation-duration: 3.5s; }
+.particle.p4 { left: 35%; animation-delay: 2.1s; animation-duration: 4s; }
+.particle.p5 { left: 65%; animation-delay: 0.3s; animation-duration: 3.8s; width: 3px; height: 3px; }
+
+@keyframes floatUp {
+    0% { transform: translateY(0) scale(1); opacity: 0; }
+    20% { opacity: 0.7; }
+    80% { opacity: 0.7; }
+    100% { transform: translateY(-250px) scale(0); opacity: 0; }
+}
+
+/* 3D Flying Magical Object (e.g. Snitch or Silver Orb) flying outside card */
+.tour-3d-object {
+    position: absolute;
+    top: -20px;
+    right: -30px;
+    width: 18px;
+    height: 18px;
+    background: radial-gradient(circle at 30% 30%, #fff, #94a3b8, #1e293b);
+    border-radius: 50%;
+    box-shadow: 0 0 20px #94a3b8, 0 0 40px #cbd5e1, inset -2px -2px 5px rgba(0,0,0,0.8);
+    z-index: 9999;
+    animation: snitchFly 7s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+}
+
+@keyframes snitchFly {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+    25% { transform: translate(-40px, -50px) scale(1.3) rotate(90deg); }
+    50% { transform: translate(-20px, 30px) scale(0.8) rotate(180deg); }
+    75% { transform: translate(-70px, 10px) scale(1.2) rotate(270deg); }
+    100% { transform: translate(-30px, -30px) scale(1) rotate(360deg); }
+}
+
+/* Right Side: Text Content Area */
+.tour-content-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.5rem 2rem;
+    position: relative;
+}
+
+.tour-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tour-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    letter-spacing: 0.5px;
+    color: #f1f5f9;
+}
+
+.tour-step-counter {
+    font-size: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    color: #94a3b8;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+}
+
+.tour-body {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+}
+
+.tour-body p {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: #cbd5e1;
+    font-family: 'Georgia', serif;
+    font-style: italic;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+/* Bottom Section */
+.tour-bottom-section {
+    width: 100%;
+}
+
+.tour-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.8rem;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.tour-progress-fill {
+    height: 100%;
+    /* Dark silver/blue gradient */
+    background: linear-gradient(90deg, #1e3a8a, #94a3b8, #cbd5e1);
+    width: 0%;
+    box-shadow: 0 0 10px rgba(148, 163, 184, 0.5);
+}
+
+.tour-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tour-status {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.tour-status .dot {
+    width: 6px;
+    height: 6px;
+    background: #94a3b8;
+    border-radius: 50%;
+    animation: simplePulse 2s infinite;
+}
+
+@keyframes simplePulse {
+    0% { opacity: 0.3; }
+    50% { opacity: 1; box-shadow: 0 0 8px #94a3b8; }
+    100% { opacity: 0.3; }
+}
+
+.btn-tour-skip {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #cbd5e1;
+    padding: 0.4rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+}
+
+.btn-tour-skip:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    #tour-card {
+        width: calc(100% - 2rem);
+        left: 1rem !important;
+    }
+    
+    .tour-card-inner {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .tour-poster {
+        width: 100%;
+        height: 150px;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .tour-poster-overlay {
+        background: linear-gradient(to bottom, transparent 40%, rgba(13, 17, 26, 0.98) 100%);
+    }
+    
+    .tour-content-area {
+        padding: 1.2rem;
+    }
+    
+    .tour-3d-object {
+        display: none; /* Hide flying snitch on mobile to save space */
+    }
+}

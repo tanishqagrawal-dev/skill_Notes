@@ -44,9 +44,10 @@ function renderLeaderboard() {
                 <!-- Controls -->
                 <div class="lb-tabs-container">
                     <div class="lb-tabs">
-                        <div class="lb-tab active" data-type="student">🧑🎓 Students</div>
-                        <div class="lb-tab" data-type="contributor">📤 Contributors</div>
-                        <div class="lb-tab" data-type="college">🏫 Colleges</div>
+                        <div class="lb-tab active lb-3d-tab" data-type="contributor">📤 Top Uploaders</div>
+                        <div class="lb-tab lb-3d-tab" data-type="college">🏫 Power Colleges</div>
+                        <div class="lb-tab lb-3d-tab" data-type="referral">🔗 Referrals</div>
+                        <div class="lb-tab lb-3d-tab" data-type="coders">💻 Elite Coders</div>
                     </div>
                 </div>
             </div>
@@ -152,7 +153,7 @@ function initLeaderboardListeners() {
     });
 
     // Initial Render
-    updateLeaderboardUI('student', 'today');
+    updateLeaderboardUI('contributor', 'today');
     startActivityFeed();
 };
 
@@ -167,22 +168,9 @@ function updateLeaderboardUI(type, timeframe) {
     }
 
     // Determine collection and ordering based on type
-    let colRef;
-    let orderField;
+    let orderField = 'xp';
 
-    if (type === 'college') {
-        colRef = collection(db, "colleges");
-        orderField = "views"; // Assume views for colleges
-    } else {
-        colRef = collection(db, "users");
-        orderField = type === 'student' ? "xp" : "uploads";
-    }
-
-    const q = query(colRef, orderBy(orderField, "desc"), limit(20));
-
-    onSnapshot(q, (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
+    const renderLeaderboardData = (data, type, orderField) => {
         if (data.length === 0) {
             list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">No rankings found yet. Be the first!</p>';
             return;
@@ -209,14 +197,21 @@ function updateLeaderboardUI(type, timeframe) {
         list.innerHTML = data.map((item, index) => {
             const rankClass = index < 3 ? `top-3 rank-${index + 1}` : '';
             const rankIcon = index < 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`;
+            
+            // Premium Borders for standalone UI
+            const borderColor = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? '#cd7f32' : 'transparent';
+            const borderStyle = index < 3 ? `border: 2px solid ${borderColor}; box-shadow: 0 0 15px ${borderColor}40;` : '';
 
             // Systematic logo/avatar rendering
             const imgPath = item.logo || item.avatar; // Prefer logo for institutions
             let avatarHtml = '';
 
             if (imgPath) {
-                // If path starts with .., adjust if needed (but currently in /pages/dashboard.html, so ../ is correct)
-                avatarHtml = `<img src="${imgPath}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                let resolvedPath = imgPath;
+                if (resolvedPath.startsWith('assets/')) {
+                    resolvedPath = '../' + resolvedPath;
+                }
+                avatarHtml = `<img src="${resolvedPath}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                               <span class="lb-avatar-letter" style="display:none">${item.name ? item.name[0] : '?'}</span>`;
             } else {
                 avatarHtml = `<span class="lb-avatar-letter">${item.name ? item.name[0] : '?'}</span>`;
@@ -227,12 +222,18 @@ function updateLeaderboardUI(type, timeframe) {
                 metaHtml = `<span class="score-val">${item.xp || 0} XP</span><span class="score-label">Points</span>`;
             } else if (type === 'contributor') {
                 metaHtml = `<span class="score-val">${item.uploads || 0}</span><span class="score-label">Uploads</span>`;
+            } else if (type === 'neurosprint') {
+                metaHtml = `<span class="score-val">${window.formatFocusTime ? window.formatFocusTime(item.focusminutes || 0) : (item.focusminutes || 0) + 'm'}</span><span class="score-label">Total Time</span>`;
             } else if (type === 'college') {
-                metaHtml = `<span class="score-val">${formatNumber(item.views || 0)}</span><span class="score-label">Total Views</span>`;
+                metaHtml = `<span class="score-val">${item.uploads || 0}</span><span class="score-label">Notes Uploaded</span>`;
+            } else if (type === 'referral') {
+                metaHtml = `<span class="score-val">${item.referral_count || 0}</span><span class="score-label">Referrals</span>`;
+            } else if (type === 'coders') {
+                metaHtml = `<div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;"><span class="score-val" style="color:#00d2ff">${item.coding_xp || 0} XP</span><span class="score-label" style="color:#ff4757; font-weight:bold; font-size:0.8rem; text-transform:uppercase;">🔥 ${(item.coding_streak || 0)} Streak</span></div>`;
             }
 
             return `
-                <div class="lb-entry ${rankClass}">
+                <div class="lb-entry ${rankClass}" style="${borderStyle} border-radius: 12px; margin-bottom: 8px;">
                     <div class="lb-rank rank-${index + 1}">${rankIcon}</div>
                     
                     <div class="lb-user-content">
@@ -242,7 +243,7 @@ function updateLeaderboardUI(type, timeframe) {
                         </div>
                         <div class="lb-info">
                             <h4>${item.name || "Anonymous"}</h4>
-                            <p>${type === 'college' ? (item.city || 'University') : (item.collegeName || "Student")}</p>
+                            <p>${type === 'college' ? (item.city || 'University') : (item.collegename || "Student")}</p>
                         </div>
                     </div>
 
@@ -252,6 +253,107 @@ function updateLeaderboardUI(type, timeframe) {
                 </div>
             `;
         }).join('');
+    };
+
+    if (window.leaderboardUnsubscribe) { window.leaderboardUnsubscribe(); window.leaderboardUnsubscribe = null; }
+
+    orderField = 'xp';
+    if (type === 'student') orderField = 'xp';
+    else if (type === 'contributor') orderField = 'uploads';
+    else if (type === 'neurosprint') orderField = 'focusminutes';
+    else if (type === 'referral') orderField = 'referral_count';
+    else if (type === 'coders') orderField = 'coding_xp';
+    else if (type === 'college') orderField = 'uploads'; // We will aggregate and sort by uploads
+
+    import('./supabase-config.js?v=1.0').then(async ({ supabase }) => {
+        const fetchAndRender = async () => {
+            if (type === 'college') {
+                const { data, error } = await supabase.from('users').select('collegename, uploads, xp');
+                if (!error && data) {
+                    const normalizeCollegeName = (name) => {
+                        if (!name || name === 'Unknown') return 'Independent Scholars';
+                        const lower = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+                        if (lower.includes('medicaps') || lower === 'mu') return 'Medicaps University';
+                        if (lower.includes('svvv') || lower.includes('vaishnav')) return 'SVVV Indore';
+                        if (lower.includes('ips')) return 'IPS Academy';
+                        if (lower.includes('sgsits')) return 'SGSITS Indore';
+                        if (lower.includes('davv') || lower.includes('devi') || lower.includes('ahilya')) return 'DAVV Indore';
+                        if (lower.includes('vit') || lower.includes('vellore')) return 'VIT Vellore';
+                        if (lower.includes('srm')) return 'SRM University';
+                        if (lower.includes('iitd') || lower.includes('delhi')) return 'IIT Delhi';
+                        if (lower.includes('lpu') || lower.includes('lovely')) return 'LPU Punjab';
+                        if (lower.includes('manipal')) return 'Manipal University';
+                        if (lower.includes('lnct')) return 'LNCT Bhopal';
+                        if (lower.includes('cdgi') || lower.includes('chameli')) return 'CDGI Indore';
+                        return name.trim().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+                    };
+                    
+                    const getCollegeLogo = (normalizedName) => {
+                        const logos = {
+                            'Medicaps University': 'assets/logos/medicaps.png',
+                            'SVVV Indore': 'assets/logos/svvv.png', // Assuming we have it or it'll gracefully fallback
+                            'IPS Academy': 'assets/logos/ips.png',
+                            'SGSITS Indore': 'assets/logos/sgsits.png',
+                            'DAVV Indore': 'assets/logos/davv.png',
+                            'VIT Vellore': 'assets/logos/vit.png',
+                            'SRM University': 'assets/logos/srm.png',
+                            'IIT Delhi': 'assets/logos/iitd.png',
+                            'LPU Punjab': 'assets/logos/lpu.png',
+                            'Manipal University': 'assets/logos/manipal.png',
+                            'LNCT Bhopal': 'assets/logos/lnct.jpg',
+                            'CDGI Indore': 'assets/logos/cdgi.png'
+                        };
+                        return logos[normalizedName] || null;
+                    };
+
+                    const collMap = {};
+                    data.forEach(u => {
+                        const cname = normalizeCollegeName(u.collegename);
+                        if (!collMap[cname]) collMap[cname] = { id: cname, name: cname, logo: getCollegeLogo(cname), uploads: 0, xp: 0, views: 0 };
+                        collMap[cname].uploads += (u.uploads || 0);
+                        collMap[cname].xp += (u.xp || 0);
+                        collMap[cname].views = collMap[cname].uploads * 15 + collMap[cname].xp; // Faux views based on real activity
+                    });
+                    const aggregated = Object.values(collMap).sort((a, b) => b.uploads - a.uploads).slice(0, 20);
+                    renderLeaderboardData(aggregated, type, 'uploads');
+                }
+            } else if (type === 'referral') {
+                // Query profiles table for referral stats
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('id, name, email, avatar, college, referral_count, referral_points, xp')
+                    .order('referral_count', { ascending: false })
+                    .gt('referral_count', 0)
+                    .limit(20);
+                if (!error && data) {
+                    // Adapt to leaderboard format
+                    const adapted = data.map(p => ({
+                        id: p.id,
+                        name: p.name || p.email?.split('@')[0] || 'Scholar',
+                        avatar: p.avatar || null,
+                        collegename: p.college || 'Scholar',
+                        referral_count: p.referral_count || 0,
+                        referral_points: p.referral_points || 0,
+                        xp: p.xp || 0
+                    }));
+                    if (adapted.length === 0) {
+                        list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">No referrals yet. Be the first to invite friends! 🔗</p>';
+                    } else {
+                        renderLeaderboardData(adapted, type, 'referral_count');
+                    }
+                }
+            } else {
+                const { data, error } = await supabase.from('users').select('*').order(orderField, { ascending: false }).limit(20);
+                if (!error && data) renderLeaderboardData(data, type, orderField);
+            }
+        };
+        fetchAndRender();
+
+        if (window.leaderboardSubscription) supabase.removeChannel(window.leaderboardSubscription);
+        window.leaderboardSubscription = supabase.channel('public:users')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, payload => {
+                fetchAndRender();
+            }).subscribe();
     });
 }
 
@@ -295,4 +397,14 @@ function createActivityHTML(act) {
 function formatNumber(num) {
     if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
     return num;
-};
+}
+
+if (!window.formatFocusTime) {
+    window.formatFocusTime = (mins) => {
+        if (!mins) return "0m";
+        if (mins < 60) return `${mins}m`;
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        return m > 0 ? `${h}h ${m}m` : `${h}h`;
+    };
+}

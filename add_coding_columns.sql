@@ -1,0 +1,7 @@
+-- Add Coding Challenge Columns to Users Table
+ALTER TABLE public.users 
+ADD COLUMN IF NOT EXISTS current_coding_level INTEGER DEFAULT 1,
+ADD COLUMN IF NOT EXISTS coding_xp INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS coding_streak INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS max_coding_streak INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS last_coding_date TEXT DEFAULT '';

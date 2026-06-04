@@ -49,7 +49,7 @@ window.openFounderModal = function (id) {
             <div class="modal-profile-img" style="--primary: ${data.color || '#00F2FF'}; --secondary: ${data.secondaryColor || '#7B61FF'};">
                 <div class="founder-border-glow"></div>
                 <div class="founder-border-ring"></div>
-                <img src="${data.img}" alt="${data.name}" onerror="this.src='assets/logo.jpg?v=6.0'" style="object-position: center 15%; filter: contrast(1.15) brightness(1.2) saturate(1.2);">
+                <img src="${data.img}" alt="${data.name}" onerror="this.src='assets/logo.jpg?v=7.0'" style="object-position: center 15%; filter: contrast(1.15) brightness(1.2) saturate(1.2);">
             </div>
             <div class="modal-socials">
                 <a href="${data.social.github}" target="_blank" class="social-btn" title="GitHub">

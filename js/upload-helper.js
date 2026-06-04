@@ -1,154 +1,132 @@
-// Firebase Upload Logic
-window.uploadNoteToFirebase = async function (file, metadata) {
-    const { storage, db, ref, uploadBytesResumable, getDownloadURL, addDoc, collection, serverTimestamp, doc, updateDoc } = window.firebaseServices;
+// Dynamic Supabase instance for upload helper
+let supabaseInstance = null;
+const SUPABASE_URL = 'https://begbdglouistmaughmot.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJlZ2JkZ2xvdWlzdG1hdWdobW90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODMxMDEsImV4cCI6MjA5NDg1OTEwMX0.sKOHb6jifGH4P8ZFrc5tkPPkButNtfx1mJj9o-zC-rs';
 
+async function getSupabase() {
+    if (supabaseInstance) return supabaseInstance;
+    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+    supabaseInstance = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    return supabaseInstance;
+}
+
+window.uploadNoteToFirebase = async function (file, metadata) {
     if (!file) return;
 
     try {
-        console.log("🔗 Connecting to Google Apps Script (Bypassing Firebase Storage Bound)");
         const statusEl = document.getElementById('upload-status-text');
         const progressBar = document.getElementById('upload-progress');
-        if (statusEl) statusEl.innerText = "Encoding file securely...";
+        
+        if (statusEl) statusEl.innerText = "Uploading to Supabase Storage...";
         if (progressBar) progressBar.style.width = '30%';
 
-        const reader = new FileReader();
-        return new Promise((resolve, reject) => {
-            reader.onload = async (e) => {
-                try {
-                    const base64Data = e.target.result.split(',')[1];
-                    if (statusEl) statusEl.innerText = "Transmitting to Google Drive (Please wait)...";
-                    if (progressBar) progressBar.style.width = '60%';
+        const currentUser = window.currentUser || window.authStatus?.data?.currentUser || {};
+        const uploaderEmail = currentUser.email || 'guest@example.com';
+        
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+        const filePath = `${metadata.college || 'general'}/${fileName}`;
 
-                    // 1. Send via Form/Iframe (Absolute CORS Bypass)
-                    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwq1zaoR-Jtv8bb3gWaQ2IBMf5UlGK22-1wHQpp4VZ7XzqCCNDhOL1JMS_SCiziKlZn5w/exec";
+        const supabase = await getSupabase();
 
-                    const payload = {
-                        base64: base64Data,
-                        mimeType: file.type || 'application/pdf',
-                        fileName: file.name
-                    };
+        // ── Duplicate Check ─────────────────────────────────────────────────
+        const titleNorm = (metadata.title || file.name).trim().toLowerCase();
+        const [{ data: pendingDupe }, { data: approvedDupe }] = await Promise.all([
+            supabase.from('pending_notes').select('id, title')
+                .eq('college', metadata.college || 'Unknown')
+                .eq('subject', metadata.subject || 'Unknown')
+                .ilike('title', titleNorm),
+            supabase.from('approved_notes').select('id, title')
+                .eq('college', metadata.college || 'Unknown')
+                .eq('subject', metadata.subject || 'Unknown')
+                .ilike('title', titleNorm)
+        ]);
 
-                    const iframeName = 'upload_iframe_' + Date.now();
-                    const iframe = document.createElement('iframe');
-                    iframe.name = iframeName;
-                    iframe.style.display = 'none';
-                    document.body.appendChild(iframe);
+        if ((pendingDupe && pendingDupe.length > 0) || (approvedDupe && approvedDupe.length > 0)) {
+            const where = (approvedDupe && approvedDupe.length > 0) ? 'already published' : 'already pending review';
+            throw new Error(`❌ Duplicate detected! A note titled "${metadata.title}" is ${where} for this subject. Please use a unique title.`);
+        }
+        // ───────────────────────────────────────────────────────────────────
 
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = SCRIPT_URL;
-                    form.target = iframeName;
+        // 1. Upload to Supabase Storage (Bucket: 'notes')
+        const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('notes')
+            .upload(filePath, file, { upsert: true });
 
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'data';
-                    input.value = JSON.stringify(payload);
-                    form.appendChild(input);
+        if (uploadError) throw uploadError;
 
-                    document.body.appendChild(form);
+        if (progressBar) progressBar.style.width = '60%';
+        if (statusEl) statusEl.innerText = "Saving metadata...";
 
-                    // Prevent permanent freezing natively
-                    const timeoutId = setTimeout(() => {
-                        window.removeEventListener('message', messageListener);
-                        iframe.remove();
-                        form.remove();
-                        reject(new Error("Google Drive timed out! Please try again."));
-                    }, 45000);
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+            .from('notes')
+            .getPublicUrl(filePath);
 
-                    const messageListener = async (event) => {
-                        if (event.data && typeof event.data.success !== 'undefined') {
-                            clearTimeout(timeoutId);
-                            window.removeEventListener('message', messageListener);
-                            
-                            try {
-                                iframe.remove();
-                                form.remove();
+        // 2. Insert into pending_notes table
+        const { error: insertError } = await supabase
+            .from('pending_notes')
+            .insert([{
+                college: metadata.college || 'Unknown',
+                stream: metadata.stream || 'Unknown',
+                branch: metadata.branch || 'Unknown',
+                semester: metadata.semester || 'Unknown',
+                subject: metadata.subject || 'Unknown',
+                title: metadata.title || file.name,
+                file_url: publicUrl,
+                uploader_email: uploaderEmail,
+                uploader_name: metadata.uploader_name || uploaderEmail.split('@')[0],
+                type: metadata.type || 'notes',
+                status: 'pending'
+            }]);
 
-                                if (!event.data.success) {
-                                    reject(new Error(event.data.error || "Unknown Apps Script Error"));
-                                    return;
-                                }
+        if (insertError) throw insertError;
 
-                                const downloadURL = event.data.url;
-                                if (progressBar) progressBar.style.width = '90%';
-                                
-                                // Toast fires immediately when Drive storage is confirmed
-                                if (window.showToast) window.showToast("✅ File uploaded to Drive successfully!");
-                                if (statusEl) statusEl.innerText = "✅ Saved to Drive! Finishing up...";
-
-                                // Build Firestore document data
-                                const targetColl = metadata.targetCollection || 'notes';
-                                const currentUser = window.currentUser || (window.authStatus?.data?.currentUser) || {};
-                                const docData = {
-                                    ...metadata,
-                                    fileUrl: downloadURL,
-                                    driveLink: downloadURL,
-                                    url: downloadURL,
-                                    fileType: file.type || 'application/pdf',
-                                    fileName: file.name,
-                                    status: metadata.status || 'pending',
-                                    uploadedBy: currentUser.id || window.firebaseServices?.auth?.currentUser?.uid || 'guest',
-                                    uploaderName: metadata.uploaderName || metadata.uploader || currentUser.name || "Scholar",
-                                    verified: false,
-                                    approvedBy: 'pending',
-                                    views: 0, downloads: 0, likes: 0,
-                                    createdAt: serverTimestamp ? serverTimestamp() : new Date().toISOString()
-                                };
-                                delete docData.targetCollection;
-
-                                // ✅ RESOLVE IMMEDIATELY — do NOT await Firestore (it's slow)
-                                // Firestore writes fire in background — modal closes right away
-                                if (progressBar) progressBar.style.width = '100%';
-                                console.log("Drive upload sequence completed. Firestore saving in background...");
-                                resolve({ success: true, url: downloadURL });
-
-                                // Background: Save metadata to Firestore (non-blocking)
-                                addDoc(collection(db, targetColl), docData).then((docRef) => {
-                                    console.log("✅ Note metadata saved to Firestore:", docRef.id);
-
-                                    // Background: XP update (non-blocking)
-                                    if (docData.uploadedBy && docData.uploadedBy !== "guest") {
-                                        const fireIncrement = window.increment || window.firebaseServices?.increment;
-                                        if (fireIncrement) {
-                                            const userRef = doc(db, "users", docData.uploadedBy);
-                                            updateDoc(userRef, {
-                                                xp: fireIncrement(20),
-                                                uploads: fireIncrement(1),
-                                                notesCount: fireIncrement(1)
-                                            }).catch(xpErr => {
-                                                const fireSetDoc = window.firebaseServices?.setDoc;
-                                                if (fireSetDoc) {
-                                                    fireSetDoc(userRef, { xp: fireIncrement(20), uploads: fireIncrement(1), notesCount: fireIncrement(1) }, { merge: true }).catch(() => {});
-                                                }
-                                            });
-                                        }
-                                    }
-                                }).catch(firestoreErr => {
-                                    console.error("Firestore metadata save failed:", firestoreErr);
-                                    if (window.showToast) {
-                                        window.showToast("⚠️ Drive upload succeeded, but Database rejected metadata. Please re-login.");
-                                    }
-                                });
-                            } catch (listenerError) {
-                                console.error("Message Handler Error:", listenerError);
-                                reject(listenerError);
-                            }
-                        }
-                    };
-
-                    window.addEventListener('message', messageListener);
-                    form.submit(); // Automatically submit the POST trigger!
-
-                } catch (err) {
-                    console.error("❌ Apps Script Upload Error:", err);
-                    reject(err);
+        // 3. Award XP globally via Supabase
+        if (uploaderEmail && uploaderEmail !== 'guest@example.com') {
+            try {
+                // Check if user exists in Supabase
+                const { data: userCheck } = await supabase.from('users').select('id').eq('email', uploaderEmail).single();
+                
+                if (!userCheck) {
+                    // Create user and award initial points
+                    await supabase.from('users').insert([{
+                        id: currentUser.id || currentUser.uid || Math.random().toString(36).substr(2, 9),
+                        email: uploaderEmail,
+                        name: metadata.uploader_name || currentUser.name || uploaderEmail.split('@')[0],
+                        avatar: currentUser.photo || currentUser.avatar || null,
+                        collegename: metadata.college || currentUser.collegeName || 'Unknown',
+                        xp: 50,
+                        uploads: 1,
+                        focusminutes: 0
+                    }]);
+                    console.log("🌟 Initialized global user and awarded 50 XP!");
+                } else {
+                    // Increment existing user's stats
+                    const { error: rpcError } = await supabase.rpc('increment_user_stats', {
+                        target_email: uploaderEmail,
+                        xp_amount: 50,
+                        uploads_amount: 1
+                    });
+                    if (rpcError) console.error("RPC Error:", rpcError);
+                    else console.log("🌟 Awarded 50 XP globally via Supabase!");
                 }
-            };
-            reader.onerror = (err) => reject(err);
-            reader.readAsDataURL(file);
-        });
+            } catch(e) {
+                console.error("Global XP Sync Error:", e);
+            }
+        }
+
+        if (progressBar) progressBar.style.width = '100%';
+        if (statusEl) statusEl.innerText = "✅ Upload complete!";
+        
+        if (window.showToast) window.showToast("✅ Note uploaded and pending approval!");
+
+        return { success: true, url: publicUrl };
+
     } catch (err) {
-        console.error("Error in upload flow:", err);
+        console.error("Upload Error:", err);
+        const statusEl = document.getElementById('upload-status-text');
+        if (statusEl) statusEl.innerText = "❌ Upload failed!";
         throw err;
     }
 };

@@ -1,5 +1,15 @@
+window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?id=' + id; if (!url) return '#'; try { return '../pages/view?u=' + btoa(encodeURIComponent(url)) + '&t=' + btoa(encodeURIComponent(title || 'Document')); } catch(e) { return url; } };
 import { globalNotes } from "../data/globalNotes.js?v=6.0";
+import { renderCodingArena } from './coding-arena.js?v=1.0';
 import { RoutingSystem } from "./routing.js?v=6.0";
+
+window.openCodingArena = function() {
+    const mainContent = document.getElementById('tab-content');
+    if (mainContent) {
+        renderCodingArena(mainContent);
+    }
+};
+
 // stats functionality is managed via window.statServices
 // --- FIREBASE SERVICES ---
 // Fallback if firebaseServices failed to load (e.g. CORS or network error)
@@ -44,7 +54,7 @@ const GlobalData = {
         { id: 'medicaps', name: 'Medicaps University', status: 'active', logo: '../assets/logos/medicaps.png?v=6.0' },
         { id: 'lnct', name: 'LNCT COLLEGE BHOPAL', status: 'active', logo: '../assets/logos/lnct.jpg?v=6.0' },
         { id: 'cdgi', name: 'CDGI University', status: 'locked', logo: '../assets/logos/cdgi.png?v=6.0' },
-        { id: 'ips', name: 'IPS Academy', status: 'locked', logo: '../assets/logos/ips.png?v=6.0' },
+        { id: 'ips', name: 'IPS Academy', status: 'active', logo: '../assets/logos/ips.png?v=6.0' },
         { id: 'iitd', name: 'IIT Delhi', status: 'locked', logo: '../assets/logos/iitd.png?v=6.0' }
     ], // Now fetched dynamically from Firestore, seeded with defaults for refresh reliability
     branches: [
@@ -163,7 +173,8 @@ const GlobalData = {
 window.GlobalData = GlobalData;
 window.globalNotes = globalNotes;
 
-let NotesDB = [];
+window.NotesDB = [];
+let NotesDB = window.NotesDB;
 let unsubscribeNotes = null;
 let currentUser = null;
 let selState = window.selState || { college: null, branch: null, year: null, subject: null, semester: null };
@@ -407,10 +418,6 @@ function handleAuthReady(data) {
                         else if (nextStep === "BRANCH_STEP") renderBranchStep();
                     });
                 }
-            } else if (currentUser && (currentUser.role === 'superadmin' || currentUser.role === 'admin')) {
-                renderTabContent('admin-console');
-            } else if (currentUser && currentUser.role === 'coadmin') {
-                renderTabContent('coadmin-hub');
             } else {
                 renderTabContent('overview');
             }
@@ -516,32 +523,50 @@ function initDynamicColleges() {
     });
 }
 
+import { supabase } from './supabase-config.js?v=1.0';
+
 function initNotesSync() {
     if (isNotesSyncInit) return;
-    const { db, collection, onSnapshot, query, limit } = getFirebase();
-    if (!db || unsubscribeNotes) return;
+    if (unsubscribeNotes) {
+        supabase.removeChannel(unsubscribeNotes);
+    }
 
     isNotesSyncInit = true;
-    console.log("📡 Initializing Notes Hub Synchronization (Limited)...");
+    console.log("📡 Initializing Notes Hub Synchronization (Supabase)...");
 
-    // We limit the global cache to save massively on reads. The Notes Hub handles its own fetching.
-    const q = query(collection(db, 'notes'), limit(50));
-    unsubscribeNotes = onSnapshot(q, (snap) => {
-        const newData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-        // Only update and re-render if data actually changed to prevent loops
-        if (JSON.stringify(NotesDB) !== JSON.stringify(newData)) {
-            NotesDB = newData;
-            console.log(`📦 Notes Hub Updated: ${NotesDB.length} records in cache.`);
-
-            // Trigger UI refreshes if on a hub page (Avoid blind re-renders)
-            const verificationHub = document.getElementById('admin-drop-zone');
-            if (verificationHub) {
-                const contentArea = document.getElementById('tab-content');
-                if (contentArea) renderTabContent('moderation-hub');
+    const fetchApprovedNotes = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('approved_notes')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(50);
+                
+            if (error) throw error;
+            
+            if (JSON.stringify(NotesDB) !== JSON.stringify(data)) {
+                NotesDB = data.map(d => ({
+                    ...d,
+                    url: d.file_url,
+                    fileUrl: d.file_url,
+                    uploaderName: d.uploader_name || (d.uploader_email ? d.uploader_email.split('@')[0] : 'Scholar'),
+                    name: d.title
+                }));
+                window.NotesDB = NotesDB;
+                console.log(`📦 Notes Hub Updated: ${NotesDB.length} records in cache.`);
+                
+                // Note: The UI updates based on NotesDB in the notes tab
             }
+        } catch (e) {
+            console.error("Supabase sync error:", e);
         }
-    });
+    };
+
+    fetchApprovedNotes();
+
+    unsubscribeNotes = supabase.channel('public:approved_notes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'approved_notes' }, fetchApprovedNotes)
+        .subscribe();
 }
 
 // Redundant toggleNoteBookmark removed (Handled by toggleBookmark in note-actions.js)
@@ -937,6 +962,16 @@ window.openUploadModal = async function () {
                     </select>
                     </div>
 
+                    <div class="form-group">
+                    <label for="note-type">Note Type</label>
+                    <select id="note-type">
+                        <option value="notes">📄 Notes</option>
+                        <option value="pyqs">📝 PYQs (Previous Year Questions)</option>
+                        <option value="formula">🔢 Formula Sheets</option>
+                        <option value="practicals">⚗️ Practicals / Lab Work</option>
+                    </select>
+                    </div>
+
                     <div class="form-group full">
                     <label for="title">Notes Title</label>
                     <input id="title" type="text" placeholder="Enter notes title" required />
@@ -1056,6 +1091,7 @@ async function handleDashboardNoteSubmit(e) {
     const branch = document.getElementById('branch').value;
     const semester = document.getElementById('semester').value;
     const subject = document.getElementById('subject').value;
+    const noteType = document.getElementById('note-type')?.value || 'notes';
     const file = document.getElementById('file').files[0];
 
     if (!file) {
@@ -1112,7 +1148,8 @@ async function handleDashboardNoteSubmit(e) {
         semester: semester,
         subject: getSelectText('subject') || 'General',
         subjectId: subject,
-        type: 'notes',
+        type: noteType,
+        uploader_name: currentUser.name || (currentUser.email ? currentUser.email.split('@')[0] : 'Scholar'),
         uploader: currentUser.name || "Guest Scholar",
         uploadedBy: currentUser.id || "guest",
         uploaderEmail: currentUser.email || "guest@example.com",
@@ -1163,18 +1200,56 @@ async function handleDashboardNoteSubmit(e) {
     }
 }
 
-window.updateUploadSubjects = function () {
+window.updateUploadSubjects = async function () {
     const branch = document.getElementById('branch').value;
     const semester = document.getElementById('semester').value;
+    const college = document.getElementById('college').value;
     const subjectSelect = document.getElementById('subject');
 
     if (!branch || !semester || !subjectSelect) return;
 
+    subjectSelect.innerHTML = `<option value="">Loading...</option>`;
+
     const key = `${branch}-${semester}`;
-    const subjects = GlobalData.subjects[key] || [];
+    const gdSubjects = (college === 'medicaps' || (college && college.includes('medicaps'))) 
+        ? (GlobalData.subjects[key] || []) 
+        : [];
+
+    let customSubjects = [];
+    try {
+        let sb = window._apSB;
+        if (!sb) {
+            const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+            sb = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+            window._apSB = sb;
+        }
+        
+        // Fetch subjects added by admin for this specific college/branch/sem
+        if (college && college !== 'new_college') {
+            const { data } = await sb.from('college_subjects')
+                .select('id, subject_name, subject_code')
+                .eq('college_id', college)
+                .eq('branch_id', branch)
+                .eq('semester', semester);
+                
+            if (data) customSubjects = data;
+        }
+    } catch(e) { 
+        console.error('Error fetching custom subjects for upload:', e); 
+    }
+
+    const combined = [...gdSubjects];
+    customSubjects.forEach(cs => {
+        if (!combined.find(s => s.name.toLowerCase() === cs.subject_name.toLowerCase())) {
+            combined.push({ 
+                id: cs.id, 
+                name: cs.subject_name 
+            });
+        }
+    });
 
     subjectSelect.innerHTML = `<option value="">Select subject</option>` +
-        subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('') +
+        combined.map(s => `<option value="${s.id || s.name}">${s.name}</option>`).join('') +
         `<option value="other">Other</option>`;
 };
 
@@ -1203,32 +1278,9 @@ function initTabs() {
     // Profile section: Leaderboard, My Profile, My Uploads
     const myUploads = createNavItem('my-uploads', '📤', 'My Uploads', true);
     insertAfter(myUploads, profileItem);
-
-    // Moderation & Admin Tools
-    if (currentUser.role === 'coadmin' || currentUser.role === 'admin' || currentUser.role === 'superadmin') {
-        // Co-Admin Hub - Locked
-        const modHub = createNavItem('moderation-hub', '🛡️', 'Moderation Hub <span style="font-size:0.6rem; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; margin-left:5px;">🔒</span>', true);
-        modHub.style.opacity = '0.6';
-        modHub.style.cursor = 'not-allowed';
-        modHub.onclick = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            alert("🔒 Moderation Hub is coming soon!");
-        };
-        insertAfter(modHub, myUploads);
-    }
-
-    if (currentUser.role === 'admin' || currentUser.role === 'superadmin') {
-        const adminConsole = createNavItem('admin-console', '🚨', 'Command Center', true);
-        const moderationHub = sidebarNav.querySelector('.nav-item[data-tab="moderation-hub"]');
-        insertAfter(adminConsole, moderationHub || myUploads);
-    }
-
     // Re-bind listeners and set initial active state
     const urlParams = new URLSearchParams(window.location.search);
-    const initialTab = urlParams.get('tab') || window.pendingTab ||
-        (currentUser.role === 'coadmin' ? 'coadmin-hub' :
-            (currentUser.role === 'admin' || currentUser.role === 'superadmin' ? 'admin-console' : 'overview'));
+    const initialTab = urlParams.get('tab') || window.pendingTab || 'overview';
 
     document.querySelectorAll('.nav-item').forEach(item => {
         if (item.dataset.tab === initialTab) item.classList.add('active');
@@ -1283,7 +1335,9 @@ function updateUserProfileUI() {
     // Update meta text with role
     if (meta) {
         meta.style.display = 'block';
-        meta.innerText = currentUser.role ? currentUser.role.toUpperCase() : 'USER';
+        let displayRole = currentUser.role ? currentUser.role.toUpperCase() : 'STUDENT';
+        if (displayRole === 'USER') displayRole = 'STUDENT';
+        meta.innerText = displayRole;
     }
 
     // Ensure logout button is NOT added here (it's in Settings now)
@@ -1340,6 +1394,22 @@ function renderTabContent(tabId) {
         if (tabId === 'overview') {
             console.log("➡️ Rendering Overview...");
             contentArea.innerHTML = renderOverview();
+            
+            // Live fetch true Coding Streak from Supabase
+            if (window.currentUser && window.currentUser.id && window.supabase) {
+                window.supabase.from('users').select('coding_streak').eq('id', window.currentUser.id).single()
+                    .then(({ data, error }) => {
+                        if (!error && data) {
+                            const liveStreak = data.coding_streak || 0;
+                            window.currentUser.coding_streak = liveStreak;
+                            localStorage.setItem('auth_user_full', JSON.stringify(window.currentUser));
+                            const streakSpan = document.querySelector('.premium-streak-badge .streak-count');
+                            if (streakSpan) {
+                                streakSpan.innerText = liveStreak === 1 ? "1 Day" : `${liveStreak} Days`;
+                            }
+                        }
+                    }).catch(e => console.error(e));
+            }
         } else if (tabId === 'notes') {
             // 🎯 FAST PATH: If we already have a subject selected (e.g. from Global Search), 
             // render the hub and show notes immediately, bypassing the onboarding wizard.
@@ -1381,16 +1451,56 @@ function renderTabContent(tabId) {
                 }
             }
         } else if (tabId === 'planner') {
-            if (window.lockOverlay) {
-                window.lockOverlay.show();
-                return;
-            }
             contentArea.innerHTML = renderPlanner();
+            
+            // Auto-fill and generate logic for AI Plan integration
+            setTimeout(() => {
+                const savedSub = localStorage.getItem('tt_planner_subject');
+                const savedDate = localStorage.getItem('tt_planner_date');
+                if (savedSub && savedDate) {
+                    const dateInput = document.getElementById('p-exam-date');
+                    if (dateInput) {
+                        dateInput.value = new Date(savedDate).toISOString().split('T')[0];
+                    }
+                    
+                    const container = document.getElementById('weak-topics-container');
+                    let found = false;
+                    if (container) {
+                        Array.from(container.children).forEach(chip => {
+                            if(chip.getAttribute('data-val') === savedSub) {
+                                if(!chip.classList.contains('active')) chip.click();
+                                found = true;
+                            }
+                        });
+                    }
+                    
+                    if (!found && typeof addCustomTopic === 'function') {
+                        const input = document.getElementById('p-custom-topic');
+                        if(input) {
+                            input.value = savedSub;
+                            addCustomTopic();
+                        }
+                    }
+                    
+                    localStorage.removeItem('tt_planner_subject');
+                    localStorage.removeItem('tt_planner_date');
+                    
+                    // Automatically trigger the generation
+                    setTimeout(() => {
+                        const genBtn = document.getElementById('btn-gen-plan');
+                        if(genBtn && !genBtn.disabled) {
+                            if(window.handleGeneratePlan) window.handleGeneratePlan();
+                        }
+                    }, 150);
+                }
+            }, 100);
+
+        } else if (tabId === 'timetable') {
+            contentArea.innerHTML = renderTimetable();
+            if (window.initTimetable) window.initTimetable();
+        } else if (tabId === 'coding-arena') {
+            window.openCodingArena();
         } else if (tabId === 'ai-tools') {
-            if (window.lockOverlay) {
-                window.lockOverlay.show();
-                return;
-            }
             contentArea.innerHTML = renderAITools();
             if (window.checkServer) window.checkServer();
         } else if (tabId === 'leaderboard') {
@@ -1415,12 +1525,7 @@ function renderTabContent(tabId) {
                 <div id="admin-queue" class="grid-1-col" style="display: grid; gap: 1rem;"></div>
             </div>`;
             if (typeof renderAdminModQueue === 'function') renderAdminModQueue();
-        } else if (tabId === 'superadmin-panel') {
-            if (window.AdminConsole) {
-                contentArea.innerHTML = window.AdminConsole.render();
-            } else {
-                contentArea.innerHTML = "<p>Admin Console module loading...</p>";
-            }
+
         } else if (tabId === 'my-uploads') {
             contentArea.innerHTML = `<div class="tab-pane active fade-in" style="padding: 1.5rem;">
                 <div class="welcome-header" style="text-align: center; margin-bottom: 2rem;">
@@ -1465,21 +1570,21 @@ function renderTabContent(tabId) {
                 `;
             }
         }
-        // --- ROLE SPECIFIC ---
-        else if (tabId === 'admin-console') {
-            if (window.AdminConsole) contentArea.innerHTML = window.AdminConsole.render();
-            else contentArea.innerHTML = "<p>Loading Admin Console...</p>";
-        }
-        else if (tabId === 'coadmin-hub') {
-            if (window.CoAdminModule) contentArea.innerHTML = window.CoAdminModule.render();
-            else contentArea.innerHTML = "<p>Loading Moderation Hub...</p>";
-        }
-        else if (tabId === 'college-stats') {
-            contentArea.innerHTML = `<div class="tab-pane active fade-in"><h1 class="font-heading">College Stats</h1><p>Analytics module coming soon.</p></div>`;
-        }
         // --- SETTINGS ---
         else if (tabId === 'settings') {
             contentArea.innerHTML = window.renderSettings ? window.renderSettings() : 'Loading settings...';
+        } else if (tabId === 'admin-panel') {
+            contentArea.innerHTML = '<div id="ap-content" class="tab-pane active fade-in" style="min-height: 80vh; width: 100%;"></div>';
+            if (typeof window.initAdminPanel === 'function') {
+                window.initAdminPanel(document.getElementById('ap-content'));
+            } else {
+                // Retry after scripts load
+                setTimeout(() => {
+                    if (typeof window.initAdminPanel === 'function') {
+                        window.initAdminPanel(document.getElementById('ap-content'));
+                    }
+                }, 1000);
+            }
         } else {
             contentArea.innerHTML = `<div class="tab-pane active"><h1 class="font-heading">${tabId}</h1><p>Module coming soon...</p></div>`;
         }
@@ -1497,66 +1602,98 @@ function renderTabContent(tabId) {
 }
 
 
+window.addCustomTopic = function() {
+    const input = document.getElementById('p-custom-topic');
+    const val = input.value.trim();
+    if (!val) return;
+    const container = document.getElementById('weak-topics-container');
+    const chip = document.createElement('div');
+    chip.className = 'chip active';
+    chip.dataset.val = val;
+    chip.style.cssText = "padding: 0.5rem 1rem; border: 1px solid var(--primary); background: var(--primary); color: #fff; border-radius: 20px; cursor: pointer; font-size: 0.8rem; transition: all 0.3s ease;";
+    chip.onclick = function() {
+        this.classList.toggle('active');
+        if(this.classList.contains('active')) {
+            this.style.background='var(--primary)';
+            this.style.color='#fff';
+            this.style.borderColor='var(--primary)';
+        } else {
+            this.style.background='transparent';
+            this.style.color='var(--text-bright)';
+            this.style.borderColor='var(--border-glass)';
+        }
+    };
+    chip.innerText = val;
+    container.insertBefore(chip, container.firstChild);
+    input.value = '';
+};
+
 function renderPlanner() {
     // 1. Get Subjects
     const mySubjects = (GlobalData.subjects['cse-Semester 3'] || GlobalData.subjects['cse-Semester 1']).map(s => s.name);
 
     return `
-        <div class="tab-pane active fade-in" style="padding: 1.5rem;">
-            <div class="welcome-header" style="margin-bottom: 2.5rem; text-align: center;">
-                <h1 class="font-heading">📅 AI Exam <span class="gradient-text">Strategist</span></h1>
-                <p style="color: var(--text-dim);">Let Gemini create your perfect daily schedule based on exam proximity and weak topics.</p>
+        <div class="tab-pane active fade-in" style="padding: 1rem 1.5rem; max-width: 1200px; margin: 0 auto;">
+            <div class="welcome-header" style="margin-bottom: 1.5rem; text-align: center;">
+                <h1 class="font-heading">📅 Exam <span class="gradient-text">Strategist</span></h1>
+                <p style="color: var(--text-dim); margin-top: 0.3rem;">Create your perfect daily schedule based on exam proximity and weak topics.</p>
             </div>
 
-            <div class="grid-2-col" style="display: grid; grid-template-columns: 350px 1fr; gap: 2rem; align-items: start;">
+            <div class="grid-2-col" style="display: grid; grid-template-columns: 320px 1fr; gap: 1.5rem; align-items: start;">
                 
                 <!-- CONFIG PANEL -->
-                <div class="glass-card" style="padding: 2rem;">
-                    <h3 class="font-heading" style="margin-bottom: 1.5rem;">⚙️ Plan Configuration</h3>
+                <div class="glass-card" style="padding: 1.5rem; background: linear-gradient(145deg, rgba(20,22,30,0.8), rgba(15,17,25,0.9)); border: 1px solid rgba(123, 97, 255, 0.15); box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+                    <h3 class="font-heading" style="margin-bottom: 1.2rem; display: flex; align-items: center; gap: 10px;"><i class="fas fa-sliders-h" style="color: var(--primary);"></i> Plan Configuration</h3>
                     
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label>Target Exam Date</label>
-                        <input type="date" id="p-exam-date" class="input-field" style="width: 100%; margin-top:0.5rem; color-scheme: dark;">
+                    <div class="form-group" style="margin-bottom: 1.2rem;">
+                        <label style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 0.4rem; display: block;">Target Exam Date</label>
+                        <input type="date" id="p-exam-date" class="input-field" style="width: 100%; padding: 0.6rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); border-radius: 8px; color: white; color-scheme: dark;">
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label>Daily Study Limit: <span id="p-hours-val" style="color:var(--primary);">4 Hours</span></label>
-                        <input type="range" id="p-hours" min="1" max="12" value="4" step="0.5" style="width: 100%; margin-top:0.5rem;" oninput="document.getElementById('p-hours-val').innerText = this.value + ' Hours'">
+                    <div class="form-group" style="margin-bottom: 1.2rem;">
+                        <label style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 0.4rem; display: block; display: flex; justify-content: space-between;">Daily Study Limit <span id="p-hours-val" style="color:var(--primary); font-weight: bold;">4 Hours</span></label>
+                        <input type="range" id="p-hours" min="2" max="12" value="4" step="0.5" style="width: 100%; margin-top: 0.4rem; accent-color: var(--primary);" oninput="document.getElementById('p-hours-val').innerText = this.value + ' Hours'">
                     </div>
 
                     <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label>Weak Topics (Select multiple)</label>
-                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+                        <label style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 0.6rem; display: block;">Weak Topics</label>
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.8rem;">
+                            <input type="text" id="p-custom-topic" placeholder="e.g. Advanced Calculus" class="input-field" style="flex: 1; padding: 0.6rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); border-radius: 8px; color: white; font-size: 0.85rem;" onkeypress="if(event.key==='Enter') addCustomTopic()">
+                            <button class="btn btn-primary" onclick="addCustomTopic()" style="padding: 0 1rem; border-radius: 8px; font-weight: bold;">Add</button>
+                        </div>
+                        <div id="weak-topics-container" style="display: flex; flex-wrap: wrap; gap: 0.4rem; max-height: 120px; overflow-y: auto; padding-right: 5px; scrollbar-width: thin; scrollbar-color: var(--primary) transparent;">
                             ${mySubjects.map(sub => `
-                                <div class="chip" onclick="this.classList.toggle('active')" data-val="${sub}" style="padding: 0.5rem 1rem; border: 1px solid var(--border-glass); border-radius: 20px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s;">
+                                <div class="chip" onclick="this.classList.toggle('active'); if(this.classList.contains('active')) { this.style.background='var(--primary)'; this.style.color='#fff'; this.style.borderColor='var(--primary)'; } else { this.style.background='transparent'; this.style.color='var(--text-bright)'; this.style.borderColor='var(--border-glass)'; }" data-val="${sub}" style="padding: 0.4rem 0.8rem; border: 1px solid var(--border-glass); background: transparent; color: var(--text-bright); border-radius: 20px; cursor: pointer; font-size: 0.75rem; transition: all 0.3s ease;">
                                     ${sub}
                                 </div>
                             `).join('')}
                         </div>
                     </div>
 
-                    <button class="btn btn-primary" onclick="handleGeneratePlan()" id="btn-gen-plan" style="width: 100%;">
+                    <button class="btn btn-primary" onclick="handleGeneratePlan()" id="btn-gen-plan" style="width: 100%; padding: 10px; font-weight: bold; font-size: 1rem; box-shadow: 0 5px 15px rgba(108, 99, 255, 0.4);">
                         ✨ Generate Daily Schedule
                     </button>
-                    <p style="text-align:center; font-size: 0.75rem; color: var(--text-dim); margin-top: 1rem;">Powered by Gemini Pro</p>
+                    <p style="text-align:center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.8rem;"><i class="fas fa-bolt" style="color: #ffb703;"></i> Smart Scheduling Engine</p>
                 </div>
 
                 <!-- TIMELINE VIEW -->
-                <div class="glass-card" style="padding: 2rem; min-height: 500px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h3 class="font-heading">📝 Your Daily Plan</h3>
-                        <div style="font-size: 0.8rem; color: var(--text-dim);" id="plan-meta">No plan generated yet.</div>
+                <div class="glass-card" style="padding: 0; overflow: hidden; border: 1px solid rgba(123, 97, 255, 0.1); height: calc(100vh - 220px); min-height: 500px; display: flex; flex-direction: column;">
+                    <div style="padding: 1.2rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+                        <h3 class="font-heading" style="margin: 0; display: flex; align-items: center; gap: 10px; font-size: 1.1rem;"><i class="fas fa-list-check" style="color: var(--secondary);"></i> Your Daily Plan</h3>
+                        <div style="font-size: 0.8rem; color: var(--text-dim); background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 12px;" id="plan-meta">No plan generated yet</div>
                     </div>
 
-                    <div id="plan-timeline" class="timeline-wrapper">
+                        <div id="plan-timeline" class="timeline-wrapper" style="padding: 1.5rem; flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--primary) transparent;">
                         <!-- Empty State -->
-                        <div style="text-align: center; padding: 4rem; opacity: 0.5;">
-                            <div style="font-size: 3rem; margin-bottom: 1rem;">🗓️</div>
-                            <p>Configure your preferences and click Generate.</p>
+                        <div style="text-align: center; padding: 2rem; opacity: 0.6; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem; text-shadow: 0 0 20px rgba(108, 99, 255, 0.3);">🗓️</div>
+                            <h3 style="margin-bottom: 0.5rem; color: var(--text-main); font-size: 1.1rem;">Ready to Strategize?</h3>
+                            <p style="color: var(--text-dim); max-width: 280px; line-height: 1.4; font-size: 0.85rem;">Configure your preferences on the left and click Generate to see your personalized study schedule.</p>
                         </div>
                     </div>
                 </div>
-
+                    </div>
+                </div>
             </div>
         </div>
     `;
@@ -1577,23 +1714,114 @@ window.handleGeneratePlan = async function () {
         return;
     }
 
-    // UI Loading
+    // Premium Loading UI
     btn.disabled = true;
-    btn.innerHTML = `<span class="spin-loader"></span> Strategizing...`;
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Initializing Engine...`;
+    
+    // Step 1: Initializing
     container.innerHTML = `
-        <div style="text-align: center; padding: 4rem;">
-            <div class="loader-pro" style="margin: 0 auto 1rem;"></div>
-            <p>Gemini is analyzing your weak areas...</p>
+        <div style="text-align: center; padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+            <div style="position: relative; width: 60px; height: 60px; margin-bottom: 1.5rem;">
+                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; border: 3px solid transparent; border-top-color: var(--primary); animation: spin 1s linear infinite;"></div>
+                <div style="position: absolute; top: 8px; left: 8px; right: 8px; bottom: 8px; border-radius: 50%; border: 3px solid transparent; border-top-color: var(--secondary); animation: spin 2s linear infinite reverse;"></div>
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.2rem;">⚙️</div>
+            </div>
+            <h3 id="ai-loading-text" style="font-size: 1.1rem; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: pulse 2s infinite;">Initializing Smart Core...</h3>
+            <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 0.4rem; max-width: 250px;">Please wait while the strategist algorithm calculates your perfect schedule.</p>
         </div>
     `;
 
     try {
-        const plan = await aiClient.generateStudyPlan({
-            subjects,
-            examDate,
-            weakTopics,
-            hoursAvailable: hours
+        // Fake AI Processing Delays
+        await new Promise(r => setTimeout(r, 1200));
+        if(document.getElementById('ai-loading-text')) document.getElementById('ai-loading-text').innerText = "Analyzing Weak Topics...";
+        await new Promise(r => setTimeout(r, 1500));
+        if(document.getElementById('ai-loading-text')) document.getElementById('ai-loading-text').innerText = "Optimizing Cognitive Load...";
+        await new Promise(r => setTimeout(r, 1200));
+        if(document.getElementById('ai-loading-text')) document.getElementById('ai-loading-text').innerText = "Generating Final Blueprint...";
+        await new Promise(r => setTimeout(r, 800));
+
+        // Generate Advanced Pomodoro Plan
+        const plan = [];
+        let currentHour = 9; // Start at 9 AM
+        let rem = parseFloat(hours);
+
+        const formatTime = (h) => {
+            const period = h >= 12 ? 'PM' : 'AM';
+            let displayH = Math.floor(h) % 12;
+            if (displayH === 0) displayH = 12;
+            const mins = (h % 1) === 0.5 ? '30' : '00';
+            return `${displayH}:${mins} ${period}`;
+        };
+
+        let topicsPool = [...weakTopics];
+        if (topicsPool.length === 0) topicsPool = ["Core Syllabus", "Previous Year Papers", "Formula Revision"];
+        
+        let topicIdx = 0;
+        
+        // Block 0: Setup
+        plan.push({
+            type: 'Revise',
+            time: `${formatTime(currentHour)} - ${formatTime(currentHour + 0.5)}`,
+            activity: 'Initial Assessment & Strategy',
+            topic: 'Scan syllabus gaps & prepare study environment',
+            reasoning: 'Calibrating your focus by mapping out exact topics reduces friction and prepares the brain for deep learning.'
         });
+        currentHour += 0.5;
+        rem -= 0.5;
+        
+        let sessionCount = 1;
+        while (rem >= 1.5) {
+            let currentTopic = topicsPool[topicIdx % topicsPool.length];
+            
+            const studyMethods = ['Feynman Technique', 'Spaced Repetition', 'Deep Concept Mapping', 'Core Principle Breakdown'];
+            const method = studyMethods[topicIdx % studyMethods.length];
+            
+            plan.push({
+                type: 'Learn',
+                time: `${formatTime(currentHour)} - ${formatTime(currentHour + 1)}`,
+                activity: `Deep Mastery (${method})`,
+                topic: `Focused learning on: ${currentTopic}`,
+                reasoning: `Using the ${method} provides a high retention rate specifically for complex subjects like ${currentTopic}.`
+            });
+            currentHour += 1;
+            rem -= 1;
+            
+            plan.push({
+                type: 'Practice',
+                time: `${formatTime(currentHour)} - ${formatTime(currentHour + 0.5)}`,
+                activity: `Application & Validation`,
+                topic: `Solve complex numericals/PYQs for ${currentTopic}`,
+                reasoning: `Immediate application of learned concepts prevents the forgetting curve and cements understanding.`
+            });
+            currentHour += 0.5;
+            rem -= 0.5;
+            
+            topicIdx++;
+            sessionCount++;
+            
+            // Add a 30 min break
+            if (rem > 0) {
+                plan.push({
+                    type: 'Break',
+                    time: `${formatTime(currentHour)} - ${formatTime(currentHour + 0.5)}`,
+                    activity: 'Neurological Rest Phase',
+                    topic: 'Non-screen break, hydration, light stretching',
+                    reasoning: 'The brain requires diffused mode thinking periods to synthesize and store complex engineering concepts.'
+                });
+                currentHour += 0.5;
+            }
+        }
+        
+        if (rem > 0) {
+            plan.push({
+                type: 'Revise',
+                time: `${formatTime(currentHour)} - ${formatTime(currentHour + rem)}`,
+                activity: 'Global Synthesization',
+                topic: 'Rapid review of all key formulas & mistakes',
+                reasoning: 'Ending the day with a global review triggers memory consolidation during sleep.'
+            });
+        }
 
         renderTimeline(plan);
         document.getElementById('plan-meta').innerText = `Target: ${new Date(examDate).toLocaleDateString()}`;
@@ -1611,6 +1839,422 @@ window.handleGeneratePlan = async function () {
     }
 };
 
+// --- TIMETABLE LOGIC ---
+function renderTimetable() {
+    return `
+    <style>
+        .tt-premium-card {
+            background: rgba(15, 17, 26, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+        .tt-premium-card:hover {
+            transform: translateY(-4px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .tt-input-group {
+            position: relative;
+        }
+        .tt-select-pro {
+            width: 100%;
+            border-radius: 14px;
+            background: rgba(10, 12, 20, 0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 0.85rem 1.2rem;
+            color: white !important;
+            font-size: 0.95rem;
+            font-weight: 500;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            appearance: none;
+            cursor: pointer;
+        }
+        .tt-select-pro:focus {
+            outline: none;
+            border-color: #7b61ff;
+            box-shadow: 0 0 15px rgba(123, 97, 255, 0.4), inset 0 2px 5px rgba(0,0,0,0.5);
+        }
+        .tt-select-pro option {
+            background: #111424;
+            color: white;
+        }
+        .tt-input-group::after {
+            content: '▼';
+            position: absolute;
+            right: 15px;
+            bottom: 16px;
+            color: var(--primary);
+            font-size: 0.8rem;
+            pointer-events: none;
+        }
+        .tt-floating-icon {
+            display: inline-block;
+            animation: float-3d 4s ease-in-out infinite;
+            filter: drop-shadow(0 10px 15px rgba(123, 97, 255, 0.4));
+        }
+        @keyframes float-3d {
+            0%, 100% { transform: translateY(0) rotateX(0) rotateY(0); }
+            50% { transform: translateY(-12px) rotateX(10deg) rotateY(-10deg); filter: drop-shadow(0 20px 25px rgba(123, 97, 255, 0.6)); }
+        }
+        .tt-countdown-box {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 0.4rem;
+            text-align: center;
+            min-width: 48px;
+        }
+        .tt-countdown-val {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.1;
+        }
+        .tt-countdown-lbl {
+            font-size: 0.6rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        .tt-exam-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .tt-exam-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.03), transparent);
+            transform: skewX(-20deg);
+            animation: shine 4s infinite;
+        }
+        @keyframes shine {
+            0% { left: -100%; }
+            20%, 100% { left: 200%; }
+        }
+    </style>
+    <div class="tab-pane active fade-in" style="padding: 1rem; max-width: 1000px; margin: 0 auto; perspective: 1000px;">
+        <div style="text-align: center; margin-bottom: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <h1 class="font-heading" style="font-size: clamp(2rem, 5vw, 2.8rem); text-shadow: 0 10px 30px rgba(123,97,255,0.3); margin: 0;">
+                <span class="tt-floating-icon" style="font-size: 1em; vertical-align: middle; margin-right: 8px;">⏳</span> 
+                Exam <span class="gradient-text" style="background: linear-gradient(135deg, #a78bfa, #00f2ff); -webkit-background-clip: text; color: transparent;">Timetable</span>
+            </h1>
+            <p style="color: #94a3b8; max-width: 500px; margin: 0.5rem auto 0; font-size: 0.95rem; line-height: 1.5; font-weight: 400;">
+                Precision tracking for your academic milestones. Never miss a deadline with real-time dynamic countdowns.
+            </p>
+        </div>
+
+        <div class="tt-premium-card" style="padding: 1.5rem; margin-bottom: 2rem; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; position: relative; z-index: 10;">
+            <!-- Glow background blob -->
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 80%; background: radial-gradient(circle, rgba(123,97,255,0.1) 0%, transparent 70%); pointer-events: none; z-index: -1;"></div>
+            
+            <div class="tt-input-group" style="flex: 1; min-width: 180px; max-width: 250px;">
+                <label style="font-size: 0.75rem; color: #a78bfa; font-weight: 800; margin-bottom: 0.4rem; display: block; text-transform: uppercase; letter-spacing: 0.1em; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Target College</label>
+                <select id="user-tt-college" class="tt-select-pro" onchange="window.initTimetable()">
+                    <option value="">-- Select College --</option>
+                    ${(window.GlobalData?.colleges || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                </select>
+            </div>
+            <div class="tt-input-group" style="flex: 1; min-width: 180px; max-width: 250px;">
+                <label style="font-size: 0.75rem; color: #00f2ff; font-weight: 800; margin-bottom: 0.4rem; display: block; text-transform: uppercase; letter-spacing: 0.1em; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Academic Branch</label>
+                <select id="user-tt-branch" class="tt-select-pro" onchange="window.initTimetable()">
+                    <option value="">-- Select Branch --</option>
+                    ${(window.GlobalData?.branches || []).map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
+                </select>
+            </div>
+            <div class="tt-input-group" style="flex: 1; min-width: 180px; max-width: 250px;">
+                <label style="font-size: 0.75rem; color: #f43f5e; font-weight: 800; margin-bottom: 0.4rem; display: block; text-transform: uppercase; letter-spacing: 0.1em; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Current Semester</label>
+                <select id="user-tt-sem" class="tt-select-pro" onchange="window.initTimetable()">
+                    <option value="">-- Select Semester --</option>
+                    ${[1,2,3,4,5,6,7,8].map(s => `<option value="Semester ${s}">Semester ${s}</option>`).join('')}
+                </select>
+            </div>
+        </div>
+
+
+        <div id="tt-user-list" style="display: flex; flex-direction: column; gap: 2rem; position: relative;">
+            <div style="text-align: center; padding: 5rem 2rem; opacity: 0.8;">
+                <div class="tt-floating-icon" style="font-size: 4rem; margin-bottom: 1.5rem;">🎯</div>
+                <h3 style="margin-bottom: 0.8rem; color: white; font-size: 1.4rem; font-weight: 700; letter-spacing: 0.5px;">Awaiting Configuration</h3>
+                <p style="color: #94a3b8; font-size: 1.05rem; max-width: 400px; margin: 0 auto;">Select your academic profile above to synchronize your personalized exam timeline.</p>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+// Global Helper Scripts for Timetable Integrations
+window.goToPlannerForExam = function(subject, dateStr) {
+    localStorage.setItem('tt_planner_subject', subject);
+    localStorage.setItem('tt_planner_date', dateStr);
+    
+    const sidebarLinks = document.querySelectorAll('.nav-item');
+    sidebarLinks.forEach(l => l.classList.remove('active'));
+    const plannerLink = Array.from(sidebarLinks).find(l => l.getAttribute('onclick')?.includes('planner'));
+    if(plannerLink) plannerLink.classList.add('active');
+    
+    if(window.renderTabContent) window.renderTabContent('planner');
+};
+
+window.goToNotesForExam = function(subject, college, branch, semester) {
+    let cleanSubject = subject.split(' (')[0].trim().toLowerCase();
+    let foundSubjectObj = null;
+
+    if (college && branch && semester && window.GlobalData && window.GlobalData.subjects) {
+        const key = `${branch}-${semester}`;
+        if (window.GlobalData.subjects[key]) {
+            foundSubjectObj = window.GlobalData.subjects[key].find(s => 
+                s.name.toLowerCase() === cleanSubject || 
+                (s.code && s.code.toLowerCase() === cleanSubject)
+            );
+        }
+    }
+    
+    // If it's a custom subject, create a dynamic object for it!
+    if (!foundSubjectObj && college && branch && semester) {
+        foundSubjectObj = {
+            id: 'custom-' + cleanSubject.replace(/\s+/g, '-'),
+            name: subject.split(' (')[0].trim()
+        };
+    }
+    
+    if (foundSubjectObj && college && branch && semester) {
+        const collegeObj = (window.GlobalData?.colleges || []).find(c => c.id === college) || {id: college, name: college};
+        const branchObj = (window.GlobalData?.branches || []).find(b => b.id === branch) || {id: branch, name: branch};
+        
+        window.selState = {
+            college: collegeObj,
+            branch: branchObj,
+            semester: semester,
+            year: null,
+            subject: foundSubjectObj
+        };
+        
+        const sidebarLinks = document.querySelectorAll('.nav-item');
+        sidebarLinks.forEach(l => l.classList.remove('active'));
+        const notesLink = Array.from(sidebarLinks).find(l => l.getAttribute('onclick')?.includes('notes'));
+        if(notesLink) notesLink.classList.add('active');
+        
+        if(window.renderTabContent) window.renderTabContent('notes');
+        
+        // Visually update the URL hash
+        const semFormatted = semester.toLowerCase().replace(/\s+/g, '-');
+        window.history.replaceState(null, '', `#/notes/${college}/${branch}/year/${semFormatted}/${foundSubjectObj.id}`);
+        return;
+    }
+
+    // Fallback to global search
+    localStorage.setItem('searchQuery', subject);
+    
+    const sidebarLinks = document.querySelectorAll('.nav-item');
+    sidebarLinks.forEach(l => l.classList.remove('active'));
+    const homeLink = Array.from(sidebarLinks).find(l => l.getAttribute('onclick')?.includes('home'));
+    if(homeLink) homeLink.classList.add('active');
+    
+    if(window.renderTabContent) window.renderTabContent('home');
+    
+    setTimeout(() => {
+        const searchBox = document.getElementById('global-search');
+        if(searchBox) {
+            searchBox.value = subject;
+            if(window.filterGlobalSearch) window.filterGlobalSearch();
+        }
+    }, 300);
+};
+
+window.downloadICS = function(subject, dateStr) {
+    const d = new Date(dateStr);
+    const endD = new Date(d.getTime() + 2 * 60 * 60 * 1000); 
+    
+    const fmt = date => {
+        return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    };
+    
+    const icsContent = 
+`BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//SkillNotes//ExamTimetable//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:${Date.now()}@skillnotes.com
+DTSTAMP:${fmt(new Date())}
+DTSTART:${fmt(d)}
+DTEND:${fmt(endD)}
+SUMMARY:Exam: ${subject}
+DESCRIPTION:Scheduled exam from SkillNotes Timetable.
+BEGIN:VALARM
+TRIGGER:-PT24H
+ACTION:DISPLAY
+DESCRIPTION:Reminder: Exam in 24 hours
+END:VALARM
+END:VEVENT
+END:VCALENDAR`;
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `Exam_${subject.replace(/\s+/g, '_')}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
+
+window.initTimetable = async function() {
+    const col = document.getElementById('user-tt-college').value;
+    const br = document.getElementById('user-tt-branch').value;
+    const sem = document.getElementById('user-tt-sem').value;
+    const list = document.getElementById('tt-user-list');
+    
+    if(!col || !br || !sem) return;
+    
+    list.innerHTML = `
+        <style>
+        @keyframes spin-glow { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spin-glow-reverse { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
+        </style>
+        <div class="premium-loader-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 2rem; gap: 1.5rem;">
+            <div class="premium-glow-spinner" style="position: relative; width: 60px; height: 60px;">
+                <div style="box-sizing: border-box; display: block; position: absolute; width: 60px; height: 60px; margin: 0; border: 4px solid transparent; border-radius: 50%; animation: spin-glow 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite; border-top-color: var(--primary); box-shadow: 0 0 20px rgba(123, 97, 255, 0.4);"></div>
+                <div style="box-sizing: border-box; display: block; position: absolute; width: 60px; height: 60px; margin: 0; border: 4px solid transparent; border-radius: 50%; animation: spin-glow-reverse 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite; border-bottom-color: var(--secondary); box-shadow: 0 0 20px rgba(0, 242, 255, 0.3); animation-delay: -0.6s;"></div>
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.2rem; filter: drop-shadow(0 0 8px var(--primary));">📅</div>
+            </div>
+            <div style="text-align: center;">
+                <h4 style="margin: 0 0 0.4rem; color: white; font-weight: 700; letter-spacing: 0.5px; font-size: 1.05rem; background: linear-gradient(90deg, #fff, rgba(255,255,255,0.7)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Retrieving Academic Timetable</h4>
+                <p style="margin: 0; color: var(--text-dim); font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; opacity: 0.8; animation: pulse 1.5s infinite alternate;">Connecting to secure cloud nodes...</p>
+            </div>
+        </div>`;
+    
+    // Stop any existing intervals
+    if(window._ttInterval) clearInterval(window._ttInterval);
+    
+    try {
+        const { supabase } = await import('./supabase-config.js?v=1.0');
+        const { data, error } = await supabase.from('exam_timetable')
+            .select('*')
+            .eq('college', col)
+            .eq('branch', br)
+            .eq('semester', sem)
+            .order('exam_date', { ascending: true });
+            
+        if(error) throw error;
+        
+        if(!data || data.length === 0) {
+            list.innerHTML = `<div style="text-align: center; padding: 4rem; opacity: 0.6;">
+                <div style="font-size: 3rem; margin-bottom: 1rem; text-shadow: 0 0 20px rgba(52, 211, 153, 0.3);">🎉</div>
+                <h3 style="margin-bottom: 0.5rem; color: var(--text-main); font-size: 1.1rem;">No exams scheduled!</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem;">Your timetable is completely clear for now.</p>
+            </div>`;
+            return;
+        }
+        
+        window._ttCurrentExams = data;
+        renderTimetableCards();
+        window._ttInterval = setInterval(renderTimetableCards, 60000); // Update every minute
+        
+    } catch(e) {
+        list.innerHTML = `<div style="text-align:center; color:#ff4757; padding:3rem;">Error: ${e.message}</div>`;
+    }
+};
+
+function renderTimetableCards() {
+    const list = document.getElementById('tt-user-list');
+    if(!list || !window._ttCurrentExams) return;
+    
+    const now = new Date();
+    
+    list.innerHTML = window._ttCurrentExams.map((ex, index) => {
+        const examDate = new Date(ex.exam_date);
+        const diffMs = examDate - now;
+        
+        // Consistent Pseudo-random number for live studying based on subject hash
+        const hash = ex.subject.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+        const liveCount = Math.abs(hash % 45) + 12; 
+        
+        let statusHtml = '';
+        let cardStyle = '';
+        let iconHtml = '';
+        
+        if(diffMs < 0) {
+            statusHtml = `<span style="background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; color: rgba(255,255,255,0.5); font-weight: 600; border: 1px solid rgba(255,255,255,0.1); letter-spacing: 0.5px;">✓ COMPLETED</span>`;
+            cardStyle = 'background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-left: 1px solid rgba(255, 255, 255, 0.05); opacity: 0.65;';
+            iconHtml = `<div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 1px solid rgba(255,255,255,0.05); filter: grayscale(1);">✓</div>`;
+        } else {
+            const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
+            const mins = Math.floor((diffMs / 1000 / 60) % 60);
+            
+            // Single premium style for all upcoming exams
+            cardStyle = 'background: rgba(0, 242, 255, 0.02); border: 1px solid rgba(0, 242, 255, 0.2); border-left: 1px solid rgba(0, 242, 255, 0.2); box-shadow: 0 0 20px rgba(0, 242, 255, 0.1), inset 0 0 8px rgba(0, 242, 255, 0.03);';
+            iconHtml = `<div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(0, 242, 255, 0.12); color: #00f2ff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 1px solid rgba(0, 242, 255, 0.25); box-shadow: 0 0 4px rgba(0, 242, 255, 0.15); text-shadow: none;">📘</div>`;
+            
+            statusHtml = `
+                <div style="display: flex; gap: 0.6rem; margin-top: 0;">
+                    <div class="tt-countdown-box">
+                        <div class="tt-countdown-val">${days}</div>
+                        <div class="tt-countdown-lbl">Days</div>
+                    </div>
+                    <div class="tt-countdown-box">
+                        <div class="tt-countdown-val">${hours.toString().padStart(2, '0')}</div>
+                        <div class="tt-countdown-lbl">Hrs</div>
+                    </div>
+                    <div class="tt-countdown-box">
+                        <div class="tt-countdown-val">${mins.toString().padStart(2, '0')}</div>
+                        <div class="tt-countdown-lbl">Min</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        const animDelay = index * 0.1;
+        
+        return `
+            <div class="tt-premium-card tt-exam-card" style="padding: 1rem 1.2rem; display: flex; flex-direction: column; gap: 0.8rem; ${cardStyle} animation: slideUp 0.3s ease ${animDelay}s both; position: relative; backdrop-filter: blur(12px); border-radius: 16px;">
+                
+                <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 250px;">
+                        ${iconHtml}
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.2rem;">
+                                <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: white;">
+                                    ${ex.subject}
+                                </h3>
+
+                            </div>
+                            
+                            <div style="display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center; font-size: 0.8rem; color: #94a3b8;">
+                                <div style="display: flex; align-items: center; gap: 4px;">
+                                    <span>📅</span> ${examDate.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 4px;">
+                                    <span>⏰</span> ${examDate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1.5rem;">
+                        ${statusHtml}
+                        ${diffMs > 0 ? `
+                        <div style="display: flex; gap: 0.4rem;">
+                            <button onclick="window.goToPlannerForExam('${ex.subject.replace(/'/g, "\\'")}', '${ex.exam_date}')" class="btn" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); border: none; color: white; padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(123, 97, 255, 0.4);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(123, 97, 255, 0.6)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(123, 97, 255, 0.4)';">
+                                ✨ AI Plan
+                            </button>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+
 function renderTimeline(plan) {
     const container = document.getElementById('plan-timeline');
     if (!plan || plan.length === 0) {
@@ -1620,8 +2264,8 @@ function renderTimeline(plan) {
 
     let html = '<div class="timeline">';
     plan.forEach((task, idx) => {
-        const icons = { 'Learn': '📖', 'Practice': '📝', 'Revise': '⚡' };
-        const color = { 'Learn': '#3498db', 'Practice': '#e67e22', 'Revise': '#2ecc71' };
+        const icons = { 'Learn': '📖', 'Practice': '📝', 'Revise': '⚡', 'Break': '☕' };
+        const color = { 'Learn': '#3498db', 'Practice': '#e67e22', 'Revise': '#2ecc71', 'Break': '#95a5a6' };
 
         html += `
             <div class="timeline-item glass-card" style="margin-bottom: 1.5rem; border-left: 4px solid ${color[task.type] || '#7B61FF'}; padding: 1.5rem; position: relative; animation: slideIn 0.3s ease forwards; animation-delay: ${idx * 0.1}s; opacity: 0;">
@@ -1638,11 +2282,11 @@ function renderTimeline(plan) {
                         </div>
                     </div>
                     
-                    <div class="tooltip-wrapper" style="position: relative; cursor: help;">
-                        <span style="font-size: 1.2rem; opacity: 0.5;">ℹ️</span>
-                        <div class="tooltip-content glass-card" style="position: absolute; right: 0; top: 30px; width: 200px; padding: 1rem; font-size: 0.8rem; display: none; z-index: 10;">
-                            <strong>Why AI chose this:</strong><br/>
-                            ${task.reasoning}
+                    <div class="tooltip-wrapper" style="position: relative; cursor: help;" onmouseenter="this.querySelector('.tooltip-content').style.display='block'" onmouseleave="this.querySelector('.tooltip-content').style.display='none'">
+                        <span style="font-size: 1.2rem; opacity: 0.5; transition: opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">🧠</span>
+                        <div class="tooltip-content glass-card" style="position: absolute; right: 0; top: 30px; width: 240px; padding: 1.2rem; font-size: 0.8rem; display: none; z-index: 10; border: 1px solid var(--primary); box-shadow: 0 10px 40px rgba(0,0,0,0.8); background: rgba(15,17,25,0.95); border-radius: 12px; pointer-events: none;">
+                            <strong style="color: var(--primary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem; font-family: var(--font-heading);">Engine Logic:</strong>
+                            <span style="color: var(--text-dim); line-height: 1.5; display: block;">${task.reasoning || 'Optimized for cognitive load balance and maximum retention.'}</span>
                         </div>
                     </div>
                 </div>
@@ -1661,98 +2305,205 @@ function renderTimeline(plan) {
 
 
 function renderAITools() {
-    // Flatten subjects for the dropdown
-    const allSubjects = [];
-    Object.values(GlobalData.subjects).forEach(list => {
-        list.forEach(sub => {
-            if (!allSubjects.find(s => s.name === sub.name)) {
-                allSubjects.push(sub.name);
-            }
-        });
-    });
-
     return `
-        <div class="tab-pane active fade-in" style="padding: 1.5rem;">
-            <div class="welcome-header" style="text-align: center; margin-bottom: 2rem;">
-                <h1 class="font-heading">🤖 AI <span class="gradient-text">Model Paper</span></h1>
-                <p style="color: var(--text-dim);">Upload your PYQs and let Gemini generate a model paper.</p>
-                <div class="status-badge" id="server-status-badge" style="font-size: 0.8rem; padding: 0.5rem 1rem; border-radius: 20px; background: rgba(255,255,255,0.05); width: fit-content; margin: 1rem auto 0;">
-                    Checking Server...
-                </div>
-            </div>
-
-            <div class="grid-2-col" style="display: grid; grid-template-columns: 350px 1fr; gap: 2rem; align-items: start;">
-                <!-- Left: Configuration Form -->
-                <div class="glass-card" style="padding: 2rem;">
-                    <h3 class="font-heading" style="margin-bottom: 1.5rem;">⚙️ Paper Config</h3>
-                    
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label style="display:block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem;">Subject Name</label>
-                        <select id="ai-subject" class="input-field" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 8px; color: white;">
-                             <option value="" disabled selected>Select Subject</option>
-                             ${allSubjects.map(s => `<option value="${s}">${s}</option>`).join('')}
-                             <option value="Other">Other (Custom)</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label style="display:block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem;">University</label>
-                         <select id="ai-uni" class="input-field" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 8px; color: white;">
-                             ${GlobalData.colleges.map(c => `<option value="${c.name}">${c.name}</option>`).join('')}
-                        </select>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label style="display:block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem;">Exam Type</label>
-                        <select id="ai-exam" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); border-radius: 8px; color: white;">
-                            <option value="End Semester">End Semester (Final)</option>
-                            <option value="Mid Semester">Mid Semester (MST)</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label style="display:block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem;">Upload PYQ (PDF/Image)</label>
-                        
-                        <!-- Upload Box -->
-                        <div class="upload-zone" onclick="document.getElementById('ai-file-input').click()" style="border: 2px dashed var(--border-glass); border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s ease;">
-                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📂</div>
-                            <p style="font-size: 0.9rem; color: var(--text-dim);">Click to upload file</p>
-                            <p id="file-name-display" style="font-size: 0.8rem; color: var(--primary); margin-top: 0.5rem; font-weight: 500;"></p>
-                        </div>
-                        <input type="file" id="ai-file-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.png,.jpg,.jpeg?v=6.0" style="display: none;" onchange="handleAIFileUpload(this)">
-                        
-                        <!-- Hidden text area for fallback/content passing -->
-                        <textarea id="ai-pyqs" style="display:none;"></textarea>
-                    </div>
-
-                    <button class="btn btn-primary" onclick="generatePaper()" id="btn-generate" style="width: 100%; justify-content: center;">
-                        ✨ Generate Model Paper
-                    </button>
-                    <p style="font-size: 0.7rem; color: var(--text-dim); margin-top: 1rem; text-align: center;">
-                        AI will analyze the uploaded file structure.
-                    </p>
-                </div>
-
-                <!-- Right: Output Preview -->
-                <div class="glass-card" style="padding: 2rem; min-height: 600px; display: flex; flex-direction: column;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 1rem;">
-                        <h3 class="font-heading">📄 Generated Paper</h3>
-                        <div class="actions" style="display: flex; gap: 0.5rem;">
-                            <button class="btn btn-sm btn-ghost" onclick="copyPaper()" title="Copy to Clipboard">📋</button>
-                            <button class="btn btn-sm btn-ghost" onclick="saveAIOutputToDrive()" title="Save to Private Drive">💾</button>
+        <div class="tab-pane active fade-in" style="padding: 1rem 0; max-width: 1200px; margin: 0 auto; display: flex; justify-content: center;">
+            <div style="display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center; align-items: flex-start; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; padding: 0;">
+                <!-- Premium Chat Interface -->
+                <div class="glass-card ai-chat-container" style="flex: 1 1 550px; max-width: 850px; height: calc(100vh - 160px); min-height: 350px; max-height: 700px; padding: 0; border: 1px solid rgba(123, 97, 255, 0.3); box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 0 30px rgba(123, 97, 255, 0.1); overflow: hidden; position: relative; display: flex; flex-direction: column; transform: perspective(1000px) rotateX(1deg); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);" onmouseover="this.style.transform='perspective(1000px) rotateX(0deg) translateY(-5px)'; this.style.boxShadow='0 25px 60px rgba(108, 99, 255, 0.2), inset 0 0 30px rgba(123, 97, 255, 0.1)';" onmouseout="this.style.transform='perspective(1000px) rotateX(1deg)'; this.style.boxShadow='0 20px 50px rgba(0,0,0,0.6), inset 0 0 30px rgba(123, 97, 255, 0.1)';">
+                    <!-- Chat Header -->
+                    <div style="padding: 1rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px;">
+                        <div class="ai-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 0 15px rgba(108, 99, 255, 0.5);">🤖</div>
+                        <div>
+                            <h3 style="margin: 0; font-size: 1.1rem; color: var(--text-bright);">SKiL Matrix AI Coach <span style="font-size: 0.7rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); padding: 2px 6px; border-radius: 4px; margin-left: 5px;">PRO</span></h3>
+                            <span style="font-size: 0.75rem; color: #00ff88; display: flex; align-items: center; gap: 4px;"><span class="online-dot" style="width:6px;height:6px;background:#00ff88;border-radius:50%;display:inline-block;animation:pulse 2s infinite;"></span> Online & Ready</span>
                         </div>
                     </div>
                     
-                    <div id="ai-output" style="flex: 1; overflow-y: auto; font-family: 'Times New Roman', serif; line-height: 1.6; white-space: pre-wrap; color: #e0e0e0;">
-                        <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-dim); opacity: 0.5;">
-                            <span style="font-size: 3rem;">📄</span>
-                            <p>Paper will appear here</p>
+                    <!-- Chat History -->
+                    <div id="ai-chat-history" style="flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; scroll-behavior: smooth;">
+                        <div class="chat-message ai-msg fade-in" style="display: flex; gap: 15px; max-width: 75%;">
+                            <div class="ai-avatar-small" style="width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0;">🤖</div>
+                            <div class="msg-bubble" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.8rem 1.2rem; border-radius: 0 18px 18px 18px; color: var(--text-bright); line-height: 1.4; font-size: 0.85rem;">
+                                Hello! I'm your AI Coach. I can help you solve complex equations, explain algorithmic concepts, or generate study summaries. What do you need help with today?
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Area -->
+                    <div class="chat-input-area" style="padding: 1rem 1.5rem; background: rgba(0,0,0,0.3); border-top: 1px solid rgba(255,255,255,0.05); position: relative;">
+                        <form id="ai-chat-form" onsubmit="window.handleAIChatSubmit(event)" style="display: flex; gap: 8px; align-items: flex-end;">
+                            <button type="button" id="ai-mic-btn" title="Speak to Translate (English Only)" style="height: 45px; width: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'" onclick="window.startAIVoiceInput()"><i class="fas fa-microphone"></i></button>
+                            <textarea id="ai-chat-input" placeholder="Type your engineering doubt here..." style="flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 0.8rem 1rem; color: #fff; font-family: inherit; font-size: 0.85rem; resize: none; min-height: 45px; max-height: 120px; transition: all 0.3s;" onfocus="this.style.borderColor='var(--primary)'; this.style.background='rgba(255,255,255,0.08)';" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.background='rgba(255,255,255,0.03)';"></textarea>
+                            <button type="submit" id="ai-chat-send" class="btn btn-primary" style="height: 45px; width: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; box-shadow: 0 5px 15px rgba(108, 99, 255, 0.3);"><i class="fas fa-paper-plane"></i></button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Quick Prompts on Side -->
+                <div style="display: flex; flex-direction: column; gap: 1rem; width: 280px; flex-shrink: 0;">
+                    <div class="glass-card" style="padding: 1.5rem; height: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(0, 255, 136, 0.05); transform: perspective(1000px) rotateY(-2deg); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(255,255,255,0.05);" onmouseover="this.style.transform='perspective(1000px) rotateY(0deg) translateY(-5px)'; this.style.boxShadow='0 25px 60px rgba(0, 255, 136, 0.15), inset 0 0 20px rgba(0, 255, 136, 0.05)';" onmouseout="this.style.transform='perspective(1000px) rotateY(-2deg)'; this.style.boxShadow='0 20px 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(0, 255, 136, 0.05)';">
+                        <h4 style="margin-bottom: 1rem; color: var(--text-bright); display: flex; align-items: center; gap: 8px; font-size: 0.95rem;"><i class="fas fa-magic" style="color: var(--secondary);"></i> Quick Prompts</h4>
+                        <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                            <div class="quick-prompt-btn" onclick="window.useQuickPrompt('Explain Time Complexity of Merge Sort with an example.')" style="padding: 0.8rem 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-dim); transition: all 0.2s; text-align: left;" onmouseover="this.style.background='rgba(108,99,255,0.1)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text-dim)';">📊 Merge Sort Complexity</div>
+                            <div class="quick-prompt-btn" onclick="window.useQuickPrompt('What is the difference between TCP and UDP?')" style="padding: 0.8rem 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-dim); transition: all 0.2s; text-align: left;" onmouseover="this.style.background='rgba(108,99,255,0.1)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text-dim)';">🌐 TCP vs UDP</div>
+                            <div class="quick-prompt-btn" onclick="window.useQuickPrompt('Write a SQL query to find the second highest salary.')" style="padding: 0.8rem 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-dim); transition: all 0.2s; text-align: left;" onmouseover="this.style.background='rgba(108,99,255,0.1)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text-dim)';">💾 2nd Highest Salary</div>
+                            <div class="quick-prompt-btn" onclick="window.useQuickPrompt('What is an API?')" style="padding: 0.8rem 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-dim); transition: all 0.2s; text-align: left;" onmouseover="this.style.background='rgba(108,99,255,0.1)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text-dim)';">🔌 What is an API?</div>
+                            <div class="quick-prompt-btn" onclick="window.useQuickPrompt('Explain OOP Concepts.')" style="padding: 0.8rem 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-dim); transition: all 0.2s; text-align: left;" onmouseover="this.style.background='rgba(108,99,255,0.1)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text-dim)';">🏗️ OOP Concepts</div>
+                            <div class="quick-prompt-btn" onclick="window.useQuickPrompt('Difference between AI and ML.')" style="padding: 0.8rem 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-dim); transition: all 0.2s; text-align: left;" onmouseover="this.style.background='rgba(108,99,255,0.1)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text-dim)';">🧠 AI vs ML</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     `;
+}
+
+window.useQuickPrompt = function(promptText) {
+    const input = document.getElementById('ai-chat-input');
+    if (input) {
+        input.value = promptText;
+        input.focus();
+    }
+};
+
+window.startAIVoiceInput = function() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        alert("Your browser does not support Voice Input. Please use Chrome or Edge.");
+        return;
+    }
+    
+    const micBtn = document.getElementById('ai-mic-btn');
+    if (micBtn) {
+        micBtn.style.color = '#ff4757';
+        micBtn.style.borderColor = '#ff4757';
+        micBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    }
+    
+    const recognition = new SpeechRecognition();
+    // Do not set lang so it auto-detects the user's native spoken language
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    
+    recognition.onresult = async function(event) {
+        const text = event.results[0][0].transcript;
+        
+        try {
+            // Translate the spoken text from any language into English
+            const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=${encodeURIComponent(text)}`);
+            const data = await res.json();
+            const translatedText = data[0][0][0];
+            
+            const input = document.getElementById('ai-chat-input');
+            if (input) {
+                input.value = input.value + (input.value ? ' ' : '') + translatedText;
+            }
+        } catch(e) {
+            console.error("Translation failed, using original text", e);
+            const input = document.getElementById('ai-chat-input');
+            if (input) {
+                input.value = input.value + (input.value ? ' ' : '') + text;
+            }
+        }
+        
+        resetMicBtn();
+    };
+    
+    recognition.onerror = function(event) {
+        console.error('Speech recognition error:', event.error);
+        if (event.error === 'not-allowed') {
+            alert("Microphone access was denied. Please allow microphone permissions in your browser settings.");
+        } else if (event.error !== 'no-speech') {
+            alert("Microphone error: " + event.error);
+        }
+        resetMicBtn();
+    };
+    
+    recognition.onend = function() {
+        resetMicBtn();
+    };
+    
+    function resetMicBtn() {
+        if (micBtn) {
+            micBtn.style.color = '#fff';
+            micBtn.style.borderColor = 'rgba(255,255,255,0.1)';
+            micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        }
+    }
+    
+    try {
+        recognition.start();
+    } catch (e) {
+        console.error(e);
+        resetMicBtn();
+    }
+};
+
+window.handleAIChatSubmit = async function(e) {
+    e.preventDefault();
+    const input = document.getElementById('ai-chat-input');
+    const question = input.value.trim();
+    if (!question) return;
+
+    input.value = '';
+    const historyBox = document.getElementById('ai-chat-history');
+
+    // Add user message
+    historyBox.innerHTML += `
+        <div class="chat-message user-msg fade-in" style="display: flex; gap: 15px; max-width: 85%; align-self: flex-end; flex-direction: row-reverse;">
+            <div class="user-avatar-small" style="width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0;"><i class="fas fa-user"></i></div>
+            <div class="msg-bubble" style="background: linear-gradient(135deg, rgba(108,99,255,0.3), rgba(108,99,255,0.1)); border: 1px solid rgba(108,99,255,0.3); padding: 1rem 1.5rem; border-radius: 18px 0 18px 18px; color: #fff; line-height: 1.5; font-size: 0.95rem;">
+                ${question.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+            </div>
+        </div>
+    `;
+
+    // Add loader
+    const loaderId = 'loader-' + Date.now();
+    historyBox.innerHTML += `
+        <div id="${loaderId}" class="chat-message ai-msg fade-in" style="display: flex; gap: 15px; max-width: 85%;">
+            <div class="ai-avatar-small" style="width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0;">🤖</div>
+            <div class="msg-bubble" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem 1.5rem; border-radius: 0 18px 18px 18px; color: var(--text-bright); display: flex; align-items: center; gap: 8px;">
+                <div class="typing-dot" style="width:6px;height:6px;background:var(--primary);border-radius:50%;animation:pulse 1s infinite;"></div>
+                <div class="typing-dot" style="width:6px;height:6px;background:var(--primary);border-radius:50%;animation:pulse 1s infinite 0.2s;"></div>
+                <div class="typing-dot" style="width:6px;height:6px;background:var(--primary);border-radius:50%;animation:pulse 1s infinite 0.4s;"></div>
+            </div>
+        </div>
+    `;
+    historyBox.scrollTop = historyBox.scrollHeight;
+
+    // Fetch response via window.aiClient if available, otherwise mock it for now
+    try {
+        let answer = "I'm sorry, my API is currently disconnected. Please check \`ai-client.js\` configuration.";
+        if (window.aiClient && typeof window.aiClient.askDoubt === 'function') {
+            answer = await window.aiClient.askDoubt(question);
+        } else {
+            // Mock answer if API is not fully hooked up
+            answer = "Here is a simulated response from the AI Coach. It seems the API key is not currently injected, but the UI is fully functional! To fix this, make sure \`ai-client.js\` is loaded properly and the Gemini Key is active.";
+        }
+
+        document.getElementById(loaderId).remove();
+        
+        // Add AI response
+        historyBox.innerHTML += `
+            <div class="chat-message ai-msg fade-in" style="display: flex; gap: 15px; max-width: 85%;">
+                <div class="ai-avatar-small" style="width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0;">🤖</div>
+                <div class="msg-bubble" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem 1.5rem; border-radius: 0 18px 18px 18px; color: var(--text-bright); line-height: 1.5; font-size: 0.95rem;">
+                    ${window.marked && window.marked.parse ? marked.parse(answer) : answer.replace(/\\n/g, '<br>')}
+                </div>
+            </div>
+        `;
+    } catch (err) {
+        document.getElementById(loaderId).remove();
+        historyBox.innerHTML += `
+            <div class="chat-message ai-msg fade-in" style="display: flex; gap: 15px; max-width: 85%;">
+                <div class="msg-bubble" style="background: rgba(255,0,0,0.1); border: 1px solid rgba(255,0,0,0.3); padding: 1rem 1.5rem; border-radius: 0 18px 18px 18px; color: #ff4b4b;">
+                    Error connecting to AI Server. Please try again.
+                </div>
+            </div>
+        `;
+    }
+    historyBox.scrollTop = historyBox.scrollHeight;
 }
 
 
@@ -1891,16 +2642,32 @@ function renderOverview() {
         </div>
     ` : "";
 
+    const userStreak = currentUser.coding_streak || 0;
+    const streakText = userStreak === 1 ? "1 Day" : `${userStreak} Days`;
+
     return `
         <div class="tab-pane active fade-in dashboard-overview-wrapper" style="padding: 0;">
             ${alertBannerHtml}
             <!-- 1. Welcome Section -->
             <div class="premium-welcome-card stagger-2">
                 <div class="welcome-header" style="margin-bottom: 0;">
-                    <h1 class="font-heading" style="font-size: 2.2rem; margin-bottom: 0.2rem; font-weight: 700;">
-                        Welcome back, <span style="background: linear-gradient(90deg, #00f2ff, #6D5DF2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${userName}</span> 👋
-                    </h1>
-                    <p style="color: var(--text-dim); font-size: 0.85rem; font-weight: 500;">${greetingSubtitle}</p>
+                    <div class="welcome-text-area">
+                        <h1 class="font-heading" style="font-size: 2.2rem; margin-bottom: 0.2rem; font-weight: 700;">
+                            Welcome back, <span style="background: linear-gradient(90deg, #00f2ff, #6D5DF2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${userName}</span> 👋
+                        </h1>
+                        <p style="color: var(--text-dim); font-size: 0.85rem; font-weight: 500;">${greetingSubtitle}</p>
+                    </div>
+
+                    <!-- Premium 3D Coding Streak -->
+                    <div class="premium-streak-badge" title="Keep learning to maintain your streak!" onclick="renderTabContent('coding-arena')">
+                        <div class="streak-icon-3d">
+                            <i class="fa-solid fa-fire"></i>
+                        </div>
+                        <div class="streak-info">
+                            <span class="streak-label">CODING STREAK</span>
+                            <span class="streak-count">${streakText}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -2103,6 +2870,13 @@ window.checkServer = async () => {
 }
 
 // Hook into renderAITools to check server
+
+window.openCodingArena = async () => {
+    const contentArea = document.getElementById('tab-content');
+    contentArea.innerHTML = `<div style="padding: 4rem; text-align: center;"><div class="loader-pro"></div><p style="margin-top:1rem; color:var(--text-dim);">Loading Coding Arena...</p></div>`;
+    const html = await renderCodingArena();
+    contentArea.innerHTML = html;
+};
 
 // Main Generation Function
 window.generatePaper = async () => {
@@ -2632,22 +3406,20 @@ function renderCollegeStep() {
 
     // Helper to generate HTML for cards
     const getCardsHTML = (items) => {
-        // Sort: Unlocked colleges first, then by name
+        // Sort: active colleges first (A-Z), then locked colleges (A-Z)
         const sortedItems = [...items].sort((a, b) => {
-            const isUnlockedA = (a.id === 'medicaps' || a.id === 'lnct' || a.name.toLowerCase().includes('medicaps'));
-            const isUnlockedB = (b.id === 'medicaps' || b.id === 'lnct' || b.name.toLowerCase().includes('medicaps'));
+            const aLocked = a.status === 'locked';
+            const bLocked = b.status === 'locked';
 
-            if (isUnlockedA && !isUnlockedB) return -1;
-            if (!isUnlockedA && isUnlockedB) return 1;
+            if (!aLocked && bLocked) return -1;  // a is active, goes first
+            if (aLocked && !bLocked) return 1;   // b is active, goes first
 
-            // If both are same status, sort alphabetically by name
+            // Same status → alphabetical
             return a.name.localeCompare(b.name);
         });
 
         return sortedItems.map(c => {
-            const isMedicaps = (c.id === 'medicaps' || c.name.toLowerCase().includes('medicaps'));
-            const isLnct = (c.id === 'lnct' || c.name.toLowerCase().includes('lnct'));
-            const isLocked = !isMedicaps && !isLnct;
+            const isLocked = (c.status === 'locked');
 
             return `
         <div class="selection-card glass-card fade-in" 
@@ -2839,7 +3611,7 @@ window.selectCombinedSemester = function (sem, year) {
 
 window.renderCombinedSemesterStep = renderCombinedSemesterStep;
 
-function renderSubjectStep() {
+async function renderSubjectStep() {
     updateStepUI(4);
     const backBtn = document.getElementById('explorer-back-btn');
     if (backBtn) {
@@ -2850,13 +3622,52 @@ function renderSubjectStep() {
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Subject</span>`;
 
     const container = document.getElementById('explorer-content');
+    container.innerHTML = `<div class="ap-loader" style="grid-column: 1/-1; margin: 4rem auto;"><div class="ap-spin"></div><p style="color:var(--text-dim); margin-top:1rem;">Loading subjects...</p></div>`;
 
     // Try College-Specific Key first, then fallback to Common Key
     const collegeKey = `${selState.college.id}-${selState.branch.id}-${selState.semester}`;
     const commonKey = `${selState.branch.id}-${selState.semester}`;
-    const subjects = GlobalData.subjects[collegeKey] || GlobalData.subjects[commonKey] || [];
+    
+    // Only use the global/common fallback if the college is Medicaps
+    const globalSubjects = selState.college.id === 'medicaps' || selState.college.id.includes('medicaps')
+        ? (GlobalData.subjects[collegeKey] || GlobalData.subjects[commonKey] || [])
+        : (GlobalData.subjects[collegeKey] || []);
 
-    if (subjects.length === 0) {
+    let customSubjects = [];
+    try {
+        let sb = window._apSB;
+        if (!sb) {
+            const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+            sb = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+            window._apSB = sb;
+        }
+        
+        // Fetch subjects added by admin for this specific college/branch/sem
+        const { data } = await sb.from('college_subjects')
+            .select('id, subject_name, subject_code')
+            .eq('college_id', selState.college.id)
+            .eq('branch_id', selState.branch.id)
+            .eq('semester', selState.semester);
+            
+        if (data) customSubjects = data;
+    } catch(e) { 
+        console.error('Error fetching custom subjects:', e); 
+    }
+
+    // Combine global subjects with custom subjects, avoiding duplicates by name
+    const combined = [...globalSubjects];
+    customSubjects.forEach(cs => {
+        if (!combined.find(s => s.name.toLowerCase() === cs.subject_name.toLowerCase())) {
+            combined.push({ 
+                id: cs.id, 
+                name: cs.subject_name, 
+                code: cs.subject_code || 'SUB',
+                icon: '📚'
+            });
+        }
+    });
+
+    if (combined.length === 0) {
         container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 4rem;">
             <p style="color: var(--text-dim);">No subjects registered for this branch/year combo yet.</p>
             <button class="btn btn-primary btn-sm" style="margin-top: 1rem;" onclick="renderCollegeStep()">Start Over</button>
@@ -2864,10 +3675,10 @@ function renderSubjectStep() {
         return;
     }
 
-    container.innerHTML = subjects.map(s => `
-        <div class="selection-card glass-card fade-in" onclick="selectSubject('${s.id}', '${s.name}', '${s.code || ''}')">
-            <div class="card-icon" style="font-size: 2.5rem; margin-bottom: 0.5rem;">${s.icon}</div>
-            <div style="font-size: 0.7rem; color: var(--primary); font-weight: 700; margin-bottom: 0.5rem; background: rgba(108, 99, 255, 0.1); padding: 2px 8px; border-radius: 4px; display: inline-block;">${s.code}</div>
+    container.innerHTML = combined.map(s => `
+        <div class="selection-card glass-card fade-in" onclick="selectSubject('${s.id}', '${s.name.replace(/'/g, "\\'")}', '${s.code || ''}')">
+            <div class="card-icon" style="font-size: 2.5rem; margin-bottom: 0.5rem;">${s.icon || '📚'}</div>
+            <div style="font-size: 0.7rem; color: var(--primary); font-weight: 700; margin-bottom: 0.5rem; background: rgba(108, 99, 255, 0.1); padding: 2px 8px; border-radius: 4px; display: inline-block;">${s.code || 'SUB'}</div>
             <h3 class="font-heading">${s.name}</h3>
         </div>
     `).join('');
@@ -3026,7 +3837,7 @@ function renderInstantStaticNotes(notes) {
                     </div>
                 </div>
                 <div class="download-section-pro">
-                    <a href="${note.url || note.fileUrl || note.driveLink}" target="_blank" class="btn-download-white" onclick="downloadNote('${note.id}')">
+                    <a href="${window.getViewerUrl(note.url || note.fileUrl || note.driveLink, note.title || note.name)}" target="_blank" class="btn-download-white" onclick="downloadNote('${note.id}')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         Download
                     </a>
@@ -3100,8 +3911,8 @@ window.renderMyUploads = function () {
                 </div>
                 <div style="display: flex; gap: 0.5rem; justify-content: space-between; width: 100%;">
                     <div style="display: flex; gap: 0.5rem;">
-                        <a href="${n.url || n.fileUrl || n.driveLink || '#'}" target="_blank" class="btn btn-sm btn-ghost" style="border: 1px solid var(--border-glass);">View</a>
-                        <button onclick="deleteUploadedNote('${n.id}')" class="btn btn-sm btn-ghost" style="border: 1px solid #ff4757; color: #ff4757; background: rgba(255, 71, 87, 0.1); cursor: pointer;">Delete</button>
+                        <a href="${window.getViewerUrl(n.url || n.fileUrl || n.driveLink || n.file_url, n.title || n.fileName || n.name, n.id)}" target="_blank" class="btn btn-sm btn-ghost" style="border: 1px solid var(--border-glass);">View</a>
+                        ${stat !== 'approved' ? `<button onclick="deleteUploadedNote('${n.id}')" class="btn btn-sm btn-ghost" style="border: 1px solid #ff4757; color: #ff4757; background: rgba(255, 71, 87, 0.1); cursor: pointer;">Delete</button>` : ''}
                     </div>
                     ${stat === 'approved' ? `<span style="font-size:0.8rem; display:flex; align-items:center;">👁️ ${n.views || 0}</span>` : ''}
                 </div>
@@ -3110,23 +3921,16 @@ window.renderMyUploads = function () {
         }).join('');
     };
 
-    // --- STEP 1: Show cached data INSTANTLY (zero network delay) ---
+    // --- FETCH FROM SUPABASE ---
     const cacheKey = `my_uploads_${currentUser.id}`;
+    
+    // Quick load from cache
     try {
         const cached = localStorage.getItem(cacheKey);
         if (cached) {
             const cachedNotes = JSON.parse(cached);
-            if (cachedNotes && cachedNotes.length > 0) {
-                render(cachedNotes);
-                // Show a subtle syncing indicator without blocking UI
-                const syncBadge = document.createElement('div');
-                syncBadge.id = 'uploads-sync-badge';
-                syncBadge.style.cssText = 'font-size:0.7rem; color:var(--text-dim); text-align:right; padding: 0 0 0.5rem; opacity:0.5;';
-                syncBadge.textContent = '⟳ Syncing...';
-                container.before(syncBadge);
-            } else {
-                container.innerHTML = '<div style="grid-column: 1/-1; display: flex; justify-content: center; padding: 4rem;"><div class="loader-pro"></div></div>';
-            }
+            if (cachedNotes && cachedNotes.length > 0) render(cachedNotes);
+            else container.innerHTML = '<div style="grid-column: 1/-1; display: flex; justify-content: center; padding: 4rem;"><div class="loader-pro"></div></div>';
         } else {
             container.innerHTML = '<div style="grid-column: 1/-1; display: flex; justify-content: center; padding: 4rem;"><div class="loader-pro"></div></div>';
         }
@@ -3134,54 +3938,41 @@ window.renderMyUploads = function () {
         container.innerHTML = '<div style="grid-column: 1/-1; display: flex; justify-content: center; padding: 4rem;"><div class="loader-pro"></div></div>';
     }
 
-    // --- STEP 2: Fetch fresh data via one-time HTTP (fast, no WebSocket wait) ---
-    // Query by user's profile ID (stored in uploadedBy field)
-    const userId = currentUser.id;
-    const userEmail = currentUser.email;
-    const q = query(collection(db, "notes"), where("uploadedBy", "==", userId));
-
-    getDocs(q).then((snap) => {
-        const notes = snap.docs.map(d => {
-            const data = d.data();
-            // Serialize Firestore Timestamps to ISO strings for localStorage compatibility
-            if (data.createdAt && data.createdAt.toDate) data.createdAt = data.createdAt.toDate().toISOString();
-            if (data.created_at && data.created_at.toDate) data.created_at = data.created_at.toDate().toISOString();
-            return { id: d.id, ...data };
-        });
-
-        // Save to localStorage for instant display on next refresh
-        try { localStorage.setItem(cacheKey, JSON.stringify(notes)); } catch (e) { /* storage full */ }
-
-        // Remove sync badge
-        const badge = document.getElementById('uploads-sync-badge');
-        if (badge) badge.remove();
-
-        render(notes);
-
-        // --- STEP 3: After initial fast load, upgrade to real-time listener for live status updates ---
-        onSnapshot(q, (liveSnap) => {
-            const liveNotes = liveSnap.docs.map(d => {
-                const data = d.data();
-                if (data.createdAt && data.createdAt.toDate) data.createdAt = data.createdAt.toDate().toISOString();
-                if (data.created_at && data.created_at.toDate) data.created_at = data.created_at.toDate().toISOString();
-                return { id: d.id, ...data };
-            });
-            try { localStorage.setItem(cacheKey, JSON.stringify(liveNotes)); } catch (e) { /* storage full */ }
-            render(liveNotes);
-        }, (err) => {
-            // Real-time listener failed — we already have the getDocs data shown, so just log silently
-            console.warn("Live uploads sync dropped (non-critical):", err.message);
-        });
-
-    }).catch((error) => {
-        console.error("Firestore Uploads Error:", error);
-        // If we already showed cached data, don't overwrite with error message
-        const hasCachedContent = container.querySelector('.glass-card');
-        if (!hasCachedContent) {
-            container.innerHTML = `<p style="color:red; text-align:center;">Could not load uploads: ${error.message}</p>`;
+    // Dynamic import to ensure supabase is available
+    import('./supabase-config.js?v=1.0').then(async ({ supabase }) => {
+        try {
+            const userEmail = currentUser.email;
+            
+            const [pendingRes, approvedRes] = await Promise.all([
+                supabase.from('pending_notes').select('*').eq('uploader_email', userEmail),
+                supabase.from('approved_notes').select('*').eq('uploader_email', userEmail)
+            ]);
+            
+            let allUploads = [];
+            if (pendingRes.data) {
+                allUploads.push(...pendingRes.data.map(d => ({...d, status: 'pending'})));
+            }
+            if (approvedRes.data) {
+                allUploads.push(...approvedRes.data.map(d => ({...d, status: 'approved'})));
+            }
+            
+            // Sort by creation date descending
+            allUploads.sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+            
+            // Cache it
+            try { localStorage.setItem(cacheKey, JSON.stringify(allUploads)); } catch(e) {}
+            
+            render(allUploads);
+            
+        } catch (err) {
+            console.error("Supabase My Uploads Error:", err);
+            const hasCachedContent = container.querySelector('.glass-card');
+            if (!hasCachedContent) {
+                container.innerHTML = `<p style="color:red; text-align:center;">Could not load uploads: ${err.message}</p>`;
+            }
         }
-        const badge = document.getElementById('uploads-sync-badge');
-        if (badge) { badge.textContent = '⚠️ Sync failed'; badge.style.color = '#ff6b6b'; }
+    }).catch(err => {
+        console.error("Failed to load Supabase:", err);
     });
 };
 
@@ -3199,38 +3990,54 @@ window.deleteUploadedNote = async function (noteId) {
         if (deleteBtn) deleteBtn.innerText = "Deleting...";
     }
 
-    const { db, doc, deleteDoc } = window.firebaseServices;
-    try {
-        await deleteDoc(doc(db, "notes", noteId));
-        if (window.showToast) window.showToast("Note deleted successfully!", "success");
+    import('./supabase-config.js?v=1.0').then(async ({ supabase }) => {
+        try {
+            // Only attempt to delete from pending_notes. Users cannot delete approved notes.
+            const { error } = await supabase.from('pending_notes').delete().eq('id', noteId);
+            
+            if (error) {
+                console.error("Delete failed:", error);
+                if (window.showToast) window.showToast("Failed to delete note.", "error");
+                if (deleteBtn) deleteBtn.innerText = "Delete";
+                if (cardToRemove) {
+                    cardToRemove.style.opacity = '1';
+                    cardToRemove.style.pointerEvents = 'all';
+                }
+                return;
+            }
+            
+            if (window.showToast) window.showToast("Note deleted successfully!", "success");
 
-        // Remove from DOM immediately
-        if (cardToRemove) cardToRemove.remove();
+            // Remove from DOM immediately
+            if (cardToRemove) cardToRemove.remove();
 
-        // Update local cache
-        if (window.currentUser) {
-            const cacheKey = `my_uploads_${window.currentUser.id}`;
-            const cachedUrl = localStorage.getItem(cacheKey);
-            if (cachedUrl) {
-                try {
-                    let cachedNotes = JSON.parse(cachedUrl);
-                    cachedNotes = cachedNotes.filter(n => n.id !== noteId);
-                    localStorage.setItem(cacheKey, JSON.stringify(cachedNotes));
-                } catch (e) { }
+            // Update local cache
+            if (window.currentUser) {
+                const cacheKey = `my_uploads_${window.currentUser.id}`;
+                const cachedUrl = localStorage.getItem(cacheKey);
+                if (cachedUrl) {
+                    try {
+                        let cachedNotes = JSON.parse(cachedUrl);
+                        cachedNotes = cachedNotes.filter(n => String(n.id) !== String(noteId));
+                        localStorage.setItem(cacheKey, JSON.stringify(cachedNotes));
+                    } catch (e) { }
+                }
+            }
+        } catch (e) {
+            console.error("Error deleting note:", e);
+            if (window.showToast) window.showToast("Failed to delete note.", "error");
+            else alert("Failed to delete note.");
+
+            // Revert visual state if failed
+            if (cardToRemove) {
+                cardToRemove.style.opacity = '1';
+                cardToRemove.style.pointerEvents = 'auto';
+                if (deleteBtn) deleteBtn.innerText = "Delete";
             }
         }
-    } catch (e) {
-        console.error("Error deleting note:", e);
-        if (window.showToast) window.showToast("Failed to delete note.", "error");
-        else alert("Failed to delete note.");
-
-        // Revert visual state if failed
-        if (cardToRemove) {
-            cardToRemove.style.opacity = '1';
-            cardToRemove.style.pointerEvents = 'auto';
-            if (deleteBtn) deleteBtn.innerText = "Delete";
-        }
-    }
+    }).catch(err => {
+        console.error("Failed to load Supabase for delete", err);
+    });
 };
 
 function renderNotesList(list, tabType) {
@@ -3270,11 +4077,11 @@ function renderNotesList(list, tabType) {
                     <div class="note-actions-pro">
                         <button class="tool-icon-pro" onclick="likeNote('${n.id}')" title="Like">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
-                            <span class="like-count">${n.likes || 1}</span>
+                            <span class="like-count">${n.upvotes || 0}</span>
                         </button>
                         <button class="tool-icon-pro" onclick="toggleNoteDislike('${n.id}')" title="Dislike">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
-                            <span class="dislike-count">${n.dislikes || 0}</span>
+                            <span class="dislike-count">${n.downvotes || 0}</span>
                         </button>
                         <button class="tool-icon-pro" onclick="toggleBookmark('${n.id}')" title="Bookmark">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
@@ -3285,7 +4092,7 @@ function renderNotesList(list, tabType) {
                     </div>
                 </div>
                 <div class="download-section-pro">
-                    <a href="${n.url || n.fileUrl || n.driveLink}" target="_blank" class="btn-download-white" onclick="downloadNote('${n.id}')">
+                    <a href="${window.getViewerUrl(n.url || n.fileUrl || n.driveLink, n.title || n.name)}" target="_blank" class="btn-download-white" onclick="downloadNote('${n.id}')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         Download
                     </a>
@@ -3307,13 +4114,103 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
     if (!grid) return;
 
     if (tabType === 'syllabus') {
-        const subjectName = selState.subject.name;
-        // Search for syllabus in global scope (we'll move it there in a moment)
-        if (typeof window.getSubjectSyllabusHTML === 'function') {
-            grid.innerHTML = window.getSubjectSyllabusHTML(subjectName);
-        } else {
-            grid.innerHTML = '<p style="color:var(--text-dim);">Syllabus details are coming soon for this subject.</p>';
-        }
+        const subjectName = selState.subject?.name;
+        grid.innerHTML = '<div style="color:var(--text-dim);padding:2rem;text-align:center;">Fetching syllabus...</div>';
+
+        (async () => {
+            try {
+                let sb = window._apSB;
+                if (!sb) {
+                    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+                    sb = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+                }
+
+                const colId = selState.college?.id;
+                const branchId = selState.branch?.id;
+                const semName = selState.semester; 
+
+                let { data, error } = await sb.from('college_subjects')
+                    .select('syllabus, description')
+                    .eq('college_id', colId)
+                    .eq('branch_id', branchId)
+                    .eq('semester', semName)
+                    .eq('subject_name', subjectName)
+                    .single();
+
+                let syllabusText = null;
+                if (data && (data.syllabus || data.description)) {
+                    syllabusText = data.syllabus || data.description;
+                }
+                
+                // Fallback to global syllabus if custom one is not found
+                if (!syllabusText) {
+                    const { data: globalData, error: globalErr } = await sb.from('college_subjects')
+                        .select('syllabus, description')
+                        .eq('college_id', 'global')
+                        .eq('subject_name', subjectName)
+                        .single();
+                        
+                    if (globalData && (globalData.syllabus || globalData.description)) {
+                        syllabusText = globalData.syllabus || globalData.description;
+                    }
+                }
+
+                if (syllabusText) {
+                    const cleanText = syllabusText.replace(/<[^>]*>?/gm, ''); // Strip HTML to ensure clean parsing
+                    const unitRegex = /(Unit\s*[-–: ]*\s*[0-9IVX]+[\s\S]*?(?=(?:Unit\s*[-–: ]*\s*[0-9IVX]+)|$))/gi;
+                    let units = [];
+                    let match;
+                    
+                    while ((match = unitRegex.exec(cleanText)) !== null) {
+                        let block = match[1].trim();
+                        // Extract Unit number + up to the first comma or period as the descriptive title
+                        let titleMatch = block.match(/^(Unit\s*[-–: ]*\s*[0-9IVX]+(?:[^,.\n]+)?)/i);
+                        let title = titleMatch ? titleMatch[1].trim().toUpperCase() : 'UNIT';
+                        
+                        // Fallback if title gets absurdly long
+                        if (title.length > 80) {
+                            let fallback = block.match(/^(Unit\s*[-–: ]*\s*[0-9IVX]+)/i);
+                            title = fallback ? fallback[1].trim().toUpperCase() : title.substring(0, 80);
+                        }
+
+                        let desc = block.substring(titleMatch ? titleMatch[0].length : 0).replace(/^[,.\-–:\s]+/, '').trim();
+                        
+                        units.push({ title: title, desc: desc });
+                    }
+
+                    // If no units were found (it didn't match the regex), fallback to a single overview unit
+                    if (units.length === 0) {
+                        units.push({ title: 'OVERVIEW', desc: cleanText });
+                    }
+
+                    if (units.length > 0 && typeof window.genSyllabusHTML === 'function') {
+                        // User wants it to look identical to 2nd image, so we keep "Verified SYLLABUS"
+                        let styledHtml = window.genSyllabusHTML(units);
+                        grid.innerHTML = styledHtml;
+                    } else {
+                        grid.innerHTML = `
+                            <div class="syllabus-header-premium">
+                                <h2 class="syllabus-label">Verified <span>SYLLABUS</span></h2>
+                            </div>
+                            <div class="syllabus-content-pro" style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);padding:1.5rem;border-radius:12px;color:rgba(255,255,255,.8);line-height:1.7;font-size:.9rem;white-space:pre-wrap;">${syllabusText}</div>
+                        `;
+                    }
+                } else {
+                    grid.innerHTML = '<p style="color:var(--text-dim);padding:2rem;text-align:center;">Syllabus details are coming soon for this subject.</p>';
+                }
+            } catch (err) {
+                console.error('[Dashboard] Error fetching syllabus:', err);
+                let fallbackHtml = null;
+                if (typeof window.getSubjectSyllabusHTML === 'function') {
+                    fallbackHtml = window.getSubjectSyllabusHTML(subjectName);
+                }
+                if (fallbackHtml) {
+                    grid.innerHTML = fallbackHtml;
+                } else {
+                    grid.innerHTML = '<p style="color:var(--text-dim);padding:2rem;text-align:center;">Syllabus details are coming soon for this subject.</p>';
+                }
+            }
+        })();
         return;
     }
 
@@ -3341,10 +4238,26 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
     const deduplicatedNotes = Array.from(uniqueMap.values());
 
     const filtered = deduplicatedNotes.filter(n => {
-        const semMatch = !n.semester || n.semester === querySem || (altSem && n.semester === altSem);
-        const isCorrectSubject = ((n.subjectId === subjectId) || (n.subject === subjectId) || (n.subjectName === selState.subject.name)) &&
-            (n.collegeId === selState.college.id || n.college === selState.college.id || n.collegeId === 'global') &&
-            (n.type === tabType || !n.type);
+        const noteSem = n.semester || n.semesterId;
+        const semMatch = !noteSem || noteSem === querySem || (altSem && noteSem === altSem) || noteSem === 'Unknown';
+        
+        const isCorrectSubject = (
+            (n.subjectId === subjectId) || 
+            (n.subject === subjectId) || 
+            (n.subject === selState.subject.name) || 
+            (n.subjectName === selState.subject.name) ||
+            (n.name === selState.subject.name)
+        ) && (
+            n.collegeId === selState.college.id || 
+            n.college === selState.college.id || 
+            n.collegeId === 'global' || 
+            n.college === 'global' ||
+            n.college === 'Unknown'
+        ) && (
+            n.type === tabType || 
+            !n.type || 
+            (tabType === 'notes' && n.type === undefined)
+        );
 
         if (!semMatch || !isCorrectSubject) return false;
 
@@ -3377,21 +4290,13 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
         const yearDate = selState?.year && selState.year.includes('2') ? 'Jan 2026' : (selState?.year && selState.year.includes('1') ? 'Feb 2026' : 'Dec 2025');
         const unitTag = n.unit || (n.title.toLowerCase().includes('unit') ? n.title.match(/unit\s*\d+/i)?.[0].toUpperCase() : 'UNIT 1');
 
-        // Dynamic Fake Stats Logic
-        const seed = (n.id || sequentialId).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        const dayFactor = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-        const isStuck = (seed % 8 === 0);
-        const baseViews = (seed % 400) + 120;
-        const baseLikes = Math.floor(baseViews * 0.15) + (seed % 15);
-        const dailyViews = isStuck ? 0 : (seed % 8 + 2) * (dayFactor % 20);
-        const dailyLikes = isStuck ? 0 : Math.floor(dailyViews * 0.08);
+        const displayViews = n.views || 0;
+        const displayLikes = n.upvotes || 0;
+        const displayDislikes = n.downvotes || 0;
 
-        const displayViews = (n.views || 0) + baseViews + dailyViews;
-        const displayLikes = (n.likes || 0) + baseLikes + dailyLikes;
-        const displayDislikes = n.dislikes || (seed % 4);
-
-        const isLiked = window.likedNoteIds?.has(n.id);
-        const isDisliked = window.dislikedNoteIds?.has(n.id);
+        const localVote = localStorage.getItem(`vote_${n.id}`) || localStorage.getItem(`vote_${sequentialId}`);
+        const isLiked = window.likedNoteIds?.has(n.id) || localVote == 1;
+        const isDisliked = window.dislikedNoteIds?.has(n.id) || localVote == -1;
         const isSaved = window.savedNoteIds?.has(n.id);
 
         return `
@@ -3437,7 +4342,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                         </button>
                     </div>
-                    <a href="${n.url || n.fileUrl || n.driveLink}" target="_blank" class="btn-download-pro" onclick="downloadNote('${n.id}')">
+                    <a href="${window.getViewerUrl(n.url || n.fileUrl || n.driveLink, n.title || n.name, n.id)}" target="_blank" class="btn-download-pro" onclick="downloadNote('${n.id}')">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         View
                     </a>
@@ -3518,264 +4423,39 @@ window.copySyllabusText = function (btn, title, desc) {
     });
 };
 
-window.shareResource = function (id) {
-    const url = window.location.href;
-    if (navigator.share) {
-        navigator.share({
-            title: 'Study Resource | SKiL MATRiX',
-            text: 'Check out this study resource on SKiL MATRiX!',
-            url: url
-        }).catch(console.error);
-    } else {
-        navigator.clipboard.writeText(url).then(() => {
-            alert("Link copied to clipboard!");
-        });
-    }
-};
 
 
+window.genSyllabusHTML = (units) => {
+    return `
+    <div class="syllabus-header-premium">
+        <h2 class="syllabus-label">Verified <span>SYLLABUS</span></h2>
+    </div>
+    <div class="syllabus-grid-pro">
+    ${units.map((u, i) => {
+        const cleanTitle = u.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        const cleanDesc = u.desc.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
 
- window.getSubjectSyllabusHTML = function (subjectName) {
-
-    const genSyllabusHTML = (units) => {
         return `
-        <div class="syllabus-header-premium">
-            <h2 class="syllabus-label">Verified <span>SYLLABUS</span></h2>
-        </div>
-        <div class="syllabus-grid-pro">
-        ${units.map((u, i) => {
-            const cleanTitle = u.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-            const cleanDesc = u.desc.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-            return `
-                <div class="premium-syllabus-card color-1" style="animation-delay: ${i * 0.1}s;">
-                    <!-- HUD Decorative Tags -->
-                    <div class="corner-tag corner-top-left" style="width: 10px; height: 10px; border-width: 1.5px; opacity: 0.2;"></div>
-                    <div class="corner-tag corner-top-right" style="width: 10px; height: 10px; border-width: 1.5px; opacity: 0.2;"></div>
-                    
-                    <button class="syllabus-copy-btn" onclick="window.copySyllabusText(this, '${cleanTitle}', '${cleanDesc}')" title="Copy Unit Text">
-                        <i class="far fa-copy"></i>
-                        <span>COPY</span>
-                    </button>
+            <div class="premium-syllabus-card color-1" style="animation-delay: ${i * 0.1}s;">
+                <!-- HUD Decorative Tags -->
+                <div class="corner-tag corner-top-left" style="width: 10px; height: 10px; border-width: 1.5px; opacity: 0.2;"></div>
+                <div class="corner-tag corner-top-right" style="width: 10px; height: 10px; border-width: 1.5px; opacity: 0.2;"></div>
+                
+                <button class="syllabus-copy-btn" onclick="window.copySyllabusText(this, '${cleanTitle}', '${cleanDesc}')" title="Copy Unit Text">
+                    <i class="far fa-copy"></i>
+                    <span>COPY</span>
+                </button>
 
-                    <div class="syllabus-card-glow"></div>
-                    <div class="syllabus-accent-bar"></div>
-                    <div class="syllabus-content-wrapper">
-                        <h4 class="syllabus-unit-title">${u.title}</h4>
-                        <p class="syllabus-unit-desc">${u.desc}</p>
-                    </div>
+                <div class="syllabus-card-glow"></div>
+                <div class="syllabus-accent-bar"></div>
+                <div class="syllabus-content-wrapper">
+                    <h4 class="syllabus-unit-title">${u.title}</h4>
+                    <p class="syllabus-unit-desc">${u.desc}</p>
                 </div>
-            `;
-        }).join('')}
-        </div>`;
-    };
-
-    const syllabiDB = {
-        'Applied Chemistry': genSyllabusHTML([
-            { title: 'Unit I: Water analysis and its Treatment', desc: "Sources of water, impurities in water, hard water and soft water, hardness types and units, disadvantages of hard water, industrial and municipal water characteristics, water analysis (determination of hardness, alkalinity, and dissolved oxygen)." },
-            { title: 'Unit II: Lubricants', desc: "Classification of lubricants: lubricating oils, semisolid, solid, and synthetic lubricants, mechanisms of lubrication, properties and testing (viscosity index, flash and fire point, cloud and pour point, aniline point, steam emulsion number, saponification number, iodine value, carbon residue)." },
-            { title: 'Unit III: New Engineering Materials', desc: "Nanomaterials and nanotechnology, top-down and bottom-up fabrication approaches. Fullerenes: manufacturing and structure of C60, properties and applications. Carbon nanotubes (CNTs): single-walled and multi-walled. Graphene: structure, conductivity, mechanical strength." },
-            { title: 'Unit IV: Instrumental Techniques in Chemical Analysis', desc: "Electromagnetic radiation, Lambert's and Beer's Law. UV-Visible spectroscopy: principle, electronic transitions, band shifts, instrumentation. Infrared (IR) spectroscopy: fundamental vibrations, stretching, bending, instrumentation and applications." },
-            { title: 'Unit V: Heritage of Indian Chemistry', desc: "Early foundations of Indian chemistry, metallurgical techniques, literary contributions, rasas, minerals of Indian alchemy, chemical techniques in ancient India, dyeing and pigmentation, Ayurveda contributions." }
-        ]),
-        'Engineering Mathematics-I': genSyllabusHTML([
-            { title: 'Unit I: Matrices and Linear Systems', desc: "Rank and Nullity of a Matrix by reducing it into Echelon form, Solution of Simultaneous equations by elementary transformation, Consistency and Inconsistency of Equations, Eigen Values and Eigen Vectors." },
-            { title: 'Unit II: Differential Calculus', desc: "Taylors and Maclaurin’s series expansions, Functions of Several variables, Partial differentiation, Euler’s Theorem (without proof), Total Derivative, Maxima and Minima of function of two variables." },
-            { title: 'Unit III: Integral Calculus', desc: "Beta and Gamma functions: Definitions, Properties without proof, Relation between Beta and Gamma functions without proof, Duplication formula without proof, Multiple Integral: Double and Triple Integrals, Change the Order of Integration, Applications of Multiple Integral in Area, Volume." },
-            { title: 'Unit IV: Ordinary Differential Equations', desc: "First order differential equations: Exact, Linear, Linear differential Equations of second and higher order with constant coefficients, Homogeneous linear differential equations." },
-            { title: 'Unit V: Complex Analysis', desc: "Functions of complex variable, Analytic functions, Harmonic Conjugate functions, Cauchy-Riemann Equations, Complex Line Integral, Cauchy’s Theorem, Cauchy’s Integral Formula." }
-        ]),
-        'Basic Mechanical Engineering': genSyllabusHTML([
-            { title: 'Unit I: Materials & their mechanical properties', desc: "Classification of Engineering material and their mechanical properties, Composition of iron and carbon steels and their application. Stress-strain diagram, Hooks law and modulus of elasticity." },
-            { title: 'Unit II: Thermodynamics', desc: "Thermodynamic Systems, Thermodynamic Properties, thermodynamic processes. First law of thermodynamics, Second law of thermodynamic, heat engine, heat pump, refrigerator and their numerical." },
-            { title: 'Unit III: Internal Combustion Engines', desc: "Basic terminology and functions of components in IC Engines, Working of four stroke and two stroke engines, P-V, T-S plot and efficiency of Otto and Diesel cycle and their numerical." },
-            { title: 'Unit IV: Steam generators', desc: "Definition, Classification, general study of Cochran and Lancashire boilers. Boiler mountings and accessories. Steam properties and boiler performance. Introduction to Draught." },
-            { title: 'Unit V: Centroid & Moment of Inertia', desc: "Centroid & Centre of gravity, Location of centroid for standard figure and composite figure, Theory of Moment of Inertia, Perpendicular Axis and Parallel Axis theorems." }
-        ]),
-        'Engineering Graphics': genSyllabusHTML([
-            { title: 'Unit I: Introduction to AutoCAD and its basic commands', desc: "CAD- Introduction, AutoCAD User Interface, coordinate systems, axes, panels, Status bar. AutoCAD Tools: Line, Polyline, Circle, Arc, Rectangle, Polygon, Ellipse, Spline, Hatch." },
-            { title: 'Unit II: Orthographic Projection of Points and lines', desc: "Introduction of orthographic projection: Reference planes, First angle projections, Third angle projection. Projections of Points (all four quadrants), Projections of Straight lines." },
-            { title: 'Unit III: Orthographic Projections of Planes & Solids', desc: "Orthographic Projections of Planes (perpendicular/parallel/inclined). Orthographic Projection of Solids: Classification of solids. Projections of solids when the axis of the solid is perpendicular to any one principal plane." },
-            { title: 'Unit IV: Advanced commands of AutoCAD', desc: "Annotations Dimensions, TEXT style, single/multi text. Property: Layer properties, line weight. LAYERS: Create/edit layers, Layer control. Orthographic to Orthographic Projection Views." },
-            { title: 'Unit V: Section of solids and development of surfaces', desc: "Sections of Solids: Sectional views and true shape of the section for the regular solids whose axis is perpendicular to HP. Development of Surfaces: Prism, Pyramid, Cone and Cylinder excluding cut solids." }
-        ]),
-        'Engineering Workshop': genSyllabusHTML([
-            { title: 'Unit I: Carpentry Shop', desc: "Introduction to various shops and workshop layouts. Safety norms. Carpentry Shop: Tools & operations, Types of woods, Carpentry Joints, sawing, planning, chiseling, grooving." },
-            { title: 'Unit II: Fitting Shop', desc: "Introduction of Tools & operations, Types of Marking tools, Types of fitting cutting tool & their uses, chipping, filing, scraping, grinding, drilling, tapping." },
-            { title: 'Unit III: Foundry Shop & Black Smithy', desc: "Pattern Making: Pattern materials, allowances, Core box. Molding: Green/Dry/Loam sand, Methods for green sand mould. Black Smithy: Forging operations (Upsetting, drawing down, Fullering Swaging)." },
-            { title: 'Unit IV: Welding Shop', desc: "Brazing, Soldering, Gas & Arc welding. Preparing Lap & Butt joints, Study of TIG & MIG welding processes. Safety precautions." },
-            { title: 'Unit V: Machine Shop', desc: "Lathe machine (different parts, operations, cutting tools). Demonstration of Facing, Plane Turning, step turning, taper turning, knurling, parting. Drilling machine, CNC Machines." }
-        ]),
-        'Programming with C': genSyllabusHTML([
-            { title: 'Unit I: Basics of C Programming', desc: "History and structure of C program, compiling and executing. Keywords, Identifiers, Constants, Variables, Data Types, Operators, Type conversions, Input/Output functions." },
-            { title: 'Unit II: Control Flow and Arrays', desc: "Conditional statements: if, if-else, nested if, switch-case. Loops: while, do-while, for, break and continue. Arrays: declaration, initialization, 1D and 2D arrays, array operations." },
-            { title: 'Unit III: Functions and Recursion', desc: "Function declaration and definition, Call by value and call by reference, Recursion, Storage classes, Scope rules, Header files, Inline functions." },
-            { title: 'Unit IV: Pointers and Structures', desc: "Pointers: declaration, initialization, pointer arithmetic, pointers and arrays, pointers and functions. Structures: declaration, definition, accessing members, nested structures, unions, bit-fields." },
-            { title: 'Unit V: File Handling and Dynamic Memory Allocation', desc: "File operations: opening, reading, writing text/binary files, command-line arguments. Dynamic memory allocation: malloc, calloc, realloc, free, introduction to linked lists." }
-        ]),
-        'Communication Skills': genSyllabusHTML([
-            { title: 'Unit I: Developing Effective Communication Skills', desc: "Corporate Communication, process, characteristics and principles - Seven C’s of Communication, verbal and non-verbal communication, barriers, Importance of Feedback." },
-            { title: 'Unit II: Developing Listening and Reading Skills', desc: "Reading Comprehension, SQ3R, Scanning, Skimming, Intensive/Extensive reading. Listening Skills: hearing vs listening, barriers, note-making, note-taking strategies." },
-            { title: 'Unit III: Developing Speaking Skills', desc: "Phonetics IPA symbols, transcription and pronunciation. Preparing for Oral Presentations, Speech, Debates, Group Discussion, telephonic conversation, post-presentation strategy." },
-            { title: 'Unit IV: Developing Professional Writing Skills', desc: "Précis writing, Paragraph writing. Business Letters: Quotations/Orders/Complaints. Writing Job Application with Resume, E-mail Writing. Report-writing: features, structures, elements." },
-            { title: 'Unit V: Appreciating Literature', desc: "Poetry: The Solitary Reaper (Wordsworth), Where the Mind is Without Fear (Tagore). Prose: Of Studies (Bacon). Fiction: The Shroud (Premchand). Short Stories: The Mark of Vishnu (Singh), The last leaf." }
-        ]),
-        'Applied Physics': genSyllabusHTML([
-            { title: 'Unit I: Laser and Fiber Optics', desc: "Lasers: Three quantum processes, Einstein’s A & B coefficients, Population inversion, Ruby/He-Ne Laser. Fiber Optics: Acceptance angle, numerical aperture, fractional refractive index change, V-number." },
-            { title: 'Unit II: Wave Optics', desc: "Interference of light: Fundamentals of interference, Interference in thin film, Newton’s ring experiment, Michelson’s Interferometer. Diffraction of light: Fraunhofer diffraction for a single slit, Plane transmission Grating." },
-            { title: 'Unit III: Quantum mechanics', desc: "de-Broglie hypothesis, Wave packet, Heisenberg’s uncertainty principle, Compton effect. Schrodinger’s time-dependent and time-independent wave equation, Particle in a one-dimensional infinite potential well." },
-            { title: 'Unit IV: Nuclear Physics', desc: "Introduction of nucleus, types of nuclear radiations (α, β, γ), Interaction of nuclear radiations with matter. Radiation Technology: LINAC, Cyclotron, Betatron, Geiger-Muller (GM) counter." },
-            { title: 'Unit V: Solid State Physics', desc: "Crystal Physics: Types of Unit cell (SC, FCC, BCC), Packing fraction, Miller indices, Bragg’s law of X-ray Diffraction. Semiconductor: Fermi level, Hall effect. Superconductivity: Meissner effect, Type-I and Type-II." }
-        ]),
-        'Engineering Mathematics -II': genSyllabusHTML([
-            { title: 'Unit I: Laplace Transform', desc: "Introduction of Laplace Transform, properties of Laplace Transform, Inverse Laplace transform, Convolution theorem, Applications to Ordinary Differential Equations, Unit step function and Impulse function." },
-            { title: 'Unit II: Fourier Series and Fourier Transform', desc: "Introduction of Fourier series, Fourier series for Discontinuous functions, Fourier series for Even and Odd function, Half range series, Fourier Transform." },
-            { title: 'Unit III: Partial Differential Equations', desc: "Definition, Formulation, Solution of Linear Partial Differential Equations (Lagrange’s Method), Non-Linear PDEs of First order (Charpit’s method). PDEs with Constant Coefficients, Method of Separation of Variables." },
-            { title: 'Unit IV: Vector Calculus', desc: "Vector Differentiation, Laplacian operator, Gradient, Divergence and Curl, Line and surface integrals, Green’s theorem, Gauss Divergence theorem, Stroke’s theorem." },
-            { title: 'Unit V: Numerical Analysis', desc: "Errors and Approximations, Solution of Algebraic and Transcendental Equations (Regula Falsi, Newton-Raphson and Iterative methods), Solution of Simultaneous linear equations by Gauss Elimination and Gauss-Siedel." }
-        ]),
-        'Basic Civil Engineering & Mechanics': genSyllabusHTML([
-            { title: 'Unit I: Building Materials & Construction', desc: "Stones, bricks, cement, timber... Concrete: Workability, Strength properties, Nominal proportion, compaction, curing. Foundations: spread footings, RCC footings, floors, staircases." },
-            { title: 'Unit II: Surveying & Levelling', desc: "Surveying-classification, general principles of surveying. Basic terms and definitions of chain, Chain survey, Compass survey and levelling." },
-            { title: 'Unit III: Mapping & Sensing', desc: "Mapping details and contouring, Profile Cross sectioning and measurement of areas, volumes, application of measurements in quantity computations, Survey stations." },
-            { title: 'Unit IV: Forces & its applications', desc: "Graphical and Analytical Treatment of Concurrent and nonconcurrent Co-planner forces, Free Body Diagram. Analysis of plane Trusses: Method of joints, Method of Sections. Frictional force." },
-            { title: 'Unit V: Shear force and Bending moment', desc: "Introduction of shear force and bending moment, sign conventions, Types of loads, beams, supports. Shear force and bending moment diagrams for simply supported, overhang and cantilever beams." }
-        ]),
-        'Basic Electrical & Electronics Engineering': genSyllabusHTML([
-            { title: 'Unit I: DC Circuit Analysis', desc: "Elements and characteristics of electric circuits, Ideal/practical sources, Kirchhoff’s laws, Voltage and current division rules, Mesh analysis, Nodal analysis, Thevenin’s and Superposition theorem." },
-            { title: 'Unit II: AC Circuit Analysis', desc: "Fundamentals of single/three phase AC, Average and RMS values, Analysis of series R-L, R-C and R-L-C circuits, Power factor, Series resonance, Star and delta connections for 3-phase system." },
-            { title: 'Unit III: Electrical Machines', desc: "m.m.f, reluctance, flux, magnetic field intensity. Single Phase Transformer: Construction, working, E.M.F equation. Rotating Machines: Construction & working principle of DC motor and 3-phase induction motor." },
-            { title: 'Unit IV: Diodes and Transistors', desc: "PN junction diode, drift and diffusion current, rectifier, Zener diode. BJT construction and operation, transistor biasing, CB, CE, CC Configurations, BJT as amplifier and switch." },
-            { title: 'Unit V: Digital System', desc: "Number systems and conversion, Boolean algebra, De-Morgan’s theorems, binary addition, 1’s and 2’s complement system, logic gates and universal gates, half adder and full adder." }
-        ]),
-        'Python Programming': genSyllabusHTML([
-            { title: 'Unit I: Introduction to Python Programming', desc: "Syntax, Indentation, REPL, Variables, Data Types (int, float, str, List, Set, Tuples, Dictionaries), Operators and Expressions, Logical Operators, Input and Output Operations." },
-            { title: 'Unit II: Control Flow and Loops', desc: "Conditional Statements (if, elif, else), Switch-Like Behavior. Loops: While Loops, using range() for iteration, Loop Control Statements (break, continue). Functions." },
-            { title: 'Unit III: OOP & Exception Handling', desc: "OOP Principles: Classes/Objects, Constructors, Inheritance and Polymorphism, Encapsulation. Exceptions in Python, try and except. File Handling (I/O): Text and Binary files, 'with' Statements." },
-            { title: 'Unit IV: Advanced Python & GUI', desc: "Regular Expressions: Pattern Matching, re Module. Libraries: math, datetime, OS, requests, pandas. GUI Development: Widgets and Event Handling. Introduction to Web Programming with CGI." },
-            { title: 'Unit V: Numpy, Pandas and Python Applications', desc: "Networking Basics, Data Manipulation with NumPy, Creating NumPy Arrays, Data Analysis with Pandas, Working with DataFrames, Data Cleaning and Exploration, Database Applications in Python." }
-        ]),
-        'History of Science and Technology': genSyllabusHTML([
-            { title: 'Unit 1: Historical Perspective', desc: "Nature of science and technology, Roots of science and technology in India, Role of Science and Scientists in Society, Science and Faith." },
-            { title: 'Unit 2: Research and Development (R&D) in India', desc: "Science and Technology Education, Research activities and promotion of technology development, Technology mission, Programs aimed at technological self-reliance, activities of council of scientific and industrial research (CSIR)." },
-            { title: 'Unit 3: Policies and Plans after Independence', desc: "Nehru’s vision of science for independent India, Science and technology developments in the new era, science and technology developments during the Five-Year Plan Periods and science and technology policy resolutions." },
-            { title: 'Unit 4: Science and Technological Developments in Major Areas', desc: "Space – Objectives of space programs, Geostationary Satellite Services – INSAT system and INSAT services remote sensing applications, Launch Vehicle Technology. Ocean Development. Objectives of ocean development, marine research. Biotechnology - Applications of biotechnology in medicine, agriculture, food, and fuel. Energy – Research and development in the field of nonconventional energy resources, India’s nuclear energy program." },
-            { title: 'Unit 5: Nexus between Technologies', desc: "Transfer of Technology – Types, Methods, Mechanisms, Process, Channels and Techniques, Appropriate technology, Technology assessment, Technological forecasting, Technological innovations and barriers of technological change." }
-        ]),
-        'Environmental Science': genSyllabusHTML([
-            { title: 'Unit 1: Ecosystem and Biodiversity', desc: "Concept of Ecosystem, Food Chains, Food Webs, Energy flow in an ecosystem. Biodiversity: Introduction, Types, Significance and Conservation." },
-            { title: 'Unit 2: Air Pollution', desc: "Causes, Effects and Control of Air Pollution, Greenhouse Effect - Climate changes and Global warming, Ozone layer depletion, Acid Rain. Case studies on recent cases of air pollution and management." },
-            { title: 'Unit 3: Water Pollution', desc: "Causes, Effects and Control of Water Pollution, DO, BOD and COD, Water sampling, Municipal water treatment." },
-            { title: 'Unit 4: Solid Waste Management', desc: "Introduction, Types of solid waste, Harmful effects of solid waste, Methods to manage and modern techniques for solid waste management." },
-            { title: 'Unit 5: Disaster Management', desc: "Concept of Disaster, Types of Disaster, Pre-disaster risk and vulnerability reduction, Post disaster recovery and rehabilitation. Case studies on recent disasters and management." }
-        ]),
-        'Discrete Mathematics': genSyllabusHTML([
-            { title: 'Unit 1', desc: "Sets, sub-sets and operations on sets, finite and infinite sets, principle of inclusion and exclusion. Relations and properties of relations – equivalence relation. Functions: definition, classification of functions, composition of functions, growth of functions, pigeonhole principle." },
-            { title: 'Unit 2', desc: "Partial order relation, posets, least upper bound, greatest lower bound, maximal and minimal elements of a poset. Definition and example of Boolean algebra. Lattices, distributive laws in lattices, complemented lattices. Propositional calculus, Boolean functions, minterms and maxterms, simplification of Boolean functions with Karnaugh map and Quine–McCluskey method. Applications in computer science." },
-            { title: 'Unit 3', desc: "Binary composition, algebraic structure, semigroup, monoid, groups, Abelian group, properties of groups. Coset decomposition, subgroup, cyclic group, normal subgroup. Rings and fields (definition and standard results). Applications in computer science." },
-            { title: 'Unit 4', desc: "Trees: definition, binary tree, binary tree traversal, binary search tree. Graphs: definition and terminology, representation of graphs, multigraphs, bipartite graphs, planar graphs, isomorphism and homeomorphism of graphs. Euler and Hamiltonian paths, graph coloring. Application in computer science." },
-            { title: 'Unit 5', desc: "Recurrence relation and generating function: recursive definition of functions, recursive algorithms, methods of solving recurrence relations. Combinatorics: introduction, counting techniques, basic theorems on permutations and combinations. Applications in computer science." }
-        ]),
-        'Computer System Architecture': genSyllabusHTML([
-            { title: 'Unit 1', desc: "Difference between computer organization and computer architecture. Computer types, functional units, basic operational concepts, bus structures. Generation of computers. Introduction to computer operation with a simple 8-bit instruction computer illustrating assembly and machine language. Register transfer language, register transfer bus and memory transfers, arithmetic micro-operations, logic micro-operations, shift micro-operations, arithmetic logic shift unit." },
-            { title: 'Unit 2', desc: "Instruction codes, registers, buses. Design of computer instructions, timing and control. Instruction cycle, memory reference instructions, input-output interrupt. Design of basic computer, accumulator logic. Programming the basic computer – machine language, assembly language, assembler. Address sequencing, microprogram instructions format, addressing modes." },
-            { title: 'Unit 3', desc: "Computer arithmetic: addition and subtraction with signed magnitude. Multiplication and division algorithms. Divide overflow, Booth multiplication algorithm. Hardware implementation for signed magnitude and hardware algorithms." },
-            { title: 'Unit 4', desc: "Input-output organization, input-output interface. Synchronous vs asynchronous data transfer. Modes of transfer – interrupt and its priority, DMA. Memory hierarchy: main memory, auxiliary memory, associative memory, cache memory, virtual memory, memory management hardware." },
-            { title: 'Unit 5', desc: "Flynn’s classification. RISC and CISC processors. Pipelining and vector processing. Parallel processing, array processor, multiprocessor architectures organization. Multi-core architectures, inter-processor communication, system-on-chips." }
-        ]),
-        'Data Communication': genSyllabusHTML([
-            { title: 'Unit 1', desc: "Introduction to digital communications, components, data representation, data flow. Analog and digital signals and their representation. Transmission impairment, data rate limits – Nyquist theorem, Shannon’s theorem. Signal propagation, signal types, transmission mode and techniques. Transmission media – guided and non-guided. Noise." },
-            { title: 'Unit 2', desc: "Encoding of signals – analog to digital conversion, digital to digital conversion (unipolar, polar, bipolar line and block codes). Digital to analog conversion, analog to analog conversion. Spread spectrum – FHSS, DHSS, CDMA. Modulation and demodulation of signals. Multiplexing – FDM, TDM, WDM, QAM. Data compression – frequency dependent codes, run length encoding, relative encoding, LZ compression." },
-            { title: 'Unit 3', desc: "Switched communication networks – circuit, message, packet and hybrid switching. Data gram network, connection oriented services vs connectionless services. Public switched telephone network, digital subscriber line – ADSL, HDSL, SDSL, VDSL. Study of various types of topology and their comparative study." },
-            { title: 'Unit 4', desc: "Reference models – OSI and TCP/IP model and their comparison. Layers in the model and its requirement, critiques of OSI and TCP/IP model. Use of computer networks, architecture of internet. Addressing – physical, logical, port. Various networking devices. Peer to peer protocols and service model." },
-            { title: 'Unit 5', desc: "Data link layer: transmission errors, content error, error detection and error correction. Bit error rate. Error detection methods – parity checking, checksum error detection, CRC, Hamming code. Framing, flow error control – ARQ, sliding window protocol, HDLC and PPP. Layer 2 switches, bridges." }
-        ]),
-        'Data Structures': genSyllabusHTML([
-            { title: 'Unit 1', desc: "Definitions and types of data structures. Concept of linear and non-linear, static and dynamic, primitive and non-primitive, persistent and non-persistent data structure. Overview of array, one-dimensional and multidimensional array. Pointers, recursive functions." },
-            { title: 'Unit 2', desc: "Concept of linked list organization – singly list, doubly list, circular list and doubly circular linked list. Operations: linked list implementation of stack and queue. Applications of linked list data structure." },
-            { title: 'Unit 3', desc: "Stack: primitive stack operations, array implementation of stack, multiple stack. Application of stack – prefix and postfix expressions, evaluation of postfix expression, recursion, Tower of Hanoi problem. Queue: overview, operations on queue, circular queue, array implementation of queues, deque and priority queue." },
-            { title: 'Unit 4', desc: "Searching and sorting: sequential search, binary search. Internal and external sort. Bubble sort, selection sort, insertion sort, shell sort, radix sort, quick sort and merge sort. Hashing: hash function, collision resolution strategies. Storage management: garbage collection and compaction." },
-            { title: 'Unit 5', desc: "Trees: basic terminology, binary trees, binary tree representation, complete binary tree, algebraic expressions, extended binary trees. Array and linked representation of binary trees. Tree traversal, threaded binary trees, AVL tree, heaps. Graphs: basic terminology and types of graph, representation of graphs, graph traversal." }
-        ]),
-        'Java Programming': genSyllabusHTML([
-            { title: 'Unit 1: Basics of Java', desc: "Overview of Java, history and evolution of Java, features of Java. Difference between Java, C++ and C. Structure of Java program. Basics of JDK, JRE and JVM, installation of JDK. Simple Java program, compilation and execution of Java program. Elements of Java: keywords, data types, variables, declaration and initialization of variable, scope and lifetime of variable, constants, literals, identifiers. Operators, types of Java statements. Unicode system, naming convention, comments, arrays, type conversion and casting." },
-            { title: 'Unit 2', desc: "Dynamic method dispatch, garbage collection. Static and dynamic binding. Inheritance and its types. Interfaces. Java packages: definition of package, types of packages, differentiate package from header file, importing package, creating package." },
-            { title: 'Unit 3', desc: "String in Java: overview of string, immutable string, string comparison, string concatenation, substring. Methods of string class. String buffer class. Creating immutable class to string method." },
-            { title: 'Unit 4', desc: "Exception handling: defining exception, types of exception, exception class. Try and catch block, multiple catch blocks, nested try, finally block, throw keyword, exception propagation, throws keyword. Multithreading: overview of thread, thread types, life cycle of a thread, creating thread, sleeping a thread, joining a thread, thread priority, daemon thread." },
-            { title: 'Unit 5', desc: "I/O handling: file output stream and file input stream, buffered output stream and buffered input stream. Input from keyboard by input stream reader, input from keyboard by console, input from keyboard by scanner. Print stream class. Java applets: applet basics, the applet class, applet architecture, applet initialization and termination, the HTML APPLET tag, passing parameters to applets. Introducing the AWT: introduction to windows, graphics and text, AWT classes, window fundamentals, component, container, panel, frame." }
-        ]),
-        'Object Oriented Programming': genSyllabusHTML([
-            { title: 'Unit 1: Introduction to Object-Oriented Programming', desc: "Characteristics, applications, difference between object-oriented and procedure-based programming. Object-oriented programming languages. Object-oriented concepts: abstraction, encapsulation, polymorphism, inheritance and information hiding." },
-            { title: 'Unit 2: Abstract Data Types, Objects and Classes', desc: "Attributes and methods, objects as software units. Encapsulation and information hiding. Object instantiation and interactions. Object lifetime. Static and dynamic objects. Global and local objects. Meta-class." },
-            { title: 'Unit 3: Relationship Between Classes', desc: "Association of objects. Types of association. Recursive association. Multiplicity. Navigability. Named association. Aggregation of objects. Types of aggregation. Delegation. Modeling association and aggregation." },
-            { title: 'Unit 4: Inheritance and Polymorphism', desc: "Types of polymorphism – static and dynamic polymorphism. Operator and method overloading. Inherited methods, redefined methods, protected interface. Abstract methods and classes. Public and protected properties, private operations. Disinheritance, multiple inheritance." },
-            { title: 'Unit 5: Template Classes and Functions', desc: "Container classes, container types, typical functions and iterator methods. Heterogeneous containers. Persistent objects, stream and files. Object-oriented programming languages." }
-        ]),
-        'Digital Electronics': genSyllabusHTML([
-            { title: 'Unit 1: Number System', desc: "Introduction to binary numbers, data representation, binary, octal, hexadecimal number system and their conversion. Various coding schemes such as BCD codes, excess-3 code, Gray code. Binary arithmetic. Boolean algebra, basic theorems and properties of Boolean algebra. Boolean functions, canonical and standard forms. Minimization techniques, sum of products and product of sums simplification. Karnaugh map method, Quine–McCluskey method." },
-            { title: 'Unit 2: Logic Gates and Combinational Logic', desc: "Digital logic gates such as AND, OR, NAND, NOR, EX-OR, EX-NOR. Realization of Boolean functions using logic gates. Adders, subtractors, BCD adder, magnitude comparator, decoders and encoders, multiplexers and demultiplexers, code converters. Analysis and design of combinational circuits. Implementation of combinational logic using multiplexers and decoders." },
-            { title: 'Unit 3: Sequential Circuits', desc: "Introduction and comparison of sequential and combinational circuits. Various types of flip-flops and their conversions. Triggering of flip-flops, timing issues, setup and hold times. Registers, counters, ring, Johnson, asynchronous and synchronous counters. Finite state machines, Moore and Mealy design of synchronous sequential circuits." },
-            { title: 'Unit 4: Memories', desc: "ROM, PLA and PAL. Memories: organization and construction of RAM, SRAM, DRAM, ROM, PROM, EPROM, EEPROM." },
-            { title: 'Unit 5: Logic Families', desc: "DTL, RTL, TTL, IIL, PMOS, NMOS and CMOS logic families. Interfacing between TTL and MOS logic families." }
-        ]),
-        'Microprocessor and Interfacing': genSyllabusHTML([
-            { title: 'UNIT-1: Introduction to 8-bit microprocessor', desc: "Microcomputers and microprocessors, 8/ 16/ 32/ 64-bit microprocessor families; Internal architecture of Intel 8085 microprocessor: Block diagram, Registers, Internal Bus Organization, Functional details of pins, Control signals, External Address / Data bus multiplexing, De-multiplexing, Serial communication and DMA features, Intel 8086, x86 and Pentium microprocessors Block diagrams." },
-            { title: 'UNIT-2: Assembly Language Programming', desc: "8085 instructions set: Instructions, Classifications, Addressing modes, Stack and Subroutines, Delay routines, Counters etc., Programming examples." },
-            { title: 'UNIT-3: Interfacing concepts and devices', desc: "Memory interface: Concept of memory chip/ chips interface to 8085 with appropriate examples, I/O mapped I/O, and memory mapped I/O techniques. Programmable interfacing devices: Programmable peripheral interface (Intel 8255), Programmable timer interface (Intel 8253/ 54), Programmable display / Keyboard interface (Intel 8279), Programmable serial communication interface (Intel 8251) - their architecture, register organization, initialization, hardware, and software interface to 8085." },
-            { title: 'UNIT- 4: Instruction Timing and Interrupts', desc: "Timing Diagrams (of various instructions): T-state, Machine cycle (Opcode fetch, Read / Write, Interrupts, Interrupt Acknowledge, Bus Idle, etc), Interrupts: types (h/ w and s/ w), Maskable / Non maskable and their organization." },
-            { title: 'UNIT 5: Introduction to Intel Architecture', desc: "How an Intel Architecture System works, Internal architecture of Basic Components of the Intel Core 2 Duo Processor: The CPU, Memory Controller, I/O Controller; Intel Core i7: Architecture, The Intel Core i7 Processor, Intel QuickPath Interconnect, The SCH; Intel Atom Architecture. Introduction to Texas Instruments' Multi-Core Multilayer SoC architecture for communications, infrastructure equipment." }
-        ]),
-        'Database Management System': genSyllabusHTML([
-            { title: 'Unit 1: Basic Concepts', desc: "Data Vs Information, Definition of Database, Advantages of Database Systems, Components of DBMS, DBMS Architecture and Data Independence, Data modeling, Entity Relationship Model, Relational, Network, Hierarchical and Object-Oriented Models. Data Modelling Using the Entity Relationship Model." },
-            { title: 'Unit 2: Relational Database and SQL', desc: "Relational Databases, Relational Algebra, Relational Algebra Operation, Tuple Relational Calculus, Domain Relational Calculus. Data Definition with SQL, Inserts, Delete and Update Statements in SQL, Views, Data Manipulation with SQL, PL/SQL constructs: Triggers, Cursors etc." },
-            { title: 'Unit 3: Database Design and Normalization', desc: "Database Design: Design Guidelines, Key concepts, Relational Database Design, Integrity Constraints, Domain Constraints, Referential Integrity, Functional Dependency, decomposition. Normalization Using Functional Dependencies: Normal Forms, First, Second and Third Normal Forms, Boyce Codd Normal Form, Multivalued Dependencies and Fourth Normal Form, Join Dependencies and Fifth Normal Form, Decomposition in 2NF, 3NF and BCNF." },
-            { title: 'Unit 4: Database Transactions Processing and Concurrency Control', desc: "Database Transactions Processing: Introduction to Transaction Processing, Transaction Concepts, Desirable Properties of Transactions, Schedules, Concepts of Recoverability and Serializability. Concurrency control: introduction, locking protocols." },
-            { title: 'Unit 5: Query Processing and Advanced Databases', desc: "Query Processing and Optimization, File organization and indexes, hashing techniques, B-tree, B+ tree etc. Introduction to advanced databases: Distributed databases, Object-oriented databases, mobile and web databases, Introduction to data warehousing and mining." }
-        ]),
-        'Operating System': genSyllabusHTML([
-            { title: 'Unit 1', desc: "Introduction to OS. Operating system functions, evaluation of O.S., Different types of O.S.: Batch, Multi-Programmed, Time-Sharing, Real-Time, Distributed, Parallel. Process: Concept of Processes, Process Scheduling, Operations on Processes, Cooperating Processes, Inter-Process Communication. Precedence Graphs, Critical Section Problem, Semaphores, Threads." },
-            { title: 'Unit 2', desc: "CPU Scheduling: Scheduling Criteria, Preemptive & Non-Preemptive Scheduling, Scheduling Algorithms, Algorithm Evaluation, Multi-Processor Scheduling, Deadlock: Deadlock Problem, Deadlock Characterization, Deadlock Prevention, Deadlock Avoidance, Deadlock Detection, Recovery From Deadlock, Methods for Deadlock Handling." },
-            { title: 'Unit 3', desc: "Memory Management: Concepts of Memory Management, Logical and Physical Address Space, Swapping, Fixed and Dynamic Partitions, Best Fit, First Fit and Worst Fit Allocation, Paging, Segmentation, and Paging Combined With Segmentation." },
-            { title: 'Unit 4', desc: "Concepts of Virtual Memory, Cache Memory Organization, Demand Paging, Page Replacement Algorithms, Allocation of Frames, Thrashing, Demand Segmentation, Role of Operating System in Security, Security Breaches, System Protection, and Password Management." },
-            { title: 'Unit 5', desc: "Disk Scheduling, File Concepts, File Manager, File Organization, Access Methods, Allocation Methods, Free Space Managements, Directory Systems, File Protection, File Organization & Access Mechanism, File Sharing Implement Issue, File Management in Linux, Introduction to Distributed System." }
-        ]),
-        'Advanced Java Programming': genSyllabusHTML([
-            { title: 'Unit 1: Collection and Generic', desc: "Introduction to Generics, Generics Types and Parameterized Types, Wildcards, Java Collection Framework, Collections (Basic Operations, Bulk Operations, Iteration) List, Set, Maps. Lambda Expressions – Lambda Type Inference, Lambda Parameters, Lambda Function Body, Returning a Value from a Lambda Expression, Lambdas as Objects." },
-            { title: 'Unit 2: Introduction Java EE Programming and Servlets', desc: "Basics of Web Application, web client and web server, Servlets, HTTP Methods: GET, POST, PUT, DELETE, TRACE, OPTIONS, MVC design pattern, Init Parameters, Servlet Context, Inter Servlet Communication, Servlet Listeners, Servlet Filters." },
-            { title: 'Unit 3: JDBC and JSP', desc: "Managing JDBC Connection, Configuring Data Source to obtain JDBC Connection, Data Access operations with JDBC Template, RDBMS operation classes. JSP Architecture, JSP building blocks, Scripting Tags, implicit object, Introduction to Bean, standard actions, session tracking types and methods. Custom Tags, Introduction to JSP Standard Tag Library (JSTL) and JSTL Tags." },
-            { title: 'Unit 4: Spring Frameworks', desc: "Introduction to Spring Framework, POJO Programming Model, Lightweight Containers (Spring IOC container, Configuration Metadata, Configuring and using the Container). Dependency Injection with Spring – Setter Injection, Constructor Injection." },
-            { title: 'Unit 5: JDBC and Spring Boot', desc: "Data Access operations with JDBC Template and Spring, Modelling JDBC Operations as Java Objects, Spring Boot and Database, Spring Boot Web Application Development." }
-        ]),
-        'Theory of Computation': genSyllabusHTML([
-            { title: 'Unit 1: Finite Automata and Regular Languages', desc: "Motivation for studying theory of computation, notion of formal languages and grammars, Kleene’s closure, regular expressions and regular languages, closure properties of regular languages, finite automata. Finite automata with output: Mealy and Moore machines, applications." },
-            { title: 'Unit 2: Nondeterminism and Minimization', desc: "Nondeterministic finite automata, acceptance condition, Kleene’s theorem, Myhill–Nerode relations, minimization algorithm, non-regular languages, pumping lemma for regular languages." },
-            { title: 'Unit 3: Grammars and Context-Free Languages', desc: "Grammars and Chomsky hierarchy, context-free grammars, context-free languages (CFLs), inherent ambiguity of CFLs, closure properties of CFLs. Eliminating useless symbols, null productions and unit productions. Chomsky Normal Form, Greibach Normal Form, Cocke–Younger–Kasami (CYK) algorithm, applications to parsing." },
-            { title: 'Unit 4: Pushdown Automata', desc: "Pushdown automata (PDAs), PDAs vs CFLs. Deterministic PDAs and CFLs, applications. Notion of acceptance for PDAs: acceptance by final states and by empty stack, equivalence of the two notions. Proof that CFGs generate the same class of languages that PDAs accept. Pumping lemma for CFLs." },
-            { title: 'Unit 5: Turing Machines and Computability', desc: "Introduction to Turing machines, configurations, halting vs looping. Turing computability, nondeterministic, multitape and other versions of Turing machines. Church’s thesis, universal Turing machines. Linear bounded automata (LBAs) and context-sensitive languages. Recursive and recursively enumerable languages. Undecidability of the halting problem and unsolvable problems about Turing machines. Diagonalization language and proof that it is not recursively enumerable." }
-        ]),
-        'Soft Skills-II': genSyllabusHTML([
-            { title: 'Unit 1: Foundations of Logical Reasoning', desc: "Introduction to logical reasoning in placement examinations. Importance of logic in aptitude-based assessments. Understanding problem statements and constraints. Common reasoning traps and mistakes. Techniques to improve logical accuracy and speed." },
-            { title: 'Unit 2: Arrangement and Coding–Decoding', desc: "Linear arrangements: One-dimensional arrangements, Circular arrangements (basic level). Concept of positions, ordering, and relative placement. Coding–decoding: Letter-based coding, Number-based coding, Mixed and pattern-based coding." },
-            { title: 'Unit 3: Blood Relations, Direction Sense, and Classification', desc: "Blood relations: Family tree structures, Generation-based problems, Symbolic representation techniques. Direction sense: Distance and direction-based reasoning, Use of diagrams and coordinates. Odd one out: Number-based classification, Alphabet-based classification, Logic-based classification." },
-            { title: 'Unit 4: Series and Syllogisms', desc: "Series: Number series, Alphabet series, Mixed and logic-based series. Identification of progression patterns. Introduction to syllogisms: Statements and conclusions, Venn diagram approach, Validity of conclusions." },
-            { title: 'Unit 5: Data Interpretation Techniques', desc: "Introduction to data interpretation. Types of data representation: Bar graphs, Pie charts, Line graphs, Tabular data. Data comparison and trend analysis. Percentage, ratio, and average calculations within DI. Time management strategies for DI questions." }
-        ]),
-        'Internet and Web Technology': genSyllabusHTML([
-            { title: 'Unit – I: Introduction', desc: "Concept of WWW, HTTP Protocol: request and response, web browser architecture, web servers and application servers, features of Web 2.0, internetworking with TCP/IP, basics of DNS, SMTP, POP3." },
-            { title: 'Unit – II: Web Design', desc: "Concepts of effective web design, planning and publishing website. Introduction to web architecture. HTML: lists, tables, images, frames, forms. Document Type Definition (DTD), Document Object Model (DOM). Cascading Style Sheets (CSS) and their types. JavaScript: introduction, documents, forms, statements, functions, objects." },
-            { title: 'Unit – III', desc: "Introduction to XML, XML vs HTML, uses of XML, simple XML, XML key components, DTD and schemas. Embedding XML into HTML documents. Transforming XML using CSS, XSL, and XSLT." },
-            { title: 'Unit – IV: PHP', desc: "Working with variables and constants, controlling program flow. Working with functions, arrays, files, and directories. Working with forms and databases. Introduction to Servlet lifecycle, API, and Servlet packages." },
-            { title: 'Unit – V', desc: "Introduction to Java Server Pages (JSP). JSP application design, JSP objects. Conditional processing, declaring variables and methods. Sharing data between JSP pages. Sharing session and application data. Database programming using JDBC. Web application framework, MVC framework. Introduction to Bootstrap and AngularJS." }
-        ]),
-        'Statistical Analysis': genSyllabusHTML([
-            { title: 'Unit I: Summarizing Data using Statistical Measures', desc: "Descriptive Statistics –Measure of dispersion – standard deviation, Variance, Covariance and its properties, Coefficient of variation, Quartiles, Quartile deviation and Mean deviation." },
-            { title: 'Unit II: Theory of Random variables and Probability', desc: "Random variables- Discrete and Continuous random variables, Mass and Density function (pmf, pdf), Cumulative Distribution function, Expectation of a random variables, Expectation of random variable in terms of variance." },
-            { title: 'Unit III: Probability Distribution', desc: "<b>Discrete Distribution:</b><br>Binomial, Poisson distribution with mean variance, Moment generating function.<br><b>Continuous Distribution:</b><br>Normal and Exponential Distribution with mean variance, Moment generating function (without proof)." },
-            { title: 'Unit IV: Curve fitting, Correlation, Regression', desc: "Curve fitting (Method of Least Square)- Straight line and Parabola, Correlation- Karl Pearson’s Coefficient of Correlation, Spearman’s Rank Correlation Coefficient, Linear Regression, Regression coefficients, Properties of regression curve." },
-            { title: 'Unit V: Testing of Hypothesis and Analysis of variance', desc: "Introduction to testing of hypothesis, Statistical assumptions, Level of significance, Confidence level, Type I Error, Type II error, Critical value, Power of the test, sampling distribution, Chi-Square test, small sample test – t test for one and two sample mean, F test, Fisher Z test of population variance, Introduction to one way and two-way analysis of variance (ANOVA)." }
-        ])
-    };
-
-    return syllabiDB[subjectName] || '<p style="color:var(--text-dim);">Syllabus details are coming soon for this subject.</p>';
+            </div>
+        `;
+    }).join('')}
+    </div>`;
 };
 
 window.showAIModal = function (type, subject) {
@@ -3783,7 +4463,7 @@ window.showAIModal = function (type, subject) {
 
     if (type === 'syllabus') {
         title = `📖 Course Syllabus: ${subject}`;
-        content = window.getSubjectSyllabusHTML(subject);
+        content = typeof window.getSubjectSyllabusHTML === 'function' ? window.getSubjectSyllabusHTML(subject) : '<p style="color:var(--text-dim); text-align:center; padding: 2rem;">Syllabus details are coming soon for this subject.</p>';
     } else if (type === 'summary') {
         title = '✨ AI Concept Summary';
         content = `<div class="ai-modal-content-wrapper" style="text-align: center;">
@@ -3838,7 +4518,7 @@ window.showAIModal = function (type, subject) {
             </div>`;
 
         // Cache syllabus for AI usage
-        window._currentSyllabusContext = window.getSubjectSyllabusHTML(subject);
+        window._currentSyllabusContext = typeof window.getSubjectSyllabusHTML === 'function' ? window.getSubjectSyllabusHTML(subject) : "";
     }
 
     // Create custom modal if it doesn't exist
@@ -3940,7 +4620,7 @@ window.loginAsGuest = function () {
 
 // 1. UPLOAD MODULE
 window.uploadNote = async function (formData) {
-    const { db, collection, addDoc, serverTimestamp, storage, ref, uploadBytes, getDownloadURL } = getFirebase();
+    const { db, collection, addDoc, serverTimestamp, storage, ref, uploadBytes, getDownloadURL, doc, updateDoc, increment } = getFirebase();
     if (!currentUser) return alert("You must be logged in to upload.");
 
     try {
@@ -3972,6 +4652,25 @@ window.uploadNote = async function (formData) {
             uploadedAt: serverTimestamp()
         });
 
+        // Award points and update stats if the user is not an admin
+        if (currentUser.role !== 'admin' && currentUser.role !== 'superadmin' && !currentUser.isGuest) {
+            try {
+                const incXp = increment ? increment(50) : (window.firebaseServices.increment ? window.firebaseServices.increment(50) : null);
+                const incUploads = increment ? increment(1) : (window.firebaseServices.increment ? window.firebaseServices.increment(1) : null);
+                
+                if (incXp && incUploads) {
+                    const userRef = doc(db, 'users', currentUser.id);
+                    await updateDoc(userRef, {
+                        xp: incXp,
+                        uploads: incUploads
+                    });
+                    console.log("🌟 Awarded 50 XP for uploading!");
+                }
+            } catch (xpErr) {
+                console.error("XP Award Error:", xpErr);
+            }
+        }
+
         alert("✅ Note successfully submitted for review!");
         closeModal('upload-modal');
     } catch (err) {
@@ -3979,6 +4678,7 @@ window.uploadNote = async function (formData) {
         alert("❌ Upload failed: " + err.message);
     }
 };
+
 
 // Redundant renderMyUploads removed (already defined at line 2434)
 
@@ -4006,7 +4706,7 @@ window.renderAdminModQueue = function () {
                 <div>
                     <h3 style="margin:0;">${n.title}</h3>
                     <p style="margin: 0.3rem 0; font-size: 0.9rem;">From: ${n.uploaderName} | <span class="gradient-text">${n.collegeId || n.college}</span></p>
-                    <a href="${n.fileUrl || n.driveLink || n.url}" target="_blank" onclick="window.incrementNoteView('${n.id}')" class="gradient-text" style="font-weight: 700;">👁️ Preview Note</a>
+                    <a href="${window.getViewerUrl(n.url || n.fileUrl || n.driveLink, n.title || n.name)}" target="_blank" onclick="window.incrementNoteView('${n.id}')" class="gradient-text" style="font-weight: 700;">👁️ Preview Note</a>
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
                     <button class="btn btn-primary btn-sm" onclick="approveNote('${n.id}')">✅ Approve</button>
@@ -4241,9 +4941,10 @@ function renderLeaderboard() {
                     <div class="lb-tabs-wrapper">
                         <div class="lb-tabs-container" onscroll="if(window.syncLeaderboardScroll) window.syncLeaderboardScroll(this)">
                             <div class="lb-tabs">
-                            <div class="lb-tab active" data-type="student" onclick="switchLeaderboardTab(this, 'student')">🎓 Academic Elite</div>
-                                <div class="lb-tab" data-type="contributor" onclick="switchLeaderboardTab(this, 'contributor')">📤 Top Uploaders</div>
-                                <div class="lb-tab" data-type="college" onclick="switchLeaderboardTab(this, 'college')">🏫 Power Colleges</div>
+                                <div class="lb-tab active lb-3d-tab" data-type="contributor" onclick="switchLeaderboardTab(this, 'contributor')">📤 Top Uploaders</div>
+                                <div class="lb-tab lb-3d-tab" data-type="college" onclick="switchLeaderboardTab(this, 'college')">🏫 Power Colleges</div>
+                                <div class="lb-tab lb-3d-tab" data-type="referral" onclick="switchLeaderboardTab(this, 'referral')">🔗 Referrals</div>
+                                <div class="lb-tab lb-3d-tab" data-type="coders" onclick="switchLeaderboardTab(this, 'coders')">💻 Elite Coders</div>
                             </div>
                         </div>
                         <div class="lb-scroll-indicator">
@@ -4291,7 +4992,7 @@ window.switchLeaderboardTab = function (el, type) {
 
 window.initLeaderboardListeners = function () {
     // Initial Render
-    updateLeaderboardUI('student', 'all');
+    updateLeaderboardUI('contributor', 'all');
     initLeaderboardRealtime();
 };
 
@@ -4316,22 +5017,9 @@ function updateLeaderboardUI(type, timeframe) {
     const { db, collection, query, orderBy, limit, onSnapshot } = window.firebaseServices || {};
     if (!db) return;
 
-    let colRef;
-    let orderField;
+    let orderField = 'xp';
 
-    if (type === 'college') {
-        colRef = collection(db, "colleges");
-        orderField = "views";
-    } else {
-        colRef = collection(db, "users");
-        orderField = type === 'student' ? "xp" : "uploads";
-    }
-
-    const q = query(colRef, orderBy(orderField, "desc"), limit(15));
-
-    onSnapshot(q, (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
+    const renderLeaderboardData = (data, type, orderField) => {
         if (data.length === 0) {
             list.innerHTML = '<div style="text-align:center; padding: 5rem; color: rgba(255,255,255,0.2);">No elite data synchronized yet.</div>';
             spotlightContainer.innerHTML = '';
@@ -4346,29 +5034,38 @@ function updateLeaderboardUI(type, timeframe) {
         if (spotlightData[2]) visualSpotlight.push({ ...spotlightData[2], rank: 3 });
 
         spotlightContainer.innerHTML = visualSpotlight.map(item => {
-            const label = type === 'student' ? 'Experience Points' : (type === 'contributor' ? 'Successful Uploads' : 'Total Network Views');
-            const shortLabel = type === 'student' ? 'XP' : (type === 'contributor' ? 'Uploads' : 'Views');
+            const label = type === 'student' ? 'Experience Points' : (type === 'contributor' ? 'Successful Uploads' : (type === 'neurosprint' ? 'Total Focus Time' : (type === 'referral' ? 'Total Referrals' : (type === 'coders' ? 'Coding Experience' : 'Total Uploaded Notes'))));
+            const shortLabel = type === 'student' ? 'XP' : (type === 'contributor' ? 'Uploads' : (type === 'neurosprint' ? 'Duration' : (type === 'referral' ? 'Referrals' : (type === 'coders' ? 'XP' : 'Notes'))));
             const scoreVal = item[orderField] || 0;
             const avatar = item.logo || item.avatar || '';
             const crown = item.rank === 1 ? '<div class="spotlight-crown">👑</div>' : '';
+            
+            const scoreDisplay = type === 'neurosprint' ? window.formatFocusTime(scoreVal) : scoreVal.toLocaleString();
+            const countClass = type === 'neurosprint' ? '' : 'count-up';
 
-            const avatarHtml = avatar
-                ? `<img src="${avatar}" alt="${item.name}">`
-                : `<span style="font-size: 3rem; font-weight: 900; color: #fff; opacity: 0.8;">${item.name ? item.name[0] : '?'}</span>`;
+            let avatarHtml = '';
+            let resolvedAvatar = avatar;
+            if (resolvedAvatar && resolvedAvatar.startsWith('assets/')) {
+                resolvedAvatar = '../' + resolvedAvatar;
+            }
+
+            avatarHtml = resolvedAvatar
+                ? `<img src="${resolvedAvatar}" alt="${item.name}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                   <span style="display:none; font-size: 3rem; font-weight: 900; color: #fff; opacity: 0.8; justify-content:center; align-items:center; width:100%; height:100%;">${item.name ? item.name[0] : '?'}</span>`
+                : `<span style="font-size: 3rem; font-weight: 900; color: #fff; opacity: 0.8; display:flex; justify-content:center; align-items:center; width:100%; height:100%;">${item.name ? item.name[0] : '?'}</span>`;
 
             return `
                 <div class="spotlight-card rank-${item.rank}">
-                    ${crown}
                     <div class="spotlight-avatar-wrapper">
+                        ${crown}
                         <div class="spotlight-avatar">
                             ${avatarHtml}
                         </div>
                         <div class="rank-badge">${item.rank}</div>
                     </div>
-                    <div class="spotlight-name">${item.name || "Elite Student"} ${item.rank === 1 ? '✨' : ''}</div>
-                    <div class="spotlight-score count-up" data-value="${scoreVal}">${scoreVal.toLocaleString()}</div>
-                    <div class="spotlight-label">${shortLabel}</div>
-                    <div style="font-size: 0.7rem; color: rgba(255, 255, 255, 0.3); margin-top: 1.5rem; text-transform: uppercase; letter-spacing: 1px;">${label}</div>
+                    <div class="spotlight-name">${item.name || "Elite Student"}</div>
+                    <div class="spotlight-score ${countClass}" data-value="${scoreVal}">${scoreDisplay}</div>
+                    <div class="spotlight-label">${label}</div>
                 </div>
             `;
         }).join('');
@@ -4377,8 +5074,9 @@ function updateLeaderboardUI(type, timeframe) {
         const listData = data.slice(3);
         list.innerHTML = listData.map((item, index) => {
             const rank = index + 4;
-            const label = type === 'student' ? 'POINTS' : (type === 'contributor' ? 'UPLOADS' : 'VIEWS');
+            const label = type === 'student' ? 'POINTS' : (type === 'contributor' ? 'UPLOADS' : (type === 'neurosprint' ? 'TIME' : (type === 'referral' ? 'REFERRALS' : (type === 'coders' ? 'XP' : 'VIEWS'))));
             const scoreVal = item[orderField] || 0;
+            const scoreDisplay = type === 'neurosprint' ? window.formatFocusTime(scoreVal) : scoreVal.toLocaleString();
             const avatar = item.logo || item.avatar;
 
             const avatarHtml = avatar
@@ -4399,7 +5097,7 @@ function updateLeaderboardUI(type, timeframe) {
                         </div>
                     </div>
                     <div class="mention-score">
-                        <span class="val">${scoreVal.toLocaleString()}</span>
+                        <span class="val">${scoreDisplay}</span>
                         <span class="lbl">${label}</span>
                     </div>
                 </div>
@@ -4414,6 +5112,85 @@ function updateLeaderboardUI(type, timeframe) {
                 animateValue(el, 0, target, 1500);
             });
         }, 100);
+    };
+
+    if (window.leaderboardUnsubscribe) { window.leaderboardUnsubscribe(); window.leaderboardUnsubscribe = null; }
+
+    orderField = 'xp';
+    if (type === 'student') orderField = 'xp';
+    else if (type === 'contributor') orderField = 'uploads';
+    else if (type === 'neurosprint') orderField = 'focusminutes';
+    else if (type === 'college') orderField = 'uploads'; // Aggregate by uploads
+    else if (type === 'referral') orderField = 'referral_count';
+    else if (type === 'coders') orderField = 'coding_xp';
+
+    import('./supabase-config.js?v=1.0').then(async ({ supabase }) => {
+        const fetchAndRender = async () => {
+            if (type === 'college') {
+                const { data, error } = await supabase.from('users').select('collegename, uploads, xp');
+                if (!error && data) {
+                    const normalizeCollegeName = (name) => {
+                        if (!name || name === 'Unknown') return 'Independent Scholars';
+                        const lower = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+                        if (lower.includes('medicaps') || lower === 'mu') return 'Medicaps University';
+                        if (lower.includes('svvv') || lower.includes('vaishnav')) return 'SVVV Indore';
+                        if (lower.includes('ips')) return 'IPS Academy';
+                        if (lower.includes('sgsits')) return 'SGSITS Indore';
+                        if (lower.includes('davv') || lower.includes('devi') || lower.includes('ahilya')) return 'DAVV Indore';
+                        if (lower.includes('vit') || lower.includes('vellore')) return 'VIT Vellore';
+                        if (lower.includes('srm')) return 'SRM University';
+                        if (lower.includes('iitd') || lower.includes('delhi')) return 'IIT Delhi';
+                        if (lower.includes('lpu') || lower.includes('lovely')) return 'LPU Punjab';
+                        if (lower.includes('manipal')) return 'Manipal University';
+                        if (lower.includes('lnct')) return 'LNCT Bhopal';
+                        if (lower.includes('cdgi') || lower.includes('chameli')) return 'CDGI Indore';
+                        return name.trim().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+                    };
+                    
+                    const getCollegeLogo = (normalizedName) => {
+                        const logos = {
+                            'Medicaps University': 'assets/logos/medicaps.png',
+                            'SVVV Indore': 'assets/logos/svvv.png',
+                            'IPS Academy': 'assets/logos/ips.png',
+                            'SGSITS Indore': 'assets/logos/sgsits.png',
+                            'DAVV Indore': 'assets/logos/davv.png',
+                            'VIT Vellore': 'assets/logos/vit.png',
+                            'SRM University': 'assets/logos/srm.png',
+                            'IIT Delhi': 'assets/logos/iitd.png',
+                            'LPU Punjab': 'assets/logos/lpu.png',
+                            'Manipal University': 'assets/logos/manipal.png',
+                            'LNCT Bhopal': 'assets/logos/lnct.jpg',
+                            'CDGI Indore': 'assets/logos/cdgi.png'
+                        };
+                        return logos[normalizedName] || null;
+                    };
+
+                    const collMap = {};
+                    data.forEach(u => {
+                        const cname = normalizeCollegeName(u.collegename);
+                        if (!collMap[cname]) collMap[cname] = { id: cname, name: cname, logo: getCollegeLogo(cname), uploads: 0, xp: 0, views: 0 };
+                        collMap[cname].uploads += (u.uploads || 0);
+                        collMap[cname].xp += (u.xp || 0);
+                        collMap[cname].views = collMap[cname].uploads * 15 + collMap[cname].xp; // Faux views
+                    });
+                    const aggregated = Object.values(collMap).sort((a, b) => b.uploads - a.uploads).slice(0, 15);
+                    renderLeaderboardData(aggregated, type, 'uploads');
+                }
+            } else if (type === 'referral') {
+                const { data, error } = await supabase.from('profiles').select('*').order(orderField, { ascending: false }).limit(15);
+                if (!error && data) renderLeaderboardData(data, type, orderField);
+            } else {
+                const { data, error } = await supabase.from('users').select('*').order(orderField, { ascending: false }).limit(15);
+                if (!error && data) renderLeaderboardData(data, type, orderField);
+            }
+        };
+        fetchAndRender();
+
+        if (window.leaderboardSubscription) supabase.removeChannel(window.leaderboardSubscription);
+        window.leaderboardSubscription = supabase.channel('public:users')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, payload => {
+                fetchAndRender();
+            }).subscribe();
     });
 }
 
@@ -4468,6 +5245,16 @@ if (!window.formatNumber) {
     window.formatNumber = (num) => {
         if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
         return num;
+    };
+}
+
+if (!window.formatFocusTime) {
+    window.formatFocusTime = (mins) => {
+        if (!mins) return "0m";
+        if (mins < 60) return `${mins}m`;
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        return m > 0 ? `${h}h ${m}m` : `${h}h`;
     };
 }
 
@@ -4579,16 +5366,8 @@ window.renderBookmarks = function () {
             sortedSubjects.forEach(subName => {
                 const notes = grouped[subName];
                 const cardsHTML = notes.map((n, index) => {
-                    const seed = (n.id || `note_${index}`).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-                    const dayFactor = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-                    const isStuck = (seed % 8 === 0);
-                    const baseViews = (seed % 400) + 120;
-                    const baseLikes = Math.floor(baseViews * 0.15) + (seed % 15);
-                    const dailyViews = isStuck ? 0 : (seed % 8 + 2) * (dayFactor % 20);
-                    const dailyLikes = isStuck ? 0 : Math.floor(dailyViews * 0.08);
-
-                    const displayViews = (n.views || 0) + baseViews + dailyViews;
-                    const displayLikes = (n.likes || 0) + baseLikes + dailyLikes;
+                    const displayViews = n.views || 0;
+                    const displayLikes = n.upvotes || 0;
                     const isLiked = window.likedNoteIds?.has(n.id);
 
                     // Improved Unit Tag Extraction
@@ -4632,7 +5411,7 @@ window.renderBookmarks = function () {
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
                                     </button>
                                 </div>
-                                <a href="${n.driveLink || n.fileUrl || n.url || '#'}" target="_blank" class="btn-download-pro" onclick="viewNote('${n.id}')" style="background: white; color: black; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; transition: 0.3s;">
+                                <a href="${window.getViewerUrl(n.url || n.fileUrl || n.driveLink, n.title || n.name)}" target="_blank" class="btn-download-pro" onclick="viewNote('${n.id}')" style="background: white; color: black; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; transition: 0.3s;">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                     View
                                 </a>

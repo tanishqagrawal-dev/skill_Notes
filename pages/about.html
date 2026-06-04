@@ -16,8 +16,24 @@
 
         gtag('config', 'G-KSCJTPP875');
     </script>
-    <link rel="shortcut icon" href="../assets/logo.jpg?v=6.0" type="image/jpeg">
+    <link rel="shortcut icon" href="../assets/logo.jpg?v=7.0" type="image/jpeg">
     <title>About Us | SKiL MATRiX Notes</title>
+
+    <!-- ═══ Open Graph (WhatsApp / Telegram / LinkedIn / Facebook) ═══ -->
+    <meta property="og:type" content="profile" />
+    <meta property="og:url" content="https://skillnotes.netlify.app/pages/about.html" />
+    <meta property="og:site_name" content="SKiL MATRiX Notes" />
+    <meta property="og:title" content="About SKiL MATRiX – Meet the Team Behind the Platform" />
+    <meta property="og:description" content="Learn about the student founders building SKiL MATRiX – a free, AI-powered academic platform for engineering & CSE students across India 🇮🇳" />
+    <meta property="og:image" content="https://skillnotes.netlify.app/assets/og-banner.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- ═══ Twitter / X Card ═══ -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="About SKiL MATRiX – Meet the Team Behind the Platform" />
+    <meta name="twitter:description" content="Learn about the student founders building SKiL MATRiX – a free, AI-powered academic platform for engineering & CSE students across India 🇮🇳" />
+    <meta name="twitter:image" content="https://skillnotes.netlify.app/assets/og-banner.png" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,16 +48,16 @@
 
     <style>
         .legal-page-container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 8rem 2rem 6rem;
+            padding: 5rem 1.5rem 2rem;
         }
 
         .legal-content-card {
             background: rgba(13, 17, 23, 0.7);
             border: 1px solid var(--border-glass);
             border-radius: 24px;
-            padding: 3rem;
+            padding: 2rem 2rem 1.5rem;
             backdrop-filter: blur(20px);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
         }
@@ -91,8 +107,8 @@
 
         .section-title {
             text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
             font-family: 'Poppins', sans-serif;
             color: #ffffff;
             font-weight: 700;
@@ -100,46 +116,53 @@
 
         .founders-grid {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            flex-direction: row;
+            align-items: stretch;
             justify-content: center;
-            gap: 40px;
+            gap: 32px;
             perspective: 1000px;
+            flex-wrap: nowrap;
+            margin-bottom: 2rem;
+            padding-bottom: 10px;
         }
 
         /* Founder Card Container */
         .founder-card {
             background: transparent;
             width: 100%;
-            max-width: 350px;
-            height: 400px;
+            max-width: 260px;
+            min-height: 280px;
+            height: auto;
             cursor: pointer;
             perspective: 1000px;
             position: relative;
-            border-radius: 24px;
+            border-radius: 20px;
             transition: transform 0.3s ease;
+            flex: 1;
+            display: flex;
         }
 
-        /* Moving Border Glow for Card */
+        /* Moving Border Glow for Card - Premium 3D */
         .founder-card::before {
             content: "";
             position: absolute;
-            inset: -2px;
-            border-radius: 26px;
-            padding: 2px;
-            background: conic-gradient(from var(--angle, 0deg), transparent 70%, var(--primary, #00F2FF));
+            inset: -3px;
+            border-radius: 22px; /* Smooth curve following inner 20px radius */
+            padding: 3px;
+            background: conic-gradient(from var(--angle, 0deg), transparent 50%, var(--primary, #00F2FF), var(--secondary, #7B61FF), transparent 100%);
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            animation: rotate 4s linear infinite;
+            opacity: 0.6;
+            transition: opacity 0.4s ease;
+            animation: rotate 3s linear infinite;
             pointer-events: none;
         }
 
         .founder-card:hover::before {
             opacity: 1;
+            padding: 3px;
         }
 
         @property --angle {
@@ -160,7 +183,7 @@
             width: 100%;
             height: 100%;
             text-align: center;
-            border-radius: 24px;
+            border-radius: 20px; /* Matched outer radius */
             background: rgba(255, 255, 255, 0.02);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -189,9 +212,9 @@
         /* 3D Photo Container */
         .founder-img-wrapper {
             position: relative;
-            width: 160px;
-            height: 160px;
-            margin-bottom: 30px;
+            width: 110px;
+            height: 110px;
+            margin-bottom: 16px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -203,8 +226,8 @@
         }
 
         .founder-img-wrapper img {
-            width: 140px;
-            height: 140px;
+            width: 95px;
+            height: 95px;
             border-radius: 50%;
             object-fit: cover;
             object-position: center 15%;
@@ -309,9 +332,9 @@
 
         /* Typography */
         .founder-front h3 {
-            font-size: 1.6rem;
+            font-size: 1.1rem;
             font-weight: 800;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: var(--text-main, #ffffff);
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
             font-family: 'Poppins', sans-serif;
@@ -319,12 +342,13 @@
         }
 
         .founder-front .role {
-            font-size: 0.95rem;
-            color: var(--primary, #00F2FF);
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.55);
+            font-weight: 400;
+            letter-spacing: 0;
+            text-transform: none;
             margin: 0;
+            line-height: 1.4;
         }
 
         .founder-back h3 {
@@ -389,6 +413,23 @@
             max-height: 85vh;
             overflow-y: auto;
             scrollbar-width: none;
+        }
+
+        /* 3D Animated Modal Boundary */
+        .founder-content::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            padding: 2px;
+            background: conic-gradient(from var(--angle, 0deg), transparent 40%, #00F2FF 50%, #7B61FF 60%, transparent 70%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: rotate 4s linear infinite;
+            pointer-events: none;
+            z-index: 100; /* overlay on top of content edges */
         }
 
         .founder-content::-webkit-scrollbar {
@@ -576,42 +617,43 @@
             color: #fff;
         }
 
+        @media (max-width: 900px) {
+            .founders-grid {
+                flex-wrap: wrap;
+                gap: 16px;
+            }
+            .founder-card {
+                max-width: 200px;
+                height: 270px;
+            }
+        }
+
         @media (max-width: 768px) {
             .legal-page-container {
-                padding: 6rem 1rem 4rem;
+                padding: 4rem 1rem 2rem;
             }
 
             .legal-content-card {
-                padding: 2rem 1.25rem;
+                padding: 1.5rem 1rem;
                 border-radius: 16px;
             }
 
             .legal-content h1 {
-                font-size: 1.8rem;
+                font-size: 1.6rem;
                 line-height: 1.3;
-                margin-bottom: 1.5rem;
-            }
-
-            .legal-content h2 {
-                font-size: 1.3rem;
-            }
-
-            .legal-content p,
-            .legal-content li {
-                font-size: 1rem;
+                margin-bottom: 1rem;
             }
 
             .founders-grid {
-                gap: 2rem;
-                margin-top: 3rem;
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+                margin-top: 1rem;
             }
 
             .founder-card {
-                padding: 0;
-            }
-
-            .founder-name {
-                font-size: 1.5rem;
+                max-width: 300px;
+                height: 300px;
             }
 
             .founder-content {
@@ -639,9 +681,10 @@
             }
 
             .modal-info h2 {
-                font-size: 1.8rem;
+                font-size: 1.6rem;
             }
         }
+
     </style>
 
 <!-- Google AdSense -->
@@ -662,12 +705,12 @@
             <div class="legal-content">
                 <h1 style="text-align: center;">Mission <span class="gradient-text">Statement</span></h1>
 
-                <p style="text-align: center; max-width: 750px; margin: 0 auto 4rem; font-size: 1.2rem;">We are building
+                <p style="text-align: center; max-width: 750px; margin: 0 auto 1.5rem; font-size: 1rem;">We are building
                     the world's most intelligent academic ecosystem. A platform where technology meets education to
                     empower every student with the tools they need to master their subjects and excel in their careers.
                 </p>
 
-                <div style="margin-top: 2rem;">
+                <div style="margin-top: 1rem;">
                     <!-- Founders Section -->
                     <section id="founders">
                         <h2 class="section-title">Meet Our Founders</h2>
@@ -681,10 +724,9 @@
                                             <div class="founder-border-glow"></div>
                                             <div class="founder-border-ring"></div>
                                             <img src="/assets/anoop.jpg?v=6.0" alt="Tanishq Agrawal"
-                                                onerror="this.src='/assets/logo.jpg?v=6.0'">
+                                                onerror="this.src='/assets/logo.jpg?v=7.0'">
                                         </div>
                                         <h3>Tanishq Agrawal</h3>
-                                        <p class="role">Frontend, UI/UX, Marketing & Features</p>
                                         <div class="tap-hint">
                                             <i data-lucide="external-link"></i> View Full Profile
                                         </div>
@@ -701,10 +743,9 @@
                                             <div class="founder-border-glow"></div>
                                             <div class="founder-border-ring"></div>
                                             <img src="/assets/yash.jpg?v=6.0" alt="Yash Jain"
-                                                onerror="this.src='/assets/logo.jpg?v=6.0'">
+                                                onerror="this.src='/assets/logo.jpg?v=7.0'">
                                         </div>
                                         <h3>Yash Jain</h3>
-                                        <p class="role">Cloud, Backend & Security</p>
                                         <div class="tap-hint">
                                             <i data-lucide="external-link"></i> View Full Profile
                                         </div>
@@ -721,10 +762,9 @@
                                             <div class="founder-border-glow"></div>
                                             <div class="founder-border-ring"></div>
                                             <img src="/assets/tanishq.jpg?v=6.0" alt="Anoop Verma"
-                                                onerror="this.src='/assets/logo.jpg?v=6.0'">
+                                                onerror="this.src='/assets/logo.jpg?v=7.0'">
                                         </div>
                                         <h3>Anoop Verma</h3>
-                                        <p class="role">Lead AI & Backend Developer</p>
                                         <div class="tap-hint">
                                             <i data-lucide="external-link"></i> View Full Profile
                                         </div>
@@ -735,10 +775,8 @@
                     </section>
                 </div>
 
-                <div
-                    style="margin-top: 6rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 4rem; text-align: center;">
-                    <p
-                        style="font-weight: 500; color: #7B61FF; font-size: 1.1rem; letter-spacing: 1px; text-transform: uppercase;">
+                <div style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1rem; text-align: center;">
+                    <p style="font-weight: 500; color: #7B61FF; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase;">
                         © 2026 SKiL MATRiX. Pioneering the future of learning.</p>
                 </div>
             </div>
@@ -771,7 +809,7 @@
                     linkedin: "https://www.linkedin.com/in/tanishq-agrawal-91a505335",
                     instagram: "https://www.instagram.com/tanishq_agrawal11?igsh=YmtibTEwcDFsd3No"
                 },
-                skills: ["Frontend Developer", "UI/UX Design", "React & Modern JS", "Digital Marketing", "Product Strategy"]
+                skills: ["Frontend Development", "UI/UX Design", "Database Management", "Web Animation", "Responsive Design"]
             },
             yash: {
                 name: "Yash Jain",
@@ -810,7 +848,7 @@
                     <div class="modal-profile-img" style="--primary: ${data.color || '#00F2FF'}; --secondary: ${data.secondaryColor || '#7B61FF'};">
                         <div class="founder-border-glow"></div>
                         <div class="founder-border-ring"></div>
-                        <img src="../${data.img}" alt="${data.name}" onerror="this.src='../assets/logo.jpg?v=6.0'" style="object-position: center 15%; filter: contrast(1.15) brightness(1.2) saturate(1.2);">
+                        <img src="../${data.img}" alt="${data.name}" onerror="this.src='../assets/logo.jpg?v=7.0'" style="object-position: center 15%; filter: contrast(1.15) brightness(1.2) saturate(1.2);">
                     </div>
                     <div class="modal-socials">
                         <a href="${data.social.github}" target="_blank" class="social-btn" title="GitHub">
@@ -831,12 +869,6 @@
                 <div class="modal-section">
                     <h4><i class="far fa-user"></i> About Me</h4>
                     <p>${data.bio}</p>
-                </div>
-                <div class="modal-section">
-                    <h4><i class="fas fa-bolt"></i> Skills</h4>
-                    <div class="skills-container">
-                        ${data.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
-                    </div>
                 </div>
             `;
 

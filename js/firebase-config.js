@@ -12,7 +12,12 @@ import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     setPersistence,
-    browserLocalPersistence
+    browserLocalPersistence,
+    sendPasswordResetEmail,
+    fetchSignInMethodsForEmail,
+    EmailAuthProvider,
+    linkWithCredential,
+    GithubAuthProvider
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
     getFirestore,
@@ -62,6 +67,7 @@ const app = initializeApp(firebaseConfig);
 // We keep this eager to ensure onAuthStateChanged works, but since this script is defer/module, it runs after parsing.
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+const githubProvider = new GithubAuthProvider();
 
 // EAGER INIT (Standard for shared usage)
 const db = initializeFirestore(app, { experimentalForceLongPolling: true });
@@ -80,6 +86,7 @@ window.firebaseServices = {
     app,
     auth,
     provider,
+    githubProvider,
     db, // Shared Instance
     storage,
     functions,
@@ -94,6 +101,7 @@ window.firebaseServices = {
     createUserWithEmailAndPassword,
     setPersistence,
     browserLocalPersistence,
+    sendPasswordResetEmail,
 
     // Firestore Functions
     collection,
@@ -151,6 +159,7 @@ export {
     storage,
     functions,
     provider,
+    githubProvider,
     signInWithPopup,
     signInWithRedirect,
     getRedirectResult,
@@ -160,6 +169,10 @@ export {
     createUserWithEmailAndPassword,
     setPersistence,
     browserLocalPersistence,
+    sendPasswordResetEmail,
+    fetchSignInMethodsForEmail,
+    EmailAuthProvider,
+    linkWithCredential,
     doc,
     getDoc,
     setDoc,
