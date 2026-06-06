@@ -21,6 +21,10 @@
         ],
         "rewrites": [
             {
+                "source": "/pages/codetantra/**",
+                "destination": "/pages/codetantra.html"
+            },
+            {
                 "source": "/notes/**",
                 "destination": "/pages/notes.html"
             },

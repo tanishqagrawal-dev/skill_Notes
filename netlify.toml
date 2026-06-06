@@ -8,6 +8,11 @@
   status = 200
 
 [[redirects]]
+  from = "/pages/codetantra/*"
+  to = "/pages/codetantra.html"
+  status = 200
+
+[[redirects]]
   from = "/pages/dashboard/*"
   to = "/pages/dashboard.html"
   status = 200

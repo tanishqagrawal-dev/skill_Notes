@@ -1450,6 +1450,15 @@ function renderTabContent(tabId) {
                     }
                 }
             }
+        } else if (tabId === 'codetantra') {
+            contentArea.innerHTML = '<div id="codetantra" class="tab-pane fade-in"><div id="ct-app-root"></div></div>';
+            if (window.renderCodeTantraApp) {
+                window.renderCodeTantraApp();
+            } else {
+                setTimeout(() => {
+                    if (window.renderCodeTantraApp) window.renderCodeTantraApp();
+                }, 500); // Wait for the module to load just in case
+            }
         } else if (tabId === 'planner') {
             contentArea.innerHTML = renderPlanner();
             
