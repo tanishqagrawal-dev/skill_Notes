@@ -46,7 +46,7 @@ export async function renderCodingArena() {
     // Robust Admin Check
     const adminEmails = ['tanishqagrawal1103@gmail.com', 'skilmatrix3@gmail.com'];
     const userEmail = (window.currentUser?.email || window.currentUser?.user_metadata?.email || '').toLowerCase();
-    const isAdmin = window.currentUser?.role === 'admin' || window.currentUser?.role === 'co-admin' || adminEmails.includes(userEmail) || (window.currentUser?.displayName || '').toLowerCase().includes('tanishq');
+    const isAdmin = window.currentUser?.role === 'admin' || window.currentUser?.role === 'co-admin' || adminEmails.includes(userEmail);
 
     if (window.caActiveProblemIndex === null) {
         // Ensure sidebar and top-bar are visible in Explorer
@@ -83,8 +83,8 @@ export async function renderCodingArena() {
 
                 <div style="display: flex; gap: 0.8rem; align-items: stretch;">
                     
-                    <!-- Certificate Card (Only shows if unlocked) -->
-                    ${currentLevel > 365 || isAdmin ? `
+                    <!-- Certificate Card: admins always unlocked; users unlock after all 365 problems -->
+                    ${(currentLevel > 365 || isAdmin) ? `
                     <div onclick="window.showCertificate()" class="premium-3d-card certificate-card glow-pulse" style="cursor: pointer; text-align: center; background: linear-gradient(145deg, rgba(255, 215, 0, 0.15), rgba(218, 165, 32, 0.35)); padding: 0.8rem 1rem; border-radius: 12px; border: 1px solid rgba(255, 215, 0, 0.4); border-top: 1px solid rgba(255, 215, 0, 0.7); box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 10px 30px rgba(218, 165, 32, 0.25); display: flex; flex-direction: column; justify-content: center; backdrop-filter: blur(10px);">
                         <div style="font-size: 0.65rem; color: #fff; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">🏆 Achievement</div>
                         <div style="font-size: 1.1rem; font-weight: bold; color: #ffd700; text-shadow: 0 2px 10px rgba(255, 215, 0, 0.6);">Claim Certificate</div>

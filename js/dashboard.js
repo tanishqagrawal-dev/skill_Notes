@@ -1459,50 +1459,6 @@ function renderTabContent(tabId) {
                     if (window.renderCodeTantraApp) window.renderCodeTantraApp();
                 }, 500); // Wait for the module to load just in case
             }
-        } else if (tabId === 'planner') {
-            contentArea.innerHTML = renderPlanner();
-            
-            // Auto-fill and generate logic for AI Plan integration
-            setTimeout(() => {
-                const savedSub = localStorage.getItem('tt_planner_subject');
-                const savedDate = localStorage.getItem('tt_planner_date');
-                if (savedSub && savedDate) {
-                    const dateInput = document.getElementById('p-exam-date');
-                    if (dateInput) {
-                        dateInput.value = new Date(savedDate).toISOString().split('T')[0];
-                    }
-                    
-                    const container = document.getElementById('weak-topics-container');
-                    let found = false;
-                    if (container) {
-                        Array.from(container.children).forEach(chip => {
-                            if(chip.getAttribute('data-val') === savedSub) {
-                                if(!chip.classList.contains('active')) chip.click();
-                                found = true;
-                            }
-                        });
-                    }
-                    
-                    if (!found && typeof addCustomTopic === 'function') {
-                        const input = document.getElementById('p-custom-topic');
-                        if(input) {
-                            input.value = savedSub;
-                            addCustomTopic();
-                        }
-                    }
-                    
-                    localStorage.removeItem('tt_planner_subject');
-                    localStorage.removeItem('tt_planner_date');
-                    
-                    // Automatically trigger the generation
-                    setTimeout(() => {
-                        const genBtn = document.getElementById('btn-gen-plan');
-                        if(genBtn && !genBtn.disabled) {
-                            if(window.handleGeneratePlan) window.handleGeneratePlan();
-                        }
-                    }, 150);
-                }
-            }, 100);
 
         } else if (tabId === 'timetable') {
             contentArea.innerHTML = renderTimetable();
@@ -1637,10 +1593,8 @@ window.addCustomTopic = function() {
     input.value = '';
 };
 
+// Study Planner removed
 function renderPlanner() {
-    // 1. Get Subjects
-    const mySubjects = (GlobalData.subjects['cse-Semester 3'] || GlobalData.subjects['cse-Semester 1']).map(s => s.name);
-
     return `
         <div class="tab-pane active fade-in" style="padding: 1rem 1.5rem; max-width: 1200px; margin: 0 auto;">
             <div class="welcome-header" style="margin-bottom: 1.5rem; text-align: center;">
@@ -2264,53 +2218,7 @@ function renderTimetableCards() {
 }
 
 
-function renderTimeline(plan) {
-    const container = document.getElementById('plan-timeline');
-    if (!plan || plan.length === 0) {
-        container.innerHTML = "<p>No tasks generated.</p>";
-        return;
-    }
-
-    let html = '<div class="timeline">';
-    plan.forEach((task, idx) => {
-        const icons = { 'Learn': '📖', 'Practice': '📝', 'Revise': '⚡', 'Break': '☕' };
-        const color = { 'Learn': '#3498db', 'Practice': '#e67e22', 'Revise': '#2ecc71', 'Break': '#95a5a6' };
-
-        html += `
-            <div class="timeline-item glass-card" style="margin-bottom: 1.5rem; border-left: 4px solid ${color[task.type] || '#7B61FF'}; padding: 1.5rem; position: relative; animation: slideIn 0.3s ease forwards; animation-delay: ${idx * 0.1}s; opacity: 0;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                    <div>
-                        <div style="font-size: 0.8rem; color: var(--text-dim); font-family: var(--font-mono); margin-bottom: 0.3rem;">
-                            ${task.time}
-                        </div>
-                        <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem;">
-                            ${icons[task.type] || '📌'} ${task.activity}
-                        </h4>
-                        <div style="background: rgba(255,255,255,0.05); display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; color: var(--text-muted);">
-                            ${task.topic}
-                        </div>
-                    </div>
-                    
-                    <div class="tooltip-wrapper" style="position: relative; cursor: help;" onmouseenter="this.querySelector('.tooltip-content').style.display='block'" onmouseleave="this.querySelector('.tooltip-content').style.display='none'">
-                        <span style="font-size: 1.2rem; opacity: 0.5; transition: opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">🧠</span>
-                        <div class="tooltip-content glass-card" style="position: absolute; right: 0; top: 30px; width: 240px; padding: 1.2rem; font-size: 0.8rem; display: none; z-index: 10; border: 1px solid var(--primary); box-shadow: 0 10px 40px rgba(0,0,0,0.8); background: rgba(15,17,25,0.95); border-radius: 12px; pointer-events: none;">
-                            <strong style="color: var(--primary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem; font-family: var(--font-heading);">Engine Logic:</strong>
-                            <span style="color: var(--text-dim); line-height: 1.5; display: block;">${task.reasoning || 'Optimized for cognitive load balance and maximum retention.'}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-    html += '</div>';
-
-    // Tooltip Logic
-    container.innerHTML = html;
-    container.querySelectorAll('.tooltip-wrapper').forEach(el => {
-        el.onmouseenter = () => el.querySelector('.tooltip-content').style.display = 'block';
-        el.onmouseleave = () => el.querySelector('.tooltip-content').style.display = 'none';
-    });
-}
+// renderTimeline removed (Study Planner removed)
 
 
 function renderAITools() {

@@ -68,13 +68,26 @@ async function build() {
             let code = fs.readFileSync(absolutePath, 'utf8');
 
             // --- INJECT SECURE API KEYS ---
-            if (code.includes('INJECT_GEMINI_API_KEY') || code.includes('INJECT_GROQ_API_KEY')) {
+            if (code.includes('INJECT_')) {
                 console.log(`🔐 Injecting secure API keys into ${file}...`);
-                const geminiKey = process.env.GEMINI_API_KEY || '';
-                const groqKey = process.env.GROQ_API_KEY || '';
+                const keys = {
+                    'GEMINI_API_KEY': process.env.GEMINI_API_KEY || '',
+                    'GROQ_API_KEY': process.env.GROQ_API_KEY || '',
+                    'SUPABASE_URL': process.env.SUPABASE_URL || '',
+                    'SUPABASE_ANON_KEY': process.env.SUPABASE_ANON_KEY || '',
+                    'FIREBASE_API_KEY': process.env.FIREBASE_API_KEY || '',
+                    'FIREBASE_AUTH_DOMAIN': process.env.FIREBASE_AUTH_DOMAIN || '',
+                    'FIREBASE_PROJECT_ID': process.env.FIREBASE_PROJECT_ID || '',
+                    'FIREBASE_STORAGE_BUCKET': process.env.FIREBASE_STORAGE_BUCKET || '',
+                    'FIREBASE_MESSAGING_SENDER_ID': process.env.FIREBASE_MESSAGING_SENDER_ID || '',
+                    'FIREBASE_APP_ID': process.env.FIREBASE_APP_ID || '',
+                    'FIREBASE_MEASUREMENT_ID': process.env.FIREBASE_MEASUREMENT_ID || ''
+                };
                 
-                code = code.replace(/"INJECT_GEMINI_API_KEY"/g, `"${geminiKey}"`);
-                code = code.replace(/"INJECT_GROQ_API_KEY"/g, `"${groqKey}"`);
+                for (const [key, value] of Object.entries(keys)) {
+                    const regex = new RegExp(`"INJECT_${key}"|'INJECT_${key}'`, 'g');
+                    code = code.replace(regex, `"${value}"`);
+                }
             }
 
             try {

@@ -1,1 +1,213 @@
-(function(_0x323804,_0x741c38){const _0x114ea9=_0x499c,_0x14593e=_0x323804();while(!![]){try{const _0x10a337=parseInt(_0x114ea9(0x220))/(0x1271+0x1*0x19fd+-0xecf*0x3)*(parseInt(_0x114ea9(0x21c))/(-0xf2*-0x8+-0x25f3+0x1e65))+parseInt(_0x114ea9(0x262))/(-0x36e*0x1+0x1*-0x14e9+-0xc2d*-0x2)+parseInt(_0x114ea9(0x1ea))/(-0x156c+0x1ab4+-0x544)*(-parseInt(_0x114ea9(0x257))/(-0x1*0xf47+-0x1*0x2013+0x2f5f))+-parseInt(_0x114ea9(0x20e))/(0xb01+0xcb3+0x1*-0x17ae)*(-parseInt(_0x114ea9(0x240))/(-0xd*0x211+-0x10e0+-0x2bc4*-0x1))+-parseInt(_0x114ea9(0x1f8))/(0x14cf+-0x1087+0x88*-0x8)*(-parseInt(_0x114ea9(0x23b))/(0x20bc+0x6*-0x595+-0x1d*-0x7))+parseInt(_0x114ea9(0x1e5))/(-0x1865+-0xafc+0x1*0x236b)+-parseInt(_0x114ea9(0x1f3))/(0x1*0x1d9f+-0x1428*0x1+0x86*-0x12)*(parseInt(_0x114ea9(0x247))/(0x1*-0x11f5+-0x9f*-0x20+-0x1df));if(_0x10a337===_0x741c38)break;else _0x14593e['push'](_0x14593e['shift']());}catch(_0x12eb4a){_0x14593e['push'](_0x14593e['shift']());}}}(_0x59a5,0x18e2ff+0xfcb2c+0x19eb18*-0x1));const _0x456cfe=(function(){const _0x3a4bf7=_0x499c,_0x15a916={};_0x15a916[_0x3a4bf7(0x226)]=function(_0x5ca5af,_0x93c215){return _0x5ca5af+_0x93c215;},_0x15a916[_0x3a4bf7(0x1f5)]=_0x3a4bf7(0x25a)+_0x3a4bf7(0x24f),_0x15a916[_0x3a4bf7(0x210)]=function(_0x210234,_0x5ebc88){return _0x210234===_0x5ebc88;},_0x15a916[_0x3a4bf7(0x231)]=_0x3a4bf7(0x1f2);const _0x68c7f7=_0x15a916;let _0x119f2c=!![];return function(_0x1de73c,_0x26d140){const _0x77808c=_0x3a4bf7,_0x312195={'LVWcd':function(_0x445814,_0x15ffd3){return _0x445814+_0x15ffd3;},'loFdy':function(_0x40aaa2,_0x562e99){return _0x68c7f7['WOrHw'](_0x40aaa2,_0x562e99);},'MZmjZ':_0x68c7f7[_0x77808c(0x1f5)],'CTWcO':function(_0x3cfb2c,_0x471f8b){const _0x388ba6=_0x77808c;return _0x68c7f7[_0x388ba6(0x210)](_0x3cfb2c,_0x471f8b);},'VHCvm':_0x68c7f7[_0x77808c(0x231)]},_0x2f6502=_0x119f2c?function(){const _0x539dd8=_0x77808c,_0x33f411={'PsBlx':function(_0x1fdb44,_0x2aa8c3){const _0x32ecc7=_0x499c;return _0x312195[_0x32ecc7(0x23e)](_0x1fdb44,_0x2aa8c3);},'jUUFI':function(_0x484185,_0x4d123c){const _0x5c38f9=_0x499c;return _0x312195[_0x5c38f9(0x260)](_0x484185,_0x4d123c);},'PzORi':_0x312195[_0x539dd8(0x1e8)]};if(_0x312195['CTWcO'](_0x312195[_0x539dd8(0x20b)],_0x312195[_0x539dd8(0x20b)])){if(_0x26d140){const _0x20c767=_0x26d140['apply'](_0x1de73c,arguments);return _0x26d140=null,_0x20c767;}}else{const _0xf88a82=_0x2863a3(_0x33f411[_0x539dd8(0x233)](_0x33f411[_0x539dd8(0x234)](_0x33f411[_0x539dd8(0x1ec)],_0x539dd8(0x264)+_0x539dd8(0x230)+_0x539dd8(0x1e6)+'\x20)'),');'));_0xb23e1d=_0xf88a82();}}:function(){};return _0x119f2c=![],_0x2f6502;};}()),_0x30af75=_0x456cfe(this,function(){const _0x4070e4=_0x499c,_0x5a4064={};_0x5a4064[_0x4070e4(0x218)]=_0x4070e4(0x1f1)+'+$';const _0x7ac524=_0x5a4064;return _0x30af75[_0x4070e4(0x1ee)]()[_0x4070e4(0x246)](_0x7ac524[_0x4070e4(0x218)])[_0x4070e4(0x1ee)]()[_0x4070e4(0x237)+'r'](_0x30af75)[_0x4070e4(0x246)](_0x7ac524[_0x4070e4(0x218)]);});function _0x499c(_0x1c8853,_0x222965){_0x1c8853=_0x1c8853-(-0x24be+0xb27*-0x2+0x3cf0);const _0x11a768=_0x59a5();let _0x502347=_0x11a768[_0x1c8853];if(_0x499c['PDjaPL']===undefined){var _0x492309=function(_0x4bb0e5){const _0x22b329='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x327095='',_0x151840='',_0x2b76b9=_0x327095+_0x492309;for(let _0x1fa29d=0x771*0x3+-0xb*-0x13+-0x4*0x5c9,_0x3f4f49,_0x122369,_0x55a142=0x5*-0x12a+0xca6*-0x3+0x2*0x15e2;_0x122369=_0x4bb0e5['charAt'](_0x55a142++);~_0x122369&&(_0x3f4f49=_0x1fa29d%(-0x9f5*-0x3+0x2c*-0x9f+-0x287)?_0x3f4f49*(-0x773*-0x1+-0x83f*0x2+0x94b)+_0x122369:_0x122369,_0x1fa29d++%(-0x1542+-0x1f73+0x34b9))?_0x327095+=_0x2b76b9['charCodeAt'](_0x55a142+(-0x4*0x9+0x1*0xb55+-0xb27))-(0x58f+0x884+-0x1*0xe09)!==-0x20f2+-0x5fb*0x1+-0x1*-0x26ed?String['fromCharCode'](-0x119*0x17+-0x78f+-0x1fd*-0x11&_0x3f4f49>>(-(0x29*-0x3d+0x1*-0xf19+0x18e0)*_0x1fa29d&0x1f9f+-0x2a1*0x7+-0xd32)):_0x1fa29d:0x1*0xde3+-0x35*0x4f+0x278){_0x122369=_0x22b329['indexOf'](_0x122369);}for(let _0x5496ec=0xdb+0xd1+-0x1ac,_0x39f9ab=_0x327095['length'];_0x5496ec<_0x39f9ab;_0x5496ec++){_0x151840+='%'+('00'+_0x327095['charCodeAt'](_0x5496ec)['toString'](-0x24e3*-0x1+0x1a35+-0x8*0x7e1))['slice'](-(-0x14e7+0x16d4+0x1eb*-0x1));}return decodeURIComponent(_0x151840);};_0x499c['jVISZr']=_0x492309,_0x499c['aUkEqT']={},_0x499c['PDjaPL']=!![];}const _0x4e5d08=_0x11a768[0xa10+0x18f4*-0x1+0x2*0x772],_0x1a5b3c=_0x1c8853+_0x4e5d08,_0x41eaf1=_0x499c['aUkEqT'][_0x1a5b3c];if(!_0x41eaf1){const _0x3f64bf=function(_0x261d52){this['TayHAG']=_0x261d52,this['NsbsvU']=[0x787+0x1e6f+-0x25f5,-0x2004+-0x394+0x2398,0x981*0x3+-0x1*-0x1969+-0x35ec],this['ktgfXW']=function(){return'newState';},this['GJEoIB']='\x5cw+\x20*\x5c(\x5c)\x20*{\x5cw+\x20*',this['dNXPHD']='[\x27|\x22].+[\x27|\x22];?\x20*}';};_0x3f64bf['prototype']['FGydEz']=function(){const _0x441afd=new RegExp(this['GJEoIB']+this['dNXPHD']),_0x4b8577=_0x441afd['test'](this['ktgfXW']['toString']())?--this['NsbsvU'][0x4*-0x533+-0x4db*-0x7+0x8*-0x1a6]:--this['NsbsvU'][0x175*0x1+-0x787*0x3+-0x68*-0x34];return this['kdiSyT'](_0x4b8577);},_0x3f64bf['prototype']['kdiSyT']=function(_0x2f5d55){if(!Boolean(~_0x2f5d55))return _0x2f5d55;return this['yBPLHa'](this['TayHAG']);},_0x3f64bf['prototype']['yBPLHa']=function(_0x4a230c){for(let _0x4f63c7=0x1*-0x29f+0xa2*-0x9+0x851,_0xf93c11=this['NsbsvU']['length'];_0x4f63c7<_0xf93c11;_0x4f63c7++){this['NsbsvU']['push'](Math['round'](Math['random']())),_0xf93c11=this['NsbsvU']['length'];}return _0x4a230c(this['NsbsvU'][0x2f*0x13+-0x1000+0xc83]);},new _0x3f64bf(_0x499c)['FGydEz'](),_0x502347=_0x499c['jVISZr'](_0x502347),_0x499c['aUkEqT'][_0x1a5b3c]=_0x502347;}else _0x502347=_0x41eaf1;return _0x502347;}function _0x59a5(){const _0x52b8cc=['vKPLtuu','DxnLCNm','uhncBhG','ALvvrKK','DMXIy3e','DgfIBgu','y29UC3rYDwn0BW','yMLUza','yMnyt3G','yxnvue4','otLNv2D5wMu','DKXbq20','C3vIAMvJDa','tfzxy2q','z0XcAui','mtyXsMfgAwXX','zgf0yq','u3LSBgfIDxm','Bw9KzwXFCgfWzq','ChLXCW','ywLdCMvKAxrZ','C2vHCMnO','ndHWreTOD2i','BwvZC2fNzq','DwLK','DwLMCK4','qwfKC1G','CYbSzwz0lIbvCa','C3LSBgfIDxm','Bg5AvxC','BMn0Aw9UkcKG','y3vYCMvUDfvZzq','y29UC29Szq','ywLFB3v0Chv0CW','z1LvzKe','y29UDgvUDa','vKDNzNy','zLbsy3a','mJbwwhbqv0u','C3vJy2vZCW','z2LZDa','CMv0DxjUicHMDq','A1PqtMq','tNjAq0W','yxbWBhK','AwvK','C3rYyxrLz3K','Bg9gzhK','BLLNDeO','ndK2mZCZmu1wyMX6DG','Aw4GDg8GDxnLia','E30Uy29UC3rYDq','DLHoANe','B3qGAw5PDgLHBa','rMLYzwjHC2uGrG','ntG0mtmWmgfTrfDeCq','CM4GDgHPCYiPka','CM8GzM9YihvUBa','tvPTALO','AMDjvNy','mtKYmda4z2fJvhrS','qwTTCLu','uhPpuMK','ww91igHHDMuGma','Dg9tDhjPBMC','uuDvshy','BgLLBNqGrxjYBW','kcGOlISPkYKRkq','r2PWv1C','mtiZmtG0otn4r1H5txO','ChjVDg90ExbL','s3DgzNa','rfLhse8','quKGq2XVDwqGqW','otG5otyWq2Hzz2rJ','Eg56D1m','iefjignYzwrPDa','z2vUzxjHDgvnBW','vfPfwKC','zgvSugfWzxi','Eg5Kz3O','Bg9N','wLbsD04','zxHHBvn0CMf0zq','ugXLyxnLigXVzW','z3jHzguGDg8Gua','AujnEgy','BML2zxjZAxr5ia','D2vHA1rVCgLJCW','r2HmB0u','u3rHBMrHCMqGvq','shzIu08','zxnZiq','vKHdDM0','quKGz2vUzxjHDa','Dw5JDgLVBNmGBG','mtKZmZG2wurwEMfl','BgvUz3rO','BNPcEuO','rMfPBgvKihrVia','Aw5MBW','CNbMsxq','t054zgm','quKGzMvHDhvYzq','CNzPy2vZ','wujtzhK','ruXSvui','CgfWzxi','z3HKqwi','DhjHy2u','mti5nZy4oe1vtwzPsG','zLHvy00','sKDNBhG','zxjYB3i','mLLvrfDYwG','AxPLza','Aw1PDgvKigfJyW','zMLYzwjHC2vtzq','ievYCM9YoG','Aw1PDgvKiefjiq','v09YshC','zwD5','BLvLzuq','EevUv3u','BLfHreW','DMP5ywO','wMHLthy','re5Ot1K','DM1pAuW','z2vUzxjHDguGCa','y3rVCIGICMv0Dq'];_0x59a5=function(){return _0x52b8cc;};return _0x59a5();}_0x30af75();const _0x580af6=(function(){const _0x563f4d=_0x499c,_0x5c74c9={};_0x5c74c9[_0x563f4d(0x204)]=function(_0x395f7f,_0x231e33){return _0x395f7f!==_0x231e33;},_0x5c74c9[_0x563f4d(0x1f6)]=_0x563f4d(0x1f9),_0x5c74c9[_0x563f4d(0x23c)]=_0x563f4d(0x1ef);const _0xe346b4=_0x5c74c9;let _0x5ee13c=!![];return function(_0x444e7b,_0x1381fb){const _0x15de66=_0x563f4d,_0x142745={'gxdAb':function(_0x8ead5c,_0x3d388d){const _0x493730=_0x499c;return _0xe346b4[_0x493730(0x204)](_0x8ead5c,_0x3d388d);},'fPRcp':_0xe346b4['DYGHO'],'asUPN':_0xe346b4[_0x15de66(0x23c)]},_0x20125e=_0x5ee13c?function(){const _0x44abf9=_0x15de66;if(_0x1381fb){if(_0x142745[_0x44abf9(0x21a)](_0x142745[_0x44abf9(0x256)],_0x142745[_0x44abf9(0x23a)])){const _0x315af2=_0x1381fb[_0x44abf9(0x25d)](_0x444e7b,arguments);return _0x1381fb=null,_0x315af2;}else _0x25c997=_0x10dfc9;}}:function(){};return _0x5ee13c=![],_0x20125e;};}()),_0x46a9ed=_0x580af6(this,function(){const _0x4fff63=_0x499c,_0x54e815={'spPUn':function(_0x28beb5,_0xce88ce){return _0x28beb5(_0xce88ce);},'gYUfA':function(_0x1aec0e,_0x4d1817){return _0x1aec0e+_0x4d1817;},'lnZUw':_0x4fff63(0x25a)+'nction()\x20','bBtkT':'{}.constru'+_0x4fff63(0x230)+_0x4fff63(0x1e6)+'\x20)','SQZHA':function(_0x28071f){return _0x28071f();},'OYLpA':_0x4fff63(0x1ff),'NrZCL':'warn','ZEZcf':_0x4fff63(0x212),'GhLoE':_0x4fff63(0x21f),'ObVyy':'exception','ONxdc':_0x4fff63(0x236),'xEnWu':function(_0x516ae4,_0x518ba0){return _0x516ae4<_0x518ba0;},'YBSdy':function(_0x37ae41,_0x30b5e7){return _0x37ae41===_0x30b5e7;},'xndgz':_0x4fff63(0x25b)};let _0x466116;try{const _0x5b7d8b=_0x54e815['spPUn'](Function,_0x54e815[_0x4fff63(0x253)](_0x54e815[_0x4fff63(0x24e)],_0x54e815['bBtkT'])+');');_0x466116=_0x54e815['SQZHA'](_0x5b7d8b);}catch(_0x1d3977){_0x466116=window;}const _0x23793e=_0x466116[_0x4fff63(0x251)]=_0x466116[_0x4fff63(0x251)]||{},_0x19e14c=[_0x54e815['OYLpA'],_0x54e815[_0x4fff63(0x25c)],_0x54e815['ZEZcf'],_0x54e815[_0x4fff63(0x207)],_0x54e815['ObVyy'],_0x54e815[_0x4fff63(0x214)],_0x4fff63(0x21b)];for(let _0x4c22c6=-0x1*0xf86+0xf16+0x70;_0x54e815[_0x4fff63(0x229)](_0x4c22c6,_0x19e14c[_0x4fff63(0x20f)]);_0x4c22c6++){if(_0x54e815[_0x4fff63(0x217)](_0x54e815[_0x4fff63(0x1fe)],_0x4fff63(0x25b))){const _0x204073=_0x580af6[_0x4fff63(0x237)+'r'][_0x4fff63(0x1f4)][_0x4fff63(0x238)](_0x580af6),_0x4a66dc=_0x19e14c[_0x4c22c6],_0x4fc91b=_0x23793e[_0x4a66dc]||_0x204073;_0x204073['__proto__']=_0x580af6[_0x4fff63(0x238)](_0x580af6),_0x204073[_0x4fff63(0x1ee)]=_0x4fc91b[_0x4fff63(0x1ee)][_0x4fff63(0x238)](_0x4fc91b),_0x23793e[_0x4a66dc]=_0x204073;}else throw new _0x1bb95a(_0x4fff63(0x1ed)+'\x20AI\x20credit'+'s\x20left.\x20Up'+_0x4fff63(0x203)+'ro\x20for\x20unl'+'imited\x20acc'+_0x4fff63(0x20a));}});_0x46a9ed(),window['aiClient']={'isServerAvailable':async()=>{return!![];},'generateModelPaper':async _0x21669c=>{const _0x4eb6de=_0x499c,_0xbfe374={'gLBiB':'Firebase\x20F'+_0x4eb6de(0x20d)+_0x4eb6de(0x266)+_0x4eb6de(0x221),'DNhOY':function(_0x4e8916,_0x208163,_0x393ccc,_0x393acf){return _0x4e8916(_0x208163,_0x393ccc,_0x393acf);},'JGglx':_0x4eb6de(0x232),'vjyaj':function(_0x1dd41a,_0x256875){return _0x1dd41a(_0x256875);},'EFTca':function(_0x33d64a,_0x209615){return _0x33d64a<=_0x209615;},'nUeeD':_0x4eb6de(0x1ed)+_0x4eb6de(0x1fa)+'s\x20left.\x20Up'+_0x4eb6de(0x203)+'ro\x20for\x20unl'+_0x4eb6de(0x222)+'ess!','RRnRh':_0x4eb6de(0x1fb)+_0x4eb6de(0x1fd),'UREkB':_0x4eb6de(0x208)+_0x4eb6de(0x205)+_0x4eb6de(0x242),'uifrN':function(_0x3f9ddc,_0x5bb76c,_0x2bafb9){return _0x3f9ddc(_0x5bb76c,_0x2bafb9);},'vlbcq':_0x4eb6de(0x243)+'r','vXNjq':function(_0xe0f263,_0x43d992,_0x3e24ac){return _0xe0f263(_0x43d992,_0x3e24ac);},'YANgx':function(_0x4b4632,_0x441cc6){return _0x4b4632(_0x441cc6);},'ZheLv':_0x4eb6de(0x1f7)+_0x4eb6de(0x1f0)+'r:','vmOiL':_0x4eb6de(0x20c)+'ion\x20failed'+'.'};try{const {functions:_0x3ad572,httpsCallable:_0x357486,db:_0x40e289,collection:_0x23af44,addDoc:_0x354a0b,auth:_0x578791,doc:_0x1c34a8,getDoc:_0x10f88e,updateDoc:_0x5171d3,increment:_0x8f89b3}=window[_0x4eb6de(0x223)+_0x4eb6de(0x216)];if(!_0x3ad572)throw new Error(_0xbfe374[_0x4eb6de(0x23f)]);if(!_0x578791['currentUse'+'r'])throw new Error('Please\x20log'+_0x4eb6de(0x263)+_0x4eb6de(0x215)+'s.');const _0x490c87=_0xbfe374[_0x4eb6de(0x22d)](_0x1c34a8,_0x40e289,_0xbfe374[_0x4eb6de(0x21e)],_0x578791['currentUse'+'r'][_0x4eb6de(0x249)]),_0x312268=await _0xbfe374[_0x4eb6de(0x22b)](_0x10f88e,_0x490c87),_0x2a6315=_0x312268[_0x4eb6de(0x241)](),_0x228342=_0x2a6315?.[_0x4eb6de(0x245)]??0x3*0x6a4+-0x14d1+0x3*0x4e;if(_0xbfe374['EFTca'](_0x228342,-0x14cd+0x1*-0x2ef+0x17bc))throw new Error(_0xbfe374[_0x4eb6de(0x228)]);const _0x17be26=_0x357486(_0x3ad572,_0xbfe374['RRnRh']),_0x4fa263=await _0xbfe374[_0x4eb6de(0x22b)](_0x17be26,{'subject':_0x21669c['subject'],'syllabus':_0x21669c[_0x4eb6de(0x24d)]||_0xbfe374['UREkB'],'pyqs':_0x21669c[_0x4eb6de(0x244)]}),_0x34c0f6=_0x4fa263[_0x4eb6de(0x241)][_0x4eb6de(0x219)];await _0xbfe374[_0x4eb6de(0x24a)](_0x354a0b,_0xbfe374[_0x4eb6de(0x24a)](_0x23af44,_0x40e289,_0x4eb6de(0x252)),{'type':_0xbfe374[_0x4eb6de(0x235)],'userId':_0x578791[_0x4eb6de(0x250)+'r'][_0x4eb6de(0x249)],'subject':_0x21669c[_0x4eb6de(0x23d)],'content':_0x34c0f6,'createdAt':new Date()}),await _0xbfe374[_0x4eb6de(0x265)](_0x5171d3,_0x490c87,{'aiCredits':_0xbfe374['YANgx'](_0x8f89b3,-(-0x1b6*-0x2+0x21e9+-0x2554))});const _0x55f54a={};return _0x55f54a[_0x4eb6de(0x258)]=!![],_0x55f54a[_0x4eb6de(0x254)]=_0x34c0f6,_0x55f54a;}catch(_0x1364f2){console[_0x4eb6de(0x21f)](_0xbfe374[_0x4eb6de(0x22c)],_0x1364f2);throw new Error(_0x1364f2[_0x4eb6de(0x248)]||_0xbfe374[_0x4eb6de(0x22e)]);}},'generateStudyPlan':async _0x2694e8=>{const _0x196f18=_0x499c,_0x224333={'TZEZG':_0x196f18(0x1e4)+_0x196f18(0x20d)+_0x196f18(0x266)+_0x196f18(0x221),'nQaDL':_0x196f18(0x202)+_0x196f18(0x263)+_0x196f18(0x215)+'s.','bcXOx':function(_0x337119,_0x1abac4,_0x3954bd,_0x511f19){return _0x337119(_0x1abac4,_0x3954bd,_0x511f19);},'ZPRwN':'users','AkmrU':function(_0x323168,_0x1191c1){return _0x323168<=_0x1191c1;},'fXUcM':'You\x20have\x200'+_0x196f18(0x1fa)+_0x196f18(0x24c)+'grade\x20to\x20P'+_0x196f18(0x1e7)+_0x196f18(0x225),'AadsX':function(_0xfeb3f1,_0x43ba34,_0x2b6e2a){return _0xfeb3f1(_0x43ba34,_0x2b6e2a);},'mEKAw':_0x196f18(0x201)+_0x196f18(0x259),'HvbSO':function(_0x1d5490,_0xf6454b){return _0x1d5490(_0xf6454b);},'VGgfv':'Not\x20specif'+_0x196f18(0x25e),'rpfIt':function(_0x53702a,_0x5d0f49,_0x5d7350){return _0x53702a(_0x5d0f49,_0x5d7350);},'jgIVv':_0x196f18(0x252),'JuGXs':'exam_strat'+_0x196f18(0x227),'nYgtJ':'AI\x20Planner'+_0x196f18(0x224)};try{const {functions:_0x25d560,httpsCallable:_0x339809,db:_0x3eeec5,collection:_0x4cc326,addDoc:_0x24ca82,auth:_0x32a340,doc:_0x29729a,getDoc:_0x21e4be,updateDoc:_0x26f1fe,increment:_0x2fd0f8}=window[_0x196f18(0x223)+_0x196f18(0x216)];if(!_0x25d560)throw new Error(_0x224333[_0x196f18(0x1fc)]);if(!_0x32a340['currentUse'+'r'])throw new Error(_0x224333[_0x196f18(0x22a)]);const _0x1950a4=_0x224333[_0x196f18(0x239)](_0x29729a,_0x3eeec5,_0x224333[_0x196f18(0x200)],_0x32a340[_0x196f18(0x250)+'r'][_0x196f18(0x249)]),_0x5c1397=await _0x21e4be(_0x1950a4),_0x5118c6=_0x5c1397['data'](),_0x4c8f8c=_0x5118c6?.[_0x196f18(0x245)]??0x1*0x112+-0x1*0x16fa+0x15ed*0x1;if(_0x224333[_0x196f18(0x1eb)](_0x4c8f8c,-0xe6d+0x3*-0xadc+0x2f01))throw new Error(_0x224333[_0x196f18(0x21d)]);const _0x204d81=_0x224333['AadsX'](_0x339809,_0x25d560,_0x224333['mEKAw']),_0x1080e7=await _0x224333['HvbSO'](_0x204d81,{'subject':_0x2694e8[_0x196f18(0x23d)],'daysLeft':_0x2694e8['daysLeft']||0x123+0x1cb9+-0x1dd5,'weakTopics':_0x2694e8[_0x196f18(0x206)]||_0x224333[_0x196f18(0x255)]}),_0x15c070=_0x1080e7['data'][_0x196f18(0x25f)];return await _0x224333[_0x196f18(0x213)](_0x24ca82,_0x224333[_0x196f18(0x24b)](_0x4cc326,_0x3eeec5,_0x224333[_0x196f18(0x1e9)]),{'type':_0x224333['JuGXs'],'userId':_0x32a340[_0x196f18(0x250)+'r']['uid'],'subject':_0x2694e8[_0x196f18(0x23d)],'content':_0x15c070,'createdAt':new Date()}),await _0x224333[_0x196f18(0x213)](_0x26f1fe,_0x1950a4,{'aiCredits':_0x224333[_0x196f18(0x209)](_0x2fd0f8,-(-0x94f+-0x201b+-0x1*-0x296b))}),_0x15c070;}catch(_0x3a6640){console[_0x196f18(0x21f)](_0x224333[_0x196f18(0x261)],_0x3a6640);throw new Error(_0x3a6640['message']||_0x196f18(0x211)+_0x196f18(0x22f)+'lan.');}}};
+// AI Client Service (Talks to Firebase Cloud Functions and Gemini API)
+
+// --- FREE AI COACH CONFIGURATION ---
+window.GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE"; // Replace with your free Gemini API Key
+window.aiConversationHistory = []; // Stores the chat context
+
+window.aiClient = {
+    isServerAvailable: async () => {
+        // Since we are using Cloud Functions, they are always "available" if the internet is up
+        return true;
+    },
+
+    askDoubt: async (question) => {
+        // Add user message to history
+        window.aiConversationHistory.push({ role: "user", text: question });
+
+        let aiReply = "I couldn't generate a response.";
+
+        try {
+            if (!window.GEMINI_API_KEY || window.GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
+                // Free Fallback: Try real-time free AI first, silently fallback to predefined if it fails
+                const lowerQ = question.toLowerCase().trim();
+                let usePredefined = false;
+
+                // PREDEFINED RESPONSES FIRST
+                if (lowerQ.includes("hi") || lowerQ.includes("hello") || lowerQ.includes("hey")) {
+                    aiReply = "Hello there! I'm your SKiL Matrix AI Coach PRO. How can I assist you with your engineering studies today?";
+                } else if (lowerQ.includes("who are you") || lowerQ.includes("what are you doing") || lowerQ.includes("what are you")) {
+                    aiReply = "I am SKiL Matrix AI Coach PRO, an advanced engineering mentor. I'm currently standing by to help you clear your doubts and understand complex concepts.";
+                } else if (lowerQ.includes("how are you")) {
+                    aiReply = "I'm functioning perfectly and ready to help you learn! What topic are we tackling today?";
+                } else if (lowerQ.includes("time complexity of merge sort") || lowerQ.includes("merge sort complexity") || lowerQ.includes("merge sort")) {
+                    aiReply = "The time complexity of **Merge Sort is O(n log n)** in all cases (worst, average, and best). \n\nThis is because it recursively divides the array in half at each step (which takes `log n` steps) and then merges the halves by iterating through the `n` elements (taking `O(n)` time).";
+                } else if (lowerQ.includes("tcp and udp") || lowerQ.includes("tcp vs udp") || lowerQ.includes("difference between tcp")) {
+                    aiReply = "**TCP (Transmission Control Protocol)** is reliable and connection-oriented, meaning it guarantees all packets arrive in order (used for web browsing, emails).\n\n**UDP (User Datagram Protocol)** is faster but connectionless and doesn't guarantee delivery (used for video streaming, gaming).";
+                } else if (lowerQ.includes("second highest salary") || lowerQ.includes("2nd highest salary") || (lowerQ.includes("sql query") && lowerQ.includes("salary"))) {
+                    aiReply = "To find the second highest salary in SQL, you can use a subquery:\n\n```sql\nSELECT MAX(salary) \nFROM employees \nWHERE salary < (SELECT MAX(salary) FROM employees);\n```\n\nAlternatively, using `LIMIT` (MySQL/PostgreSQL):\n```sql\nSELECT salary \nFROM employees \nORDER BY salary DESC \nLIMIT 1 OFFSET 1;\n```";
+                } else if (lowerQ === "what is an api" || lowerQ.includes("explain api") || lowerQ.includes("what is api")) {
+                    aiReply = "**API (Application Programming Interface)** acts as a bridge that allows two different software programs to communicate. For example, when a weather app on your phone shows you the forecast, it uses an API to ask the weather service's server for the data, and the server uses the API to send it back.";
+                } else if (lowerQ.includes("oop concepts") || lowerQ.includes("object oriented programming")) {
+                    aiReply = "The four main pillars of **OOP (Object-Oriented Programming)** are:\n1. **Encapsulation:** Hiding internal state and requiring all interaction to be performed through an object's methods.\n2. **Abstraction:** Hiding complex implementation details and showing only the essential features of the object.\n3. **Inheritance:** Allowing a new class to inherit properties and methods from an existing class.\n4. **Polymorphism:** The ability of different classes to respond to the same method call in their own way.";
+                } else if (lowerQ.includes("ai vs ml") || lowerQ.includes("difference between ai and ml") || lowerQ.includes("ai and ml")) {
+                    aiReply = "**AI (Artificial Intelligence)** is the broader concept of machines being able to carry out tasks in a way that we would consider 'smart'.\n\n**ML (Machine Learning)** is a current application of AI based around the idea that we should just be able to give machines access to data and let them learn for themselves without explicit programming.";
+                } else if (lowerQ.includes("cloud computing") || lowerQ.includes("what is cloud")) {
+                    aiReply = "**Cloud Computing** is the delivery of computing services—including servers, storage, databases, networking, software, analytics, and intelligence—over the Internet ('the cloud') to offer faster innovation, flexible resources, and economies of scale. Major providers include AWS, Google Cloud, and Microsoft Azure.";
+                } else if (lowerQ.includes("binary search vs linear search") || lowerQ.includes("binary search")) {
+                    aiReply = "**Linear Search** checks every element in a list sequentially until a match is found. Time Complexity: `O(n)`.\n\n**Binary Search** requires a *sorted* list. It repeatedly divides the search interval in half. Time Complexity: `O(log n)`.\n\nBinary search is vastly faster for large datasets, but requires the data to be sorted first.";
+                } else if (lowerQ.includes("what is a database index") || lowerQ.includes("database index")) {
+                    aiReply = "A **Database Index** is a data structure (often a B-Tree) that improves the speed of data retrieval operations on a database table at the cost of additional writes and storage space. Think of it like an index at the back of a book—it helps you find the exact page without reading every single page first.";
+                } else {
+                    // Try Wikipedia API if no predefined match
+                    try {
+                        const cleanQuery = question.replace(/^(what is|who is|explain|tell me about|what are|define|how does|what does|write a)\s+/i, '').trim();
+                        const searchRes = await fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&utf8=1&srsearch=${encodeURIComponent(cleanQuery)}&origin=*`);
+                        const searchData = await searchRes.json();
+                        
+                        if (searchData.query && searchData.query.search.length > 0) {
+                            const title = searchData.query.search[0].title;
+                            const pageRes = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=4&exlimit=1&titles=${encodeURIComponent(title)}&explaintext=1&format=json&origin=*`);
+                            const pageData = await pageRes.json();
+                            const extract = Object.values(pageData.query.pages)[0].extract;
+                            
+                            if (extract && !extract.toLowerCase().includes("may refer to")) {
+                                aiReply = `**${title}**\n\n${extract}`;
+                            } else {
+                                usePredefined = true;
+                            }
+                        } else {
+                            usePredefined = true;
+                        }
+                    } catch (e) {
+                        usePredefined = true;
+                    }
+                }
+
+                if (usePredefined) {
+                    await new Promise(resolve => setTimeout(resolve, 600));
+                    aiReply = "That's a great engineering question! I am currently running in a lightweight local mode. Please try asking about **OOP Concepts**, **API**, **Merge Sort**, **TCP vs UDP**, or **SQL queries**!";
+                }
+            } else {
+                // Gemini API with Google Search
+                const systemInstruction = {
+                    parts: [{ text: "You are SKiL Coach Pro, an expert engineering mentor. You answer doubts clearly and concisely. You can use Google Search to find current information if needed." }]
+                };
+
+                const contents = window.aiConversationHistory.map(msg => ({
+                    role: msg.role === "user" ? "user" : "model",
+                    parts: [{ text: msg.text }]
+                }));
+
+                const payload = {
+                    system_instruction: systemInstruction,
+                    contents: contents,
+                    tools: [{ google_search_retrieval: { dynamic_retrieval_config: { mode: "MODE_DYNAMIC", dynamic_threshold: 0.3 } } }]
+                };
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${window.GEMINI_API_KEY}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error?.message || "Gemini Error");
+                
+                aiReply = data.candidates?.[0]?.content?.parts?.[0]?.text || aiReply;
+            }
+
+            // Save AI response to history
+            window.aiConversationHistory.push({ role: "model", text: aiReply });
+            if (window.aiConversationHistory.length > 20) {
+                window.aiConversationHistory = window.aiConversationHistory.slice(-20);
+            }
+            return aiReply;
+
+        } catch (error) {
+            console.error("AI Client Request Failed:", error);
+            window.aiConversationHistory.pop(); // Remove the user message
+            return "A network error occurred connecting to the AI. Please check your connection and try again.";
+        }
+    },
+
+    generateModelPaper: async (data) => {
+        try {
+            const { functions, httpsCallable, db, collection, addDoc, auth, doc, getDoc, updateDoc, increment } = window.firebaseServices;
+
+            if (!functions) throw new Error("Firebase Functions not initialized");
+            if (!auth.currentUser) throw new Error("Please login to use AI features.");
+
+            // Check Credits
+            const userRef = doc(db, "users", auth.currentUser.uid);
+            const userSnap = await getDoc(userRef);
+            const userData = userSnap.data();
+
+            const credits = userData?.aiCredits ?? 5;
+            if (credits <= 0) {
+                throw new Error("You have 0 AI credits left. Upgrade to Pro for unlimited access!");
+            }
+
+            const generatePaperFunc = httpsCallable(functions, "generateModelPaper");
+
+            // Format data for the function
+            const result = await generatePaperFunc({
+                subject: data.subject,
+                syllabus: data.syllabus || "Standard University Syllabus",
+                pyqs: data.pyqs
+            });
+
+            const paperContent = result.data.paper;
+
+            // Save result and decrement
+            await addDoc(collection(db, "ai_outputs"), {
+                type: "model_paper",
+                userId: auth.currentUser.uid,
+                subject: data.subject,
+                content: paperContent,
+                createdAt: new Date()
+            });
+
+            await updateDoc(userRef, { aiCredits: increment(-1) });
+
+            return { success: true, content: paperContent };
+        } catch (error) {
+            console.error("AI Cloud Client Error:", error);
+            throw new Error(error.message || "AI generation failed.");
+        }
+    },
+
+    generateStudyPlan: async (data) => {
+        try {
+            const { functions, httpsCallable, db, collection, addDoc, auth, doc, getDoc, updateDoc, increment } = window.firebaseServices;
+
+            if (!functions) throw new Error("Firebase Functions not initialized");
+            if (!auth.currentUser) throw new Error("Please login to use AI features.");
+
+            // Check Credits
+            const userRef = doc(db, "users", auth.currentUser.uid);
+            const userSnap = await getDoc(userRef);
+            const userData = userSnap.data();
+
+            const credits = userData?.aiCredits ?? 5;
+            if (credits <= 0) {
+                throw new Error("You have 0 AI credits left. Upgrade to Pro for unlimited AI!");
+            }
+
+            const strategistFunc = httpsCallable(functions, "examStrategist");
+
+            const result = await strategistFunc({
+                subject: data.subject,
+                daysLeft: data.daysLeft || 7,
+                weakTopics: data.weakTopics || "Not specified"
+            });
+
+            const strategyContent = result.data.strategy;
+
+            // Save and decrement
+            await addDoc(collection(db, "ai_outputs"), {
+                type: "exam_strategy",
+                userId: auth.currentUser.uid,
+                subject: data.subject,
+                content: strategyContent,
+                createdAt: new Date()
+            });
+
+            await updateDoc(userRef, { aiCredits: increment(-1) });
+
+            return strategyContent;
+        } catch (error) {
+            console.error("AI Planner Error:", error);
+            throw new Error(error.message || "Failed to generate plan.");
+        }
+    }
+};

@@ -200,9 +200,6 @@
                 <a href="#" class="nav-item" data-tab="notes">
                     <span class="icon">📚</span> Notes Hub
                 </a>
-                <a href="#" class="nav-item" data-tab="planner">
-                    <span class="icon">📅</span> Study Planner
-                </a>
                 <a href="#" class="nav-item" data-tab="timetable">
                     <span class="icon">⏰</span> Exam Timetable
                 </a>
@@ -553,51 +550,6 @@
         } else {
             setTimeout(bootAuth, 200);
         }
-    </script>
-    <!-- Premium AI Assistant Trigger -->
-    <div id="ai-assistant-trigger" class="premium-ai-btn" onclick="openPremiumChat()">
-        <div class="ai-btn-glow"></div>
-        <div class="ai-btn-content">
-            <!-- Liquid Plasma Blobs -->
-            <div class="plasma-blob blob-1"></div>
-            <div class="plasma-blob blob-2"></div>
-            <div class="plasma-blob blob-3"></div>
-
-            <!-- 3D Magical Running Lines -->
-            <div class="magic-line line-1"></div>
-            <div class="magic-line line-2"></div>
-            <div class="magic-line line-3"></div>
-
-            <svg class="gemini-sparkle" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" fill="currentColor" />
-            </svg>
-        </div>
-    </div>
-
-    <script>
-        function openPremiumChat() {
-            if (window.voiceflow && window.voiceflow.chat) {
-                window.voiceflow.chat.open();
-            }
-        }
-    </script>
-
-    <!-- Voiceflow Chatbot -->
-    <script type="text/javascript">
-        (function (d, t) {
-            var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
-            v.onload = function () {
-                window.voiceflow.chat.load({
-                    verify: { projectID: '67a8c08ad2483de383f344c4' },
-                    url: 'https://general-runtime.voiceflow.com',
-                    versionID: 'production',
-                    launcher: { show: false }, // Explicitly hide launcher
-                    render: { mode: 'popover' },
-                    voice: { url: "https://runtime-api.voiceflow.com" }
-                });
-            }
-            v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
-        })(document, 'script');
     </script>
 
     <!-- Weekly Mail System -->

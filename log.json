@@ -1,4 +1,0 @@
-{
-  "status": "error",
-  "error": "Request to https://serviceusage.googleapis.com/v1/projects/skill-notes/services/firestore.googleapis.com had HTTP Error: 403, Caller does not have required permission to use project skill-notes. Grant the caller the roles/serviceusage.serviceUsageConsumer role, or a custom role with the serviceusage.services.use permission, by visiting https://console.developers.google.com/iam-admin/iam/project?project=skill-notes and then retry. Propagation of the new permission may take a few minutes."
-}
