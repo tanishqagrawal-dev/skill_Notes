@@ -17,6 +17,23 @@ window.aiClient = {
         let aiReply = "I couldn't generate a response.";
 
         try {
+            if (window.auth && window.auth.currentUser) {
+                const uid = window.auth.currentUser.uid;
+                const apiUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
+                const limitRes = await fetch(`${apiUrl}/api/use-feature`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uid, feature: 'askDoubt' })
+                });
+                
+                if (!limitRes.ok) {
+                    const errorData = await limitRes.json();
+                    throw new Error(errorData.error || "Limit reached");
+                }
+            } else {
+                throw new Error("Please login to use the AI Coach.");
+            }
+
             if (!window.GEMINI_API_KEY || window.GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
                 // Free Fallback: Try real-time free AI first, silently fallback to predefined if it fails
                 const lowerQ = question.toLowerCase().trim();
@@ -122,19 +139,24 @@ window.aiClient = {
 
     generateModelPaper: async (data) => {
         try {
-            const { functions, httpsCallable, db, collection, addDoc, auth, doc, getDoc, updateDoc, increment } = window.firebaseServices;
+            const { functions, httpsCallable, db, collection, addDoc, auth } = window.firebaseServices;
 
             if (!functions) throw new Error("Firebase Functions not initialized");
             if (!auth.currentUser) throw new Error("Please login to use AI features.");
 
-            // Check Credits
-            const userRef = doc(db, "users", auth.currentUser.uid);
-            const userSnap = await getDoc(userRef);
-            const userData = userSnap.data();
+            const uid = auth.currentUser.uid;
 
-            const credits = userData?.aiCredits ?? 5;
-            if (credits <= 0) {
-                throw new Error("You have 0 AI credits left. Upgrade to Pro for unlimited access!");
+            // Check and Consume Credit via Backend
+            const apiUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
+            const limitRes = await fetch(`${apiUrl}/api/use-feature`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid, feature: 'modelPaper' })
+            });
+
+            if (!limitRes.ok) {
+                const errorData = await limitRes.json();
+                throw new Error(errorData.error || "You have reached your limit for Model Papers.");
             }
 
             const generatePaperFunc = httpsCallable(functions, "generateModelPaper");
@@ -148,16 +170,14 @@ window.aiClient = {
 
             const paperContent = result.data.paper;
 
-            // Save result and decrement
+            // Save result
             await addDoc(collection(db, "ai_outputs"), {
                 type: "model_paper",
-                userId: auth.currentUser.uid,
+                userId: uid,
                 subject: data.subject,
                 content: paperContent,
                 createdAt: new Date()
             });
-
-            await updateDoc(userRef, { aiCredits: increment(-1) });
 
             return { success: true, content: paperContent };
         } catch (error) {
@@ -168,20 +188,12 @@ window.aiClient = {
 
     generateStudyPlan: async (data) => {
         try {
-            const { functions, httpsCallable, db, collection, addDoc, auth, doc, getDoc, updateDoc, increment } = window.firebaseServices;
+            const { functions, httpsCallable, db, collection, addDoc, auth } = window.firebaseServices;
 
             if (!functions) throw new Error("Firebase Functions not initialized");
             if (!auth.currentUser) throw new Error("Please login to use AI features.");
 
-            // Check Credits
-            const userRef = doc(db, "users", auth.currentUser.uid);
-            const userSnap = await getDoc(userRef);
-            const userData = userSnap.data();
-
-            const credits = userData?.aiCredits ?? 5;
-            if (credits <= 0) {
-                throw new Error("You have 0 AI credits left. Upgrade to Pro for unlimited AI!");
-            }
+            // AI Study Plan is now FREE and UNLIMITED, so no credit check here.
 
             const strategistFunc = httpsCallable(functions, "examStrategist");
 
@@ -193,7 +205,7 @@ window.aiClient = {
 
             const strategyContent = result.data.strategy;
 
-            // Save and decrement
+            // Save
             await addDoc(collection(db, "ai_outputs"), {
                 type: "exam_strategy",
                 userId: auth.currentUser.uid,
@@ -201,8 +213,6 @@ window.aiClient = {
                 content: strategyContent,
                 createdAt: new Date()
             });
-
-            await updateDoc(userRef, { aiCredits: increment(-1) });
 
             return strategyContent;
         } catch (error) {

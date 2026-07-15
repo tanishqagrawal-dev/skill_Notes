@@ -8,7 +8,7 @@ class ProfileManager {
         this.userData = null;
         this.saveTimeout = null;
         this.radarChart = null;
-        this.isInitialized = false; 
+        this.isInitialized = false;
         this.parallaxInitialized = false;
         this._isSaving = false; // Guard flag to block re-renders during save
         this.init();
@@ -18,7 +18,7 @@ class ProfileManager {
         // Auth Guard: Check for either an active Firebase user or a cached session
         const hasActiveAuth = window.firebaseServices?.auth?.currentUser;
         const hasCachedSession = localStorage.getItem('auth_user_full') || localStorage.getItem('guest_session');
-        
+
         if (!hasActiveAuth && !hasCachedSession) {
             return this.renderAuthGuard();
         }
@@ -92,6 +92,9 @@ class ProfileManager {
                 </div>
 
                 <div class="profile-grid">
+                    <!-- ══════ SUBSCRIPTION STATUS ══════ -->
+                    ${this.renderSubscriptionCard()}
+
                     <!-- Contact Info -->
                     <div class="glass-card">
                         <div class="section-title"><i class="fas fa-id-card"></i> Personal & Contact Info</div>
@@ -258,7 +261,7 @@ class ProfileManager {
                                 <div class="stat-label">Saved Notes</div>
                             </div>
                             <div class="stat-card">
-                                <div class="stat-value" id="stat-level">LVL ${Math.floor((this.userData?.xp || 0)/100) + 1}</div>
+                                <div class="stat-value" id="stat-level">LVL ${Math.floor((this.userData?.xp || 0) / 100) + 1}</div>
                                 <div class="stat-label" id="stat-rank">Scholar Rank</div>
                             </div>
                         </div>
@@ -276,6 +279,196 @@ class ProfileManager {
     }
 
     // ────────────────────────────────────────────────────
+    //  SUBSCRIPTION STATUS CARD
+    // ────────────────────────────────────────────────────
+    renderSubscriptionCard() {
+        const planData = this._userPlanData || null;
+        const planId = planData?.plan_id || 'free';
+        const expiry = planData?.plan_expiry ? new Date(planData.plan_expiry) : null;
+        const isExpired = expiry && expiry < new Date();
+        const isActive = planId !== 'free' && !isExpired;
+
+        const planNames = {
+            'pro': 'Scholar PRO',
+            'codetantra': 'CodeTantra Solutions',
+            'free': 'Free Tier'
+        };
+        const planIcons = { 'pro': 'fa-crown', 'codetantra': 'fa-code', 'free': 'fa-layer-group' };
+        const planName = planNames[planId] || planId;
+        const planIcon = planIcons[planId] || 'fa-crown';
+
+        const formatDate = (d) => {
+            if (!d) return '—';
+            return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        };
+
+        if (isActive) {
+            const now = new Date();
+            const daysLeft = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
+            const totalDays = planId === 'pro' ? 180 : 60; // estimated max for progress
+            const progressPct = Math.max(0, Math.min(100, Math.round((daysLeft / totalDays) * 100)));
+            const urgentColor = daysLeft <= 7 ? '#ff6b6b' : daysLeft <= 30 ? '#ffa502' : '#00ff88';
+
+            return `
+            <div class="glass-card" style="grid-column: span 2; background: linear-gradient(135deg, rgba(0,255,136,0.06), rgba(123,97,255,0.1)); border: 1px solid rgba(0,255,136,0.3); position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -40px; right: -40px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(0,255,136,0.1), transparent 70%); border-radius: 50%; pointer-events:none;"></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;">
+                    <div style="display: flex; align-items: center; gap: 18px;">
+                        <div style="width: 58px; height: 58px; background: linear-gradient(135deg, #00ff88, #00d2ff); border-radius: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,255,136,0.35); flex-shrink: 0;">
+                            <i class="fas ${planIcon}" style="font-size: 1.5rem; color: #000;"></i>
+                        </div>
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+                                <span style="font-size: 0.65rem; font-weight: 800; letter-spacing: 1.5px; color: #000; background: linear-gradient(135deg, #00ff88, #00d2ff); padding: 3px 10px; border-radius: 20px; text-transform: uppercase;">✦ ACTIVE SUBSCRIPTION</span>
+                            </div>
+                            <h3 style="font-size: 1.35rem; font-weight: 800; color: #fff; margin: 0 0 4px 0; font-family: 'Poppins', sans-serif;">${planName}</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0;">
+                                Expires <strong style="color: #fff;">${formatDate(expiry)}</strong> &nbsp;·&nbsp;
+                                <strong style="color: ${urgentColor};">${daysLeft} days left</strong>
+                            </p>
+                            <div style="margin-top: 10px; width: 220px; max-width: 100%;">
+                                <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                                    <div style="height: 100%; width: ${progressPct}%; background: linear-gradient(90deg, ${urgentColor}, #00d2ff); border-radius: 4px; transition: width 0.5s ease;"></div>
+                                </div>
+                                <p style="font-size: 0.7rem; color: var(--text-secondary); margin: 4px 0 0 0;">${progressPct}% time remaining</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
+                        ${planId === 'codetantra' ? `<button class="btn btn-primary btn-sm" onclick="window.handlePayment && window.handlePayment('pro_1mo')" style="padding: 0.5rem 1.2rem; font-weight: 600;"><i class="fas fa-arrow-up"></i> Upgrade to PRO</button>` : ''}
+                        <span style="font-size: 0.75rem; color: var(--text-secondary);">Plan: <strong style="color: #fff;">${planId.toUpperCase()}</strong></span>
+                    </div>
+                </div>
+            </div>`;
+        } else {
+            // Free / Expired
+            return `
+            <div class="glass-card" style="grid-column: span 2; background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.08); position: relative; overflow: hidden;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="width: 56px; height: 56px; background: rgba(255,255,255,0.06); border-radius: 14px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;">
+                            <i class="fas fa-layer-group" style="font-size: 1.4rem; color: var(--text-secondary);"></i>
+                        </div>
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                <span style="font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; color: var(--text-secondary); text-transform: uppercase;">SUBSCRIPTION</span>
+                            </div>
+                            <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--text-dim); margin: 0; font-family: 'Poppins', sans-serif;">Free Tier</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 4px 0 0 0;">${isExpired ? `<span style="color:#ff6b6b;">Your ${planName} plan expired on ${formatDate(expiry)}.</span>` : 'Unlock premium features with Scholar PRO.'}</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="window.handlePayment && window.handlePayment('pro_1mo')" style="padding: 0.5rem 1.2rem; font-weight: 600; background: linear-gradient(135deg, #7b61ff, #9d50bb); border: none;">
+                        <i class="fas fa-bolt"></i> Upgrade Now
+                    </button>
+                </div>
+            </div>`;
+        }
+    }
+
+
+    // ────────────────────────────────────────────────────
+    //  FETCH USER PLAN FROM SUPABASE
+    // ────────────────────────────────────────────────────
+    async fetchUserPlan(uid) {
+        if (!uid || uid === 'guest') return;
+        try {
+            const { supabase } = await import('./supabase-config.js?v=1.0');
+            const { data, error } = await supabase
+                .from('user_plans')
+                .select('*')
+                .eq('firebase_uid', uid)
+                .single();
+
+            if (!error && data) {
+                // Check expiry
+                if (data.plan_expiry && new Date(data.plan_expiry) < new Date()) {
+                    data.plan_id = 'free';
+                }
+                this._userPlanData = data;
+            } else {
+                this._userPlanData = { plan_id: 'free' };
+            }
+        } catch (err) {
+            console.warn('Could not fetch user plan:', err);
+            this._userPlanData = { plan_id: 'free' };
+        }
+        // Re-render the subscription card if visible
+        this.updateActiveTabUI();
+        // Update the sidebar nav Profile badge
+        this.updateProfileNavBadge();
+    }
+
+    updateProfileNavBadge() {
+        const planData = this._userPlanData || null;
+        const planId = planData?.plan_id || 'free';
+        const expiry = planData?.plan_expiry ? new Date(planData.plan_expiry) : null;
+        const isExpired = expiry && expiry < new Date();
+        const isActive = planId !== 'free' && !isExpired;
+
+        // 1. Remove from nav item if it exists
+        const profileNavItem = document.querySelector('.nav-item[data-tab="profile"]');
+        if (profileNavItem) {
+            const existingNavBadge = profileNavItem.querySelector('.sub-badge');
+            if (existingNavBadge) existingNavBadge.remove();
+        }
+
+        // 2. Add to user info box at the bottom of sidebar
+        const userInfoBox = document.querySelector('.sidebar .user-info');
+        if (!userInfoBox) return;
+
+        // Remove any existing subscription badge in user info
+        const existingInfoBadge = userInfoBox.querySelector('.sub-badge');
+        if (existingInfoBadge) existingInfoBadge.remove();
+
+        if (isActive) {
+            const planLabels = { 'pro': 'PRO', 'codetantra': 'CT' };
+            const label = planLabels[planId] || 'PRO';
+
+            const badge = document.createElement('span');
+            badge.className = 'sub-badge';
+            badge.innerText = `✦ ${label}`;
+            badge.style.cssText = `
+                margin-left: 6px;
+                font-size: 0.55rem;
+                font-weight: 800;
+                letter-spacing: 0.8px;
+                color: #000;
+                background: linear-gradient(135deg, #00ff88, #00d2ff);
+                padding: 1px 6px;
+                border-radius: 20px;
+                text-transform: uppercase;
+                box-shadow: 0 0 8px rgba(0, 255, 136, 0.4);
+                animation: pulseBadge 2s ease-in-out infinite;
+                display: inline-block;
+                vertical-align: middle;
+            `;
+
+            // Add pulseBadge animation if not already present
+            if (!document.getElementById('sub-badge-style')) {
+                const style = document.createElement('style');
+                style.id = 'sub-badge-style';
+                style.textContent = `
+                    @keyframes pulseBadge {
+                        0%, 100% { box-shadow: 0 0 6px rgba(0,255,136,0.4); }
+                        50% { box-shadow: 0 0 14px rgba(0,255,136,0.8); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            const roleEl = userInfoBox.querySelector('#instant-role');
+            if (roleEl) {
+                roleEl.style.display = 'inline-flex';
+                roleEl.style.alignItems = 'center';
+                roleEl.appendChild(badge);
+            } else {
+                userInfoBox.appendChild(badge);
+            }
+        }
+    }
+
+
+    // ────────────────────────────────────────────────────
     //  CERTIFICATE SECTION (non-admin only)
     // ────────────────────────────────────────────────────
     renderCertificateSection() {
@@ -283,14 +476,14 @@ class ProfileManager {
         const userEmail = (this.userData?.email || this.userData?.user_metadata?.email || '').toLowerCase();
         const userName = (this.userData?.name || this.userData?.displayName || '').toLowerCase();
         const isAdmin = this.userData?.role?.toLowerCase() === 'admin'
-                     || this.userData?.role?.toLowerCase() === 'co-admin'
-                     || adminEmails.includes(userEmail);
+            || this.userData?.role?.toLowerCase() === 'co-admin'
+            || adminEmails.includes(userEmail);
 
-        const codingLevel  = this.userData?.coding_level || 0;
+        const codingLevel = this.userData?.coding_level || 0;
         const problemsDone = Math.min(codingLevel - 1, 365);  // level 1 = 0 done, level 366 = 365 done
         const totalProblems = 365;
-        const hasCompleted  = problemsDone >= totalProblems || isAdmin;
-        const pct           = Math.min(Math.round((problemsDone / totalProblems) * 100), 100);
+        const hasCompleted = problemsDone >= totalProblems || isAdmin;
+        const pct = Math.min(Math.round((problemsDone / totalProblems) * 100), 100);
 
         if (hasCompleted) {
             // ── UNLOCKED ──────────────────────────────────────────
@@ -394,10 +587,10 @@ class ProfileManager {
         const count = this.userData?.referral_count || 0;
         const pts = this.userData?.referral_points || 0;
         const msg = encodeURIComponent('🎓 Join me on SKiL MATRiX — the ultimate student study hub! Use my referral link to get started: ' + link);
-        const waLink   = `https://wa.me/?text=${msg}`;
-        const tgLink   = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('🎓 Join me on SKiL MATRiX — the ultimate student study hub!')}`;
-        const twLink   = `https://twitter.com/intent/tweet?text=${encodeURIComponent('📚 Studying smarter with SKiL MATRiX! Join using my link and unlock exclusive resources 🚀')}&url=${encodeURIComponent(link)}`;
-        const liLink   = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(link)}`;
+        const waLink = `https://wa.me/?text=${msg}`;
+        const tgLink = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('🎓 Join me on SKiL MATRiX — the ultimate student study hub!')}`;
+        const twLink = `https://twitter.com/intent/tweet?text=${encodeURIComponent('📚 Studying smarter with SKiL MATRiX! Join using my link and unlock exclusive resources 🚀')}&url=${encodeURIComponent(link)}`;
+        const liLink = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(link)}`;
         const mailLink = `mailto:?subject=${encodeURIComponent('Join me on SKiL MATRiX!')}&body=${encodeURIComponent('Hey! 👋\n\nI\'ve been using SKiL MATRiX for my studies and it\'s amazing! Sign up using my referral link and we both earn bonus XP:\n\n' + link + '\n\nSee you inside! 🚀')}`;
 
         return `
@@ -431,7 +624,7 @@ class ProfileManager {
                         <span class="ref-stat-lbl">Referral XP</span>
                     </div>
                     <div class="ref-stat-pill">
-                        <span class="ref-stat-num" style="color:#ffd700">${Math.floor(pts/50) * 50}</span>
+                        <span class="ref-stat-num" style="color:#ffd700">${Math.floor(pts / 50) * 50}</span>
                         <span class="ref-stat-lbl">Total Earned</span>
                     </div>
                 </div>
@@ -503,7 +696,7 @@ class ProfileManager {
                 title: 'Join me on SKiL MATRiX',
                 text: '🎓 The ultimate student study platform! Use my referral link:',
                 url: link
-            }).catch(() => {});
+            }).catch(() => { });
         }
     }
 
@@ -793,7 +986,7 @@ class ProfileManager {
             this.userData.badges = earnedIds;
             const { supabase } = await import('./supabase-config.js?v=1.0');
             await supabase.from('profiles').update({ badges: earnedIds }).eq('id', uid);
-        } catch(e) { console.warn('Badge save skipped:', e); }
+        } catch (e) { console.warn('Badge save skipped:', e); }
     }
 
     // ────────────────────────────────────────────────────
@@ -857,7 +1050,7 @@ class ProfileManager {
         if (this.isInitialized) return;
         console.log("👤 Initializing Profile System...");
         this.setupEventListeners();
-        
+
         // Instant Load from Cache (Before Auth)
         this.loadProfileFromCache();
 
@@ -949,16 +1142,16 @@ class ProfileManager {
                 console.error("Cache parse error:", e);
                 localStorage.removeItem(cacheKey);
             }
-        } 
-        
+        }
+
         // If no profile specific cache, try to pull basic info from auth session
         if (!this.userData || (!this.userData.phone && !this.userData.college)) {
-             const lastAuth = JSON.parse(localStorage.getItem('auth_user_full')) || {};
-             if (lastAuth.uid || lastAuth.id) {
-                 const initial = this.getInitialData(lastAuth.uid || lastAuth.id);
-                 // Merge but DON'T overwrite existing fields if we had a partial cache
-                 this.userData = { ...initial, ...this.userData, ...lastAuth };
-             }
+            const lastAuth = JSON.parse(localStorage.getItem('auth_user_full')) || {};
+            if (lastAuth.uid || lastAuth.id) {
+                const initial = this.getInitialData(lastAuth.uid || lastAuth.id);
+                // Merge but DON'T overwrite existing fields if we had a partial cache
+                this.userData = { ...initial, ...this.userData, ...lastAuth };
+            }
         }
 
         if (this.userData) {
@@ -970,7 +1163,7 @@ class ProfileManager {
         console.log("👤 Loading Guest Profile...");
         const cacheKey = 'profile_cache_guest';
         const cached = localStorage.getItem(cacheKey);
-        
+
         if (cached) {
             try {
                 this.userData = JSON.parse(cached);
@@ -1009,7 +1202,7 @@ class ProfileManager {
         }
         const activeTab = document.querySelector('.nav-item.active')?.dataset.tab;
         console.log('🎯 Profile UI Update Triggered. Active Tab:', activeTab);
-        
+
         if (activeTab === 'profile') {
             const contentArea = document.getElementById('tab-content');
             if (contentArea) {
@@ -1047,7 +1240,7 @@ class ProfileManager {
                     try {
                         const { supabase: sb2 } = await import('./supabase-config.js?v=1.0');
                         await sb2.from('profiles').update({ referral_code: refCode }).eq('id', data.id);
-                    } catch(e) {}
+                    } catch (e) { }
                 }
                 // Map Supabase column names to userData fields
                 const profileData = {
@@ -1076,12 +1269,13 @@ class ProfileManager {
 
                 this.userData = profileData;
                 localStorage.setItem(`profile_cache_${uid}`, JSON.stringify(profileData));
-                
+
                 // Sync avatar to sidebar immediately after loading
                 if (profileData.photo) this.updateSidebarAvatar(profileData.photo);
-                
+
                 this.updateActiveTabUI();
                 this.checkRankAndApplyCrown();
+                this.fetchUserPlan(uid);
                 console.log('✅ Profile loaded from Supabase');
                 return;
             }
@@ -1102,16 +1296,17 @@ class ProfileManager {
                 if (!mergedData.photo && this.userData?.photo) mergedData.photo = this.userData.photo;
                 this.userData = mergedData;
                 localStorage.setItem(`profile_cache_${uid}`, JSON.stringify(this.userData));
-                
+
                 // Sync avatar to sidebar immediately after loading
                 if (this.userData.photo) this.updateSidebarAvatar(this.userData.photo);
-                
+
                 this.updateActiveTabUI();
             } else {
                 this.userData = this.getInitialData(uid);
             }
             this.hydrateUI(this.userData);
             this.checkRankAndApplyCrown();
+            this.fetchUserPlan(uid);
         } catch (err) {
             console.error('Error loading profile:', err);
             if (!this.userData) this.loadGuestProfile();
@@ -1124,10 +1319,10 @@ class ProfileManager {
         try {
             if (!window.firebaseServices) return;
             const { db, collection, query, orderBy, limit, getDocs } = window.firebaseServices;
-            
+
             const q = query(collection(db, 'users'), orderBy('xp', 'desc'), limit(1));
             const snapshot = await getDocs(q);
-            
+
             let isRank1 = false;
             if (!snapshot.empty) {
                 const topUser = snapshot.docs[0].data();
@@ -1139,7 +1334,7 @@ class ProfileManager {
                 const cache = JSON.parse(localStorage.getItem('auth_user_full')) || {};
                 cache.isRank1 = isRank1;
                 localStorage.setItem('auth_user_full', JSON.stringify(cache));
-            } catch(e) {}
+            } catch (e) { }
 
             if (isRank1) {
                 // --- Sidebar Crown (via new wrapper structure) ---
@@ -1180,7 +1375,7 @@ class ProfileManager {
                     profileImgContainer.appendChild(profileCrown);
                 }
             }
-        } catch(e) {
+        } catch (e) {
             console.warn('Crown check failed', e);
         }
     }
@@ -1270,9 +1465,9 @@ class ProfileManager {
     async handlePhotoUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
-        
+
         this.showSavedIndicator('Uploading photo...');
-        
+
         const reader = new FileReader();
         reader.onload = async (e) => {
             const img = new Image();
@@ -1281,24 +1476,24 @@ class ProfileManager {
                 const MAX_SIZE = 300;
                 let width = img.width;
                 let height = img.height;
-                
+
                 if (width > height) {
                     if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
                 } else {
                     if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
                 }
-                
+
                 canvas.width = width;
                 canvas.height = height;
                 canvas.getContext('2d').drawImage(img, 0, 0, width, height);
                 const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-                
+
                 // Show preview immediately
                 const avatarImg = document.getElementById('profile-avatar-img');
                 const fallback = document.getElementById('avatar-fallback');
                 if (avatarImg) { avatarImg.src = dataUrl; avatarImg.style.display = 'block'; }
                 if (fallback) fallback.style.display = 'none';
-                
+
                 // Try to upload to Supabase Storage for a permanent URL
                 try {
                     const uid = this.getCurrentUid() || 'guest';
@@ -1313,7 +1508,7 @@ class ProfileManager {
                     this.userData.photo = dataUrl;
                     this.showSavedIndicator('Photo ready – Click Save Changes');
                 }
-                
+
                 // Ensure edit mode UI is active because we require clicking Save
                 this.enterEditMode();
             };
@@ -1324,26 +1519,26 @@ class ProfileManager {
 
     async uploadToSupabase(dataUrl, uid) {
         const { supabase } = await import('./supabase-config.js?v=1.0');
-        
+
         // Convert base64 data URL to blob
         const res = await fetch(dataUrl);
         const blob = await res.blob();
         const fileName = `avatar_${uid}_${Date.now()}.jpg`;
-        
+
         const { data, error } = await supabase.storage
             .from('avatars')
             .upload(fileName, blob, {
                 contentType: 'image/jpeg',
                 upsert: true
             });
-        
+
         if (error) throw error;
-        
+
         // Get permanent public URL
         const { data: urlData } = supabase.storage
             .from('avatars')
             .getPublicUrl(fileName);
-        
+
         return urlData.publicUrl;
     }
 
@@ -1354,7 +1549,7 @@ class ProfileManager {
             if (el.tagName === 'IMG') el.src = photoUrl;
             else el.style.backgroundImage = `url('${photoUrl}')`;
         });
-        
+
         // Update any avatar in the bottom sidebar user card
         const sidebarUserImg = document.querySelector('.sidebar-user-info img, .user-card img, .nav-user img');
         if (sidebarUserImg) sidebarUserImg.src = photoUrl;
@@ -1362,7 +1557,8 @@ class ProfileManager {
         // NEW: Update instant-avatar used in pro dashboard
         const instantAvatar = document.getElementById('instant-avatar');
         if (instantAvatar) {
-            instantAvatar.innerHTML = `<img src="${photoUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" onerror="this.style.display='none'; this.parentElement.innerText='U'">`;
+            const fallbackChar = (this.userData?.name || 'U').charAt(0).toUpperCase();
+            instantAvatar.innerHTML = `<img src="${photoUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" onerror="this.style.display='none'; this.parentElement.innerText='${fallbackChar}'">`;
         }
 
         // Store in auth cache so it persists on reload
@@ -1371,13 +1567,13 @@ class ProfileManager {
             authCache.photo = photoUrl;
             authCache.photoURL = photoUrl;
             localStorage.setItem('auth_user_full', JSON.stringify(authCache));
-        } catch(e) {}
+        } catch (e) { }
     }
 
     async loadActivityStats() {
         if (!this.userData || !window.firebaseServices) return;
         const { db, collection, query, where, getDocs } = window.firebaseServices;
-        
+
         try {
             const q = query(collection(db, 'notes'), where('uploadedBy', '==', this.userData.uid));
             const snapshot = await getDocs(q);
@@ -1387,25 +1583,25 @@ class ProfileManager {
                 uploads++;
                 downloads += (doc.data().downloads || 0);
             });
-            
+
             const uploadEl = document.getElementById('stat-uploads');
             const downloadEl = document.getElementById('stat-downloads');
             const savedEl = document.getElementById('stat-saved');
-            
+
             if (uploadEl) uploadEl.innerText = uploads;
             if (downloadEl) downloadEl.innerText = downloads;
             if (savedEl) savedEl.innerText = window.savedNoteIds ? window.savedNoteIds.size : (this.userData.stats?.saved || 0);
-            
+
             // Calculate rank dynamically based on xp
             const xp = this.userData.xp || 0;
             const level = Math.floor(xp / 100) + 1;
             const levelEl = document.getElementById('stat-level');
             const rankEl = document.getElementById('stat-rank');
-            
+
             if (levelEl) levelEl.innerText = `LVL ${level}`;
             if (rankEl) rankEl.innerText = level > 10 ? 'Elite Scholar' : (level > 5 ? 'Pro Scholar' : 'Scholar Rank');
-            
-        } catch(e) {
+
+        } catch (e) {
             console.error("Error loading stats:", e);
         }
     }
@@ -1439,7 +1635,7 @@ class ProfileManager {
     addSkill() {
         const nameInput = document.getElementById('skill-input');
         const levelInput = document.getElementById('skill-level');
-        
+
         if (!nameInput || !nameInput.value.trim()) return;
 
         this.userData.skills.push({
@@ -1505,17 +1701,17 @@ class ProfileManager {
                         ticks: { display: false, stepSize: 1 },
                         grid: { color: 'rgba(255,255,255,0.1)' },
                         angleLines: { color: 'rgba(255,255,255,0.1)' },
-                        pointLabels: { 
-                            color: 'rgba(255,255,255,0.8)', 
-                            font: { 
+                        pointLabels: {
+                            color: 'rgba(255,255,255,0.8)',
+                            font: {
                                 size: 12,
                                 family: 'Inter, sans-serif',
                                 weight: 'bold'
-                            } 
+                            }
                         }
                     }
                 },
-                plugins: { 
+                plugins: {
                     legend: { display: false },
                     tooltip: {
                         backgroundColor: 'rgba(10, 15, 20, 0.95)',
@@ -1587,18 +1783,18 @@ class ProfileManager {
         this.showSavedIndicator('Saving...');
 
         // Collect fresh values from form fields
-        this.userData.name     = document.getElementById('name-input')?.value     || this.userData.name;
+        this.userData.name = document.getElementById('name-input')?.value || this.userData.name;
         this.userData.countryCode = document.getElementById('country-code')?.value ?? this.userData.countryCode;
-        this.userData.phone    = document.getElementById('phone-input')?.value    ?? this.userData.phone;
-        this.userData.gender   = document.getElementById('gender-select')?.value  ?? this.userData.gender;
-        this.userData.college  = document.getElementById('college-input')?.value  ?? this.userData.college;
-        this.userData.program  = document.getElementById('program-select')?.value ?? this.userData.program;
-        this.userData.year     = document.getElementById('year-select')?.value    ?? this.userData.year;
-        this.userData.branch   = document.getElementById('branch-input')?.value   ?? this.userData.branch;
+        this.userData.phone = document.getElementById('phone-input')?.value ?? this.userData.phone;
+        this.userData.gender = document.getElementById('gender-select')?.value ?? this.userData.gender;
+        this.userData.college = document.getElementById('college-input')?.value ?? this.userData.college;
+        this.userData.program = document.getElementById('program-select')?.value ?? this.userData.program;
+        this.userData.year = document.getElementById('year-select')?.value ?? this.userData.year;
+        this.userData.branch = document.getElementById('branch-input')?.value ?? this.userData.branch;
         this.userData.semester = document.getElementById('semester-select')?.value ?? this.userData.semester;
-        this.userData.skills   = this.userData.skills || [];
+        this.userData.skills = this.userData.skills || [];
 
-        const uid   = this.userData.uid || this.getCurrentUid();
+        const uid = this.userData.uid || this.getCurrentUid();
         const photo = this.userData.photo || '';
 
         try {
@@ -1611,24 +1807,24 @@ class ProfileManager {
             }
 
             const profileRow = {
-                id:             uid,
-                email:          this.userData.email || '',
-                name:           this.userData.name || '',
-                avatar:         photo,
-                phone:          this.userData.phone || '',
-                country_code:   this.userData.countryCode || '',
-                gender:         this.userData.gender || '',
-                college:        this.userData.college || '',
-                program:        this.userData.program || '',
-                year:           this.userData.year || '',
-                branch:         this.userData.branch || '',
-                semester:       this.userData.semester || '',
-                skills:         this.userData.skills || [],
-                xp:             this.userData.xp || 0,
-                uploads:        this.userData.uploads || 0,
-                focusminutes:   this.userData.focusminutes || 0,
-                referral_code:  this.userData.referral_code || '',
-                badges:         this.computeEarnedBadges()
+                id: uid,
+                email: this.userData.email || '',
+                name: this.userData.name || '',
+                avatar: photo,
+                phone: this.userData.phone || '',
+                country_code: this.userData.countryCode || '',
+                gender: this.userData.gender || '',
+                college: this.userData.college || '',
+                program: this.userData.program || '',
+                year: this.userData.year || '',
+                branch: this.userData.branch || '',
+                semester: this.userData.semester || '',
+                skills: this.userData.skills || [],
+                xp: this.userData.xp || 0,
+                uploads: this.userData.uploads || 0,
+                focusminutes: this.userData.focusminutes || 0,
+                referral_code: this.userData.referral_code || '',
+                badges: this.computeEarnedBadges()
             };
 
             const { error: upsertError } = await supabase
@@ -1645,12 +1841,12 @@ class ProfileManager {
             try {
                 const isBase64 = photo.startsWith('data:');
                 const lbUpdate = {
-                    name:       this.userData.name || '',
+                    name: this.userData.name || '',
                     collegename: this.userData.college || 'Unknown'
                 };
                 if (photo && !isBase64) lbUpdate.avatar = photo;
                 await supabase.from('users').update(lbUpdate).eq('email', this.userData.email);
-            } catch(e) { console.warn('Leaderboard users sync skipped:', e); }
+            } catch (e) { console.warn('Leaderboard users sync skipped:', e); }
 
             // Secondary backup: Firestore
             try {
@@ -1666,7 +1862,7 @@ class ProfileManager {
                     };
                     await setDoc(doc(db, 'users', uid), fsData, { merge: true });
                 }
-            } catch(e) { console.warn('Firestore backup skipped:', e); }
+            } catch (e) { console.warn('Firestore backup skipped:', e); }
 
             // Update local cache
             localStorage.setItem(`profile_cache_${uid}`, JSON.stringify(this.userData));
@@ -1679,7 +1875,7 @@ class ProfileManager {
 
             // Re-render avatar
             const avatarImg = document.getElementById('profile-avatar-img');
-            const fallback  = document.getElementById('avatar-fallback');
+            const fallback = document.getElementById('avatar-fallback');
             if (avatarImg && photo) {
                 avatarImg.src = photo;
                 avatarImg.style.display = 'block';
@@ -1712,7 +1908,7 @@ class ProfileManager {
         const fields = ['phone', 'gender', 'college', 'program', 'year', 'branch', 'semester'];
         let filled = fields.filter(f => this.userData[f]).length;
         if (this.userData.skills.length > 0) filled++;
-        
+
         const percentage = Math.round((filled / (fields.length + 1)) * 100);
         const ring = document.getElementById('completion-progress');
         const text = document.getElementById('completion-text');
@@ -1720,7 +1916,7 @@ class ProfileManager {
         if (ring) {
             const computedStyle = window.getComputedStyle(ring);
             const r = parseFloat(computedStyle.r) || parseFloat(ring.getAttribute('r')) || 45;
-            const circumference = 2 * Math.PI * r; 
+            const circumference = 2 * Math.PI * r;
             const offset = circumference - (percentage / 100) * circumference;
             ring.style.strokeDasharray = `${circumference} ${circumference}`;
             ring.style.strokeDashoffset = offset;
@@ -1730,7 +1926,7 @@ class ProfileManager {
 
     initParallax() {
         if (this.parallaxInitialized) return;
-        
+
         const cards = document.querySelectorAll('.glass-card, .profile-header-card');
         document.addEventListener('mousemove', (e) => {
             // Only update if profile wrapper is in view to save CPU
@@ -1738,7 +1934,7 @@ class ProfileManager {
 
             const x = (window.innerWidth / 2 - e.pageX) / 80; // Subtle movement
             const y = (window.innerHeight / 2 - e.pageY) / 80;
-            
+
             const activeCards = document.querySelectorAll('.glass-card, .profile-header-card');
             activeCards.forEach(card => {
                 card.style.transform = `translateX(${x}px) translateY(${y}px)`;
@@ -1763,7 +1959,7 @@ class ProfileManager {
 
     createParticles() {
         if (document.querySelector('.particle')) return; // Already exists
-        
+
         const wrapper = document.querySelector('.profile-wrapper');
         const particleCount = 20;
         for (let i = 0; i < particleCount; i++) {
@@ -1783,7 +1979,7 @@ class ProfileManager {
                 filter: 'blur(1px)'
             });
             document.body.appendChild(particle);
-            
+
             this.animateParticle(particle);
         }
     }
@@ -1792,7 +1988,7 @@ class ProfileManager {
         const duration = Math.random() * 20000 + 10000;
         const xDir = Math.random() > 0.5 ? 1 : -1;
         const yDir = Math.random() > 0.5 ? 1 : -1;
-        
+
         p.animate([
             { transform: 'translate(0, 0)' },
             { transform: `translate(${xDir * 100}px, ${yDir * 100}px)` },

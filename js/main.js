@@ -274,13 +274,6 @@ async function handleDownload(id) {
     }
 }
 
-// --- PAYMENT LOGIC ---
-window.handlePayment = function () {
-    if (window.lockOverlay) {
-        window.lockOverlay.show();
-    } else {
-        alert("🚀 Redirecting to SKiL MATRiX Premium Gateway...\n\n(This feature is currently under development.)");
-    }
-};
+// --- PAYMENT LOGIC MOVED TO payment.js ---
 
 // Redundant advanced footer removed. Handled by footer.js.

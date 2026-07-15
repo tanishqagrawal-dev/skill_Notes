@@ -10,9 +10,28 @@ const AppState = {
 
 // --- Routing & Rendering ---
 
-export function renderApp() {
+export async function renderApp() {
     const root = document.getElementById('ct-app-root');
     if (!root) return;
+
+    // Fetch user plan
+    if (window.auth && window.auth.currentUser) {
+        try {
+            const uid = window.auth.currentUser.uid;
+            const apiUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
+            const res = await fetch(`${apiUrl}/api/user-plan?uid=${uid}`);
+            const data = await res.json();
+            if (data.success) {
+                AppState.userPlan = data.plan; // 'free', 'codetantra', or 'pro'
+            } else {
+                AppState.userPlan = 'free';
+            }
+        } catch (e) {
+            AppState.userPlan = 'free';
+        }
+    } else {
+        AppState.userPlan = 'free';
+    }
 
     if (AppState.currentSubjectId) {
         renderSubjectPage(root, AppState.currentSubjectId);
@@ -169,15 +188,18 @@ function renderSubjectPage(root, subjectId) {
         ? `<span class="ct-subject-pill-badge ct-pill-lg">${subject.icon}</span>`
         : `<span>${subject.icon}</span>`;
 
+    // Determine if user has access
+    const hasAccess = AppState.userPlan === 'codetantra' || AppState.userPlan === 'pro';
+
     // Render weeks
     let weeksHtml = subject.weeks.map((w) => {
-        if (w.isPremium) {
+        if (w.isPremium && !hasAccess) {
             // Locked week row - crown, not expandable
             return `
-                <div class="ct-week-group ct-week-locked">
+                <div class="ct-week-group ct-week-locked" onclick="window.location.href='../index.html#pricing'">
                     <div class="ct-week-header ct-week-header-locked" title="Premium content">
                         <span><i class="ct-week-arrow">▶</i> ${w.title}</span>
-                        <span class="ct-crown-icon">👑</span>
+                        <span class="ct-crown-icon">👑 <span style="font-size:0.7rem; font-weight:normal; opacity:0.8; margin-left:4px;">(Upgrade)</span></span>
                     </div>
                 </div>
             `;
@@ -484,13 +506,15 @@ function renderTheorySubjectPage(root, subject) {
         ? `<span class="ct-subject-pill-badge ct-pill-lg">${subject.icon}</span>`
         : `<span>${subject.icon}</span>`;
 
+    const hasAccess = AppState.userPlan === 'codetantra' || AppState.userPlan === 'pro';
+
     let unitsHtml = subject.units.map((u) => {
-        if (u.isPremium) {
+        if (u.isPremium && !hasAccess) {
             return `
-                <div class="ct-unit-group ct-week-locked">
+                <div class="ct-unit-group ct-week-locked" onclick="window.location.href='../index.html#pricing'">
                     <div class="ct-unit-header ct-week-header-locked" title="Premium content">
                         <span><i class="fa-solid fa-chevron-right ct-unit-arrow"></i> ${u.title}</span>
-                        <span class="ct-crown-icon">👑</span>
+                        <span class="ct-crown-icon">👑 <span style="font-size:0.7rem; font-weight:normal; opacity:0.8; margin-left:4px;">(Upgrade)</span></span>
                     </div>
                 </div>
             `;
