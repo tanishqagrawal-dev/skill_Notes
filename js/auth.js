@@ -396,17 +396,24 @@ function initAuthForms() {
 
         googleBtn.onclick = async () => {
             const originalHtml = googleBtn.innerHTML;
+            const originalStyle = googleBtn.style.cssText;
             try {
                 console.log("🖱️ Google Button Clicked");
-                googleBtn.innerHTML = 'Signing in...';
+                googleBtn.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <i class="fas fa-circle-notch fa-spin" style="color: #fbbf24; font-size: 1.2rem;"></i>
+                        <span style="background: linear-gradient(135deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; letter-spacing: 0.5px;">Signing in...</span>
+                    </div>
+                `;
+                googleBtn.style.border = "1px solid rgba(251,191,36,0.5)";
+                googleBtn.style.boxShadow = "0 0 20px rgba(251,191,36,0.2)";
+                
                 await signInWithPopup(auth, provider);
-                // RBAC check happens inside onAuthStateChanged/onSnapshot — 
-                // if it fails, the user is signed out and an alert is shown there.
-                // Reset button after short delay in case we stay on page (RBAC block)
-                setTimeout(() => { if (googleBtn) googleBtn.innerHTML = originalHtml; }, 2000);
+                // The page will redirect via onAuthStateChanged, so we leave the premium animation running!
             } catch (err) {
                 console.error("❌ Google Login Error:", err);
                 googleBtn.innerHTML = originalHtml;
+                googleBtn.style.cssText = originalStyle;
                 if (err.code !== 'auth/popup-closed-by-user') {
                     alert("Google Login Failed: " + err.message);
                 }
@@ -418,17 +425,24 @@ function initAuthForms() {
     if (githubBtn) {
         githubBtn.onclick = async () => {
             const originalHtml = githubBtn.innerHTML;
+            const originalStyle = githubBtn.style.cssText;
             try {
                 console.log("🖱️ GitHub Button Clicked");
-                githubBtn.innerHTML = 'Signing in...';
+                githubBtn.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <i class="fas fa-circle-notch fa-spin" style="color: #fbbf24; font-size: 1.2rem;"></i>
+                        <span style="background: linear-gradient(135deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; letter-spacing: 0.5px;">Signing in...</span>
+                    </div>
+                `;
+                githubBtn.style.border = "1px solid rgba(251,191,36,0.5)";
+                githubBtn.style.boxShadow = "0 0 20px rgba(251,191,36,0.2)";
+                
                 await signInWithPopup(auth, githubProvider);
-                // RBAC check happens inside onAuthStateChanged/onSnapshot — 
-                // if it fails, the user is signed out and an alert is shown there.
-                // Reset button after short delay in case we stay on page (RBAC block)
-                setTimeout(() => { if (githubBtn) githubBtn.innerHTML = originalHtml; }, 2000);
+                // The page will redirect via onAuthStateChanged, leaving the premium animation running!
             } catch (err) {
                 console.error("❌ GitHub Login Error:", err);
                 githubBtn.innerHTML = originalHtml;
+                githubBtn.style.cssText = originalStyle;
                 if (err.code !== 'auth/popup-closed-by-user') {
                     if (err.code === 'auth/account-exists-with-different-credential') {
                         alert("An account already exists with the same email address but different sign-in credentials. Sign in using a provider associated with this email address (like Google or Email/Password).");
