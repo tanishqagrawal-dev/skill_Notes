@@ -456,23 +456,6 @@ function initAuthForms() {
 }
 
 // Global Exports
-window.loginAsGuest = function () {
-    const guest = {
-        id: 'guest_' + Math.random().toString(36).substr(2, 9),
-        name: 'Guest Tester',
-        email: 'guest@example.com',
-        role: 'student',
-        collegeId: 'medicaps',
-        collegeName: 'Medicaps University',
-        isGuest: true
-    };
-    localStorage.setItem('guest_session', JSON.stringify(guest));
-
-    const path = window.location.pathname;
-    const isInPagesDir = path.includes('/pages/');
-    const prefix = isInPagesDir ? '' : 'pages/';
-    window.location.href = prefix + 'dashboard';
-};
 
 window.handleLogout = async function () {
     console.log("🔓 Initializing Secure Logout...");
