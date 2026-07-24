@@ -1844,7 +1844,7 @@ class ProfileManager {
             }
             console.log('✅ Supabase profiles saved');
 
-            // Also update the leaderboard users table
+            // Also update the leaderboard users table (Fire and forget)
             try {
                 const isBase64 = photo.startsWith('data:');
                 const lbUpdate = {
@@ -1852,10 +1852,12 @@ class ProfileManager {
                     collegename: this.userData.college || 'Unknown'
                 };
                 if (photo && !isBase64) lbUpdate.avatar = photo;
-                await supabase.from('users').update(lbUpdate).eq('email', this.userData.email);
-            } catch (e) { console.warn('Leaderboard users sync skipped:', e); }
+                supabase.from('users').update(lbUpdate).eq('email', this.userData.email)
+                    .then(() => console.log('Leaderboard sync successful'))
+                    .catch(e => console.warn('Leaderboard users sync skipped:', e));
+            } catch (e) { console.warn('Leaderboard error:', e); }
 
-            // Secondary backup: Firestore
+            // Secondary backup: Firestore (Fire and forget)
             try {
                 if (window.firebaseServices?.auth?.currentUser) {
                     const { db, doc, setDoc } = window.firebaseServices;
@@ -1867,9 +1869,10 @@ class ProfileManager {
                         semester: this.userData.semester, skills: this.userData.skills,
                         countryCode: this.userData.countryCode
                     };
-                    await setDoc(doc(db, 'users', uid), fsData, { merge: true });
+                    setDoc(doc(db, 'users', uid), fsData, { merge: true })
+                        .catch(e => console.warn('Firestore backup skipped:', e));
                 }
-            } catch (e) { console.warn('Firestore backup skipped:', e); }
+            } catch (e) { console.warn('Firestore error:', e); }
 
             // Update local cache
             localStorage.setItem(`profile_cache_${uid}`, JSON.stringify(this.userData));

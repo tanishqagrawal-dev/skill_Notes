@@ -55,6 +55,38 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+// --- COMPILER PROXY (PAIZA.IO) ---
+app.post('/api/compile', async (req, res) => {
+    try {
+        const { code, language, input } = req.body;
+        const createRes = await fetch('https://api.paiza.io/runners/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                source_code: code,
+                language: language,
+                input: input || "",
+                api_key: 'guest'
+            })
+        });
+        const createData = await createRes.json();
+        res.json(createData);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.get('/api/compile/status', async (req, res) => {
+    try {
+        const { id } = req.query;
+        const statusRes = await fetch(`https://api.paiza.io/runners/get_details?id=${id}&api_key=guest`);
+        const data = await statusRes.json();
+        res.json(data);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // Pricing & Coupons Configuration
 const PRICING_FILE = path.join(__dirname, '../data/pricing.json');
 

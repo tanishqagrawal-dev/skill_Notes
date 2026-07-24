@@ -5,6 +5,14 @@ window.caCodingProblems = codingProblems;
 let editorInstance = null;
 window.caActiveProblemIndex = null; // null means Explorer mode
 
+// Ensure CodeMirror placeholder addon is loaded
+if (typeof document !== 'undefined' && !document.getElementById('cm-placeholder-addon')) {
+    const s = document.createElement('script');
+    s.id = 'cm-placeholder-addon';
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/display/placeholder.min.js';
+    document.head.appendChild(s);
+}
+
 export async function renderCodingArena() {
     if (!window.currentUser) return `<div style="padding:2rem;text-align:center;">Please login to access the Coding Arena.</div>`;
 
@@ -44,10 +52,14 @@ export async function renderCodingArena() {
     const todayStr = new Date().toDateString();
     const isDoneToday = (lastDate === todayStr);
     
-    // Robust Admin Check
     const adminEmails = ['tanishqagrawal1103@gmail.com', 'skilmatrix3@gmail.com'];
     const userEmail = (window.currentUser?.email || window.currentUser?.user_metadata?.email || '').toLowerCase();
     const isAdmin = window.currentUser?.role === 'admin' || window.currentUser?.role === 'co-admin' || adminEmails.includes(userEmail);
+
+    let todayIdx = currentLevel - 1;
+    if (isDoneToday && currentLevel > 1) {
+        todayIdx = currentLevel - 2;
+    }
 
     if (window.caActiveProblemIndex === null) {
         // Ensure sidebar and top-bar are visible in Explorer
@@ -119,7 +131,6 @@ export async function renderCodingArena() {
 
             <!-- Highlighted row for Today's Problem above the list -->
             ${(() => {
-                const todayIdx = currentLevel - 1;
                 const tp = codingProblems[todayIdx];
                 if (tp) {
                     let tpDiffBadge = '';
@@ -142,7 +153,7 @@ export async function renderCodingArena() {
                             <div style="text-align: center;">
                                 ${!isDoneToday 
                                     ? `<button class="ca-btn-solve" onclick="window.startSpecificProblem(${todayIdx})" style="padding: 10px 24px; font-size: 1rem; box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4);">Solve Now</button>` 
-                                    : `<button class="ca-btn-replay" onclick="window.startSpecificProblem(${todayIdx})"><i class="fa-solid fa-rotate-right"></i> Replay</button>`
+                                    : `<button class="ca-btn-replay" onclick="window.startSpecificProblem(${todayIdx})"><i class="fa-solid fa-code"></i> Practice</button>`
                                 }
                             </div>
                         </div>
@@ -166,8 +177,8 @@ export async function renderCodingArena() {
         for (let i = 0; i < codingProblems.length; i++) {
             const p = codingProblems[i];
             const isSolved = i < (currentLevel - 1);
-            const isToday = i === (currentLevel - 1);
-            const isLocked = !isAdmin && (i > (currentLevel - 1) || (isToday && isDoneToday));
+            const isToday = i === todayIdx;
+            const isLocked = !isAdmin && (i > todayIdx);
             
             let statusIcon = '';
             let rowClass = 'ca-explorer-row premium-3d-row ';
@@ -176,7 +187,7 @@ export async function renderCodingArena() {
             if (isSolved) {
                 statusIcon = '<span style="color: #2ed573; font-size: 1.4rem;">✓</span>';
                 rowClass += 'ca-solved';
-                actionBtn = `<button class="ca-btn-replay" onclick="window.startSpecificProblem(${i})"><i class="fa-solid fa-rotate-right"></i> Replay</button>`;
+                actionBtn = `<button class="ca-btn-replay" onclick="window.startSpecificProblem(${i})"><i class="fa-solid fa-code"></i> Practice</button>`;
             } else if (isToday && !isDoneToday) {
                 statusIcon = '<span style="color: #00d2ff; font-size: 1.4rem;">🔥</span>';
                 rowClass += 'ca-today glow-pulse';
@@ -295,11 +306,37 @@ export async function renderCodingArena() {
                 <!-- Submissions View -->
                 <div id="ca-view-subs" style="display: none; color: #d4d4d4; font-size: 14px; padding-top: 10px;">
                     <div id="ca-subs-list">
-                        <div style="color: #8c8c8c; text-align: center; margin-top: 40px; font-style: italic;">
-                            <i class="fa-solid fa-clock-rotate-left" style="font-size: 24px; margin-bottom: 12px; opacity: 0.5;"></i><br>
-                            No historical submissions found for this problem.<br>
-                            Run and submit your code to see results!
-                        </div>
+                        ${(() => {
+                            let subsHtml = '';
+                            if (!isSandbox && window.currentUser && window.currentUser.id) {
+                                const subKey = `ca_subs_${window.currentUser.id}_${window.caActiveProblemIndex}`;
+                                try {
+                                    const pastSubs = JSON.parse(localStorage.getItem(subKey) || "[]");
+                                    if (pastSubs && pastSubs.length > 0) {
+                                        subsHtml = pastSubs.map(s => `
+                                            <div style="background: ${s.status === 'Accepted' ? 'rgba(46, 213, 115, 0.1)' : 'rgba(255, 71, 87, 0.1)'}; border: 1px solid ${s.status === 'Accepted' ? 'rgba(46, 213, 115, 0.2)' : 'rgba(255, 71, 87, 0.2)'}; border-radius: 8px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                                <div>
+                                                    <div style="color: ${s.statusColor || (s.status === 'Accepted' ? '#2ed573' : '#ff4757')}; font-weight: bold; font-size: 16px; margin-bottom: 4px;">${s.status}</div>
+                                                    <div style="font-size: 12px; color: #8c8c8c;">Language: <span style="color:#d4d4d4; font-weight:600;">${s.lang}</span> &nbsp;|&nbsp; ${s.time}</div>
+                                                </div>
+                                                <div style="text-align: right;">
+                                                    <div style="color: #eff1f6; font-weight: 600;">Score: +${s.xp} XP</div>
+                                                    <div style="font-size: 12px; color: #8c8c8c;">Time: ~${s.ms}ms</div>
+                                                </div>
+                                            </div>
+                                        `).join('');
+                                    }
+                                } catch(e) {}
+                            }
+                            if (subsHtml) return subsHtml;
+                            return `
+                                <div style="color: #8c8c8c; text-align: center; margin-top: 40px; font-style: italic;">
+                                    <i class="fa-solid fa-clock-rotate-left" style="font-size: 24px; margin-bottom: 12px; opacity: 0.5;"></i><br>
+                                    No historical submissions found for this problem.<br>
+                                    Run and submit your code to see results!
+                                </div>
+                            `;
+                        })()}
                     </div>
                 </div>
 
@@ -356,11 +393,16 @@ export async function renderCodingArena() {
                         <button title="Theme Settings (Coming Soon)" onclick="alert('Advanced Theme Settings Customization is coming soon!')" style="background: transparent; border: none; color: #a3a3a3; cursor: pointer; padding: 4px 6px; border-radius: 4px;" class="ca-hover-btn"><i class="fa-solid fa-paint-roller"></i></button>
                     </div>
                     
-                    <div style="display: flex; align-items: center; gap: 16px;">
-                        <button title="Reset Code" onclick="window.resetUserCode()" style="background: transparent; border: none; color: #8c8c8c; cursor: pointer; font-size: 14px; transition: color 0.2s;"><i class="fa-solid fa-rotate-right"></i></button>
-                        <button id="btn-run-code" onclick="window.runUserCode(${isActuallyToday})" style="background: #2cbb5d; color: #ffffff; border: none; border-radius: 4px; padding: 6px 14px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s;">
-                            <i class="fa-solid fa-play" style="font-size: 11px;"></i> Run Code ${isActuallyToday ? '& Submit' : ''}
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button title="Reset Code" onclick="window.resetUserCode()" style="background: transparent; border: none; color: #8c8c8c; cursor: pointer; font-size: 14px; transition: color 0.2s; margin-right: 8px;"><i class="fa-solid fa-rotate-right"></i></button>
+                        <button id="btn-run-code" onclick="window.runUserCode(false)" style="background: rgba(255,255,255,0.1); color: #ffffff; border: none; border-radius: 4px; padding: 6px 14px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                            <i class="fa-solid fa-play" style="font-size: 11px;"></i> Run Code
                         </button>
+                        ${isActuallyToday ? `
+                        <button id="btn-submit-code" onclick="window.runUserCode(true)" style="background: #2cbb5d; color: #ffffff; border: none; border-radius: 4px; padding: 6px 14px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: filter 0.2s;" onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter='none'">
+                            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 11px;"></i> Submit
+                        </button>
+                        ` : ''}
                     </div>
                 </div>
 
@@ -425,10 +467,12 @@ export async function renderCodingArena() {
         .ca-hover-btn:hover * { color: #fff !important; }
         
         /* VS Code Dark+ Theme Simulation for CodeMirror */
-        .CodeMirror, .cm-s-dracula.CodeMirror { background: transparent !important; color: #d4d4d4 !important; height: 100% !important; position: absolute !important; top: 0; left: 0; width: 100%; }
+        .CodeMirror, .cm-s-dracula.CodeMirror { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace !important; font-size: 14px !important; background: transparent !important; color: #d4d4d4 !important; height: 100% !important; position: absolute !important; top: 0; left: 0; width: 100%; }
         .CodeMirror-scroll { overflow-y: auto !important; overflow-x: auto !important; }
         .CodeMirror-gutters, .cm-s-dracula .CodeMirror-gutters { background: transparent !important; border-right: none !important; }
         .CodeMirror-linenumber { color: #858585 !important; }
+        .CodeMirror-empty.CodeMirror-focused { color: inherit !important; }
+        .CodeMirror-placeholder { color: #6a9955 !important; font-style: italic !important; }
         .CodeMirror-cursor { border-left: 2px solid #aeafad !important; }
         .cm-s-dracula .cm-keyword { color: #569cd6 !important; }
         .cm-s-dracula .cm-def { color: #dcdcaa !important; }
@@ -474,21 +518,30 @@ function initEditor() {
         indentUnit: 4,
         matchBrackets: true,
         autoCloseBrackets: true,
-        fontSize: "14px"
+        placeholder: "// Write your logic here..."
     });
     
     editorInstance.setSize("100%", "100%");
-    editorInstance.setValue("// Write your logic here\n// Read from STDIN and print to STDOUT\n");
+    editorInstance.setValue("");
 }
 
-window.startSpecificProblem = function(index) {
+window.startSpecificProblem = async function(index) {
     window.caActiveProblemIndex = index;
-    if (window.renderTabContent) window.renderTabContent('coding-arena');
+    if (window.openCodingArena) {
+        window.openCodingArena();
+    } else {
+        const contentArea = document.getElementById('tab-content');
+        if (contentArea) {
+            contentArea.innerHTML = `<div style="padding: 4rem; text-align: center;"><div class="loader-pro"></div><p style="margin-top:1rem; color:var(--text-dim);">Loading Coding Arena...</p></div>`;
+            const html = await renderCodingArena();
+            contentArea.innerHTML = html;
+        }
+    }
 }
 
 window.resetUserCode = function() {
     if (editorInstance) {
-        editorInstance.setValue("// Write your logic here\n// Read from STDIN and print to STDOUT\n");
+        editorInstance.setValue("");
     }
 }
 
@@ -578,9 +631,18 @@ window.selectTestCase = function(idx) {
     if (inDiv) inDiv.innerText = problem.testCases[idx].input;
     if (outDiv) outDiv.innerText = problem.testCases[idx].output;
 }
-window.backToExplorer = function() {
+window.backToExplorer = async function() {
     window.caActiveProblemIndex = null;
-    if (window.renderTabContent) window.renderTabContent('coding-arena');
+    if (window.openCodingArena) {
+        window.openCodingArena();
+    } else {
+        const contentArea = document.getElementById('tab-content');
+        if (contentArea) {
+            contentArea.innerHTML = `<div style="padding: 4rem; text-align: center;"><div class="loader-pro"></div><p style="margin-top:1rem; color:var(--text-dim);">Loading Coding Arena...</p></div>`;
+            const html = await renderCodingArena();
+            contentArea.innerHTML = html;
+        }
+    }
 }
 
 window.downloadCertificateImage = async function() {
@@ -801,20 +863,19 @@ window.changeCodingLanguage = function() {
 
 window.executeWithPaiza = async function(code, lang, stdin) {
     let paizaLang = lang;
-    if (lang === 'python') paizaLang = 'python3';
+    if (lang === 'python' || lang === 'python3') paizaLang = 'python3';
     
-    const createRes = await fetch('https://api.paiza.io/runners/create', {
+    const createRes = await fetch('http://localhost:3000/api/compile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            source_code: code,
+            code: code,
             language: paizaLang,
-            input: stdin || "",
-            api_key: 'guest'
+            input: stdin || ""
         })
     });
     
-    if (!createRes.ok) throw new Error("Compiler API Create Error");
+    if (!createRes.ok) throw new Error("Compiler Proxy Error");
     const createData = await createRes.json();
     if (createData.error) throw new Error(createData.error);
     
@@ -822,7 +883,7 @@ window.executeWithPaiza = async function(code, lang, stdin) {
     
     for (let i = 0; i < 15; i++) {
         await new Promise(r => setTimeout(r, 1000));
-        const statusRes = await fetch(`https://api.paiza.io/runners/get_details?id=${id}&api_key=guest`);
+        const statusRes = await fetch(`http://localhost:3000/api/compile/status?id=${id}`);
         const data = await statusRes.json();
         
         if (data.status === 'completed') {
@@ -837,19 +898,27 @@ window.executeWithPaiza = async function(code, lang, stdin) {
     throw new Error("Execution timed out");
 };
 
-window.runUserCode = async function(isActuallyToday) {
-    const btn = document.getElementById('btn-run-code');
+window.runUserCode = async function(isSubmit) {
+    const btnRun = document.getElementById('btn-run-code');
+    const btnSubmit = document.getElementById('btn-submit-code');
     const consoleOut = document.getElementById('ca-console');
     
     const code = editorInstance.getValue();
     const sel = document.getElementById('ca-lang');
     const lang = sel.value;
+    const langName = sel.options[sel.selectedIndex].text;
     const ver = sel.options[sel.selectedIndex].getAttribute('data-ver');
 
     const isSandbox = window.caActiveProblemIndex === -1;
 
-    btn.disabled = true;
-    btn.innerText = "Running...";
+    if (btnRun) {
+        btnRun.disabled = true;
+        btnRun.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin" style="font-size: 11px;"></i> ${isSubmit ? 'Running...' : 'Running...'}`;
+    }
+    if (btnSubmit) {
+        btnSubmit.disabled = true;
+        if (isSubmit) btnSubmit.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin" style="font-size: 11px;"></i> Submitting...`;
+    }
     
     // Automatically switch to Console Output tab
     if (window.switchConsoleTab) window.switchConsoleTab('console');
@@ -890,7 +959,8 @@ window.runUserCode = async function(isActuallyToday) {
             const data = await window.executeWithPaiza(code, lang, tc.input);
             
             if (data.status !== "0" && !data.program_output) {
-                consoleLog += `<div style="color: #ff4757; margin-top: 10px;"><b>Test Case ${i+1} Compile/Run Error:</b>\\n${data.compiler_error || data.program_error || 'Unknown Error'}</div>`;
+                const errText = (data.compiler_error || data.program_error || 'Unknown Error').replace(/\n/g, '<br>');
+                consoleLog += `<div style="color: #ff4757; margin-top: 10px;"><b>Test Case ${i+1} Compile/Run Error:</b><br>${errText}</div>`;
                 passedAll = false;
                 break;
             }
@@ -899,7 +969,7 @@ window.runUserCode = async function(isActuallyToday) {
             const errStr = (data.program_error || "").trim();
 
             if (errStr) {
-                consoleLog += `<div style="color: #ff4757; margin-top: 10px;"><b>Test Case ${i+1} Error:</b>\\n${errStr}</div>`;
+                consoleLog += `<div style="color: #ff4757; margin-top: 10px;"><b>Test Case ${i+1} Error:</b><br>${errStr.replace(/\n/g, '<br>')}</div>`;
                 passedAll = false;
                 break;
             }
@@ -927,24 +997,61 @@ window.runUserCode = async function(isActuallyToday) {
         consoleOut.innerHTML = consoleLog + `<div style="color: #2ed573; margin-top: 15px; font-weight:bold; font-size: 15px;">✓ All ${problem.testCases.length} Test Cases Passed!</div>`;
         
         // --- Populate Submissions View ---
-        const subsDiv = document.getElementById('ca-subs-list');
-        if (subsDiv) {
-            subsDiv.innerHTML = `
-                <div style="background: rgba(46, 213, 115, 0.1); border: 1px solid rgba(46, 213, 115, 0.2); border-radius: 8px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="color: #2ed573; font-weight: bold; font-size: 16px; margin-bottom: 4px;">Accepted</div>
-                        <div style="font-size: 12px; color: #8c8c8c;">Status: Validated</div>
+        if (isSubmit) {
+            const isPracticeMode = !isToday || window.caSessionXPClaimed;
+            
+            const subsDiv = document.getElementById('ca-subs-list');
+            if (subsDiv) {
+                if (subsDiv.innerHTML.includes('No historical submissions found')) {
+                    subsDiv.innerHTML = '';
+                }
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+                
+                const newEntry = `
+                    <div style="background: rgba(46, 213, 115, 0.1); border: 1px solid rgba(46, 213, 115, 0.2); border-radius: 8px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; animation: caFadeIn 0.3s ease;">
+                        <div>
+                            <div style="color: #2ed573; font-weight: bold; font-size: 16px; margin-bottom: 4px;">Accepted</div>
+                            <div style="font-size: 12px; color: #8c8c8c;">Language: <span style="color:#d4d4d4; font-weight:600;">${langName}</span> &nbsp;|&nbsp; ${timeStr}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="color: #eff1f6; font-weight: 600;">Score: +${isPracticeMode ? 0 : (problem.xp || 100)} XP</div>
+                            <div style="font-size: 12px; color: #8c8c8c;">Time: ~${(Math.random() * 10 + 5).toFixed(0)}ms</div>
+                        </div>
                     </div>
-                    <div style="text-align: right;">
-                        <div style="color: #eff1f6; font-weight: 600;">Score: +${problem.xp || 100} XP</div>
-                        <div style="font-size: 12px; color: #8c8c8c;">Time complexity: O(N)</div>
-                    </div>
-                </div>
-            `;
-            document.getElementById('ca-tab-subs').style.color = '#2ed573'; // Highlight tab to draw attention
-        }
-        if (isActuallyToday) {
-            await handleProblemSolved();
+                `;
+                subsDiv.insertAdjacentHTML('afterbegin', newEntry);
+                document.getElementById('ca-tab-subs').style.color = '#2ed573'; // Highlight tab to draw attention
+                
+                // Hide submit button permanently after successful submission
+                const btnSubmit = document.getElementById('btn-submit-code');
+                if (btnSubmit) btnSubmit.style.display = 'none';
+                
+                if (isToday) window.caSessionXPClaimed = true;
+            }
+
+            // Save to localStorage
+            if (window.currentUser && window.currentUser.id) {
+                const subKey = `ca_subs_${window.currentUser.id}_${window.caActiveProblemIndex}`;
+                let pastSubs = JSON.parse(localStorage.getItem(subKey) || "[]");
+                
+                const now = new Date();
+                const localTimeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+                
+                pastSubs.unshift({
+                    status: 'Accepted',
+                    statusColor: '#2ed573',
+                    lang: langName,
+                    time: localTimeStr,
+                    xp: isPracticeMode ? 0 : (problem.xp || 100),
+                    ms: (Math.random() * 10 + 5).toFixed(0)
+                });
+                localStorage.setItem(subKey, JSON.stringify(pastSubs));
+            }
+
+            await handleProblemSolved(isPracticeMode);
+        } else if (isToday) {
+            consoleOut.innerHTML += `<div style="margin-top:0.5rem; color: var(--text-dim);">Code passed! Click 'Submit' to claim your XP.</div>`;
         } else {
             consoleOut.innerHTML += `<div style="margin-top:0.5rem; color: var(--text-dim);">Practice mode: No XP or streak awarded since this isn't today's target challenge.</div>`;
         }
@@ -952,57 +1059,188 @@ window.runUserCode = async function(isActuallyToday) {
         consoleOut.innerHTML = consoleLog + `<div style="color: #ff4757; margin-top: 15px; font-weight:bold; font-size: 15px;">✗ Some Test Cases Failed. Keep trying! Check your logic.</div>`;
         
         // --- Populate Submissions View for Failure ---
-        const subsDiv = document.getElementById('ca-subs-list');
-        if (subsDiv) {
-            subsDiv.innerHTML = `
-                <div style="background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.2); border-radius: 8px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="color: #ff4757; font-weight: bold; font-size: 16px; margin-bottom: 4px;">Wrong Answer / Error</div>
-                        <div style="font-size: 12px; color: #8c8c8c;">Status: Failed</div>
+        if (isSubmit) {
+            const subsDiv = document.getElementById('ca-subs-list');
+            if (subsDiv) {
+                if (subsDiv.innerHTML.includes('No historical submissions found')) {
+                    subsDiv.innerHTML = '';
+                }
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+                
+                const newEntry = `
+                    <div style="background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.2); border-radius: 8px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; animation: caFadeIn 0.3s ease;">
+                        <div>
+                            <div style="color: #ff4757; font-weight: bold; font-size: 16px; margin-bottom: 4px;">Wrong Answer / Error</div>
+                            <div style="font-size: 12px; color: #8c8c8c;">Language: <span style="color:#d4d4d4; font-weight:600;">${langName}</span> &nbsp;|&nbsp; ${timeStr}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="color: #eff1f6; font-weight: 600;">Score: +0 XP</div>
+                            <div style="font-size: 12px; color: #8c8c8c;">Review Test Cases</div>
+                        </div>
                     </div>
-                    <div style="text-align: right;">
-                        <div style="color: #eff1f6; font-weight: 600;">Score: +0 XP</div>
-                        <div style="font-size: 12px; color: #8c8c8c;">Review Test Cases</div>
-                    </div>
-                </div>
-            `;
-            const tabSubs = document.getElementById('ca-tab-subs');
-            if (tabSubs) tabSubs.style.color = '#ff4757';
+                `;
+                subsDiv.insertAdjacentHTML('afterbegin', newEntry);
+                const tabSubs = document.getElementById('ca-tab-subs');
+                if (tabSubs) tabSubs.style.color = '#ff4757';
+                
+                // Save failure to localStorage
+                if (window.currentUser && window.currentUser.id) {
+                    const subKey = `ca_subs_${window.currentUser.id}_${window.caActiveProblemIndex}`;
+                    let pastSubs = JSON.parse(localStorage.getItem(subKey) || "[]");
+                    pastSubs.unshift({
+                        status: 'Wrong Answer / Error',
+                        statusColor: '#ff4757',
+                        lang: langName,
+                        time: timeStr,
+                        xp: 0,
+                        ms: 'N/A'
+                    });
+                    localStorage.setItem(subKey, JSON.stringify(pastSubs));
+                }
+            }
         }
     }
 
-    btn.disabled = false;
-    btn.innerHTML = `<i class="fa-solid fa-play"></i> Run Code ${isActuallyToday ? '& Submit' : ''}`;
+    if (btnRun) {
+        btnRun.disabled = false;
+        btnRun.innerHTML = `<i class="fa-solid fa-play" style="font-size: 11px;"></i> Run Code`;
+    }
+    if (btnSubmit) {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = `<i class="fa-solid fa-cloud-arrow-up" style="font-size: 11px;"></i> Submit`;
+    }
 }
 
-async function handleProblemSolved() {
-    const problem = codingProblems[window.caActiveProblemIndex];
-    
-    // Fetch latest user state
-    const { data: userStats } = await supabase.from('users').select('*').eq('id', window.currentUser.id).single();
-    
-    const todayStr = new Date().toDateString();
-    let newStreak = userStats.coding_streak || 0;
-    
-    if (userStats.last_coding_date !== todayStr) {
-        newStreak += 1;
+async function handleProblemSolved(isPractice = false) {
+    try {
+        const problem = codingProblems[window.caActiveProblemIndex] || { title: 'the challenge', xp: 100 };
+        
+        let sb = null;
+        if (typeof supabase !== 'undefined') sb = supabase;
+        else if (window.supabase) sb = window.supabase;
+        else {
+            try {
+                const module = await import('./supabase-config.js?v=1.0');
+                sb = module.supabase;
+            } catch (e) {
+                console.warn("Could not load supabase:", e);
+            }
+        }
+
+        let newStreak = 0;
+        let newMax = 0;
+        let newXP = isPractice ? 0 : problem.xp;
+        let newLevel = 2;
+        const todayStr = new Date().toDateString();
+
+        if (!isPractice && sb && window.currentUser && window.currentUser.id) {
+            // Fetch latest user state safely
+            const { data: userStats, error } = await sb.from('users').select('*').eq('id', window.currentUser.id).single();
+            
+            if (userStats) {
+                newStreak = userStats.coding_streak || 0;
+                if (userStats.last_coding_date !== todayStr) {
+                    newStreak += 1;
+                }
+                newMax = Math.max(newStreak, userStats.max_coding_streak || 0);
+                newXP = (userStats.coding_xp || 0) + problem.xp;
+                newLevel = (userStats.current_coding_level || 1) + 1;
+
+                await sb.from('users').update({
+                    current_coding_level: newLevel,
+                    coding_xp: newXP,
+                    coding_streak: newStreak,
+                    max_coding_streak: newMax,
+                    last_coding_date: todayStr
+                }).eq('id', window.currentUser.id);
+            }
+
+            // Update global state locally so UI stays in sync
+            if (window.currentUser) {
+                window.currentUser.current_coding_level = newLevel;
+                window.currentUser.coding_xp = newXP;
+            }
+        }
+
+        // Party Popper using Canvas Confetti
+        try {
+            const fireConfetti = () => {
+                var defaults = { zIndex: 999999, origin: { y: 0.6 } };
+
+                function fire(particleRatio, opts) {
+                    confetti(Object.assign({}, defaults, opts, {
+                        particleCount: Math.floor(250 * particleRatio)
+                    }));
+                }
+
+                // A single massive, high-speed burst that covers the screen
+                fire(0.25, { spread: 26, startVelocity: 55 });
+                fire(0.2, { spread: 60 });
+                fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+                fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+                fire(0.1, { spread: 120, startVelocity: 45 });
+            };
+
+            if (typeof confetti === 'undefined') {
+                const confettiScript = document.createElement('script');
+                confettiScript.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
+                confettiScript.onload = fireConfetti;
+                document.head.appendChild(confettiScript);
+            } else {
+                fireConfetti();
+            }
+        } catch(e) {
+            console.error("Confetti Error:", e);
+        }
+
+        // Show a beautiful completion popup on the screen instead of kicking them out
+        const container = document.querySelector('.coding-arena-container');
+        if (container) {
+            const popup = document.createElement('div');
+            popup.style = `
+                position: absolute;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.85);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+                backdrop-filter: blur(10px);
+                animation: caFadeIn 0.5s ease;
+            `;
+            popup.innerHTML = `
+                <div style="background: #0a0a0a; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 40px; text-align: center; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); transform: translateY(20px); animation: caSlideUp 0.5s ease forwards;">
+                    <div style="font-size: 60px; margin-bottom: 20px;">🎉</div>
+                    <h2 style="color: #2ed573; margin: 0 0 10px 0; font-size: 28px;">${isPractice ? 'Practice Completed!' : 'Problem Solved!'}</h2>
+                    <p style="color: #a3a3a3; font-size: 15px; margin-bottom: 30px;">Excellent work! You successfully solved <b>${problem.title}</b>.</p>
+                    
+                    <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 30px;">
+                        <div style="background: rgba(46, 213, 115, 0.1); border: 1px solid rgba(46, 213, 115, 0.2); padding: 15px 25px; border-radius: 12px;">
+                            <div style="color: #8c8c8c; font-size: 12px; font-weight: 600; text-transform: uppercase;">XP Earned</div>
+                            <div style="color: #2ed573; font-size: 24px; font-weight: bold;">+${isPractice ? 0 : problem.xp}</div>
+                        </div>
+                        <div style="background: rgba(255, 192, 30, 0.1); border: 1px solid rgba(255, 192, 30, 0.2); padding: 15px 25px; border-radius: 12px;">
+                            <div style="color: #8c8c8c; font-size: 12px; font-weight: 600; text-transform: uppercase;">Streak</div>
+                            <div style="color: #ffc01e; font-size: 24px; font-weight: bold;">${newStreak} 🔥</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 15px;">
+                        <button onclick="this.closest('.coding-arena-container').removeChild(this.closest('[style*=\\'position: absolute\\']'))" style="flex: 1; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">Review Code</button>
+                        <button onclick="window.backToExplorer()" style="flex: 1; background: #2cbb5d; border: none; color: #fff; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: filter 0.2s;" onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter='none'">Return to Menu</button>
+                    </div>
+                </div>
+                <style>
+                    @keyframes caSlideUp { to { transform: translateY(0); } }
+                    @keyframes caFadeIn { from { opacity: 0; } to { opacity: 1; } }
+                </style>
+            `;
+            container.appendChild(popup);
+        } else {
+            if (window.showToast) window.showToast(`+${problem.xp} XP Awarded! Streak: ${newStreak} 🔥`);
+        }
+    } catch (err) {
+        console.error("Error in handleProblemSolved:", err);
     }
-
-    const newMax = Math.max(newStreak, userStats.max_coding_streak || 0);
-    const newXP = (userStats.coding_xp || 0) + problem.xp;
-    const newLevel = (userStats.current_coding_level || 1) + 1;
-
-    await supabase.from('users').update({
-        current_coding_level: newLevel,
-        coding_xp: newXP,
-        coding_streak: newStreak,
-        max_coding_streak: newMax,
-        last_coding_date: todayStr
-    }).eq('id', window.currentUser.id);
-
-    if (window.showToast) window.showToast(`+${problem.xp} XP Awarded! Streak: ${newStreak} 🔥`);
-    
-    setTimeout(() => {
-        window.backToExplorer(); // Return to explorer automatically
-    }, 3000);
 }
