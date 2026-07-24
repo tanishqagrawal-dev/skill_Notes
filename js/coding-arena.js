@@ -244,10 +244,10 @@ export async function renderCodingArena() {
     <div class="coding-arena-container fade-in ca-fullscreen-mode" style="display: flex; gap: 8px; height: calc(100vh - 10px); color: #fff; padding: 0.5rem 0; overflow: hidden; position: relative; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
         
         <!-- Left Side: Problem Context (45%) -->
-        <div class="ca-left" style="width: 45%; border-radius: 8px; display: flex; flex-direction: column; background: #1e1e1e; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.05);">
+        <div class="ca-left" style="width: 45%; border-radius: 12px; display: flex; flex-direction: column; background: #000000; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.05);">
             
             <!-- Tabs -->
-            <div style="display: flex; gap: 20px; padding: 0 16px; background: #252526; border-bottom: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;">
+            <div style="display: flex; gap: 20px; padding: 0 16px; background: #0a0a0a; border-bottom: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;">
                 <div id="ca-tab-desc" onclick="window.switchCaTab('desc')" style="padding: 12px 0; color: #ffc01e; font-size: 13px; font-weight: 600; border-bottom: 2px solid #ffc01e; cursor: pointer; display: flex; align-items: center; gap: 6px;">
                     <i class="fa-regular fa-file-lines"></i> Description
                 </div>
@@ -284,7 +284,7 @@ export async function renderCodingArena() {
                         ${problem.testCases.map((tc, i) => `
                         <div>
                             <div style="font-weight: 600; color: #eff1f6; font-size: 14px; margin-bottom: 10px;">Example ${i + 1}:</div>
-                            <div style="background: #1e1e1e; padding: 16px; border-radius: 8px; border-left: 2px solid rgba(255,255,255,0.1); font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 13px; line-height: 1.6;">
+                            <div style="background: #050505; padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); border-left: 2px solid rgba(255,255,255,0.1); font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 13px; line-height: 1.6;">
                                 <div style="margin-bottom: 4px;"><strong style="color: #8c8c8c; font-weight: 600;">Input:</strong> <span style="color: #eff1f6;">${tc.input}</span></div>
                                 <div><strong style="color: #8c8c8c; font-weight: 600;">Output:</strong> <span style="color: #eff1f6;">${tc.output}</span></div>
                             </div>
@@ -322,21 +322,21 @@ export async function renderCodingArena() {
         <div class="ca-right" style="width: 55%; display: flex; flex-direction: column; gap: 8px; overflow: hidden;">
             
             <!-- Editor Section -->
-            <div style="flex: 1; display: flex; flex-direction: column; background: #1e1e1e; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.05);">
+            <div style="flex: 1; display: flex; flex-direction: column; background: #000000; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.05);">
                 <!-- Toolbar -->
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: #252526; flex-shrink: 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: #0a0a0a; flex-shrink: 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
                     
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div style="position: relative; display: flex; align-items: center; background: rgba(255,255,255,0.05); border-radius: 4px; padding: 4px 8px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05);">
                             <select id="ca-lang" style="-webkit-appearance: none; appearance: none; background: transparent; color: #eff1f6; border: none; font-size: 12px; font-weight: 500; padding-right: 16px; outline: none; cursor: pointer; min-width: 60px;" onchange="window.changeCodingLanguage()">
-                                <option value="c" data-ver="gcc-13.2.0-c" style="background:#1e1e1e;color:#fff;">C</option>
-                                <option value="cpp" data-ver="gcc-13.2.0" style="background:#1e1e1e;color:#fff;" selected>C++</option>
-                                <option value="csharp" data-ver="mono-6.12.0.122" style="background:#1e1e1e;color:#fff;">C#</option>
-                                <option value="java" data-ver="openjdk-jdk-22+36" style="background:#1e1e1e;color:#fff;">Java</option>
-                                <option value="javascript" data-ver="nodejs-20.17.0" style="background:#1e1e1e;color:#fff;">JavaScript</option>
-                                <option value="python" data-ver="cpython-3.14.0" style="background:#1e1e1e;color:#fff;">Python 3</option>
-                                <option value="rust" data-ver="rust-1.78.0" style="background:#1e1e1e;color:#fff;">Rust</option>
-                                <option value="go" data-ver="go-1.22.3" style="background:#1e1e1e;color:#fff;">Go</option>
+                                <option value="c" data-ver="gcc-13.2.0-c" style="background:#000000;color:#fff;">C</option>
+                                <option value="cpp" data-ver="gcc-13.2.0" style="background:#000000;color:#fff;" selected>C++</option>
+                                <option value="csharp" data-ver="mono-6.12.0.122" style="background:#000000;color:#fff;">C#</option>
+                                <option value="java" data-ver="openjdk-jdk-22+36" style="background:#000000;color:#fff;">Java</option>
+                                <option value="javascript" data-ver="nodejs-20.17.0" style="background:#000000;color:#fff;">JavaScript</option>
+                                <option value="python" data-ver="cpython-3.14.0" style="background:#000000;color:#fff;">Python 3</option>
+                                <option value="rust" data-ver="rust-1.78.0" style="background:#000000;color:#fff;">Rust</option>
+                                <option value="go" data-ver="go-1.22.3" style="background:#000000;color:#fff;">Go</option>
                             </select>
                             <i class="fa-solid fa-chevron-down" style="position: absolute; right: 8px; color: #8c8c8c; font-size: 10px; pointer-events: none;"></i>
                         </div>
@@ -345,10 +345,10 @@ export async function renderCodingArena() {
                         
                         <div style="display: flex; align-items: center; cursor: pointer; padding: 4px 6px; border-radius: 4px;" class="ca-hover-btn">
                             <select id="ca-fontsize" style="-webkit-appearance: none; appearance: none; background: transparent; color: #a3a3a3; border: none; font-size: 12px; font-weight: 500; outline: none; cursor: pointer;" onchange="window.changeEditorConfig()">
-                                <option value="12px" style="background:#252526;color:#fff;">12px</option>
-                                <option value="14px" selected style="background:#252526;color:#fff;">14px</option>
-                                <option value="16px" style="background:#252526;color:#fff;">16px</option>
-                                <option value="18px" style="background:#252526;color:#fff;">18px</option>
+                                <option value="12px" style="background:#0a0a0a;color:#fff;">12px</option>
+                                <option value="14px" selected style="background:#0a0a0a;color:#fff;">14px</option>
+                                <option value="16px" style="background:#0a0a0a;color:#fff;">16px</option>
+                                <option value="18px" style="background:#0a0a0a;color:#fff;">18px</option>
                             </select>
                             <i class="fa-solid fa-chevron-down" style="color: #a3a3a3; font-size: 10px; margin-left: 2px; pointer-events: none;"></i>
                         </div>
@@ -365,21 +365,21 @@ export async function renderCodingArena() {
                 </div>
 
                 <!-- Tab under toolbar -->
-                <div style="display: flex; background: #252526; padding: 0 16px;">
-                    <div style="padding: 6px 16px; background: #1e1e1e; color: #eff1f6; font-size: 12px; font-weight: 500; border-radius: 6px 6px 0 0; border: 1px solid rgba(255,255,255,0.05); border-bottom: none;">
+                <div style="display: flex; background: #0a0a0a; padding: 0 16px;">
+                    <div style="padding: 6px 16px; background: #000000; color: #eff1f6; font-size: 12px; font-weight: 500; border-radius: 6px 6px 0 0; border: 1px solid rgba(255,255,255,0.05); border-bottom: none;">
                         Solution
                     </div>
                 </div>
 
                 <!-- Editor Area -->
-                <div style="flex: 1; position: relative; background: #1e1e1e;">
+                <div style="flex: 1; position: relative; background: #000000;">
                     <textarea id="ca-editor" style="display: none;"></textarea>
                 </div>
             </div>
 
             <!-- Console / Test Cases Section -->
-            <div style="height: 250px; display: flex; flex-direction: column; background: #1e1e1e; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); flex-shrink: 0; border: 1px solid rgba(255,255,255,0.05);">
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px; background: #252526; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <div style="height: 250px; display: flex; flex-direction: column; background: #000000; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8); flex-shrink: 0; border: 1px solid rgba(255,255,255,0.05);">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px; background: #0a0a0a; border-bottom: 1px solid rgba(255,255,255,0.05);">
                     <div style="display: flex; gap: 4px;">
                         <div id="ca-tab-tc" onclick="window.switchConsoleTab('tc')" style="padding: 10px 12px; color: #ffc01e; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; border-bottom: 2px solid #ffc01e; transition: 0.2s;">
                             <i class="fa-solid fa-square-check"></i> Test Cases
@@ -390,21 +390,21 @@ export async function renderCodingArena() {
                     </div>
                 </div>
                 
-                <div style="flex: 1; position: relative;">
+                <div style="flex: 1; position: relative; background: #000000;">
                     <!-- Test Cases View -->
                     <div id="ca-view-tc" style="position: absolute; top:0; left:0; right:0; bottom:0; padding: 16px; overflow-y: auto;">
                         ${!isSandbox && problem.testCases.length > 0 ? `
                         <div id="ca-tc-pills" style="display: flex; gap: 8px; margin-bottom: 16px;">
-                            ${problem.testCases.map((tc, i) => `<div onclick="window.selectTestCase(${i})" style="background: ${i===0 ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)'}; color: ${i===0 ? '#eff1f6' : '#8c8c8c'}; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: 0.2s;">Case ${i+1}</div>`).join('')}
+                            ${problem.testCases.map((tc, i) => `<div onclick="window.selectTestCase(${i})" style="background: ${i===0 ? '#1f1f1f' : '#0a0a0a'}; color: ${i===0 ? '#eff1f6' : '#8c8c8c'}; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.2s;">Case ${i+1}</div>`).join('')}
                         </div>
                         <div style="color: #eff1f6; font-size: 13px;">
                             <div style="margin-bottom: 12px;">
                                 <div style="color: #8c8c8c; font-size: 12px; margin-bottom: 4px;">Input:</div>
-                                <div id="ca-tc-in" style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 6px; font-family: monospace; white-space: pre-wrap;">${problem.testCases[0]?.input || ''}</div>
+                                <div id="ca-tc-in" style="background: #050505; border: 1px solid rgba(255,255,255,0.03); padding: 10px; border-radius: 6px; font-family: monospace; white-space: pre-wrap;">${problem.testCases[0]?.input || ''}</div>
                             </div>
                             <div>
                                 <div style="color: #8c8c8c; font-size: 12px; margin-bottom: 4px;">Expected Output:</div>
-                                <div id="ca-tc-out" style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 6px; font-family: monospace; white-space: pre-wrap;">${problem.testCases[0]?.output || ''}</div>
+                                <div id="ca-tc-out" style="background: #050505; border: 1px solid rgba(255,255,255,0.03); padding: 10px; border-radius: 6px; font-family: monospace; white-space: pre-wrap;">${problem.testCases[0]?.output || ''}</div>
                             </div>
                         </div>
                         ` : `<div style="color: #8c8c8c; font-size: 13px;">No test cases available.</div>`}

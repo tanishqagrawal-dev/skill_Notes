@@ -6258,45 +6258,15 @@ const LeaderboardData = {
 
 function renderLeaderboard() {
     return `
-        <div class="tab-pane active fade-in">
-            <div class="leaderboard-container">
-                <!-- Header -->
-                <div class="leaderboard-header">
-                    <h1 class="font-heading lb-main-title" style="text-align: center; margin-bottom: 0.8rem; font-weight: 800; letter-spacing: -1px;">
-                        <span class="lb-title-emoji">🏆</span> <span class="lb-glow-text">Leaderboard</span>
-                    </h1>
-                    <div class="hof-badge">🏆 SKiL MATRiX: ELITE VANGUARD</div>
-                    
-                    <div class="lb-tabs-wrapper">
-                        <div class="lb-tabs-container" onscroll="if(window.syncLeaderboardScroll) window.syncLeaderboardScroll(this)">
-                            <div class="lb-tabs">
-                                <div class="lb-tab active lb-3d-tab" data-type="contributor" onclick="switchLeaderboardTab(this, 'contributor')">📤 Top Uploaders</div>
-                                <div class="lb-tab lb-3d-tab" data-type="college" onclick="switchLeaderboardTab(this, 'college')">🏫 Power Colleges</div>
-                                <div class="lb-tab lb-3d-tab" data-type="referral" onclick="switchLeaderboardTab(this, 'referral')">🔗 Referrals</div>
-                                <div class="lb-tab lb-3d-tab" data-type="coders" onclick="switchLeaderboardTab(this, 'coders')">💻 Elite Coders</div>
-                            </div>
-                        </div>
-                        <div class="lb-scroll-indicator">
-                            <div id="lb-scroll-thumb"></div>
-                        </div>
-                    </div>
-                </div>
+        <div class="tab-pane active fade-in" style="background-color: transparent;">
+            <div id="premium-leaderboard-wrapper" class="leaderboard-container" style="max-width: 1200px; margin: 0 auto; padding-bottom: 50px;">
+                <!-- Header removed as requested -->
 
-                <!-- Spotlight / Podium Area -->
-                <div id="lb-spotlight-container" class="lb-spotlight">
-                    <!-- Populated via JS -->
-                </div>
-
-                <!-- Honorable Mentions (List) -->
-                <div class="mentions-container">
-                    <div class="mentions-header">
-                        <h3>Honorable Mentions</h3>
-                        <div class="mentions-status" style="font-size: 0.8rem; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px;">
-                             <span class="pulse-dot"></span> Matrix Sync Active
-                        </div>
-                    </div>
-                    <div id="lb-list-container" class="mentions-list">
-                        <!-- Populated via JS -->
+                <div id="lb-sections-container">
+                    <!-- Sections Populated via JS -->
+                    <div style="text-align:center; padding: 5rem; color: rgba(255,255,255,0.2);">
+                        <i class="fas fa-circle-notch fa-spin" style="font-size: 2rem; color: #fbbf24; margin-bottom: 1rem;"></i><br>
+                        Synchronizing Matrix Data...
                     </div>
                 </div>
             </div>
@@ -6304,214 +6274,104 @@ function renderLeaderboard() {
     `;
 }
 
-window.syncLeaderboardScroll = function (el) {
-    const thumb = document.getElementById('lb-scroll-thumb');
-    if (!thumb) return;
-    const scrollPercent = el.scrollLeft / (el.scrollWidth - el.clientWidth);
-    const indicator = thumb.parentElement;
-    const maxLeft = indicator.clientWidth - thumb.clientWidth;
-    thumb.style.left = (scrollPercent * maxLeft) + 'px';
-};
-
-window.switchLeaderboardTab = function (el, type) {
-    document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    updateLeaderboardUI(type, 'all');
-};
-
 window.initLeaderboardListeners = function () {
-    // Initial Render
-    updateLeaderboardUI('contributor', 'all');
+    updateLeaderboardUI();
     initLeaderboardRealtime();
 };
 
 function initLeaderboardRealtime() {
     const { db, collection, onSnapshot, query } = getFirebase();
     if (!db) return;
-
-    // Listen for global user updates to refresh current view if needed
     onSnapshot(query(collection(db, "users")), () => {
-        const activeTab = document.querySelector('.lb-tab.active');
-        if (activeTab && activeTab.dataset.type !== 'college') {
-            updateLeaderboardUI(activeTab.dataset.type, 'all');
-        }
+        updateLeaderboardUI();
     });
 }
 
-function updateLeaderboardUI(type, timeframe) {
-    const list = document.getElementById('lb-list-container');
-    const spotlightContainer = document.getElementById('lb-spotlight-container');
-    if (!list || !spotlightContainer) return;
+function updateLeaderboardUI() {
+    const container = document.getElementById('lb-sections-container');
+    if (!container) return;
 
     const { db, collection, query, orderBy, limit, onSnapshot } = window.firebaseServices || {};
     if (!db) return;
 
-    let orderField = 'xp';
-
-    const renderLeaderboardData = (data, type, orderField) => {
-        if (data.length === 0) {
-            list.innerHTML = '<div style="text-align:center; padding: 5rem; color: rgba(255,255,255,0.2);">No elite data synchronized yet.</div>';
-            spotlightContainer.innerHTML = '';
-            return;
-        }
-
-        // --- RENDER SPOTLIGHT (Top 3) ---
-        const spotlightData = data.slice(0, 3);
-        const visualSpotlight = [];
-        if (spotlightData[1]) visualSpotlight.push({ ...spotlightData[1], rank: 2 });
-        if (spotlightData[0]) visualSpotlight.push({ ...spotlightData[0], rank: 1 });
-        if (spotlightData[2]) visualSpotlight.push({ ...spotlightData[2], rank: 3 });
-
-        spotlightContainer.innerHTML = visualSpotlight.map(item => {
-            const label = type === 'student' ? 'Experience Points' : (type === 'contributor' ? 'Successful Uploads' : (type === 'neurosprint' ? 'Total Focus Time' : (type === 'referral' ? 'Total Referrals' : (type === 'coders' ? 'Coding Experience' : 'Total Uploaded Notes'))));
-            const shortLabel = type === 'student' ? 'XP' : (type === 'contributor' ? 'Uploads' : (type === 'neurosprint' ? 'Duration' : (type === 'referral' ? 'Referrals' : (type === 'coders' ? 'XP' : 'Notes'))));
-            const scoreVal = item[orderField] || 0;
-            const avatar = item.logo || item.avatar || '';
-            const crown = item.rank === 1 ? '<div class="spotlight-crown">👑</div>' : '';
-            
-            const scoreDisplay = type === 'neurosprint' ? window.formatFocusTime(scoreVal) : scoreVal.toLocaleString();
-            const countClass = type === 'neurosprint' ? '' : 'count-up';
-
-            let avatarHtml = '';
-            let resolvedAvatar = avatar;
-            if (resolvedAvatar && resolvedAvatar.startsWith('assets/')) {
-                resolvedAvatar = '../' + resolvedAvatar;
-            }
-
-            avatarHtml = resolvedAvatar
-                ? `<img src="${resolvedAvatar}" alt="${item.name}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                   <span style="display:none; font-size: 3rem; font-weight: 900; color: #fff; opacity: 0.8; justify-content:center; align-items:center; width:100%; height:100%;">${item.name ? item.name[0] : '?'}</span>`
-                : `<span style="font-size: 3rem; font-weight: 900; color: #fff; opacity: 0.8; display:flex; justify-content:center; align-items:center; width:100%; height:100%;">${item.name ? item.name[0] : '?'}</span>`;
-
-            return `
-                <div class="spotlight-card rank-${item.rank}">
-                    <div class="spotlight-avatar-wrapper">
-                        ${crown}
-                        <div class="spotlight-avatar">
-                            ${avatarHtml}
-                        </div>
-                        <div class="rank-badge">${item.rank}</div>
-                    </div>
-                    <div class="spotlight-name">${item.name || "Elite Student"}</div>
-                    <div class="spotlight-score ${countClass}" data-value="${scoreVal}">${scoreDisplay}</div>
-                    <div class="spotlight-label">${label}</div>
-                </div>
-            `;
-        }).join('');
-
-        // --- RENDER LIST (4+) ---
-        const listData = data.slice(3);
-        list.innerHTML = listData.map((item, index) => {
-            const rank = index + 4;
-            const label = type === 'student' ? 'POINTS' : (type === 'contributor' ? 'UPLOADS' : (type === 'neurosprint' ? 'TIME' : (type === 'referral' ? 'REFERRALS' : (type === 'coders' ? 'XP' : 'VIEWS'))));
-            const scoreVal = item[orderField] || 0;
-            const scoreDisplay = type === 'neurosprint' ? window.formatFocusTime(scoreVal) : scoreVal.toLocaleString();
-            const avatar = item.logo || item.avatar;
-
-            const avatarHtml = avatar
-                ? `<img src="${avatar}" alt="${item.name}">`
-                : `<span style="font-size: 1.2rem; font-weight: 900; color: #fff; opacity: 0.5;">${item.name ? item.name[0] : '?'}</span>`;
-
-            return `
-                <div class="mention-row" style="animation-delay: ${index * 0.1}s">
-                    <div class="mention-rank">#${rank < 10 ? '0' + rank : rank}</div>
-                    <div class="mention-avatar">
-                        ${avatarHtml}
-                    </div>
-                    <div class="mention-info">
-                        <h4>${item.name || "Anonymous User"}</h4>
-                        <div class="mention-trend trend-up">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-                            Rising Fast
-                        </div>
-                    </div>
-                    <div class="mention-score">
-                        <span class="val">${scoreDisplay}</span>
-                        <span class="lbl">${label}</span>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        // Trigger Count-Up Animation
-        setTimeout(() => {
-            document.querySelectorAll('.count-up').forEach(el => {
-                const target = parseInt(el.dataset.value);
-                if (isNaN(target)) return;
-                animateValue(el, 0, target, 1500);
-            });
-        }, 100);
-    };
-
-    if (window.leaderboardUnsubscribe) { window.leaderboardUnsubscribe(); window.leaderboardUnsubscribe = null; }
-
-    orderField = 'xp';
-    if (type === 'student') orderField = 'xp';
-    else if (type === 'contributor') orderField = 'uploads';
-    else if (type === 'neurosprint') orderField = 'focusminutes';
-    else if (type === 'college') orderField = 'uploads'; // Aggregate by uploads
-    else if (type === 'referral') orderField = 'referral_count';
-    else if (type === 'coders') orderField = 'coding_xp';
-
     import('./supabase-config.js?v=1.0').then(async ({ supabase }) => {
         const fetchAndRender = async () => {
-            if (type === 'college') {
-                const { data, error } = await supabase.from('users').select('collegename, uploads, xp');
-                if (!error && data) {
-                    const normalizeCollegeName = (name) => {
-                        if (!name || name === 'Unknown') return 'Independent Scholars';
-                        const lower = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-                        if (lower.includes('medicaps') || lower === 'mu') return 'Medicaps University';
-                        if (lower.includes('svvv') || lower.includes('vaishnav')) return 'SVVV Indore';
-                        if (lower.includes('ips')) return 'IPS Academy';
-                        if (lower.includes('sgsits')) return 'SGSITS Indore';
-                        if (lower.includes('davv') || lower.includes('devi') || lower.includes('ahilya')) return 'DAVV Indore';
-                        if (lower.includes('vit') || lower.includes('vellore')) return 'VIT Vellore';
-                        if (lower.includes('srm')) return 'SRM University';
-                        if (lower.includes('iitd') || lower.includes('delhi')) return 'IIT Delhi';
-                        if (lower.includes('lpu') || lower.includes('lovely')) return 'LPU Punjab';
-                        if (lower.includes('manipal')) return 'Manipal University';
-                        if (lower.includes('lnct')) return 'LNCT Bhopal';
-                        if (lower.includes('cdgi') || lower.includes('chameli')) return 'CDGI Indore';
-                        return name.trim().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-                    };
-                    
-                    const getCollegeLogo = (normalizedName) => {
-                        const logos = {
-                            'Medicaps University': 'assets/logos/medicaps.png',
-                            'SVVV Indore': 'assets/logos/svvv.png',
-                            'IPS Academy': 'assets/logos/ips.png',
-                            'SGSITS Indore': 'assets/logos/sgsits.png',
-                            'DAVV Indore': 'assets/logos/davv.png',
-                            'VIT Vellore': 'assets/logos/vit.png',
-                            'SRM University': 'assets/logos/srm.png',
-                            'IIT Delhi': 'assets/logos/iitd.png',
-                            'LPU Punjab': 'assets/logos/lpu.png',
-                            'Manipal University': 'assets/logos/manipal.png',
-                            'LNCT Bhopal': 'assets/logos/lnct.jpg',
-                            'CDGI Indore': 'assets/logos/cdgi.png'
-                        };
-                        return logos[normalizedName] || null;
-                    };
+            // Fetch all data
+            const [usersRes, profilesRes] = await Promise.all([
+                supabase.from('users').select('*').limit(100),
+                supabase.from('profiles').select('*').limit(100)
+            ]);
 
-                    const collMap = {};
-                    data.forEach(u => {
-                        const cname = normalizeCollegeName(u.collegename);
-                        if (!collMap[cname]) collMap[cname] = { id: cname, name: cname, logo: getCollegeLogo(cname), uploads: 0, xp: 0, views: 0 };
-                        collMap[cname].uploads += (u.uploads || 0);
-                        collMap[cname].xp += (u.xp || 0);
-                        collMap[cname].views = collMap[cname].uploads * 15 + collMap[cname].xp; // Faux views
-                    });
-                    const aggregated = Object.values(collMap).sort((a, b) => b.uploads - a.uploads).slice(0, 15);
-                    renderLeaderboardData(aggregated, type, 'uploads');
-                }
-            } else if (type === 'referral') {
-                const { data, error } = await supabase.from('profiles').select('*').order(orderField, { ascending: false }).limit(15);
-                if (!error && data) renderLeaderboardData(data, type, orderField);
-            } else {
-                const { data, error } = await supabase.from('users').select('*').order(orderField, { ascending: false }).limit(15);
-                if (!error && data) renderLeaderboardData(data, type, orderField);
+            if (usersRes.error || profilesRes.error) {
+                console.error("Leaderboard fetch error", usersRes.error, profilesRes.error);
+                return;
             }
+
+            const users = usersRes.data || [];
+            const profiles = profilesRes.data || [];
+
+            // Merge data
+            const mergedUsers = users.map(u => {
+                const p = profiles.find(pr => pr.id === u.id || pr.uid === u.id || pr.id === u.uid);
+                return {
+                    ...u,
+                    referral_count: p ? (p.referral_count || 0) : 0,
+                    college: p ? (p.college || p.collegeName) : (u.college || u.collegeName || '')
+                };
+            });
+
+            // For profiles not in users (edge case)
+            profiles.forEach(p => {
+                const exists = mergedUsers.find(u => u.id === p.id || u.uid === p.id || u.uid === p.uid);
+                if (!exists) {
+                    mergedUsers.push({
+                        id: p.id || p.uid,
+                        uid: p.uid || p.id,
+                        name: p.name || p.display_name || "Anonymous",
+                        avatar: p.avatar_url || p.logo,
+                        referral_count: p.referral_count || 0,
+                        xp: 0,
+                        uploads: 0,
+                        coding_xp: 0,
+                        college: p.college || p.collegeName || ''
+                    });
+                }
+            });
+
+            // Ensure current user is in the dataset so they always get a rank, even with 0 XP
+            const currU = window.currentUser;
+            if (currU) {
+                const uid = currU.id || currU.uid;
+                if (uid) {
+                    const exists = mergedUsers.find(u => u.id === uid || u.uid === uid);
+                    if (!exists) {
+                        mergedUsers.push({
+                            id: uid,
+                            uid: uid,
+                            name: currU.displayName || currU.name || "You",
+                            avatar: currU.photoURL || currU.avatar || currU.logo,
+                            referral_count: currU.referral_count || 0,
+                            xp: currU.xp || 0,
+                            uploads: currU.uploads || 0,
+                            coding_xp: currU.coding_xp || 0
+                        });
+                    }
+                }
+            }
+
+            // Sort ALL data by XP for unified leaderboard to find true global rank
+            const sortedData = mergedUsers.sort((a, b) => (b.xp || 0) - (a.xp || 0));
+
+            container.innerHTML = generateUnifiedLeaderboard(sortedData);
+
+            // Trigger Count-Up Animation
+            setTimeout(() => {
+                document.querySelectorAll('.count-up').forEach(el => {
+                    const target = parseInt(el.dataset.value);
+                    if (isNaN(target)) return;
+                    animateValue(el, 0, target, 1500);
+                });
+            }, 100);
         };
         fetchAndRender();
 
@@ -6521,6 +6381,228 @@ function updateLeaderboardUI(type, timeframe) {
                 fetchAndRender();
             }).subscribe();
     });
+}
+
+function generateUnifiedLeaderboard(data) {
+    if (!data || data.length === 0) return '';
+
+    // Calculate current user's TRUE rank from the full dataset
+    let userStatsBanner = '';
+    const u = window.currentUser;
+    let myRank = '-';
+    let myIndex = -1;
+    let myItem = null;
+    
+    if (u) {
+        const uid = u.id || u.uid;
+        myIndex = data.findIndex(x => x.id === uid || x.uid === uid);
+        myItem = myIndex !== -1 ? data[myIndex] : null;
+        const myScore = myIndex !== -1 ? (data[myIndex].xp || 0) : (u.xp || 0);
+        myRank = myIndex !== -1 ? (myIndex + 1) : '-';
+        const myPrize = myScore * 10;
+        
+        // We no longer display the userStatsBanner box, but we keep the variable empty.
+        
+        // --- REAL-TIME SIDEBAR CROWN SYNC ---
+        const isRank1 = (myRank === 1);
+        try {
+            const cache = JSON.parse(localStorage.getItem('auth_user_full')) || {};
+            cache.isRank1 = isRank1;
+            localStorage.setItem('auth_user_full', JSON.stringify(cache));
+        } catch(e) {}
+        
+        const wrapperEl = document.getElementById('sidebar-avatar-wrapper');
+        const avEl = document.getElementById('instant-avatar');
+        
+        if (isRank1) {
+            if (wrapperEl && !wrapperEl.querySelector('.sidebar-crown')) {
+                const crownEl = document.createElement('div');
+                crownEl.className = 'sidebar-crown';
+                crownEl.innerHTML = '&#x1F451;';
+                crownEl.style.cssText = 'position: absolute; top: -14px; left: 50%; transform: translateX(-50%); font-size: 1.4rem; line-height: 1; filter: drop-shadow(0 0 6px gold) drop-shadow(0 2px 8px rgba(255,200,0,0.8)); pointer-events: none; z-index: 20; animation: crownFloat 2s ease-in-out infinite;';
+                wrapperEl.appendChild(crownEl);
+                if (avEl) {
+                    avEl.style.border = '2px solid gold';
+                    avEl.style.boxShadow = '0 0 12px rgba(255, 200, 0, 0.7), 0 0 24px rgba(255, 200, 0, 0.4)';
+                }
+            }
+        } else {
+            if (wrapperEl) {
+                const existingCrown = wrapperEl.querySelector('.sidebar-crown');
+                if (existingCrown) existingCrown.remove();
+                if (avEl) {
+                    avEl.style.border = '';
+                    avEl.style.boxShadow = '';
+                }
+            }
+        }
+    }
+
+    // Now slice for the UI display (Top 10 total)
+    const spotlightData = data.slice(0, 3);
+    const visualSpotlight = [];
+    if (spotlightData[1]) visualSpotlight.push({ ...spotlightData[1], rank: 2 });
+    if (spotlightData[0]) visualSpotlight.push({ ...spotlightData[0], rank: 1 });
+    if (spotlightData[2]) visualSpotlight.push({ ...spotlightData[2], rank: 3 });
+
+    let spotlightHtml = '<div class="lb-spotlight-3d">';
+    
+    visualSpotlight.forEach(item => {
+        const scoreVal = item.xp || 0;
+        const prizeVal = scoreVal * 10;
+        const avatar = item.logo || item.avatar || '';
+        const crown = item.rank === 1 ? '<div class="spotlight-crown-3d">👑</div>' : '';
+        
+        let resolvedAvatar = avatar;
+        if (resolvedAvatar && resolvedAvatar.startsWith('assets/')) resolvedAvatar = '../' + resolvedAvatar;
+
+        const avatarHtml = resolvedAvatar
+            ? `<img src="${resolvedAvatar}" alt="${item.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+               <span class="fallback-avatar" style="display:none;">${item.name ? item.name[0].toUpperCase() : '?'}</span>`
+            : `<span class="fallback-avatar">${item.name ? item.name[0].toUpperCase() : '?'}</span>`;
+
+        spotlightHtml += `
+            <div class="podium-wrapper rank-${item.rank}">
+                <div class="podium-avatar-container">
+                    ${crown}
+                    <div class="podium-avatar">${avatarHtml}</div>
+                    <div class="podium-name">${item.name || "Anonymous"}</div>
+                </div>
+                <div class="podium-block">
+                    <div class="podium-top"></div>
+                    <div class="podium-front">
+                        <div class="podium-trophy"><i class="fas fa-trophy"></i></div>
+                        <div class="podium-score">Total <span class="count-up" data-value="${scoreVal}">${scoreVal.toLocaleString()}</span> XP</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    spotlightHtml += '</div>';
+
+    // Ranks 1 to 10
+    const listData = data.slice(0, 10);
+    let listHtml = '';
+    
+    // Always render table if there's someone to show OR if current user needs a row
+    if (listData.length > 0 || (myIndex >= 10)) {
+        listHtml += `
+            <div class="mentions-table-container">
+                <div class="mentions-table-header">
+                    <div class="col-rank">Place</div>
+                    <div class="col-user">Username</div>
+                    <div class="col-score">Total XP</div>
+                    <div class="col-stat">Uploads</div>
+                    <div class="col-stat">Referrals</div>
+                    <div class="col-stat">Coding XP</div>
+                </div>
+                <div class="mentions-table-body">
+        `;
+
+        const currUid = u ? (u.id || u.uid) : null;
+
+        listData.forEach((item, index) => {
+            const rank = index + 1;
+            const scoreVal = item.xp || 0;
+            const uploads = item.uploads || 0;
+            const referrals = item.referral_count || 0;
+            const codingXp = item.coding_xp || 0;
+            const college = item.college || '';
+            const avatar = item.logo || item.avatar;
+            
+            let resolvedAvatar = avatar;
+            if (resolvedAvatar && resolvedAvatar.startsWith('assets/')) resolvedAvatar = '../' + resolvedAvatar;
+
+            const avatarHtml = resolvedAvatar
+                ? `<img src="${resolvedAvatar}" alt="${item.name}">`
+                : `<span>${item.name ? item.name[0].toUpperCase() : '?'}</span>`;
+
+            const isMe = currUid && (item.id === currUid || item.uid === currUid);
+            const highlightStyle = isMe ? 'border: 1px solid rgba(251, 191, 36, 0.5); background: rgba(251, 191, 36, 0.15);' : '';
+            const youBadge = isMe ? '<span style="font-size:0.7rem; background:#fbbf24; color:#000; padding:2px 6px; border-radius:10px; margin-left:8px; font-weight:bold;">YOU</span>' : '';
+            
+            const collegeHtml = college ? `<div style="font-size: 0.7rem; color: #a1a1aa; margin-top: 2px;">${college}</div>` : '';
+
+            // For top 3, use a different color trophy icon
+            let rankIconColor = '#6b7280';
+            if (rank === 1) rankIconColor = '#fbbf24';
+            if (rank === 2) rankIconColor = '#94a3b8';
+            if (rank === 3) rankIconColor = '#ea580c';
+
+            listHtml += `
+                <div class="mention-table-row" style="animation-delay: ${index * 0.05}s; ${highlightStyle}">
+                    <div class="col-rank">
+                        <i class="fas fa-trophy" style="color: ${rankIconColor}; font-size: 0.9rem; margin-right: 6px;"></i>
+                        ${rank}
+                    </div>
+                    <div class="col-user">
+                        <div class="mention-avatar">${avatarHtml}</div>
+                        <div>
+                            <div>${item.name || "Anonymous User"} ${youBadge}</div>
+                            ${collegeHtml}
+                        </div>
+                    </div>
+                    <div class="col-score">${scoreVal.toLocaleString()}</div>
+                    <div class="col-stat">${uploads.toLocaleString()}</div>
+                    <div class="col-stat">${referrals.toLocaleString()}</div>
+                    <div class="col-stat">${codingXp.toLocaleString()}</div>
+                </div>
+            `;
+        });
+        
+        listHtml += `</div>`; // close table body
+
+        // If current user is not in top 10, append them at the bottom OUTSIDE the main box visually
+        if (myIndex >= 10 && myItem) {
+            const scoreVal = myItem.xp || 0;
+            const uploads = myItem.uploads || 0;
+            const referrals = myItem.referral_count || 0;
+            const codingXp = myItem.coding_xp || 0;
+            const college = myItem.college || '';
+            const avatar = myItem.logo || myItem.avatar;
+            
+            let resolvedAvatar = avatar;
+            if (resolvedAvatar && resolvedAvatar.startsWith('assets/')) resolvedAvatar = '../' + resolvedAvatar;
+
+            const avatarHtml = resolvedAvatar
+                ? `<img src="${resolvedAvatar}" alt="${myItem.name}">`
+                : `<span>${myItem.name ? myItem.name[0].toUpperCase() : '?'}</span>`;
+
+            const collegeHtml = college ? `<div style="font-size: 0.7rem; color: #a1a1aa; margin-top: 2px;">${college}</div>` : '';
+
+            listHtml += `
+                <div class="mentions-table-body" style="margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 15px;">
+                    <div class="mention-table-row" style="border: 1px solid rgba(251, 191, 36, 0.5); background: rgba(251, 191, 36, 0.15);">
+                        <div class="col-rank">
+                            <i class="fas fa-user" style="color: #fbbf24; font-size: 0.9rem; margin-right: 6px;"></i>
+                            ${myRank}
+                        </div>
+                        <div class="col-user">
+                            <div class="mention-avatar">${avatarHtml}</div>
+                            <div>
+                                <div>${myItem.name || "You"} <span style="font-size:0.7rem; background:#fbbf24; color:#000; padding:2px 6px; border-radius:10px; margin-left:8px; font-weight:bold;">YOU</span></div>
+                                ${collegeHtml}
+                            </div>
+                        </div>
+                        <div class="col-score">${scoreVal.toLocaleString()}</div>
+                        <div class="col-stat">${uploads.toLocaleString()}</div>
+                        <div class="col-stat">${referrals.toLocaleString()}</div>
+                        <div class="col-stat">${codingXp.toLocaleString()}</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        listHtml += `</div>`;
+    }
+
+    return `
+        <div class="lb-section">
+            ${spotlightHtml}
+            ${userStatsBanner}
+            ${listHtml}
+        </div>
+    `;
 }
 
 function animateValue(obj, start, end, duration) {

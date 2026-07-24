@@ -244,28 +244,6 @@ class ProfileManager {
                     <!-- ══════ CERTIFICATE SECTION ══════ -->
                     ${this.renderCertificateSection()}
 
-                    <!-- Activity Hub -->
-                    <div class="glass-card" style="grid-column: span 2;">
-                        <div class="section-title"><i class="fas fa-chart-line"></i> Notes &amp; Activity Hub</div>
-                        <div class="stats-grid">
-                            <div class="stat-card">
-                                <div class="stat-value" id="stat-uploads">0</div>
-                                <div class="stat-label">Notes Uploaded</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value" id="stat-downloads">0</div>
-                                <div class="stat-label">Total Downloads</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value" id="stat-saved">0</div>
-                                <div class="stat-label">Saved Notes</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value" id="stat-level">LVL ${Math.floor((this.userData?.xp || 0) / 100) + 1}</div>
-                                <div class="stat-label" id="stat-rank">Scholar Rank</div>
-                            </div>
-                        </div>
-                    </div>
 
                 </div>
                 </div>
@@ -1317,16 +1295,30 @@ class ProfileManager {
     async checkRankAndApplyCrown() {
         if (!this.userData || !this.userData.email) return;
         try {
-            if (!window.firebaseServices) return;
-            const { db, collection, query, orderBy, limit, getDocs } = window.firebaseServices;
-
-            const q = query(collection(db, 'users'), orderBy('xp', 'desc'), limit(1));
-            const snapshot = await getDocs(q);
-
             let isRank1 = false;
-            if (!snapshot.empty) {
-                const topUser = snapshot.docs[0].data();
-                isRank1 = (topUser.email === this.userData.email);
+            
+            // Prefer Supabase for the true current leaderboard
+            if (window.supabase) {
+                const { data, error } = await window.supabase
+                    .from('users')
+                    .select('email, id, uid')
+                    .order('xp', { ascending: false })
+                    .limit(1);
+                    
+                if (!error && data && data.length > 0) {
+                    const topUser = data[0];
+                    isRank1 = (this.userData.email && topUser.email === this.userData.email) || 
+                              (this.userData.uid && (topUser.id === this.userData.uid || topUser.uid === this.userData.uid));
+                }
+            } else if (window.firebaseServices) {
+                const { db, collection, query, orderBy, limit, getDocs } = window.firebaseServices;
+                const q = query(collection(db, 'users'), orderBy('xp', 'desc'), limit(1));
+                const snapshot = await getDocs(q);
+                if (!snapshot.empty) {
+                    const topUser = snapshot.docs[0].data();
+                    isRank1 = (this.userData.email && topUser.email === this.userData.email) || 
+                              (this.userData.uid && topUser.uid === this.userData.uid);
+                }
             }
 
             // ✅ PERSIST rank status in localStorage so crown survives refresh
@@ -1336,10 +1328,12 @@ class ProfileManager {
                 localStorage.setItem('auth_user_full', JSON.stringify(cache));
             } catch (e) { }
 
+            const wrapperEl = document.getElementById('sidebar-avatar-wrapper');
+            const avEl = document.getElementById('instant-avatar');
+            const profileImgContainer = document.querySelector('.profile-photo-container');
+
             if (isRank1) {
                 // --- Sidebar Crown (via new wrapper structure) ---
-                const wrapperEl = document.getElementById('sidebar-avatar-wrapper');
-                const avEl = document.getElementById('instant-avatar');
                 if (wrapperEl && !wrapperEl.querySelector('.sidebar-crown')) {
                     const crownEl = document.createElement('div');
                     crownEl.className = 'sidebar-crown';
@@ -1353,7 +1347,6 @@ class ProfileManager {
                 }
 
                 // --- Profile Page Crown ---
-                const profileImgContainer = document.querySelector('.profile-photo-container');
                 if (profileImgContainer && !profileImgContainer.querySelector('.premium-crown')) {
                     const profileCrown = document.createElement('div');
                     profileCrown.className = 'premium-crown';
@@ -1373,6 +1366,20 @@ class ProfileManager {
                     profileImgContainer.style.position = 'relative';
                     profileImgContainer.style.overflow = 'visible';
                     profileImgContainer.appendChild(profileCrown);
+                }
+            } else {
+                // User is NO LONGER Rank 1. Remove the crown if it exists!
+                if (wrapperEl) {
+                    const existingCrown = wrapperEl.querySelector('.sidebar-crown');
+                    if (existingCrown) existingCrown.remove();
+                    if (avEl) {
+                        avEl.style.border = '';
+                        avEl.style.boxShadow = '';
+                    }
+                }
+                if (profileImgContainer) {
+                    const existingProfileCrown = profileImgContainer.querySelector('.premium-crown');
+                    if (existingProfileCrown) existingProfileCrown.remove();
                 }
             }
         } catch (e) {
