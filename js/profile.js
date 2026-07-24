@@ -39,7 +39,7 @@ class ProfileManager {
                 <div class="profile-header-card" data-tilt>
                     <div class="completion-container">
                         <div style="position: relative; width: fit-content; height: fit-content; display: flex; align-items: center; justify-content: center;">
-                            <svg class="ring-svg" width="100" height="100" viewBox="0 0 100 100">
+                            <svg class="ring-svg" width="80" height="80" viewBox="0 0 100 100">
                                 <circle class="ring-bg" cx="50" cy="50" r="45"></circle>
                                 <circle class="ring-progress" id="completion-progress" cx="50" cy="50" r="45" stroke-dasharray="283" stroke-dashoffset="283"></circle>
                                 <defs>
@@ -49,7 +49,7 @@ class ProfileManager {
                                     </linearGradient>
                                 </defs>
                             </svg>
-                            <span id="completion-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight:800; font-size:1.2rem; pointer-events: none;">0%</span>
+                            <span id="completion-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight:800; font-size:1.05rem; pointer-events: none;">0%</span>
                         </div>
                         <span style="font-size:0.6rem; color:var(--text-secondary); margin-top:0.4rem; font-weight: 600; letter-spacing: 1px;">COMPLETION</span>
                     </div>

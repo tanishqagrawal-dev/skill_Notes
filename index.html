@@ -70,6 +70,35 @@
     <!-- Payment Integration -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="js/payment.js" defer></script>
+    <script>
+    // Dynamically update pricing from backend on page load
+    (async function loadDynamicPricing() {
+        try {
+            const apiUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
+            const res = await fetch(`${apiUrl}/api/pricing-config`);
+            if (!res.ok) return;
+            const data = await res.json();
+            if (!data.success || !data.config) return;
+            const plans = data.config.plans;
+
+            // Update CodeTantra price display
+            const ctEl = document.getElementById('price-codetantra');
+            if (ctEl && plans.codetantra_1mo && plans.codetantra_6mo) {
+                ctEl.innerHTML = `&#8377;${plans.codetantra_1mo.amount/100} <span>/ 1mo</span>
+                    <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 5px;">or &#8377;${plans.codetantra_6mo.amount/100} / 6mo</div>`;
+            }
+
+            // Update Premium Scholar price display
+            const proEl = document.getElementById('price-pro');
+            if (proEl && plans.pro_1mo && plans.pro_6mo) {
+                proEl.innerHTML = `&#8377;${plans.pro_1mo.amount/100} <span>/ 1mo</span>
+                    <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 5px;">or &#8377;${plans.pro_6mo.amount/100} / 6mo</div>`;
+            }
+        } catch(e) {
+            // Silently fail — hardcoded prices will display
+        }
+    })();
+    </script>
 </head>
 
 <body>
@@ -423,20 +452,19 @@
                         <li><i data-lucide="zap" class="icon-zap"></i> 3 AI Model Papers / mo</li>
                         <li class="disabled"><i data-lucide="x" class="icon-x"></i> CodeTantra Solutions</li>
                     </ul>
-                    <button class="btn btn-ghost btn-full" onclick="window.location.href='pages/dashboard'">Get
-                        Started</button>
+                    <button class="btn btn-ghost btn-full" onclick="window.location.href='pages/dashboard'">Get Started</button>
                 </div>
             </div>
 
             <!-- CodeTantra Plan -->
-            <div class="pricing-card-wrapper" data-aos="zoom-in" data-aos-delay="150">
+            <div class="pricing-card-wrapper" data-aos="zoom-in" data-aos-delay="150" onclick="window.location.href='pages/dashboard.html?tab=subscription'" style="cursor:pointer;">
                 <div class="premium-pricing-card">
                     <div class="plan-header">
                         <h3>CodeTantra <span style="color: var(--secondary)">Hub</span></h3>
                         <p>Unlock premium lab solutions.</p>
                     </div>
-                    <div class="price">₹19 <span>/ 1mo</span>
-                        <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 5px;">or ₹35 / 2mo</div>
+                    <div class="price" id="price-codetantra">₹19 <span>/ 1mo</span>
+                        <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 5px;">or ₹89 / 6mo</div>
                     </div>
                     <ul class="plan-features">
                         <li><i data-lucide="sparkles" class="icon-pro"></i> <strong>Everything in Free</strong></li>
@@ -447,25 +475,20 @@
                         <li class="disabled"><i data-lucide="x" class="icon-x"></i> Verified Badge</li>
                         <li class="disabled"><i data-lucide="x" class="icon-x"></i> Ad-free Experience</li>
                     </ul>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn btn-ghost btn-full" onclick="window.handlePayment('codetantra_1mo')">1
-                            Mo</button>
-                        <button class="btn btn-primary btn-full" onclick="window.handlePayment('codetantra_2mo')">2
-                            Mo</button>
-                    </div>
+                    <button class="btn btn-primary btn-full" onclick="event.stopPropagation(); window.location.href='pages/dashboard.html?tab=subscription'">Subscribe Now</button>
                 </div>
             </div>
 
-            <!-- Scholar PRO Plan -->
-            <div class="pricing-card-wrapper featured" data-aos="zoom-in" data-aos-delay="200">
+            <!-- Premium Scholar Plan -->
+            <div class="pricing-card-wrapper featured" data-aos="zoom-in" data-aos-delay="200" onclick="window.location.href='pages/dashboard.html?tab=subscription'" style="cursor:pointer;">
                 <div class="premium-pricing-card featured">
                     <div class="popular-badge">MOST POPULAR</div>
                     <div class="plan-header">
-                        <h3>Scholar <span class="gradient-text">PRO</span></h3>
-                        <p>Detailed insights & powerful AI tools.</p>
+                        <h3>Premium <span class="gradient-text">Scholar</span></h3>
+                        <p>Detailed insights &amp; powerful AI tools.</p>
                     </div>
-                    <div class="price">₹79 <span>/ 1mo</span>
-                        <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 5px;">or ₹299 / 6mo</div>
+                    <div class="price" id="price-pro">₹49 <span>/ 1mo</span>
+                        <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 5px;">or ₹149 / 6mo</div>
                     </div>
                     <ul class="plan-features">
                         <li><i data-lucide="sparkles" class="icon-pro"></i> <strong>Everything in
@@ -475,12 +498,7 @@
                         <li><i data-lucide="shield-check" class="icon-check"></i> Verified "Scholar" Badge</li>
                         <li><i data-lucide="check" class="icon-check"></i> 100% Ad-free Interface</li>
                     </ul>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn btn-ghost btn-full" onclick="window.handlePayment('pro_1mo')">1
-                            Mo</button>
-                        <button class="btn btn-primary btn-full" onclick="window.handlePayment('pro_6mo')">6
-                            Mo</button>
-                    </div>
+                    <button class="btn btn-primary btn-full" onclick="event.stopPropagation(); window.location.href='pages/dashboard.html?tab=subscription'">Subscribe Now</button>
                 </div>
             </div>
         </div>
@@ -521,9 +539,8 @@
                         </div>
                         <div class="faq-body">
                             <p>Yes! Our "Free Tier" plan is completely free and gives you access to unlimited note
-                                viewing, basic dashboard features, and limited AI queries. We also offer a "Scholar
-                                PRO"
-                                plan for advanced features.</p>
+                                viewing, basic dashboard features, and limited AI queries. We also offer the "CodeTantra Hub"
+                                and "Premium Scholar" plans for advanced features.</p>
                         </div>
                     </div>
 
@@ -644,10 +661,9 @@
                             <span class="faq-toggle">+</span>
                         </div>
                         <div class="faq-body">
-                            <p>Scholar PRO includes unlimited AI Model Paper generation, deep performance analytics,
-                                a
-                                verified badge, priority support, and a completely ad-free experience for just
-                                ₹99/month.</p>
+                            <p>Premium Scholar includes unlimited AI Model Paper generation, deep performance analytics,
+                                a verified badge, priority support, and a completely ad-free experience — starting
+                                from just ₹49/month or ₹149 for 6 months.</p>
                         </div>
                     </div>
 

@@ -339,6 +339,12 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
               </button>
               ${superAdmin ? `<button class="ap-page-tab" id="aptab-coadmin" onclick="window._apPage('coadmin',this)">
                 <span>👥</span> Co-Admin Management
+              </button>
+              <button class="ap-page-tab" id="aptab-pricing" onclick="window._apPage('pricing',this)">
+                <span>💰</span> Pricing & Coupons
+              </button>
+              <button class="ap-page-tab" id="aptab-subscriptions" onclick="window._apPage('subscriptions',this)">
+                <span>💎</span> Subscriptions
               </button>` : ''}
               <button class="ap-page-tab" id="aptab-referrals" onclick="window._apPage('referrals',this)">
                 <span>🔗</span> Referrals
@@ -502,6 +508,58 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                   <div class="ap-loader"><div class="ap-spin"></div><p>Loading co-admins…</p></div>
                 </div>
               </div>
+            </div>
+
+            <!-- ── PAGE: PRICING & COUPONS (superadmin only) ── -->
+            <div class="ap-page" id="appage-pricing">
+              <div class="ap-box">
+                <div class="ap-box-head">
+                  <div class="ap-box-title">
+                    <span style="width:8px;height:8px;border-radius:50%;background:#eab308;box-shadow:0 0 10px #eab30888;display:inline-block"></span>
+                    Dynamic Pricing Config
+                  </div>
+                  <button class="ap-ref-btn" onclick="window._apSavePricing()">💾 Save Pricing</button>
+                </div>
+                <div class="ap-list" id="ap-pricing-list">
+                  <div class="ap-loader"><div class="ap-spin"></div><p>Loading pricing…</p></div>
+                </div>
+              </div>
+              <div class="ap-box">
+                <div class="ap-box-head">
+                  <div class="ap-box-title">
+                    <span style="width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b98188;display:inline-block"></span>
+                    Custom Coupons
+                  </div>
+                </div>
+                <div class="ca-form">
+                  <input type="text" id="cpn-code-input" placeholder="Coupon Code (e.g. SKILL50)" style="text-transform: uppercase;" />
+                  <input type="number" id="cpn-discount-input" placeholder="Discount % (e.g. 50)" min="1" max="100" />
+                  <input type="number" id="cpn-maxuses-input" placeholder="Max Uses (optional)" min="1" />
+                  <button class="apb apb-ok" onclick="window._apAddCoupon()">+ Add Coupon</button>
+                </div>
+                <div class="ap-list" id="ap-coupons-list">
+                  <div class="ap-loader"><div class="ap-spin"></div><p>Loading coupons…</p></div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- ── PAGE: SUBSCRIPTIONS & PAYMENTS (superadmin only) ── -->
+            <div class="ap-page" id="appage-subscriptions">
+              <div class="ap-box">
+                <div class="ap-box-head">
+                  <div class="ap-box-title">
+                    <span style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 10px #8b5cf688;display:inline-block"></span>
+                    User Subscriptions & Payments
+                  </div>
+                  <div style="display:flex;gap:0.5rem">
+                    <input type="text" id="ap-sub-search" placeholder="Search by UID..." style="padding:0.35rem 0.5rem;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#fff;font-size:0.85rem;" onkeyup="window._apSearchSubs(this.value)" />
+                    <button class="ap-ref-btn" onclick="window._apLoadSubscriptions()">↻ Refresh</button>
+                  </div>
+                </div>
+                <div class="ap-list" id="ap-subs-list">
+                  <div class="ap-loader"><div class="ap-spin"></div><p>Loading subscriptions…</p></div>
+                </div>
+              </div>
             </div>` : ''}
 
             <!-- ── PAGE: REFERRALS ── -->
@@ -649,7 +707,8 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                 loadCoders(sb),
                 loadAcademic(sb),
                 loadNeuroSprint(sb),
-                window._ttLoadExams()
+                window._ttLoadExams(),
+                superAdmin ? window._apLoadPricing() : Promise.resolve()
             ]);
         } catch (e) {
             console.error('[AdminPanel] Init error:', e);
@@ -1440,6 +1499,251 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
     syncAdminBtn();
     window.addEventListener('auth-ready', syncAdminBtn);
     setTimeout(syncAdminBtn, 2000);
+
+    // ── Dynamic Pricing Config ───────────────────────────────────────────────
+    let localPricingConfig = { plans: {}, coupons: {} };
+
+    window._apLoadPricing = async function() {
+        try {
+            const apiUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
+            const res = await fetch(`${apiUrl}/api/pricing-config`);
+            const data = await res.json();
+            if (data.success && data.config) {
+                localPricingConfig = data.config;
+                renderPricingConfig();
+            } else {
+                throw new Error("Could not load pricing");
+            }
+        } catch (e) {
+            console.error("Pricing error:", e);
+            const list = document.getElementById('ap-pricing-list');
+            if (list) list.innerHTML = `<div class="ap-err">⚠️ Failed to load pricing config. Make sure the server is running.</div>`;
+        }
+    };
+
+    function renderPricingConfig() {
+        const pList = document.getElementById('ap-pricing-list');
+        const cList = document.getElementById('ap-coupons-list');
+        if (!pList || !cList) return;
+
+        // Render Plans
+        let pHTML = '';
+        for (const [planId, plan] of Object.entries(localPricingConfig.plans)) {
+            pHTML += `
+            <div class="ap-item" style="display:grid; grid-template-columns: 1fr auto; gap: 1rem; align-items:center">
+                <div>
+                    <div class="ap-title" style="margin-bottom:0.25rem">${plan.name} <span style="font-size:0.75rem; color:rgba(255,255,255,0.4)">(${planId})</span></div>
+                    <div class="ap-meta">Duration: ${plan.durationDays} Days</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.5rem">
+                    <span style="color:rgba(255,255,255,0.5)">₹</span>
+                    <input type="number" id="price-input-${planId}" value="${plan.amount / 100}" 
+                           style="background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); color:#fff; border-radius:6px; padding:.3rem .5rem; font-size:.9rem; width:80px; text-align:right" />
+                </div>
+            </div>`;
+        }
+        pList.innerHTML = pHTML;
+
+        let cHTML = '';
+        const coupons = Object.entries(localPricingConfig.coupons || {});
+        if (coupons.length === 0) {
+            cHTML = `<div class="ap-empty" style="padding: 2rem;"><div class="ap-empty-ico" style="font-size: 2rem;">🎫</div><p>No custom coupons added yet.</p></div>`;
+        } else {
+            for (const [code, val] of coupons) {
+                const isObj = typeof val === 'object';
+                const discount = isObj ? val.discount : val;
+                const usesStr = isObj && val.maxUses ? ` <span style="color:#fbbf24; font-size:0.75rem; margin-left:8px;">(Uses: ${val.uses || 0}/${val.maxUses})</span>` : '';
+                
+                cHTML += `
+                <div class="ap-item" style="display:grid; grid-template-columns: 1fr auto; gap: 1rem; align-items:center">
+                    <div>
+                        <div class="ap-title" style="margin-bottom:0.25rem; font-family: monospace; letter-spacing: 1px; color: #10b981;">${code}</div>
+                        <div class="ap-meta">${discount}% Discount${usesStr}</div>
+                    </div>
+                    <div>
+                        <button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._apRemoveCoupon('${code}')">🗑 Remove</button>
+                    </div>
+                </div>`;
+            }
+        }
+        cList.innerHTML = cHTML;
+    }
+
+    window._apSavePricing = async function() {
+        // Collect updated prices
+        for (const planId of Object.keys(localPricingConfig.plans)) {
+            const el = document.getElementById(`price-input-${planId}`);
+            if (el) {
+                localPricingConfig.plans[planId].amount = parseFloat(el.value) * 100; // convert back to paise
+            }
+        }
+
+        try {
+            const u = getCurrentUser();
+            const apiUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
+            const res = await fetch(`${apiUrl}/api/admin/pricing-config`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid: u.uid || u.id, plans: localPricingConfig.plans, coupons: localPricingConfig.coupons })
+            });
+            const data = await res.json();
+            if (data.success) {
+                if (window.showToast) window.showToast('✅ Pricing configuration saved!');
+                else alert('✅ Pricing configuration saved!');
+            } else {
+                throw new Error(data.error || 'Failed to save');
+            }
+        } catch (e) {
+            console.error("Save Pricing Error:", e);
+            alert('❌ ' + e.message);
+        }
+    };
+
+    window._apAddCoupon = function() {
+        const codeInput = document.getElementById('cpn-code-input');
+        const discountInput = document.getElementById('cpn-discount-input');
+        const maxUsesInput = document.getElementById('cpn-maxuses-input');
+        if (!codeInput || !discountInput) return;
+        
+        const code = codeInput.value.trim().toUpperCase();
+        const discount = parseFloat(discountInput.value);
+        const maxUses = maxUsesInput ? parseInt(maxUsesInput.value) : NaN;
+
+        if (!code || isNaN(discount) || discount <= 0 || discount > 100) {
+            alert('Please enter a valid code and a discount between 1 and 100.');
+            return;
+        }
+
+        if (!localPricingConfig.coupons) localPricingConfig.coupons = {};
+        
+        if (!isNaN(maxUses) && maxUses > 0) {
+            localPricingConfig.coupons[code] = { discount, maxUses, uses: 0 };
+        } else {
+            localPricingConfig.coupons[code] = discount;
+        }
+        
+        codeInput.value = '';
+        discountInput.value = '';
+        if (maxUsesInput) maxUsesInput.value = '';
+        
+        // Auto save
+        window._apSavePricing();
+        renderPricingConfig();
+    };
+
+    window._apRemoveCoupon = function(code) {
+        if (!confirm(`Are you sure you want to remove coupon ${code}?`)) return;
+        if (localPricingConfig.coupons && localPricingConfig.coupons[code]) {
+            delete localPricingConfig.coupons[code];
+            // Auto save
+            window._apSavePricing();
+            renderPricingConfig();
+        }
+    };
+
+    let allSubs = [];
+    window._apLoadSubscriptions = async function() {
+        const list = document.getElementById('ap-subs-list');
+        if (!list) return;
+        list.innerHTML = `<div class="ap-loader"><div class="ap-spin"></div><p>Loading subscriptions…</p></div>`;
+        try {
+            const u = getCurrentUser();
+            const apiUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
+            const res = await fetch(`${apiUrl}/api/admin/subscriptions?uid=${u.uid || u.id}`);
+            const data = await res.json();
+            if (!data.success) throw new Error(data.error);
+            allSubs = data.users;
+            window._apRenderSubs(allSubs);
+        } catch(e) {
+            list.innerHTML = `<div class="ap-err">⚠️ ${e.message}</div>`;
+        }
+    };
+
+    window._apSearchSubs = function(q) {
+        if (!q) return window._apRenderSubs(allSubs);
+        q = q.toLowerCase();
+        const filtered = allSubs.filter(u => u.uid.toLowerCase().includes(q) || (u.plan && u.plan.plan_id.toLowerCase().includes(q)));
+        window._apRenderSubs(filtered);
+    };
+
+    window._apRenderSubs = function(users) {
+        const list = document.getElementById('ap-subs-list');
+        if (!list) return;
+        if (users.length === 0) {
+            list.innerHTML = `<div class="ap-empty">No subscriptions found</div>`;
+            return;
+        }
+        list.innerHTML = users.map(u => {
+            const plan = u.plan;
+            const payments = u.payments || [];
+            const isActive = plan.plan_id !== 'free' && (!plan.plan_expiry || new Date(plan.plan_expiry) > new Date());
+            
+            let statusBadge = isActive ? `<span class="ap-tag" style="background:#10b981;color:#000;border:none">ACTIVE</span>` : `<span class="ap-tag" style="background:#4b5563;color:#fff;border:none">INACTIVE</span>`;
+            
+            let html = `
+            <div class="ap-item" style="display:flex;flex-direction:column;gap:1rem;background:rgba(255,255,255,0.02)">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                    <div>
+                        <div class="ap-title" style="font-family:monospace;font-size:0.9rem">${u.uid}</div>
+                        <div class="ap-meta" style="margin-top:0.4rem;color:#fff">
+                            Plan: <strong style="color:#a78bfa">${plan.plan_id.toUpperCase()}</strong> ${statusBadge}
+                        </div>
+                        ${isActive && plan.plan_expiry ? `<div class="ap-meta" style="margin-top:0.25rem">Expires: ${new Date(plan.plan_expiry).toLocaleString()}</div>` : ''}
+                    </div>
+                    <div style="display:flex;gap:0.5rem">
+                        ${isActive ? `<button class="apb apb-no" style="padding:0.4rem 0.8rem;font-size:0.8rem" onclick="window._apUpdateSub('${u.uid}','cancel')">Cancel Plan</button>` : ''}
+                        <button class="apb apb-ok" style="padding:0.4rem 0.8rem;font-size:0.8rem" onclick="window._apUpdateSub('${u.uid}','grant')">Grant Plan</button>
+                    </div>
+                </div>
+                ${payments.length > 0 ? `
+                <div style="background:rgba(0,0,0,0.2);padding:0.75rem;border-radius:8px;border:1px solid rgba(255,255,255,0.05)">
+                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:1px">Payment History</div>
+                    ${payments.map(p => `
+                        <div style="display:flex;justify-content:space-between;font-size:0.8rem;padding:0.25rem 0;border-bottom:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.8)">
+                            <span>₹${p.amount_paid} — ${p.plan_id}</span>
+                            <span style="color:rgba(255,255,255,0.4)">${new Date(p.created_at).toLocaleDateString()}</span>
+                        </div>
+                    `).join('')}
+                </div>` : ''}
+            </div>`;
+            return html;
+        }).join('');
+    };
+
+    window._apUpdateSub = async function(uid, action) {
+        if (action === 'cancel') {
+            if (!confirm(`Are you sure you want to cancel the active plan for ${uid}?`)) return;
+            await _executeSubUpdate({ targetUid: uid, action: 'cancel' });
+        } else if (action === 'grant') {
+            const planId = prompt("Enter plan ID (e.g. 'pro' or 'codetantra'):", "pro");
+            if (!planId) return;
+            const days = prompt("Enter duration in days:", "30");
+            if (!days || isNaN(days)) return;
+            await _executeSubUpdate({ targetUid: uid, action: 'grant', planId, durationDays: days });
+        }
+    };
+
+    async function _executeSubUpdate(payload) {
+        try {
+            const u = getCurrentUser();
+            payload.adminUid = u.uid || u.id;
+            const apiUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
+            const res = await fetch(`${apiUrl}/api/admin/update-subscription`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert("✅ Success: " + data.message);
+                window._apLoadSubscriptions(); // Refresh
+            } else {
+                alert("❌ Failed: " + data.error);
+            }
+        } catch(e) {
+            alert("Error: " + e.message);
+        }
+    }
 
     // ── Expose globally ───────────────────────────────────────────────────────
     window.initAdminPanel = initAdminPanel;

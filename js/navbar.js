@@ -55,6 +55,9 @@ function renderNavbar() {
                     <a href="${getLinkPath('pages/dashboard')}?tab=profile" class="${currentPage === 'dashboard' && window.location.search.includes('tab=profile') ? 'active' : ''}">Profile</a>
                     <a href="${getLinkPath('pages/dashboard')}" class="${currentPage === 'dashboard' && window.location.search === '' && window.location.hash === '' ? 'active' : ''}">Dashboard</a>
                     <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" target="_blank" rel="noopener noreferrer">Community</a>
+                    <a href="${getLinkPath('pages/dashboard.html')}?tab=subscription" id="nav-subscription-link" style="position:relative; font-weight:700; background: linear-gradient(135deg, #a78bfa, #60a5fa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">✦ Upgrade
+                        <span style="position:absolute; top:-6px; right:-8px; background:linear-gradient(135deg,#7b61ff,#a78bfa); color:#fff; font-size:0.55rem; font-weight:800; padding:1px 5px; border-radius:8px; -webkit-text-fill-color:#fff; white-space:nowrap; letter-spacing:0.05em;">PRO</span>
+                    </a>
                     <button class="btn btn-primary" id="navbar-auth-btn">Get Started</button>
                 </div>
                 <div class="mobile-toggle" id="mobile-toggle">

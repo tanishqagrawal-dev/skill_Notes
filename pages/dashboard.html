@@ -59,18 +59,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="../css/main.css?v=6.1">
-    <link rel="stylesheet" href="../css/dashboard.css?v=6.1">
-    <link rel="stylesheet" href="../css/advanced_dashboard.css?v=6.1">
-    <link rel="stylesheet" href="../css/settings.css?v=6.0">
-    <link rel="stylesheet" href="../css/admin.css?v=6.0">
-    <link rel="stylesheet" href="../css/lockOverlay.css?v=6.0">
+    <link rel="stylesheet" href="../css/base.css?v=new1">
+    <link rel="stylesheet" href="../css/main.css?v=new1">
+    <link rel="stylesheet" href="../css/dashboard.css?v=new1">
+    <link rel="stylesheet" href="../css/advanced_dashboard.css?v=new1">
+    <link rel="stylesheet" href="../css/settings.css?v=new1">
+    <link rel="stylesheet" href="../css/admin.css?v=new1">
+    <link rel="stylesheet" href="../css/lockOverlay.css?v=new1">
     <link rel="stylesheet" href="../css/cgpa-analyzer.css?v=6.0">
     <link rel="stylesheet" href="../css/focusflow.css?v=6.0">
     <link rel="stylesheet" href="../css/profile.css?v=6.0">
     <link rel="stylesheet" href="../css/attendance-pro.css?v=6.0">
     <link rel="stylesheet" href="../css/tour.css?v=1.0">
     <link rel="stylesheet" href="../css/codetantra.css">
+    <link rel="stylesheet" href="../css/qr-generator.css">
 
     <!-- Prism.js for Syntax Highlighting (CodeTantra) -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
@@ -84,6 +86,7 @@
     <!-- Third Party Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
 
     <!-- CodeMirror for Coding Arena -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
@@ -220,6 +223,9 @@
                 <a href="#" class="nav-item" data-tab="focusflow">
                     <span class="icon">⌚</span> NeuroSprint Pro
                 </a>
+                <a href="#" class="nav-item" data-tab="qr-generator">
+                    <span class="icon"><i class="fa-solid fa-qrcode" style="color: #4ecdc4; text-shadow: 0 0 8px rgba(78,205,196,0.5);"></i></span> QR Generator
+                </a>
 
                 <div class="nav-category">PROFILE</div>
                 <a href="#" class="nav-item" id="admin-panel-btn" style="display: none;" data-tab="admin-panel">
@@ -231,8 +237,11 @@
                 <a href="#" class="nav-item" data-tab="profile">
                     <span class="icon">👤</span> My Profile
                 </a>
-                <a href="#" class="nav-item" id="watch-demo-btn" title="Watch the interactive demo tour">
+                <a href="#" class="nav-item" id="watch-demo-btn" title="Watch the interactive demo tour" style="display: none;">
                     <span class="icon">🎬</span> Watch Demo
+                </a>
+                <a href="#" class="nav-item" data-tab="subscription">
+                    <span class="icon">👑</span> Subscription
                 </a>
             </nav>
             <div class="user-profile-mini">
@@ -351,6 +360,257 @@
             <!-- Content injected by JS -->
         </div>
 
+        <!-- Subscription Tab -->
+        <div id="subscription" class="tab-content tab-content-hidden">
+            <div style="max-width:1060px; margin:0 auto; padding:2rem 1.5rem 4rem;">
+
+                <!-- Header -->
+                <div style="text-align:center; margin-bottom:2.5rem;">
+                    <div style="display:inline-flex;align-items:center;gap:.5rem;background:rgba(123,97,255,.12);border:1px solid rgba(123,97,255,.3);color:#a78bfa;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.35rem .9rem;border-radius:20px;margin-bottom:.85rem">✦ Plans &amp; Billing</div>
+                    <h2 style="font-family:'Poppins',sans-serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;margin-bottom:.5rem;">
+                        Choose Your <span style="background:linear-gradient(135deg,#a78bfa,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Learning Power</span>
+                    </h2>
+                    <p style="color:rgba(255,255,255,.5);font-size:.95rem;">Unlock premium features. Cancel anytime.</p>
+                </div>
+
+                <!-- Plans Grid -->
+                <div id="sub-plans-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem;margin-bottom:2rem;">
+
+                    <!-- Free -->
+                    <div class="sub-card" onclick="subSelectPlan('free')" id="sub-card-free" style="background:rgba(255,255,255,.03);border:2px solid rgba(255,255,255,.08);border-radius:20px;padding:1.5rem;cursor:pointer;transition:all .3s;">
+                        <div style="font-size:.85rem;font-weight:700;color:rgba(255,255,255,.55);margin-bottom:.25rem">Free Forever</div>
+                        <div style="font-family:'Poppins',sans-serif;font-size:1.25rem;font-weight:800;margin-bottom:.85rem">Free <span style="color:#00F2FF">Tier</span></div>
+                        <div style="font-family:'Poppins',sans-serif;font-size:2.2rem;font-weight:800;line-height:1;margin-bottom:.25rem">&#8377;0 <span style="font-size:1rem;font-weight:500;color:rgba(255,255,255,.4);">/ mo</span></div>
+                        <div style="font-size:.75rem;color:rgba(255,255,255,.35);margin-bottom:1.25rem">Free forever</div>
+                        <ul style="list-style:none;display:flex;flex-direction:column;gap:.45rem;margin-bottom:1.25rem;font-size:.83rem;">
+                            <li style="display:flex;align-items:center;gap:.5rem;color:rgba(255,255,255,.75)"><span style="color:#10b981">&#10003;</span> Unlimited Note Views</li>
+                            <li style="display:flex;align-items:center;gap:.5rem;color:rgba(255,255,255,.75)"><span style="color:#10b981">&#10003;</span> AI Coach (5/day)</li>
+                            <li style="display:flex;align-items:center;gap:.5rem;color:rgba(255,255,255,.75)"><span style="color:#10b981">&#10003;</span> 3 AI Model Papers / mo</li>
+                            <li style="display:flex;align-items:center;gap:.5rem;color:rgba(255,255,255,.3);text-decoration:line-through"><span>&#10007;</span> CodeTantra Solutions</li>
+                        </ul>
+                        <button class="sub-select-btn" style="width:100%;padding:.7rem;border-radius:10px;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s">Current Plan</button>
+                    </div>
+
+                    <!-- CodeTantra Hub -->
+                    <div class="sub-card" onclick="subSelectPlan('codetantra')" id="sub-card-codetantra" style="background:rgba(255,255,255,.03);border:2px solid rgba(255,255,255,.08);border-radius:20px;padding:1.5rem;cursor:pointer;transition:all .3s;">
+                        <div style="font-size:.85rem;font-weight:700;color:rgba(255,255,255,.55);margin-bottom:.25rem">Lab Solutions</div>
+                        <div style="font-family:'Poppins',sans-serif;font-size:1.25rem;font-weight:800;margin-bottom:.85rem">CodeTantra <span style="color:#00F2FF">Hub</span></div>
+                        <div style="display:flex;gap:.4rem;background:rgba(255,255,255,.05);border-radius:8px;padding:3px;margin-bottom:.85rem" onclick="event.stopPropagation()">
+                            <button onclick="subSetDur('codetantra','1mo',this)" id="sub-ct-1mo" class="sub-dur-btn sub-dur-active" style="flex:1;padding:.4rem;border-radius:6px;border:none;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;">1 Month</button>
+                            <button onclick="subSetDur('codetantra','6mo',this)" id="sub-ct-6mo" class="sub-dur-btn" style="flex:1;padding:.4rem;border-radius:6px;border:none;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;">6 Months <span style="background:#10b981;color:#fff;font-size:.6rem;padding:1px 4px;border-radius:4px;vertical-align:middle">Save</span></button>
+                        </div>
+                        <div style="font-family:'Poppins',sans-serif;font-size:2.2rem;font-weight:800;line-height:1;margin-bottom:.25rem">&#8377;<span id="sub-ct-amt">19</span> <span style="font-size:1rem;font-weight:500;color:rgba(255,255,255,.4);">/ mo</span></div>
+                        <div id="sub-ct-period" style="font-size:.75rem;color:rgba(255,255,255,.35);margin-bottom:1.25rem">Billed &#8377;19 for 1 month</div>
+                        <ul style="list-style:none;display:flex;flex-direction:column;gap:.45rem;margin-bottom:1.25rem;font-size:.83rem;">
+                            <li style="display:flex;align-items:center;gap:.5rem;color:rgba(255,255,255,.75)"><span style="color:#a78bfa">&#10022;</span> Everything in Free</li>
+                            <li style="display:flex;align-items:center;gap:.5rem;color:rgba(255,255,255,.75)"><span style="color:#10b981">&#10003;</span> CodeTantra Solutions</li>
+                            <li style="display:flex;align-items:center;gap:.5rem;color:rgba(255,255,255,.3);text-decoration:line-through"><span>&#10007;</span> Verified Badge</li>
+                        </ul>
+                        <button class="sub-select-btn" id="sub-btn-codetantra" style="width:100%;padding:.7rem;border-radius:10px;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s">Select Plan</button>
+                    </div>
+
+                    <!-- Premium Scholar -->
+                    <div class="sub-card" onclick="subSelectPlan('pro')" id="sub-card-pro" style="background:rgba(255,255,255,.03);border:2px solid rgba(167,139,250,.25);border-radius:20px;padding:1.5rem;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;">
+                        <span style="position:absolute;top:1rem;right:1rem;background:linear-gradient(135deg,#7b61ff,#a78bfa);color:#fff;font-size:.6rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:.25rem .6rem;border-radius:14px;box-shadow:0 3px 10px rgba(123,97,255,.5)">⚡ Popular</span>
+                        <div style="font-size:.85rem;font-weight:700;color:rgba(255,255,255,.55);margin-bottom:.25rem">Full Access</div>
+                        <div style="font-family:'Poppins',sans-serif;font-size:1.25rem;font-weight:800;margin-bottom:.85rem">Premium <span style="background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Scholar</span></div>
+                        <div style="display:flex;gap:.4rem;background:rgba(255,255,255,.05);border-radius:8px;padding:3px;margin-bottom:.85rem" onclick="event.stopPropagation()">
+                            <button onclick="subSetDur('pro','1mo',this)" id="sub-pro-1mo" class="sub-dur-btn sub-dur-active" style="flex:1;padding:.4rem;border-radius:6px;border:none;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;">1 Month</button>
+                            <button onclick="subSetDur('pro','6mo',this)" id="sub-pro-6mo" class="sub-dur-btn" style="flex:1;padding:.4rem;border-radius:6px;border:none;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;">6 Months <span style="background:#10b981;color:#fff;font-size:.6rem;padding:1px 4px;border-radius:4px;vertical-align:middle">Save</span></button>
+                        </div>
+                        <div style="font-family:'Poppins',sans-serif;font-size:2.2rem;font-weight:800;line-height:1;margin-bottom:.25rem">&#8377;<span id="sub-pro-amt">49</span> <span style="font-size:1rem;font-weight:500;color:rgba(255,255,255,.4);">/ mo</span></div>
+                        <div id="sub-pro-period" style="font-size:.75rem;color:rgba(255,255,255,.35);margin-bottom:1.25rem">Billed &#8377;49 for 1 month</div>
+                        <ul style="list-style:none;display:flex;flex-direction:column;gap:.45rem;margin-bottom:1.25rem;font-size:.83rem;">
+                            <li style="display:flex;align-items:center;gap:.5rem;color:rgba(255,255,255,.75)"><span style="color:#a78bfa">&#10022;</span> Everything in CodeTantra</li>
+                            <li style="display:flex;align-items:center;gap:.5rem;color:rgba(255,255,255,.75)"><span style="color:#10b981">&#10003;</span> Unlimited AI Coach</li>
+                            <li style="display:flex;align-items:center;gap:.5rem;color:rgba(255,255,255,.75)"><span style="color:#10b981">&#10003;</span> Verified "Scholar" Badge</li>
+                            <li style="display:flex;align-items:center;gap:.5rem;color:rgba(255,255,255,.75)"><span style="color:#10b981">&#10003;</span> 100% Ad-free Interface</li>
+                        </ul>
+                        <button class="sub-select-btn" id="sub-btn-pro" style="width:100%;padding:.7rem;border-radius:10px;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s">Select Plan</button>
+                    </div>
+                </div>
+
+                <!-- Checkout Panel -->
+                <div style="max-width:480px;margin:0 auto;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1.5rem;">
+                    <h3 style="font-family:'Poppins',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">&#128722; Order Summary</h3>
+
+                    <div id="sub-no-plan" style="text-align:center;padding:1rem;color:rgba(255,255,255,.35);font-size:.85rem;">&#8592; Select a paid plan above to continue</div>
+
+                    <div id="sub-order-details" style="display:none">
+                        <div style="background:rgba(123,97,255,.07);border:1px solid rgba(123,97,255,.2);border-radius:12px;padding:1rem;margin-bottom:1.25rem;">
+                            <div style="display:flex;justify-content:space-between;margin-bottom:.5rem;padding-bottom:.5rem;border-bottom:1px solid rgba(255,255,255,.06)">
+                                <span style="font-size:.82rem;color:rgba(255,255,255,.45)">Plan</span>
+                                <span style="font-size:.85rem;font-weight:600" id="sub-sum-plan">—</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;margin-bottom:.5rem;padding-bottom:.5rem;border-bottom:1px solid rgba(255,255,255,.06)">
+                                <span style="font-size:.82rem;color:rgba(255,255,255,.45)">Duration</span>
+                                <span style="font-size:.85rem;font-weight:600" id="sub-sum-dur">—</span>
+                            </div>
+                            <div id="sub-discount-row" style="display:none;justify-content:space-between;margin-bottom:.5rem;padding-bottom:.5rem;border-bottom:1px solid rgba(255,255,255,.06)">
+                                <span style="font-size:.82rem;color:rgba(255,255,255,.45)">Discount</span>
+                                <span style="font-size:.85rem;font-weight:600;color:#10b981" id="sub-sum-discount">—</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between">
+                                <span style="font-size:.85rem;font-weight:700;color:rgba(255,255,255,.8)">Total</span>
+                                <span style="font-size:1rem;font-weight:700;color:#a78bfa" id="sub-sum-total">—</span>
+                            </div>
+                        </div>
+
+                        <!-- Coupon -->
+                        <div style="margin-bottom:1.25rem">
+                            <div style="font-size:.82rem;font-weight:600;color:rgba(255,255,255,.55);margin-bottom:.5rem">&#127915; Coupon Code</div>
+                            <div style="display:flex;gap:.5rem">
+                                <input type="text" id="sub-coupon-input" placeholder="Enter code" maxlength="30" style="flex:1;padding:.6rem .85rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font-size:.85rem;text-transform:uppercase;letter-spacing:1px;outline:none;font-family:monospace;" />
+                                <button onclick="subApplyCoupon()" id="sub-coupon-btn" style="padding:.6rem 1rem;background:rgba(123,97,255,.18);border:1px solid rgba(123,97,255,.35);border-radius:8px;color:#a78bfa;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;">Apply</button>
+                            </div>
+                            <div id="sub-coupon-feedback" style="margin-top:.4rem;font-size:.78rem;min-height:1rem;"></div>
+                        </div>
+
+                        <!-- Pay Button -->
+                        <button id="sub-pay-btn" onclick="subProceedToPay()" style="width:100%;padding:1rem;border-radius:12px;border:none;background:linear-gradient(135deg,#7b61ff,#a78bfa);color:#fff;font-size:.95rem;font-weight:800;cursor:pointer;box-shadow:0 6px 28px rgba(123,97,255,.4);transition:all .25s;position:relative;overflow:hidden;">
+                            &#128274; Pay Securely Now
+                        </button>
+                        <div style="display:flex;justify-content:center;gap:1.25rem;flex-wrap:wrap;margin-top:.85rem">
+                            <span style="font-size:.72rem;color:rgba(255,255,255,.35);display:flex;align-items:center;gap:.3rem"><i class="fas fa-shield-halved" style="color:#10b981"></i> Secure</span>
+                            <span style="font-size:.72rem;color:rgba(255,255,255,.35);display:flex;align-items:center;gap:.3rem"><i class="fas fa-bolt" style="color:#10b981"></i> Instant Activation</span>
+                            <span style="font-size:.72rem;color:rgba(255,255,255,.35);display:flex;align-items:center;gap:.3rem"><i class="fas fa-headset" style="color:#10b981"></i> Support</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subscription Tab Styles + Logic -->
+            <style>
+                .sub-card:hover { transform:translateY(-3px); border-color:rgba(123,97,255,.35) !important; }
+                .sub-card.sub-selected { border-color:#7b61ff !important; background:rgba(123,97,255,.08) !important; box-shadow:0 0 0 1px rgba(123,97,255,.4), 0 16px 50px rgba(123,97,255,.18) !important; }
+                .sub-select-btn:hover { border-color:rgba(123,97,255,.5) !important; color:#fff !important; background:rgba(123,97,255,.12) !important; }
+                .sub-card.sub-selected .sub-select-btn { background:linear-gradient(135deg,#7b61ff,#a78bfa) !important; border-color:transparent !important; color:#fff !important; box-shadow:0 4px 18px rgba(123,97,255,.4) !important; }
+                .sub-dur-btn { background:transparent; color:rgba(255,255,255,.4); }
+                .sub-dur-active { background:rgba(123,97,255,.25) !important; color:#fff !important; box-shadow:0 2px 8px rgba(123,97,255,.3); }
+                #sub-coupon-input:focus { border-color:#7b61ff !important; }
+                #sub-coupon-input::placeholder { text-transform:none; letter-spacing:0; font-family:'Inter',sans-serif; color:rgba(255,255,255,.3); }
+                #sub-pay-btn:hover { transform:translateY(-2px); box-shadow:0 10px 36px rgba(123,97,255,.55) !important; }
+                #sub-coupon-feedback.ok { color:#10b981; }
+                #sub-coupon-feedback.err { color:#f87171; }
+            </style>
+            <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+            <script>
+            (function(){
+                const SUB_PRICES = {
+                    codetantra: { '1mo':{ amount:19, planId:'codetantra_1mo', label:'1 Month' }, '6mo':{ amount:89, planId:'codetantra_6mo', label:'6 Months' } },
+                    pro:        { '1mo':{ amount:49, planId:'pro_1mo', label:'1 Month' }, '6mo':{ amount:149, planId:'pro_6mo', label:'6 Months' } }
+                };
+                let subPlan = null, subDur = { codetantra:'1mo', pro:'1mo' }, subCoupon = null, subDiscount = 0;
+
+                // Fetch live prices
+                const apiUrl = location.hostname==='localhost'?'http://localhost:3000':'https://skil-matrix-server.onrender.com';
+                fetch(`${apiUrl}/api/pricing-config`).then(r=>r.json()).then(d=>{
+                    if(!d.success) return; const p=d.config.plans;
+                    if(p.codetantra_1mo) SUB_PRICES.codetantra['1mo'].amount=p.codetantra_1mo.amount/100;
+                    if(p.codetantra_6mo) SUB_PRICES.codetantra['6mo'].amount=p.codetantra_6mo.amount/100;
+                    if(p.pro_1mo) SUB_PRICES.pro['1mo'].amount=p.pro_1mo.amount/100;
+                    if(p.pro_6mo) SUB_PRICES.pro['6mo'].amount=p.pro_6mo.amount/100;
+                    subRefreshDisplay(); if(subPlan) subUpdateSummary();
+                }).catch(()=>{});
+
+                function subRefreshDisplay(){
+                    const ctD=subDur.codetantra; document.getElementById('sub-ct-amt').textContent=SUB_PRICES.codetantra[ctD].amount;
+                    document.getElementById('sub-ct-period').textContent=ctD==='1mo'?`Billed ₹${SUB_PRICES.codetantra['1mo'].amount} for 1 month`:`₹${SUB_PRICES.codetantra['6mo'].amount} for 6 months`;
+                    const prD=subDur.pro; document.getElementById('sub-pro-amt').textContent=SUB_PRICES.pro[prD].amount;
+                    document.getElementById('sub-pro-period').textContent=prD==='1mo'?`Billed ₹${SUB_PRICES.pro['1mo'].amount} for 1 month`:`₹${SUB_PRICES.pro['6mo'].amount} for 6 months`;
+                }
+
+                window.subSelectPlan = function(plan){
+                    ['free','codetantra','pro'].forEach(p=>document.getElementById(`sub-card-${p}`)?.classList.remove('sub-selected'));
+                    document.getElementById(`sub-card-${plan}`)?.classList.add('sub-selected');
+                    subPlan = plan==='free'?null:plan;
+                    subCoupon=null; subDiscount=0;
+                    const fi=document.getElementById('sub-coupon-input'); if(fi) fi.value='';
+                    const ff=document.getElementById('sub-coupon-feedback'); if(ff){ff.textContent='';ff.className='';}
+                    document.getElementById('sub-order-details').style.display = subPlan?'block':'none';
+                    document.getElementById('sub-no-plan').style.display = subPlan?'none':'block';
+                    if(subPlan) subUpdateSummary();
+                };
+
+                window.subSetDur = function(plan, dur, btn){
+                    subDur[plan]=dur;
+                    const prefix=plan==='codetantra'?'ct':'pro';
+                    document.querySelectorAll(`[id^="sub-${prefix}-"]`).forEach(b=>{b.classList.remove('sub-dur-active');});
+                    btn.classList.add('sub-dur-active');
+                    subRefreshDisplay(); subCoupon=null; subDiscount=0;
+                    const fi=document.getElementById('sub-coupon-input'); if(fi) fi.value='';
+                    const ff=document.getElementById('sub-coupon-feedback'); if(ff){ff.textContent='';ff.className='';}
+                    if(subPlan===plan) subUpdateSummary();
+                };
+
+                function subUpdateSummary(){
+                    if(!subPlan) return;
+                    const d=subDur[subPlan], p=SUB_PRICES[subPlan][d];
+                    const planName=subPlan==='codetantra'?'CodeTantra Hub':'Premium Scholar';
+                    document.getElementById('sub-sum-plan').textContent=planName;
+                    document.getElementById('sub-sum-dur').textContent=p.label;
+                    let final=p.amount;
+                    if(subCoupon && subDiscount>0){
+                        const disc=Math.round(p.amount*subDiscount/100); final=p.amount-disc;
+                        document.getElementById('sub-discount-row').style.display='flex';
+                        document.getElementById('sub-sum-discount').textContent=`-₹${disc} (${subDiscount}% off)`;
+                    } else { document.getElementById('sub-discount-row').style.display='none'; }
+                    document.getElementById('sub-sum-total').textContent=`₹${final}`;
+                    document.getElementById('sub-pay-btn').textContent=`🔒 Pay ₹${final} Securely`;
+                }
+
+                window.subApplyCoupon = async function(){
+                    const inp=document.getElementById('sub-coupon-input');
+                    const fb=document.getElementById('sub-coupon-feedback');
+                    const code=inp.value.trim().toUpperCase();
+                    if(!code){fb.textContent='Enter a coupon code.';fb.className='err';return;}
+                    if(!subPlan){fb.textContent='Select a plan first.';fb.className='err';return;}
+                    const btn=document.getElementById('sub-coupon-btn'); btn.disabled=true; btn.textContent='...';
+                    try{
+                        const res=await fetch(`${apiUrl}/api/pricing-config`);
+                        const data=await res.json();
+                        if(data.success && data.config.coupons && data.config.coupons[code]!==undefined){
+                            subDiscount=data.config.coupons[code]; subCoupon=code;
+                            fb.textContent=`✅ "${code}" applied! ${subDiscount}% off`; fb.className='ok';
+                            subUpdateSummary();
+                        } else { subCoupon=null; subDiscount=0; fb.textContent='❌ Invalid coupon.'; fb.className='err'; subUpdateSummary(); }
+                    } catch(e){fb.textContent='Could not verify. Try again.';fb.className='err';}
+                    btn.disabled=false; btn.textContent='Apply';
+                };
+
+                window.subProceedToPay = async function(){
+                    if(!subPlan){alert('Select a plan first.');return;}
+                    const u=window.currentUser||(()=>{try{return JSON.parse(localStorage.getItem('auth_user_full'));}catch(e){return null;}})();
+                    if(!u){alert('Please login to purchase a plan.');return;}
+                    const uid=u.uid||u.id, email=u.email||'';
+                    const dur=subDur[subPlan], planId=SUB_PRICES[subPlan][dur].planId;
+                    const btn=document.getElementById('sub-pay-btn'); btn.disabled=true; btn.textContent='Processing...';
+                    try{
+                        const res=await fetch(`${apiUrl}/api/create-order`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({planId,uid,couponCode:subCoupon||null})});
+                        const data=await res.json();
+                        if(!data.success) throw new Error(data.error||'Failed to create order');
+                        const names={'codetantra_1mo':'CodeTantra Hub — 1 Month','codetantra_6mo':'CodeTantra Hub — 6 Months','pro_1mo':'Premium Scholar — 1 Month','pro_6mo':'Premium Scholar — 6 Months'};
+                        const opts={key:data.keyId,amount:data.order.amount,currency:'INR',name:'SKiL MATRiX Notes',description:names[planId]+(subCoupon?` (${subCoupon})`:``),order_id:data.order.id,
+                            handler:async function(r){
+                                const vr=await fetch(`${apiUrl}/api/verify-payment`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({razorpay_order_id:r.razorpay_order_id,razorpay_payment_id:r.razorpay_payment_id,razorpay_signature:r.razorpay_signature,planId,uid})});
+                                const vd=await vr.json();
+                                if(vd.success){if(window.showToast) window.showToast('✅ Payment successful! Your plan is now active.');else alert('✅ Payment successful! Your plan is now active.'); location.reload();}
+                                else{alert('Verification failed. Contact support.');}
+                            },
+                            prefill:{email},theme:{color:'#7b61ff'},modal:{ondismiss:function(){btn.disabled=false;btn.textContent='🔒 Pay Securely Now';}}
+                        };
+                        const rzp=new Razorpay(opts);
+                        rzp.on('payment.failed',function(r){alert('Payment failed: '+r.error.description);btn.disabled=false;btn.textContent='🔒 Pay Securely Now';});
+                        rzp.open();
+                    } catch(e){alert(e.message||'Something went wrong.');btn.disabled=false;btn.textContent='🔒 Pay Securely Now';}
+                };
+
+                // Listen for Enter on coupon input
+                document.getElementById('sub-coupon-input')?.addEventListener('keydown',e=>{if(e.key==='Enter') subApplyCoupon();});
+            })();
+            </script>
+        </div>
+
         <!-- Main Content -->
         <main class="main-content">
             <header class="top-bar glass-card">
@@ -423,6 +683,7 @@
                 <div id="codetantra" class="tab-pane fade-in tab-content-hidden">
                     <div id="ct-app-root"></div>
                 </div>
+
                 <!-- Handled by Unified Hydration Script in Sidebar Section -->
             </div>
         </main>
@@ -575,6 +836,8 @@
             }, 1500); // Small delay so dashboard content loads first
         });
     </script>
+
+    <script src="../js/qr-generator.js" defer></script>
 </body>
 
 </html>

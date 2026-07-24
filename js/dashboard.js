@@ -1495,7 +1495,6 @@ function renderTabContent(tabId) {
             contentArea.innerHTML = `<div class="tab-pane active fade-in" style="padding: 1.5rem;">
                 <div class="welcome-header" style="text-align: center; margin-bottom: 2rem;">
                     <h1 class="font-heading" style="white-space: nowrap; font-size: clamp(1.5rem, 6vw, 2.5rem);">📤 My <span class="gradient-text">Uploads</span></h1>
-                    <p style="color: var(--text-dim); margin-bottom: 2rem;">Track the status of your contributed materials.</p>
                 </div>
                 <div id="my-uploads-grid" class="notes-grid-pro" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; justify-content: center; width: 100%;"></div>
             </div>`;
@@ -1534,6 +1533,13 @@ function renderTabContent(tabId) {
                     </div>
                 `;
             }
+        } else if (tabId === 'qr-generator') {
+            if (window.renderQrGenerator) {
+                contentArea.innerHTML = window.renderQrGenerator();
+                if (window.initQrGenerator) window.initQrGenerator();
+            } else {
+                contentArea.innerHTML = `<p>Loading QR Generator...</p>`;
+            }
         }
         // --- SETTINGS ---
         else if (tabId === 'settings') {
@@ -1550,6 +1556,933 @@ function renderTabContent(tabId) {
                     }
                 }, 1000);
             }
+        } else if (tabId === 'subscription') {
+            const _apiUrl = location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
+
+            contentArea.innerHTML = `
+            <style>
+            /* ═══ ULTRA PREMIUM SPLIT-PANE STYLES ═══ */
+            
+            /* CSS Custom Properties for plan theming */
+            :root {
+                --sub-accent-color: #a78bfa;
+                --sub-accent-grad: linear-gradient(135deg,#7b61ff,#a78bfa);
+                --sub-accent-glow: 0 8px 28px rgba(123,97,255,.5);
+                --sub-card-border: rgba(167,139,250,.25);
+                --sub-top-line: linear-gradient(90deg,transparent,rgba(167,139,250,.9),transparent);
+                --sub-dur-active-bg: rgba(123,97,255,.2);
+                --sub-icon-bg: rgba(123,97,255,.15);
+                --sub-icon-color: #a78bfa;
+                --sub-feat-border: rgba(123,97,255,.08);
+            }
+            
+            #sub-root {
+                display:flex; justify-content:center; align-items:flex-start;
+                min-height:85vh; padding:0.5rem 1.5rem 2.5rem; position:relative; overflow:hidden;
+            }
+            /* Main Container */
+            .sub-container {
+                width:100%; max-width:1120px;
+                display:grid; grid-template-columns: 1fr 420px; gap:2.5rem;
+                position:relative; z-index:1;
+                animation: subFadeIn .5s cubic-bezier(.4,0,.2,1) both;
+            }
+            @media (max-width: 992px) { .sub-container { grid-template-columns: 1fr; gap:2rem; } }
+            @keyframes subFadeIn { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+            /* ── Left Pane ── */
+            .sub-left { display:flex; flex-direction:column; gap:1.75rem; }
+            
+            .sub-plan-switch {
+                display:inline-flex; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09);
+                border-radius:32px; padding:4px; width:fit-content;
+            }
+            .sub-plan-btn {
+                padding:.6rem 1.5rem; border-radius:28px; border:none; background:transparent;
+                color:rgba(255,255,255,.4); font-size:.82rem; font-weight:700; cursor:pointer;
+                transition:all .35s cubic-bezier(.4,0,.2,1); letter-spacing:.03em;
+            }
+            .sub-plan-btn.active {
+                background:var(--sub-accent-grad); color:#fff;
+                box-shadow:var(--sub-accent-glow);
+            }
+
+            .sub-left-hdr {}
+            .sub-left-hdr h2 {
+                font-family:'Poppins',sans-serif; font-size:clamp(2rem, 4vw, 2.85rem);
+                font-weight:800; line-height:1.2; margin-bottom:.6rem; letter-spacing:-0.025em; color:#fff;
+            }
+            .sub-left-hdr p { color:rgba(255,255,255,.7); font-size:1.05rem; max-width:520px; line-height:1.7; margin:0; font-weight:400; letter-spacing:0.015em; }
+            .sub-left-hdr p strong { color:#fff; font-weight:600; }
+            .pro-grad { background:linear-gradient(135deg,#8b5cf6,#6d28d9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+            .ct-grad  { background:linear-gradient(135deg,#eab308,#a16207); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+            
+            /* Feature box */
+            .sub-feats-box {
+                background:#050505; border:1px solid rgba(255,255,255,.04);
+                border-radius:24px; padding:2rem; transition: border-color .4s ease;
+                box-shadow: inset 0 0 20px rgba(0,0,0,.8);
+            }
+            .sub-feats-hdr {
+                font-size:.75rem; font-weight:800; color:rgba(255,255,255,.5);
+                margin-bottom:1.5rem; letter-spacing:.15em; text-transform:uppercase;
+            }
+            .sub-feats-list { list-style:none; display:flex; flex-direction:column; gap:.4rem; }
+            .sub-feats-list li {
+                display:flex; align-items:center; gap:1rem;
+                color:rgba(255,255,255,.85); font-size:.95rem; font-weight:500;
+                padding:.75rem 1rem; border-radius:12px; background:#0c0d12; border:1px solid rgba(255,255,255,.04);
+                transition:all .25s; cursor:default;
+            }
+            .sub-feats-list li:hover { background:rgba(255,255,255,.03); border-color:rgba(255,255,255,.08); }
+            .sub-feat-icon {
+                width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+                font-size:.75rem; flex-shrink:0; transition:all .3s;
+            }
+            .sub-feat-ok { background:rgba(16,185,129,0.1); color:#10b981; border: 1px solid rgba(16,185,129,0.25); box-shadow: 0 0 12px rgba(16,185,129,0.15); }
+            .premium-svg-tick { width:15px; height:15px; stroke-dasharray:25; stroke-dashoffset:25; animation:drawCheck .6s cubic-bezier(.65,0,.45,1) forwards; }
+            @keyframes drawCheck { to { stroke-dashoffset:0; } }
+            .sub-feat-no { background:rgba(255,255,255,.05); color:rgba(255,255,255,.2); }
+            .sub-feats-list li.dim { color:rgba(255,255,255,.3); }
+
+            /* ── Contact Section ── */
+            .sub-contact-section {
+                background:#050505; border:1px solid rgba(255,255,255,.04);
+                border-radius:24px; padding:2rem; box-shadow: inset 0 0 20px rgba(0,0,0,.8);
+                margin-top: auto;
+            }
+            .sub-contact-hdr {
+                font-family:'Poppins',sans-serif; font-size:1.05rem; font-weight:700; color:#fff;
+                display:flex; align-items:center; gap:.6rem; margin-bottom:.5rem;
+            }
+            .sub-contact-hdr i { color:var(--sub-accent-color); }
+            .sub-contact-desc { font-size:.83rem; color:rgba(255,255,255,.4); line-height:1.65; margin:0 0 1.25rem; }
+            .sub-contact-form { display:flex; flex-direction:column; gap:.65rem; }
+            .sub-cf-row { display:grid; grid-template-columns:1fr 1fr; gap:.65rem; }
+            @media (max-width:600px) { .sub-cf-row { grid-template-columns:1fr; } }
+            .sub-cf-input {
+                width:100%; padding:.78rem 1rem; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+                border-radius:12px; color:#fff; font-size:.84rem; outline:none; transition:all .2s;
+                box-sizing:border-box; font-family:inherit; margin-bottom: 0.65rem;
+            }
+            .sub-cf-input::placeholder { color:rgba(255,255,255,.28); }
+            .sub-cf-input:focus { border-color:var(--sub-accent-color); background:rgba(123,97,255,.04); }
+            textarea.sub-cf-input { resize:none; margin-bottom:0; }
+            select.sub-cf-input { cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+            .sub-cf-input option { background: #090a10; color: #fff; padding: 10px; font-size: 0.9rem; }
+            .sub-cf-submit {
+                width:100%; padding:.88rem; border-radius:12px; border:1px solid rgba(255,255,255,.1);
+                cursor:pointer; font-size:.88rem; font-weight:700; font-family:inherit;
+                background:rgba(255,255,255,.05); color:rgba(255,255,255,.65); transition:all .2s; letter-spacing:.03em;
+            }
+            .sub-cf-submit:hover { background:rgba(255,255,255,.1); color:#fff; border-color:rgba(255,255,255,.18); }
+            .sub-cf-submit:disabled { opacity:.5; cursor:not-allowed; }
+            .sub-cf-status { font-size:.78rem; text-align:center; min-height:1.1rem; font-weight:600; transition:all .2s; }
+            .sub-cf-status.ok  { color:#10b981; }
+            .sub-cf-status.err { color:#ef4444; }
+
+            /* ── Right Checkout Card ── */
+            .sub-right-card {
+                background: rgba(5,5,5,.97); border:1px solid var(--sub-card-border);
+                border-radius:28px; padding:2rem 2rem 1.5rem; backdrop-filter:blur(40px);
+                box-shadow: 0 50px 100px rgba(0,0,0,.55), 0 0 80px rgba(123,97,255,.06);
+                position:relative; transition: border-color .45s, box-shadow .45s;
+                display:flex; flex-direction:column;
+            }
+            @media (min-width: 993px) {
+                .sub-right-card { margin-top: 4.4rem; }
+            }
+            .sub-right-card::before {
+                content:'';position:absolute;top:-1px;left:6%;right:6%;height:2px;border-radius:2px;
+                background:var(--sub-top-line); transition: background .45s;
+            }
+            
+            /* Tag badge */
+            .sub-card-tag {
+                position:absolute; top:-13px; left:50%; transform:translateX(-50%);
+                background:var(--sub-accent-grad); color:#fff;
+                font-size:.6rem; font-weight:900; padding:.35rem 1.2rem; border-radius:20px;
+                letter-spacing:.13em; text-transform:uppercase; white-space:nowrap;
+                box-shadow:var(--sub-accent-glow);
+            }
+
+            .sub-card-title { display:flex; align-items:center; gap:.75rem; margin-bottom:1.5rem; padding-top:.3rem; }
+            .sub-card-icon {
+                width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+                font-size:1.2rem; background:var(--sub-icon-bg); color:var(--sub-icon-color);
+                flex-shrink:0; transition:all .45s; border:1px solid rgba(255,255,255,.07);
+            }
+            .sub-card-name { font-family:'Poppins',sans-serif; font-size:1.2rem; font-weight:800; color:#fff; line-height:1.2; }
+            .sub-card-sub  { font-size:.74rem; color:rgba(255,255,255,.38); margin-top:.1rem; }
+
+            /* Duration toggle */
+            .sub-dur-toggle {
+                display:flex; background:rgba(255,255,255,.04); border-radius:14px;
+                padding:4px; margin-bottom:1.2rem; position:relative; border:1px solid rgba(255,255,255,.06);
+            }
+            .sub-dur-opt {
+                flex:1; padding:.7rem; border-radius:10px; border:none; background:transparent;
+                color:rgba(255,255,255,.38); font-size:.8rem; font-weight:700; cursor:pointer;
+                transition:all .25s; font-family:inherit; position:relative;
+            }
+            .sub-dur-opt.active { background:var(--sub-dur-active-bg); color:#fff; box-shadow:0 2px 10px rgba(0,0,0,.3); }
+            .sub-save-badge {
+                display:inline-block; background:linear-gradient(135deg,#059669,#10b981); color:#fff;
+                font-size:.54rem; font-weight:900; padding:.15rem .45rem; border-radius:6px;
+                letter-spacing:.05em; margin-left:.35rem; vertical-align:middle;
+            }
+
+            /* Price */
+            .sub-price-area { margin-bottom:.3rem; display:flex; align-items:baseline; gap:.55rem; }
+            .sub-price-strikethrough { font-size:1.1rem; color:rgba(255,255,255,.25); text-decoration:line-through; font-weight:600; }
+            .sub-price-big { font-family:'Poppins',sans-serif; font-size:3.2rem; font-weight:900; line-height:1; color:#fff; }
+            .sub-price-period { font-size:.9rem; color:rgba(255,255,255,.3); }
+            .sub-billed-note { font-size:.85rem; font-weight:500; margin-bottom:1.2rem; color:#10b981; letter-spacing:.01em; }
+
+            /* Coupon */
+            .sub-coupon-box { margin-top:1.5rem; margin-bottom:1.2rem; }
+            .sub-coupon-row { display:flex; gap:.45rem; }
+            #sub-coupon-inp {
+                flex:1; padding:.75rem 1rem; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09);
+                border-radius:12px; color:#fff; font-size:.82rem; text-transform:uppercase; letter-spacing:1px;
+                outline:none; transition:all .2s; font-family:inherit;
+            }
+            #sub-coupon-inp::placeholder { text-transform:none; letter-spacing:0; color:rgba(255,255,255,.22); }
+            #sub-coupon-inp:focus { border-color:var(--sub-accent-color); background:rgba(123,97,255,.04); }
+            #sub-coupon-apply {
+                padding:.75rem 1.1rem; border-radius:12px; background:rgba(255,255,255,.04);
+                border:1px solid rgba(255,255,255,.09); color:rgba(255,255,255,.5);
+                font-weight:700; cursor:pointer; transition:all .2s; font-family:inherit; font-size:.8rem;
+            }
+            #sub-coupon-apply:hover { background:rgba(255,255,255,.09); color:#fff; }
+            #sub-coupon-fb { margin-top:.45rem; font-size:.76rem; min-height:.9rem; font-weight:600; }
+            #sub-coupon-fb.ok  { color:#10b981; }
+            #sub-coupon-fb.err { color:#ef4444; }
+
+            /* Order Summary */
+            .sub-os-box {
+                background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.06);
+                border-radius:14px; padding:1rem 1.2rem; margin-bottom:1.2rem;
+            }
+            .sub-os-row { display:flex; justify-content:space-between; padding:.32rem 0; font-size:.81rem; color:rgba(255,255,255,.42); }
+            .sub-os-row .val { color:#fff; font-weight:600; }
+            .sub-os-row.disc .val { color:#10b981; }
+            .sub-os-row.tot {
+                margin-top:.4rem; padding-top:.55rem; border-top:1px solid rgba(255,255,255,.07);
+                color:#fff; font-weight:800; font-size:.92rem;
+            }
+            .sub-os-row.tot .val { color:var(--sub-accent-color); font-size:1.1rem; }
+
+            /* Pay Button */
+            #sub-pay-btn {
+                width:100%; padding:1.05rem; border-radius:14px; font-size:.98rem; font-weight:800;
+                cursor:pointer; border:none; font-family:'Poppins',sans-serif;
+                background:var(--sub-accent-grad); color:#fff;
+                box-shadow:var(--sub-accent-glow); transition:all .3s; letter-spacing:.04em;
+                margin-top: auto;
+                margin-bottom:1rem;
+            }
+            #sub-pay-btn:hover { transform:translateY(-3px); filter:brightness(1.1); }
+            #sub-pay-btn:disabled { opacity:.6; cursor:not-allowed; transform:none; filter:none; }
+
+            /* Trust row */
+            .sub-trust {
+                display:flex; justify-content:center; gap:1.1rem; flex-wrap:wrap;
+                font-size:.7rem; color:rgba(255,255,255,.28); margin-bottom:.9rem;
+            }
+            .sub-trust span { display:flex; align-items:center; gap:.28rem; }
+            .sub-trust i { color:#10b981; font-size:.72rem; }
+
+            /* ── Razorpay Footer ── */
+            .sub-rzp-footer {
+                display:flex; flex-direction:column; align-items:center; gap:.25rem;
+                padding:.8rem; background:rgba(255,255,255,.02); border-radius:12px;
+                border:1px solid rgba(255,255,255,.05);
+            }
+            .sub-rzp-line1 {
+                display:flex; align-items:center; gap:.5rem;
+                font-size:.74rem; color:rgba(255,255,255,.3); font-weight:500; letter-spacing:.02em;
+            }
+            .sub-rzp-bolt { color:#528FF0; font-size:.9rem; }
+            .sub-rzp-brand { font-weight:900; font-size:.84rem; color:#528FF0; letter-spacing:.02em; }
+            .sub-rzp-line2 { font-size:.65rem; color:rgba(255,255,255,.18); letter-spacing:.04em; }
+
+            /* Popup */
+            .sub-popup-overlay {
+                position:fixed;inset:0;z-index:9999; background:rgba(0,0,0,.82);backdrop-filter:blur(12px);
+                display:flex;align-items:center;justify-content:center; animation:popOverlayIn .3s ease both;
+            }
+            @keyframes popOverlayIn { from{opacity:0} to{opacity:1} }
+            .sub-popup {
+                background:rgba(9,10,20,.98); border:1px solid rgba(255,255,255,.12); border-radius:28px;
+                padding:2.5rem; text-align:center; max-width:440px; width:90%;
+                box-shadow:0 50px 120px rgba(0,0,0,.7); animation:popIn .45s cubic-bezier(.34,1.56,.64,1) both;
+            }
+            @keyframes popIn { from{opacity:0;transform:scale(.8) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+            .sub-popup-icon { font-size:4rem;margin-bottom:1rem;display:block;animation:iconBounce .6s .2s cubic-bezier(.34,1.56,.64,1) both; }
+            @keyframes iconBounce { from{transform:scale(0)} to{transform:scale(1)} }
+            .sub-popup h3 { font-family:'Poppins',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:.5rem; }
+            .sub-popup p  { color:rgba(255,255,255,.5);font-size:.9rem;margin-bottom:1.5rem; }
+            .sub-popup-btn {
+                display:inline-block;padding:.85rem 2rem;border-radius:12px;font-size:.95rem;font-weight:800;
+                cursor:pointer;border:none;background:linear-gradient(135deg,#7b61ff,#a78bfa);color:#fff;
+                box-shadow:0 6px 24px rgba(123,97,255,.45);transition:all .2s;
+            }
+            .sub-popup-btn:hover { transform:translateY(-2px);box-shadow:0 10px 32px rgba(123,97,255,.6); }
+            </style>
+
+            <div id="sub-root">
+                <div class="sub-container">
+                    
+                    <!-- Left: Features + Contact -->
+                    <div class="sub-left">
+                        <div class="sub-plan-switch">
+                            <button class="sub-plan-btn" id="sp-btn-codetantra" onclick="subPickPlan('codetantra')">Lab Solutions</button>
+                            <button class="sub-plan-btn active" id="sp-btn-pro" onclick="subPickPlan('pro')">Premium Scholar</button>
+                        </div>
+
+                        <div class="sub-left-hdr">
+                            <h2 id="sub-left-title">Pricing & <span class="pro-grad">Plans</span></h2>
+                            <p id="sub-left-desc">Choose the perfect plan to unlock exclusive AI resources, priority features, and a seamless learning experience.</p>
+                        </div>
+
+                        <div class="sub-feats-box">
+                            <div class="sub-feats-hdr">What's included in this plan</div>
+                            <ul class="sub-feats-list" id="sub-feats-list"></ul>
+                        </div>
+
+                        <!-- Contact Section (using same backend) -->
+                        <div class="sub-contact-section">
+                            <div class="sub-contact-hdr"><i class="fas fa-headset"></i> Talk to Our Team</div>
+                            <p class="sub-contact-desc">Have a question before upgrading? Our team responds within a few hours.</p>
+                            <a href="contact.html?topic=payment" class="sub-cf-submit" style="display:block; text-align:center; text-decoration:none; margin-top:1.5rem;">Open Support Ticket &rarr;</a>
+                        </div>
+                    </div>
+
+                    <!-- Right: Checkout Card -->
+                    <div class="sub-right-card">
+                        <div class="sub-card-tag" id="sub-card-tag">MOST POPULAR</div>
+
+                        <div class="sub-card-title">
+                            <div class="sub-card-icon" id="sub-card-icon"><i class="fas fa-crown"></i></div>
+                            <div>
+                                <div class="sub-card-name" id="sub-card-name">Premium Scholar</div>
+                                <div class="sub-card-sub" id="sub-card-sub">For serious students</div>
+                            </div>
+                        </div>
+
+                        <div class="sub-dur-toggle">
+                            <button class="sub-dur-opt active" id="sub-dur-1mo" onclick="subSetDuration('1mo')">1 Month</button>
+                            <button class="sub-dur-opt" id="sub-dur-6mo" onclick="subSetDuration('6mo')">6 Months <span class="sub-save-badge">SAVE!</span></button>
+                        </div>
+
+                        <div class="sub-price-area">
+                            <div class="sub-price-big">₹<span id="sub-price-val">49</span><span class="sub-price-period" id="sub-price-period">/1 month</span></div>
+                        </div>
+                        <div class="sub-billed-note" id="sub-billed-note"></div>
+
+                        <!-- Coupon -->
+                        <div class="sub-coupon-box" id="sub-coupon-box">
+                            <div class="sub-coupon-row">
+                                <div style="position:relative; flex:1;">
+                                    <input type="text" id="sub-coupon-inp" placeholder="Have a coupon code?" maxlength="30" style="width:100%;" />
+                                    <div style="position:absolute; left:6px; top:100%; margin-top:3px; font-size:0.68rem; color:rgba(255,255,255,0.3); letter-spacing:0.02em;">Optional</div>
+                                </div>
+                                <button id="sub-coupon-apply" onclick="subApplyCoupon()">Apply</button>
+                            </div>
+                            <div id="sub-coupon-fb"></div>
+                        </div>
+
+                        <!-- Order Summary -->
+                        <div class="sub-os-box">
+                            <div class="sub-os-row">
+                                <span>Plan</span>
+                                <span class="val" id="sub-os-plan">Premium Scholar</span>
+                            </div>
+                            <div class="sub-os-row">
+                                <span>Duration</span>
+                                <span class="val" id="sub-os-dur">1 Month</span>
+                            </div>
+                            <div class="sub-os-row disc" id="sub-os-disc-row" style="display:none">
+                                <span>Discount</span>
+                                <span class="val" id="sub-os-disc">-</span>
+                            </div>
+                            <div class="sub-os-row tot">
+                                <span>Total</span>
+                                <span class="val" id="sub-os-total">₹49</span>
+                            </div>
+                        </div>
+
+                        <button id="sub-pay-btn" onclick="subProceedToPay()"><i class="fas fa-bolt" style="margin-right: 6px;"></i> Get Premium Access</button>
+
+                        <div class="sub-trust">
+                            <span><i class="fas fa-shield-alt"></i> 256-bit Encryption</span>
+                            <span><i class="fas fa-lock"></i> Secure Checkout</span>
+                        </div>
+
+                        <!-- Razorpay Footer -->
+                        <div class="sub-rzp-footer">
+                            <div class="sub-rzp-line1">
+                                <span>Powered by</span>
+                                <span class="sub-rzp-bolt">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
+                                        <path d="M10.88 18.2L12.03 2L19.25 2L19.25 5.63L14.44 5.63L13.97 18.2L10.88 18.2Z" fill="#3395FF"/>
+                                        <path d="M6.75 18.2L7.9 2L11 2L9.84 18.2L6.75 18.2Z" fill="#3395FF"/>
+                                    </svg>
+                                </span>
+                                <span class="sub-rzp-brand">Razorpay</span>
+                            </div>
+                            <div class="sub-rzp-line2">SECURE PAYMENTS &bull; CANCEL ANYTIME</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `;
+
+            // ═══════════════════════════════════════════════════════
+            //  SUBSCRIPTION LOGIC
+            // ═══════════════════════════════════════════════════════
+            const _apiUrlSub = _apiUrl;
+
+            const checkActiveSub = async () => {
+                try {
+                    const raw = localStorage.getItem('auth_user_full');
+                    const fbUser = window.firebaseServices && window.firebaseServices.auth && window.firebaseServices.auth.currentUser;
+                    const u = fbUser || (raw ? (() => { try { return JSON.parse(raw); } catch(e) { return null; } })() : null);
+                    if (!u) return;
+                    const uid = u.uid || u.id;
+                    
+                    const resPlan = await fetch(`${_apiUrlSub}/api/user-plan?uid=${uid}&_t=${Date.now()}`);
+                    const dataPlan = await resPlan.json();
+                    
+                    if (dataPlan.plan && dataPlan.plan !== 'free') {
+                        window._activeUserPlan = dataPlan.plan;
+                        window._activeUserExpiry = dataPlan.expiry;
+
+                        if (window._forceShowPlans) {
+                            if (typeof _subRefreshUI === 'function') _subRefreshUI();
+                            return;
+                        }
+
+                        // Fetch Payments
+                        let paymentsHtml = '<p style="color:rgba(255,255,255,0.5);">No payment history found.</p>';
+                        try {
+                            const resPay = await fetch(`${_apiUrlSub}/api/user-payments?uid=${uid}&_t=${Date.now()}`);
+                            const dataPay = await resPay.json();
+                            if (dataPay.success && dataPay.payments && dataPay.payments.length > 0) {
+                                paymentsHtml = `
+                                <div style="overflow-x: auto; width: 100%;">
+                                    <table style="width:100%; border-collapse: collapse; margin-top:1rem; font-size:0.95rem; min-width: 500px;">
+                                        <thead>
+                                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5);">
+                                                <th style="padding: 1rem; font-weight: 600; text-align: center;">Date</th>
+                                                <th style="padding: 1rem; font-weight: 600; text-align: center;">Plan</th>
+                                                <th style="padding: 1rem; font-weight: 600; text-align: center;">Amount</th>
+                                                <th style="padding: 1rem; font-weight: 600; text-align: center;">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${dataPay.payments.map(p => `
+                                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                                                <td style="padding: 1rem; color: rgba(255,255,255,0.8); white-space: nowrap; text-align: center;">${new Date(p.created_at).toLocaleDateString()}</td>
+                                                <td style="padding: 1rem; color: #fff; font-weight: 500; white-space: nowrap; text-align: center;">${p.plan_id.replace('_', ' ').toUpperCase()}</td>
+                                                <td style="padding: 1rem; color: #10b981; font-weight: 700; white-space: nowrap; text-align: center;">₹${p.amount_paid / 100}</td>
+                                                <td style="padding: 1rem; white-space: nowrap; text-align: center;"><span style="background: rgba(16,185,129,0.15); color: #10b981; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.5px;">${p.status.toUpperCase()}</span></td>
+                                            </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                `;
+                            }
+                        } catch(e) { console.warn("Failed to fetch payments", e); }
+
+                        const container = document.querySelector('.sub-container');
+                        if (container) {
+                            const isPro = dataPlan.plan === 'pro';
+                            const planName = isPro ? 'Premium Scholar' : 'Lab Solutions';
+                            const daysLeft = Math.ceil((new Date(dataPlan.expiry) - new Date()) / (1000 * 60 * 60 * 24));
+                            const expiryStr = new Date(dataPlan.expiry).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+                            
+                            container.style.display = 'block'; // Override the default grid layout to allow centering
+                            container.innerHTML = `
+                            <div style="width: 100%; display: flex; justify-content: center;">
+                                <div style="width: 100%; max-width: 900px; animation: popIn 0.5s ease;">
+                                    <!-- Active Plan Banner -->
+                                <div style="background: linear-gradient(135deg, rgba(16,185,129,0.05), rgba(16,185,129,0.01)); border: 1px solid rgba(16,185,129,0.3); border-radius: 28px; padding: 2.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 2rem; position: relative; overflow: hidden; margin-bottom: 2rem; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
+                                    <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(16,185,129,0.15), transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+                                    
+                                    <div>
+                                        <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(16,185,129,0.15); color: #10b981; padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 1rem; text-transform: uppercase;">
+                                            <i class="fas fa-check-circle"></i> Active Subscription
+                                        </div>
+                                        <h2 style="font-size: 2.2rem; font-weight: 800; color: #fff; margin: 0 0 0.5rem 0; font-family: 'Poppins', sans-serif;">${planName}</h2>
+                                        <p style="color: rgba(255,255,255,0.5); font-size: 0.95rem; margin: 0;">You have unlocked premium features for this tier.</p>
+                                    </div>
+                                    
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 0.85rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 0.2rem;">Time Remaining</div>
+                                        <div style="font-size: 2.5rem; font-weight: 800; color: #10b981; line-height: 1;">${Math.max(0, daysLeft)} <span style="font-size: 1rem; color: rgba(255,255,255,0.6);">Days</span></div>
+                                        <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-top: 0.5rem;">Expires on ${expiryStr}</div>
+                                    </div>
+                                </div>
+
+                                <!-- Grid: History Only -->
+                                <div style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
+
+                                    <!-- Payment History -->
+                                    <div style="background: rgba(9,10,20,0.6); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 2rem; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                                        <h3 style="color: #fff; font-size: 1.2rem; font-weight: 700; margin: 0 0 1rem 0; font-family: 'Poppins', sans-serif; display: flex; align-items: center; justify-content: center; gap: 0.7rem;"><i class="fas fa-receipt" style="color: #00f2ff;"></i> Payment History</h3>
+                                        ${paymentsHtml}
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                            `;
+                        }
+                    }
+                } catch(e) { console.warn("Check sub error", e); }
+            };
+            checkActiveSub();
+
+            const SUB_P = {
+                codetantra: {
+                    '1mo': { amount:19, planId:'codetantra_1mo' },
+                    '6mo': { amount:89, planId:'codetantra_6mo' }
+                },
+                pro: {
+                    '1mo': { amount:49, planId:'pro_1mo' },
+                    '6mo': { amount:149, planId:'pro_6mo' }
+                }
+            };
+            const PLAN_DATA = {
+                codetantra: {
+                    name: 'CodeTantra Hub', sub: 'Master Your Practicals', tag: 'ESSENTIAL',
+                    icon: '<i class="fas fa-laptop-code"></i>',
+                    titleHtml: 'CodeTantra <span class="ct-grad">Solutions</span>',
+                    descHtml: 'Instant access to <strong>verified lab solutions</strong>, <strong>AI guidance</strong>, and model papers to easily crack exams.',
+                    theme: {
+                        accentColor: '#ca8a04',
+                        accentGrad: 'linear-gradient(135deg,#ca8a04,#a16207)',
+                        accentGlow: '0 4px 15px rgba(161,98,7,.2)',
+                        cardBorder: 'rgba(202,138,4,.3)',
+                        topLine: 'linear-gradient(90deg,transparent,rgba(202,138,4,.8),transparent)',
+                        durActiveBg: 'rgba(202,138,4,.15)',
+                        iconBg: 'rgba(202,138,4,.1)',
+                        iconColor: '#eab308',
+                    },
+                    feats: [
+                        { text: 'CodeTantra Lab Solutions', ok: true },
+                        { text: 'AI Coach (5/day)', ok: true },
+                        { text: '3 AI Model Papers / mo', ok: true },
+                        { text: 'Verified Scholar Badge', ok: false },
+                        { text: 'Ad-free Experience', ok: false }
+                    ]
+                },
+                pro: {
+                    name: 'Premium Scholar', sub: 'The Ultimate Learning Experience', tag: 'MOST POPULAR',
+                    icon: '<i class="fas fa-crown"></i>',
+                    titleHtml: 'Premium <span class="pro-grad">Scholar</span>',
+                    descHtml: 'Unlock <strong>unlimited AI coaching</strong>, <strong>premium model papers</strong>, and a distraction-free interface for top performers.',
+                    theme: {
+                        accentColor: '#7c3aed',
+                        accentGrad: 'linear-gradient(135deg,#7c3aed,#5b21b6)',
+                        accentGlow: '0 4px 15px rgba(91,33,182,.2)',
+                        cardBorder: 'rgba(109,40,217,.3)',
+                        topLine: 'linear-gradient(90deg,transparent,rgba(109,40,217,.8),transparent)',
+                        durActiveBg: 'rgba(109,40,217,.2)',
+                        iconBg: 'rgba(109,40,217,.1)',
+                        iconColor: '#a78bfa',
+                    },
+                    feats: [
+                        { text: 'Everything in CodeTantra', ok: true },
+                        { text: 'Unlimited AI Coach', ok: true },
+                        { text: '30 AI Model Papers / mo', ok: true },
+                        { text: 'Verified "Scholar" Badge', ok: true },
+                        { text: '100% Ad-free Interface', ok: true }
+                    ]
+                }
+            };
+
+            let _subPlan = 'pro', _subDur = '1mo', _subCoupon = null, _subDisc = 0;
+
+            // Load live prices
+            fetch(`${_apiUrlSub}/api/pricing-config`).then(r=>r.json()).then(d=>{
+                if (!d.success) return;
+                const p = d.config.plans;
+                if (p.codetantra_1mo) SUB_P.codetantra['1mo'].amount = p.codetantra_1mo.amount/100;
+                if (p.codetantra_6mo) SUB_P.codetantra['6mo'].amount = p.codetantra_6mo.amount/100;
+                if (p.pro_1mo)        SUB_P.pro['1mo'].amount        = p.pro_1mo.amount/100;
+                if (p.pro_6mo)        SUB_P.pro['6mo'].amount        = p.pro_6mo.amount/100;
+                _subRefreshUI();
+            }).catch(()=>{});
+
+            function _subRefreshUI() {
+                const data = PLAN_DATA[_subPlan];
+                const t = data.theme;
+                const root = document.documentElement;
+
+                // Apply theme CSS variables
+                root.style.setProperty('--sub-accent-color',  t.accentColor);
+                root.style.setProperty('--sub-accent-grad',   t.accentGrad);
+                root.style.setProperty('--sub-accent-glow',   t.accentGlow);
+                root.style.setProperty('--sub-card-border',   t.cardBorder);
+                root.style.setProperty('--sub-top-line',      t.topLine);
+                root.style.setProperty('--sub-dur-active-bg', t.durActiveBg);
+                root.style.setProperty('--sub-icon-bg',       t.iconBg);
+                root.style.setProperty('--sub-icon-color',    t.iconColor);
+
+                // Update card title
+                document.getElementById('sub-card-tag').textContent  = data.tag;
+                document.getElementById('sub-card-name').textContent = data.name;
+                document.getElementById('sub-card-sub').textContent  = data.sub;
+                const iconEl = document.getElementById('sub-card-icon');
+                if (iconEl) iconEl.innerHTML = data.icon;
+
+                // Update left heading per plan
+                const titleEl = document.getElementById('sub-left-title');
+                const descEl  = document.getElementById('sub-left-desc');
+                if (titleEl) titleEl.innerHTML = data.titleHtml;
+                if (descEl)  descEl.innerHTML = data.descHtml || data.desc;
+
+                // Update contact section accent color
+                const cfhdr = document.querySelector('.sub-contact-hdr i');
+                if (cfhdr) cfhdr.style.color = t.accentColor;
+                const submitBtn = document.getElementById('sub-cf-submit-btn');
+                if (submitBtn) submitBtn.style.borderColor = `${t.accentColor}33`;
+
+                // Render Features
+                const featList = document.getElementById('sub-feats-list');
+                if (featList) featList.innerHTML = data.feats.map((f, idx) => `
+                    <li class="${f.ok ? '' : 'dim'}">
+                        <div class="sub-feat-icon ${f.ok ? 'sub-feat-ok' : 'sub-feat-no'}">
+                            ${f.ok ? `<svg class="premium-svg-tick" style="animation-delay: ${idx * 0.08}s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>` : `<i class="fas fa-times"></i>`}
+                        </div>
+                        ${f.text}
+                    </li>
+                `).join('');
+
+                // Update Prices & Order Summary
+                const p = SUB_P[_subPlan][_subDur];
+                const base1mo = SUB_P[_subPlan]['1mo'].amount;
+                document.getElementById('sub-price-val').textContent = p.amount;
+
+                const note   = document.getElementById('sub-billed-note');
+                const period = document.getElementById('sub-price-period');
+                
+                if (_subDur === '6mo') {
+                    period.textContent = '/6 months';
+                    const totalNormal = base1mo * 6;
+                    const savedRs = totalNormal - p.amount;
+                    const savedPct = Math.round((savedRs / totalNormal) * 100);
+                    const perMo = (p.amount / 6).toFixed(2).replace(/\.00$/, '');
+                    
+                    note.style.display = 'block';
+                    note.innerHTML = `
+                        <span class="sub-price-strikethrough" style="display:inline-block; margin-right:10px; font-size:1rem; opacity:0.6;">₹${totalNormal}</span>
+                        <span style="background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(5,150,105,0.15)); color:#10b981; padding: 5px 12px; border-radius: 8px; font-weight:800; font-size:0.82rem; border: 1px solid rgba(16,185,129,0.25); letter-spacing:0.02em; display:inline-block; transform:translateY(-2px); box-shadow: 0 4px 12px rgba(16,185,129,0.1);">Save ${savedPct}% (₹${savedRs}) &nbsp;&bull;&nbsp; Just ₹${perMo}/mo</span>
+                    `;
+                } else {
+                    period.textContent = '/1 month';
+                    note.style.display = 'none';
+                    note.innerHTML = '';
+                }
+
+                document.getElementById('sub-os-plan').textContent = data.name;
+                document.getElementById('sub-os-dur').textContent  = _subDur === '1mo' ? '1 Month' : '6 Months';
+
+                let final = p.amount;
+                if (_subCoupon && _subDisc > 0) {
+                    const discAmt = Math.round(p.amount * _subDisc / 100);
+                    final = Math.max(0, p.amount - discAmt);
+                    document.getElementById('sub-os-disc-row').style.display = 'flex';
+                    document.getElementById('sub-os-disc').textContent = `-₹${discAmt} (${_subDisc}% off)`;
+                } else {
+                    document.getElementById('sub-os-disc-row').style.display = 'none';
+                }
+
+                document.getElementById('sub-os-total').textContent = `₹${final}`;
+                const btn = document.getElementById('sub-pay-btn');
+                btn.textContent = `⚡ Pay ₹${final} Securely`;
+
+                // --- LOCK/UNLOCK LOGIC BASED ON ACTIVE PLAN ---
+                const durOptions = document.querySelector('.sub-dur-toggle');
+                const couponBox = document.getElementById('sub-coupon-box');
+                const expiryText = document.getElementById('sub-billed-note');
+
+                if (window._activeUserPlan && window._activeUserPlan !== 'free') {
+                    const osTotalRow = document.getElementById('sub-os-total')?.parentElement;
+                    const osPlan = document.getElementById('sub-os-plan');
+                    const osDur = document.getElementById('sub-os-dur');
+                    
+                    // Logic 1: PRO Plan - Everything is locked
+                    if (window._activeUserPlan === 'pro') {
+                        btn.innerHTML = `<i class="fas fa-check-circle"></i> Premium Scholar Active`;
+                        btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                        btn.style.boxShadow = '0 6px 28px rgba(16,185,129,0.4)';
+                        btn.disabled = true;
+                        
+                        if (durOptions) durOptions.style.display = 'none';
+                        if (couponBox) couponBox.style.display = 'none';
+                        if (osTotalRow) osTotalRow.style.display = 'none';
+                        
+                        if (expiryText && window._activeUserExpiry) {
+                            const daysLeft = Math.ceil((new Date(window._activeUserExpiry) - new Date()) / (1000 * 60 * 60 * 24));
+                            if (osPlan) osPlan.innerHTML = `Premium Scholar <span style="background:#10b981;color:#000;padding:2px 8px;border-radius:12px;font-size:0.6rem;font-weight:800;margin-left:6px;vertical-align:middle;">ACTIVE</span>`;
+                            if (osDur) osDur.parentElement.innerHTML = `<span>Time Remaining</span><span class="val" style="color:#10b981;font-size:1.05rem;display:flex;align-items:center;gap:4px;">${Math.max(0, daysLeft)} Days <i class="fas fa-clock"></i></span>`;
+                            expiryText.innerHTML = `Your plan is active and will expire on ${new Date(window._activeUserExpiry).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+                        }
+                    } 
+                    // Logic 2: CodeTantra Plan - Can upgrade to PRO
+                    else if (window._activeUserPlan === 'codetantra') {
+                        if (_subPlan === 'codetantra') {
+                            btn.innerHTML = `<i class="fas fa-check-circle"></i> Lab Solutions Active`;
+                            btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                            btn.style.boxShadow = '0 6px 28px rgba(16,185,129,0.4)';
+                            btn.disabled = true;
+                            
+                            if (durOptions) durOptions.style.display = 'none';
+                            if (couponBox) couponBox.style.display = 'none';
+                            if (osTotalRow) osTotalRow.style.display = 'none';
+                            
+                            if (expiryText && window._activeUserExpiry) {
+                                const daysLeft = Math.ceil((new Date(window._activeUserExpiry) - new Date()) / (1000 * 60 * 60 * 24));
+                                if (osPlan) osPlan.innerHTML = `Lab Solutions <span style="background:#10b981;color:#000;padding:2px 8px;border-radius:12px;font-size:0.6rem;font-weight:800;margin-left:6px;vertical-align:middle;">ACTIVE</span>`;
+                                if (osDur) osDur.parentElement.innerHTML = `<span>Time Remaining</span><span class="val" style="color:#10b981;font-size:1.05rem;display:flex;align-items:center;gap:4px;">${Math.max(0, daysLeft)} Days <i class="fas fa-clock"></i></span>`;
+                                expiryText.innerHTML = `Your plan is active and will expire on ${new Date(window._activeUserExpiry).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+                            }
+                        } else if (_subPlan === 'pro') {
+                            // Upgrade available
+                            btn.disabled = false;
+                            btn.style.background = '';
+                            btn.style.boxShadow = '';
+                            if (durOptions) durOptions.style.display = 'flex';
+                            if (couponBox) couponBox.style.display = 'block';
+                            if (osTotalRow) osTotalRow.style.display = 'flex';
+                            if (expiryText) expiryText.innerHTML = `Upgrade to Premium Scholar (Billed ₹${p.amount} for ${_subDur === '1mo' ? '1 month' : '6 months'})`;
+                        }
+                    }
+                } else {
+                    btn.disabled = false;
+                    btn.style.background = '';
+                    btn.style.boxShadow = '';
+                    if (durOptions) durOptions.style.display = 'flex';
+                    if (couponBox) couponBox.style.display = 'block';
+                }
+            }
+
+            window.subPickPlan = function(plan) {
+                _subPlan = plan;
+                document.querySelectorAll('.sub-plan-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById(`sp-btn-${plan}`).classList.add('active');
+                _subCoupon = null; _subDisc = 0;
+                const ci = document.getElementById('sub-coupon-inp'); if(ci) ci.value='';
+                const cf = document.getElementById('sub-coupon-fb'); if(cf){cf.textContent='';cf.className='';}
+                _subRefreshUI();
+            };
+
+            window.subSetDuration = function(dur) {
+                _subDur = dur;
+                document.querySelectorAll('.sub-dur-opt').forEach(b => b.classList.remove('active'));
+                document.getElementById(`sub-dur-${dur}`).classList.add('active');
+                _subCoupon = null; _subDisc = 0;
+                const ci = document.getElementById('sub-coupon-inp'); if(ci) ci.value='';
+                const cf = document.getElementById('sub-coupon-fb'); if(cf){cf.textContent='';cf.className='';}
+                _subRefreshUI();
+            };
+
+            window.subApplyCoupon = async function() {
+                const inp = document.getElementById('sub-coupon-inp');
+                const fb  = document.getElementById('sub-coupon-fb');
+                const code = inp.value.trim().toUpperCase();
+                if (!code) { fb.textContent='Enter a coupon code.'; fb.className='err'; return; }
+                const btn = document.getElementById('sub-coupon-apply'); btn.disabled=true; btn.textContent='...';
+                try {
+                    const res = await fetch(`${_apiUrlSub}/api/pricing-config`);
+                    const data = await res.json();
+                    if (data.success && data.config.coupons && data.config.coupons[code] !== undefined) {
+                        const couponVal = data.config.coupons[code];
+                        const isObject = typeof couponVal === 'object';
+                        
+                        if (isObject && couponVal.maxUses && (couponVal.uses || 0) >= couponVal.maxUses) {
+                            _subCoupon=null; _subDisc=0;
+                            fb.textContent='❌ Coupon usage limit reached.'; fb.className='err';
+                            _subRefreshUI();
+                        } else {
+                            _subDisc = isObject ? couponVal.discount : couponVal;
+                            _subCoupon = code;
+                            fb.textContent = `✅ "${code}" — ${_subDisc}% off applied!`; fb.className='ok';
+                            _subRefreshUI();
+                            _subFireConfetti();
+                        }
+                    } else {
+                        _subCoupon=null; _subDisc=0;
+                        fb.textContent='❌ Invalid or expired coupon code.'; fb.className='err';
+                        _subRefreshUI();
+                    }
+                } catch(e) { fb.textContent='Could not verify. Try again.'; fb.className='err'; }
+                btn.disabled=false; btn.textContent='Apply';
+            };
+
+            // ── Premium Confetti (Party Popper) — fires around coupon box ──
+            function _subFireConfetti() {
+                if (!window.confetti) {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
+                    s.onload = _triggerCouponConfetti;
+                    document.head.appendChild(s);
+                } else {
+                    _triggerCouponConfetti();
+                }
+            }
+            function _triggerCouponConfetti() {
+                // Get coupon box position to fire from around it
+                const box = document.getElementById('sub-coupon-box');
+                let originX = 0.75, originY = 0.6; // default right-side position
+                if (box) {
+                    const rect = box.getBoundingClientRect();
+                    originX = (rect.left + rect.width / 2) / window.innerWidth;
+                    originY = (rect.top + rect.height / 2) / window.innerHeight;
+                }
+                const colors = ['#a78bfa','#7b61ff','#60a5fa','#34d399','#fbbf24','#f472b6','#fff'];
+                const base = { colors, zIndex: 9999, disableForReducedMotion: true };
+                // Left burst
+                confetti({ ...base, particleCount:80, startVelocity:40, spread:55, angle:60,  origin:{x: originX - 0.12, y: originY} });
+                // Right burst
+                confetti({ ...base, particleCount:80, startVelocity:40, spread:55, angle:120, origin:{x: originX + 0.12, y: originY} });
+                // Up burst
+                confetti({ ...base, particleCount:40, startVelocity:30, spread:80, angle:90,  origin:{x: originX, y: originY + 0.04} });
+            }
+            function _triggerDualConfetti() {
+                // For payment success: full screen dual cannons from edges
+                if (!window.confetti) {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
+                    s.onload = () => _doFullConfetti();
+                    document.head.appendChild(s);
+                } else { _doFullConfetti(); }
+            }
+            function _doFullConfetti() {
+                const count = 250;
+                const colors = ['#a78bfa','#7b61ff','#60a5fa','#34d399','#fbbf24','#f472b6','#fff'];
+                const fire = (ratio, opts) => confetti({ particleCount: Math.floor(count * ratio), colors, zIndex:9999, ...opts });
+                fire(0.3,  { spread: 26, startVelocity: 65, angle: 60,  origin: { x: 0,   y: 0.9 } });
+                fire(0.25, { spread: 70, startVelocity: 45, angle: 60,  origin: { x: 0,   y: 0.9 } });
+                fire(0.3,  { spread: 26, startVelocity: 65, angle: 120, origin: { x: 1,   y: 0.9 } });
+                fire(0.25, { spread: 70, startVelocity: 45, angle: 120, origin: { x: 1,   y: 0.9 } });
+                fire(0.15, { spread: 90, startVelocity: 30, angle: 90,  origin: { x: 0.5, y: 1   } });
+            }
+
+            // ── Premium Popup ──
+            function _subShowPopup(success, planLabel) {
+                const overlay = document.createElement('div');
+                overlay.className = 'sub-popup-overlay';
+                overlay.innerHTML = success ? `
+                    <div class="sub-popup">
+                        <span class="sub-popup-icon">🎉</span>
+                        <h3 style="background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Payment Successful!</h3>
+                        <p>Your <strong>${planLabel}</strong> is now active.<br>Enjoy all premium features instantly.</p>
+                        <button class="sub-popup-btn" onclick="location.reload()">Start Learning →</button>
+                    </div>
+                ` : `
+                    <div class="sub-popup" style="border-color:rgba(248,113,113,.2);">
+                        <span class="sub-popup-icon">⚠️</span>
+                        <h3 style="color:#f87171;">Payment Failed</h3>
+                        <p>Something went wrong with your payment. No charge was made. Please try again.</p>
+                        <button class="sub-popup-btn" style="background:linear-gradient(135deg,#f87171,#ef4444);" onclick="this.closest('.sub-popup-overlay').remove()">Try Again</button>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+                if (success) setTimeout(_triggerDualConfetti, 100);
+            }
+
+            window.subProceedToPay = async function() {
+                if (!_subPlan) return;
+                const raw = localStorage.getItem('auth_user_full');
+                const fbUser = window.firebaseServices && window.firebaseServices.auth && window.firebaseServices.auth.currentUser;
+                const u = fbUser || (raw ? (() => { try { return JSON.parse(raw); } catch(e) { return null; } })() : null);
+                if (!u) { alert('Please login to purchase.'); return; }
+                const uid = u.uid || u.id, email = u.email || '';
+
+                const p = SUB_P[_subPlan][_subDur];
+                const planName = PLAN_DATA[_subPlan].name;
+                const btn = document.getElementById('sub-pay-btn');
+                const originalText = btn.textContent;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:.4rem;"></i> Processing...';
+
+                try {
+                    const res = await fetch(`${_apiUrlSub}/api/create-order`, {
+                        method:'POST', headers:{'Content-Type':'application/json'},
+                        body: JSON.stringify({ planId: p.planId, uid, couponCode: _subCoupon || null })
+                    });
+                    const data = await res.json();
+                    if (!data.success) throw new Error(data.error || 'Failed to create order');
+                    
+                    if (data.zeroAmount) {
+                        // 100% discount applied and plan activated successfully on backend!
+                        _subShowPopup(true, planName);
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        return;
+                    }
+
+                    const rzp = new Razorpay({
+                        key: data.keyId,
+                        amount: data.order.amount,
+                        currency: 'INR',
+                        name: 'SKiL MATRiX Notes',
+                        description: `${planName} — ${_subDur === '1mo'?'1 Month':'6 Months'}${_subCoupon ? ` (${_subCoupon})` : ''}`,
+                        order_id: data.order.id,
+                        handler: async function(r) {
+                            try {
+                                const vr = await fetch(`${_apiUrlSub}/api/verify-payment`, {
+                                    method:'POST', headers:{'Content-Type':'application/json'},
+                                    body: JSON.stringify({
+                                        razorpay_order_id: r.razorpay_order_id,
+                                        razorpay_payment_id: r.razorpay_payment_id,
+                                        razorpay_signature: r.razorpay_signature,
+                                        planId: p.planId, uid,
+                                        couponCode: _subCoupon || null
+                                    })
+                                });
+                                const vd = await vr.json();
+                                if (vd.success) {
+                                    _subShowPopup(true, planName);
+                                } else {
+                                    _subShowPopup(false);
+                                }
+                            } catch(err) { _subShowPopup(false); }
+                        },
+                        prefill: { email },
+                        theme: { color: '#7b61ff' },
+                        modal: {
+                            ondismiss: function() {
+                                btn.disabled = false;
+                                btn.textContent = originalText;
+                            }
+                        }
+                    });
+                    rzp.on('payment.failed', function() {
+                        _subShowPopup(false);
+                        btn.disabled = false;
+                        btn.textContent = originalText;
+                    });
+                    rzp.open();
+                } catch(e) {
+                    alert(e.message || 'Something went wrong.');
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }
+            };
+
+            // Init UI immediately
+            _subRefreshUI();
+
+            // Enter key on coupon
+            document.getElementById('sub-coupon-inp')?.addEventListener('keydown', e => { if(e.key==='Enter') subApplyCoupon(); });
+
+
         } else {
             contentArea.innerHTML = `<div class="tab-pane active"><h1 class="font-heading">${tabId}</h1><p>Module coming soon...</p></div>`;
         }

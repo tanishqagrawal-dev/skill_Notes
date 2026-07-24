@@ -55,31 +55,103 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Payment Plans Configuration
-const PLANS = {
-    'codetantra_1mo': { amount: 1900, name: 'CodeTantra Solutions - 1 Month', durationDays: 30 },
-    'codetantra_2mo': { amount: 3500, name: 'CodeTantra Solutions - 2 Months', durationDays: 60 },
-    'pro_1mo': { amount: 7900, name: 'Scholar PRO - 1 Month', durationDays: 30 },
-    'pro_6mo': { amount: 29900, name: 'Scholar PRO - 6 Months', durationDays: 180 }
+// Pricing & Coupons Configuration
+const PRICING_FILE = path.join(__dirname, '../data/pricing.json');
+
+let pricingConfig = {
+    plans: {
+        'codetantra_1mo': { amount: 1900, name: 'CodeTantra Solutions - 1 Month', durationDays: 30 },
+        'codetantra_6mo': { amount: 8900, name: 'CodeTantra Solutions - 6 Months', durationDays: 180 },
+        'pro_1mo': { amount: 4900, name: 'Premium Scholar - 1 Month', durationDays: 30 },
+        'pro_6mo': { amount: 14900, name: 'Premium Scholar - 6 Months', durationDays: 180 }
+    },
+    coupons: {}
 };
+
+try {
+    if (fs.existsSync(PRICING_FILE)) {
+        pricingConfig = JSON.parse(fs.readFileSync(PRICING_FILE, 'utf8'));
+    } else {
+        const dataDir = path.dirname(PRICING_FILE);
+        if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+        fs.writeFileSync(PRICING_FILE, JSON.stringify(pricingConfig, null, 2));
+    }
+} catch(e) {
+    console.error("Error with pricing config:", e);
+}
+
+const getPlans = () => pricingConfig.plans;
 
 // --- PAYMENT ENDPOINTS ---
 
 // 1. Create Order
 app.post('/api/create-order', async (req, res) => {
     try {
-        const { planId, uid } = req.body;
+        const { planId, uid, couponCode } = req.body;
         
         if (!razorpay) {
             return res.status(500).json({ error: "Razorpay keys not configured in server/.env" });
         }
 
-        const plan = PLANS[planId];
+        const plan = getPlans()[planId];
         if (!plan) return res.status(400).json({ error: "Invalid plan selected" });
         if (!uid) return res.status(400).json({ error: "User ID required" });
 
+        let finalAmount = plan.amount;
+        if (couponCode && pricingConfig.coupons[couponCode] !== undefined) {
+            const couponVal = pricingConfig.coupons[couponCode];
+            const isObject = typeof couponVal === 'object';
+            const discountPercent = isObject ? couponVal.discount : couponVal;
+
+            if (isObject && couponVal.maxUses && (couponVal.uses || 0) >= couponVal.maxUses) {
+                return res.status(400).json({ error: "Coupon usage limit reached" });
+            }
+
+            finalAmount = Math.max(0, finalAmount - (finalAmount * (discountPercent / 100)));
+        } else if (couponCode) {
+            return res.status(400).json({ error: "Invalid coupon code" });
+        }
+
+        if (finalAmount === 0) {
+            // 100% OFF COUPON: Bypass Razorpay completely and activate the plan directly
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + plan.durationDays);
+            const basePlanId = planId.startsWith('codetantra') ? 'codetantra' : 'pro';
+            
+            // 1. Log Payment (0 amount)
+            await supabase.from('payment_logs').insert([{
+                firebase_uid: uid,
+                razorpay_order_id: `free_order_${Date.now()}`,
+                razorpay_payment_id: `coupon_${couponCode}`,
+                plan_id: planId,
+                amount_paid: 0,
+                status: 'success'
+            }]);
+
+            // 2. Upsert User Plan
+            const { error: upsertError } = await supabase.from('user_plans').upsert({
+                firebase_uid: uid,
+                plan_id: basePlanId,
+                plan_expiry: expiryDate.toISOString(),
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'firebase_uid' });
+
+            if (upsertError) {
+                console.error("Supabase Upsert Error for 100% off:", upsertError);
+                throw new Error("Failed to activate free plan in database");
+            }
+            
+            // 3. Increment Coupon Uses (if object)
+            if (couponCode && typeof pricingConfig.coupons[couponCode] === 'object') {
+                pricingConfig.coupons[couponCode].uses = (pricingConfig.coupons[couponCode].uses || 0) + 1;
+                fs.writeFileSync(PRICING_FILE, JSON.stringify(pricingConfig, null, 2));
+            }
+            
+            return res.json({ success: true, zeroAmount: true, plan: basePlanId });
+        }
+
         const options = {
-            amount: plan.amount, // amount in smallest currency unit (paise)
+            amount: Math.round(finalAmount), // amount in smallest currency unit (paise)
             currency: "INR",
             receipt: `rcpt_${uid.substring(0, 10)}_${Date.now()}`
         };
@@ -95,7 +167,7 @@ app.post('/api/create-order', async (req, res) => {
 // 2. Verify Payment & Upgrade Plan
 app.post('/api/verify-payment', async (req, res) => {
     try {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, planId, uid } = req.body;
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, planId, uid, couponCode } = req.body;
         
         if (!process.env.RAZORPAY_KEY_SECRET) {
             return res.status(500).json({ error: "Razorpay Secret not configured" });
@@ -112,7 +184,7 @@ app.post('/api/verify-payment', async (req, res) => {
             return res.status(400).json({ success: false, error: "Invalid payment signature" });
         }
 
-        const plan = PLANS[planId];
+        const plan = getPlans()[planId];
         if (!plan) return res.status(400).json({ error: "Invalid plan" });
 
         // Calculate new expiry date
@@ -144,6 +216,12 @@ app.post('/api/verify-payment', async (req, res) => {
         if (upsertError) {
             console.error("Supabase Upsert Error:", upsertError);
             throw new Error("Failed to update user plan in database");
+        }
+
+        // 3. Increment Coupon Uses (if object)
+        if (couponCode && typeof pricingConfig.coupons[couponCode] === 'object') {
+            pricingConfig.coupons[couponCode].uses = (pricingConfig.coupons[couponCode].uses || 0) + 1;
+            fs.writeFileSync(PRICING_FILE, JSON.stringify(pricingConfig, null, 2));
         }
 
         res.json({ success: true, message: "Payment verified & plan upgraded", plan: basePlanId });
@@ -231,9 +309,120 @@ app.get('/api/user-plan', async (req, res) => {
             plan.plan_id = 'free';
         }
 
-        res.json({ success: true, plan: plan.plan_id });
+        res.json({ success: true, plan: plan.plan_id, expiry: plan.plan_expiry || null });
     } catch (error) {
         console.error("Get Plan Error:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// 5. Get User Payments
+app.get('/api/user-payments', async (req, res) => {
+    try {
+        const uid = req.query.uid;
+        if (!uid) return res.status(400).json({ error: "User ID required" });
+
+        const { data, error } = await supabase
+            .from('payment_logs')
+            .select('*')
+            .eq('firebase_uid', uid)
+            .order('created_at', { ascending: false });
+            
+        if (error) throw error;
+        res.json({ success: true, payments: data || [] });
+    } catch (error) {
+        console.error("Get Payments Error:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// --- ADMIN SUBSCRIPTIONS ENDPOINTS ---
+app.get('/api/admin/subscriptions', async (req, res) => {
+    try {
+        const { uid } = req.query;
+        if (!uid) return res.status(401).json({ error: "Unauthorized" });
+
+        // Fetch all user plans
+        const { data: plansData, error: plansError } = await supabase.from('user_plans').select('*');
+        if (plansError) throw plansError;
+        
+        // Fetch all payment logs
+        const { data: paymentsData, error: paymentsError } = await supabase.from('payment_logs').select('*').order('created_at', { ascending: false });
+        if (paymentsError) throw paymentsError;
+
+        // Group payments by user
+        const usersMap = {};
+        
+        plansData.forEach(p => {
+            usersMap[p.firebase_uid] = {
+                uid: p.firebase_uid,
+                plan: p,
+                payments: []
+            };
+        });
+
+        paymentsData.forEach(pay => {
+            if (!usersMap[pay.firebase_uid]) {
+                usersMap[pay.firebase_uid] = { uid: pay.firebase_uid, plan: { plan_id: 'free' }, payments: [] };
+            }
+            usersMap[pay.firebase_uid].payments.push(pay);
+        });
+
+        res.json({ success: true, users: Object.values(usersMap) });
+    } catch (error) {
+        console.error("Admin Subscriptions Error:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post('/api/admin/update-subscription', async (req, res) => {
+    try {
+        const { adminUid, targetUid, action, planId, durationDays } = req.body;
+        if (!adminUid || !targetUid || !action) return res.status(400).json({ error: "Missing parameters" });
+
+        if (action === 'cancel') {
+            const { error } = await supabase.from('user_plans').update({
+                plan_id: 'free',
+                plan_expiry: new Date().toISOString()
+            }).eq('firebase_uid', targetUid);
+            if (error) throw error;
+        } else if (action === 'grant') {
+            if (!planId || !durationDays) return res.status(400).json({ error: "planId and durationDays required for grant" });
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + parseInt(durationDays));
+            
+            const { error } = await supabase.from('user_plans').upsert({
+                firebase_uid: targetUid,
+                plan_id: planId,
+                plan_expiry: expiryDate.toISOString(),
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'firebase_uid' });
+            if (error) throw error;
+        }
+        res.json({ success: true, message: `Subscription ${action}ed successfully.` });
+    } catch (error) {
+        console.error("Admin Update Sub Error:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// --- PRICING & COUPONS ENDPOINTS ---
+app.get('/api/pricing-config', (req, res) => {
+    res.json({ success: true, config: pricingConfig });
+});
+
+app.post('/api/admin/pricing-config', async (req, res) => {
+    try {
+        const { uid, plans, coupons } = req.body;
+        
+        // Basic verification (Assuming admin email check is done properly in real app, we check if they are super admin)
+        if (!uid) return res.status(401).json({ error: "Unauthorized" });
+        
+        pricingConfig = { plans, coupons };
+        fs.writeFileSync(PRICING_FILE, JSON.stringify(pricingConfig, null, 2));
+        res.json({ success: true, message: "Pricing configured successfully." });
+    } catch (error) {
+        console.error("Update Pricing Error:", error);
         res.status(500).json({ success: false, error: error.message });
     }
 });

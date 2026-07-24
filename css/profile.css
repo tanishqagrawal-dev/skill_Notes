@@ -40,8 +40,8 @@
 .profile-header-card {
     display: flex;
     align-items: center;
-    gap: 3rem;
-    padding: 3rem;
+    gap: 2.2rem;
+    padding: 2rem 2.5rem;
     background: var(--card-bg);
     backdrop-filter: blur(25px);
     border: 1px solid var(--card-border);
@@ -54,8 +54,8 @@
 
 .profile-avatar-container {
     position: relative;
-    width: 160px;
-    height: 160px;
+    width: 125px;
+    height: 125px;
 }
 
 .avatar-main {
@@ -109,7 +109,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 4.5rem;
+    font-size: 3.5rem;
     font-weight: 800;
     color: white;
     text-shadow: 0 0 20px rgba(255,255,255,0.5);
@@ -166,7 +166,7 @@
 }
 
 .user-name {
-    font-size: 3.5rem;
+    font-size: 2.8rem;
     font-weight: 900;
     margin: 0.2rem 0;
     color: #ffffff;

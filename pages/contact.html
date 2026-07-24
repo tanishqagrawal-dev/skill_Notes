@@ -365,6 +365,7 @@
                         <label for="subject">Subject *</label>
                         <select id="subject" class="form-input" required>
                             <option value="" disabled selected>Select a topic...</option>
+                            <option value="Payment or Subscription related issue">Payment or Subscription related issue</option>
                             <option value="General Query">General Query</option>
                             <option value="Notes Issue">Notes Issue</option>
                             <option value="Upload / Approval Issue">Upload / Approval Issue</option>
@@ -608,6 +609,17 @@
     <script src="../js/main.js?v=6.0"></script>
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('topic') === 'payment') {
+                const subjectSelect = document.getElementById('subject');
+                if (subjectSelect) {
+                    subjectSelect.value = 'Payment or Subscription related issue';
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>

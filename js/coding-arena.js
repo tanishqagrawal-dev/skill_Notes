@@ -1,5 +1,6 @@
 import { supabase } from './supabase-config.js';
 import { codingProblems } from './data/coding-problems.js';
+window.caCodingProblems = codingProblems;
 
 let editorInstance = null;
 window.caActiveProblemIndex = null; // null means Explorer mode
@@ -240,104 +241,225 @@ export async function renderCodingArena() {
     }, 100);
 
     return `
-    <div class="coding-arena-container fade-in" style="display: flex; gap: 1rem; height: calc(100vh - 10px); color: #fff; padding: 0.5rem 0; overflow: hidden; position: relative;">
-        <!-- Left Side: Problem Description (25%) -->
-        <div class="ca-left glass-card" style="width: 28%; border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; overflow-y: auto; background: var(--ca-panel-bg, linear-gradient(145deg, rgba(30, 32, 42, 0.5) 0%, rgba(15, 17, 26, 0.6) 100%)); border: 1px solid var(--ca-border, rgba(255,255,255,0.05)); box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+    <div class="coding-arena-container fade-in ca-fullscreen-mode" style="display: flex; gap: 8px; height: calc(100vh - 10px); color: #fff; padding: 0.5rem 0; overflow: hidden; position: relative; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+        
+        <!-- Left Side: Problem Context (45%) -->
+        <div class="ca-left" style="width: 45%; border-radius: 8px; display: flex; flex-direction: column; background: #1e1e1e; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.05);">
             
-            <div style="display: flex; align-items: center; margin-bottom: 1.5rem; gap: 12px;">
-                <button onclick="window.toggleSidebarArena()" title="Toggle Sidebar" style="background: var(--ca-btn-bg, rgba(255,255,255,0.05)); border: 1px solid var(--ca-btn-border, rgba(255,255,255,0.1)); padding: 8px 12px; border-radius: 8px; color: inherit; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-                <button onclick="window.backToExplorer()" style="background: var(--ca-btn-bg, rgba(255,255,255,0.05)); border: 1px solid var(--ca-btn-border, rgba(255,255,255,0.1)); padding: 8px 16px; border-radius: 8px; color: inherit; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; font-weight: 600;">
-                    <i class="fa-solid fa-arrow-left"></i> Back
-                </button>
-            </div>
-
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
-                <div>
-                    <div style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; font-weight: 600;">${isSandbox ? 'Free Play' : `Day ${window.caActiveProblemIndex + 1} of 365`}</div>
-                    <h2 class="font-heading" style="margin: 0; color: #fff; font-size: 1.6rem; line-height: 1.2; text-shadow: 0 2px 10px rgba(255,255,255,0.1);">${problem.title}</h2>
+            <!-- Tabs -->
+            <div style="display: flex; gap: 20px; padding: 0 16px; background: #252526; border-bottom: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;">
+                <div id="ca-tab-desc" onclick="window.switchCaTab('desc')" style="padding: 12px 0; color: #ffc01e; font-size: 13px; font-weight: 600; border-bottom: 2px solid #ffc01e; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-regular fa-file-lines"></i> Description
                 </div>
-                <span class="ca-badge ca-diff-${problem.difficulty.toLowerCase().replace(' ', '-')}" style="padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); text-transform: uppercase; color: #fff;">
-                    ${problem.difficulty}
-                </span>
+                <div id="ca-tab-subs" onclick="window.switchCaTab('subs')" style="padding: 12px 0; color: #8c8c8c; font-size: 13px; font-weight: 500; border-bottom: 2px solid transparent; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s;">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Submissions
+                </div>
+                <div id="ca-tab-hints" onclick="window.switchCaTab('hints')" style="padding: 12px 0; color: #8c8c8c; font-size: 13px; font-weight: 500; border-bottom: 2px solid transparent; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s;">
+                    <i class="fa-solid fa-lightbulb"></i> Hints
+                </div>
             </div>
 
-            <div class="ca-desc" style="line-height: 1.7; color: rgba(255,255,255,0.85); font-size: 0.95rem; flex: 1; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem;">
-                ${problem.description.replace(/\\n/g, '<br>')}
+            <!-- Left Panel Content -->
+            <div style="flex: 1; overflow-y: auto; padding: 20px 24px; position: relative;">
                 
-                ${!isSandbox ? `
-                <h3 class="font-heading" style="margin-top: 2rem; color: inherit; font-size: 1.1rem; border-bottom: 1px solid var(--ca-border, rgba(255,255,255,0.05)); padding-bottom: 0.5rem;">Test Cases</h3>
-                <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
-                    ${problem.testCases.map((tc, i) => `
-                    <div style="background: var(--ca-tc-bg, rgba(0,0,0,0.3)); padding: 12px 18px; border-radius: 8px; border-left: 3px solid var(--primary); font-family: 'Fira Code', monospace; font-size: 0.85rem;">
-                        <div style="margin-bottom: 8px;"><span style="color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Input:</span><br><span style="color: var(--ca-text-sec, #a0aec0);">${tc.input}</span></div>
-                        <div><span style="color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Output:</span><br><span style="color: #2ed573;">${tc.output}</span></div>
-                    </div>`).join('')}
-                </div>` : ''}
-            </div>
-        </div>
-
-        <!-- Middle Side: Editor (47%) -->
-        <div class="ca-mid" style="width: 47%; display: flex; flex-direction: column; gap: 1rem;">
-            
-            <!-- Editor Top Bar -->
-            <div class="glass-card" style="display: flex; justify-content: space-between; padding: 10px 15px; border-radius: 12px; align-items: center; background: var(--ca-panel-bg, linear-gradient(90deg, rgba(30, 32, 42, 0.6) 0%, rgba(20, 22, 32, 0.7) 100%)); flex-shrink: 0; border: 1px solid var(--ca-border, rgba(255,255,255,0.05));">
-                <div style="display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
-                    <div style="display: flex; align-items: center; background: var(--ca-tc-bg, rgba(0,0,0,0.4)); padding: 4px; border-radius: 8px; border: 1px solid var(--ca-border, rgba(255,255,255,0.08));">
-                        <i class="fa-solid fa-code" style="color: var(--text-dim); margin-left: 8px; margin-right: 4px; font-size: 0.8rem;"></i>
-                        <select id="ca-lang" style="background: transparent; color: inherit; border: none; padding: 4px 8px; outline: none; font-family: inherit; font-size: 0.8rem; cursor: pointer;" onchange="window.changeCodingLanguage()">
-                            <option value="c" data-ver="gcc-13.2.0-c" class="ca-opt" style="background: #1a202c; color: #fff;">C (GCC)</option>
-                            <option value="cpp" data-ver="gcc-13.2.0" class="ca-opt" style="background: #1a202c; color: #fff;">C++ (GCC)</option>
-                            <option value="csharp" data-ver="mono-6.12.0.122" class="ca-opt" style="background: #1a202c; color: #fff;">C# (Mono)</option>
-                            <option value="java" data-ver="openjdk-jdk-22+36" class="ca-opt" style="background: #1a202c; color: #fff;">Java</option>
-                            <option value="javascript" data-ver="nodejs-20.17.0" class="ca-opt" style="background: #1a202c; color: #fff;">JavaScript (Node)</option>
-                            <option value="python" data-ver="cpython-3.14.0" class="ca-opt" style="background: #1a202c; color: #fff;">Python 3</option>
-                            <option value="rust" data-ver="rust-1.78.0" class="ca-opt" style="background: #1a202c; color: #fff;">Rust</option>
-                            <option value="go" data-ver="go-1.22.3" class="ca-opt" style="background: #1a202c; color: #fff;">Go</option>
-                            <option value="swift" data-ver="swift-5.10" class="ca-opt" style="background: #1a202c; color: #fff;">Swift</option>
-                        </select>
+                <!-- Description View -->
+                <div id="ca-view-desc" style="display: block;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                        <h2 style="margin: 0; color: #eff1f6; font-size: 24px; font-weight: 600; letter-spacing: -0.5px;">${problem.title}</h2>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="window.backToExplorer()" title="Back to Problems" style="background: rgba(255,255,255,0.08); border: none; color: #eff1f6; cursor: pointer; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"><i class="fa-solid fa-arrow-left"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-bottom: 24px;">
+                        <span style="color: ${problem.difficulty === 'Easy' ? '#00b8a3' : (problem.difficulty === 'Medium' ? '#ffc01e' : '#ff375f')}; background: rgba(255,255,255,0.06); padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 500;">${problem.difficulty}</span>
                     </div>
 
-                    <div style="display: flex; align-items: center; background: var(--ca-tc-bg, rgba(0,0,0,0.4)); padding: 4px; border-radius: 8px; border: 1px solid var(--ca-border, rgba(255,255,255,0.08));">
-                        <i class="fa-solid fa-font" style="color: var(--text-dim); margin-left: 8px; margin-right: 4px; font-size: 0.8rem;"></i>
-                        <select id="ca-fontsize" style="background: transparent; color: inherit; border: none; padding: 4px 8px; outline: none; font-family: inherit; font-size: 0.8rem; cursor: pointer;" onchange="window.changeEditorConfig()">
-                            <option value="12px" class="ca-opt" style="background: #1a202c; color: #fff;">12px</option>
-                            <option value="14px" selected class="ca-opt" style="background: #1a202c; color: #fff;">14px</option>
-                            <option value="16px" class="ca-opt" style="background: #1a202c; color: #fff;">16px</option>
-                            <option value="18px" class="ca-opt" style="background: #1a202c; color: #fff;">18px</option>
-                        </select>
-                    </div>
+                <div class="ca-desc" style="line-height: 1.6; color: #d4d4d4; font-size: 14px; margin-bottom: 32px;">
+                    ${problem.description.replace(/\\n/g, '<br>')}
+                </div>
 
-                    <div style="display: flex; align-items: center; background: var(--ca-tc-bg, rgba(0,0,0,0.4)); padding: 4px; border-radius: 8px; border: 1px solid var(--ca-border, rgba(255,255,255,0.08));">
-                        <i class="fa-solid fa-palette" style="color: var(--text-dim); margin-left: 8px; margin-right: 4px; font-size: 0.8rem;"></i>
-                        <select id="ca-theme" style="background: transparent; color: inherit; border: none; padding: 4px 8px; outline: none; font-family: inherit; font-size: 0.8rem; cursor: pointer;" onchange="window.changeEditorConfig()">
-                            <option value="dracula" class="ca-opt" style="background: #1a202c; color: #fff;">Dark (Dracula)</option>
-                            <option value="default" class="ca-opt" style="background: #1a202c; color: #fff;">Light (Default)</option>
-                        </select>
+                    ${!isSandbox ? `
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        ${problem.testCases.map((tc, i) => `
+                        <div>
+                            <div style="font-weight: 600; color: #eff1f6; font-size: 14px; margin-bottom: 10px;">Example ${i + 1}:</div>
+                            <div style="background: #1e1e1e; padding: 16px; border-radius: 8px; border-left: 2px solid rgba(255,255,255,0.1); font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 13px; line-height: 1.6;">
+                                <div style="margin-bottom: 4px;"><strong style="color: #8c8c8c; font-weight: 600;">Input:</strong> <span style="color: #eff1f6;">${tc.input}</span></div>
+                                <div><strong style="color: #8c8c8c; font-weight: 600;">Output:</strong> <span style="color: #eff1f6;">${tc.output}</span></div>
+                            </div>
+                        </div>`).join('')}
+                    </div>` : ''}
+                </div>
+                
+                <!-- Submissions View -->
+                <div id="ca-view-subs" style="display: none; color: #d4d4d4; font-size: 14px; padding-top: 10px;">
+                    <div id="ca-subs-list">
+                        <div style="color: #8c8c8c; text-align: center; margin-top: 40px; font-style: italic;">
+                            <i class="fa-solid fa-clock-rotate-left" style="font-size: 24px; margin-bottom: 12px; opacity: 0.5;"></i><br>
+                            No historical submissions found for this problem.<br>
+                            Run and submit your code to see results!
+                        </div>
                     </div>
                 </div>
 
-                <button id="btn-run-code" onclick="window.runUserCode(${isActuallyToday})" class="btn btn-primary" style="padding: 8px 20px; border-radius: 20px; font-weight: 600; letter-spacing: 0.5px; font-size: 0.85rem; box-shadow: 0 2px 10px rgba(108, 99, 255, 0.3); display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                    <i class="fa-solid fa-play"></i> Run Code ${isActuallyToday ? '& Submit' : ''}
-                </button>
-            </div>
+                <!-- Hints View -->
+                <div id="ca-view-hints" style="display: none; color: #d4d4d4; font-size: 14px;">
+                    <div style="background: rgba(255,255,255,0.03); border-left: 3px solid #ffc01e; border-radius: 4px; padding: 16px; margin-bottom: 12px;">
+                        <strong style="color: #eff1f6;">Hint 1:</strong><br>
+                        Read the problem statement carefully. What are the inputs and what is the expected output? Use standard logic to derive the solution.
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); border-left: 3px solid #ffc01e; border-radius: 4px; padding: 16px;">
+                        <strong style="color: #eff1f6;">Hint 2:</strong><br>
+                        In your selected programming language, ensure you are reading standard input accurately and outputting the expected response exactly as shown in the examples.
+                    </div>
+                </div>
 
-            <!-- CodeMirror Wrapper -->
-            <div class="glass-card" style="flex: 1; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid var(--ca-border, rgba(255,255,255,0.05)); box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-                <textarea id="ca-editor" style="display: none;"></textarea>
             </div>
         </div>
 
-        <!-- Right Side: Terminal Output (25%) -->
-        <div class="ca-right" style="width: 25%; background: var(--ca-term-bg, #0a0e17); border-radius: 12px; padding: 0; border: 1px solid var(--ca-border, rgba(255,255,255,0.05)); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-            <div style="background: var(--ca-term-head, rgba(255,255,255,0.02)); padding: 12px 15px; border-bottom: 1px solid var(--ca-border, rgba(255,255,255,0.03)); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
-                <span style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;"><i class="fa-solid fa-terminal" style="margin-right: 5px;"></i> Terminal</span>
+        <!-- Right Side: Code & Test (55%) -->
+        <div class="ca-right" style="width: 55%; display: flex; flex-direction: column; gap: 8px; overflow: hidden;">
+            
+            <!-- Editor Section -->
+            <div style="flex: 1; display: flex; flex-direction: column; background: #1e1e1e; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.05);">
+                <!-- Toolbar -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: #252526; flex-shrink: 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="position: relative; display: flex; align-items: center; background: rgba(255,255,255,0.05); border-radius: 4px; padding: 4px 8px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05);">
+                            <select id="ca-lang" style="-webkit-appearance: none; appearance: none; background: transparent; color: #eff1f6; border: none; font-size: 12px; font-weight: 500; padding-right: 16px; outline: none; cursor: pointer; min-width: 60px;" onchange="window.changeCodingLanguage()">
+                                <option value="c" data-ver="gcc-13.2.0-c" style="background:#1e1e1e;color:#fff;">C</option>
+                                <option value="cpp" data-ver="gcc-13.2.0" style="background:#1e1e1e;color:#fff;" selected>C++</option>
+                                <option value="csharp" data-ver="mono-6.12.0.122" style="background:#1e1e1e;color:#fff;">C#</option>
+                                <option value="java" data-ver="openjdk-jdk-22+36" style="background:#1e1e1e;color:#fff;">Java</option>
+                                <option value="javascript" data-ver="nodejs-20.17.0" style="background:#1e1e1e;color:#fff;">JavaScript</option>
+                                <option value="python" data-ver="cpython-3.14.0" style="background:#1e1e1e;color:#fff;">Python 3</option>
+                                <option value="rust" data-ver="rust-1.78.0" style="background:#1e1e1e;color:#fff;">Rust</option>
+                                <option value="go" data-ver="go-1.22.3" style="background:#1e1e1e;color:#fff;">Go</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down" style="position: absolute; right: 8px; color: #8c8c8c; font-size: 10px; pointer-events: none;"></i>
+                        </div>
+                        
+                        <div style="width: 1px; height: 14px; background: rgba(255,255,255,0.1); margin: 0 4px;"></div>
+                        
+                        <div style="display: flex; align-items: center; cursor: pointer; padding: 4px 6px; border-radius: 4px;" class="ca-hover-btn">
+                            <select id="ca-fontsize" style="-webkit-appearance: none; appearance: none; background: transparent; color: #a3a3a3; border: none; font-size: 12px; font-weight: 500; outline: none; cursor: pointer;" onchange="window.changeEditorConfig()">
+                                <option value="12px" style="background:#252526;color:#fff;">12px</option>
+                                <option value="14px" selected style="background:#252526;color:#fff;">14px</option>
+                                <option value="16px" style="background:#252526;color:#fff;">16px</option>
+                                <option value="18px" style="background:#252526;color:#fff;">18px</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down" style="color: #a3a3a3; font-size: 10px; margin-left: 2px; pointer-events: none;"></i>
+                        </div>
+                        <button title="Format Code" onclick="window.formatUserCode()" style="background: transparent; border: none; color: #a3a3a3; cursor: pointer; padding: 4px 6px; border-radius: 4px;" class="ca-hover-btn"><i class="fa-solid fa-code"></i></button>
+                        <button title="Theme Settings (Coming Soon)" onclick="alert('Advanced Theme Settings Customization is coming soon!')" style="background: transparent; border: none; color: #a3a3a3; cursor: pointer; padding: 4px 6px; border-radius: 4px;" class="ca-hover-btn"><i class="fa-solid fa-paint-roller"></i></button>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <button title="Reset Code" onclick="window.resetUserCode()" style="background: transparent; border: none; color: #8c8c8c; cursor: pointer; font-size: 14px; transition: color 0.2s;"><i class="fa-solid fa-rotate-right"></i></button>
+                        <button id="btn-run-code" onclick="window.runUserCode(${isActuallyToday})" style="background: #2cbb5d; color: #ffffff; border: none; border-radius: 4px; padding: 6px 14px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s;">
+                            <i class="fa-solid fa-play" style="font-size: 11px;"></i> Run Code ${isActuallyToday ? '& Submit' : ''}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab under toolbar -->
+                <div style="display: flex; background: #252526; padding: 0 16px;">
+                    <div style="padding: 6px 16px; background: #1e1e1e; color: #eff1f6; font-size: 12px; font-weight: 500; border-radius: 6px 6px 0 0; border: 1px solid rgba(255,255,255,0.05); border-bottom: none;">
+                        Solution
+                    </div>
+                </div>
+
+                <!-- Editor Area -->
+                <div style="flex: 1; position: relative; background: #1e1e1e;">
+                    <textarea id="ca-editor" style="display: none;"></textarea>
+                </div>
             </div>
-            <div id="ca-console" style="color: var(--ca-text-sec, #a0aec0); padding: 15px; overflow-y: auto; font-family: 'Fira Code', Consolas, monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; flex: 1;">Ready to execute...</div>
+
+            <!-- Console / Test Cases Section -->
+            <div style="height: 250px; display: flex; flex-direction: column; background: #1e1e1e; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); flex-shrink: 0; border: 1px solid rgba(255,255,255,0.05);">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px; background: #252526; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <div style="display: flex; gap: 4px;">
+                        <div id="ca-tab-tc" onclick="window.switchConsoleTab('tc')" style="padding: 10px 12px; color: #ffc01e; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; border-bottom: 2px solid #ffc01e; transition: 0.2s;">
+                            <i class="fa-solid fa-square-check"></i> Test Cases
+                        </div>
+                        <div id="ca-tab-console" onclick="window.switchConsoleTab('console')" style="padding: 10px 12px; color: #8c8c8c; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; border-bottom: 2px solid transparent; transition: 0.2s;">
+                            <i class="fa-solid fa-terminal"></i> Console Output
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="flex: 1; position: relative;">
+                    <!-- Test Cases View -->
+                    <div id="ca-view-tc" style="position: absolute; top:0; left:0; right:0; bottom:0; padding: 16px; overflow-y: auto;">
+                        ${!isSandbox && problem.testCases.length > 0 ? `
+                        <div id="ca-tc-pills" style="display: flex; gap: 8px; margin-bottom: 16px;">
+                            ${problem.testCases.map((tc, i) => `<div onclick="window.selectTestCase(${i})" style="background: ${i===0 ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)'}; color: ${i===0 ? '#eff1f6' : '#8c8c8c'}; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: 0.2s;">Case ${i+1}</div>`).join('')}
+                        </div>
+                        <div style="color: #eff1f6; font-size: 13px;">
+                            <div style="margin-bottom: 12px;">
+                                <div style="color: #8c8c8c; font-size: 12px; margin-bottom: 4px;">Input:</div>
+                                <div id="ca-tc-in" style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 6px; font-family: monospace; white-space: pre-wrap;">${problem.testCases[0]?.input || ''}</div>
+                            </div>
+                            <div>
+                                <div style="color: #8c8c8c; font-size: 12px; margin-bottom: 4px;">Expected Output:</div>
+                                <div id="ca-tc-out" style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 6px; font-family: monospace; white-space: pre-wrap;">${problem.testCases[0]?.output || ''}</div>
+                            </div>
+                        </div>
+                        ` : `<div style="color: #8c8c8c; font-size: 13px;">No test cases available.</div>`}
+                    </div>
+                    
+                    <!-- Console View -->
+                    <div id="ca-console" style="display: none; position: absolute; top:0; left:0; right:0; bottom:0; color: #d4d4d4; padding: 16px 20px; overflow-y: auto; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap;">Ready to execute...</div>
+                </div>
+            </div>
+
         </div>
 
     </div>
+    
+    <style>
+        /* Premium Editor Overrides */
+        .ca-hover-btn:hover { background: rgba(255,255,255,0.1) !important; color: #fff !important; }
+        .ca-hover-btn:hover * { color: #fff !important; }
+        
+        /* VS Code Dark+ Theme Simulation for CodeMirror */
+        .CodeMirror, .cm-s-dracula.CodeMirror { background: transparent !important; color: #d4d4d4 !important; height: 100% !important; position: absolute !important; top: 0; left: 0; width: 100%; }
+        .CodeMirror-scroll { overflow-y: auto !important; overflow-x: auto !important; }
+        .CodeMirror-gutters, .cm-s-dracula .CodeMirror-gutters { background: transparent !important; border-right: none !important; }
+        .CodeMirror-linenumber { color: #858585 !important; }
+        .CodeMirror-cursor { border-left: 2px solid #aeafad !important; }
+        .cm-s-dracula .cm-keyword { color: #569cd6 !important; }
+        .cm-s-dracula .cm-def { color: #dcdcaa !important; }
+        .cm-s-dracula .cm-variable { color: #9cdcfe !important; }
+        .cm-s-dracula .cm-variable-2 { color: #9cdcfe !important; }
+        .cm-s-dracula .cm-variable-3, .cm-s-dracula .cm-type { color: #4ec9b0 !important; }
+        .cm-s-dracula .cm-property { color: #9cdcfe !important; }
+        .cm-s-dracula .cm-operator { color: #d4d4d4 !important; }
+        .cm-s-dracula .cm-string { color: #ce9178 !important; }
+        .cm-s-dracula .cm-string-2 { color: #ce9178 !important; }
+        .cm-s-dracula .cm-comment { color: #6a9955 !important; font-style: normal !important; }
+        .cm-s-dracula .cm-number { color: #b5cea8 !important; }
+        .cm-s-dracula .cm-meta { color: #c586c0 !important; }
+        
+        /* Scrollbar Styling for Editor and Console */
+        .ca-left::-webkit-scrollbar, .ca-right ::-webkit-scrollbar { width: 8px; height: 8px; }
+        .ca-left::-webkit-scrollbar-track, .ca-right ::-webkit-scrollbar-track { background: transparent; }
+        .ca-left::-webkit-scrollbar-thumb, .ca-right ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        .ca-left::-webkit-scrollbar-thumb:hover, .ca-right ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        
+        /* Fullscreen Mode */
+        .ca-fullscreen-mode {
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100vw !important; height: 100vh !important;
+            z-index: 99999 !important;
+            background: #1e1e1e !important;
+            padding: 1rem !important;
+            box-sizing: border-box !important;
+        }
+    </style>
     `;
 }
 
@@ -356,7 +478,7 @@ function initEditor() {
     });
     
     editorInstance.setSize("100%", "100%");
-    editorInstance.setValue("// Write your logic here\\n// Read from STDIN and print to STDOUT\\n");
+    editorInstance.setValue("// Write your logic here\n// Read from STDIN and print to STDOUT\n");
 }
 
 window.startSpecificProblem = function(index) {
@@ -364,6 +486,98 @@ window.startSpecificProblem = function(index) {
     if (window.renderTabContent) window.renderTabContent('coding-arena');
 }
 
+window.resetUserCode = function() {
+    if (editorInstance) {
+        editorInstance.setValue("// Write your logic here\n// Read from STDIN and print to STDOUT\n");
+    }
+}
+
+window.formatUserCode = function() {
+    if (editorInstance) {
+        let totalLines = editorInstance.lineCount();
+        for (let i = 0; i < totalLines; i++) {
+            editorInstance.indentLine(i, "smart");
+        }
+    }
+}
+
+window.toggleFullscreenEditor = function() {
+    const container = document.querySelector('.coding-arena-container');
+    if (container) {
+        container.classList.toggle('ca-fullscreen-mode');
+        // Let CodeMirror adapt to new size
+        setTimeout(() => { if (editorInstance) editorInstance.refresh(); }, 100);
+    }
+}
+
+window.switchCaTab = function(tabName) {
+    const tabs = ['desc', 'subs', 'hints'];
+    tabs.forEach(t => {
+        const tb = document.getElementById('ca-tab-' + t);
+        const vw = document.getElementById('ca-view-' + t);
+        if(tb && vw) {
+            if(t === tabName) {
+                tb.style.color = '#ffc01e';
+                tb.style.borderBottomColor = '#ffc01e';
+                tb.style.fontWeight = '600';
+                vw.style.display = 'block';
+            } else {
+                tb.style.color = '#8c8c8c';
+                tb.style.borderBottomColor = 'transparent';
+                tb.style.fontWeight = '500';
+                vw.style.display = 'none';
+            }
+        }
+    });
+}
+
+window.switchConsoleTab = function(tabName) {
+    const tabs = ['tc', 'console'];
+    tabs.forEach(t => {
+        const tb = document.getElementById('ca-tab-' + t);
+        const vw = document.getElementById(t === 'console' ? 'ca-console' : 'ca-view-' + t);
+        if(tb && vw) {
+            if(t === tabName) {
+                tb.style.color = '#ffc01e';
+                tb.style.borderBottomColor = '#ffc01e';
+                tb.style.fontWeight = '600';
+                vw.style.display = 'block';
+            } else {
+                tb.style.color = '#8c8c8c';
+                tb.style.borderBottomColor = 'transparent';
+                tb.style.fontWeight = '500';
+                vw.style.display = 'none';
+            }
+        }
+    });
+}
+
+window.selectTestCase = function(idx) {
+    if (window.caActiveProblemIndex === -1) return;
+    const problem = window.caCodingProblems ? window.caCodingProblems[window.caActiveProblemIndex] : null;
+    if (!problem || !problem.testCases || problem.testCases.length <= idx) return;
+
+    // Update active state of pills
+    const pillContainer = document.getElementById('ca-tc-pills');
+    if (pillContainer) {
+        const pills = pillContainer.children;
+        for(let i=0; i<pills.length; i++) {
+            if(i === idx) {
+                pills[i].style.background = 'rgba(255,255,255,0.1)';
+                pills[i].style.color = '#eff1f6';
+            } else {
+                pills[i].style.background = 'rgba(255,255,255,0.03)';
+                pills[i].style.color = '#8c8c8c';
+            }
+        }
+    }
+    
+    // Update Input/Output view
+    const inDiv = document.getElementById('ca-tc-in');
+    const outDiv = document.getElementById('ca-tc-out');
+    if (inDiv) inDiv.innerText = problem.testCases[idx].input;
+    if (outDiv) outDiv.innerText = problem.testCases[idx].output;
+}
 window.backToExplorer = function() {
     window.caActiveProblemIndex = null;
     if (window.renderTabContent) window.renderTabContent('coding-arena');
@@ -585,6 +799,44 @@ window.changeCodingLanguage = function() {
     }
 }
 
+window.executeWithPaiza = async function(code, lang, stdin) {
+    let paizaLang = lang;
+    if (lang === 'python') paizaLang = 'python3';
+    
+    const createRes = await fetch('https://api.paiza.io/runners/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            source_code: code,
+            language: paizaLang,
+            input: stdin || "",
+            api_key: 'guest'
+        })
+    });
+    
+    if (!createRes.ok) throw new Error("Compiler API Create Error");
+    const createData = await createRes.json();
+    if (createData.error) throw new Error(createData.error);
+    
+    const id = createData.id;
+    
+    for (let i = 0; i < 15; i++) {
+        await new Promise(r => setTimeout(r, 1000));
+        const statusRes = await fetch(`https://api.paiza.io/runners/get_details?id=${id}&api_key=guest`);
+        const data = await statusRes.json();
+        
+        if (data.status === 'completed') {
+            return {
+                status: (data.build_exit_code !== 0 || data.exit_code !== 0) ? "1" : "0",
+                program_output: data.stdout || "",
+                program_error: data.stderr || "",
+                compiler_error: data.build_stderr || ""
+            };
+        }
+    }
+    throw new Error("Execution timed out");
+};
+
 window.runUserCode = async function(isActuallyToday) {
     const btn = document.getElementById('btn-run-code');
     const consoleOut = document.getElementById('ca-console');
@@ -598,20 +850,15 @@ window.runUserCode = async function(isActuallyToday) {
 
     btn.disabled = true;
     btn.innerText = "Running...";
+    
+    // Automatically switch to Console Output tab
+    if (window.switchConsoleTab) window.switchConsoleTab('console');
+    
     consoleOut.innerHTML = "<span style='color:#00d2ff'>Sending code to Compiler Engine...</span><br>";
 
     if (isSandbox) {
         try {
-            const res = await fetch('https://wandbox.org/api/compile.json', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    compiler: ver,
-                    code: code,
-                    stdin: ""
-                })
-            });
-            const data = await res.json();
+            const data = await window.executeWithPaiza(code, lang, "");
             
             if (data.status !== "0" && !data.program_output) {
                 consoleOut.innerHTML += `<div style="color: #ff4757; margin-top: 10px;"><b>Compile/Run Error:</b><br>${data.compiler_error || data.program_error || 'Unknown Error'}</div>`;
@@ -640,17 +887,7 @@ window.runUserCode = async function(isActuallyToday) {
         const tc = problem.testCases[i];
         
         try {
-            const res = await fetch('https://wandbox.org/api/compile.json', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    compiler: ver,
-                    code: code,
-                    stdin: tc.input
-                })
-            });
-
-            const data = await res.json();
+            const data = await window.executeWithPaiza(code, lang, tc.input);
             
             if (data.status !== "0" && !data.program_output) {
                 consoleLog += `<div style="color: #ff4757; margin-top: 10px;"><b>Test Case ${i+1} Compile/Run Error:</b>\\n${data.compiler_error || data.program_error || 'Unknown Error'}</div>`;
@@ -682,17 +919,56 @@ window.runUserCode = async function(isActuallyToday) {
         }
     }
 
-    consoleOut.innerHTML = consoleLog;
-
     if (passedAll) {
-        consoleOut.innerHTML += `<div style="margin-top:1.5rem; color: #00d2ff; font-weight:bold; font-size:1.1rem;">🎉 SUCCESS! All test cases passed!</div>`;
+        const currentLevel = (window.currentUser?.current_coding_level || 1);
+        const todayIdx = currentLevel - 1;
+        const isToday = window.caActiveProblemIndex === todayIdx;
+
+        consoleOut.innerHTML = consoleLog + `<div style="color: #2ed573; margin-top: 15px; font-weight:bold; font-size: 15px;">✓ All ${problem.testCases.length} Test Cases Passed!</div>`;
+        
+        // --- Populate Submissions View ---
+        const subsDiv = document.getElementById('ca-subs-list');
+        if (subsDiv) {
+            subsDiv.innerHTML = `
+                <div style="background: rgba(46, 213, 115, 0.1); border: 1px solid rgba(46, 213, 115, 0.2); border-radius: 8px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="color: #2ed573; font-weight: bold; font-size: 16px; margin-bottom: 4px;">Accepted</div>
+                        <div style="font-size: 12px; color: #8c8c8c;">Status: Validated</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="color: #eff1f6; font-weight: 600;">Score: +${problem.xp || 100} XP</div>
+                        <div style="font-size: 12px; color: #8c8c8c;">Time complexity: O(N)</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('ca-tab-subs').style.color = '#2ed573'; // Highlight tab to draw attention
+        }
         if (isActuallyToday) {
             await handleProblemSolved();
         } else {
             consoleOut.innerHTML += `<div style="margin-top:0.5rem; color: var(--text-dim);">Practice mode: No XP or streak awarded since this isn't today's target challenge.</div>`;
         }
     } else {
-        consoleOut.innerHTML += `<div style="margin-top:1.5rem; color: #ff4757; font-weight:bold;">Keep trying! Check your logic.</div>`;
+        consoleOut.innerHTML = consoleLog + `<div style="color: #ff4757; margin-top: 15px; font-weight:bold; font-size: 15px;">✗ Some Test Cases Failed. Keep trying! Check your logic.</div>`;
+        
+        // --- Populate Submissions View for Failure ---
+        const subsDiv = document.getElementById('ca-subs-list');
+        if (subsDiv) {
+            subsDiv.innerHTML = `
+                <div style="background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.2); border-radius: 8px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="color: #ff4757; font-weight: bold; font-size: 16px; margin-bottom: 4px;">Wrong Answer / Error</div>
+                        <div style="font-size: 12px; color: #8c8c8c;">Status: Failed</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="color: #eff1f6; font-weight: 600;">Score: +0 XP</div>
+                        <div style="font-size: 12px; color: #8c8c8c;">Review Test Cases</div>
+                    </div>
+                </div>
+            `;
+            const tabSubs = document.getElementById('ca-tab-subs');
+            if (tabSubs) tabSubs.style.color = '#ff4757';
+        }
     }
 
     btn.disabled = false;
