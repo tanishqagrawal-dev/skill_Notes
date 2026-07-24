@@ -3155,58 +3155,508 @@ function renderTimetableCards() {
 
 
 function renderAITools() {
+    // Real-time Backend Sync: Automatically lock/unlock AI coach based on real database status
+    setTimeout(async () => {
+        try {
+            const raw = localStorage.getItem('auth_user_full');
+            const fbUser = window.firebaseServices && window.firebaseServices.auth && window.firebaseServices.auth.currentUser;
+            const u = fbUser || (raw ? (() => { try { return JSON.parse(raw); } catch(e) { return null; } })() : null);
+            if (!u) return;
+            const uid = u.uid || u.id;
+            const apiUrl = location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
+            const res = await fetch(`${apiUrl}/api/user-plan?uid=${uid}&_t=${Date.now()}`);
+            const data = await res.json();
+            if (!data.plan || data.plan === 'free') {
+                if (localStorage.getItem('is_premium_' + uid) === 'true') {
+                    if (window.revertToFreeAI) window.revertToFreeAI();
+                }
+            } else if (data.plan === 'pro' || data.plan.includes('pro')) {
+                if (localStorage.getItem('is_premium_' + uid) !== 'true') {
+                    if (window.unlockPremiumAI) window.unlockPremiumAI();
+                }
+            }
+        } catch(e) { console.warn("AI Coach Backend Sync Error:", e); }
+    }, 50);
+
+    const rawUser = localStorage.getItem('auth_user_full');
+    let aiUid = 'guest';
+    if (rawUser) { try { const u = JSON.parse(rawUser); aiUid = u.uid || u.id || 'guest'; } catch(e) {} }
+
+    let todayDate = new Date().toDateString();
+    let storedDate = localStorage.getItem('ai_usage_date_' + aiUid);
+    if (storedDate !== todayDate) {
+        localStorage.setItem('ai_usage_date_' + aiUid, todayDate);
+        localStorage.setItem('ai_usage_count_' + aiUid, '0');
+    }
+
+    let aiUsage = parseInt(localStorage.getItem('ai_usage_count_' + aiUid) || '0');
+    let isPremium = localStorage.getItem('is_premium_' + aiUid) === 'true';
+    const MAX_FREE_USAGE = 5;
+    const isLocked = !isPremium && aiUsage >= MAX_FREE_USAGE;
+
     return `
-        <div class="tab-pane active fade-in" style="padding: 1rem 0; max-width: 1200px; margin: 0 auto; display: flex; justify-content: center;">
-            <div style="display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center; align-items: flex-start; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; padding: 0;">
-                <!-- Premium Chat Interface -->
-                <div class="glass-card ai-chat-container" style="flex: 1 1 550px; max-width: 850px; height: calc(100vh - 160px); min-height: 350px; max-height: 700px; padding: 0; border: 1px solid rgba(123, 97, 255, 0.3); box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 0 30px rgba(123, 97, 255, 0.1); overflow: hidden; position: relative; display: flex; flex-direction: column; transform: perspective(1000px) rotateX(1deg); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);" onmouseover="this.style.transform='perspective(1000px) rotateX(0deg) translateY(-5px)'; this.style.boxShadow='0 25px 60px rgba(108, 99, 255, 0.2), inset 0 0 30px rgba(123, 97, 255, 0.1)';" onmouseout="this.style.transform='perspective(1000px) rotateX(1deg)'; this.style.boxShadow='0 20px 50px rgba(0,0,0,0.6), inset 0 0 30px rgba(123, 97, 255, 0.1)';">
-                    <!-- Chat Header -->
-                    <div style="padding: 1rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px;">
-                        <div class="ai-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 0 15px rgba(108, 99, 255, 0.5);">🤖</div>
-                        <div>
-                            <h3 style="margin: 0; font-size: 1.1rem; color: var(--text-bright);">SKiL Matrix AI Coach <span style="font-size: 0.7rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); padding: 2px 6px; border-radius: 4px; margin-left: 5px;">PRO</span></h3>
-                            <span style="font-size: 0.75rem; color: #00ff88; display: flex; align-items: center; gap: 4px;"><span class="online-dot" style="width:6px;height:6px;background:#00ff88;border-radius:50%;display:inline-block;animation:pulse 2s infinite;"></span> Online & Ready</span>
+        <div class="tab-pane active fade-in" style="padding: 0; padding-top: 10px; width: 100%; height: calc(100vh - 130px); display: flex; justify-content: center; align-items: flex-start; box-sizing: border-box; background: transparent;">
+            
+            <style>
+                /* Dark Premium Theme CSS */
+                .ai-premium-container {
+                    width: 100%;
+                    max-width: 1000px;
+                    height: 100%;
+                    max-height: calc(100vh - 140px);
+                    background: #0a0a0a;
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: 20px;
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+                    display: flex;
+                    flex-direction: column;
+                    overflow: hidden;
+                    position: relative;
+                }
+                
+                .ai-header {
+                    padding: 1.2rem 2rem;
+                    background: #111111;
+                    border-bottom: 1px solid rgba(255,255,255,0.06);
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-shrink: 0;
+                }
+
+                .ai-header-title {
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                }
+
+                .ai-header-icon.premium-tier {
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 14px;
+                    background: linear-gradient(135deg, #111, #222);
+                    border: 1px solid rgba(251, 191, 36, 0.5);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 1.5rem;
+                    color: #fbbf24;
+                    box-shadow: 0 0 20px rgba(251, 191, 36, 0.2), inset 0 0 10px rgba(251, 191, 36, 0.1);
+                }
+                .ai-header-icon.free-tier {
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 12px;
+                    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 1.3rem;
+                    color: white;
+                    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                }
+
+                .ai-header-text h3 {
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+                
+                .ai-header-text h3.premium-tier {
+                    font-size: 1.4rem;
+                    font-weight: 800;
+                    background: linear-gradient(to right, #fbbf24, #f59e0b, #fbbf24);
+                    background-size: 200% auto;
+                    color: #fbbf24;
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    animation: shine 3s linear infinite;
+                    letter-spacing: 0.5px;
+                }
+                .ai-header-text h3.free-tier {
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    color: #fff;
+                    letter-spacing: 0px;
+                }
+                
+                @keyframes shine {
+                    to { background-position: 200% center; }
+                }
+                
+                .pro-badge.premium-tier {
+                    font-size: 0.7rem;
+                    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+                    padding: 4px 10px;
+                    border-radius: 6px;
+                    font-weight: 800;
+                    color: #000;
+                    -webkit-text-fill-color: #000;
+                    letter-spacing: 1px;
+                    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4), inset 0 2px 4px rgba(255,255,255,0.3);
+                }
+                .pro-badge.free-tier {
+                    font-size: 0.65rem;
+                    background: #2563eb;
+                    padding: 4px 8px;
+                    border-radius: 6px;
+                    font-weight: 700;
+                    color: #fff;
+                    -webkit-text-fill-color: #fff;
+                    letter-spacing: 0.5px;
+                }
+
+                .ai-status {
+                    font-size: 0.8rem;
+                    color: #a1a1aa;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin-top: 4px;
+                }
+                
+                .ai-chat-area {
+                    flex: 1;
+                    overflow-y: auto;
+                    min-height: 0;
+                    padding: 2rem;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1.5rem;
+                    scroll-behavior: smooth;
+                    background: #0a0a0a;
+                }
+
+                .ai-chat-area::-webkit-scrollbar {
+                    width: 6px;
+                }
+                
+                .ai-chat-area::-webkit-scrollbar-thumb {
+                    background: #333;
+                    border-radius: 10px;
+                }
+                
+                .quick-prompts-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 1rem;
+                    margin-top: auto;
+                    margin-bottom: 0;
+                }
+                
+                .premium-prompt-card {
+                    background: #141414;
+                    border: 1px solid #262626;
+                    border-radius: 12px;
+                    padding: 1rem;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                }
+                
+                .premium-prompt-card:hover {
+                    background: #1f1f1f;
+                    border-color: #3b82f6;
+                }
+                
+                .prompt-icon {
+                    font-size: 1.2rem;
+                    color: #3b82f6;
+                }
+                
+                .prompt-text {
+                    font-size: 0.85rem;
+                    color: #d4d4d8;
+                    line-height: 1.4;
+                }
+                
+                .premium-prompt-card:hover .prompt-text {
+                    color: #fff;
+                }
+
+                .ai-input-wrapper {
+                    padding: 1.5rem 2rem;
+                    background: #111111;
+                    border-top: 1px solid rgba(255,255,255,0.06);
+                    flex-shrink: 0;
+                }
+
+                .ai-input-container {
+                    background: #1a1a1a;
+                    border: 1px solid #333;
+                    border-radius: 16px;
+                    padding: 0.6rem;
+                    display: flex;
+                    align-items: flex-end;
+                    gap: 10px;
+                    transition: all 0.3s;
+                }
+                
+                .ai-input-container:focus-within {
+                    border-color: #3b82f6;
+                    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+                }
+
+                #ai-chat-input {
+                    flex: 1;
+                    background: transparent;
+                    border: none;
+                    color: #fff;
+                    font-family: 'Inter', sans-serif;
+                    font-size: 0.95rem;
+                    padding: 0.6rem 0.8rem;
+                    resize: none;
+                    min-height: 24px;
+                    max-height: 150px;
+                    outline: none;
+                    line-height: 1.5;
+                }
+                
+                #ai-chat-input::placeholder {
+                    color: #71717a;
+                }
+
+                .ai-action-btn {
+                    height: 40px;
+                    width: 40px;
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: none;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    flex-shrink: 0;
+                }
+
+                .mic-btn {
+                    background: transparent;
+                    color: #71717a;
+                    font-size: 1.1rem;
+                }
+                
+                .mic-btn:hover {
+                    color: #fff;
+                    background: #27272a;
+                }
+
+                .send-btn {
+                    background: #3b82f6;
+                    color: white;
+                    font-size: 1.1rem;
+                }
+                
+                .send-btn:hover {
+                    background: #2563eb;
+                }
+                
+                /* Message Styling */
+                .chat-message {
+                    display: flex;
+                    gap: 16px;
+                    max-width: 85%;
+                }
+                
+                .user-msg {
+                    align-self: flex-end;
+                    flex-direction: row-reverse;
+                }
+                
+                .msg-avatar {
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                    font-size: 1rem;
+                }
+                
+                .ai-msg .msg-avatar {
+                    background: #1e1e1e;
+                    border: 1px solid #333;
+                    color: #3b82f6;
+                }
+                
+                .user-msg .msg-avatar {
+                    background: #2563eb;
+                    color: #fff;
+                }
+                
+                .msg-bubble {
+                    padding: 1.2rem;
+                    font-size: 0.95rem;
+                    line-height: 1.6;
+                    border-radius: 14px;
+                    color: #ededed;
+                }
+                
+                .ai-msg .msg-bubble {
+                    background: #141414;
+                    border: 1px solid #262626;
+                    border-top-left-radius: 4px;
+                }
+                
+                .user-msg .msg-bubble {
+                    background: #2563eb;
+                    border: 1px solid #1d4ed8;
+                    border-top-right-radius: 4px;
+                }
+            </style>
+
+            <div class="ai-premium-container">
+                ${isLocked ? `
+                    <div id="premium-lock-overlay" style="position: absolute; inset: 0; background: rgba(10,10,10,0.85); backdrop-filter: blur(8px); z-index: 50; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                        <div style="background: #141414; border: 1px solid rgba(251,191,36,0.3); padding: 3rem; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+                            <i class="fas fa-lock" style="font-size: 4rem; color: #fbbf24; margin-bottom: 20px;"></i>
+                            <h2 style="color: #fbbf24; margin-bottom: 10px; font-size: 1.8rem;">Premium Locked</h2>
+                            <p style="color: #a1a1aa; margin-bottom: 30px; max-width: 300px; line-height: 1.6;">You've reached your free usage limit. Upgrade to unlock unlimited AI assistance.</p>
+                            <button onclick="window.location.search = '?tab=subscription'" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; font-weight: bold; border: none; padding: 12px 30px; border-radius: 12px; cursor: pointer; font-size: 1.1rem; box-shadow: 0 5px 15px rgba(251,191,36,0.3); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Buy Subscription</button>
                         </div>
                     </div>
-                    
-                    <!-- Chat History -->
-                    <div id="ai-chat-history" style="flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; scroll-behavior: smooth;">
-                        <div class="chat-message ai-msg fade-in" style="display: flex; gap: 15px; max-width: 75%;">
-                            <div class="ai-avatar-small" style="width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0;">🤖</div>
-                            <div class="msg-bubble" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.8rem 1.2rem; border-radius: 0 18px 18px 18px; color: var(--text-bright); line-height: 1.4; font-size: 0.85rem;">
-                                Hello! I'm your AI Coach. I can help you solve complex equations, explain algorithmic concepts, or generate study summaries. What do you need help with today?
+                ` : ''}
+                <!-- Header -->
+                <div class="ai-header">
+                    <div class="ai-header-title">
+                        <div id="ai-header-icon" class="ai-header-icon ${isPremium ? 'premium-tier' : 'free-tier'}"><i class="fas fa-brain"></i></div>
+                        <div class="ai-header-text">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <h3 id="ai-header-title" class="${isPremium ? 'premium-tier' : 'free-tier'}" style="margin: 0;">SKiL Matrix AI</h3>
+                                <span id="ai-pro-badge" class="pro-badge ${isPremium ? 'premium-tier' : 'free-tier'}">${isPremium ? 'PRO' : 'FREE'}</span>
+                                ${isPremium ? `<button id="demo-downgrade-btn" onclick="window.revertToFreeAI(); this.style.display='none';" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; cursor: pointer; transition: all 0.2s;">Demo Downgrade</button>` : ''}
+                            </div>
+                            <div class="ai-status">
+                                <span class="online-dot" style="width:8px;height:8px;background:#10b981;border-radius:50%;display:inline-block;"></span> 
+                                Ready to assist
                             </div>
                         </div>
                     </div>
-
-                    <!-- Input Area -->
-                    <div class="chat-input-area" style="padding: 1rem 1.5rem; background: rgba(0,0,0,0.3); border-top: 1px solid rgba(255,255,255,0.05); position: relative;">
-                        <form id="ai-chat-form" onsubmit="window.handleAIChatSubmit(event)" style="display: flex; gap: 8px; align-items: flex-end;">
-                            <button type="button" id="ai-mic-btn" title="Speak to Translate (English Only)" style="height: 45px; width: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'" onclick="window.startAIVoiceInput()"><i class="fas fa-microphone"></i></button>
-                            <textarea id="ai-chat-input" placeholder="Type your engineering doubt here..." style="flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 0.8rem 1rem; color: #fff; font-family: inherit; font-size: 0.85rem; resize: none; min-height: 45px; max-height: 120px; transition: all 0.3s;" onfocus="this.style.borderColor='var(--primary)'; this.style.background='rgba(255,255,255,0.08)';" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.background='rgba(255,255,255,0.03)';"></textarea>
-                            <button type="submit" id="ai-chat-send" class="btn btn-primary" style="height: 45px; width: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; box-shadow: 0 5px 15px rgba(108, 99, 255, 0.3);"><i class="fas fa-paper-plane"></i></button>
-                        </form>
+                    <div>
+                        <button class="btn btn-icon-mini" onclick="document.getElementById('ai-chat-history').innerHTML=''; document.getElementById('ai-quick-prompts').style.display='grid';" style="background: #262626; color: #fff; border: 1px solid #333; border-radius: 8px; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='#262626'" title="New Chat">
+                            <i class="fas fa-plus"></i>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Quick Prompts on Side -->
-                <div style="display: flex; flex-direction: column; gap: 1rem; width: 280px; flex-shrink: 0;">
-                    <div class="glass-card" style="padding: 1.5rem; height: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(0, 255, 136, 0.05); transform: perspective(1000px) rotateY(-2deg); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(255,255,255,0.05);" onmouseover="this.style.transform='perspective(1000px) rotateY(0deg) translateY(-5px)'; this.style.boxShadow='0 25px 60px rgba(0, 255, 136, 0.15), inset 0 0 20px rgba(0, 255, 136, 0.05)';" onmouseout="this.style.transform='perspective(1000px) rotateY(-2deg)'; this.style.boxShadow='0 20px 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(0, 255, 136, 0.05)';">
-                        <h4 style="margin-bottom: 1rem; color: var(--text-bright); display: flex; align-items: center; gap: 8px; font-size: 0.95rem;"><i class="fas fa-magic" style="color: var(--secondary);"></i> Quick Prompts</h4>
-                        <div style="display: flex; flex-direction: column; gap: 0.8rem;">
-                            <div class="quick-prompt-btn" onclick="window.useQuickPrompt('Explain Time Complexity of Merge Sort with an example.')" style="padding: 0.8rem 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-dim); transition: all 0.2s; text-align: left;" onmouseover="this.style.background='rgba(108,99,255,0.1)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text-dim)';">📊 Merge Sort Complexity</div>
-                            <div class="quick-prompt-btn" onclick="window.useQuickPrompt('What is the difference between TCP and UDP?')" style="padding: 0.8rem 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-dim); transition: all 0.2s; text-align: left;" onmouseover="this.style.background='rgba(108,99,255,0.1)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text-dim)';">🌐 TCP vs UDP</div>
-                            <div class="quick-prompt-btn" onclick="window.useQuickPrompt('Write a SQL query to find the second highest salary.')" style="padding: 0.8rem 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-dim); transition: all 0.2s; text-align: left;" onmouseover="this.style.background='rgba(108,99,255,0.1)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text-dim)';">💾 2nd Highest Salary</div>
-                            <div class="quick-prompt-btn" onclick="window.useQuickPrompt('What is an API?')" style="padding: 0.8rem 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-dim); transition: all 0.2s; text-align: left;" onmouseover="this.style.background='rgba(108,99,255,0.1)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text-dim)';">🔌 What is an API?</div>
-                            <div class="quick-prompt-btn" onclick="window.useQuickPrompt('Explain OOP Concepts.')" style="padding: 0.8rem 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-dim); transition: all 0.2s; text-align: left;" onmouseover="this.style.background='rgba(108,99,255,0.1)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text-dim)';">🏗️ OOP Concepts</div>
-                            <div class="quick-prompt-btn" onclick="window.useQuickPrompt('Difference between AI and ML.')" style="padding: 0.8rem 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-dim); transition: all 0.2s; text-align: left;" onmouseover="this.style.background='rgba(108,99,255,0.1)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text-dim)';">🧠 AI vs ML</div>
+                <!-- Chat Area -->
+                <div id="ai-chat-history" class="ai-chat-area">
+                    <!-- Initial AI Greeting -->
+                    <div class="chat-message ai-msg">
+                        <div class="msg-avatar"><i class="fas fa-robot"></i></div>
+                        <div class="msg-bubble">
+                            Hello! I am your <strong>SKiL Matrix AI Coach</strong>. I'm equipped to help you solve complex equations, break down algorithmic concepts, and generate study summaries. <br><br>How can I assist your learning today?
                         </div>
                     </div>
+
+                    <!-- Quick Prompts Grid (Visible when empty) -->
+                    <div id="ai-quick-prompts" class="quick-prompts-grid">
+                        <div class="premium-prompt-card" onclick="window.useQuickPrompt('Explain Time Complexity of Merge Sort with an example.')">
+                            <div class="prompt-icon"><i class="fas fa-chart-line"></i></div>
+                            <div class="prompt-text"><strong>Merge Sort</strong><br>Explain time complexity</div>
+                        </div>
+                        <div class="premium-prompt-card" onclick="window.useQuickPrompt('What is the difference between TCP and UDP?')">
+                            <div class="prompt-icon"><i class="fas fa-network-wired"></i></div>
+                            <div class="prompt-text"><strong>Networking</strong><br>TCP vs UDP</div>
+                        </div>
+                        <div class="premium-prompt-card" onclick="window.useQuickPrompt('Write a SQL query to find the second highest salary.')">
+                            <div class="prompt-icon"><i class="fas fa-database"></i></div>
+                            <div class="prompt-text"><strong>SQL Query</strong><br>Second highest salary</div>
+                        </div>
+                        <div class="premium-prompt-card" onclick="window.useQuickPrompt('Explain the 4 main pillars of Object Oriented Programming.')">
+                            <div class="prompt-icon"><i class="fas fa-cubes"></i></div>
+                            <div class="prompt-text"><strong>OOP Concepts</strong><br>4 main pillars</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="ai-input-wrapper">
+                    <form id="ai-chat-form" onsubmit="window.handleAIChatSubmit(event)" class="ai-input-container">
+                        <button type="button" id="ai-mic-btn" class="ai-action-btn mic-btn" title="Voice Input" onclick="window.startAIVoiceInput()">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <textarea id="ai-chat-input" placeholder="Message AI Coach..." rows="1" oninput="this.style.height = ''; this.style.height = Math.min(this.scrollHeight, 150) + 'px';"></textarea>
+                        <button type="submit" id="ai-chat-send" class="ai-action-btn send-btn">
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
     `;
 }
+
+window.unlockPremiumAI = function() {
+    const rawUser = localStorage.getItem('auth_user_full');
+    let aiUid = 'guest';
+    if (rawUser) { try { const u = JSON.parse(rawUser); aiUid = u.uid || u.id || 'guest'; } catch(e) {} }
+    localStorage.setItem('is_premium_' + aiUid, 'true');
+    
+    // Remove overlay
+    const overlay = document.getElementById('premium-lock-overlay');
+    if (overlay) overlay.remove();
+    
+    // Upgrade header instantly
+    const icon = document.getElementById('ai-header-icon');
+    const title = document.getElementById('ai-header-title');
+    const badge = document.getElementById('ai-pro-badge');
+    
+    if (icon) { icon.classList.remove('free-tier'); icon.classList.add('premium-tier'); }
+    if (title) { title.classList.remove('free-tier'); title.classList.add('premium-tier'); }
+    if (badge) { 
+        badge.classList.remove('free-tier'); 
+        badge.classList.add('premium-tier'); 
+        badge.textContent = 'PRO'; 
+    }
+};
+
+window.revertToFreeAI = function() {
+    const rawUser = localStorage.getItem('auth_user_full');
+    let aiUid = 'guest';
+    if (rawUser) { try { const u = JSON.parse(rawUser); aiUid = u.uid || u.id || 'guest'; } catch(e) {} }
+    localStorage.setItem('is_premium_' + aiUid, 'false');
+    
+    // Downgrade header instantly
+    const icon = document.getElementById('ai-header-icon');
+    const title = document.getElementById('ai-header-title');
+    const badge = document.getElementById('ai-pro-badge');
+    
+    if (icon) { icon.classList.remove('premium-tier'); icon.classList.add('free-tier'); }
+    if (title) { title.classList.remove('premium-tier'); title.classList.add('free-tier'); }
+    if (badge) { 
+        badge.classList.remove('premium-tier'); 
+        badge.classList.add('free-tier'); 
+        badge.textContent = 'FREE'; 
+    }
+
+    // Immediately show lock if usage is already >= MAX_FREE_USAGE
+    let aiUsage = parseInt(localStorage.getItem('ai_usage_count_' + aiUid) || '0');
+    if (aiUsage >= 5) {
+        window.showPremiumLockOverlay();
+    }
+};
+
+window.showPremiumLockOverlay = function() {
+    const container = document.querySelector('.ai-premium-container');
+    if (container && !document.getElementById('premium-lock-overlay')) {
+        const overlay = document.createElement('div');
+        overlay.id = 'premium-lock-overlay';
+        overlay.style.cssText = "position: absolute; inset: 0; background: rgba(10,10,10,0.85); backdrop-filter: blur(8px); z-index: 50; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;";
+        overlay.innerHTML = `
+            <div style="background: #141414; border: 1px solid rgba(251,191,36,0.3); padding: 3rem; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+                <i class="fas fa-lock" style="font-size: 4rem; color: #fbbf24; margin-bottom: 20px;"></i>
+                <h2 style="color: #fbbf24; margin-bottom: 10px; font-size: 1.8rem;">Premium Locked</h2>
+                <p style="color: #a1a1aa; margin-bottom: 30px; max-width: 300px; line-height: 1.6;">You've reached your free usage limit. Upgrade to unlock unlimited AI assistance.</p>
+                <button onclick="window.location.search = '?tab=subscription'" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; font-weight: bold; border: none; padding: 12px 30px; border-radius: 12px; cursor: pointer; font-size: 1.1rem; box-shadow: 0 5px 15px rgba(251,191,36,0.3); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Buy Subscription</button>
+            </div>
+        `;
+        container.appendChild(overlay);
+    }
+};
 
 window.useQuickPrompt = function(promptText) {
     const input = document.getElementById('ai-chat-input');
@@ -3226,12 +3676,11 @@ window.startAIVoiceInput = function() {
     const micBtn = document.getElementById('ai-mic-btn');
     if (micBtn) {
         micBtn.style.color = '#ff4757';
-        micBtn.style.borderColor = '#ff4757';
+        micBtn.style.background = 'rgba(255,71,87,0.1)';
         micBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     }
     
     const recognition = new SpeechRecognition();
-    // Do not set lang so it auto-detects the user's native spoken language
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
     
@@ -3239,7 +3688,6 @@ window.startAIVoiceInput = function() {
         const text = event.results[0][0].transcript;
         
         try {
-            // Translate the spoken text from any language into English
             const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=${encodeURIComponent(text)}`);
             const data = await res.json();
             const translatedText = data[0][0][0];
@@ -3255,7 +3703,6 @@ window.startAIVoiceInput = function() {
                 input.value = input.value + (input.value ? ' ' : '') + text;
             }
         }
-        
         resetMicBtn();
     };
     
@@ -3275,8 +3722,8 @@ window.startAIVoiceInput = function() {
     
     function resetMicBtn() {
         if (micBtn) {
-            micBtn.style.color = '#fff';
-            micBtn.style.borderColor = 'rgba(255,255,255,0.1)';
+            micBtn.style.color = '#71717a';
+            micBtn.style.background = 'transparent';
             micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
         }
     }
@@ -3291,63 +3738,95 @@ window.startAIVoiceInput = function() {
 
 window.handleAIChatSubmit = async function(e) {
     e.preventDefault();
+
+    const rawUser = localStorage.getItem('auth_user_full');
+    let aiUid = 'guest';
+    if (rawUser) { try { const u = JSON.parse(rawUser); aiUid = u.uid || u.id || 'guest'; } catch(e) {} }
+
+    let todayDate = new Date().toDateString();
+    let storedDate = localStorage.getItem('ai_usage_date_' + aiUid);
+    if (storedDate !== todayDate) {
+        localStorage.setItem('ai_usage_date_' + aiUid, todayDate);
+        localStorage.setItem('ai_usage_count_' + aiUid, '0');
+    }
+
+    let isPremium = localStorage.getItem('is_premium_' + aiUid) === 'true';
+    let aiUsage = parseInt(localStorage.getItem('ai_usage_count_' + aiUid) || '0');
+    const MAX_FREE_USAGE = 5;
+    
+    if (!isPremium && aiUsage >= MAX_FREE_USAGE) {
+        window.showPremiumLockOverlay();
+        return;
+    }
+
     const input = document.getElementById('ai-chat-input');
     const question = input.value.trim();
     if (!question) return;
 
+    if (!isPremium) {
+        aiUsage++;
+        localStorage.setItem('ai_usage_count_' + aiUid, aiUsage);
+        
+        if (aiUsage >= MAX_FREE_USAGE) {
+            setTimeout(() => {
+                window.showPremiumLockOverlay();
+            }, 1000);
+        }
+    }
+
     input.value = '';
+    input.style.height = ''; 
     const historyBox = document.getElementById('ai-chat-history');
 
-    // Add user message
+    const quickPrompts = document.getElementById('ai-quick-prompts');
+    if (quickPrompts) quickPrompts.style.display = 'none';
+
     historyBox.innerHTML += `
-        <div class="chat-message user-msg fade-in" style="display: flex; gap: 15px; max-width: 85%; align-self: flex-end; flex-direction: row-reverse;">
-            <div class="user-avatar-small" style="width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0;"><i class="fas fa-user"></i></div>
-            <div class="msg-bubble" style="background: linear-gradient(135deg, rgba(108,99,255,0.3), rgba(108,99,255,0.1)); border: 1px solid rgba(108,99,255,0.3); padding: 1rem 1.5rem; border-radius: 18px 0 18px 18px; color: #fff; line-height: 1.5; font-size: 0.95rem;">
-                ${question.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+        <div class="chat-message user-msg">
+            <div class="msg-avatar"><i class="fas fa-user"></i></div>
+            <div class="msg-bubble">
+                ${question.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}
             </div>
         </div>
     `;
 
-    // Add loader
     const loaderId = 'loader-' + Date.now();
     historyBox.innerHTML += `
-        <div id="${loaderId}" class="chat-message ai-msg fade-in" style="display: flex; gap: 15px; max-width: 85%;">
-            <div class="ai-avatar-small" style="width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0;">🤖</div>
-            <div class="msg-bubble" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem 1.5rem; border-radius: 0 18px 18px 18px; color: var(--text-bright); display: flex; align-items: center; gap: 8px;">
-                <div class="typing-dot" style="width:6px;height:6px;background:var(--primary);border-radius:50%;animation:pulse 1s infinite;"></div>
-                <div class="typing-dot" style="width:6px;height:6px;background:var(--primary);border-radius:50%;animation:pulse 1s infinite 0.2s;"></div>
-                <div class="typing-dot" style="width:6px;height:6px;background:var(--primary);border-radius:50%;animation:pulse 1s infinite 0.4s;"></div>
+        <div id="${loaderId}" class="chat-message ai-msg">
+            <div class="msg-avatar"><i class="fas fa-robot"></i></div>
+            <div class="msg-bubble" style="display: flex; align-items: center; gap: 8px; padding: 1.5rem;">
+                <div class="typing-dot" style="width:8px;height:8px;background:#3b82f6;border-radius:50%;animation:pulse 1s infinite;"></div>
+                <div class="typing-dot" style="width:8px;height:8px;background:#3b82f6;border-radius:50%;animation:pulse 1s infinite 0.2s;"></div>
+                <div class="typing-dot" style="width:8px;height:8px;background:#3b82f6;border-radius:50%;animation:pulse 1s infinite 0.4s;"></div>
             </div>
         </div>
     `;
     historyBox.scrollTop = historyBox.scrollHeight;
 
-    // Fetch response via window.aiClient if available, otherwise mock it for now
     try {
-        let answer = "I'm sorry, my API is currently disconnected. Please check \`ai-client.js\` configuration.";
+        let answer = "I'm sorry, my API is currently disconnected. Please check `ai-client.js` configuration.";
         if (window.aiClient && typeof window.aiClient.askDoubt === 'function') {
             answer = await window.aiClient.askDoubt(question);
         } else {
-            // Mock answer if API is not fully hooked up
-            answer = "Here is a simulated response from the AI Coach. It seems the API key is not currently injected, but the UI is fully functional! To fix this, make sure \`ai-client.js\` is loaded properly and the Gemini Key is active.";
+            answer = "Here is a simulated response from the AI Coach. It seems the API key is not currently injected, but the UI is fully functional! To fix this, make sure `ai-client.js` is loaded properly and the Gemini Key is active.";
         }
 
         document.getElementById(loaderId).remove();
         
-        // Add AI response
         historyBox.innerHTML += `
-            <div class="chat-message ai-msg fade-in" style="display: flex; gap: 15px; max-width: 85%;">
-                <div class="ai-avatar-small" style="width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0;">🤖</div>
-                <div class="msg-bubble" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem 1.5rem; border-radius: 0 18px 18px 18px; color: var(--text-bright); line-height: 1.5; font-size: 0.95rem;">
-                    ${window.marked && window.marked.parse ? marked.parse(answer) : answer.replace(/\\n/g, '<br>')}
+            <div class="chat-message ai-msg">
+                <div class="msg-avatar"><i class="fas fa-robot"></i></div>
+                <div class="msg-bubble">
+                    ${window.marked && window.marked.parse ? marked.parse(answer) : answer.replace(/\n/g, '<br>')}
                 </div>
             </div>
         `;
     } catch (err) {
         document.getElementById(loaderId).remove();
         historyBox.innerHTML += `
-            <div class="chat-message ai-msg fade-in" style="display: flex; gap: 15px; max-width: 85%;">
-                <div class="msg-bubble" style="background: rgba(255,0,0,0.1); border: 1px solid rgba(255,0,0,0.3); padding: 1rem 1.5rem; border-radius: 0 18px 18px 18px; color: #ff4b4b;">
+            <div class="chat-message ai-msg">
+                <div class="msg-avatar" style="background: rgba(255,0,0,0.1); border-color: rgba(255,0,0,0.2); color: #ef4444;"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="msg-bubble" style="background: #141414; border-color: #ef4444; color: #ef4444;">
                     Error connecting to AI Server. Please try again.
                 </div>
             </div>
