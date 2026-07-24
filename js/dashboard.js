@@ -4101,52 +4101,28 @@ function renderOverview() {
                     </div>
                 </div>
 
-                <!-- Right: Your Track -->
+                <!-- Right: Your Progress Showcase -->
                 <div class="side-column glass-card" style="padding: 2rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                         <h3 class="font-heading" style="font-size: 1.4rem; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.75rem;">
-                            <span>🚀</span> <span style="background: linear-gradient(90deg, #5b8df8, #00e5ff, #a27cf6, #f355a2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Your Track</span>
+                            <span>📈</span> <span style="background: linear-gradient(90deg, #f1c40f, #f39c12); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Your Progress</span>
                         </h3>
-                        <button class="btn-edit-plan" onclick="openPlannerEditor()">Edit Plan ✏️</button>
                     </div>
-                    <div class="track-list timeline-container">
-                        ${weeklyPlan.map(item => {
-        let icon = "🔒";
-        let extraHtml = "";
-        let statusClass = item.status;
-        let subtitle = "";
-
-        if (item.status === 'completed') {
-            icon = "✅";
-            subtitle = "Completed 100%";
-        } else if (item.status === 'active') {
-            icon = "⏳";
-            subtitle = `In Progress - ${item.progress || 0}%`;
-            extraHtml = `
-                                    <div class="track-progress-bar-bg">
-                                        <div class="track-progress-bar-fill" style="width: ${item.progress || 0}%;">
-                                            <div class="progress-shimmer"></div>
-                                        </div>
-                                    </div>
-                                `;
-        } else {
-            icon = "🔒";
-            subtitle = "Unlocks after previous week";
-        }
-
-        return `
-                                <div class="track-step-pro ${statusClass}">
-                                    <div class="track-icon-wrapper">${icon}</div>
-                                    <div class="track-content" style="${item.status === 'active' ? 'flex: 1;' : ''}">
-                                        <h4>Week ${item.week}: ${item.title}</h4>
-                                        ${extraHtml}
-                                        <p style="${item.status === 'active' ? 'color: var(--primary-light);' : ''}">${subtitle}</p>
-                                    </div>
-                                </div>
-                            `;
-    }).join('')}
+                    
+                    <div class="live-activity-list" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                        <div class="live-activity-item glow-green" style="background: rgba(46, 213, 115, 0.05); border: 1px solid rgba(46, 213, 115, 0.1);">
+                            <span style="font-size: 1.2rem;">⏱️</span>
+                            <div style="font-weight: 700;">${window.currentUser?.focusminutes || 0} mins <span style="font-weight: 400; color: var(--text-dim);">Focus Time</span></div>
+                        </div>
+                        <div class="live-activity-item glow-purple" style="background: rgba(157, 80, 187, 0.05); border: 1px solid rgba(157, 80, 187, 0.1);">
+                            <span style="font-size: 1.2rem;">📚</span>
+                            <div style="font-weight: 700;">${window.currentUser?.uploads || 0} <span style="font-weight: 400; color: var(--text-dim);">Notes Uploaded</span></div>
+                        </div>
+                        <div class="live-activity-item glow-cyan" style="background: rgba(0, 210, 255, 0.05); border: 1px solid rgba(0, 210, 255, 0.1);">
+                            <span style="font-size: 1.2rem;">🎯</span>
+                            <div style="font-weight: 700;">${window.currentUser?.xp || 0} XP <span style="font-weight: 400; color: var(--text-dim);">Total Earned</span></div>
+                        </div>
                     </div>
-                    <button class="btn-continue-track" onclick="renderTabContent('notes')">[ Continue Track ]</button>
                 </div>
             </div>
 
