@@ -98,6 +98,28 @@ video {
     display: block;
 }
 
+img,
+video,
+a,
+.founder-card,
+.founder-inner,
+.founder-img-wrapper,
+.modal-profile-img,
+.logo,
+.footer-logo-area {
+    -webkit-user-drag: none !important;
+    -webkit-touch-callout: none !important;
+}
+
+img,
+.founder-img-wrapper img,
+.modal-profile-img img {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+}
+
 .cyber-grid {
     display: none;
 }
@@ -598,7 +620,7 @@ input:checked+.toggle-slider:before {
 /* Hero Section */
 .hero {
     position: relative;
-    padding: 6rem 0 3.5rem;
+    padding: 4.2rem 0 2.2rem;
     overflow: hidden;
 }
 
@@ -839,6 +861,495 @@ input:checked+.toggle-slider:before {
     height: 100%;
     background: radial-gradient(circle at 50% 50%, rgba(108, 99, 255, 0.2), transparent);
     pointer-events: none;
+}
+
+/* --- Ultra-Premium Hero Pro (Exact Image 1 Replica) --- */
+.hero-content-pro {
+    display: flex;
+    flex-direction: column;
+    gap: 2.2rem;
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.hero-grid-top {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+/* Left Column: Text & CTA */
+.hero-text-pro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-right: 0.5rem;
+}
+
+.badge-pro {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 1.15rem;
+    background: rgba(25, 30, 48, 0.65);
+    color: #cbd5e1;
+    border: 1px solid rgba(139, 92, 246, 0.45);
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    margin-bottom: 1.6rem;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    transition: all 0.3s ease;
+}
+
+.badge-pro:hover {
+    border-color: #00F2FF;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 25px -2px rgba(0, 242, 255, 0.25);
+}
+
+
+
+.hero-heading-pro {
+    font-size: 3rem;
+    line-height: 1.12;
+    margin-bottom: 1.35rem;
+    letter-spacing: -0.035em;
+    font-weight: 850;
+    color: #ffffff;
+}
+
+@media screen and (min-width: 1024px) {
+    .hero-heading-pro {
+        font-size: 3.75rem;
+        line-height: 1.1;
+        letter-spacing: -0.04em;
+    }
+}
+
+.gradient-text-pro {
+    background: linear-gradient(135deg, #00f2ff 0%, #7b61ff 50%, #ff2d95 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 850;
+    display: inline-block;
+}
+
+.hero-subtitle-pro {
+    font-size: 1.1rem;
+    color: #94a3b8;
+    margin-bottom: 2.3rem;
+    max-width: 520px;
+    line-height: 1.7;
+    font-weight: 400;
+}
+
+.hero-cta-pro {
+    display: flex;
+    gap: 1.25rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* High-Tech Luxury Primary Pill Button */
+.btn-primary-tech {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #3B82F6 100%);
+    color: #ffffff;
+    font-weight: 650;
+    font-size: 0.98rem;
+    letter-spacing: 0.01em;
+    padding: 0.85rem 2.1rem;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 10px 30px -5px rgba(123, 97, 255, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary-tech:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px -5px rgba(0, 242, 255, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+    background: linear-gradient(135deg, #7B61FF 0%, #A78BFA 50%, #00F2FF 100%);
+    border-color: #ffffff;
+}
+
+/* Sleek Glassmorphic Luxury Secondary Pill Button */
+.btn-secondary-tech {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    color: #F8FAFC;
+    font-weight: 600;
+    font-size: 0.98rem;
+    letter-spacing: 0.01em;
+    padding: 0.85rem 2rem;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    backdrop-filter: blur(16px);
+}
+
+.btn-secondary-tech:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #00F2FF;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 242, 255, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+/* Right Column: Real Students Branded Hero Scene */
+.hero-visual-pro {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 0;
+}
+
+@keyframes floatIcon {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+}
+
+/* Futuristic Volumetric Torch Light Beam from Left Corner */
+.hero-torch-light {
+    position: absolute;
+    top: -200px;
+    left: -200px;
+    width: 800px;
+    height: 800px;
+    background: 
+        radial-gradient(circle at 0% 0%, rgba(0, 242, 255, 0.22) 0%, rgba(123, 97, 255, 0.15) 35%, transparent 70%),
+        conic-gradient(from 115deg at 0% 0%, transparent 0deg, rgba(0, 242, 255, 0.1) 20deg, rgba(123, 97, 255, 0.18) 40deg, rgba(0, 242, 255, 0.1) 60deg, transparent 85deg);
+    filter: blur(45px);
+    pointer-events: none;
+    z-index: 0;
+    animation: torchSweep 8s ease-in-out infinite alternate;
+    transform-origin: 0% 0%;
+}
+
+@keyframes torchSweep {
+    0% {
+        opacity: 0.65;
+        transform: rotate(-4deg) scale(0.96);
+    }
+    50% {
+        opacity: 0.95;
+        transform: rotate(5deg) scale(1.06);
+    }
+    100% {
+        opacity: 0.75;
+        transform: rotate(-2deg) scale(1.02);
+    }
+}
+
+/* Million Dollar Cyber-HUD Matrix Orbit System (Zero Blurry Glow, Pure Sci-Fi Precision) */
+.tech-orbit-system {
+    position: absolute;
+    width: 650px;
+    height: 650px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.orbit-ring {
+    position: absolute;
+    border-radius: 50%;
+    transition: all 0.5s ease;
+}
+
+/* Ring 1: Sci-Fi Radar Arc with Asymmetric Glow */
+.ring-1 {
+    width: 590px;
+    height: 590px;
+    border-top: 2px solid #00F2FF;
+    border-right: 1px dashed rgba(139, 92, 246, 0.4);
+    border-bottom: 2px solid #7B61FF;
+    border-left: 1px dotted transparent;
+    box-shadow: 0 0 30px -5px rgba(0, 242, 255, 0.25);
+    animation: spinOrbitRight 35s linear infinite;
+}
+
+/* Ring 2: Quantum Data Track */
+.ring-2 {
+    width: 510px;
+    height: 510px;
+    border: 1px dashed rgba(139, 92, 246, 0.45);
+    border-left: 2px solid #FF2D95;
+    border-right: 2px solid #00F2FF;
+    box-shadow: inset 0 0 20px -5px rgba(123, 97, 255, 0.3);
+    animation: spinOrbitLeft 25s linear infinite;
+}
+
+/* Ring 3: Architectural Outer Scale Ring */
+.ring-3 {
+    width: 650px;
+    height: 650px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    animation: pulseRingScale 5s ease-in-out infinite;
+}
+
+
+
+@keyframes spinOrbitRight {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes spinOrbitLeft {
+    0% { transform: rotate(360deg); }
+    100% { transform: rotate(0deg); }
+}
+
+@keyframes pulseRingScale {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.02); opacity: 0.95; }
+}
+
+@keyframes floatNode {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-6px) scale(1.05); }
+}
+
+/* Frameless container - zero borders, zero box shadows, zero hard edges */
+.students-scene-wrapper {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 580px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    overflow: visible;
+}
+
+.students-scene-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    transform: none;
+    /* 48% radius guarantees mask hits 0% opacity BEFORE reaching image borders, eliminating all boundary lines */
+    -webkit-mask-image: radial-gradient(ellipse 48% 48% at 50% 50%, black 65%, transparent 100%);
+    -webkit-mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-image: radial-gradient(ellipse 48% 48% at 50% 50%, black 65%, transparent 100%);
+    mask-size: 100% 100%;
+    mask-repeat: no-repeat;
+}
+
+/* Completely disabled vignette overlay so nothing touches or darkens the image */
+.students-scene-vignette {
+    display: none;
+}
+
+/* Floating Glassmorphic Branding Badges - Clean & Minimalist */
+.scene-badge {
+    position: absolute;
+    z-index: 5;
+    background: linear-gradient(135deg, rgba(25, 30, 50, 0.85), rgba(12, 15, 28, 0.92));
+    border: 1px solid rgba(139, 92, 246, 0.45);
+    border-radius: 14px;
+    padding: 0.6rem 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.8), 0 0 20px rgba(123, 97, 255, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: #ffffff;
+    font-size: 0.78rem;
+    font-weight: 600;
+    animation: floatIcon 4s ease-in-out infinite;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scene-badge:hover {
+    border-color: #00f2ff;
+    transform: scale(1.05);
+    box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.9), 0 0 25px rgba(0, 242, 255, 0.3);
+}
+
+.badge-top-right {
+    top: 8%;
+    right: 5%;
+    animation-delay: 0s;
+}
+
+.badge-bottom-left {
+    bottom: 10%;
+    left: 5%;
+    padding: 0.65rem 1rem;
+    animation-delay: 1.5s;
+}
+
+.badge-bottom-right {
+    bottom: 14%;
+    right: 5%;
+    animation-delay: 0.7s;
+}
+
+.badge-icon {
+    font-size: 1.3rem;
+}
+
+.badge-title {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.badge-sub {
+    font-size: 0.64rem;
+    color: #00f2ff;
+    margin-top: 1px;
+}
+
+.badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dot-cyan { background: #00f2ff; box-shadow: 0 0 8px #00f2ff; }
+.dot-green { background: #10b981; box-shadow: 0 0 8px #10b981; }
+
+
+/* Bottom Strip */
+.hero-bottom-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.15rem;
+    background: rgba(16, 20, 36, 0.85);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 20px;
+    padding: 1.1rem 1.6rem;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    transition: border-color 0.3s ease;
+}
+
+.hero-bottom-strip:hover {
+    border-color: rgba(0, 242, 255, 0.4);
+}
+
+.strip-item {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    transition: transform 0.2s ease;
+}
+
+.strip-item:hover {
+    transform: translateY(-2px);
+}
+
+.strip-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.strip-item:hover .strip-icon {
+    transform: scale(1.1) rotate(5deg);
+    border-color: currentColor;
+    box-shadow: 0 0 15px currentColor;
+}
+
+.icon-notes { color: #cbd5e1; }
+.icon-tools { color: #a78bfa; }
+.icon-progress { color: #38bdf8; }
+.icon-community { color: #c084fc; }
+
+.strip-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.strip-title {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.strip-desc {
+    font-size: 0.7rem;
+    color: #8f9bb3;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.strip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.dot-purple { background: #7b61ff; }
+.dot-pink { background: #ff2d95; }
+.dot-blue { background: #38bdf8; }
+.dot-indigo { background: #818cf8; }
+
+/* Responsive Adjustments for Ultra-Premium Hero */
+@media screen and (max-width: 1024px) {
+    .hero-grid-top {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    .hero-bottom-strip {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (max-width: 640px) {
+    .hero-heading-pro {
+        font-size: 2.2rem;
+    }
+    .ui-grid {
+        grid-template-columns: 1fr;
+    }
+    .hero-bottom-strip {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+    }
 }
 
 /* Section Divider */
@@ -2573,12 +3084,10 @@ div[style*="background-color: rgb(7, 204, 137)"],
     border: 3px solid rgba(255, 255, 255, 0.9);
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5) inset;
     transform: translateZ(10px);
-    filter: contrast(1.1) brightness(1.1) saturate(1.15);
     transition: all 0.3s ease;
 }
 
 .founder-card:hover .founder-img-wrapper img {
-    filter: contrast(1.15) brightness(1.2) saturate(1.2);
     box-shadow: 0 0 25px rgba(255, 255, 255, 0.4) inset;
 }
 

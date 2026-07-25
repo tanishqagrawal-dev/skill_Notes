@@ -2,7 +2,7 @@ const founderData = {
     tanishq: {
         name: "Tanishq Agrawal",
         role: "Frontend, UI/UX, Marketing & Features",
-        img: "assets/anoop.jpg?v=6.0",
+        img: "assets/Tanishq agrawal.jpeg?v=1.0",
         bio: "The driving force behind the platform's visual identity, user experience, and strategic growth. Tanishq leads Frontend Engineering and UI/UX Design, bridging the gap between complex code and beautiful interfaces. He also spearheads Digital Marketing strategies and oversees Feature Innovation to ensure the product constantly evolves.",
         social: {
             github: "https://github.com/tanishqagrawal-dev",
@@ -26,7 +26,7 @@ const founderData = {
     anoop: {
         name: "Anoop Verma",
         role: "Lead AI & Backend Developer",
-        img: "assets/tanishq.jpg?v=6.0",
+        img: "assets/anoop.jpg?v=6.0",
         bio: "The mind behind the machine. Anoop architects the complex AI models and backend logic that power the 'brain' of Skill Matrix. From natural language processing to predictive analytics, he transforms raw data into actionable career intelligence for our users.",
         social: {
             github: "https://github.com/MakoShar",
@@ -49,7 +49,7 @@ window.openFounderModal = function (id) {
             <div class="modal-profile-img" style="--primary: ${data.color || '#00F2FF'}; --secondary: ${data.secondaryColor || '#7B61FF'};">
                 <div class="founder-border-glow"></div>
                 <div class="founder-border-ring"></div>
-                <img src="${data.img}" alt="${data.name}" onerror="this.src='assets/logo.jpg?v=7.0'" style="object-position: center 15%; filter: contrast(1.15) brightness(1.2) saturate(1.2);">
+                <img src="${data.img}" alt="${data.name}" onerror="this.src='assets/logo.jpg?v=7.0'" style="object-position: center 15%;">
             </div>
             <div class="modal-socials">
                 <a href="${data.social.github}" target="_blank" class="social-btn" title="GitHub">

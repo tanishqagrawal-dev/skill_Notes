@@ -402,4 +402,29 @@ function initNavbarLogic() {
             if (arrow) arrow.style.transform = 'rotate(0deg)';
         }
     });
+
+    // Global Protection: Prevent dragging any image or image-link across the website
+    document.addEventListener('dragstart', (e) => {
+        if (e.target && (
+            e.target.tagName === 'IMG' ||
+            (e.target.querySelector && e.target.querySelector('img')) ||
+            e.target.closest('img') ||
+            e.target.closest('.founder-card, .founder-inner, .founder-img-wrapper, .modal-profile-img, .logo, .footer-logo-area')
+        )) {
+            e.preventDefault();
+            return false;
+        }
+    }, false);
+
+    // Global Protection: Prevent right-click (context menu) on images to prevent opening in new tab
+    document.addEventListener('contextmenu', (e) => {
+        if (e.target && (
+            e.target.tagName === 'IMG' ||
+            e.target.closest('img') ||
+            e.target.closest('.founder-card, .founder-inner, .founder-img-wrapper, .modal-profile-img, .logo, .footer-logo-area')
+        )) {
+            e.preventDefault();
+            return false;
+        }
+    }, false);
 }
