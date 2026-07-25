@@ -17,7 +17,7 @@ window.uploadNoteToFirebase = async function (file, metadata) {
         const statusEl = document.getElementById('upload-status-text');
         const progressBar = document.getElementById('upload-progress');
         
-        if (statusEl) statusEl.innerText = "Uploading to Supabase Storage...";
+        if (statusEl) statusEl.innerText = "📤 Uploading note file...";
         if (progressBar) progressBar.style.width = '30%';
 
         const currentUser = window.currentUser || window.authStatus?.data?.currentUser || {};
@@ -56,7 +56,7 @@ window.uploadNoteToFirebase = async function (file, metadata) {
         if (uploadError) throw uploadError;
 
         if (progressBar) progressBar.style.width = '60%';
-        if (statusEl) statusEl.innerText = "Saving metadata...";
+        if (statusEl) statusEl.innerText = "⏳ Finalizing upload details...";
 
         // Get public URL
         const { data: { publicUrl } } = supabase.storage

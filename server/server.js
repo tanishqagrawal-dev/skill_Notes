@@ -698,6 +698,11 @@ app.get('/api/get-random-paper', (req, res) => {
     }
 });
 
+// Wildcard 404 Handler - Serves our Ultra Premium Personalized 404 Page
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, '../404.html'));
+});
+
 app.listen(port, () => {
     console.log(`\n🚀 AI Server running at http://localhost:${port}`);
     console.log(`📂 Local Cache active at data/cached_papers.json`);

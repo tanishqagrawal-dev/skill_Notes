@@ -888,19 +888,19 @@ window.openUploadModal = async function () {
         modal.className = 'modal';
         modal.style.cssText = `
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             z-index: 10000; display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
         `;
 
         // Using User's HTML Structure
         modal.innerHTML = `
-            <div class="upload-card" onclick="event.stopPropagation()">
-                <button onclick="closeDashboardUploadModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            <div class="upload-card notes-upload-card" onclick="event.stopPropagation()">
+                <button onclick="closeDashboardUploadModal()" class="notes-upload-close-btn" title="Close">&times;</button>
                 <h2>Upload Notes</h2>
-                <p class="subtitle">Share your notes with your juniors</p>
+                <p class="subtitle">Share your academic notes & PYQs with peers</p>
 
-                <form class="upload-form" id="dash-upload-form">
+                <form class="upload-form notes-upload-form" id="dash-upload-form">
                     <!-- COLLEGE (SELECT) -->
                     <div class="form-group full">
                     <label for="college">College Name</label>
@@ -909,8 +909,8 @@ window.openUploadModal = async function () {
                         ${GlobalData.colleges.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
                         <option value="new_college">+ Other (Add New Institution)</option>
                     </select>
-                    <div id="college-new-wrapper" style="display: none; margin-top: 10px;">
-                        <input type="text" id="college-new-name" placeholder="Enter Full Institution Name" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--primary); border-radius: 8px; color: white;">
+                    <div id="college-new-wrapper" style="display: none; margin-top: 8px;">
+                        <input type="text" id="college-new-name" placeholder="Enter Full Institution Name" style="width: 100%; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--primary); border-radius: 8px; color: white;">
                     </div>
                     </div>
 
@@ -972,29 +972,44 @@ window.openUploadModal = async function () {
                     </select>
                     </div>
 
-                    <div class="form-group full">
+                    <div class="form-group">
                     <label for="title">Notes Title</label>
                     <input id="title" type="text" placeholder="Enter notes title" required />
                     </div>
 
-                    <!-- FILE UPLOAD -->
-                    <div class="form-group full" id="drop-zone" style="transition: all 0.2s;">
-                    <label for="file">Upload File (pdf, ppt, doc)</label>
-                    <input
-                        id="file"
-                        type="file"
-                        accept=".pdf,.ppt,.pptx,.doc,.docx"
-                        required
-                    />
+                    <!-- FILE UPLOAD DROP ZONE -->
+                    <div class="form-group full" id="drop-zone-container" style="position: relative; margin-top: 4px;">
+                        <input
+                            id="file"
+                            type="file"
+                            style="display: none;"
+                            accept=".pdf,.ppt,.pptx,.doc,.docx"
+                        />
+                        <label id="drop-zone-label" for="file" style="cursor: pointer; display: block; border: 1.5px dashed rgba(102, 255, 227, 0.3); background: rgba(255, 255, 255, 0.02); border-radius: 12px; padding: 22px 16px; text-align: center; transition: all 0.25s ease;">
+                            ☁️ <b style="color: #fff;">Click here</b> or drag & drop file<br>
+                            <span style="font-size: 11px; color: #7e8ba8; font-weight: normal; margin-top: 4px; display: inline-block;">Supports PDF, PPT, DOC (Max 50MB)</span>
+                        </label>
+                        <div id="file-attached-card" style="display: none; background: rgba(0, 0, 0, 0.5); border: 1px solid #00ff87; padding: 14px 16px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 255, 135, 0.15); transition: all 0.25s ease;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                                <div style="display: flex; align-items: center; gap: 14px; overflow: hidden;">
+                                    <div id="attached-file-icon" style="flex-shrink: 0;"></div>
+                                    <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        <div id="attached-file-name" style="color: #00ff87; font-weight: 600; font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis;"></div>
+                                        <div style="color: #7e8ba8; font-size: 0.75rem; margin-top: 3px;">Size: <span id="attached-file-size" style="color: #fff; font-weight: 500;"></span></div>
+                                    </div>
+                                </div>
+                                <button type="button" id="remove-file-btn" title="Remove attachment" style="background: rgba(255, 95, 86, 0.15); border: 1px solid rgba(255, 95, 86, 0.3); color: #ff5f56; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; flex-shrink: 0; transition: all 0.2s ease;">✕</button>
+                            </div>
+                        </div>
                     </div>
 
-                    <button type="submit" class="primary-btn" id="dash-submit-btn">Upload Note</button>
+                    <button type="submit" class="primary-btn notes-upload-submit-btn" id="dash-submit-btn">Upload Note</button>
                     <!-- Progress Bar -->
-                    <div style="grid-column: 1/-1; margin-top: 10px; display: none;" id="upload-status-area">
+                    <div style="grid-column: 1/-1; margin-top: 8px; display: none;" id="upload-status-area">
                         <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;">
-                            <div id="upload-progress" style="width: 0%; height: 100%; background: var(--secondary);"></div>
+                            <div id="upload-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00ff87, #60efff); transition: width 0.3s ease;"></div>
                         </div>
-                        <div style="font-size: 0.8rem; color: var(--text-dim); text-align: center; margin-top: 5px;" id="upload-status-text">Uploading...</div>
+                        <div style="font-size: 0.8rem; color: #a0a8c0; text-align: center; margin-top: 6px; font-weight: 500;" id="upload-status-text">Uploading...</div>
                     </div>
                 </form>
             </div>
@@ -1010,12 +1025,68 @@ window.openUploadModal = async function () {
             if (e.target === modal) closeDashboardUploadModal();
         }
 
-        // Drag and Drop Logic
-        const dropZone = document.getElementById('drop-zone');
+        // Drag and Drop & File Display Logic
+        const dropZoneContainer = document.getElementById('drop-zone-container');
+        const dropZoneLabel = document.getElementById('drop-zone-label');
+        const fileAttachedCard = document.getElementById('file-attached-card');
         const fileInput = document.getElementById('file');
+        const attachedIcon = document.getElementById('attached-file-icon');
+        const attachedName = document.getElementById('attached-file-name');
+        const attachedSize = document.getElementById('attached-file-size');
+        const removeBtn = document.getElementById('remove-file-btn');
+
+        const formatFileSize = (bytes) => {
+            if (bytes >= 1024 * 1024 * 1024) {
+                return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+            } else if (bytes >= 1024 * 1024) {
+                return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+            } else if (bytes >= 1024) {
+                return (bytes / 1024).toFixed(1) + ' KB';
+            } else {
+                return bytes + ' B';
+            }
+        };
+
+        const getFileBadge = (filename) => {
+            const ext = filename.split('.').pop().toLowerCase();
+            if (ext === 'pdf') {
+                return `<span style="background: rgba(255, 59, 48, 0.18); color: #ff3b30; border: 1px solid rgba(255, 59, 48, 0.4); padding: 6px 10px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(255, 59, 48, 0.15);">📕 PDF</span>`;
+            } else if (ext === 'ppt' || ext === 'pptx') {
+                return `<span style="background: rgba(255, 149, 0, 0.18); color: #ff9500; border: 1px solid rgba(255, 149, 0, 0.4); padding: 6px 10px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(255, 149, 0, 0.15);">📙 PPT</span>`;
+            } else if (ext === 'doc' || ext === 'docx') {
+                return `<span style="background: rgba(0, 122, 255, 0.18); color: #60efff; border: 1px solid rgba(0, 122, 255, 0.4); padding: 6px 10px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0, 122, 255, 0.15);">📘 DOC</span>`;
+            } else {
+                return `<span style="background: rgba(160, 168, 192, 0.18); color: #a0a8c0; border: 1px solid rgba(160, 168, 192, 0.4); padding: 6px 10px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px;">📁 FILE</span>`;
+            }
+        };
+
+        const updateFileDisplay = () => {
+            const file = fileInput.files[0];
+            if (file) {
+                attachedIcon.innerHTML = getFileBadge(file.name);
+                attachedName.innerText = file.name;
+                attachedSize.innerText = formatFileSize(file.size);
+                dropZoneLabel.style.display = 'none';
+                fileAttachedCard.style.display = 'block';
+            } else {
+                dropZoneLabel.style.display = 'block';
+                fileAttachedCard.style.display = 'none';
+            }
+        };
+
+        fileInput.addEventListener('change', updateFileDisplay);
+
+        if (removeBtn) {
+            removeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                fileInput.value = '';
+                updateFileDisplay();
+            });
+        }
 
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
+            dropZoneContainer.addEventListener(eventName, preventDefaults, false);
         });
 
         function preventDefaults(e) {
@@ -1024,31 +1095,27 @@ window.openUploadModal = async function () {
         }
 
         ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, highlight, false);
+            dropZoneContainer.addEventListener(eventName, () => {
+                dropZoneLabel.style.borderColor = '#00ff87';
+                dropZoneLabel.style.background = 'rgba(0, 255, 135, 0.08)';
+            }, false);
         });
 
         ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, unhighlight, false);
+            dropZoneContainer.addEventListener(eventName, () => {
+                dropZoneLabel.style.borderColor = 'rgba(102, 255, 227, 0.3)';
+                dropZoneLabel.style.background = 'rgba(255, 255, 255, 0.02)';
+            }, false);
         });
 
-        function highlight(e) {
-            dropZone.style.background = 'rgba(102, 255, 227, 0.05)';
-            dropZone.style.border = '1px dashed #66ffe3';
-            dropZone.style.borderRadius = '12px';
-        }
-
-        function unhighlight(e) {
-            dropZone.style.background = '';
-            dropZone.style.border = '';
-        }
-
-        dropZone.addEventListener('drop', handleDrop, false);
-
-        function handleDrop(e) {
+        dropZoneContainer.addEventListener('drop', (e) => {
             const dt = e.dataTransfer;
-            const files = dt.files;
-            fileInput.files = files;
-        }
+            const files = dt?.files;
+            if (files && files.length > 0) {
+                fileInput.files = files;
+                updateFileDisplay();
+            }
+        }, false);
     }
 
     // Reset form
@@ -1096,6 +1163,12 @@ async function handleDashboardNoteSubmit(e) {
 
     if (!file) {
         alert("Please select a file.");
+        return;
+    }
+
+    const maxAllowedSize = 50 * 1024 * 1024; // 50MB
+    if (file.size > maxAllowedSize) {
+        alert("File size exceeds the 50MB limit.");
         return;
     }
 
@@ -1192,8 +1265,9 @@ async function handleDashboardNoteSubmit(e) {
 
     } catch (err) {
         console.error("Upload failed:", err);
-        statusText.innerText = "❌ Failed: " + err.message;
-        if (window.showToast) window.showToast("Upload failed: " + err.message);
+        const cleanMsg = (err.message || "Unknown error").replace(/supabase|firebase|storage|bucket|postgrest/gi, "server");
+        statusText.innerText = "❌ Failed: " + cleanMsg;
+        if (window.showToast) window.showToast("Upload failed: " + cleanMsg, "error");
     } finally {
         btn.disabled = false;
         btn.innerText = "Upload Note";

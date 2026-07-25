@@ -1,1 +1,310 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><title>SKiL MATRiX | Redirecting...</title><script type="text/javascript">var pathSegmentsToKeep=0,l=window.location;l.replace(l.protocol+"//"+l.hostname+(l.port?":"+l.port:"")+l.pathname.split("/").slice(0,1+pathSegmentsToKeep).join("/")+"/?/"+l.pathname.slice(1).split("/").slice(pathSegmentsToKeep).join("/").replace(/&/g,"~and~")+(l.search?"&"+l.search.slice(1).replace(/&/g,"~and~"):"")+l.hash)</script><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8465813445488249" crossorigin="anonymous"></script></head><body><script type="text/javascript">((e,t)=>{var o=e.createElement(t),e=e.getElementsByTagName(t)[0];o.onload=function(){window.voiceflow.chat.load({verify:{projectID:"67a8c08ad2483de383f344c4"},url:"https://general-runtime.voiceflow.com",versionID:"production",voice:{url:"https://runtime-api.voiceflow.com"}})},o.src="https://cdn.voiceflow.com/widget-next/bundle.mjs",o.type="text/javascript",e.parentNode.insertBefore(o,e)})(document,"script")</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found | SKiL MATRiX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #06080d;
+            color: #ffffff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        /* Subtle minimalist background texture */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
+            background-size: 32px 32px;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Sleek Brand Pill */
+        .brand-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #cbd5e1;
+            letter-spacing: 0.5px;
+            margin-bottom: 2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .brand-pill:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+        }
+        .brand-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #38bdf8;
+        }
+
+        /* 404 Typography */
+        .error-code {
+            font-size: clamp(4.5rem, 12vw, 6.5rem);
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -3px;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .error-title {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 0.75rem;
+        }
+
+        .error-desc {
+            font-size: 0.95rem;
+            color: #64748b;
+            line-height: 1.5;
+            margin-bottom: 1.25rem;
+        }
+
+        .path-pill {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 4px 10px;
+            border-radius: 6px;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-bottom: 2rem;
+        }
+
+        /* Clean Smart Suggestion Alert (Only visible if typo matched) */
+        #suggestion-box {
+            display: none;
+            width: 100%;
+            background: rgba(56, 189, 248, 0.06);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            text-align: left;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+        }
+        .suggestion-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .suggestion-btn {
+            background: #38bdf8;
+            color: #06080d;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+        }
+        .suggestion-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Action Buttons */
+        .actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: #ffffff;
+            color: #06080d;
+        }
+        .btn-primary:hover {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.09);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 480px) {
+            .actions {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Minimalist Brand Pill -->
+        <a class="brand-pill" onclick="navigateTo('index.html')">
+            <span class="brand-dot"></span>
+            <span>SKiL MATRiX</span>
+        </a>
+
+        <!-- Clean 404 Display -->
+        <div class="error-code">404</div>
+        <h1 class="error-title" id="greeting-title">Page not found</h1>
+        
+        <p class="error-desc">
+            The page you are looking for doesn't exist, has been removed, or is temporarily unavailable.
+        </p>
+
+        <div class="path-pill" id="broken-path-display">/unknown</div>
+
+        <!-- Clean Typo Auto-Suggestion Box -->
+        <div id="suggestion-box">
+            <div class="suggestion-content">
+                <span>💡 Did you mean to visit <b id="suggest-label" style="color: #38bdf8;">Notes Hub</b>?</span>
+                <button class="suggestion-btn" id="suggest-btn">Go there ➔</button>
+            </div>
+        </div>
+
+        <!-- Professional Action Buttons -->
+        <div class="actions">
+            <button class="btn btn-primary" onclick="navigateTo('pages/dashboard.html')">Go to Dashboard</button>
+            <button class="btn btn-secondary" onclick="navigateTo('pages/dashboard.html?tab=notes')">Browse Notes</button>
+        </div>
+    </div>
+
+    <script>
+        function getBaseUrl() {
+            const path = window.location.pathname;
+            if (path.includes('/skill_Notes')) {
+                return '/skill_Notes/';
+            }
+            return '/';
+        }
+
+        function navigateTo(target) {
+            window.location.href = getBaseUrl() + target;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Show clean broken path
+            const currentPath = window.location.pathname + window.location.search;
+            const pathDisplay = document.getElementById('broken-path-display');
+            if (pathDisplay) {
+                pathDisplay.innerText = decodeURIComponent(currentPath) || '/unknown';
+            }
+
+            // 2. Subtle personalized name in title if logged in
+            try {
+                const userData = localStorage.getItem('auth_user_full') || localStorage.getItem('guest_session');
+                if (userData) {
+                    const user = JSON.parse(userData);
+                    if (user && (user.name || user.displayName)) {
+                        const firstName = (user.name || user.displayName).split(' ')[0];
+                        const titleEl = document.getElementById('greeting-title');
+                        if (titleEl) titleEl.innerText = `Page not found, ${firstName}`;
+                    }
+                }
+            } catch (err) {}
+
+            // 3. Subtle smart typo check
+            const pathLower = window.location.pathname.toLowerCase();
+            const suggestBox = document.getElementById('suggestion-box');
+            const suggestLabel = document.getElementById('suggest-label');
+            const suggestBtn = document.getElementById('suggest-btn');
+
+            const typos = [
+                { keywords: ['resourse', 'resource', 'note', 'pyq', 'paper', 'pdf', 'ppt', 'doc'], target: 'pages/dashboard.html?tab=notes', label: 'Notes & PYQs Hub' },
+                { keywords: ['dash', 'board', 'home', 'portal', 'index', 'main'], target: 'pages/dashboard.html', label: 'Study Dashboard' },
+                { keywords: ['login', 'signin', 'auth', 'register', 'signup'], target: 'pages/auth.html', label: 'Login Page' },
+                { keywords: ['ai', 'coach', 'doubt', 'solver'], target: 'pages/dashboard.html?tab=ai-tools', label: 'AI Doubt Solver' },
+                { keywords: ['plan', 'timetab', 'exam', 'schedul', 'cgpa', 'attend'], target: 'pages/dashboard.html?tab=planner', label: 'Study Planner' }
+            ];
+
+            for (const item of typos) {
+                if (item.keywords.some(kw => pathLower.includes(kw))) {
+                    if (suggestLabel) suggestLabel.innerText = item.label;
+                    if (suggestBtn) suggestBtn.onclick = () => navigateTo(item.target);
+                    if (suggestBox) suggestBox.style.display = 'block';
+                    break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
