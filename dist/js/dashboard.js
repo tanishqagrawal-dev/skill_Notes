@@ -1370,6 +1370,9 @@ function initTabs() {
             document.querySelector('.sidebar')?.classList.remove('active');
         };
     });
+
+    // Actually load the content for the initial tab
+    renderTabContent(initialTab);
 }
 
 function createNavItem(id, icon, label, isDynamic = false) {

@@ -1574,6 +1574,10 @@ class ProfileManager {
             authCache.photo = photoUrl;
             authCache.photoURL = photoUrl;
             localStorage.setItem('auth_user_full', JSON.stringify(authCache));
+            // Notify navbar to refresh avatar instantly (same tab)
+            window.dispatchEvent(new Event('navbar:refresh'));
+            // Also trigger for other tabs via storage event simulation
+            if (window.refreshNavbarAuth) window.refreshNavbarAuth();
         } catch (e) { }
     }
 
