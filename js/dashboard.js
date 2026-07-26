@@ -4255,7 +4255,7 @@ window.checkServer = async () => {
 
 window.openCodingArena = async () => {
     const contentArea = document.getElementById('tab-content');
-    contentArea.innerHTML = `<div style="padding: 4rem; text-align: center;"><div class="loader-pro"></div><p style="margin-top:1rem; color:var(--text-dim);">Loading Coding Arena...</p></div>`;
+    contentArea.innerHTML = window.caLoadingHTML;
     const html = await renderCodingArena();
     contentArea.innerHTML = html;
 };
