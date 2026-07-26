@@ -52,6 +52,11 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
+// Root Health Check Route (for Render / Uptime monitors)
+app.get('/', (req, res) => {
+    res.status(200).send('✅ SkilMatrix Compiler & AI Backend is Online and Ready!');
+});
+
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
