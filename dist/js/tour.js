@@ -25,7 +25,7 @@ class DemoTour {
                 target: () => document.querySelector('.nav-item[data-tab="coding-arena"]'),
                 title: "Sirius Black",
                 characterImg: "https://hp-api.onrender.com/images/sirius.JPG",
-                content: "Welcome to the Coding Arena! Sharpen your wand—I mean, keyboard—and battle through coding challenges to earn legendary certificates.",
+                content: "Welcome to the Coding Arena! Sharpen your wand—I mean, keyboard—and battle through coding challenges to master algorithms.",
                 duration: 6000
             },
             {

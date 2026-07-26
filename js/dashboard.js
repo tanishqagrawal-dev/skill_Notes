@@ -6732,7 +6732,6 @@ window.renderBookmarks = function () {
         <div class="tab-pane active fade-in" style="padding: 1.5rem;">
             <div class="welcome-header" style="text-align: center; margin-bottom: 2rem;">
                 <h1 class="font-heading" style="white-space: nowrap; font-size: clamp(1.5rem, 6vw, 2.5rem);">🔖 Your <span class="gradient-text">Bookmarks</span></h1>
-                <p style="color: var(--text-dim); margin-bottom: 2rem;">Quick access to all the notes you've saved for later.</p>
             </div>
             <div id="bookmarks-grid" style="max-width: 1000px; margin: 0 auto; width: 100%;">
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6rem 2rem;">

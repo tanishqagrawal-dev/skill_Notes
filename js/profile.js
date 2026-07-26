@@ -241,8 +241,7 @@ class ProfileManager {
                     <!-- ══════ BADGES SHOWCASE ══════ -->
                     ${this.renderBadgesCard()}
 
-                    <!-- ══════ CERTIFICATE SECTION ══════ -->
-                    ${this.renderCertificateSection()}
+
 
 
                 </div>
@@ -446,92 +445,7 @@ class ProfileManager {
     }
 
 
-    // ────────────────────────────────────────────────────
-    //  CERTIFICATE SECTION (non-admin only)
-    // ────────────────────────────────────────────────────
-    renderCertificateSection() {
-        const adminEmails = ['tanishqagrawal1103@gmail.com', 'skilmatrix3@gmail.com'];
-        const userEmail = (this.userData?.email || this.userData?.user_metadata?.email || '').toLowerCase();
-        const userName = (this.userData?.name || this.userData?.displayName || '').toLowerCase();
-        const isAdmin = this.userData?.role?.toLowerCase() === 'admin'
-            || this.userData?.role?.toLowerCase() === 'co-admin'
-            || adminEmails.includes(userEmail);
 
-        const codingLevel = this.userData?.coding_level || 0;
-        const problemsDone = Math.min(codingLevel - 1, 365);  // level 1 = 0 done, level 366 = 365 done
-        const totalProblems = 365;
-        const hasCompleted = problemsDone >= totalProblems || isAdmin;
-        const pct = Math.min(Math.round((problemsDone / totalProblems) * 100), 100);
-
-        if (hasCompleted) {
-            // ── UNLOCKED ──────────────────────────────────────────
-            return `
-            <div class="glass-card" style="grid-column: span 2; display: flex; align-items: center; justify-content: space-between;
-                background: linear-gradient(135deg, rgba(255,215,0,0.08), rgba(218,165,32,0.15));
-                border: 1px solid rgba(255,215,0,0.3); border-radius: 16px; padding: 1.5rem 2rem;">
-                <div style="display: flex; align-items: center; gap: 20px;">
-                    <div style="width:65px;height:65px;background:radial-gradient(circle,#e6c27a,#c5a059);
-                        border-radius:50%;display:flex;align-items:center;justify-content:center;
-                        box-shadow:0 4px 15px rgba(218,165,32,0.4);border:2px solid rgba(255,255,255,0.2);">
-                        <i class="fa-solid fa-award" style="font-size:2rem;color:#fff;"></i>
-                    </div>
-                    <div>
-                        <h2 style="font-family:'Georgia',serif;font-size:1.5rem;color:#ffd700;
-                            margin-bottom:5px;text-shadow:0 2px 10px rgba(255,215,0,0.2);">
-                            🏆 365-Day Elite Certificate
-                        </h2>
-                        <p style="color:var(--text-dim);font-size:0.95rem;margin:0;">
-                            You conquered the Coding Arena! Your official certificate is ready.
-                        </p>
-                    </div>
-                </div>
-                <button onclick="if(window.showCertificate) window.showCertificate(); else alert('Certificate engine is loading. Try again in a moment.');" 
-                    class="btn btn-primary"
-                    style="background:linear-gradient(90deg,#f39c12,#d35400);border:none;font-weight:bold;
-                        box-shadow:0 4px 15px rgba(243,156,18,0.4);padding:0.7rem 1.5rem;font-size:1.1rem;gap:8px;">
-                    <i class="fa-solid fa-expand"></i> View Certificate
-                </button>
-            </div>`;
-        } else {
-            // ── LOCKED – show progress ─────────────────────────────
-            return `
-            <div class="glass-card" style="grid-column: span 2; display: flex; align-items: center; justify-content: space-between;
-                background: linear-gradient(135deg, rgba(40,44,55,0.7), rgba(20,23,31,0.9));
-                border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem 2rem;
-                opacity: 0.85;">
-                <div style="display: flex; align-items: center; gap: 20px; flex: 1;">
-                    <div style="width:65px;height:65px;background:rgba(255,255,255,0.05);
-                        border-radius:50%;display:flex;align-items:center;justify-content:center;
-                        border:2px solid rgba(255,255,255,0.1);filter:grayscale(1);flex-shrink:0;">
-                        <i class="fa-solid fa-lock" style="font-size:1.8rem;color:rgba(255,255,255,0.3);"></i>
-                    </div>
-                    <div style="flex:1;">
-                        <h2 style="font-size:1.3rem;color:rgba(255,255,255,0.5);margin-bottom:4px;">
-                            🔒 365-Day Elite Certificate
-                        </h2>
-                        <p style="color:var(--text-dim);font-size:0.85rem;margin:0 0 10px;">
-                            Complete all <strong style="color:rgba(255,255,255,0.6);">365 Coding Arena problems</strong> to unlock your certificate.
-                        </p>
-                        <!-- Progress bar -->
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            <div style="flex:1;background:rgba(0,0,0,0.4);height:6px;border-radius:10px;overflow:hidden;">
-                                <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#7b61ff,#00d2ff);
-                                    border-radius:10px;transition:width 1s ease;"></div>
-                            </div>
-                            <span style="font-size:0.8rem;color:var(--text-dim);white-space:nowrap;">
-                                ${problemsDone} / ${totalProblems} solved (${pct}%)
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <button disabled style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
-                    color:rgba(255,255,255,0.3);font-weight:bold;padding:0.7rem 1.5rem;border-radius:10px;
-                    cursor:not-allowed;font-size:0.95rem;white-space:nowrap;margin-left:1.5rem;">
-                    <i class="fa-solid fa-lock"></i> Locked
-                </button>
-            </div>`;
-        }
-    }
 
     // ────────────────────────────────────────────────────
     //  REFERRAL CODE GENERATOR
