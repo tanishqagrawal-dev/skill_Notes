@@ -283,11 +283,12 @@ function updatePricingUI(planId, expiry) {
     if (!pricingCards || pricingCards.length === 0) return;
 
     let targetCardIndex = -1;
-    if (planId === 'codetantra') targetCardIndex = 1;
-    if (planId === 'pro') targetCardIndex = 2;
+    if (planId === 'codetantra' || planId?.startsWith('codetantra')) targetCardIndex = 1;
+    if (planId === 'pro' || planId?.startsWith('pro')) targetCardIndex = 2;
 
     if (targetCardIndex !== -1 && pricingCards[targetCardIndex]) {
         const activeCard = pricingCards[targetCardIndex].querySelector('.premium-pricing-card');
+        if (!activeCard) return;
         
         // Remove existing badge if any
         const existingBadge = activeCard.querySelector('.popular-badge');
@@ -316,23 +317,27 @@ function updatePricingUI(planId, expiry) {
             priceSection.innerHTML += `<div style="font-size: 0.9rem; opacity: 0.9; margin-top: 10px; color: #00ff88;">${expiryText}</div>`;
         }
 
-        // Change the action buttons to "Go to Dashboard"
-        const buttonContainer = activeCard.querySelector('div[style*="display: flex"]') || activeCard.querySelector('button')?.parentElement;
-        
-        if (buttonContainer && buttonContainer.tagName.toLowerCase() === 'div') {
-             buttonContainer.innerHTML = `
-                <button class="btn btn-primary btn-full" onclick="window.location.href='pages/dashboard#/notes'">Go to Dashboard</button>
+        // Update card wrapper click destination when subscription is already active
+        pricingCards[targetCardIndex].onclick = () => window.location.href = 'pages/dashboard#/notes';
+
+        // Change the action button to "Go to Dashboard"
+        const flexContainer = activeCard.querySelector('div[style*="display: flex"]');
+        if (flexContainer && flexContainer !== activeCard) {
+            flexContainer.innerHTML = `
+                <button class="btn btn-primary btn-full" onclick="event.stopPropagation(); window.location.href='pages/dashboard#/notes'">Go to Dashboard</button>
             `;
         } else {
-             // If there's no flex container, just replace the single button
-             const oldBtn = activeCard.querySelector('button');
-             if (oldBtn) {
-                 const newBtn = document.createElement('button');
-                 newBtn.className = 'btn btn-primary btn-full';
-                 newBtn.onclick = () => window.location.href = 'pages/dashboard#/notes';
-                 newBtn.innerText = 'Go to Dashboard';
-                 oldBtn.replaceWith(newBtn);
-             }
+            const oldBtn = activeCard.querySelector('button');
+            if (oldBtn) {
+                const newBtn = document.createElement('button');
+                newBtn.className = 'btn btn-primary btn-full';
+                newBtn.onclick = (e) => {
+                    if (e) e.stopPropagation();
+                    window.location.href = 'pages/dashboard#/notes';
+                };
+                newBtn.innerText = 'Go to Dashboard';
+                oldBtn.replaceWith(newBtn);
+            }
         }
     }
 }

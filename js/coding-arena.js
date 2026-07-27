@@ -1099,8 +1099,8 @@ export async function renderCodingArena() {
                             try { localStorage.setItem(contestKey, JSON.stringify(contestProblems)); } catch(e) {}
                         }
 
-                        // XP per question: 2 Easy=50 each, Medium=70, Hard=80, VHard=50 bonus => total=300
-                        const XP_DIST = [50, 50, 70, 80, 50];
+                        // XP per question: 2 Easy=30 each, Medium=50, Hard=90, VHard=100 => total=300
+                        const XP_DIST = [30, 30, 50, 90, 100];
                         const BONUS_XP = 200;
 
                         // Solved tracking per contest (separate from global solved)
@@ -1139,7 +1139,7 @@ export async function renderCodingArena() {
                             cs[qi] = true;
                             try { localStorage.setItem(contestDoneKey, JSON.stringify(cs)); } catch(e) {}
                             // Award XP for this question
-                            const xpGain = XP_DIST[qi] || 50;
+                            const xpGain = XP_DIST[qi] || 30;
                             if (window.awardCodingXP) window.awardCodingXP(xpGain, 'Contest problem solved');
                             const allDone = Object.keys(cs).length >= 5;
                             if (allDone) {
