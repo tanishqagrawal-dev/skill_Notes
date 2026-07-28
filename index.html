@@ -58,7 +58,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="css/main.css?v=6.0">
+    <link rel="stylesheet" href="css/main.css?v=11.0">
     <link rel="stylesheet" href="css/lockOverlay.css?v=6.0">
 
     <!-- Libraries -->
@@ -163,101 +163,254 @@
 
     <!-- Features Section -->
     <section id="features" class="features container">
-        <h2 class="section-title" data-aos="fade-up">Why <span class="gradient-text">SKiL MATRiX?</span></h2>
-        <div class="features-grid stagger-4">
-            <div class="qa-card-wrapper qa-card-blue stagger-box" data-aos="zoom-in" data-aos-delay="100">
-                <div class="hud-corner top-left"></div>
-                <div class="qa-icon-box qa-icon-blue">📚</div>
-                <div class="qa-info">
-                    <div class="qa-title">Notes Hub</div>
-                    <div class="qa-desc">Curated engineering notes</div>
+        <div class="ai-ecosystem-heading">
+            <h2 class="section-title" data-aos="fade-up">Your Complete <span class="gradient-text">Academic Intelligence</span> Hub</h2>
+            <span class="ai-badge">✦ All-In-One AI Ecosystem ✦</span>
+        </div>
+
+
+        <div class="ai-ecosystem-wrapper" id="ai-ecosystem-wrapper">
+            <!-- Radial SVG Connections -->
+            <svg id="ai-radial-lines" class="ai-radial-lines">
+                <defs>
+                    <filter id="ai-glow-blue"><feGaussianBlur stdDeviation="4" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                    <filter id="ai-glow-purple"><feGaussianBlur stdDeviation="4" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                    <filter id="ai-glow-cyan"><feGaussianBlur stdDeviation="4" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                    <filter id="ai-glow-pink"><feGaussianBlur stdDeviation="4" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                    <filter id="ai-glow-orange"><feGaussianBlur stdDeviation="4" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                    <filter id="ai-glow-green"><feGaussianBlur stdDeviation="4" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                </defs>
+                <g id="ai-paths-group"></g>
+            </svg>
+
+            <!-- Center Node -->
+            <div class="ai-center-node" id="ai-center-node">
+                <div class="ai-center-icon-wrapper">
+                    <i data-lucide="brain-circuit"></i>
+                </div>
+                <h3>SKiL MATRiX</h3>
+                <p>AI ENGINE</p>
+            </div>
+
+            <!-- Top Nodes -->
+            <div class="ai-node-card ai-color-blue node-top pos-1" id="ai-node-1" data-color="blue">
+                <div class="ai-node-icon"><i data-lucide="book-open"></i></div>
+                <div class="ai-node-info">
+                    <h4>Notes Hub</h4>
+                    <p>Curated engineering notes for every subject</p>
+                    <span class="ai-node-badge">5000+ Notes</span>
                 </div>
             </div>
-            <div class="qa-card-wrapper qa-card-purple stagger-box" data-aos="zoom-in" data-aos-delay="200">
-                <div class="hud-corner top-left"></div>
-                <div class="qa-icon-box qa-icon-purple">🤖</div>
-                <div class="qa-info">
-                    <div class="qa-title">AI Coach</div>
-                    <div class="qa-desc">Instant doubt solving</div>
+
+            <div class="ai-node-card ai-color-green node-top pos-2" id="ai-node-2" data-color="green">
+                <div class="ai-node-icon"><i data-lucide="calendar-check"></i></div>
+                <div class="ai-node-info">
+                    <h4>Attendance Pro</h4>
+                    <p>Track your attendance and stay on track</p>
+                    <span class="ai-node-badge">75% Target</span>
                 </div>
             </div>
-            <div class="qa-card-wrapper qa-card-cyan stagger-box" data-aos="zoom-in" data-aos-delay="300">
-                <div class="hud-corner top-left"></div>
-                <div class="qa-icon-box qa-icon-cyan">📈</div>
-                <div class="qa-info">
-                    <div class="qa-title">CGPA Analyzer</div>
-                    <div class="qa-desc">Track & predict grades</div>
+
+            <div class="ai-node-card ai-color-orange node-top pos-3" id="ai-node-3" data-color="orange">
+                <div class="ai-node-icon"><i data-lucide="bookmark"></i></div>
+                <div class="ai-node-info">
+                    <h4>Bookmarks</h4>
+                    <p>Save & organize your important resources</p>
+                    <span class="ai-node-badge">Quick Access</span>
                 </div>
             </div>
-            <div class="qa-card-wrapper qa-card-pink stagger-box" data-aos="zoom-in" data-aos-delay="400">
-                <div class="hud-corner top-left"></div>
-                <div class="qa-icon-box qa-icon-pink">🎯</div>
-                <div class="qa-info">
-                    <div class="qa-title">NeuroSprint Pro</div>
-                    <div class="qa-desc">Deep work timer</div>
+
+            <!-- Left Side Nodes -->
+            <div class="ai-node-card ai-color-blue node-left pos-4" id="ai-node-4" data-color="blue">
+                <div class="ai-node-icon"><i data-lucide="code"></i></div>
+                <div class="ai-node-info">
+                    <h4>CodeTantra</h4>
+                    <p>Access lab solutions and practical codes</p>
+                    <span class="ai-node-badge">Lab Support</span>
                 </div>
             </div>
-            <div class="qa-card-wrapper qa-card-indigo stagger-box" data-aos="zoom-in" data-aos-delay="500">
-                <div class="hud-corner top-left"></div>
-                <div class="qa-icon-box qa-icon-indigo">📅</div>
-                <div class="qa-info">
-                    <div class="qa-title">Attendance Pro</div>
-                    <div class="qa-desc">Keep your 75% safely</div>
+
+            <div class="ai-node-card ai-color-purple node-left pos-5" id="ai-node-5" data-color="purple">
+                <div class="ai-node-icon"><i data-lucide="bot"></i></div>
+                <div class="ai-node-info">
+                    <h4>AI Coach</h4>
+                    <p>Instant doubt solving with AI assistance</p>
+                    <span class="ai-node-badge">24/7 Available</span>
                 </div>
             </div>
-            <div class="qa-card-wrapper qa-card-orange stagger-box" data-aos="zoom-in" data-aos-delay="600">
-                <div class="hud-corner top-left"></div>
-                <div class="qa-icon-box qa-icon-orange">🔖</div>
-                <div class="qa-info">
-                    <div class="qa-title">Bookmarks</div>
-                    <div class="qa-desc">Your saved resources</div>
+
+            <div class="ai-node-card ai-color-cyan node-left pos-6" id="ai-node-6" data-color="cyan">
+                <div class="ai-node-icon"><i data-lucide="line-chart"></i></div>
+                <div class="ai-node-info">
+                    <h4>CGPA Analyzer</h4>
+                    <p>Track, analyze & predict your CGPA easily</p>
+                    <span class="ai-node-badge">Smart Analytics</span>
                 </div>
             </div>
-            <div class="qa-card-wrapper qa-card-blue stagger-box" data-aos="zoom-in" data-aos-delay="700">
-                <div class="hud-corner top-left"></div>
-                <div class="qa-icon-box qa-icon-blue">📅</div>
-                <div class="qa-info">
-                    <div class="qa-title">Study Planner</div>
-                    <div class="qa-desc">Organize your study schedule</div>
+
+            <!-- Right Side Nodes -->
+            <div class="ai-node-card ai-color-pink node-right pos-7" id="ai-node-7" data-color="pink">
+                <div class="ai-node-icon"><i data-lucide="target"></i></div>
+                <div class="ai-node-info">
+                    <h4>NeuroSprint Pro</h4>
+                    <p>Deep work timer for maximum productivity</p>
+                    <span class="ai-node-badge">Focus Mode</span>
                 </div>
             </div>
-            <div class="qa-card-wrapper qa-card-indigo stagger-box" data-aos="zoom-in" data-aos-delay="800">
-                <div class="hud-corner top-left"></div>
-                <div class="qa-icon-box qa-icon-indigo">📝</div>
-                <div class="qa-info">
-                    <div class="qa-title">Model Paper Generator</div>
-                    <div class="qa-desc">Generate practice exams</div>
+
+            <div class="ai-node-card ai-color-purple node-right pos-8" id="ai-node-8" data-color="purple">
+                <div class="ai-node-icon"><i data-lucide="calendar"></i></div>
+                <div class="ai-node-info">
+                    <h4>Study Planner</h4>
+                    <p>Plan your study schedule and never miss a topic</p>
+                    <span class="ai-node-badge">Stay Organized</span>
+                </div>
+            </div>
+
+            <div class="ai-node-card ai-color-blue node-right pos-9" id="ai-node-9" data-color="blue">
+                <div class="ai-node-icon"><i data-lucide="file-text"></i></div>
+                <div class="ai-node-info">
+                    <h4>Model Paper Generator</h4>
+                    <p>Generate practice papers instantly with AI</p>
+                    <span class="ai-node-badge">Exam Ready</span>
+                </div>
+            </div>
+
+            <!-- Bottom Nodes -->
+            <div class="ai-node-card ai-color-green node-bottom pos-10" id="ai-node-10" data-color="green">
+                <div class="ai-node-icon"><i data-lucide="qr-code"></i></div>
+                <div class="ai-node-info">
+                    <h4>QR Generator</h4>
+                    <p>Create custom QR codes for anything instantly</p>
+                    <span class="ai-node-badge">Fast & Easy</span>
+                </div>
+            </div>
+
+            <!-- Bottom Nodes -->
+            <div class="ai-node-card ai-color-orange node-bottom pos-11" id="ai-node-11" data-color="orange">
+                <div class="ai-node-icon"><i data-lucide="trophy"></i></div>
+                <div class="ai-node-info">
+                    <h4>Coding Arena</h4>
+                    <p>Practice coding & improve your programming skills</p>
+                    <span class="ai-node-badge">Level Up</span>
+                </div>
+            </div>
+
+            <div class="ai-node-card ai-color-purple node-bottom pos-12" id="ai-node-12" data-color="purple">
+                <div class="ai-node-icon"><i data-lucide="calendar-clock"></i></div>
+                <div class="ai-node-info">
+                    <h4>Timetable & Exams</h4>
+                    <p>Manage your timetable and exam schedule</p>
+                    <span class="ai-node-badge">Never Miss</span>
                 </div>
             </div>
         </div>
+
     </section>
+
 
     <!-- How It Works Section -->
     <section id="how-it-works" class="how-it-works container">
         <h2 class="section-title" data-aos="fade-up">How <span class="gradient-text">It Works</span></h2>
-        <div class="steps-grid">
-            <div class="step-card-premium" data-aos="fade-up" data-aos-delay="100">
-                <div class="step-number-premium">01</div>
-                <div class="step-icon-premium">🎯</div>
-                <h3>Pick Your Branch</h3>
-                <p>Tell us your stream and semester. SKiL MATRiX instantly filters everything to what's relevant for
-                    you.</p>
+        <div class="steps-zigzag-container" id="steps-zigzag-container">
+            <svg id="magical-rope-svg" class="magical-rope-svg">
+                <defs>
+                    <linearGradient id="rope-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#4facfe" />
+                        <stop offset="50%" stop-color="#ffd54f" />
+                        <stop offset="100%" stop-color="#00f2fe" />
+                    </linearGradient>
+                    <filter id="glow-effect" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <path id="magical-rope-path-strand1" class="magical-rope-path strand" filter="url(#glow-effect)" />
+                <path id="magical-rope-path-strand2" class="magical-rope-path strand" filter="url(#glow-effect)" />
+                <path id="magical-rope-path" class="magical-rope-path core" filter="url(#glow-effect)" />
+            </svg>
+            <div class="step-card-premium zigzag-left" data-aos="fade-right">
+                <div class="flare top"></div>
+                <div class="flare bottom"></div>
+                <div class="step-card-inner">
+                    <div class="card-header-split">
+                        <div class="title-and-number">
+                            <h3 class="card-title">CREATE ACCOUNT</h3>
+                            <div class="step-number-premium">01</div>
+                        </div>
+                        <div class="step-icon-container">
+                            <i data-lucide="user-plus"></i>
+                        </div>
+                    </div>
+                    <p class="step-description">Sign up in seconds and set up your personalized profile to get started.</p>
+                </div>
             </div>
-            <div class="step-card-premium" data-aos="fade-up" data-aos-delay="200">
-                <div class="step-number-premium">02</div>
-                <div class="step-icon-premium">🚀</div>
-                <h3>Access AI Tools</h3>
-                <p>Browse curated notes, generate model papers, and fire questions at the AI Doubt Solver — all in
-                    one
-                    place.</p>
+            <div class="step-card-premium zigzag-right" data-aos="fade-left">
+                <div class="flare top"></div>
+                <div class="flare bottom"></div>
+                <div class="step-card-inner">
+                    <div class="card-header-split">
+                        <div class="title-and-number">
+                            <h3 class="card-title">PICK YOUR BRANCH</h3>
+                            <div class="step-number-premium">02</div>
+                        </div>
+                        <div class="step-icon-container">
+                            <i data-lucide="target"></i>
+                        </div>
+                    </div>
+                    <p class="step-description">Tell us your stream and semester. SKiL MATRiX instantly filters everything to what's relevant for you.</p>
+                </div>
             </div>
-            <div class="step-card-premium" data-aos="fade-up" data-aos-delay="300">
-                <div class="step-number-premium">03</div>
-                <div class="step-icon-premium">📈</div>
-                <h3>Track Progress</h3>
-                <p>Your dashboard logs every note read and query solved so you can see real improvement week over
-                    week.
-                </p>
+            <div class="step-card-premium zigzag-left" data-aos="fade-right">
+                <div class="flare top"></div>
+                <div class="flare bottom"></div>
+                <div class="step-card-inner">
+                    <div class="card-header-split">
+                        <div class="title-and-number">
+                            <h3 class="card-title">READ CURATED NOTES</h3>
+                            <div class="step-number-premium">03</div>
+                        </div>
+                        <div class="step-icon-container">
+                            <i data-lucide="book-open"></i>
+                        </div>
+                    </div>
+                    <p class="step-description">Access high-quality, professor-verified notes tailored precisely to your university syllabus.</p>
+                </div>
+            </div>
+            <div class="step-card-premium zigzag-right" data-aos="fade-left">
+                <div class="flare top"></div>
+                <div class="flare bottom"></div>
+                <div class="step-card-inner">
+                    <div class="card-header-split">
+                        <div class="title-and-number">
+                            <h3 class="card-title">ACCESS AI TOOLS</h3>
+                            <div class="step-number-premium">04</div>
+                        </div>
+                        <div class="step-icon-container">
+                            <i data-lucide="cpu"></i>
+                        </div>
+                    </div>
+                    <p class="step-description">Generate model papers, take mock tests, and fire questions at the AI Doubt Solver—all in one place.</p>
+                </div>
+            </div>
+            <div class="step-card-premium zigzag-left" data-aos="fade-right">
+                <div class="flare top"></div>
+                <div class="flare bottom"></div>
+                <div class="step-card-inner">
+                    <div class="card-header-split">
+                        <div class="title-and-number">
+                            <h3 class="card-title">TRACK PROGRESS</h3>
+                            <div class="step-number-premium">05</div>
+                        </div>
+                        <div class="step-icon-container">
+                            <i data-lucide="trending-up"></i>
+                        </div>
+                    </div>
+                    <p class="step-description">Your dashboard logs every note read and query solved so you can see real improvement week over week.</p>
+                </div>
             </div>
         </div>
     </section>
@@ -817,6 +970,258 @@
         if (window.lucide) {
             lucide.createIcons();
         }
+    </script>
+
+    <script>
+        // Magical Rope Animation
+        function updateMagicalRope() {
+            const container = document.getElementById('steps-zigzag-container');
+            const svg = document.getElementById('magical-rope-svg');
+            const path = document.getElementById('magical-rope-path');
+            const pathStrand1 = document.getElementById('magical-rope-path-strand1');
+            const pathStrand2 = document.getElementById('magical-rope-path-strand2');
+            
+            if (!container || !svg || !path) return;
+            
+            const cards = container.querySelectorAll('.step-card-premium');
+            if (cards.length === 0) return;
+            
+            const containerRect = container.getBoundingClientRect();
+            
+            let d = '', dS1 = '', dS2 = '';
+            let prevX = 0, prevY = 0;
+            
+            // Fixed horizontal center line for the lightning to travel down
+            const centerX = containerRect.width / 2;
+            
+            cards.forEach((card, index) => {
+                const rect = card.getBoundingClientRect();
+                
+                // Target the icon for the connection point
+                const icon = card.querySelector('.step-icon-container');
+                let targetX = rect.left - containerRect.left + rect.width / 2;
+                let targetY = rect.top - containerRect.top + rect.height / 2;
+                
+                if (icon) {
+                    const iconRect = icon.getBoundingClientRect();
+                    targetX = iconRect.left - containerRect.left + iconRect.width / 2;
+                    targetY = iconRect.top - containerRect.top + iconRect.height / 2;
+                }
+                
+                if (index === 0) {
+                    // Start from above the first card, at center X
+                    const startY = targetY - 100;
+                    d += `M ${centerX} ${startY} `;
+                    dS1 += `M ${centerX-15} ${startY} `;
+                    dS2 += `M ${centerX+10} ${startY} `;
+                    
+                    // Curve into the first card
+                    const midY1 = startY + (targetY - startY) / 2;
+                    d += `C ${centerX} ${midY1}, ${targetX} ${midY1 - 20}, ${targetX} ${targetY} `;
+                    dS1 += `C ${centerX-25} ${midY1}, ${targetX-10} ${midY1 - 30}, ${targetX-5} ${targetY} `;
+                    dS2 += `C ${centerX+20} ${midY1}, ${targetX+15} ${midY1 - 10}, ${targetX+5} ${targetY} `;
+                } else {
+                    const midY = prevY + (targetY - prevY) / 2;
+                    
+                    // Draw a complex multi-curve path crossing the center
+                    d += `C ${prevX} ${prevY + 40}, ${centerX} ${midY - 40}, ${centerX} ${midY} `;
+                    d += `S ${targetX} ${targetY - 40}, ${targetX} ${targetY} `;
+                    
+                    dS1 += `C ${prevX-10} ${prevY + 50}, ${centerX-30} ${midY - 50}, ${centerX-15} ${midY} `;
+                    dS1 += `S ${targetX-10} ${targetY - 30}, ${targetX-5} ${targetY} `;
+                    
+                    dS2 += `C ${prevX+10} ${prevY + 30}, ${centerX+25} ${midY - 30}, ${centerX+10} ${midY} `;
+                    dS2 += `S ${targetX+10} ${targetY - 50}, ${targetX+5} ${targetY} `;
+                }
+                
+                // If it's the last card, draw a tail going down to the center
+                if (index === cards.length - 1) {
+                    const endY = targetY + 150;
+                    const endMidY = targetY + (endY - targetY) / 2;
+                    d += `C ${targetX} ${targetY + 40}, ${centerX} ${endMidY - 20}, ${centerX} ${endY} `;
+                    dS1 += `C ${targetX-5} ${targetY + 50}, ${centerX-15} ${endMidY - 30}, ${centerX-5} ${endY} `;
+                    dS2 += `C ${targetX+5} ${targetY + 30}, ${centerX+20} ${endMidY - 10}, ${centerX+10} ${endY} `;
+                }
+                
+                prevX = targetX;
+                prevY = targetY;
+            });
+            
+            const setPath = (p, pathData) => {
+                if (p) {
+                    p.setAttribute('d', pathData);
+                    const pathLength = p.getTotalLength();
+                    p.style.strokeDasharray = pathLength;
+                }
+            };
+            
+            setPath(path, d);
+            setPath(pathStrand1, dS1);
+            setPath(pathStrand2, dS2);
+            
+            animateRopeOnScroll();
+        }
+
+        function animateRopeOnScroll() {
+            const paths = [
+                document.getElementById('magical-rope-path'),
+                document.getElementById('magical-rope-path-strand1'),
+                document.getElementById('magical-rope-path-strand2')
+            ];
+            
+            const container = document.getElementById('steps-zigzag-container');
+            if (!container) return;
+            
+            const containerRect = container.getBoundingClientRect();
+            const scrollPercentage = (window.innerHeight - containerRect.top) / (containerRect.height + window.innerHeight * 0.2);
+            const clampedScroll = Math.max(0, Math.min(1, scrollPercentage));
+            
+            paths.forEach(p => {
+                if (p && p.getTotalLength) {
+                    const length = p.getTotalLength();
+                    p.style.strokeDashoffset = length - (length * clampedScroll);
+                }
+            });
+        }
+
+        window.addEventListener('resize', updateMagicalRope);
+        window.addEventListener('scroll', animateRopeOnScroll);
+        // Use ResizeObserver for accurate sizing after layout changes
+        const observer_rope = new ResizeObserver(() => {
+            updateMagicalRope();
+        });
+        const zc = document.getElementById('steps-zigzag-container');
+        if (zc) observer_rope.observe(zc);
+        
+        window.addEventListener('load', updateMagicalRope);
+        setTimeout(updateMagicalRope, 100);
+
+        // AI Ecosystem — Chakra/Wheel Layout
+        // Positions all 12 cards at equal angles on a perfect ellipse using math
+
+        function positionEcosystemCards() {
+            const wrapper = document.getElementById('ai-ecosystem-wrapper');
+            if (!wrapper || window.innerWidth <= 1024) return;
+
+            const cards = [...wrapper.querySelectorAll('.ai-node-card')];
+            const n = cards.length;
+            if (n === 0) return;
+
+            const W = wrapper.offsetWidth;
+            const H = wrapper.offsetHeight;
+            const cx = W / 2;
+            const cy = H / 2;
+            const CARD_W = 185;
+            const CARD_H = 82;
+
+            // Ellipse radii: leave room for cards on all sides
+            const rx = cx - CARD_W / 2 - 14;   // horizontal radius
+            const ry = cy - CARD_H / 2 - 12;    // vertical radius
+
+            cards.forEach((card, i) => {
+                // Start from top (−π/2), go clockwise
+                const angle = (2 * Math.PI * i / n) - Math.PI / 2;
+                const ex = cx + rx * Math.cos(angle);  // ellipse point x
+                const ey = cy + ry * Math.sin(angle);  // ellipse point y
+                card.style.position = 'absolute';
+                card.style.left   = Math.round(ex - CARD_W / 2) + 'px';
+                card.style.top    = Math.round(ey - CARD_H / 2) + 'px';
+                card.style.right  = 'auto';
+                card.style.bottom = 'auto';
+            });
+        }
+
+        function updateRadialEcosystem() {
+            // First position the cards on the ellipse
+            positionEcosystemCards();
+
+            const wrapper   = document.getElementById('ai-ecosystem-wrapper');
+            const svgGroup  = document.getElementById('ai-paths-group');
+            const centerNode = document.getElementById('ai-center-node');
+            if (!wrapper || !svgGroup || !centerNode) return;
+
+            // Clear existing paths
+            svgGroup.innerHTML = '';
+            if (window.innerWidth <= 1024) return;
+
+            const wrapperRect  = wrapper.getBoundingClientRect();
+            const centerRect   = centerNode.getBoundingClientRect();
+            const cx = centerRect.left - wrapperRect.left + centerRect.width  / 2;
+            const cy = centerRect.top  - wrapperRect.top  + centerRect.height / 2;
+
+            const colorMap = {
+                'blue':   'rgba(0, 123, 255, 0.85)',
+                'purple': 'rgba(167, 139, 250, 0.85)',
+                'cyan':   'rgba(6, 182, 212, 0.85)',
+                'pink':   'rgba(236, 72, 153, 0.85)',
+                'orange': 'rgba(245, 158, 11, 0.85)',
+                'green':  'rgba(16, 185, 129, 0.85)'
+            };
+
+            const cards = wrapper.querySelectorAll('.ai-node-card');
+            cards.forEach(card => {
+                const colorName   = card.getAttribute('data-color') || 'blue';
+                const strokeColor = colorMap[colorName] || colorMap.blue;
+                const cardRect    = card.getBoundingClientRect();
+
+                // Card centre relative to wrapper
+                const cardCX = cardRect.left - wrapperRect.left + cardRect.width  / 2;
+                const cardCY = cardRect.top  - wrapperRect.top  + cardRect.height / 2;
+
+                // Direction vector: center → card
+                const tdx = cardCX - cx;
+                const tdy = cardCY - cy;
+                const len = Math.sqrt(tdx * tdx + tdy * tdy) || 1;
+
+                // Connect to the nearest edge of the card (the face closest to center)
+                // Intersection of center→card ray with card rectangle
+                const halfW = cardRect.width  / 2;
+                const halfH = cardRect.height / 2;
+                let tx, ty;
+                // Scale factor to reach the card edge along the ray
+                const scaleX = halfW / Math.abs(tdx || 1e-6);
+                const scaleY = halfH / Math.abs(tdy || 1e-6);
+                const scale  = Math.min(scaleX, scaleY);
+                tx = cardCX - tdx * scale;
+                ty = cardCY - tdy * scale;
+
+                // Universal smooth cubic bezier with perpendicular bend
+                // All lines curve the same amount regardless of direction
+                const ux = tdx / len;
+                const uy = tdy / len;
+                // Perpendicular (clockwise): rotate 90°
+                const px = -uy;
+                const py =  ux;
+                const bend = len * 0.22;  // curve strength
+
+                const cp1x = cx + tdx * 0.33 + px * bend;
+                const cp1y = cy + tdy * 0.33 + py * bend;
+                const cp2x = cx + tdx * 0.67 + px * bend;
+                const cp2y = cy + tdy * 0.67 + py * bend;
+                const d = `M ${cx} ${cy} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${tx} ${ty}`;
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', d);
+                path.setAttribute('stroke', strokeColor);
+                path.setAttribute('filter', `url(#ai-glow-${colorName})`);
+                svgGroup.appendChild(path);
+            });
+        }
+
+
+        
+        window.addEventListener('resize', updateRadialEcosystem);
+        window.addEventListener('load', updateRadialEcosystem);
+        const observer_ai = new ResizeObserver(() => {
+            updateRadialEcosystem();
+        });
+        const aw = document.getElementById('ai-ecosystem-wrapper');
+        if (aw) observer_ai.observe(aw);
+        // Fire multiple times to catch after Lucide icons render and fonts load
+        setTimeout(updateRadialEcosystem, 100);
+        setTimeout(updateRadialEcosystem, 400);
+        setTimeout(updateRadialEcosystem, 900);
+        document.addEventListener('DOMContentLoaded', updateRadialEcosystem);
     </script>
 
     <!-- Referral Handler -->
