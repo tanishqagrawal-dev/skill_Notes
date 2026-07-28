@@ -162,6 +162,12 @@
             .top-bar {
                 padding: 0.75rem 0.5rem !important;
             }
+
+            /* Hide Watch Demo on mobile — desktop-only feature */
+            #watch-demo-btn,
+            #top-watch-demo-btn {
+                display: none !important;
+            }
         }
     </style>
 
@@ -824,12 +830,25 @@
     </script>
 
     <!-- Interactive Demo Tour -->
-    <script src="../js/tour.js?v=1.0" defer></script>
+    <script src="../js/tour.js?v=1.2" defer></script>
     <script>
-        // Auto-start the tour for first-time visitors (after page is ready)
+        // Auto-start the tour for first-time visitors OR when logging in with a new email
+        // NEVER auto-play on mobile — tour is desktop-only
         window.addEventListener('load', function () {
             setTimeout(function () {
-                const watched = localStorage.getItem('skilmatrix_demo_watched');
+                if (window.innerWidth <= 768) return; // Skip on mobile
+
+                let userEmail = 'unknown';
+                try {
+                    const authData = localStorage.getItem("auth_user_full");
+                    if (authData) {
+                        userEmail = JSON.parse(authData).email || 'unknown';
+                    }
+                } catch(e) {}
+                
+                const watchedKey = 'skilmatrix_demo_watched_' + userEmail;
+                const watched = localStorage.getItem(watchedKey);
+                
                 if (!watched && window.SKiLMatrixTour) {
                     window.SKiLMatrixTour.start();
                 }

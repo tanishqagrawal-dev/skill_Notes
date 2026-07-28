@@ -224,8 +224,15 @@ class DemoTour {
         this.spotlight.classList.remove('active');
         this.card.classList.remove('active');
 
-        // Mark as watched so auto-start doesn't re-fire
-        localStorage.setItem('skilmatrix_demo_watched', 'true');
+        // Mark as watched for this specific user/email so auto-start doesn't re-fire for them
+        let userEmail = 'unknown';
+        try {
+            const authData = localStorage.getItem("auth_user_full");
+            if (authData) {
+                userEmail = JSON.parse(authData).email || 'unknown';
+            }
+        } catch(e) {}
+        localStorage.setItem('skilmatrix_demo_watched_' + userEmail, 'true');
 
         // Close sidebar on mobile if we opened it
         const sidebar = document.querySelector('.sidebar');
