@@ -438,6 +438,35 @@ if (typeof document !== 'undefined' && !document.getElementById('cm-placeholder-
 export async function renderCodingArena() {
     if (!window.currentUser) return `<div style="padding:2rem;text-align:center;">Please login to access the Coding Arena.</div>`;
 
+    // Mobile Lock Check
+    if (window.innerWidth <= 768) {
+        return `
+            <div style="display:flex; justify-content:center; align-items:center; min-height:70vh; padding:1rem; position:relative;">
+                <!-- Glowing Background Blobs -->
+                <div style="position:absolute; top:30%; left:10%; width:100px; height:100px; background:rgba(0, 242, 255, 0.2); filter:blur(50px); border-radius:50%; pointer-events:none;"></div>
+                <div style="position:absolute; bottom:30%; right:10%; width:100px; height:100px; background:rgba(123, 97, 255, 0.2); filter:blur(50px); border-radius:50%; pointer-events:none;"></div>
+                
+                <div style="position:relative; background: linear-gradient(145deg, rgba(15, 17, 26, 0.85) 0%, rgba(8, 9, 13, 0.95) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 28px; padding: 2.5rem 1.25rem; text-align: center; max-width: 400px; width: 100%; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 20px rgba(123, 97, 255, 0.05); overflow: hidden;">
+                    
+                    <!-- Decorative Top Accent -->
+                    <div style="position:absolute; top:0; left:50%; transform:translateX(-50%); width:50%; height:3px; background:linear-gradient(90deg, transparent, #00f2ff, #7b61ff, transparent); border-radius:3px;"></div>
+
+                    <div style="width: 76px; height: 76px; background: linear-gradient(135deg, rgba(123, 97, 255, 0.15), rgba(0, 242, 255, 0.15)); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 1.5rem auto; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2), inset 0 0 15px rgba(123, 97, 255, 0.2);">
+                        <i class="fa-solid fa-laptop-code" style="font-size: 1.8rem; background: linear-gradient(135deg, #00f2ff, #7b61ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(0,242,255,0.4));"></i>
+                    </div>
+                    
+                    <h2 style="font-family: 'Outfit', sans-serif; font-size: clamp(1.4rem, 6vw, 1.8rem); font-weight: 800; margin-bottom: 0.75rem; letter-spacing: -0.5px; line-height: 1.2; background: linear-gradient(135deg, #ffffff, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; word-break: break-word;">Desktop Experience</h2>
+                    
+                    <p style="color: rgba(255, 255, 255, 0.65); font-size: 0.95rem; line-height: 1.5; margin-bottom: 2rem; font-weight: 400; padding: 0 0.5rem;">The Coding Arena is a fully immersive IDE that requires a larger screen. Please switch to a desktop or laptop to compile and run code.</p>
+                    
+                    <div style="display: inline-flex; justify-content: center; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; background: linear-gradient(135deg, rgba(0, 242, 255, 0.1), rgba(123, 97, 255, 0.1)); border: 1px solid rgba(0, 242, 255, 0.3); color: #00f2ff; border-radius: 100px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; box-shadow: 0 0 15px rgba(0, 242, 255, 0.15); text-transform: uppercase; white-space: nowrap;">
+                        <i class="fa-solid fa-expand" style="font-size: 0.75rem;"></i> Optimized for Desktop
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     // Fetch user's current progress
     const { data: userStats } = await supabase.from('users').select('*').eq('id', window.currentUser.id).single();
     
