@@ -1,39 +1,42 @@
 const founderData = {
     tanishq: {
         name: "Tanishq Agrawal",
-        role: "Frontend, UI/UX, Marketing & Features",
+        role: "Founder & Lead Developer",
         img: "assets/Tanishq agrawal.jpeg?v=1.0",
-        bio: "The driving force behind the platform's visual identity, user experience, and strategic growth. Tanishq leads Frontend Engineering and UI/UX Design, bridging the gap between complex code and beautiful interfaces. He also spearheads Digital Marketing strategies and oversees Feature Innovation to ensure the product constantly evolves.",
+        bio: "Hey, I'm Tanishq! I started this platform because I wanted to make learning easier for all of us. I spent countless hours designing the interface, writing the core codebase, and tying all the pieces together. It's been an amazing journey bringing this vision to life from day one!",
         social: {
             github: "https://github.com/tanishqagrawal-dev",
             linkedin: "https://www.linkedin.com/in/tanishq-agrawal-91a505335",
             instagram: "https://www.instagram.com/tanishq_agrawal11?igsh=YmtibTEwcDFsd3No"
         },
-        skills: ["Frontend Developer", "UI/UX Design", "React & Modern JS", "Digital Marketing", "Product Strategy"]
+        skills: ["Creator", "Frontend & Backend", "UI/UX Design", "Website Management"],
+        works: ["Frontend", "Backend", "Database", "AI Tools"]
     },
     yash: {
         name: "Yash Jain",
-        role: "Cloud, Backend & Security",
+        role: "Cloud & Frontend Helper",
         img: "assets/yash.jpg?v=6.0",
-        bio: "The architect of our digital infrastructure. Yash specializes in Cloud Engineering and Backend Development, ensuring our systems are robust and scalable. He maintains a rigorous focus on Cloud & System Security and DevOps practices to guarantee 24/7 uptime and military-grade data protection.",
+        bio: "Hey, I'm Yash! I worked on parts of our cloud infrastructure and helped out with some frontend features. My main focus was to ensure our systems stay online, run smoothly, and remain secure for all users.",
         social: {
             github: "https://github.com/Yash-Jain2006",
             linkedin: "https://www.linkedin.com/in/yash-jain-jan2006",
             instagram: "https://www.instagram.com/yashjain0601"
         },
-        skills: ["Cloud Engineer", "Cloud Architecture", "Backend Developer", "Cloud & System Security", "Dev Ops"]
+        skills: ["Cloud Support", "Frontend Support", "Security Basics"],
+        works: ["Cloud Infrastructure", "Frontend Features"]
     },
     anoop: {
         name: "Anoop Verma",
-        role: "Lead AI & Backend Developer",
+        role: "Project Mentor",
         img: "assets/anoop.jpg?v=6.0",
-        bio: "The mind behind the machine. Anoop architects the complex AI models and backend logic that power the 'brain' of Skill Matrix. From natural language processing to predictive analytics, he transforms raw data into actionable career intelligence for our users.",
+        bio: "Hi, I'm Anoop! I've been a mentor for this project since day one. I love sharing my insights and guiding the team to help them achieve their vision and build something truly valuable for students.",
         social: {
             github: "https://github.com/MakoShar",
             linkedin: "https://www.linkedin.com/in/anoop-verma-12078b322",
             instagram: "https://www.instagram.com/aiden_4178?igsh=MXd2N3dtaXVkdzF2YQ=="
         },
-        skills: ["Artificial Intelligence", "Python & Backend", "Machine Learning", "Data Structures", "Algorithm Design"]
+        skills: ["Mentorship", "Guidance", "Advice"],
+        works: ["Project Mentorship", "Guidance"]
     }
 };
 
@@ -71,12 +74,14 @@ window.openFounderModal = function (id) {
             <h4><i class="far fa-user"></i> About Me</h4>
             <p>${data.bio}</p>
         </div>
+        ${data.works ? `
         <div class="modal-section">
-            <h4><i class="fas fa-bolt"></i> Skills</h4>
+            <h4><i class="fas fa-briefcase"></i> What I Worked On</h4>
             <div class="skills-container">
-                ${data.skills.map(s => '<span class="skill-tag">' + s + '</span>').join('')}
+                ${data.works.map(w => '<span class="skill-tag" style="border-color: var(--primary); color: var(--primary);">' + w + '</span>').join('')}
             </div>
         </div>
+        ` : ''}
     `;
 
     modal.classList.add('active');

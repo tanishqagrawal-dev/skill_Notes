@@ -50,31 +50,62 @@
         .legal-page-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 5rem 1.5rem 2rem;
+            padding: 5rem 1.5rem 1rem;
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .legal-content-card {
-            background: rgba(13, 17, 23, 0.7);
-            border: 1px solid var(--border-glass);
+            background: linear-gradient(180deg, #0f0f11 0%, #000000 100%);
+            border: 1px solid rgba(255, 255, 255, 0.04);
             border-radius: 24px;
-            padding: 2rem 2rem 1.5rem;
+            padding: 2rem 2.5rem 1.5rem;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
             backdrop-filter: blur(20px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            box-shadow: 
+                0 40px 80px rgba(0, 0, 0, 1), 
+                inset 0 1px 1px rgba(255, 255, 255, 0.15),
+                inset 0 0 60px rgba(0, 242, 255, 0.03);
+            position: relative;
+            z-index: 1;
+        }
+
+        .legal-content-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00F2FF, #7B61FF, transparent);
+            opacity: 1;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.15);
         }
 
         .legal-content h1 {
-            font-size: 2.5rem;
-            margin-bottom: 2rem;
-            background: linear-gradient(135deg, #fff 0%, #7b61ff 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 2.4rem;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+            font-weight: 700;
         }
 
         .legal-content h2 {
-            font-size: 1.5rem;
-            margin: 2rem 0 1rem;
-            color: var(--primary);
+            font-size: 1.8rem;
+            margin: 1.5rem 0 1rem;
+            background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            letter-spacing: -0.5px;
+            font-weight: 700;
         }
 
         .legal-content p,
@@ -119,10 +150,10 @@
             flex-direction: row;
             align-items: stretch;
             justify-content: center;
-            gap: 32px;
+            gap: 20px;
             perspective: 1000px;
             flex-wrap: nowrap;
-            margin-bottom: 2rem;
+            margin-bottom: 0.5rem;
             padding-bottom: 10px;
         }
 
@@ -130,8 +161,8 @@
         .founder-card {
             background: transparent;
             width: 100%;
-            max-width: 260px;
-            min-height: 280px;
+            max-width: 220px;
+            min-height: 240px;
             height: auto;
             cursor: pointer;
             perspective: 1000px;
@@ -154,14 +185,14 @@
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
-            opacity: 0.6;
+            opacity: 0.3;
             transition: opacity 0.4s ease;
             animation: rotate 3s linear infinite;
             pointer-events: none;
         }
 
         .founder-card:hover::before {
-            opacity: 1;
+            opacity: 0.8;
             padding: 3px;
         }
 
@@ -184,17 +215,17 @@
             height: 100%;
             text-align: center;
             border-radius: 20px; /* Matched outer radius */
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(180deg, rgba(15, 15, 17, 0.6) 0%, rgba(0, 0, 0, 0.8) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.15);
             transition: all 0.3s ease;
             overflow: hidden;
         }
 
         .founder-card:hover .founder-inner {
-            background: rgba(255, 255, 255, 0.04);
-            box-shadow: 0 0 20px -5px var(--primary-glow, rgba(0, 242, 255, 0.5));
+            background: linear-gradient(180deg, rgba(20, 22, 26, 0.8) 0%, rgba(5, 5, 5, 0.9) 100%);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 1), inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 0 20px -5px var(--primary-glow, rgba(0, 242, 255, 0.4));
         }
 
         /* Founder Front - Centering */
@@ -205,16 +236,16 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 30px;
+            padding: 15px;
             z-index: 2;
         }
 
         /* 3D Photo Container */
         .founder-img-wrapper {
             position: relative;
-            width: 110px;
-            height: 110px;
-            margin-bottom: 16px;
+            width: 80px;
+            height: 80px;
+            margin-bottom: 12px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -226,8 +257,8 @@
         }
 
         .founder-img-wrapper img {
-            width: 95px;
-            height: 95px;
+            width: 68px;
+            height: 68px;
             border-radius: 50%;
             object-fit: cover;
             object-position: center 15%;
@@ -399,39 +430,45 @@
         .founder-content {
             width: 95%;
             max-width: 520px;
-            background: #0B0E14;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.02);
+            background: linear-gradient(180deg, #0f0f11 0%, #000000 100%);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: 
+                0 40px 80px rgba(0, 0, 0, 1), 
+                inset 0 1px 1px rgba(255, 255, 255, 0.15),
+                inset 0 0 60px rgba(0, 242, 255, 0.03);
             border-radius: 20px;
-            overflow: hidden;
             transform: scale(0.9) translateY(30px);
             opacity: 0;
             transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
             position: relative;
+        }
+
+        .founder-scroll-area {
             max-height: 85vh;
             overflow-y: auto;
             scrollbar-width: none;
+            position: relative;
+            z-index: 2;
         }
 
-        /* 3D Animated Modal Boundary */
-        .founder-content::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            border-radius: 20px;
-            padding: 2px;
-            background: conic-gradient(from var(--angle, 0deg), transparent 40%, #00F2FF 50%, #7B61FF 60%, transparent 70%);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            animation: rotate 4s linear infinite;
-            pointer-events: none;
-            z-index: 100; /* overlay on top of content edges */
-        }
-
-        .founder-content::-webkit-scrollbar {
+        .founder-scroll-area::-webkit-scrollbar {
             display: none;
+        }
+
+        /* Premium Top Border for Modal */
+        .founder-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00F2FF, #7B61FF, transparent);
+            opacity: 1;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+            z-index: 100;
         }
 
         .founder-content.active {
@@ -465,7 +502,7 @@
         }
 
         .modal-header-bg {
-            height: 180px;
+            height: 120px;
             background: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000&auto=format&fit=crop') center/cover no-repeat;
             position: relative;
         }
@@ -478,8 +515,8 @@
         }
 
         .modal-body {
-            padding: 0 2rem 2.5rem;
-            margin-top: -65px;
+            padding: 0 1.5rem 1.5rem;
+            margin-top: -50px;
             position: relative;
         }
 
@@ -491,8 +528,8 @@
         }
 
         .modal-profile-img {
-            width: 140px;
-            height: 140px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             background: #1a1e26;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -529,7 +566,7 @@
             width: 38px;
             height: 38px;
             background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -537,14 +574,16 @@
             color: #A0AEC0;
             text-decoration: none;
             font-size: 1.1rem;
+            backdrop-filter: blur(5px);
             transition: all 0.3s;
         }
 
         .social-btn:hover {
             color: #fff;
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
         }
 
         .modal-info {
@@ -552,23 +591,26 @@
         }
 
         .modal-info h2 {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             color: white;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
             font-weight: 700;
         }
 
         .modal-info .role {
             font-size: 0.95rem;
-            color: #00F2A6;
-            font-weight: 500;
-            margin-bottom: 25px;
+            background: linear-gradient(90deg, #00F2FF, #7B61FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 600;
+            margin-bottom: 15px;
             letter-spacing: 0;
             text-transform: none;
         }
 
         .modal-section {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .modal-section h4 {
@@ -577,7 +619,7 @@
             gap: 8px;
             color: white;
             font-size: 1.1rem;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             font-weight: 600;
         }
 
@@ -599,20 +641,22 @@
         }
 
         .skill-tag {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.8);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.03) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: rgba(255, 255, 255, 0.85) !important;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
             font-weight: 500;
             transition: all 0.3s;
+            backdrop-filter: blur(5px);
         }
 
         .skill-tag:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
-            color: #fff;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: rgba(255, 255, 255, 0.3) !important;
+            color: #ffffff !important;
+            transform: translateY(-1px);
         }
 
         @media (max-width: 900px) {
@@ -703,7 +747,7 @@
             <div class="legal-content">
                 <h1 style="text-align: center;">Mission <span class="gradient-text">Statement</span></h1>
 
-                <p style="text-align: center; max-width: 750px; margin: 0 auto 1.5rem; font-size: 1rem;">We are building
+                <p style="text-align: center; max-width: 750px; margin: 0 auto 0.5rem; font-size: 0.95rem; line-height: 1.5;">We are building
                     the world's most intelligent academic ecosystem. A platform where technology meets education to
                     empower every student with the tools they need to master their subjects and excel in their careers.
                 </p>
@@ -783,10 +827,12 @@
 
     <div id="profile-modal" class="founder-modal">
         <div class="founder-content">
-            <div class="modal-close" onclick="closeFounderModal()">&times;</div>
-            <div class="modal-header-bg"></div>
-            <div class="modal-body" id="modal-body-content">
-                <!-- Dynamically Filled -->
+            <div class="founder-scroll-area">
+                <div class="modal-close" onclick="closeFounderModal()">&times;</div>
+                <div class="modal-header-bg"></div>
+                <div class="modal-body" id="modal-body-content">
+                    <!-- Dynamically Filled -->
+                </div>
             </div>
         </div>
     </div>
@@ -799,39 +845,42 @@
         const founderData = {
             tanishq: {
                 name: "Tanishq Agrawal",
-                role: "Frontend, UI/UX, Marketing & Features",
+                role: "Founder & Lead Developer",
                 img: "assets/Tanishq agrawal.jpeg?v=1.0",
-                bio: "The driving force behind the platform's visual identity, user experience, and strategic growth. Tanishq leads Frontend Engineering and UI/UX Design, bridging the gap between complex code and beautiful interfaces. He also spearheads Digital Marketing strategies and oversees Feature Innovation to ensure the product constantly evolves.",
+                bio: "Hey, I'm Tanishq! I started this platform because I wanted to make learning easier for all of us. I spent countless hours designing the interface, writing the core codebase, and tying all the pieces together. It's been an amazing journey bringing this vision to life from day one!",
                 social: {
                     github: "https://github.com/tanishqagrawal-dev",
                     linkedin: "https://www.linkedin.com/in/tanishq-agrawal-91a505335",
                     instagram: "https://www.instagram.com/tanishq_agrawal11?igsh=YmtibTEwcDFsd3No"
                 },
-                skills: ["Frontend Development", "UI/UX Design", "Database Management", "Web Animation", "Responsive Design"]
+                skills: ["Creator", "Frontend & Backend", "UI/UX Design", "Website Management"],
+                works: ["Frontend", "Backend", "Database", "AI Tools"]
             },
             yash: {
                 name: "Yash Jain",
-                role: "Cloud, Backend & Security",
+                role: "Cloud & Frontend Helper",
                 img: "assets/yash.jpg?v=6.0",
-                bio: "The architect of our digital infrastructure. Yash specializes in Cloud Engineering and Backend Development, ensuring our systems are robust and scalable. He maintains a rigorous focus on Cloud & System Security and DevOps practices to guarantee 24/7 uptime and military-grade data protection.",
+                bio: "Hey, I'm Yash! I worked on parts of our cloud infrastructure and helped out with some frontend features. My main focus was to ensure our systems stay online, run smoothly, and remain secure for all users.",
                 social: {
                     github: "https://github.com/Yash-Jain2006",
                     linkedin: "https://www.linkedin.com/in/yash-jain-jan2006",
                     instagram: "https://www.instagram.com/yashjain0601"
                 },
-                skills: ["Cloud Engineer", "Cloud Architecture", "Backend Developer", "Cloud & System Security", "Dev Ops"]
+                skills: ["Cloud Support", "Frontend Support", "Security Basics"],
+                works: ["Cloud Infrastructure", "Frontend Features"]
             },
             anoop: {
                 name: "Anoop Verma",
-                role: "Lead AI & Backend Developer",
+                role: "Project Mentor",
                 img: "assets/anoop.jpg?v=6.0",
-                bio: "The mind behind the machine. Anoop architects the complex AI models and backend logic that power the 'brain' of Skill Matrix. From natural language processing to predictive analytics, he transforms raw data into actionable career intelligence for our users.",
+                bio: "Hi, I'm Anoop! I've been a mentor for this project since day one. I love sharing my insights and guiding the team to help them achieve their vision and build something truly valuable for students.",
                 social: {
                     github: "https://github.com/MakoShar",
                     linkedin: "https://www.linkedin.com/in/anoop-verma-12078b322",
                     instagram: "https://www.instagram.com/aiden_4178?igsh=MXd2N3dtaXVkdzF2YQ=="
                 },
-                skills: ["Artificial Intelligence", "Python & Backend", "Machine Learning", "Data Structures", "Algorithm Design"]
+                skills: ["Mentorship", "Guidance", "Advice"],
+                works: ["Project Mentorship", "Guidance"]
             }
         };
 
@@ -868,6 +917,14 @@
                     <h4><i class="far fa-user"></i> About Me</h4>
                     <p>${data.bio}</p>
                 </div>
+                ${data.works ? `
+                <div class="modal-section">
+                    <h4><i class="fas fa-briefcase"></i> What I Worked On</h4>
+                    <div class="skills-container">
+                        ${data.works.map(w => '<span class="skill-tag" style="border-color: var(--primary); color: var(--primary);">' + w + '</span>').join('')}
+                    </div>
+                </div>
+                ` : ''}
             `;
 
             modal.classList.add('active');
@@ -901,23 +958,7 @@
     <!-- Back to Top -->
     <script src="../js/footer.js?v=6.0"></script>
     <script src="../js/main.js?v=6.0"></script>
-    <!-- Voiceflow Chatbot -->
-    <script type="text/javascript">
-        (function (d, t) {
-            var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
-            v.onload = function () {
-                window.voiceflow.chat.load({
-                    verify: { projectID: '67a8c08ad2483de383f344c4' },
-                    url: 'https://general-runtime.voiceflow.com',
-                    versionID: 'production',
-                    voice: {
-                        url: "https://runtime-api.voiceflow.com"
-                    }
-                });
-            }
-            v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
-        })(document, 'script');
-    </script>
+
 </body>
 
 </html>
