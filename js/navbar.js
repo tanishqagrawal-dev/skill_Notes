@@ -47,7 +47,7 @@ function renderNavbar() {
                     <div style="position: relative; display: flex; align-items: center; justify-content: center; padding: 2px; border-radius: 50%; background: linear-gradient(135deg, #7b61ff, #00f2ff); box-shadow: 0 0 15px rgba(123, 97, 255, 0.4);">
                         <img src="${basePath}assets/logo.jpg?v=7.0" alt="SKiL MATRiX" style="height: 40px; width: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #0b0f19; display: block;">
                     </div>
-                    <div style="display: flex; align-items: center; gap: 6px;">
+                    <div class="logo-text-wrapper" style="display: flex; align-items: center; gap: 6px;">
                         <span class="logo-text" style="font-size: 1.3rem; font-weight: 800; line-height: 1; color: #ffffff; letter-spacing: -0.5px;">SKiL MATRiX</span>
                         <span class="highlight-badge" style="font-size: 0.62rem; font-weight: 800; background: linear-gradient(135deg, #a78bfa, #00f2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 0.8px; padding: 1.5px 5px; border-radius: 4px; background-color: rgba(167, 139, 250, 0.08); border: 1px solid rgba(167, 139, 250, 0.25); text-transform: uppercase; margin-left: 1px;">NOTES</span>
                     </div>
@@ -55,6 +55,7 @@ function renderNavbar() {
                 <!-- CENTER ZONE: Nav links truly centered -->
                 <div class="nav-links" id="nav-links">
                     <div class="mobile-close-btn" id="mobile-close-btn">&times;</div>
+                    <div id="mobile-profile-container" style="display: none;"></div>
                     <div class="nav-menu-items">
                         <a href="${getLinkPath('pages/dashboard')}#/notes" class="${currentPage === 'dashboard' && window.location.hash.includes('notes') ? 'active' : ''}">Notes Hub</a>
                         <div class="nav-dropdown" id="tools-dropdown-container">
@@ -118,7 +119,7 @@ function renderNavbar() {
                 <!-- RIGHT ZONE: Actions pinned to right corner -->
                 <div class="nav-actions" id="nav-actions">
                     <a href="${getLinkPath('pages/dashboard')}?tab=subscription" id="nav-subscription-link" class="btn-go-premium">
-                        <span style="color: #ffd700; font-size: 1.1em; margin-right: 4px;">👑</span> Go Premium
+                        <span style="color: #ffd700; font-size: 1.1em; margin-right: 4px;">👑</span> <span class="premium-text">Go Premium</span>
                     </a>
                     
                     <!-- Profile Icon Dropdown -->
@@ -222,7 +223,7 @@ function updateNavbarAuthButton(basePath) {
         if (isLoggedIn) {
             setAvatar(userPhoto, userName);
 
-            profileMenu.innerHTML = `
+            const dropdownHtml = `
                 <div style="padding: 0.65rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.3rem; display: flex; align-items: center; gap: 10px;">
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(123, 97, 255, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; position: relative;">
                         ${userPhoto ? `<img src="${userPhoto}" referrerpolicy="no-referrer" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.parentElement.innerHTML=\`${defaultSvg}\`">` : defaultSvg}
@@ -239,14 +240,19 @@ function updateNavbarAuthButton(basePath) {
                     <span>📊</span> Dashboard
                 </a>
                 <div style="height: 1px; background: rgba(255,255,255,0.08); margin: 0.3rem 0;"></div>
-                <a href="javascript:void(0)" class="profile-dropdown-link" id="navbar-logout-btn" style="display: flex; align-items: center; gap: 10px; padding: 0.6rem 0.8rem; color: #ff4757; text-decoration: none; font-size: 0.88rem; font-weight: 700; border-radius: 10px; transition: all 0.2s ease;">
+                <a href="javascript:void(0)" class="profile-dropdown-link logout-btn" style="display: flex; align-items: center; gap: 10px; padding: 0.6rem 0.8rem; color: #ff4757; text-decoration: none; font-size: 0.88rem; font-weight: 700; border-radius: 10px; transition: all 0.2s ease;">
                     <span>🚪</span> Logout
                 </a>
             `;
 
-            const logoutBtn = document.getElementById('navbar-logout-btn');
-            if (logoutBtn) {
-                logoutBtn.onclick = (e) => {
+            profileMenu.innerHTML = dropdownHtml;
+            const mobileProfileContainer = document.getElementById('mobile-profile-container');
+            if (mobileProfileContainer) {
+                mobileProfileContainer.innerHTML = dropdownHtml;
+            }
+
+            document.querySelectorAll('.logout-btn').forEach(btn => {
+                btn.onclick = (e) => {
                     e.preventDefault();
                     localStorage.removeItem('auth_user_full');
                     localStorage.removeItem('guest_session');
@@ -256,14 +262,14 @@ function updateNavbarAuthButton(basePath) {
                     }
                     window.location.href = authPath;
                 };
-            }
+            });
         } else {
             setAvatar('', '');
             profileBtn.style.background = 'linear-gradient(135deg, #1e293b, #0f172a)';
             profileBtn.style.borderColor = 'rgba(123, 97, 255, 0.4)';
             profileBtn.style.boxShadow = '0 0 15px rgba(123, 97, 255, 0.15)';
 
-            profileMenu.innerHTML = `
+            const loginHtml = `
                 <div style="padding: 0.6rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.3rem;">
                     <div style="font-weight: 700; color: #ffffff; font-size: 0.88rem;">Welcome Student</div>
                     <div style="font-size: 0.72rem; color: #8f9bb3;">Log in to access your tools</div>
@@ -272,17 +278,24 @@ function updateNavbarAuthButton(basePath) {
                     <span>🔑</span> Sign Up / Login
                 </a>
             `;
+            
+            profileMenu.innerHTML = loginHtml;
+            const mobileProfileContainer = document.getElementById('mobile-profile-container');
+            if (mobileProfileContainer) {
+                mobileProfileContainer.innerHTML = loginHtml;
+            }
         }
 
         // Add hover effects for profile links
-        profileMenu.querySelectorAll('.profile-dropdown-link').forEach(link => {
+        document.querySelectorAll('.profile-dropdown-link').forEach(link => {
             link.addEventListener('mouseenter', () => {
                 link.style.background = 'rgba(255, 255, 255, 0.08)';
                 link.style.transform = 'translateX(4px)';
             });
             link.addEventListener('mouseleave', () => {
-                if (!link.style.background.includes('rgba(0, 242, 255')) {
-                    link.style.background = 'transparent';
+                link.style.background = 'transparent';
+                if (link.style.color.includes('#00f2ff')) {
+                    link.style.background = 'rgba(0, 242, 255, 0.08)';
                 }
                 link.style.transform = 'translateX(0)';
             });

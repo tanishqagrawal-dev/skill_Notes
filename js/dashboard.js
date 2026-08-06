@@ -1906,6 +1906,26 @@ function renderTabContent(tabId) {
                 box-shadow:0 6px 24px rgba(123,97,255,.45);transition:all .2s;
             }
             .sub-popup-btn:hover { transform:translateY(-2px);box-shadow:0 10px 32px rgba(123,97,255,.6); }
+            
+            /* ── Mobile Responsiveness ── */
+            @media (max-width: 768px) {
+                #sub-root { padding: 0.5rem 1rem 2rem; }
+                .sub-container { gap: 1.5rem; display: flex; flex-direction: column; }
+                .sub-left { display: contents; }
+                .sub-contact-section { order: 10; margin-top: 1rem; }
+                .sub-right-card { order: 3; padding: 1.5rem; margin-top: 2rem; }
+                .sub-plan-switch { display: flex; width: 100%; order: 1; }
+                .sub-left-hdr { order: 2; }
+                .sub-feats-box { padding: 1.5rem; order: 4; }
+                .sub-plan-btn { flex: 1; padding: 0.6rem 0.2rem; font-size: 0.8rem; white-space: nowrap; text-align: center; }
+                .sub-left-hdr h2 { font-size: 1.8rem !important; }
+                .sub-left-hdr p { font-size: 0.95rem; }
+                .sub-feats-hdr { margin-bottom: 1rem; }
+                .sub-feats-list li { font-size: 0.85rem; padding: 0.6rem 0.8rem; gap: 0.75rem; }
+                .sub-price-big { font-size: 2.6rem; }
+                .sub-popup { padding: 1.5rem; }
+                .sub-popup h3 { font-size: 1.4rem; }
+            }
             </style>
 
             <div id="sub-root">
@@ -2873,6 +2893,33 @@ function renderTimetable() {
             0%, 100% { transform: translateY(0) rotateX(0) rotateY(0); }
             50% { transform: translateY(-12px) rotateX(10deg) rotateY(-10deg); filter: drop-shadow(0 20px 25px rgba(123, 97, 255, 0.6)); }
         }
+        .tt-exam-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .tt-exam-card:hover::after {
+            opacity: 1;
+        }
+        @media (max-width: 768px) {
+            .tt-exam-flex-row {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 1.2rem !important;
+            }
+            .tt-exam-actions {
+                width: 100%;
+                justify-content: space-between !important;
+                gap: 1rem !important;
+            }
+            .tt-exam-info {
+                min-width: 100% !important;
+            }
+        }
         .tt-countdown-box {
             background: rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(255,255,255,0.05);
@@ -3190,8 +3237,8 @@ function renderTimetableCards() {
         return `
             <div class="tt-premium-card tt-exam-card" style="padding: 1rem 1.2rem; display: flex; flex-direction: column; gap: 0.8rem; ${cardStyle} animation: slideUp 0.3s ease ${animDelay}s both; position: relative; backdrop-filter: blur(12px); border-radius: 16px;">
                 
-                <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; width: 100%;">
-                    <div style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 250px;">
+                <div class="tt-exam-flex-row" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; width: 100%;">
+                    <div class="tt-exam-info" style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 250px;">
                         ${iconHtml}
                         <div>
                             <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.2rem;">
@@ -3211,7 +3258,7 @@ function renderTimetableCards() {
                             </div>
                         </div>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 1.5rem;">
+                    <div class="tt-exam-actions" style="display: flex; align-items: center; gap: 1.5rem;">
                         ${statusHtml}
                         ${diffMs > 0 ? `
                         <div style="display: flex; gap: 0.4rem;">
@@ -3583,6 +3630,139 @@ function renderAITools() {
                     border: 1px solid #1d4ed8;
                     border-top-right-radius: 4px;
                 }
+                
+                .ai-msg-actions {
+                    display: none;
+                }
+
+                /* Mobile Responsiveness for AI Coach */
+                @media (max-width: 768px) {
+                    .ai-premium-container {
+                        height: calc(100vh - 140px);
+                        max-height: calc(100vh - 140px);
+                        border-radius: 12px;
+                    }
+                    .ai-header {
+                        padding: 0.8rem;
+                        background: #09090b;
+                        border-bottom: 1px solid #27272a;
+                    }
+                    .ai-header-title {
+                        gap: 8px;
+                    }
+                    .ai-header-text h3.free-tier, 
+                    .ai-header-text h3.premium-tier {
+                        font-size: 0.95rem;
+                        white-space: nowrap;
+                    }
+                    .ai-header-icon {
+                        width: 32px;
+                        height: 32px;
+                        font-size: 1rem;
+                    }
+                    .pro-badge {
+                        padding: 2px 6px;
+                        font-size: 0.6rem;
+                    }
+                    .ai-status {
+                        font-size: 0.7rem;
+                    }
+                    .ai-chat-area {
+                        padding: 1rem;
+                        gap: 1rem;
+                    }
+                    .chat-message {
+                        max-width: 95%;
+                        gap: 8px;
+                    }
+                    .msg-bubble {
+                        padding: 0.8rem;
+                        font-size: 0.82rem;
+                    }
+                    .ai-msg-actions {
+                        display: flex;
+                        gap: 16px;
+                        margin-top: 8px;
+                        padding-left: 2px;
+                        align-items: center;
+                    }
+                    .ai-action-icon {
+                        background: transparent;
+                        border: none;
+                        color: #71717a;
+                        font-size: 0.75rem;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        padding: 0;
+                    }
+                    .msg-avatar {
+                        width: 28px;
+                        height: 28px;
+                        font-size: 0.8rem;
+                        border-radius: 50%;
+                    }
+                    .ai-input-wrapper {
+                        padding: 0.8rem;
+                        background: #09090b;
+                    }
+                    .quick-prompts-grid {
+                        display: flex;
+                        flex-direction: row;
+                        flex-wrap: nowrap;
+                        overflow-x: auto;
+                        padding: 0 0 10px 0;
+                        gap: 8px;
+                        -webkit-overflow-scrolling: touch;
+                        scrollbar-width: thin;
+                        scrollbar-color: #3f3f46 transparent;
+                        margin-bottom: 0;
+                    }
+                    .quick-prompts-grid::-webkit-scrollbar {
+                        display: block;
+                        height: 3px;
+                    }
+                    .quick-prompts-grid::-webkit-scrollbar-track {
+                        background: transparent;
+                    }
+                    .quick-prompts-grid::-webkit-scrollbar-thumb {
+                        background-color: rgba(255,255,255,0.15);
+                        border-radius: 4px;
+                    }
+                    .premium-prompt-card {
+                        flex: 0 0 auto;
+                        padding: 8px 14px;
+                        border-radius: 20px;
+                        background: #18181b;
+                        border: 1px solid #27272a;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        min-height: auto;
+                    }
+                    .premium-prompt-card:hover {
+                        background: #27272a;
+                    }
+                    .premium-prompt-card .prompt-icon {
+                        width: auto;
+                        height: auto;
+                        background: transparent;
+                        font-size: 0.85rem;
+                        color: #a1a1aa;
+                        margin-bottom: 0;
+                    }
+                    .premium-prompt-card .prompt-text {
+                        font-size: 0.8rem;
+                        color: #d4d4d8;
+                    }
+                    .premium-prompt-card .prompt-text strong {
+                        display: none; 
+                    }
+                    .premium-prompt-card .prompt-text br {
+                        display: none;
+                    }
+                }
             </style>
 
             <div class="ai-premium-container">
@@ -3601,7 +3781,7 @@ function renderAITools() {
                     <div class="ai-header-title">
                         <div id="ai-header-icon" class="ai-header-icon ${isPremium ? 'premium-tier' : 'free-tier'}"><i class="fas fa-brain"></i></div>
                         <div class="ai-header-text">
-                            <div style="display: flex; align-items: center; gap: 12px;">
+                            <div class="ai-header-badge-row" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                                 <h3 id="ai-header-title" class="${isPremium ? 'premium-tier' : 'free-tier'}" style="margin: 0;">SKiL Matrix AI</h3>
                                 <span id="ai-pro-badge" class="pro-badge ${isPremium ? 'premium-tier' : 'free-tier'}">${isPremium ? 'PRO' : 'FREE'}</span>
                                 ${isPremium ? `<button id="demo-downgrade-btn" onclick="window.revertToFreeAI(); this.style.display='none';" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; cursor: pointer; transition: all 0.2s;">Demo Downgrade</button>` : ''}
@@ -3613,8 +3793,8 @@ function renderAITools() {
                         </div>
                     </div>
                     <div>
-                        <button class="btn btn-icon-mini" onclick="document.getElementById('ai-chat-history').innerHTML=''; document.getElementById('ai-quick-prompts').style.display='grid';" style="background: #262626; color: #fff; border: 1px solid #333; border-radius: 8px; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='#262626'" title="New Chat">
-                            <i class="fas fa-plus"></i>
+                        <button class="btn btn-icon-mini" onclick="document.getElementById('ai-chat-history').innerHTML=''; document.getElementById('ai-quick-prompts').style.display='grid';" style="background: #262626; color: #fff; border: 1px solid #333; border-radius: 8px; width: auto; padding: 0 12px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.5px;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='#262626'" title="Clear Chat">
+                            Clear
                         </button>
                     </div>
                 </div>
@@ -3624,8 +3804,14 @@ function renderAITools() {
                     <!-- Initial AI Greeting -->
                     <div class="chat-message ai-msg">
                         <div class="msg-avatar"><i class="fas fa-robot"></i></div>
-                        <div class="msg-bubble">
-                            Hello! I am your <strong>SKiL Matrix AI Coach</strong>. I'm equipped to help you solve complex equations, break down algorithmic concepts, and generate study summaries. <br><br>How can I assist your learning today?
+                        <div style="display: flex; flex-direction: column;">
+                            <div class="msg-bubble">
+                                <span class="desktop-greeting">Hello! I am your <strong>SKiL Matrix AI Coach</strong>. I'm equipped to help you solve complex equations, break down algorithmic concepts, and generate study summaries. <br><br>How can I assist your learning today?</span>
+                                <span class="mobile-greeting">How can I assist you today?</span>
+                            </div>
+                            <div class="ai-msg-actions">
+                                <button class="ai-action-icon" onclick="window.copyAIBubbleText(this)"><i class="far fa-copy"></i> Copy</button>
+                            </div>
                         </div>
                     </div>
 
@@ -3893,8 +4079,13 @@ window.handleAIChatSubmit = async function(e) {
         historyBox.innerHTML += `
             <div class="chat-message ai-msg">
                 <div class="msg-avatar"><i class="fas fa-robot"></i></div>
-                <div class="msg-bubble">
-                    ${window.marked && window.marked.parse ? marked.parse(answer) : answer.replace(/\n/g, '<br>')}
+                <div style="display: flex; flex-direction: column;">
+                    <div class="msg-bubble">
+                        ${window.marked && window.marked.parse ? marked.parse(answer) : answer.replace(/\n/g, '<br>')}
+                    </div>
+                    <div class="ai-msg-actions">
+                        <button class="ai-action-icon" onclick="window.copyAIBubbleText(this)"><i class="far fa-copy"></i> Copy</button>
+                    </div>
                 </div>
             </div>
         `;
@@ -3912,6 +4103,23 @@ window.handleAIChatSubmit = async function(e) {
     historyBox.scrollTop = historyBox.scrollHeight;
 }
 
+window.copyAIBubbleText = function(btn) {
+    try {
+        const bubble = btn.closest('.chat-message').querySelector('.msg-bubble');
+        if (bubble) {
+            const textToCopy = bubble.innerText;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+    } catch (err) {
+        console.error("Failed to copy text", err);
+    }
+};
 
 // --- PROFESSIONAL DASHBOARD ENGINE ---
 
@@ -6414,6 +6622,7 @@ function updateLeaderboardUI() {
 
             // Sort ALL data by XP for unified leaderboard to find true global rank
             const sortedData = mergedUsers.sort((a, b) => (b.xp || 0) - (a.xp || 0));
+            window.currentLeaderboardData = sortedData;
 
             container.innerHTML = generateUnifiedLeaderboard(sortedData);
 
@@ -6498,7 +6707,7 @@ function generateUnifiedLeaderboard(data) {
     if (spotlightData[0]) visualSpotlight.push({ ...spotlightData[0], rank: 1 });
     if (spotlightData[2]) visualSpotlight.push({ ...spotlightData[2], rank: 3 });
 
-    let spotlightHtml = '<div class="lb-spotlight-3d">';
+    let spotlightHtml = '<div id="podium-container"><div class="lb-spotlight-3d">';
     
     visualSpotlight.forEach(item => {
         const scoreVal = item.xp || 0;
@@ -6531,7 +6740,7 @@ function generateUnifiedLeaderboard(data) {
             </div>
         `;
     });
-    spotlightHtml += '</div>';
+    spotlightHtml += '</div></div>';
 
     // Ranks 1 to 10
     const listData = data.slice(0, 10);
@@ -6540,11 +6749,21 @@ function generateUnifiedLeaderboard(data) {
     // Always render table if there's someone to show OR if current user needs a row
     if (listData.length > 0 || (myIndex >= 10)) {
         listHtml += `
+            <div class="mobile-stats-pills" id="mobile-podium-tabs">
+                <div class="stat-pill active" onclick="updateMobilePodium('xp', this)"><i class="fas fa-star"></i> Total XP</div>
+                <div class="stat-pill" onclick="updateMobilePodium('uploads', this)"><i class="fas fa-arrow-trend-up"></i> Uploads</div>
+                <div class="stat-pill" onclick="updateMobilePodium('referral_count', this)"><i class="fas fa-user-plus"></i> Referrals</div>
+                <div class="stat-pill" onclick="updateMobilePodium('coding_xp', this)"><i class="fas fa-code"></i> Coding XP</div>
+            </div>
+            <div id="leaderboard-list-wrapper">
             <div class="mentions-table-container">
                 <div class="mentions-table-header">
                     <div class="col-rank">Place</div>
                     <div class="col-user">Username</div>
-                    <div class="col-score">Total XP</div>
+                    <div class="col-score">
+                        <span class="desktop-only-header">Total XP</span>
+                        <span class="mobile-only-header">Total XP</span>
+                    </div>
                     <div class="col-stat">Uploads</div>
                     <div class="col-stat">Referrals</div>
                     <div class="col-stat">Coding XP</div>
@@ -6595,7 +6814,10 @@ function generateUnifiedLeaderboard(data) {
                             ${collegeHtml}
                         </div>
                     </div>
-                    <div class="col-score">${scoreVal.toLocaleString()}</div>
+                    <div class="col-score">
+                        <span class="desktop-only-header">${scoreVal.toLocaleString()}</span>
+                        <span class="mobile-only-header">${scoreVal.toLocaleString()}</span>
+                    </div>
                     <div class="col-stat">${uploads.toLocaleString()}</div>
                     <div class="col-stat">${referrals.toLocaleString()}</div>
                     <div class="col-stat">${codingXp.toLocaleString()}</div>
@@ -6637,7 +6859,10 @@ function generateUnifiedLeaderboard(data) {
                                 ${collegeHtml}
                             </div>
                         </div>
-                        <div class="col-score">${scoreVal.toLocaleString()}</div>
+                        <div class="col-score">
+                            <span class="desktop-only-header">${scoreVal.toLocaleString()}</span>
+                            <span class="mobile-only-header">${scoreVal.toLocaleString()}</span>
+                        </div>
                         <div class="col-stat">${uploads.toLocaleString()}</div>
                         <div class="col-stat">${referrals.toLocaleString()}</div>
                         <div class="col-stat">${codingXp.toLocaleString()}</div>
@@ -6646,7 +6871,7 @@ function generateUnifiedLeaderboard(data) {
             `;
         }
         
-        listHtml += `</div>`;
+        listHtml += `</div></div>`;
     }
 
     return `
@@ -6656,6 +6881,131 @@ function generateUnifiedLeaderboard(data) {
             ${listHtml}
         </div>
     `;
+}
+
+window.updateMobilePodium = function(statType, el) {
+    if (!window.currentLeaderboardData) return;
+    
+    // update tabs active state
+    if (el) {
+        document.querySelectorAll('#mobile-podium-tabs .stat-pill').forEach(pill => pill.classList.remove('active'));
+        el.classList.add('active');
+    }
+    
+    // Sort data by statType
+    const sortedData = [...window.currentLeaderboardData].sort((a, b) => (b[statType] || 0) - (a[statType] || 0));
+    
+
+    
+    // Also regenerate the list HTML to sort and show the correct column
+    const listData = sortedData.slice(0, 10);
+    let listHtml = '';
+    
+    let mobileHeaderLabel = 'Total XP';
+    if (statType === 'uploads') mobileHeaderLabel = 'Uploads';
+    if (statType === 'referral_count') mobileHeaderLabel = 'Referrals';
+    if (statType === 'coding_xp') mobileHeaderLabel = 'Coding XP';
+
+    if (listData.length > 0) {
+        listHtml += `
+            <div class="mentions-table-container">
+                <div class="mentions-table-header">
+                    <div class="col-rank">Place</div>
+                    <div class="col-user">Username</div>
+                    <div class="col-score">
+                        <span class="desktop-only-header">Total XP</span>
+                        <span class="mobile-only-header">${mobileHeaderLabel}</span>
+                    </div>
+                    <div class="col-stat">Uploads</div>
+                    <div class="col-stat">Referrals</div>
+                    <div class="col-stat">Coding XP</div>
+                </div>
+                <div class="mentions-table-body">
+        `;
+        
+        const currU = window.currentUser;
+        const currUid = currU ? (currU.id || currU.uid) : null;
+
+        listData.forEach((item, index) => {
+            const rank = index + 1;
+            const scoreVal = item.xp || 0;
+            const activeVal = item[statType] || 0;
+            const uploads = item.uploads || 0;
+            const referrals = item.referral_count || 0;
+            const codingXp = item.coding_xp || 0;
+            const college = item.college || '';
+            const avatar = item.logo || item.avatar;
+            
+            let resolvedAvatar = avatar;
+            if (resolvedAvatar && resolvedAvatar.startsWith('assets/')) resolvedAvatar = '../' + resolvedAvatar;
+
+            const avatarHtml = resolvedAvatar
+                ? `<img src="${resolvedAvatar}" alt="${item.name}">`
+                : `<span>${item.name ? item.name[0].toUpperCase() : '?'}</span>`;
+
+            const isMe = currUid && (item.id === currUid || item.uid === currUid);
+            const highlightStyle = isMe ? 'border: 1px solid rgba(251, 191, 36, 0.5); background: rgba(251, 191, 36, 0.15);' : '';
+            const youBadge = isMe ? '<span style="font-size:0.7rem; background:#fbbf24; color:#000; padding:2px 6px; border-radius:10px; margin-left:8px; font-weight:bold;">YOU</span>' : '';
+            
+            const collegeHtml = college ? `<div style="font-size: 0.7rem; color: #a1a1aa; margin-top: 2px;">${college}</div>` : '';
+
+            let rankIconColor = '#6b7280';
+            if (rank === 1) rankIconColor = '#fbbf24';
+            if (rank === 2) rankIconColor = '#94a3b8';
+            if (rank === 3) rankIconColor = '#ea580c';
+
+            listHtml += `
+                <div class="mention-table-row" style="animation-delay: ${index * 0.05}s; ${highlightStyle}">
+                    <div class="col-rank">
+                        <i class="fas fa-trophy" style="color: ${rankIconColor}; font-size: 0.9rem; margin-right: 6px;"></i>
+                        ${rank}
+                    </div>
+                    <div class="col-user">
+                        <div class="mention-avatar">${avatarHtml}</div>
+                        <div>
+                            <div>${item.name || "Anonymous User"} ${youBadge}</div>
+                            ${collegeHtml}
+                        </div>
+                    </div>
+                    <div class="col-score">
+                        <span class="desktop-only-header">${scoreVal.toLocaleString()}</span>
+                        <span class="mobile-only-header">${activeVal.toLocaleString()}</span>
+                    </div>
+                    <div class="col-stat">${uploads.toLocaleString()}</div>
+                    <div class="col-stat">${referrals.toLocaleString()}</div>
+                    <div class="col-stat">${codingXp.toLocaleString()}</div>
+                </div>
+            `;
+        });
+        
+        listHtml += `</div></div>`;
+    }
+
+    const listContainer = document.getElementById('leaderboard-list-wrapper');
+    if (listContainer) {
+        listContainer.innerHTML = listHtml;
+    }
+    
+    // Retrigger animations for both podium and list
+    setTimeout(() => {
+        const fullWrapper = document.getElementById('premium-leaderboard-wrapper');
+        if(fullWrapper) {
+            fullWrapper.querySelectorAll('.count-up').forEach(counterEl => {
+                const target = parseInt(counterEl.dataset.value);
+                if (isNaN(target)) return;
+                animateValue(counterEl, 0, target, 1500);
+            });
+            // Re-animate the podium specifically
+            const podiumContainer = document.getElementById('podium-container');
+            if(podiumContainer) {
+                podiumContainer.querySelectorAll('.count-up').forEach(counterEl => {
+                    const target = parseInt(counterEl.dataset.value);
+                    if (isNaN(target)) return;
+                    animateValue(counterEl, 0, target, 1500);
+                });
+            }
+        }
+    }, 50);
 }
 
 function animateValue(obj, start, end, duration) {
