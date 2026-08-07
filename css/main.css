@@ -2130,7 +2130,8 @@ input:checked+.toggle-slider:before {
         right: 2vh;
     }
 
-    .nav-menu-items {
+    .nav-menu-items,
+    .nav-actions {
         display: flex;
         flex-direction: column;
         width: 100%;
@@ -2140,7 +2141,8 @@ input:checked+.toggle-slider:before {
     }
 
     .nav-links a,
-    .nav-menu-items a {
+    .nav-menu-items a,
+    .nav-actions a {
         width: 100%;
         text-align: center;
         padding: 0.75rem;
@@ -2152,58 +2154,16 @@ input:checked+.toggle-slider:before {
     }
 
     .nav-links a.active,
-    .nav-menu-items a.active {
+    .nav-menu-items a.active,
+    .nav-actions a.active {
         background: rgba(123, 97, 255, 0.1);
         color: var(--primary-light);
         border-color: rgba(123, 97, 255, 0.2);
     }
 
-    .nav-actions {
-        display: flex;
-        flex-direction: row;
-        width: auto;
-        gap: 0.5rem;
-        align-items: center;
-    }
-
-    .logo-text-wrapper {
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 2px !important;
-    }
-
-    .nav-actions .profile-dropdown-container {
-        display: none !important;
-    }
-
-    #mobile-profile-container {
-        display: flex !important;
-        flex-direction: column;
+    .nav-actions .btn {
         width: 100%;
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 16px;
-        padding: 0.5rem;
-        margin-bottom: 0.5rem;
-        border: 1px solid rgba(123, 97, 255, 0.15);
-    }
-
-    .nav-actions .premium-text {
-        display: none;
-    }
-
-    .nav-actions .btn-go-premium {
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .nav-actions .btn-go-premium span:first-child {
-        margin-right: 0 !important;
-        font-size: 1.2rem !important;
+        margin-top: 0.5rem;
     }
 
     .nav-dropdown {
@@ -2272,24 +2232,8 @@ input:checked+.toggle-slider:before {
         width: 100%;
     }
 
-    .hero-cta-pro {
-        flex-direction: row;
-        gap: 0.5rem;
-        width: 100%;
-        justify-content: center;
-        flex-wrap: nowrap;
-    }
-
     .hero-cta .btn {
         width: 100%;
-    }
-
-    .hero-cta-pro .btn-primary-tech,
-    .hero-cta-pro .btn-secondary-tech {
-        flex: 1;
-        padding: 0.8rem 0.2rem;
-        font-size: 0.85rem;
-        justify-content: center;
     }
 
     .trust-stats {

@@ -480,84 +480,15 @@
 /* Responsive */
 @media (max-width: 800px) {
     .qr-two-col {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        box-sizing: border-box;
-        overflow: hidden;
+        grid-template-columns: 1fr;
     }
     .qr-right-panel {
-        order: 5;
         border-top: 1px solid rgba(255,255,255,0.06);
-        border-bottom: 1px solid rgba(255,255,255,0.06);
-        box-sizing: border-box;
-        width: 100%;
-        margin-bottom: 24px;
-        border-radius: 0 !important;
     }
     .qr-left-panel {
-        display: contents;
-    }
-    .qr-left-panel > * {
-        padding-left: 16px;
-        padding-right: 16px;
-        box-sizing: border-box;
-    }
-    .qr-left-panel > .qr-panel-label {
-        order: 1;
-        padding-top: 24px;
-    }
-    .qr-panel-sub {
-        order: 2;
-    }
-    .qr-field-label {
-        order: 3;
-    }
-    .qr-input-group {
-        order: 4;
-        margin-bottom: 24px;
-    }
-    .qr-divider {
-        display: none;
-    }
-    .qr-customization {
-        order: 6;
-        padding-bottom: 24px;
+        padding: 30px 24px;
     }
     .qr-custom-grid {
-        grid-template-columns: minmax(0, 1fr);
-        width: 100%;
-        box-sizing: border-box;
-    }
-    .qr-panel-label {
-        font-size: 1.5rem;
-    }
-    .qr-input-group {
-        flex-direction: column;
-        gap: 8px;
-    }
-    .qr-input-group input {
-        width: 100%;
-        box-sizing: border-box;
-        min-width: 0;
-    }
-    .qr-input-group button {
-        padding: 14px 24px;
-        justify-content: center;
-        width: 100%;
-        box-sizing: border-box;
-    }
-    .qr-action-buttons {
-        flex-direction: column;
-        width: 100%;
-    }
-    .qr-btn-row {
-        width: 100%;
-        display: flex;
-        gap: 8px;
-    }
-    .qr-action-btn {
-        flex: 1;
-        justify-content: center;
+        grid-template-columns: 1fr;
     }
 }

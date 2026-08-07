@@ -12,10 +12,7 @@ const { createClient } = require('@supabase/supabase-js');
 // Initialize Supabase Admin Client
 const supabaseUrl = process.env.SUPABASE_URL || 'https://begbdglouistmaughmot.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
-let supabase;
-if (supabaseKey) {
-    supabase = createClient(supabaseUrl, supabaseKey);
-}
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Initialize Razorpay
 let razorpay;

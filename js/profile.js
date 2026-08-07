@@ -320,13 +320,13 @@ class ProfileManager {
         } else {
             // Free / Expired
             return `
-            <div class="glass-card subscription-card" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.08); position: relative; overflow: hidden;">
-                <div class="sub-card-inner" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-                    <div class="sub-card-left" style="display: flex; align-items: center; gap: 16px;">
-                        <div class="sub-card-icon" style="width: 56px; height: 56px; background: rgba(255,255,255,0.06); border-radius: 14px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;">
+            <div class="glass-card" style="grid-column: span 2; background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.08); position: relative; overflow: hidden;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="width: 56px; height: 56px; background: rgba(255,255,255,0.06); border-radius: 14px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;">
                             <i class="fas fa-layer-group" style="font-size: 1.4rem; color: var(--text-secondary);"></i>
                         </div>
-                        <div class="sub-card-text">
+                        <div>
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                                 <span style="font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; color: var(--text-secondary); text-transform: uppercase;">SUBSCRIPTION</span>
                             </div>
@@ -334,7 +334,7 @@ class ProfileManager {
                             <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 4px 0 0 0;">${isExpired ? `<span style="color:#ff6b6b;">Your ${planName} plan expired on ${formatDate(expiry)}.</span>` : 'Unlock premium features with Scholar PRO.'}</p>
                         </div>
                     </div>
-                    <button class="btn btn-primary btn-sm sub-card-btn" onclick="window.handlePayment && window.handlePayment('pro_1mo')" style="padding: 0.5rem 1.2rem; font-weight: 600; background: linear-gradient(135deg, #7b61ff, #9d50bb); border: none;">
+                    <button class="btn btn-primary btn-sm" onclick="window.handlePayment && window.handlePayment('pro_1mo')" style="padding: 0.5rem 1.2rem; font-weight: 600; background: linear-gradient(135deg, #7b61ff, #9d50bb); border: none;">
                         <i class="fas fa-bolt"></i> Upgrade Now
                     </button>
                 </div>
