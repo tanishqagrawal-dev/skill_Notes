@@ -1,0 +1,31 @@
+{
+  "plans": {
+    "codetantra_1mo": {
+      "amount": 3000,
+      "name": "CodeTantra Solutions - 1 Month",
+      "durationDays": 30
+    },
+    "codetantra_6mo": {
+      "amount": 15000,
+      "name": "CodeTantra Solutions - 6 Months",
+      "durationDays": 180
+    },
+    "pro_1mo": {
+      "amount": 7000,
+      "name": "Premium Scholar - 1 Month",
+      "durationDays": 30
+    },
+    "pro_6mo": {
+      "amount": 18000,
+      "name": "Premium Scholar - 6 Months",
+      "durationDays": 180
+    }
+  },
+  "coupons": {
+    "COUPEN": {
+      "discount": 100,
+      "maxUses": 100,
+      "uses": 14
+    }
+  }
+}

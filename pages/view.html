@@ -380,7 +380,12 @@
                     showDriveLink(finalUrl);
                     return;
                 }
-                if(finalUrl.includes('.pdf') && !finalUrl.includes('#')) {
+
+                // Use Google Docs Viewer for mobile PDF rendering to avoid fallback UI
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                if (isMobile && finalUrl.toLowerCase().includes('.pdf')) {
+                    finalUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(finalUrl)}&embedded=true`;
+                } else if(finalUrl.toLowerCase().includes('.pdf') && !finalUrl.includes('#')) {
                     finalUrl += '#toolbar=0&navpanes=0&scrollbar=0';
                 }
                 

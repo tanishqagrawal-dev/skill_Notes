@@ -51,13 +51,13 @@ import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "INJECT_FIREBASE_API_KEY",
-    authDomain: "INJECT_FIREBASE_AUTH_DOMAIN",
-    projectId: "INJECT_FIREBASE_PROJECT_ID",
-    storageBucket: "INJECT_FIREBASE_STORAGE_BUCKET",
-    messagingSenderId: "INJECT_FIREBASE_MESSAGING_SENDER_ID",
-    appId: "INJECT_FIREBASE_APP_ID",
-    measurementId: "INJECT_FIREBASE_MEASUREMENT_ID"
+    apiKey: "AIzaSyCayuSJlVlkRrtNtuglhK0M7aKNxEAp8g0",
+    authDomain: "skill-notes.firebaseapp.com",
+    projectId: "skill-notes",
+    storageBucket: "skill-notes.appspot.com",
+    messagingSenderId: "679937247629",
+    appId: "1:679937247629:web:708ae9818911a465d455c4",
+    measurementId: "G-KSCJTPP875"
 };
 
 // Initialize Firebase (Core only)
