@@ -20,7 +20,17 @@ export async function renderApp() {
             const uid = window.auth.currentUser.uid;
             const apiUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
             const res = await fetch(`${apiUrl}/api/user-plan?uid=${uid}`);
-            const data = await res.json();
+            let data = await res.json();
+
+            // Admin override for premium CodeTantra Hub
+            try {
+                const u = JSON.parse(localStorage.getItem('auth_user_full') || '{}');
+                const email = (u.email || '').toLowerCase();
+                const adminEmails = ['tanishqagrawal1103@gmail.com', 'skilmatrix3@gmail.com'];
+                if (adminEmails.includes(email)) {
+                    data = { success: true, plan: 'pro', expiry: '2099-12-31T23:59:59Z' };
+                }
+            } catch (e) { }
             if (data.success) {
                 AppState.userPlan = data.plan; // 'free', 'codetantra', or 'pro'
             } else {
@@ -363,7 +373,7 @@ window.downloadPDF = async function () {
     ];
 
     hideEls.forEach(el => { if (el) el.style.display = 'none'; });
-    
+
     // Extract subject name (remove 'THEORY' if present)
     const subjNameEl = document.querySelector('.ct-subject-page-name');
     const subjName = subjNameEl ? subjNameEl.innerText.replace('THEORY', '').trim() : 'Subject';
@@ -374,9 +384,9 @@ window.downloadPDF = async function () {
         const logoImg = new Image();
         logoImg.crossOrigin = 'Anonymous';
         logoImg.src = '../assets/logo.jpg';
-        await new Promise((resolve) => { 
-            logoImg.onload = resolve; 
-            logoImg.onerror = resolve; 
+        await new Promise((resolve) => {
+            logoImg.onload = resolve;
+            logoImg.onerror = resolve;
         });
         const canvas = document.createElement('canvas');
         canvas.width = logoImg.width;
@@ -384,7 +394,7 @@ window.downloadPDF = async function () {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(logoImg, 0, 0);
         logoData = canvas.toDataURL('image/jpeg');
-    } catch(e) {
+    } catch (e) {
         console.error("Could not load logo for PDF", e);
     }
 
@@ -404,10 +414,10 @@ window.downloadPDF = async function () {
     html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
         const totalPages = pdf.internal.getNumberOfPages();
         const pageWidth = pdf.internal.pageSize.getWidth();
-        
+
         for (let i = 1; i <= totalPages; i++) {
             pdf.setPage(i);
-            
+
             // Fill top area with white to cover any background bleed
             pdf.setFillColor(255, 255, 255);
             pdf.rect(0, 0, pageWidth, 30, 'F');
@@ -423,26 +433,26 @@ window.downloadPDF = async function () {
             const textSM = "SKiL MATRiX ";
             const textSMWidth = pdf.getStringUnitWidth ? (pdf.getStringUnitWidth(textSM) * 16 / pdf.internal.scaleFactor) : 34;
             const textNotesWidth = pdf.getStringUnitWidth ? (pdf.getStringUnitWidth("NOTES") * 16 / pdf.internal.scaleFactor) : 15;
-            
+
             const totalTitleWidth = 10 + 3 + textSMWidth + textNotesWidth;
             const startX = (pageWidth - totalTitleWidth) / 2;
-            
+
             if (logoData && logoData.startsWith('data:image')) {
                 pdf.addImage(logoData, 'JPEG', startX, 7, 10, 10);
             }
-            
+
             pdf.setTextColor(17, 17, 17);
             pdf.text(textSM, startX + 13, 14.5);
-            
+
             pdf.setTextColor(0, 188, 212);
             pdf.text("NOTES", startX + 13 + textSMWidth, 14.5);
-            
+
             pdf.setFont('helvetica', 'bold');
             pdf.setFontSize(11);
             pdf.setTextColor(68, 68, 68);
             const textSub = subjName + " CodeTantra Solutions";
             const textSubWidth = pdf.getStringUnitWidth ? (pdf.getStringUnitWidth(textSub) * 11 / pdf.internal.scaleFactor) : (textSub.length * 2.2);
-            
+
             pdf.text(textSub, (pageWidth - textSubWidth) / 2, 24);
         }
     }).save().then(() => {
@@ -605,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // --- Premium Inline Upgrade Modal ---
-window.showCodeTantraUpgradeModal = function() {
+window.showCodeTantraUpgradeModal = function () {
     if (!window.auth || !window.auth.currentUser) {
         if (window.showToast) window.showToast("Please login to upgrade", "error");
         else alert("Please login to upgrade.");
@@ -732,10 +742,10 @@ window.showCodeTantraUpgradeModal = function() {
     let prices = { '1mo': 19, '6mo': 89 };
     let activeCoupon = null;
     let activeDiscount = 0;
-    
+
     const overlay = document.createElement('div');
     overlay.id = 'ct-upgrade-overlay';
-    
+
     const buildHTML = () => `
         <div id="ct-upgrade-box">
             <button class="ct-up-close" id="ct-close-btn">&times;</button>
@@ -821,30 +831,30 @@ window.showCodeTantraUpgradeModal = function() {
     `;
     overlay.innerHTML = buildHTML();
     document.body.appendChild(overlay);
-    
+
     const apiUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
-    
+
     // Fetch dynamic pricing
-    fetch(apiUrl + '/api/pricing-config').then(r=>r.json()).then(d=>{
-        if(d.success && d.config.plans) {
-            if(d.config.plans.codetantra_1mo) prices['1mo'] = d.config.plans.codetantra_1mo.amount/100;
-            if(d.config.plans.codetantra_6mo) prices['6mo'] = d.config.plans.codetantra_6mo.amount/100;
+    fetch(apiUrl + '/api/pricing-config').then(r => r.json()).then(d => {
+        if (d.success && d.config.plans) {
+            if (d.config.plans.codetantra_1mo) prices['1mo'] = d.config.plans.codetantra_1mo.amount / 100;
+            if (d.config.plans.codetantra_6mo) prices['6mo'] = d.config.plans.codetantra_6mo.amount / 100;
             updateDispPrice();
         }
-    }).catch(()=>{});
+    }).catch(() => { });
 
     const updateDispPrice = () => {
         const p = prices[currentDuration];
         document.getElementById('ct-disp-price').innerHTML = `₹${p} <span>/ ${currentDuration === '1mo' ? 'mo' : '6mo'}</span>`;
         document.getElementById('ct-disp-sub').innerText = currentDuration === '1mo' ? `Billed ₹${p} for 1 month` : `Billed ₹${p} for 6 months`;
     };
-    
+
     const updateSummary = () => {
         const p = prices[currentDuration];
         document.getElementById('ct-sum-dur').innerText = currentDuration === '1mo' ? '1 Month' : '6 Months';
-        
+
         let finalPrice = p;
-        if(activeCoupon && activeDiscount > 0) {
+        if (activeCoupon && activeDiscount > 0) {
             const discAmt = Math.round(p * activeDiscount / 100);
             finalPrice = p - discAmt;
             document.getElementById('ct-discount-row').style.display = 'flex';
@@ -852,13 +862,13 @@ window.showCodeTantraUpgradeModal = function() {
         } else {
             document.getElementById('ct-discount-row').style.display = 'none';
         }
-        
+
         document.getElementById('ct-sum-total').innerText = `₹${finalPrice}`;
         document.getElementById('ct-pay-securely-btn').innerHTML = `<i class="fa-solid fa-lock"></i> Pay ₹${finalPrice} Securely`;
     };
 
     document.getElementById('ct-close-btn').onclick = () => overlay.remove();
-    
+
     const ensureConfetti = (cb) => {
         if (window.confetti) return cb();
         const s = document.createElement('script');
@@ -887,32 +897,32 @@ window.showCodeTantraUpgradeModal = function() {
         fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2, origin: { x: 0.5, y: 0.5 } });
         fire(0.2, { spread: 120, startVelocity: 45, origin: { x: 0.5, y: 1 } });
     });
-    
+
     // Clicking outside closes modal
     overlay.onclick = (e) => {
         if (e.target === overlay) overlay.remove();
     };
-    
+
     document.getElementById('ct-dur-1mo').onclick = (e) => {
         currentDuration = '1mo';
         e.target.classList.add('active');
         document.getElementById('ct-dur-6mo').classList.remove('active');
         updateDispPrice();
     };
-    
+
     document.getElementById('ct-dur-6mo').onclick = (e) => {
         currentDuration = '6mo';
         e.target.classList.add('active');
         document.getElementById('ct-dur-1mo').classList.remove('active');
         updateDispPrice();
     };
-    
+
     document.getElementById('ct-upgrade-now-btn').onclick = () => {
         document.getElementById('ct-up-plan-view').style.display = 'none';
         document.getElementById('ct-up-checkout-view').style.display = 'flex';
         updateSummary();
     };
-    
+
     document.getElementById('ct-back-to-plan').onclick = () => {
         document.getElementById('ct-up-checkout-view').style.display = 'none';
         document.getElementById('ct-up-plan-view').style.display = 'flex';
@@ -920,19 +930,19 @@ window.showCodeTantraUpgradeModal = function() {
         document.getElementById('ct-coupon-input').value = '';
         document.getElementById('ct-coupon-feedback').innerText = '';
     };
-    
+
     document.getElementById('ct-coupon-apply').onclick = async () => {
         const inp = document.getElementById('ct-coupon-input').value.trim().toUpperCase();
         const fb = document.getElementById('ct-coupon-feedback');
-        if(!inp) { fb.innerText = 'Enter a code'; fb.style.color = '#f87171'; return; }
-        
+        if (!inp) { fb.innerText = 'Enter a code'; fb.style.color = '#f87171'; return; }
+
         const btn = document.getElementById('ct-coupon-apply');
         btn.innerText = '...'; btn.disabled = true;
-        
+
         try {
             const res = await fetch(apiUrl + '/api/pricing-config');
             const data = await res.json();
-            if(data.success && data.config.coupons && data.config.coupons[inp] !== undefined) {
+            if (data.success && data.config.coupons && data.config.coupons[inp] !== undefined) {
                 let cv = data.config.coupons[inp];
                 activeDiscount = typeof cv === 'object' ? cv.discount : cv;
                 activeCoupon = inp;
@@ -944,35 +954,35 @@ window.showCodeTantraUpgradeModal = function() {
                 fb.innerText = '❌ Invalid coupon code'; fb.style.color = '#f87171';
                 updateSummary();
             }
-        } catch(err) {
+        } catch (err) {
             fb.innerText = '❌ Verification failed'; fb.style.color = '#f87171';
         }
         btn.innerText = 'Apply'; btn.disabled = false;
     };
-    
+
     document.getElementById('ct-pay-securely-btn').onclick = async () => {
         const uid = window.auth.currentUser.uid;
         const email = window.auth.currentUser.email || '';
         const planId = currentDuration === '1mo' ? 'codetantra_1mo' : 'codetantra_6mo';
-        
+
         const btn = document.getElementById('ct-pay-securely-btn');
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
         btn.disabled = true;
-        
+
         try {
             // First check if Razorpay is loaded
             if (typeof Razorpay === 'undefined') {
                 throw new Error("Payment gateway is still loading. Please try again in a few seconds.");
             }
-            
+
             const res = await fetch(apiUrl + '/api/create-order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ planId, uid, couponCode: activeCoupon || null })
             });
             const data = await res.json();
-            if(!data.success) throw new Error(data.error || 'Failed to create order');
-            
+            if (!data.success) throw new Error(data.error || 'Failed to create order');
+
             const showSuccessView = () => {
                 document.getElementById('ct-up-checkout-view').style.display = 'none';
                 document.getElementById('ct-up-plan-view').style.display = 'none';
@@ -986,7 +996,7 @@ window.showCodeTantraUpgradeModal = function() {
                 showSuccessView();
                 return;
             }
-            
+
             const options = {
                 key: data.keyId,
                 amount: data.order.amount,
@@ -1009,31 +1019,31 @@ window.showCodeTantraUpgradeModal = function() {
                             })
                         });
                         const vd = await vr.json();
-                        if(vd.success) {
+                        if (vd.success) {
                             showSuccessView();
                         } else {
                             alert("Verification failed. Contact support.");
                         }
-                    } catch(e) { alert("Verification error."); }
+                    } catch (e) { alert("Verification error."); }
                 },
                 prefill: { email },
                 theme: { color: "#00f2ff" },
                 modal: {
-                    ondismiss: function() {
+                    ondismiss: function () {
                         updateSummary();
                         btn.disabled = false;
                     }
                 }
             };
             const rzp = new Razorpay(options);
-            rzp.on('payment.failed', function(response) {
+            rzp.on('payment.failed', function (response) {
                 alert("Payment failed: " + response.error.description);
                 updateSummary();
                 btn.disabled = false;
             });
             rzp.open();
-            
-        } catch(err) {
+
+        } catch (err) {
             alert(err.message || 'Error initializing checkout');
             updateSummary();
             btn.disabled = false;

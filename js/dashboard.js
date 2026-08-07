@@ -2050,7 +2050,14 @@ function renderTabContent(tabId) {
                     const uid = u.uid || u.id;
                     
                     const resPlan = await fetch(`${_apiUrlSub}/api/user-plan?uid=${uid}&_t=${Date.now()}`);
-                    const dataPlan = await resPlan.json();
+                    let dataPlan = await resPlan.json();
+                    
+                    // Admin override for premium
+                    const email = (u.email || '').toLowerCase();
+                    const adminEmails = ['tanishqagrawal1103@gmail.com', 'skilmatrix3@gmail.com'];
+                    if (adminEmails.includes(email)) {
+                        dataPlan = { success: true, plan: 'pro', expiry: '2099-12-31T23:59:59Z' };
+                    }
                     
                     if (dataPlan.plan && dataPlan.plan !== 'free') {
                         window._activeUserPlan = dataPlan.plan;
@@ -3289,7 +3296,17 @@ function renderAITools() {
             const uid = u.uid || u.id;
             const apiUrl = location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
             const res = await fetch(`${apiUrl}/api/user-plan?uid=${uid}&_t=${Date.now()}`);
-            const data = await res.json();
+            let data = await res.json();
+            
+            // Admin override for premium AI coach
+            try {
+                const u = JSON.parse(localStorage.getItem('auth_user_full') || '{}');
+                const email = (u.email || '').toLowerCase();
+                const adminEmails = ['tanishqagrawal1103@gmail.com', 'skilmatrix3@gmail.com'];
+                if (adminEmails.includes(email)) {
+                    data = { success: true, plan: 'pro', expiry: '2099-12-31T23:59:59Z' };
+                }
+            } catch(e) {}
             if (!data.plan || data.plan === 'free') {
                 if (localStorage.getItem('is_premium_' + uid) === 'true') {
                     if (window.revertToFreeAI) window.revertToFreeAI();
