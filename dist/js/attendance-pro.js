@@ -20,6 +20,13 @@ const AttendancePro = {
         lastSync: null
     },
 
+    toggleWeeklyEmail(isEnabled) {
+        localStorage.setItem('setting_notifications_weekly_attendance', isEnabled ? 'true' : 'false');
+        if (window.showToast) {
+            window.showToast(isEnabled ? 'Weekly attendance email enabled!' : 'Weekly attendance email disabled.', 'success');
+        }
+    },
+
     async init() {
         await this.loadData();
         this.state.activeTab = 'calendar';
@@ -99,6 +106,11 @@ const AttendancePro = {
         }
         
         this.checkAttendanceThresholds();
+        
+        // Trigger weekly mail evaluation ONLY on interaction
+        if (typeof window.sendWeeklyMailIfEligible === 'function') {
+            window.sendWeeklyMailIfEligible();
+        }
     },
 
     checkAttendanceThresholds() {
@@ -623,7 +635,50 @@ const AttendancePro = {
                     </div>
                 </div>
 
-                <div class="atpro-settings-card danger">
+                <div class="atpro-settings-card" style="margin-top: 1.5rem;">
+                    <div class="atpro-settings-header">
+                        <i class="fas fa-envelope-open-text" style="color: var(--atpro-primary)"></i>
+                        <h4 class="font-heading">Weekly Attendance Email</h4>
+                    </div>
+                    <div class="atpro-settings-body">
+                        <p class="atpro-settings-desc">Receive a weekly summary of your attendance to keep you on track. We'll only send this if you have attendance data.</p>
+                        <div class="atpro-target-control" style="justify-content: space-between; align-items: center; margin-top: 1rem;">
+                            <span style="font-size: 0.95rem; font-weight: 600; color: #fff;">Enable Weekly Report</span>
+                            <label class="atpro-toggle-switch" style="position: relative; display: inline-block; width: 50px; height: 26px;">
+                                <input type="checkbox" id="atpro-weekly-email-toggle" style="opacity: 0; width: 0; height: 0;" ${localStorage.getItem('setting_notifications_weekly_attendance') === 'true' ? 'checked' : ''} onchange="AttendancePro.toggleWeeklyEmail(this.checked)">
+                                <span class="atpro-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255, 255, 255, 0.1); transition: .4s; border-radius: 34px; border: 1px solid rgba(255, 255, 255, 0.2);"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <style>
+                    /* Inline style for the toggle switch in Attendance Pro */
+                    .atpro-toggle-switch input:checked + .atpro-slider {
+                        background-color: var(--atpro-primary);
+                        border-color: var(--atpro-primary);
+                        box-shadow: 0 0 10px rgba(123, 97, 255, 0.5);
+                    }
+                    .atpro-toggle-switch input:focus + .atpro-slider {
+                        box-shadow: 0 0 1px var(--atpro-primary);
+                    }
+                    .atpro-toggle-switch .atpro-slider:before {
+                        position: absolute;
+                        content: "";
+                        height: 18px;
+                        width: 18px;
+                        left: 4px;
+                        bottom: 3px;
+                        background-color: white;
+                        transition: .4s;
+                        border-radius: 50%;
+                    }
+                    .atpro-toggle-switch input:checked + .atpro-slider:before {
+                        transform: translateX(24px);
+                    }
+                </style>
+
+                <div class="atpro-settings-card danger" style="margin-top: 1.5rem;">
                     <div class="atpro-settings-header">
                         <i class="fas fa-exclamation-triangle"></i>
                         <h4 class="font-heading">Danger Zone</h4>

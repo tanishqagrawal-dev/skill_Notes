@@ -31,6 +31,12 @@ window.SettingsModule = {
             if (docSnap.exists()) {
                 // deeply merge settings to preserve defaults
                 this.state.settings = this.deepMerge(this.state.settings, docSnap.data());
+                
+                // Sync important settings to localStorage for other modules
+                if (this.state.settings.notifications && typeof this.state.settings.notifications.weekly_attendance !== 'undefined') {
+                    localStorage.setItem('setting_notifications_weekly_attendance', this.state.settings.notifications.weekly_attendance);
+                }
+
                 if (this.state.activeTab !== 'profile') { // Don't refresh if editing profile to avoid input loss
                     this.refreshContent();
                 }
@@ -89,6 +95,9 @@ window.SettingsModule = {
         // Optimistic UI update
         if (!this.state.settings[category]) this.state.settings[category] = {};
         this.state.settings[category][key] = value;
+        
+        // Sync to localStorage
+        localStorage.setItem(`setting_${category}_${key}`, value);
 
         try {
             const updatePath = `${category}.${key}`;
@@ -231,6 +240,7 @@ window.SettingsModule = {
                         ${this.toggleRow('notifications', 'email', 'New notes in my subjects', s.notifications.email)}
                         ${this.toggleRow('notifications', 'weekly_summary', 'Weekly study summary', s.notifications.weekly_summary !== false)}
                         ${this.toggleRow('notifications', 'promo', 'Promotional emails', s.notifications.promo === true)}
+                        ${this.toggleRow('notifications', 'weekly_attendance', 'Weekly attendance report', s.notifications.weekly_attendance === true)}
                     </div>
 
                      <div class="settings-group">

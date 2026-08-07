@@ -336,15 +336,14 @@
             
             console.log("📨 Attempting to send packet:", formData);
             
-            // --- QUOTA PROTECTION LOGIC (30-Day Cooldown) ---
+            // --- STRICT ONE-TIME ONLY LOGIC ---
             const userEmail = formData ? formData.email : 'unknown';
             const lastSentKey = `last_mail_sent_${userEmail.replace(/[^a-zA-Z0-9]/g, '_')}`;
             const lastSentTime = localStorage.getItem(lastSentKey);
-            const now = Date.now();
-            const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+            const hasReceivedLocal = localStorage.getItem('has_received_welcome');
 
-            if (lastSentTime && (now - parseInt(lastSentTime) < THIRTY_DAYS_MS)) {
-                console.log("⏳ Quota Protection: Email already sent to this user within 30 days. Skipping.");
+            if (lastSentTime || hasReceivedLocal) {
+                console.log("🛡️ One-Time Protection: Welcome email already sent. Skipping.");
                 statusDiv.innerHTML = `<span class="status-success">✅ Session Verified! Redirecting...</span>`;
                 setTimeout(() => {
                     window.location.href = "pages/dashboard.html";
@@ -428,14 +427,10 @@
                             // CASE 2: OLD USER (Returning)
                             taglineEl.innerText = "Good to see you again!";
                             titleEl.innerHTML = `Welcome back, <span style="color:var(--secondary)">${(user.name || "Scholar").split(' ')[0]}</span>`;
-                            document.querySelector('.hint').innerText = "Sending your welcome back kit...";
+                            document.querySelector('.hint').innerText = "Loading dashboard...";
                             
                             setTimeout(() => {
-                                triggerSend({
-                                    user_name: user.name || "Scholar",
-                                    email: user.email || "",
-                                    subject_prefix: "Welcome back"
-                                }, false);
+                                window.location.href = "pages/dashboard.html";
                             }, 1200);
                         }
                     }

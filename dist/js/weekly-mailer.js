@@ -132,6 +132,13 @@ export function sendWeeklyMailIfEligible() {
     return;
   }
 
+  // --- CHECK USER SETTING ---
+  const isEnabled = localStorage.getItem('setting_notifications_weekly_attendance') === 'true';
+  if (!isEnabled) {
+    console.log(`❌ Weekly attendance mail is disabled in user settings for ${userEmail}. Skipping.`);
+    return;
+  }
+
   // --- TRIGGERING PACKET (Style: Welcome HTML) ---
   console.log(`📨 Attempting to send Weekly Attendance Packet to ${userEmail}...`);
 
@@ -170,3 +177,6 @@ export function sendWeeklyMailIfEligible() {
     }
   );
 }
+
+// Make it globally accessible so AttendancePro can trigger it on save
+window.sendWeeklyMailIfEligible = sendWeeklyMailIfEligible;
