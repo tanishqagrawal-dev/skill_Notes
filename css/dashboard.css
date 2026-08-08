@@ -1650,7 +1650,7 @@
     }
 
     /* Note Item Mobile Fixes - Match Sketch */
-    .premium-note-item {
+    .premium-note-item, .detailed-item {
         display: flex !important;
         flex-direction: column !important;
         padding: 1rem !important;
@@ -2244,6 +2244,35 @@
 }
 
 @media (min-width: 769px) and (max-width: 1180px) {
+    /* Subject Hero Layout for Tablet */
+    .subject-page-hero {
+        padding: 1.5rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+    
+    .hero-layout-pro {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1.5rem !important;
+    }
+    
+    .subject-title-pro {
+        font-size: 2.2rem !important;
+        line-height: 1.2 !important;
+    }
+    
+    .ai-btns-row {
+        margin-top: 1.2rem !important;
+        gap: 0.75rem !important;
+    }
+    
+    .subject-actions-top {
+        flex-direction: row !important;
+        width: 100% !important;
+        justify-content: flex-start !important;
+        flex-wrap: wrap !important;
+    }
+
     .subject-tabs-nav {
         flex-wrap: wrap !important;
         align-items: flex-start !important;
@@ -2265,42 +2294,42 @@
         margin-bottom: 0.5rem !important;
     }
 
-    .detailed-item.glass-card {
+    .detailed-item.glass-card, .premium-note-item, .note-card-pro {
         flex-direction: column !important;
         align-items: stretch !important;
         gap: 0.9rem !important;
     }
 
-    .detailed-item.glass-card .item-left {
+    .detailed-item.glass-card .item-left, .premium-note-item .item-left, .note-card-pro .note-info-pro {
         width: 100% !important;
         min-width: 0 !important;
     }
 
-    .detailed-item.glass-card .item-info {
+    .detailed-item.glass-card .item-info, .premium-note-item .item-info {
         min-width: 0 !important;
     }
 
-    .detailed-item.glass-card .item-title {
+    .detailed-item.glass-card .item-title, .premium-note-item .item-title, .note-card-pro .note-title-pro {
         overflow-wrap: anywhere;
     }
 
-    .detailed-item.glass-card .item-meta-row {
+    .detailed-item.glass-card .item-meta-row, .premium-note-item .item-meta-row, .note-card-pro .meta-pills-row-pro {
         flex-wrap: wrap !important;
         row-gap: 0.4rem !important;
     }
 
-    .detailed-item.glass-card .item-right {
+    .detailed-item.glass-card .item-right, .premium-note-item .item-right, .note-card-pro .note-actions-pro {
         width: 100% !important;
         justify-content: space-between !important;
         gap: 0.75rem !important;
     }
 
-    .detailed-item.glass-card .item-actions-inline {
+    .detailed-item.glass-card .item-actions-inline, .premium-note-item .item-actions-inline {
         flex-wrap: wrap !important;
         gap: 0.5rem !important;
     }
 
-    .detailed-item.glass-card .btn-download-pro {
+    .detailed-item.glass-card .btn-download-pro, .premium-note-item .btn-download-pro, .note-card-pro .btn-download-pro, .premium-note-item .btn-download-white, .note-card-pro .btn-download-white {
         flex-shrink: 0 !important;
     }
 }
