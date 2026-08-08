@@ -155,7 +155,7 @@ export const CodeTantraDB = {
                 weeks: [
                     {
                         title: 'Experiment 19',
-                        isPremium: false,
+                        isPremium: true,
                         topics: [
                             { 
                                 id: 'java-19-1', 
