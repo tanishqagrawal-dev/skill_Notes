@@ -128,7 +128,7 @@ export const RoutingSystem = {
      */
     getShareableURL(state) {
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const origin = isLocal ? window.location.origin : 'https://skillnotes.netlify.app';
+        const origin = isLocal ? window.location.origin : 'https://skilmatrix.site';
         const pathname = window.location.pathname;
         const search = window.location.search;
         const canonical = this.generateCanonicalPath(state);

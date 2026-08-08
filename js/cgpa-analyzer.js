@@ -167,10 +167,7 @@ window.renderCGPAAnalyzer = function() {
                 </div>
             </div>
 
-            <!-- FLOATING HELP -->
-            <div class="floating-action">
-                <button class="btn-circle" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Scroll Top">🚀</button>
-            </div>
+
         </div>
     `;
 };

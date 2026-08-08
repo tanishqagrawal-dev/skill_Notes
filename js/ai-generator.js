@@ -436,7 +436,7 @@ window.AIGenerator = {
             </div>
             
             <div style="position: absolute; bottom: 2rem; width: calc(100% - 8rem); text-align: right; font-size: 0.75rem; color: #666; font-style: italic;">
-                For more resources visit <a href="https://skillnotes.netlify.app/" style="color: #666; text-decoration: none;">skillnotes.netlify.app</a>
+                For more resources visit <a href="https://skilmatrix.site/" style="color: #666; text-decoration: none;">skilmatrix.site</a>
             </div>
         </div>
         `;

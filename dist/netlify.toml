@@ -3,6 +3,12 @@
   publish = "dist"
 
 [[redirects]]
+  from = "https://skillnotes.netlify.app/*"
+  to = "https://skilmatrix.site/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/notes/*"
   to = "/pages/notes.html"
   status = 200

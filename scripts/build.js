@@ -25,16 +25,16 @@ async function build() {
         cwd: ROOT_DIR,
         nodir: true,
         ignore: [
-            'node_modules/**',
-            'server/**',
-            'functions/**',
-            'scripts/**',
-            'dist/**',
-            '.git/**',
-            '.firebase/**',
-            '.*/**',           // exclude things like .qodo
-            'package*.json',
-            '*.md',
+            '**/node_modules/**',
+            '**/server/**',
+            '**/functions/**',
+            '**/scripts/**',
+            '**/dist/**',
+            '**/.git/**',
+            '**/.firebase/**',
+            '**/.*/**',           // exclude things like .qodo
+            '**/package*.json',
+            '**/*.md',
             'error.log',
             '*_error.txt',
             '*_log.txt',
@@ -88,6 +88,13 @@ async function build() {
                     const regex = new RegExp(`"INJECT_${key}"|'INJECT_${key}'`, 'g');
                     code = code.replace(regex, `"${value}"`);
                 }
+            }
+
+            const stats = fs.statSync(absolutePath);
+            if (stats.size > 500 * 1024) { // skip obfuscation for > 500KB
+                console.log(`⚠️ Skipping obfuscation for large file: ${file}`);
+                fs.writeFileSync(absolutePath, code);
+                continue;
             }
 
             try {

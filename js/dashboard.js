@@ -3823,7 +3823,7 @@ function renderAITools() {
                         <div class="msg-avatar"><i class="fas fa-robot"></i></div>
                         <div style="display: flex; flex-direction: column;">
                             <div class="msg-bubble">
-                                <span class="desktop-greeting">Hello! I am your <strong>SKiL Matrix AI Coach</strong>. I'm equipped to help you solve complex equations, break down algorithmic concepts, and generate study summaries. <br><br>How can I assist your learning today?</span>
+                                <span class="desktop-greeting">Hello! I am your <strong>SKiL Matrix AI Coach</strong>. How can I assist your learning today?</span>
                                 <span class="mobile-greeting">How can I assist you today?</span>
                             </div>
                             <div class="ai-msg-actions">
@@ -4227,6 +4227,7 @@ function renderOverview() {
     // Total numbers for Minimal Stats (passed to unified stats engine)
     const totalDownloads = combinedNotes.reduce((acc, n) => acc + (n.downloads || 0), 0);
     const totalNotes = combinedNotes.length;
+    const totalViews = combinedNotes.reduce((acc, n) => acc + (n.views || 0), 0);
 
     let aiRec = {
         title: "🤖 AI Recommendation",
@@ -4302,13 +4303,21 @@ function renderOverview() {
                 </div>
             </div>
 
-            <!-- 2. Stats Grid (Force 3 columns) -->
-            <div class="grid-2x3 stagger-3" style="margin-bottom: 2rem;">
+            <!-- 2. Stats Grid (4 columns) -->
+            <div class="grid-2x3 stagger-3" style="margin-bottom: 2rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
                 <div class="qa-card-wrapper" style="border-color: rgba(0,255,148,0.2);">
                     <div style="flex: 1; text-align: center;">
                         <div style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">561+</div>
                         <div style="font-size: 0.75rem; color: var(--success); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                            <span style="width: 8px; height: 8px; background: var(--success); border-radius: 50%;"></span> TOTAL STUDENTS
+                            <img src="https://img.icons8.com/fluency/48/graduation-cap.png" style="width: 18px; height: 18px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));" alt="Students"> TOTAL STUDENTS
+                        </div>
+                    </div>
+                </div>
+                <div class="qa-card-wrapper" style="border-color: rgba(0,229,255,0.2);">
+                    <div style="flex: 1; text-align: center;">
+                        <div id="total-views-count" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">${totalViews >= 1000 ? (totalViews/1000).toFixed(1) + 'k+' : (totalViews > 0 ? totalViews : 0)}</div>
+                        <div style="font-size: 0.75rem; color: #00e5ff; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <img src="https://img.icons8.com/fluency/48/visible.png" style="width: 18px; height: 18px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));" alt="Views"> TOTAL VIEWS
                         </div>
                     </div>
                 </div>
@@ -4316,7 +4325,7 @@ function renderOverview() {
                     <div style="flex: 1; text-align: center;">
                         <div style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">5.1k+</div>
                         <div style="font-size: 0.75rem; color: var(--primary-light); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                            <span>⬇️</span> DOWNLOADS
+                            <img src="https://img.icons8.com/fluency/48/download.png" style="width: 18px; height: 18px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));" alt="Downloads"> TOTAL DOWNLOADS
                         </div>
                     </div>
                 </div>
@@ -4324,7 +4333,7 @@ function renderOverview() {
                     <div style="flex: 1; text-align: center;">
                         <div id="total-resources-count" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">${totalNotes > 0 ? totalNotes : 0}</div>
                         <div style="font-size: 0.75rem; color: #f1c40f; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                            <span>⭐</span> TOTAL RESOURCES
+                            <img src="https://img.icons8.com/fluency/48/books.png" style="width: 18px; height: 18px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));" alt="Resources"> TOTAL RESOURCES
                         </div>
                     </div>
                 </div>

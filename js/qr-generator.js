@@ -9,7 +9,7 @@ window.renderQrGenerator = function() {
 
                 <label class="qr-field-label">Enter URL</label>
                 <div class="qr-input-group">
-                    <input type="url" id="qr-url-input" placeholder="https://skillnotes.netlify.app/" autocomplete="off" />
+                    <input type="url" id="qr-url-input" placeholder="https://skilmatrix.site/" autocomplete="off" />
                     <button id="qr-generate-btn">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
                         Generate
@@ -167,7 +167,7 @@ window.initQrGenerator = function() {
         qrGenerateBtn.addEventListener('click', async () => {
             let urlStr = qrUrlInput.value.trim();
             if (!urlStr) {
-                urlStr = qrUrlInput.placeholder || 'https://skillnotes.netlify.app/';
+                urlStr = qrUrlInput.placeholder || 'https://skilmatrix.site/';
             }
             
             // Basic URL validation/correction

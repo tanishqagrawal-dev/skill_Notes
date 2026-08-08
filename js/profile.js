@@ -468,7 +468,7 @@ class ProfileManager {
     getReferralLink() {
         const code = this.userData?.referral_code || '';
         if (!code) return '';
-        const origin = window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1') ? window.location.origin : 'https://skillnotes.netlify.app';
+        const origin = window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1') ? window.location.origin : 'https://skilmatrix.site';
         return `${origin}/?ref=${code}`;
     }
 

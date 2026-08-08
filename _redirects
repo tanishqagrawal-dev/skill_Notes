@@ -1,3 +1,6 @@
+# Domain redirect to primary domain
+https://skillnotes.netlify.app/* https://skilmatrix.site/:splat 301!
+
 # 1. Support sub-path routing for JS-driven pages (200)
 /pages/dashboard/*     /pages/dashboard.html    200
 /pages/auth/*          /pages/auth.html         200
