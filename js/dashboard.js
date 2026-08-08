@@ -5075,7 +5075,7 @@ function renderCollegeStep() {
             </div>
             
             <!-- Nested Grid for Cards -->
-            <div id="college-list-grid" style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+            <div id="college-list-grid" class="explorer-grid-pro" style="grid-column: 1 / -1;">
                 ${getCardsHTML(GlobalData.colleges)}
             </div>
         `;
@@ -5882,7 +5882,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
 
     if (filtered.length === 0) {
         grid.innerHTML = `
-            <div style="text-align: center; padding: 5rem; background: rgba(255,255,255,0.01); border: 2px dashed rgba(255,255,255,0.05); border-radius: 20px; width: 100%;">
+            <div style="text-align: center; padding: 3rem 1.5rem; box-sizing: border-box; background: rgba(255,255,255,0.01); border: 2px dashed rgba(255,255,255,0.05); border-radius: 20px; width: 100%;">
                 <div style="font-size: 4rem; margin-bottom: 2rem;">📂</div>
                 <h2 class="font-heading">No premium ${tabType} for this subject found yet.</h2>
                 <p style="color: var(--text-dim); margin-bottom: 2.5rem;">Be the first contributor and earn academic credit!</p>

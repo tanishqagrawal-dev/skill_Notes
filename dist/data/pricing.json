@@ -25,7 +25,11 @@
     "COUPEN": {
       "discount": 100,
       "maxUses": 100,
+<<<<<<< Updated upstream
       "uses": 15
+=======
+      "uses": 14
+>>>>>>> Stashed changes
     }
   }
 }

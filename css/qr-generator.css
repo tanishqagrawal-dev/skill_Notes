@@ -485,6 +485,7 @@
         width: 100%;
         box-sizing: border-box;
         overflow: hidden;
+        margin-top: 0 !important;
     }
     .qr-right-panel {
         order: 5;
@@ -505,7 +506,7 @@
     }
     .qr-left-panel > .qr-panel-label {
         order: 1;
-        padding-top: 24px;
+        padding-top: 8px;
     }
     .qr-panel-sub {
         order: 2;

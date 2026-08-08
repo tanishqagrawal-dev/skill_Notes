@@ -576,10 +576,15 @@
             <h2 class="section-title">Invest in Your <span class="gradient-text">Future</span></h2>
             <p class="section-subtitle">Choose the plan that fits your academic goals.</p>
         </div>
+        <div class="mobile-pricing-tabs" style="display: none;">
+            <button class="pricing-tab active" data-plan="free">Free</button>
+            <button class="pricing-tab" data-plan="codetantra">CodeTantra</button>
+            <button class="pricing-tab" data-plan="scholar">Scholar</button>
+        </div>
 
         <div class="pricing-grid">
             <!-- Free Plan -->
-            <div class="pricing-card-wrapper" data-aos="zoom-in" data-aos-delay="100">
+            <div class="pricing-card-wrapper active-mobile-plan" id="mobile-plan-free" data-aos="zoom-in" data-aos-delay="100">
                 <div class="premium-pricing-card">
                     <div class="plan-header">
                         <h3>Free Tier</h3>
@@ -600,7 +605,7 @@
             </div>
 
             <!-- CodeTantra Plan -->
-            <div class="pricing-card-wrapper" data-aos="zoom-in" data-aos-delay="150" onclick="window.location.href='pages/dashboard.html?tab=subscription'" style="cursor:pointer;">
+            <div class="pricing-card-wrapper" id="mobile-plan-codetantra" data-aos="zoom-in" data-aos-delay="150" onclick="window.location.href='pages/dashboard.html?tab=subscription'" style="cursor:pointer;">
                 <div class="premium-pricing-card">
                     <div class="plan-header">
                         <h3>CodeTantra <span style="color: var(--secondary)">Hub</span></h3>
@@ -623,7 +628,7 @@
             </div>
 
             <!-- Premium Scholar Plan -->
-            <div class="pricing-card-wrapper featured" data-aos="zoom-in" data-aos-delay="200" onclick="window.location.href='pages/dashboard.html?tab=subscription'" style="cursor:pointer;">
+            <div class="pricing-card-wrapper featured" id="mobile-plan-scholar" data-aos="zoom-in" data-aos-delay="200" onclick="window.location.href='pages/dashboard.html?tab=subscription'" style="cursor:pointer;">
                 <div class="premium-pricing-card featured">
                     <div class="popular-badge">MOST POPULAR</div>
                     <div class="plan-header">
@@ -646,6 +651,31 @@
             </div>
         </div>
     </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabs = document.querySelectorAll('.pricing-tab');
+            const plans = {
+                'free': document.getElementById('mobile-plan-free'),
+                'codetantra': document.getElementById('mobile-plan-codetantra'),
+                'scholar': document.getElementById('mobile-plan-scholar')
+            };
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Update active plan
+                    Object.values(plans).forEach(p => p.classList.remove('active-mobile-plan'));
+                    if (plans[tab.dataset.plan]) {
+                        plans[tab.dataset.plan].classList.add('active-mobile-plan');
+                    }
+                });
+            });
+        });
+    </script>
 
 
     <!-- FAQ Section -->

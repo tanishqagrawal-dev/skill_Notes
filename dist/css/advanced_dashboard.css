@@ -543,7 +543,11 @@ body.light-mode .skeleton {
     #premium-leaderboard-wrapper .lb-spotlight-3d {
         transform: none !important;
         margin-bottom: 2.5rem;
+<<<<<<< Updated upstream
         flex-wrap: wrap;
+=======
+        flex-wrap: nowrap;
+>>>>>>> Stashed changes
         flex-direction: row;
         align-items: flex-end;
         justify-content: center;
@@ -551,9 +555,16 @@ body.light-mode .skeleton {
         padding: 0 5px;
     }
     
+<<<<<<< Updated upstream
     #premium-leaderboard-wrapper .podium-wrapper {
         flex: 1;
         width: 31%;
+=======
+    #premium-leaderboard-wrapper .podium-wrapper,
+    #premium-leaderboard-wrapper .podium-wrapper.rank-1 {
+        flex: 1;
+        width: 31% !important;
+>>>>>>> Stashed changes
         background: transparent;
         border: none;
         padding: 0;

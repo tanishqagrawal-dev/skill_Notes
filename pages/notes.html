@@ -190,16 +190,34 @@
             }
 
             #explorer-content {
-                grid-template-columns: 1fr !important;
-                padding: 1rem !important;
-                gap: 1.5rem !important;
-                justify-items: center !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                padding: 1rem 0.5rem !important;
+                gap: 0.75rem !important;
+                justify-items: stretch !important;
             }
 
             .selection-card {
-                max-width: 280px !important;
+                max-width: 100% !important;
                 width: 100% !important;
-                margin: 0 auto !important;
+                margin: 0 !important;
+                padding: 0.75rem !important;
+                box-sizing: border-box !important;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                overflow: hidden;
+            }
+            
+            .selection-card h3 {
+                font-size: 0.9rem !important;
+                text-align: center !important;
+                white-space: normal !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+                line-height: 1.2 !important;
+                width: 100%;
+                margin-bottom: 0 !important;
             }
         }
 
@@ -313,13 +331,13 @@
         /* Mobile Adjustments */
         @media (max-width: 768px) {
             .notes-page-container {
-                padding: 6rem 1rem 4rem;
+                padding: 4.5rem 1rem 2rem !important; /* Reduced top padding to remove massive gap */
             }
 
             .step-indicator {
                 gap: 0.5rem;
                 flex-wrap: nowrap !important;
-                margin-bottom: 2.5rem;
+                margin-bottom: 1.5rem !important; /* Reduced bottom margin */
                 justify-content: center;
                 width: 100%;
             }
@@ -421,14 +439,6 @@
                 gap: 0.3rem;
             }
 
-            #explorer-content {
-                grid-template-columns: 1fr !important;
-                gap: 1.5rem !important;
-            }
-
-            .selection-card {
-                padding: 1.5rem !important;
-            }
         }
 
         @media (max-width: 480px) {

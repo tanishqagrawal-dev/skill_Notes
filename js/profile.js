@@ -287,23 +287,23 @@ class ProfileManager {
             const urgentColor = daysLeft <= 7 ? '#ff6b6b' : daysLeft <= 30 ? '#ffa502' : '#00ff88';
 
             return `
-            <div class="glass-card" style="grid-column: span 2; background: linear-gradient(135deg, rgba(0,255,136,0.06), rgba(123,97,255,0.1)); border: 1px solid rgba(0,255,136,0.3); position: relative; overflow: hidden;">
+            <div class="glass-card sub-card-active" style="grid-column: span 2; background: linear-gradient(135deg, rgba(0,255,136,0.06), rgba(123,97,255,0.1)); border: 1px solid rgba(0,255,136,0.3); position: relative; overflow: hidden;">
                 <div style="position: absolute; top: -40px; right: -40px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(0,255,136,0.1), transparent 70%); border-radius: 50%; pointer-events:none;"></div>
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;">
-                    <div style="display: flex; align-items: center; gap: 18px;">
-                        <div style="width: 58px; height: 58px; background: linear-gradient(135deg, #00ff88, #00d2ff); border-radius: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,255,136,0.35); flex-shrink: 0;">
+                <div class="sub-card-inner" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;">
+                    <div class="sub-card-left" style="display: flex; align-items: center; gap: 18px;">
+                        <div class="sub-card-icon-container" style="width: 58px; height: 58px; background: linear-gradient(135deg, #00ff88, #00d2ff); border-radius: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,255,136,0.35); flex-shrink: 0;">
                             <i class="fas ${planIcon}" style="font-size: 1.5rem; color: #000;"></i>
                         </div>
-                        <div>
+                        <div class="sub-card-info">
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
-                                <span style="font-size: 0.65rem; font-weight: 800; letter-spacing: 1.5px; color: #000; background: linear-gradient(135deg, #00ff88, #00d2ff); padding: 3px 10px; border-radius: 20px; text-transform: uppercase;">✦ ACTIVE SUBSCRIPTION</span>
+                                <span class="sub-badge" style="font-size: 0.65rem; font-weight: 800; letter-spacing: 1.5px; color: #000; background: linear-gradient(135deg, #00ff88, #00d2ff); padding: 3px 10px; border-radius: 20px; text-transform: uppercase;">✦ ACTIVE SUBSCRIPTION</span>
                             </div>
-                            <h3 style="font-size: 1.35rem; font-weight: 800; color: #fff; margin: 0 0 4px 0; font-family: 'Poppins', sans-serif;">${planName}</h3>
-                            <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0;">
+                            <h3 class="sub-title" style="font-size: 1.35rem; font-weight: 800; color: #fff; margin: 0 0 4px 0; font-family: 'Poppins', sans-serif;">${planName}</h3>
+                            <p class="sub-expiry" style="color: var(--text-secondary); font-size: 0.85rem; margin: 0;">
                                 Expires <strong style="color: #fff;">${formatDate(expiry)}</strong> &nbsp;·&nbsp;
                                 <strong style="color: ${urgentColor};">${daysLeft} days left</strong>
                             </p>
-                            <div style="margin-top: 10px; width: 220px; max-width: 100%;">
+                            <div class="sub-progress-container" style="margin-top: 10px; width: 220px; max-width: 100%;">
                                 <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
                                     <div style="height: 100%; width: ${progressPct}%; background: linear-gradient(90deg, ${urgentColor}, #00d2ff); border-radius: 4px; transition: width 0.5s ease;"></div>
                                 </div>
@@ -311,32 +311,34 @@ class ProfileManager {
                             </div>
                         </div>
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
-                        ${planId === 'codetantra' ? `<button class="btn btn-primary btn-sm" onclick="window.handlePayment && window.handlePayment('pro_1mo')" style="padding: 0.5rem 1.2rem; font-weight: 600;"><i class="fas fa-arrow-up"></i> Upgrade to PRO</button>` : ''}
-                        <span style="font-size: 0.75rem; color: var(--text-secondary);">Plan: <strong style="color: #fff;">${planId.toUpperCase()}</strong></span>
+                    <div class="sub-card-actions" style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
+                        ${planId === 'codetantra' ? `<button class="btn btn-primary btn-sm sub-card-btn" onclick="window.handlePayment && window.handlePayment('pro_1mo')" style="padding: 0.5rem 1.2rem; font-weight: 600;"><i class="fas fa-arrow-up"></i> Upgrade to PRO</button>` : ''}
+                        <span class="sub-plan-name" style="font-size: 0.75rem; color: var(--text-secondary);">Plan: <strong style="color: #fff;">${planId.toUpperCase()}</strong></span>
                     </div>
                 </div>
             </div>`;
         } else {
             // Free / Expired
             return `
-            <div class="glass-card subscription-card" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.08); position: relative; overflow: hidden;">
+            <div class="glass-card subscription-card sub-card-free" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.08); position: relative; overflow: hidden;">
                 <div class="sub-card-inner" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
                     <div class="sub-card-left" style="display: flex; align-items: center; gap: 16px;">
-                        <div class="sub-card-icon" style="width: 56px; height: 56px; background: rgba(255,255,255,0.06); border-radius: 14px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;">
+                        <div class="sub-card-icon-container" style="width: 56px; height: 56px; background: rgba(255,255,255,0.06); border-radius: 14px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;">
                             <i class="fas fa-layer-group" style="font-size: 1.4rem; color: var(--text-secondary);"></i>
                         </div>
-                        <div class="sub-card-text">
+                        <div class="sub-card-info">
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                                <span style="font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; color: var(--text-secondary); text-transform: uppercase;">SUBSCRIPTION</span>
+                                <span class="sub-badge" style="font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; color: var(--text-secondary); text-transform: uppercase;">SUBSCRIPTION</span>
                             </div>
-                            <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--text-dim); margin: 0; font-family: 'Poppins', sans-serif;">Free Tier</h3>
-                            <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 4px 0 0 0;">${isExpired ? `<span style="color:#ff6b6b;">Your ${planName} plan expired on ${formatDate(expiry)}.</span>` : 'Unlock premium features with Scholar PRO.'}</p>
+                            <h3 class="sub-title" style="font-size: 1.3rem; font-weight: 700; color: var(--text-dim); margin: 0; font-family: 'Poppins', sans-serif;">Free Tier</h3>
+                            <p class="sub-expiry" style="color: var(--text-secondary); font-size: 0.85rem; margin: 4px 0 0 0;">${isExpired ? `<span style="color:#ff6b6b;">Your ${planName} plan expired on ${formatDate(expiry)}.</span>` : 'Unlock premium features with Scholar PRO.'}</p>
                         </div>
                     </div>
-                    <button class="btn btn-primary btn-sm sub-card-btn" onclick="window.handlePayment && window.handlePayment('pro_1mo')" style="padding: 0.5rem 1.2rem; font-weight: 600; background: linear-gradient(135deg, #7b61ff, #9d50bb); border: none;">
-                        <i class="fas fa-bolt"></i> Upgrade Now
-                    </button>
+                    <div class="sub-card-actions" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                        <button class="btn btn-primary btn-sm sub-card-btn" onclick="window.handlePayment && window.handlePayment('pro_1mo')" style="padding: 0.5rem 1.2rem; font-weight: 600; background: linear-gradient(135deg, #7b61ff, #9d50bb); border: none;">
+                            <i class="fas fa-bolt"></i> Upgrade Now
+                        </button>
+                    </div>
                 </div>
             </div>`;
         }
