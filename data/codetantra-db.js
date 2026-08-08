@@ -154,6 +154,81 @@ export const CodeTantraDB = {
                 questionsCount: 1,
                 weeks: [
                     {
+                        title: 'Experiment 4',
+                        isPremium: true,
+                        topics: [ { id: 'java-4-1', number: '4', question: 'Experiment 4', code: '// Code coming soon...', language: 'java' } ]
+                    },
+                    {
+                        title: 'Experiment 5',
+                        isPremium: true,
+                        topics: [ { id: 'java-5-1', number: '5', question: 'Experiment 5', code: '// Code coming soon...', language: 'java' } ]
+                    },
+                    {
+                        title: 'Experiment 6',
+                        isPremium: true,
+                        topics: [ { id: 'java-6-1', number: '6', question: 'Experiment 6', code: '// Code coming soon...', language: 'java' } ]
+                    },
+                    {
+                        title: 'Experiment 7',
+                        isPremium: true,
+                        topics: [ { id: 'java-7-1', number: '7', question: 'Experiment 7', code: '// Code coming soon...', language: 'java' } ]
+                    },
+                    {
+                        title: 'Experiment 8',
+                        isPremium: true,
+                        topics: [ { id: 'java-8-1', number: '8', question: 'Experiment 8', code: '// Code coming soon...', language: 'java' } ]
+                    },
+                    {
+                        title: 'Experiment 9',
+                        isPremium: true,
+                        topics: [ { id: 'java-9-1', number: '9', question: 'Experiment 9', code: '// Code coming soon...', language: 'java' } ]
+                    },
+                    {
+                        title: 'Experiment 10',
+                        isPremium: true,
+                        topics: [ { id: 'java-10-1', number: '10', question: 'Experiment 10', code: '// Code coming soon...', language: 'java' } ]
+                    },
+                    {
+                        title: 'Experiment 11',
+                        isPremium: true,
+                        topics: [ { id: 'java-11-1', number: '11', question: 'Experiment 11', code: '// Code coming soon...', language: 'java' } ]
+                    },
+                    {
+                        title: 'Experiment 12',
+                        isPremium: true,
+                        topics: [ { id: 'java-12-1', number: '12', question: 'Experiment 12', code: '// Code coming soon...', language: 'java' } ]
+                    },
+                    {
+                        title: 'Experiment 13',
+                        isPremium: true,
+                        topics: [ { id: 'java-13-1', number: '13', question: 'Experiment 13', code: '// Code coming soon...', language: 'java' } ]
+                    },
+                    {
+                        title: 'Experiment 14',
+                        isPremium: true,
+                        topics: [ { id: 'java-14-1', number: '14', question: 'Experiment 14', code: '// Code coming soon...', language: 'java' } ]
+                    },
+                    {
+                        title: 'Experiment 15',
+                        isPremium: true,
+                        topics: [ { id: 'java-15-1', number: '15', question: 'Experiment 15', code: '// Code coming soon...', language: 'java' } ]
+                    },
+                    {
+                        title: 'Experiment 16',
+                        isPremium: true,
+                        topics: [ { id: 'java-16-1', number: '16', question: 'Experiment 16', code: '// Code coming soon...', language: 'java' } ]
+                    },
+                    {
+                        title: 'Experiment 17',
+                        isPremium: true,
+                        topics: [ { id: 'java-17-1', number: '17', question: 'Experiment 17', code: '// Code coming soon...', language: 'java' } ]
+                    },
+                    {
+                        title: 'Experiment 18',
+                        isPremium: true,
+                        topics: [ { id: 'java-18-1', number: '18', question: 'Experiment 18', code: '// Code coming soon...', language: 'java' } ]
+                    },
+                    {
                         title: 'Experiment 19',
                         isPremium: true,
                         topics: [
