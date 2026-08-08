@@ -56,7 +56,7 @@ export const CodeTantraDB = {
                     },
                     {
                         title: 'Week - 4',
-                        isPremium: false,
+                        isPremium: true,
                         topics: [
                             { id: 'c-4-1', number: '4.1.1', question: 'Leap Year or Not', code: '// Code coming soon...', language: 'c' },
                             { id: 'c-4-2', number: '4.1.2', question: 'Range Check', code: '// Code coming soon...', language: 'c' },
@@ -69,7 +69,7 @@ export const CodeTantraDB = {
                     },
                     {
                         title: 'Week - 5',
-                        isPremium: false,
+                        isPremium: true,
                         topics: [
                             { id: 'c-5-1', number: '5.1.1', question: 'Multiplication Table', code: '// Code coming soon...', language: 'c' },
                             { id: 'c-5-2', number: '5.1.2', question: 'Factorial of a Number', code: '// Code coming soon...', language: 'c' },
@@ -79,7 +79,7 @@ export const CodeTantraDB = {
                     },
                     {
                         title: 'Week - 6',
-                        isPremium: false,
+                        isPremium: true,
                         topics: [
                             { id: 'c-6-1', number: '6.1.1', question: 'Maximum and Minimum Elements', code: '// Code coming soon...', language: 'c' },
                             { id: 'c-6-2', number: '6.1.2', question: 'Count Prime and Non-Prime Numbers in an Array', code: '// Code coming soon...', language: 'c' },
@@ -90,7 +90,7 @@ export const CodeTantraDB = {
                     },
                     {
                         title: 'Week - 7',
-                        isPremium: false,
+                        isPremium: true,
                         topics: [
                             { id: 'c-7-1', number: '7.1.1', question: 'Print a 2x2 Matrix', code: '// Code coming soon...', language: 'c' },
                             { id: 'c-7-2', number: '7.1.2', question: 'Add Two 2x2 Matrices', code: '// Code coming soon...', language: 'c' },
@@ -99,7 +99,7 @@ export const CodeTantraDB = {
                     },
                     {
                         title: 'Week - 8',
-                        isPremium: false,
+                        isPremium: true,
                         topics: [
                             { id: 'c-8-1', number: '8.1.1', question: 'Factorial using non recursive function', code: '// Code coming soon...', language: 'c' },
                             { id: 'c-8-2', number: '8.1.2', question: 'Function with argument and with return value', code: '// Code coming soon...', language: 'c' },
@@ -109,7 +109,7 @@ export const CodeTantraDB = {
                     },
                     {
                         title: 'Week - 9',
-                        isPremium: false,
+                        isPremium: true,
                         topics: [
                             { id: 'c-9-1', number: '9.1.1', question: 'Swap Values Using Pointer', code: '// Code coming soon...', language: 'c' },
                             { id: 'c-9-2', number: '9.1.2', question: 'Reverse Array Using Pointers', code: '// Code coming soon...', language: 'c' },
@@ -118,7 +118,7 @@ export const CodeTantraDB = {
                     },
                     {
                         title: 'Week - 10',
-                        isPremium: false,
+                        isPremium: true,
                         topics: [
                             { id: 'c-10-1', number: '10.1.1', question: 'Student Details using Union', code: '// Code coming soon...', language: 'c' },
                             { id: 'c-10-2', number: '10.1.2', question: 'Store Sort and Search Student Details', code: '// Code coming soon...', language: 'c' }
@@ -126,14 +126,14 @@ export const CodeTantraDB = {
                     },
                     {
                         title: 'Week - 11',
-                        isPremium: false,
+                        isPremium: true,
                         topics: [
                             { id: 'c-11-1', number: '11.1.1', question: 'Word Count and Replacement in a File', code: '// Code coming soon...', language: 'c' }
                         ]
                     },
                     {
                         title: 'Week - 12',
-                        isPremium: false,
+                        isPremium: true,
                         topics: [
                             { id: 'c-12-1', number: '12.1.1', question: 'Sum of Array using malloc()', code: '// Code coming soon...', language: 'c' },
                             { id: 'c-12-2', number: '12.1.2', question: 'Resizing an Array using realloc()', code: '// Code coming soon...', language: 'c' },
