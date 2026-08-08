@@ -3271,13 +3271,6 @@ function renderTimetableCards() {
                     </div>
                     <div class="tt-exam-actions" style="display: flex; align-items: center; gap: 1.5rem;">
                         ${statusHtml}
-                        ${diffMs > 0 ? `
-                        <div style="display: flex; gap: 0.4rem;">
-                            <button onclick="window.goToPlannerForExam('${ex.subject.replace(/'/g, "\\'")}', '${ex.exam_date}')" class="btn" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); border: none; color: white; padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(123, 97, 255, 0.4);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(123, 97, 255, 0.6)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(123, 97, 255, 0.4)';">
-                                ✨ AI Plan
-                            </button>
-                        </div>
-                        ` : ''}
                     </div>
                 </div>
             </div>

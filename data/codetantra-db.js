@@ -144,6 +144,32 @@ export const CodeTantraDB = {
             }
         ],
 
+        '3_cse': [
+            {
+                id: 'java',
+                name: 'Java',
+                fullName: 'Java Programming',
+                icon: 'Java',
+                type: 'lab',
+                questionsCount: 1,
+                weeks: [
+                    {
+                        title: 'Experiment 19',
+                        isPremium: false,
+                        topics: [
+                            { 
+                                id: 'java-19-1', 
+                                number: '19', 
+                                question: 'Compare Strings using equals() and compareTo()', 
+                                code: `import java.util.Scanner;\n\npublic class CompareThreeStrings {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s1 = sc.nextLine();\n        String s2 = sc.nextLine();\n        String s3 = sc.nextLine();\n\n        System.out.println(\"s1 equals s2: \" + s1.equals(s2));\n        System.out.println(\"s1 equals s3: \" + s1.equals(s3));\n        System.out.println(\"s1 compareTo s2: \" + s1.compareTo(s2));\n        System.out.println(\"s1 compareTo s3: \" + s1.compareTo(s3));\n        System.out.println(\"s3 compareTo s1: \" + s3.compareTo(s1));\n\n        sc.close();\n    }\n}`, 
+                                language: 'java' 
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+
         '4_cse': [
             {
                 id: 'dbms',
