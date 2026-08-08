@@ -34,7 +34,33 @@ window.aiClient = {
                 throw new Error("Please login to use the AI Coach.");
             }
 
-            if (!window.GEMINI_API_KEY || window.GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
+            // Populate window.GEMINI_KEYS and window.GROQ_KEYS dynamically from .env
+            if (!window.GEMINI_KEYS || !window.GROQ_KEYS) {
+                window.GEMINI_KEYS = [];
+                window.GROQ_KEYS = [];
+                try {
+                    const envRes = await fetch('/.env');
+                    if (envRes.ok) {
+                        const envText = await envRes.text();
+                        const matchGemini = [...envText.matchAll(/GEMINI_API_KEY\d*=(.*)/g)];
+                        if (matchGemini.length > 0) {
+                            window.GEMINI_KEYS = matchGemini.map(m => m[1].trim());
+                        }
+                        const matchGroq = [...envText.matchAll(/GROQ_API_KEY\d*=(.*)/g)];
+                        if (matchGroq.length > 0) {
+                            window.GROQ_KEYS = matchGroq.map(m => m[1].trim());
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Could not fetch .env keys dynamically.");
+                }
+                
+                if (window.GEMINI_KEYS.length === 0 && window.GEMINI_API_KEY !== "YOUR_GEMINI_API_KEY_HERE" && !window.GEMINI_API_KEY.includes("INJECT")) {
+                    window.GEMINI_KEYS = [window.GEMINI_API_KEY];
+                }
+            }
+
+            if ((!window.GEMINI_KEYS || window.GEMINI_KEYS.length === 0) && (!window.GROQ_KEYS || window.GROQ_KEYS.length === 0)) {
                 // Free Fallback: Try real-time free AI first, silently fallback to predefined if it fails
                 const lowerQ = question.toLowerCase().trim();
                 let usePredefined = false;
@@ -95,32 +121,84 @@ window.aiClient = {
                     aiReply = "That's a great engineering question! I am currently running in a lightweight local mode. Please try asking about **OOP Concepts**, **API**, **Merge Sort**, **TCP vs UDP**, or **SQL queries**!";
                 }
             } else {
-                // Gemini API with Google Search
-                const systemInstruction = {
-                    parts: [{ text: "You are SKiL Coach Pro, an expert engineering mentor. You answer doubts clearly and concisely. You can use Google Search to find current information if needed." }]
-                };
+                let success = false;
 
-                const contents = window.aiConversationHistory.map(msg => ({
-                    role: msg.role === "user" ? "user" : "model",
-                    parts: [{ text: msg.text }]
-                }));
+                // 1. Try Groq API First
+                if (window.GROQ_KEYS && window.GROQ_KEYS.length > 0) {
+                    for (let i = 0; i < window.GROQ_KEYS.length; i++) {
+                        const key = window.GROQ_KEYS[i];
+                        try {
+                            const groqMessages = window.aiConversationHistory.map(msg => ({
+                                role: msg.role === "user" ? "user" : "assistant",
+                                content: msg.text
+                            }));
+                            groqMessages.unshift({ role: "system", content: "You are SKiL Coach Pro, an expert engineering mentor. You answer doubts clearly and concisely." });
+                            
+                            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                                method: "POST",
+                                headers: {
+                                    "Authorization": `Bearer ${key}`,
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({
+                                    model: "llama-3.3-70b-versatile",
+                                    messages: groqMessages
+                                })
+                            });
 
-                const payload = {
-                    system_instruction: systemInstruction,
-                    contents: contents,
-                    tools: [{ google_search_retrieval: { dynamic_retrieval_config: { mode: "MODE_DYNAMIC", dynamic_threshold: 0.3 } } }]
-                };
+                            if (!response.ok) throw new Error("Groq API Error");
+                            const data = await response.json();
+                            aiReply = data.choices[0].message.content || aiReply;
+                            success = true;
+                            break; // Success! Break the retry loop
+                        } catch (keyError) {
+                            console.warn(`⚠️ Groq API Failed (Key index: ${i}):`, keyError.message);
+                        }
+                    }
+                }
 
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${window.GEMINI_API_KEY}`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
+                // 2. Fallback to Gemini API
+                if (!success && window.GEMINI_KEYS && window.GEMINI_KEYS.length > 0) {
+                    const systemInstruction = {
+                        parts: [{ text: "You are SKiL Coach Pro, an expert engineering mentor. You answer doubts clearly and concisely. You can use Google Search to find current information if needed." }]
+                    };
 
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error?.message || "Gemini Error");
+                    const contents = window.aiConversationHistory.map(msg => ({
+                        role: msg.role === "user" ? "user" : "model",
+                        parts: [{ text: msg.text }]
+                    }));
+
+                    const payload = {
+                        system_instruction: systemInstruction,
+                        contents: contents,
+                        tools: [{ google_search_retrieval: { dynamic_retrieval_config: { mode: "MODE_DYNAMIC", dynamic_threshold: 0.3 } } }]
+                    };
+
+                    for (let i = 0; i < window.GEMINI_KEYS.length; i++) {
+                        const key = window.GEMINI_KEYS[i];
+                        try {
+                            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(payload)
+                            });
+
+                            const data = await response.json();
+                            if (!response.ok) throw new Error(data.error?.message || "Gemini Error");
+                            
+                            aiReply = data.candidates?.[0]?.content?.parts?.[0]?.text || aiReply;
+                            success = true;
+                            break; // Success! Break the retry loop
+                        } catch (keyError) {
+                            console.warn(`⚠️ Gemini API Failed (Key index: ${i}):`, keyError.message);
+                        }
+                    }
+                }
                 
-                aiReply = data.candidates?.[0]?.content?.parts?.[0]?.text || aiReply;
+                if (!success) {
+                    // Fallback to free if all keys fail
+                    throw new Error("All AI API keys failed limit/quota. Retrying in fallback mode.");
+                }
             }
 
             // Save AI response to history

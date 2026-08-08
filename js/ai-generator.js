@@ -220,11 +220,13 @@ window.AIGenerator = {
         }`;
 
         let responseContent = null;
-        let geminiFailed = false;
 
         // These placeholders will be replaced by actual keys during `npm run build`
         let geminiKey = "INJECT_GEMINI_API_KEY";
         let groqKey = "INJECT_GROQ_API_KEY";
+        
+        let geminiKeys = [geminiKey];
+        let groqKeys = [groqKey];
 
         // If running locally without build, attempt to fetch the local .env file securely
         if (geminiKey.includes("INJECT")) {
@@ -232,10 +234,12 @@ window.AIGenerator = {
                 const envRes = await fetch('/.env');
                 if (envRes.ok) {
                     const envText = await envRes.text();
-                    const matchGemini = envText.match(/GEMINI_API_KEY=(.*)/);
-                    if (matchGemini) geminiKey = matchGemini[1].trim();
-                    const matchGroq = envText.match(/GROQ_API_KEY=(.*)/);
-                    if (matchGroq) groqKey = matchGroq[1].trim();
+                    
+                    const matchGemini = [...envText.matchAll(/GEMINI_API_KEY\d*=(.*)/g)];
+                    if (matchGemini.length > 0) geminiKeys = matchGemini.map(m => m[1].trim());
+                    
+                    const matchGroq = [...envText.matchAll(/GROQ_API_KEY\d*=(.*)/g)];
+                    if (matchGroq.length > 0) groqKeys = matchGroq.map(m => m[1].trim());
                 }
             } catch (e) {
                 console.warn("Local .env fetch failed. Relying on build-injected keys.");
@@ -243,53 +247,62 @@ window.AIGenerator = {
         }
 
         // 1. Tier 1: Try Gemini
-        try {
-            if (!geminiKey || geminiKey.includes("INJECT")) throw new Error("Gemini Key not configured.");
-            console.log("✨ [Tier 1] Attempting Gemini API Generation...");
+        for (let i = 0; i < geminiKeys.length; i++) {
+            const key = geminiKeys[i];
+            if (!key || key.includes("INJECT")) continue;
             
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-            });
-
-            if (!res.ok) throw new Error("Gemini API Error");
-            const data = await res.json();
-            responseContent = data.candidates[0].content.parts[0].text;
-        } catch (e) {
-            console.warn("⚠️ [Tier 1] Gemini API Failed:", e.message);
-            geminiFailed = true;
-        }
-
-        // 2. Tier 2: Try Groq
-        if (geminiFailed || !responseContent) {
             try {
-                if (!groqKey || groqKey.includes("INJECT")) throw new Error("Groq Key not configured.");
-                console.log("♻️ [Tier 2] Falling back to Groq API Generation...");
-
-                const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${groqKey}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        model: "llama-3.3-70b-versatile",
-                        messages: [{ role: "user", content: prompt }],
-                        response_format: { type: "json_object" }
-                    })
+                console.log(`✨ [Tier 1] Attempting Gemini API Generation (Key index: ${i})...`);
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                 });
 
-                if (!groqRes.ok) throw new Error(`Groq Error: ${groqRes.status}`);
-                const data = await groqRes.json();
-                responseContent = data.choices[0].message.content;
+                if (!res.ok) throw new Error("Gemini API Error");
+                const data = await res.json();
+                responseContent = data.candidates[0].content.parts[0].text;
+                break; // Success!
             } catch (e) {
-                console.error("❌ Both AI Generations Failed:", e.message);
-                throw new Error("AI Paper Generation Failed"); // This triggers Tier 3 (Local Cache)
+                console.warn(`⚠️ [Tier 1] Gemini API Failed (Key index: ${i}):`, e.message);
             }
         }
 
-        if (!responseContent) throw new Error("No content generated");
+        // 2. Tier 2: Try Groq
+        if (!responseContent) {
+            for (let i = 0; i < groqKeys.length; i++) {
+                const key = groqKeys[i];
+                if (!key || key.includes("INJECT")) continue;
+                
+                try {
+                    console.log(`♻️ [Tier 2] Falling back to Groq API Generation (Key index: ${i})...`);
+                    const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${key}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            model: "llama-3.3-70b-versatile",
+                            messages: [{ role: "user", content: prompt }],
+                            response_format: { type: "json_object" }
+                        })
+                    });
+
+                    if (!groqRes.ok) throw new Error(`Groq Error: ${groqRes.status}`);
+                    const data = await groqRes.json();
+                    responseContent = data.choices[0].message.content;
+                    break; // Success!
+                } catch (e) {
+                    console.warn(`⚠️ [Tier 2] Groq API Failed (Key index: ${i}):`, e.message);
+                }
+            }
+        }
+
+        if (!responseContent) {
+            console.error("❌ Both AI Generations Failed for all keys.");
+            throw new Error("AI Paper Generation Failed"); // This triggers Tier 3 (Local Cache)
+        }
         
         const cleanedText = responseContent.replace(/```json|```/g, '').trim();
         return JSON.parse(cleanedText);

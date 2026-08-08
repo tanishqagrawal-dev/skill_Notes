@@ -58,7 +58,67 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 
 // Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy");
+
+// --- AI FALLBACK HELPER ---
+async function generateAIContent(prompt, isJson = false) {
+    // 1. Collect all keys dynamically from process.env
+    const geminiKeys = Object.keys(process.env).filter(k => k.startsWith('GEMINI_API_KEY')).map(k => process.env[k]);
+    const groqKeys = Object.keys(process.env).filter(k => k.startsWith('GROQ_API_KEY')).map(k => process.env[k]);
+
+    // 2. Try all Gemini Keys iteratively
+    for (let i = 0; i < geminiKeys.length; i++) {
+        const key = geminiKeys[i];
+        if (!key) continue;
+        try {
+            console.log(`✨ [Tier 1] Attempting Gemini API Generation (Key index: ${i})...`);
+            const localGenAI = new GoogleGenerativeAI(key);
+            const model = localGenAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            return response.text();
+        } catch (geminiError) {
+            console.warn(`⚠️ [Tier 1] Gemini API Failed (Key index: ${i}):`, geminiError.message);
+        }
+    }
+
+    // 3. Fallback to Groq Keys iteratively
+    for (let i = 0; i < groqKeys.length; i++) {
+        const key = groqKeys[i];
+        if (!key) continue;
+        try {
+            console.log(`♻️ [Tier 2] Falling back to Groq API Generation (Key index: ${i})...`);
+            const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${key}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [{ role: "user", content: prompt }],
+                    response_format: isJson ? { type: "json_object" } : undefined
+                })
+            });
+
+            if (!groqRes.ok) {
+                const errData = await groqRes.json();
+                throw new Error(errData.error?.message || `Groq Error: ${groqRes.status}`);
+            }
+
+            const data = await groqRes.json();
+            if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                throw new Error("Invalid response from Groq API");
+            }
+
+            return data.choices[0].message.content;
+        } catch (groqError) {
+            console.warn(`⚠️ [Tier 2] Groq API Failed (Key index: ${i}):`, groqError.message);
+        }
+    }
+
+    throw new Error("All AI API keys (Gemini and Groq) failed.");
+}
 
 // --- COMPILER PROXY (PAIZA.IO) ---
 app.post('/api/compile', async (req, res) => {
@@ -469,12 +529,6 @@ app.post('/api/generate-paper', async (req, res) => {
     try {
         const { subject, university, semester, examType, pyqs } = req.body;
 
-        if (!process.env.GEMINI_API_KEY) {
-            return res.status(500).json({ error: "API Key not configured in server/.env" });
-        }
-
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
         const prompt = `
 You are an experienced university exam paper setter.
 
@@ -507,9 +561,7 @@ Please provide the output in clean Markdown format with bold headers.
 Start with the Title Block (Subject, Marks, Time).
 `;
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+        const text = await generateAIContent(prompt, false);
 
         res.json({ success: true, maxMarks: 70, content: text });
 
@@ -522,12 +574,6 @@ Start with the Title Block (Subject, Marks, Time).
 app.post('/api/generate-plan', async (req, res) => {
     try {
         const { subjects, examDate, weakTopics, hoursAvailable, currentLevel } = req.body;
-
-        if (!process.env.GEMINI_API_KEY) {
-            return res.status(500).json({ error: "API Key not configured server-side" });
-        }
-
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const daysLeft = Math.ceil((new Date(examDate) - new Date()) / (1000 * 60 * 60 * 24));
 
@@ -557,9 +603,8 @@ Constraint:
 - NO Markdown formatting (\`\`\`json), just the raw JSON string.
 `;
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+        const rawText = await generateAIContent(prompt, true);
+        const text = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
 
         try {
             const plan = JSON.parse(text);
@@ -578,63 +623,8 @@ Constraint:
 app.post('/api/generate-model-paper', async (req, res) => {
     try {
         const { prompt } = req.body;
-        let responseContent = null;
-        let geminiFailed = false;
-
-        // 1. Try Gemini API First
-        try {
-            const geminiKey = process.env.GEMINI_API_KEY;
-            if (geminiKey) {
-                console.log("✨ [Tier 1] Attempting Gemini API Generation...");
-                // Initialize a temporary local genAI with the exact key just in case it differs
-                const localGenAI = new GoogleGenerativeAI(geminiKey);
-                const model = localGenAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                
-                const result = await model.generateContent(prompt);
-                const response = await result.response;
-                responseContent = response.text();
-            } else {
-                throw new Error("GEMINI_API_KEY not found in .env");
-            }
-        } catch (geminiError) {
-            console.warn("⚠️ [Tier 1] Gemini API Failed or Limit Reached:", geminiError.message);
-            geminiFailed = true;
-        }
-
-        // 2. Fallback to Groq API if Gemini fails
-        if (geminiFailed || !responseContent) {
-            console.log("♻️ [Tier 2] Falling back to Groq API Generation...");
-            const groqKey = process.env.GROQ_API_KEY;
-
-            if (!groqKey) {
-                throw new Error("GROQ_API_KEY not configured and Gemini failed.");
-            }
-
-            const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${groqKey}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    model: "llama-3.3-70b-versatile",
-                    messages: [{ role: "user", content: prompt }],
-                    response_format: { type: "json_object" }
-                })
-            });
-
-            if (!groqRes.ok) {
-                const errData = await groqRes.json();
-                throw new Error(errData.error?.message || `Groq API Error: ${groqRes.status}`);
-            }
-
-            const data = await groqRes.json();
-            if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-                throw new Error("Invalid response from Groq API");
-            }
-
-            responseContent = data.choices[0].message.content;
-        }
+        
+        const responseContent = await generateAIContent(prompt, true);
 
         res.json({ content: responseContent });
 
