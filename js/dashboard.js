@@ -2,6 +2,10 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
 import { globalNotes } from "../data/globalNotes.js?v=6.0";
 import { renderCodingArena } from './coding-arena.js?v=1.3';
 import { RoutingSystem } from "./routing.js?v=6.0";
+import { initGlobalAnalytics } from './analytics.js?v=6.0';
+
+// Initialize analytics (Supabase & Firebase) so dashboard stats are populated globally
+initGlobalAnalytics();
 
 window.openCodingArena = function() {
     const mainContent = document.getElementById('tab-content');
@@ -4307,7 +4311,7 @@ function renderOverview() {
             <div class="grid-2x3 stagger-3" style="margin-bottom: 2rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
                 <div class="qa-card-wrapper" style="border-color: rgba(0,255,148,0.2);">
                     <div style="flex: 1; text-align: center;">
-                        <div style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">561+</div>
+                        <div id="display-students" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">${window.globalAnalyticsData?.adminTotalStudents || '561+'}</div>
                         <div style="font-size: 0.75rem; color: var(--success); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                             <img src="https://img.icons8.com/fluency/48/graduation-cap.png" style="width: 18px; height: 18px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));" alt="Students"> TOTAL STUDENTS
                         </div>
@@ -4315,7 +4319,7 @@ function renderOverview() {
                 </div>
                 <div class="qa-card-wrapper" style="border-color: rgba(0,229,255,0.2);">
                     <div style="flex: 1; text-align: center;">
-                        <div id="total-views-count" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">${totalViews >= 1000 ? (totalViews/1000).toFixed(1) + 'k+' : (totalViews > 0 ? totalViews : 0)}</div>
+                        <div id="total-views-count" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">${window.globalAnalyticsData?.adminTotalViews ? window.globalAnalyticsData.adminTotalViews : (totalViews >= 1000 ? (totalViews/1000).toFixed(1) + 'k+' : (totalViews > 0 ? totalViews : 0))}</div>
                         <div style="font-size: 0.75rem; color: #00e5ff; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                             <img src="https://img.icons8.com/fluency/48/visible.png" style="width: 18px; height: 18px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));" alt="Views"> TOTAL VIEWS
                         </div>
@@ -4323,7 +4327,7 @@ function renderOverview() {
                 </div>
                 <div class="qa-card-wrapper" style="border-color: rgba(123,97,255,0.2);">
                     <div style="flex: 1; text-align: center;">
-                        <div style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">5.1k+</div>
+                        <div id="display-downloads" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">${window.globalAnalyticsData?.adminTotalDownloads || '5.1k+'}</div>
                         <div style="font-size: 0.75rem; color: var(--primary-light); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                             <img src="https://img.icons8.com/fluency/48/download.png" style="width: 18px; height: 18px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));" alt="Downloads"> TOTAL DOWNLOADS
                         </div>
@@ -4331,7 +4335,7 @@ function renderOverview() {
                 </div>
                 <div class="qa-card-wrapper" style="border-color: rgba(241,196,15,0.2);">
                     <div style="flex: 1; text-align: center;">
-                        <div id="total-resources-count" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">${totalNotes > 0 ? totalNotes : 0}</div>
+                        <div id="total-resources-count" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">${window.globalAnalyticsData?.adminTotalResources ? window.globalAnalyticsData.adminTotalResources : (totalNotes > 0 ? totalNotes : 0)}</div>
                         <div style="font-size: 0.75rem; color: #f1c40f; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                             <img src="https://img.icons8.com/fluency/48/books.png" style="width: 18px; height: 18px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));" alt="Resources"> TOTAL RESOURCES
                         </div>

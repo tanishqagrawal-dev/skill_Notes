@@ -345,6 +345,9 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
               </button>
               <button class="ap-page-tab" id="aptab-subscriptions" onclick="window._apPage('subscriptions',this)">
                 <span>💎</span> Subscriptions
+              </button>
+              <button class="ap-page-tab" id="aptab-analytics" onclick="window._apPage('analytics',this)">
+                <span>📊</span> Analytics Settings
               </button>` : ''}
               <button class="ap-page-tab" id="aptab-referrals" onclick="window._apPage('referrals',this)">
                 <span>🔗</span> Referrals
@@ -674,6 +677,49 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
               </div>
             </div>
 
+            <!-- ── PAGE: ANALYTICS SETTINGS ── -->
+            <div class="ap-page" id="appage-analytics">
+              <div class="ap-box">
+                <div class="ap-box-head">
+                  <div class="ap-box-title">
+                    <span style="width:8px;height:8px;border-radius:50%;background:#00e5ff;box-shadow:0 0 10px #00e5ff88;display:inline-block"></span>
+                    Dashboard Stats Configuration
+                  </div>
+                  <span style="font-size:.75rem;color:rgba(255,255,255,.35);">Override the 4 stats boxes on the main dashboard</span>
+                </div>
+                
+                <div class="cm-add-form" style="border-radius: 0; border: none; padding: 2rem;">
+                  <p style="margin-bottom: 1.5rem; color: rgba(255,255,255,0.6); font-size: 0.9rem;">
+                    Enter the display value you want for each stat (e.g. <code>5.5k+</code>, <code>200</code>). Leave blank to use the automatically calculated default.
+                  </p>
+                  
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div>
+                      <label style="display: block; font-size: 0.8rem; font-weight: bold; color: #00ff94; margin-bottom: 0.5rem; text-transform: uppercase;">🎓 Total Students</label>
+                      <input type="text" id="admin-stat-students" placeholder="e.g. 561+" style="width: 100%; padding: 0.8rem; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(0,255,148,0.3); color: white;" />
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 0.8rem; font-weight: bold; color: #00e5ff; margin-bottom: 0.5rem; text-transform: uppercase;">👁️ Total Views</label>
+                      <input type="text" id="admin-stat-views" placeholder="e.g. 10k+" style="width: 100%; padding: 0.8rem; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(0,229,255,0.3); color: white;" />
+                    </div>
+                  </div>
+                  
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                    <div>
+                      <label style="display: block; font-size: 0.8rem; font-weight: bold; color: #7b61ff; margin-bottom: 0.5rem; text-transform: uppercase;">📥 Total Downloads</label>
+                      <input type="text" id="admin-stat-downloads" placeholder="e.g. 5.1k+" style="width: 100%; padding: 0.8rem; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(123,97,255,0.3); color: white;" />
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 0.8rem; font-weight: bold; color: #f1c40f; margin-bottom: 0.5rem; text-transform: uppercase;">📚 Total Resources</label>
+                      <input type="text" id="admin-stat-resources" placeholder="e.g. 300+" style="width: 100%; padding: 0.8rem; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(241,196,15,0.3); color: white;" />
+                    </div>
+                  </div>
+                  
+                  <button class="apb apb-ok" onclick="window._apSaveAnalyticsConfig()" style="width: 100%; padding: 1rem; font-size: 1rem; font-weight: bold;">💾 Save Configuration</button>
+                </div>
+              </div>
+            </div>
+
           </div>`;
 
 
@@ -684,6 +730,10 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             btn.classList.add('active');
             const page = document.getElementById('appage-' + name);
             if (page) page.classList.add('active');
+            
+            if (name === 'analytics' && typeof window._apPopulateAnalytics === 'function') {
+                window._apPopulateAnalytics();
+            }
         };
 
 
@@ -1839,6 +1889,71 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             document.getElementById('tt-ex-'+id).remove();
         } catch(e) {
             alert('Error: ' + e.message);
+        }
+    };
+
+    window._apSaveAnalyticsConfig = async function() {
+        const students = document.getElementById('admin-stat-students').value.trim();
+        const views = document.getElementById('admin-stat-views').value.trim();
+        const downloads = document.getElementById('admin-stat-downloads').value.trim();
+        const resources = document.getElementById('admin-stat-resources').value.trim();
+
+        const btn = document.querySelector('#appage-analytics .apb-ok');
+        const originalText = btn.innerText;
+        btn.innerText = 'Saving...';
+        btn.disabled = true;
+
+        try {
+            const sb = await getSB();
+            const { error } = await sb.from('dashboard_stats').update({
+                students: students,
+                views: views,
+                downloads: downloads,
+                resources: resources
+            }).eq('id', 1);
+
+            if (error) throw error;
+
+            // Update local cache so Dashboard tab shows changes instantly
+            if (!window.globalAnalyticsData) window.globalAnalyticsData = {};
+            window.globalAnalyticsData.adminTotalStudents = students;
+            window.globalAnalyticsData.adminTotalViews = views;
+            window.globalAnalyticsData.adminTotalDownloads = downloads;
+            window.globalAnalyticsData.adminTotalResources = resources;
+
+            if (window.showToast) window.showToast('✅ Analytics configuration saved! Check your dashboard.');
+            else alert('✅ Analytics configuration saved! Check your dashboard.');
+        } catch (e) {
+            console.error("Failed to save analytics config:", e);
+            alert('❌ Failed: ' + e.message);
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    };
+
+    window._apPopulateAnalytics = async function() {
+        try {
+            const sb = await getSB();
+            const { data, error } = await sb.from('dashboard_stats').select('*').eq('id', 1).single();
+            if (error) {
+                console.warn("Could not fetch dashboard stats from Supabase:", error);
+                return;
+            }
+            
+            if (data) {
+                const studentsEl = document.getElementById('admin-stat-students');
+                const viewsEl = document.getElementById('admin-stat-views');
+                const downloadsEl = document.getElementById('admin-stat-downloads');
+                const resourcesEl = document.getElementById('admin-stat-resources');
+                
+                if(studentsEl && data.students) studentsEl.value = data.students;
+                if(viewsEl && data.views) viewsEl.value = data.views;
+                if(downloadsEl && data.downloads) downloadsEl.value = data.downloads;
+                if(resourcesEl && data.resources) resourcesEl.value = data.resources;
+            }
+        } catch (e) {
+            console.error("Error populating analytics config:", e);
         }
     };
 
