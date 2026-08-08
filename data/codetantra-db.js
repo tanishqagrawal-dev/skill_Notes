@@ -144,106 +144,6 @@ export const CodeTantraDB = {
             }
         ],
 
-        '3_cse': [
-            {
-                id: 'java',
-                name: 'Java',
-                fullName: 'Java Programming',
-                icon: 'Java',
-                type: 'lab',
-                questionsCount: 1,
-                weeks: [
-                    {
-                        title: 'Experiment 4',
-                        isPremium: true,
-                        topics: [ { id: 'java-4-1', number: '4', question: 'Experiment 4', code: '// Code coming soon...', language: 'java' } ]
-                    },
-                    {
-                        title: 'Experiment 5',
-                        isPremium: true,
-                        topics: [ { id: 'java-5-1', number: '5', question: 'Experiment 5', code: '// Code coming soon...', language: 'java' } ]
-                    },
-                    {
-                        title: 'Experiment 6',
-                        isPremium: true,
-                        topics: [ { id: 'java-6-1', number: '6', question: 'Experiment 6', code: '// Code coming soon...', language: 'java' } ]
-                    },
-                    {
-                        title: 'Experiment 7',
-                        isPremium: true,
-                        topics: [ { id: 'java-7-1', number: '7', question: 'Experiment 7', code: '// Code coming soon...', language: 'java' } ]
-                    },
-                    {
-                        title: 'Experiment 8',
-                        isPremium: true,
-                        topics: [ { id: 'java-8-1', number: '8', question: 'Experiment 8', code: '// Code coming soon...', language: 'java' } ]
-                    },
-                    {
-                        title: 'Experiment 9',
-                        isPremium: true,
-                        topics: [ { id: 'java-9-1', number: '9', question: 'Experiment 9', code: '// Code coming soon...', language: 'java' } ]
-                    },
-                    {
-                        title: 'Experiment 10',
-                        isPremium: true,
-                        topics: [ { id: 'java-10-1', number: '10', question: 'Experiment 10', code: '// Code coming soon...', language: 'java' } ]
-                    },
-                    {
-                        title: 'Experiment 11',
-                        isPremium: true,
-                        topics: [ { id: 'java-11-1', number: '11', question: 'Experiment 11', code: '// Code coming soon...', language: 'java' } ]
-                    },
-                    {
-                        title: 'Experiment 12',
-                        isPremium: true,
-                        topics: [ { id: 'java-12-1', number: '12', question: 'Experiment 12', code: '// Code coming soon...', language: 'java' } ]
-                    },
-                    {
-                        title: 'Experiment 13',
-                        isPremium: true,
-                        topics: [ { id: 'java-13-1', number: '13', question: 'Experiment 13', code: '// Code coming soon...', language: 'java' } ]
-                    },
-                    {
-                        title: 'Experiment 14',
-                        isPremium: true,
-                        topics: [ { id: 'java-14-1', number: '14', question: 'Experiment 14', code: '// Code coming soon...', language: 'java' } ]
-                    },
-                    {
-                        title: 'Experiment 15',
-                        isPremium: true,
-                        topics: [ { id: 'java-15-1', number: '15', question: 'Experiment 15', code: '// Code coming soon...', language: 'java' } ]
-                    },
-                    {
-                        title: 'Experiment 16',
-                        isPremium: true,
-                        topics: [ { id: 'java-16-1', number: '16', question: 'Experiment 16', code: '// Code coming soon...', language: 'java' } ]
-                    },
-                    {
-                        title: 'Experiment 17',
-                        isPremium: true,
-                        topics: [ { id: 'java-17-1', number: '17', question: 'Experiment 17', code: '// Code coming soon...', language: 'java' } ]
-                    },
-                    {
-                        title: 'Experiment 18',
-                        isPremium: true,
-                        topics: [ { id: 'java-18-1', number: '18', question: 'Experiment 18', code: '// Code coming soon...', language: 'java' } ]
-                    },
-                    {
-                        title: 'Experiment 19',
-                        isPremium: true,
-                        topics: [
-                            { 
-                                id: 'java-19-1', 
-                                number: '19', 
-                                question: 'Compare Strings using equals() and compareTo()', 
-                                code: `import java.util.Scanner;\n\npublic class CompareThreeStrings {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s1 = sc.nextLine();\n        String s2 = sc.nextLine();\n        String s3 = sc.nextLine();\n\n        System.out.println(\"s1 equals s2: \" + s1.equals(s2));\n        System.out.println(\"s1 equals s3: \" + s1.equals(s3));\n        System.out.println(\"s1 compareTo s2: \" + s1.compareTo(s2));\n        System.out.println(\"s1 compareTo s3: \" + s1.compareTo(s3));\n        System.out.println(\"s3 compareTo s1: \" + s3.compareTo(s1));\n\n        sc.close();\n    }\n}`, 
-                                language: 'java' 
-                            }
-                        ]
-                    }
-                ]
-            }
-        ],
 
         '4_cse': [
             {
@@ -996,6 +896,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 4 — Employee Details', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-4',
@@ -1008,6 +909,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 5 — Classes and Objects', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-5',
@@ -1020,6 +922,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 6 — Constructor', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-6',
@@ -1032,6 +935,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 7 — Constructor Overloading', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-7',
@@ -1044,6 +948,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 8 — Method Overloading', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-8',
@@ -1056,6 +961,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 9 — String Concatenation', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-9',
@@ -1068,6 +974,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 10 — String Operations', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-10',
@@ -1080,6 +987,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 11 — Inheritance', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-11',
@@ -1092,6 +1000,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 12 — Abstract Class', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-12',
@@ -1104,6 +1013,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 13 — Interface', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-13',
@@ -1116,6 +1026,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 14 — Exception Handling', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-14',
@@ -1128,6 +1039,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 15 — Runtime Polymorphism', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-15',
@@ -1140,6 +1052,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 16 — Extending Thread Class', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-16',
@@ -1152,6 +1065,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 17 — isAlive() and join()', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-17',
@@ -1164,6 +1078,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 18 — Package Demonstration', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-18',
@@ -1174,9 +1089,22 @@ export const CodeTantraDB = {
                             }
                         ]
                     },
-                    { title: 'Experiment 19 — Compare Three Strings', topics: [] },
+                    { 
+                        title: 'Experiment 19 — Compare Three Strings', 
+                        isPremium: true,
+                        topics: [
+                            { 
+                                id: 'jp-19', 
+                                number: '19', 
+                                question: 'Compare three strings using the equals() and compareTo() methods to check for equality and lexicographical order.', 
+                                code: "import java.util.Scanner;\n\npublic class CompareThreeStrings {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s1 = sc.nextLine();\n        String s2 = sc.nextLine();\n        String s3 = sc.nextLine();\n\n        System.out.println(\"s1 equals s2: \" + s1.equals(s2));\n        System.out.println(\"s1 equals s3: \" + s1.equals(s3));\n        System.out.println(\"s1 compareTo s2: \" + s1.compareTo(s2));\n        System.out.println(\"s1 compareTo s3: \" + s1.compareTo(s3));\n        System.out.println(\"s3 compareTo s1: \" + s3.compareTo(s1));\n\n        sc.close();\n    }\n}", 
+                                language: 'java' 
+                            }
+                        ]
+                    },
                     { 
                         title: 'Experiment 20 — File Write and Read', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-20',
@@ -1189,6 +1117,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 21 — Read File', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-21',
@@ -1201,6 +1130,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 22 — Byte Stream I/O', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-22',
@@ -1213,6 +1143,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 23 — Scanner and BufferedReader', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'jp-23',
@@ -1271,6 +1202,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 4 — Circular Linked List', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'ds-4',
@@ -1283,6 +1215,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 5 — Stack (Array)', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'ds-5',
@@ -1295,6 +1228,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 6 — Circular Queue', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'ds-6',
@@ -1307,6 +1241,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 7 — Simple Queue', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'ds-7',
@@ -1319,6 +1254,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 8 — Bubble Sort', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'ds-8',
@@ -1331,6 +1267,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 9 — Insertion Sort', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'ds-9',
@@ -1343,6 +1280,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 10 — Selection Sort (Descending)', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'ds-10',
@@ -1355,6 +1293,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 11 — Binary Search Tree', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'ds-11',
@@ -1367,6 +1306,7 @@ export const CodeTantraDB = {
                     },
                     { 
                         title: 'Experiment 12 — Graph (DFS & BFS)', 
+                        isPremium: true,
                         topics: [
                             {
                                 id: 'ds-12',
