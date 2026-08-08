@@ -6650,7 +6650,12 @@ function updateLeaderboardUI() {
                 }
             }
 
-            // Sort ALL data by XP for unified leaderboard to find true global rank
+            // Recalculate true XP from components (50 per upload, 50 per referral, + coding XP)
+            mergedUsers.forEach(u => {
+                u.xp = ((u.uploads || 0) * 50) + ((u.referral_count || 0) * 50) + (u.coding_xp || 0);
+            });
+
+            // Sort ALL data by calculated XP for unified leaderboard to find true global rank
             const sortedData = mergedUsers.sort((a, b) => (b.xp || 0) - (a.xp || 0));
             window.currentLeaderboardData = sortedData;
 

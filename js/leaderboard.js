@@ -343,8 +343,16 @@ function updateLeaderboardUI(type, timeframe) {
                     }
                 }
             } else {
-                const { data, error } = await supabase.from('users').select('*').order(orderField, { ascending: false }).limit(20);
-                if (!error && data) renderLeaderboardData(data, type, orderField);
+                const { data, error } = await supabase.from('users').select('*');
+                if (!error && data) {
+                    if (orderField === 'xp') {
+                        data.forEach(u => {
+                            u.xp = ((u.uploads || 0) * 50) + ((u.referral_count || 0) * 50) + (u.coding_xp || 0);
+                        });
+                    }
+                    const sortedData = data.sort((a, b) => (b[orderField] || 0) - (a[orderField] || 0)).slice(0, 20);
+                    renderLeaderboardData(sortedData, type, orderField);
+                }
             }
         };
         fetchAndRender();
