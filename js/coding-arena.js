@@ -2809,6 +2809,7 @@ async function handleProblemSolved(isPractice = false, awardedXp = 0) {
         // Show a beautiful completion popup on the screen instead of kicking them out
         const container = document.querySelector('.coding-arena-container');
         if (container) {
+            const pTitle = (window.caCodingProblems && window.caActiveProblemIndex !== null && window.caCodingProblems[window.caActiveProblemIndex]) ? window.caCodingProblems[window.caActiveProblemIndex].title : 'the problem';
             const popup = document.createElement('div');
             popup.style = `
                 position: absolute;
@@ -2825,12 +2826,12 @@ async function handleProblemSolved(isPractice = false, awardedXp = 0) {
                 <div style="background: #0a0a0a; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 40px; text-align: center; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); transform: translateY(20px); animation: caSlideUp 0.5s ease forwards;">
                     <div style="font-size: 60px; margin-bottom: 20px;">🎉</div>
                     <h2 style="color: #2ed573; margin: 0 0 10px 0; font-size: 28px;">${isPractice ? 'Practice Completed!' : 'Problem Solved!'}</h2>
-                    <p style="color: #a3a3a3; font-size: 15px; margin-bottom: 30px;">Excellent work! You successfully solved <b>${problem.title}</b>.</p>
+                    <p style="color: #a3a3a3; font-size: 15px; margin-bottom: 30px;">Excellent work! You successfully solved <b>${pTitle}</b>.</p>
                     
                     <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 30px;">
                         <div style="background: rgba(46, 213, 115, 0.1); border: 1px solid rgba(46, 213, 115, 0.2); padding: 15px 25px; border-radius: 12px;">
                             <div style="color: #8c8c8c; font-size: 12px; font-weight: 600; text-transform: uppercase;">XP Earned</div>
-                            <div style="color: #2ed573; font-size: 24px; font-weight: bold;">+${isPractice ? 0 : problem.xp}</div>
+                            <div style="color: #2ed573; font-size: 24px; font-weight: bold;">+${isPractice ? 0 : awardedXp}</div>
                         </div>
                         <div style="background: rgba(255, 192, 30, 0.1); border: 1px solid rgba(255, 192, 30, 0.2); padding: 15px 25px; border-radius: 12px;">
                             <div style="color: #8c8c8c; font-size: 12px; font-weight: 600; text-transform: uppercase;">Streak</div>

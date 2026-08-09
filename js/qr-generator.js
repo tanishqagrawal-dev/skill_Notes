@@ -199,8 +199,7 @@ window.initQrGenerator = function() {
             
             // Custom premium fallback for local/own domain
             if (hostname.toLowerCase().includes('aurex') || hostname.toLowerCase().includes('skilmatrix') || hostname === 'localhost') {
-                const firstLetter = hostname.toLowerCase().includes('aurex') ? 'A' : 'S';
-                iconUrl = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%237c6aef"/><stop offset="100%" stop-color="%234ecdc4"/></linearGradient></defs><circle cx="50" cy="50" r="48" fill="%23090514" stroke="url(%23g)" stroke-width="4"/><text x="50" y="72" font-family="sans-serif" font-weight="900" font-size="65" fill="url(%23g)" text-anchor="middle">${firstLetter}</text></svg>`;
+                iconUrl = window.location.origin + '/assets/logo.jpg';
             } else {
                 // Use unavatar.io natively - it has built-in CORS support and is ultra-fast!
                 let displayHost = hostname.replace(/^www\./i, '');
