@@ -52,6 +52,10 @@
     <link rel="preconnect" href="https://unpkg.com">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://www.googletagmanager.com">
+    
+    <!-- Preloads for LCP -->
+    <link rel="preload" as="image" href="assets/students_hero.png">
+
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&family=Poppins:wght@600;700&display=swap"
         rel="stylesheet">
@@ -68,7 +72,7 @@
     <script src="https://unpkg.com/lucide@latest" defer></script>
 
     <!-- Payment Integration -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
     <script src="js/payment.js" defer></script>
     <script>
     // Dynamically update pricing from backend on page load
@@ -151,7 +155,7 @@
                     
                     <!-- Branded Real Students Image Scene (100% Fixed & Immovable) -->
                     <div class="students-scene-wrapper">
-                        <img src="assets/students_hero.png" alt="SKiL MATRiX NOTES Students Study Scene" class="students-scene-img" />
+                        <img src="assets/students_hero.png" alt="SKiL MATRiX NOTES Students Study Scene" class="students-scene-img" fetchpriority="high" decoding="sync" />
                         <div class="students-scene-vignette"></div>
                     </div>
                 </div>
