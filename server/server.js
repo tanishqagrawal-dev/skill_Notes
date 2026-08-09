@@ -731,7 +731,7 @@ app.get('/api/share/:id', async (req, res) => {
             const { data, error } = await supabase.from('approved_notes').select('*').eq('id', noteId).single();
             if (data && !error) {
                 title = `${data.unit_number ? data.unit_number + ' - ' : ''}${data.title}`;
-                description = `Study notes for ${data.subject || 'your subject'} uploaded by ${data.uploader_name || 'Verified'}.`;
+                description = `Study notes for ${data.subject || 'your subject'} on SKiL MATRiX.`;
             }
         }
 
