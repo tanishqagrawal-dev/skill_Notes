@@ -152,7 +152,7 @@ window.copyShareLink = async function (btnElement) {
 window.shareResource = function (id) {
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const baseUrl = isLocal ? window.location.origin : 'https://skilmatrix.site';
-    const url = baseUrl + '/pages/view?id=' + id;
+    const url = baseUrl + '/share/' + id;
     
     if (navigator.share) {
         navigator.share({

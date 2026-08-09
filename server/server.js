@@ -693,6 +693,83 @@ app.get('/api/get-random-paper', (req, res) => {
     }
 });
 
+// Dynamic WhatsApp Open Graph Link Sharing
+app.get('/api/share/:id', async (req, res) => {
+    try {
+        const noteId = req.params.id;
+        let title = "Academic Resource";
+        let description = "Access free study notes, PYQs, and formula sheets on SKiL MATRiX.";
+        let image = "https://skilmatrix.site/assets/skilmatrix_og_premium.png";
+
+        let found = false;
+
+        // 1. Check static notes
+        try {
+            const globalNotesContent = fs.readFileSync(path.join(__dirname, '../data/globalNotes.js'), 'utf8');
+            const getGlobalNotes = new Function(globalNotesContent.replace('export const globalNotes =', 'return '));
+            const globalNotes = getGlobalNotes();
+            
+            for (const college in globalNotes) {
+                for (const subject in globalNotes[college]) {
+                    const notes = globalNotes[college][subject];
+                    const note = notes.find(n => n.id === noteId);
+                    if (note) {
+                        title = `${note.unit ? note.unit + ' - ' : ''}${note.title || note.subjectName}`;
+                        description = `Study notes for ${note.subject || note.subjectName} on SKiL MATRiX.`;
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+        } catch(e) {
+            console.error("Failed to read static notes for share:", e);
+        }
+
+        // 2. Check Supabase for user uploaded notes
+        if (!found && supabase) {
+            const { data, error } = await supabase.from('approved_notes').select('*').eq('id', noteId).single();
+            if (data && !error) {
+                title = `${data.unit_number ? data.unit_number + ' - ' : ''}${data.title}`;
+                description = `Study notes for ${data.subject || 'your subject'} uploaded by ${data.uploader_name || 'Verified'}.`;
+            }
+        }
+
+        const cleanTitle = title.replace(/"/g, '&quot;');
+        const cleanDesc = description.replace(/"/g, '&quot;');
+
+        const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://skilmatrix.site/share/${noteId}" />
+    <meta property="og:site_name" content="SKiL MATRiX Notes" />
+    <meta property="og:title" content="${cleanTitle}" />
+    <meta property="og:description" content="${cleanDesc}" />
+    <meta property="og:image" content="${image}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${cleanTitle}" />
+    <meta name="twitter:description" content="${cleanDesc}" />
+    <meta name="twitter:image" content="${image}" />
+    <title>${cleanTitle} | Redirecting...</title>
+    <script>
+        window.location.replace("https://skilmatrix.site/pages/view?id=${noteId}");
+    </script>
+</head>
+<body style="background:#0a0a0a; color:#fff; font-family:sans-serif; display:flex; justify-content:center; align-items:center; height:100vh;">
+    <p>Redirecting to <a href="https://skilmatrix.site/pages/view?id=${noteId}" style="color:#00d2ff;">${cleanTitle}</a>...</p>
+</body>
+</html>`;
+        res.send(html);
+    } catch (e) {
+        console.error("Share endpoint error:", e);
+        res.redirect(`https://skilmatrix.site/pages/view?id=${req.params.id}`);
+    }
+});
+
 // Wildcard 404 Handler - Serves our Ultra Premium Personalized 404 Page
 app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, '../404.html'));

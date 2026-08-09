@@ -8,5 +8,8 @@ https://skillnotes.netlify.app/* https://skilmatrix.site/:splat 301!
 # 2. General clean URL support (200)
 /pages/*               /pages/:splat.html       200
 
-# 3. Global 404 fallback
+# 3. Dynamic WhatsApp Share Proxy
+/share/*  https://skil-matrix-server.onrender.com/api/share/:splat  200
+
+# 4. Global 404 fallback
 /*                     /404.html              404
