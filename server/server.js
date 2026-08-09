@@ -699,7 +699,7 @@ app.get('/api/share/:id', async (req, res) => {
         const noteId = req.params.id;
         let title = "Academic Resource";
         let description = "Access free study notes, PYQs, and formula sheets on SKiL MATRiX.";
-        let image = "https://skilmatrix.site/assets/skilmatrix_og_premium.jpg?v=fresh12";
+        let image = "https://skilmatrix.site/assets/skilmatrix_og_final.jpg";
 
         let found = false;
 
@@ -743,7 +743,6 @@ app.get('/api/share/:id', async (req, res) => {
 <head>
     <meta charset="UTF-8">
     <meta property="og:type" content="article" />
-    <meta property="og:url" content="https://skilmatrix.site/share/${noteId}" />
     <meta property="og:site_name" content="SKiL MATRiX Notes" />
     <meta property="og:title" content="${cleanTitle}" />
     <meta property="og:description" content="${cleanDesc}" />
