@@ -699,7 +699,7 @@ app.get('/api/share/:id', async (req, res) => {
         const noteId = req.params.id;
         let title = "Academic Resource";
         let description = "Access free study notes, PYQs, and formula sheets on SKiL MATRiX.";
-        let image = "https://skilmatrix.site/assets/skilmatrix_og_premium.jpg?v=fresh10";
+        let image = "https://skilmatrix.site/assets/skilmatrix_og_premium.jpg?v=fresh12";
 
         let found = false;
 
@@ -754,13 +754,17 @@ app.get('/api/share/:id', async (req, res) => {
     <meta name="twitter:title" content="${cleanTitle}" />
     <meta name="twitter:description" content="${cleanDesc}" />
     <meta name="twitter:image" content="${image}" />
-    <title>${cleanTitle} | Redirecting...</title>
+    <meta http-equiv="refresh" content="0;url=https://skilmatrix.site/pages/view?id=${noteId}">
+    <title>${cleanTitle} | SKiL MATRiX</title>
+</head>
+<body style="background-color: #0f111a; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <div style="text-align: center;">
+        <h2>Redirecting to ${cleanTitle}...</h2>
+        <p>If you are not redirected automatically, <a href="https://skilmatrix.site/pages/view?id=${noteId}" style="color: #00d2ff;">click here</a>.</p>
+    </div>
     <script>
         window.location.replace("https://skilmatrix.site/pages/view?id=${noteId}");
     </script>
-</head>
-<body style="background:#0a0a0a; color:#fff; font-family:sans-serif; display:flex; justify-content:center; align-items:center; height:100vh;">
-    <p>Redirecting to <a href="https://skilmatrix.site/pages/view?id=${noteId}" style="color:#00d2ff;">${cleanTitle}</a>...</p>
 </body>
 </html>`;
         res.send(html);
