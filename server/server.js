@@ -699,7 +699,7 @@ app.get('/api/share/:id', async (req, res) => {
         const noteId = req.params.id;
         let title = "Academic Resource";
         let description = "Access free study notes, PYQs, and formula sheets on SKiL MATRiX.";
-        let image = "https://skilmatrix.site/assets/skilmatrix_og_premium.png";
+        let image = "https://skilmatrix.site/assets/skilmatrix_og_premium.png?v=fresh2";
 
         let found = false;
 
