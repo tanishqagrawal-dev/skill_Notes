@@ -643,60 +643,12 @@ const CACHE_FILE = path.join(CACHE_DIR, 'cached_papers.json');
 if (!fs.existsSync(CACHE_DIR)) fs.mkdirSync(CACHE_DIR, { recursive: true });
 if (!fs.existsSync(CACHE_FILE)) fs.writeFileSync(CACHE_FILE, JSON.stringify([]));
 
-// Serve Static Files (The Frontend)
-app.use(express.static(path.join(__dirname, '../'), { extensions: ['html'] }));
-
-// Save generated paper to local cache
-app.post('/api/save-paper', (req, res) => {
+// Intercept views to inject Dynamic WhatsApp Open Graph tags
+const serveDynamicView = async (req, res, next) => {
     try {
-        const { subjectId, subjectName, examType, content } = req.body;
-        const data = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
-        
-        // Add new paper
-        console.log(`📝 Saving paper to cache: ${subjectName} (${examType})`);
-        data.push({
-            id: Date.now(),
-            subjectId,
-            subjectName,
-            examType,
-            content,
-            createdAt: new Date().toISOString()
-        });
-        
-        // Keep only last 100 papers or so to avoid huge files
-        if (data.length > 200) data.shift();
-        
-        fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2));
-        res.json({ success: true, message: "Paper saved to local cache" });
-    } catch (e) {
-        console.error("Save Cache Error:", e);
-        res.status(500).json({ error: "Failed to save to local cache" });
-    }
-});
+        const noteId = req.params.id || req.query.id;
+        if (!noteId) return next();
 
-// Get random paper from local cache (Fallback)
-app.get('/api/get-random-paper', (req, res) => {
-    try {
-        const { subjectId, examType } = req.query;
-        const data = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
-        
-        const matches = data.filter(p => p.subjectId === subjectId && p.examType === examType);
-        
-        if (matches.length === 0) {
-            return res.status(404).json({ error: "No cached papers found for this subject/type" });
-        }
-        
-        const randomPaper = matches[Math.floor(Math.random() * matches.length)];
-        res.json({ success: true, paper: randomPaper.content });
-    } catch (e) {
-        res.status(500).json({ error: "Failed to read local cache" });
-    }
-});
-
-// Dynamic WhatsApp Open Graph Link Sharing
-app.get('/api/share/:id', async (req, res) => {
-    try {
-        const noteId = req.params.id;
         let title = "Academic Resource";
         let description = "Access free study notes, PYQs, and formula sheets on SKiL MATRiX.";
         let image = "https://skilmatrix.site/assets/skilmatrix_og_final.jpg";
@@ -780,9 +732,63 @@ app.get('/api/share/:id', async (req, res) => {
         res.send(finalHtml);
     } catch (e) {
         console.error("Share endpoint error:", e);
-        res.redirect(`https://skilmatrix.site/pages/view?id=${req.params.id}`);
+        next();
+    }
+};
+
+app.get('/api/share/:id', serveDynamicView);
+app.get(['/pages/view', '/pages/view.html'], serveDynamicView);
+
+// Serve Static Files (The Frontend)
+app.use(express.static(path.join(__dirname, '../'), { extensions: ['html'] }));
+
+// Save generated paper to local cache
+app.post('/api/save-paper', (req, res) => {
+    try {
+        const { subjectId, subjectName, examType, content } = req.body;
+        const data = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+        
+        // Add new paper
+        console.log(`📝 Saving paper to cache: ${subjectName} (${examType})`);
+        data.push({
+            id: Date.now(),
+            subjectId,
+            subjectName,
+            examType,
+            content,
+            createdAt: new Date().toISOString()
+        });
+        
+        // Keep only last 100 papers or so to avoid huge files
+        if (data.length > 200) data.shift();
+        
+        fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2));
+        res.json({ success: true, message: "Paper saved to local cache" });
+    } catch (e) {
+        console.error("Save Cache Error:", e);
+        res.status(500).json({ error: "Failed to save to local cache" });
     }
 });
+
+// Get random paper from local cache (Fallback)
+app.get('/api/get-random-paper', (req, res) => {
+    try {
+        const { subjectId, examType } = req.query;
+        const data = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+        
+        const matches = data.filter(p => p.subjectId === subjectId && p.examType === examType);
+        
+        if (matches.length === 0) {
+            return res.status(404).json({ error: "No cached papers found for this subject/type" });
+        }
+        
+        const randomPaper = matches[Math.floor(Math.random() * matches.length)];
+        res.json({ success: true, paper: randomPaper.content });
+    } catch (e) {
+        res.status(500).json({ error: "Failed to read local cache" });
+    }
+});
+
 
 // Wildcard 404 Handler - Serves our Ultra Premium Personalized 404 Page
 app.use((req, res) => {
