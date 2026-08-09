@@ -3818,13 +3818,13 @@ function renderAITools() {
                     <!-- Initial AI Greeting -->
                     <div class="chat-message ai-msg">
                         <div class="msg-avatar"><i class="fas fa-robot"></i></div>
-                        <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; flex-direction: row; align-items: flex-end; gap: 10px;">
                             <div class="msg-bubble">
                                 <span class="desktop-greeting">Hello! I am your <strong>SKiL Matrix AI Coach</strong>. How can I assist your learning today?</span>
                                 <span class="mobile-greeting">How can I assist you today?</span>
                             </div>
                             <div class="ai-msg-actions">
-                                <button class="ai-action-icon" onclick="window.copyAIBubbleText(this)"><i class="far fa-copy"></i> Copy</button>
+                                <button class="ai-action-icon" onclick="window.copyAIBubbleText(this)" title="Copy text" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: #8f9bb3; cursor: pointer; transition: all 0.2s; padding: 0;"><i class="far fa-copy" style="font-size: 1rem;"></i></button>
                             </div>
                         </div>
                     </div>
@@ -4093,12 +4093,12 @@ window.handleAIChatSubmit = async function(e) {
         historyBox.innerHTML += `
             <div class="chat-message ai-msg">
                 <div class="msg-avatar"><i class="fas fa-robot"></i></div>
-                <div style="display: flex; flex-direction: column;">
+                <div style="display: flex; flex-direction: row; align-items: flex-end; gap: 10px;">
                     <div class="msg-bubble">
                         ${window.marked && window.marked.parse ? marked.parse(answer) : answer.replace(/\n/g, '<br>')}
                     </div>
                     <div class="ai-msg-actions">
-                        <button class="ai-action-icon" onclick="window.copyAIBubbleText(this)"><i class="far fa-copy"></i> Copy</button>
+                        <button class="ai-action-icon" onclick="window.copyAIBubbleText(this)" title="Copy text" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: #8f9bb3; cursor: pointer; transition: all 0.2s; padding: 0;"><i class="far fa-copy" style="font-size: 1rem;"></i></button>
                     </div>
                 </div>
             </div>

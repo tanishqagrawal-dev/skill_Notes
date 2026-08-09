@@ -1021,18 +1021,25 @@
             // Fixed horizontal center line for the lightning to travel down
             const centerX = containerRect.width / 2;
             
+            const isMobile = window.innerWidth <= 768;
+
             cards.forEach((card, index) => {
                 const rect = card.getBoundingClientRect();
                 
-                // Target the icon for the connection point
-                const icon = card.querySelector('.step-icon-container');
                 let targetX = rect.left - containerRect.left + rect.width / 2;
                 let targetY = rect.top - containerRect.top + rect.height / 2;
                 
-                if (icon) {
+                // On desktop, connect to the icons to create the zigzag effect. 
+                // On mobile, lock the rope to the center of the cards for a symmetrical central spine.
+                const icon = card.querySelector('.step-icon-container');
+                if (icon && !isMobile) {
                     const iconRect = icon.getBoundingClientRect();
                     targetX = iconRect.left - containerRect.left + iconRect.width / 2;
                     targetY = iconRect.top - containerRect.top + iconRect.height / 2;
+                }
+                
+                if (isMobile) {
+                    targetX = centerX;
                 }
                 
                 if (index === 0) {
@@ -1050,15 +1057,28 @@
                 } else {
                     const midY = prevY + (targetY - prevY) / 2;
                     
-                    // Draw a complex multi-curve path crossing the center
-                    d += `C ${prevX} ${prevY + 40}, ${centerX} ${midY - 40}, ${centerX} ${midY} `;
-                    d += `S ${targetX} ${targetY - 40}, ${targetX} ${targetY} `;
-                    
-                    dS1 += `C ${prevX-10} ${prevY + 50}, ${centerX-30} ${midY - 50}, ${centerX-15} ${midY} `;
-                    dS1 += `S ${targetX-10} ${targetY - 30}, ${targetX-5} ${targetY} `;
-                    
-                    dS2 += `C ${prevX+10} ${prevY + 30}, ${centerX+25} ${midY - 30}, ${centerX+10} ${midY} `;
-                    dS2 += `S ${targetX+10} ${targetY - 50}, ${targetX+5} ${targetY} `;
+                    if (isMobile) {
+                        // Swing elegantly into the exact center of the screen 
+                        // in the gap between the cards, keeping the design perfectly centered.
+                        d += `C ${prevX} ${prevY + 40}, ${centerX} ${midY - 40}, ${centerX} ${midY} `;
+                        d += `S ${targetX} ${targetY - 40}, ${targetX} ${targetY} `;
+                        
+                        dS1 += `C ${prevX-10} ${prevY + 50}, ${centerX-15} ${midY - 50}, ${centerX-5} ${midY} `;
+                        dS1 += `S ${targetX-10} ${targetY - 30}, ${targetX-5} ${targetY} `;
+                        
+                        dS2 += `C ${prevX+10} ${prevY + 30}, ${centerX+15} ${midY - 30}, ${centerX+5} ${midY} `;
+                        dS2 += `S ${targetX+10} ${targetY - 50}, ${targetX+5} ${targetY} `;
+                    } else {
+                        // Draw a complex multi-curve path crossing the center for desktop zigzag
+                        d += `C ${prevX} ${prevY + 40}, ${centerX} ${midY - 40}, ${centerX} ${midY} `;
+                        d += `S ${targetX} ${targetY - 40}, ${targetX} ${targetY} `;
+                        
+                        dS1 += `C ${prevX-10} ${prevY + 50}, ${centerX-30} ${midY - 50}, ${centerX-15} ${midY} `;
+                        dS1 += `S ${targetX-10} ${targetY - 30}, ${targetX-5} ${targetY} `;
+                        
+                        dS2 += `C ${prevX+10} ${prevY + 30}, ${centerX+25} ${midY - 30}, ${centerX+10} ${midY} `;
+                        dS2 += `S ${targetX+10} ${targetY - 50}, ${targetX+5} ${targetY} `;
+                    }
                 }
                 
                 // If it's the last card, draw a tail going down to the center

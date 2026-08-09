@@ -2218,8 +2218,8 @@ input:checked+.toggle-slider:before {
         position: fixed;
         top: 0;
         right: -100%;
-        width: 200px;
-        /* Reduced horizontal length */
+        width: 280px;
+        /* Increased horizontal length for better branding fit */
         height: 100vh;
         background: rgba(8, 10, 17, 0.75);
         /* Glassy background */
@@ -2230,7 +2230,7 @@ input:checked+.toggle-slider:before {
         justify-content: flex-start;
         align-items: stretch;
         gap: 0.5rem;
-        padding: 5rem 1.5rem 2rem;
+        padding: 2rem 1.5rem 2rem;
         transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 10000;
         border-radius: 24px 0 0 24px;
@@ -2258,29 +2258,103 @@ input:checked+.toggle-slider:before {
     .nav-menu-items a {
         width: 100%;
         text-align: left;
-        padding: 0.85rem 1.2rem;
+        padding: 0.9rem 1.25rem !important;
         border-radius: 12px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: var(--text-muted);
-        transition: all 0.3s ease;
-        border: 1px solid transparent;
+        font-size: 0.98rem !important;
+        font-weight: 700 !important;
+        color: rgba(255, 255, 255, 0.8) !important;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-left: 3px solid rgba(123, 97, 255, 0.4) !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         display: flex;
         align-items: center;
         gap: 12px;
+        margin-bottom: 0.6rem !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
     }
 
     .nav-links a:hover,
     .nav-menu-items a:hover {
-        background: rgba(255, 255, 255, 0.03);
-        color: #fff;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%) !important;
+        border-color: rgba(0, 242, 255, 0.2) !important;
+        border-left: 3px solid #00f2ff !important;
+        color: #ffffff !important;
+        box-shadow: 0 8px 25px rgba(0, 242, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+        transform: translateY(-2px) translateX(4px) !important;
     }
 
     .nav-links a.active,
     .nav-menu-items a.active {
-        background: rgba(123, 97, 255, 0.1);
-        color: var(--primary-light);
-        border-color: rgba(123, 97, 255, 0.2);
+        background: linear-gradient(90deg, rgba(123, 97, 255, 0.15), rgba(0, 242, 255, 0.05)) !important;
+        color: #00f2ff !important;
+        border-color: rgba(123, 97, 255, 0.3) !important;
+        border-left: 3px solid #00f2ff !important;
+        box-shadow: 0 4px 20px rgba(0, 242, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    }
+
+    #nav-links .dropdown-item {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-left: 3px solid rgba(123, 97, 255, 0.4) !important;
+        margin-bottom: 0.5rem !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    }
+
+    #nav-links .dropdown-item:hover {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%) !important;
+        border-color: rgba(0, 242, 255, 0.2) !important;
+        border-left: 3px solid #00f2ff !important;
+        box-shadow: 0 8px 25px rgba(0, 242, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+        transform: translateY(-2px) translateX(4px) !important;
+    }
+
+    .nav-links a.logout-btn {
+        background: rgba(255, 71, 87, 0.08) !important;
+        border: 1px solid rgba(255, 71, 87, 0.25) !important;
+        color: #ff4757 !important;
+        margin: 1.5rem auto 1rem auto !important;
+        width: max-content !important;
+        padding: 0.6rem 1.25rem !important;
+        font-size: 0.85rem !important;
+        border-radius: 20px !important;
+        justify-content: center;
+    }
+
+    .nav-links a.logout-btn i {
+        color: #ff4757 !important;
+    }
+
+    .nav-links a.logout-btn:hover {
+        background: rgba(255, 71, 87, 0.15) !important;
+        border-color: rgba(255, 71, 87, 0.4) !important;
+        box-shadow: inset 3px 0 0 #ff4757 !important;
+        color: #ff4757 !important;
+    }
+
+    .nav-links a.login-btn {
+        background: rgba(0, 242, 255, 0.08) !important;
+        border: 1px solid rgba(0, 242, 255, 0.25) !important;
+        color: #00f2ff !important;
+        margin: 1.5rem auto 1rem auto !important;
+        width: max-content !important;
+        padding: 0.6rem 1.25rem !important;
+        font-size: 0.85rem !important;
+        border-radius: 20px !important;
+        justify-content: center;
+    }
+
+    .nav-links a.login-btn i {
+        color: #00f2ff !important;
+    }
+
+    .nav-links a.login-btn:hover {
+        background: rgba(0, 242, 255, 0.15) !important;
+        border-color: rgba(0, 242, 255, 0.4) !important;
+        box-shadow: inset 3px 0 0 #00f2ff !important;
+        color: #00f2ff !important;
     }
 
     .nav-actions {
@@ -2293,18 +2367,27 @@ input:checked+.toggle-slider:before {
 
     .logo-text-wrapper {
         flex-direction: column !important;
-        align-items: flex-start !important;
+        align-items: center !important;
         gap: 2px !important;
     }
 
     .nav-actions .profile-dropdown-container {
         display: block !important;
-        order: -1;
-        /* Place it before the Crown on mobile */
+        /* Default order places it after the Crown on mobile */
     }
 
     #mobile-profile-container {
+        display: block !important;
+    }
+
+    #mobile-profile-container .profile-dropdown-link:not(.logout-btn):not(.login-btn),
+    #mobile-profile-container hr,
+    #mobile-profile-container div[style*="height: 1px"] {
         display: none !important;
+    }
+
+    .mobile-sidebar-branding {
+        display: flex !important;
     }
 
     .nav-actions .premium-text {
@@ -3688,16 +3771,16 @@ div[style*="background-color: rgb(7, 204, 137)"],
 .sidebar-close-btn {
     display: none;
     position: absolute;
-    top: 55px;
-    /* Shifted lower to align right beside the NOTES text */
+    top: 25px;
+    /* Aligned neatly beside branding */
     right: 20px;
     left: auto;
     width: 36px;
     height: 36px;
-    font-size: 2.5rem;
-    color: var(--primary);
-    text-shadow: 0 0 12px var(--primary), 0 0 24px var(--primary);
-    /* Intense purple glow */
+    font-size: 2.2rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-shadow: none;
+    /* Clean, non-glowing style */
     background: transparent;
     border: none;
     align-items: center;
@@ -3705,8 +3788,8 @@ div[style*="background-color: rgb(7, 204, 137)"],
     cursor: pointer;
     z-index: 1050;
     line-height: 0;
-    font-weight: 800;
-    /* Bold effect */
+    font-weight: 300;
+    /* Thinner effect */
     transition: var(--transition-fast);
 }
 
@@ -4837,10 +4920,14 @@ div[style*="background-color: rgb(7, 204, 137)"],
     }
 
     .step-card-premium {
-        padding: 1.5rem 1.25rem;
-        border-radius: 24px;
         width: 92%;
         margin: 0 auto;
+        padding: 1px;
+    }
+
+    .step-card-inner {
+        padding: 1.25rem 1rem;
+        border-radius: 15px;
     }
 
     .step-number-premium {

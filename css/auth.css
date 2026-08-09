@@ -294,17 +294,28 @@ body {
     position: absolute;
     top: 2rem;
     left: 2rem;
-    color: var(--text-dim);
+    color: var(--text-main);
     text-decoration: none;
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 0.9rem;
-    transition: color 0.3s;
+    font-weight: 600;
+    padding: 0.5rem 1.2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    z-index: 100;
 }
 
 .back-link:hover {
-    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(-4px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* Role Toggle Switch */
@@ -403,9 +414,10 @@ body {
     }
 
     .back-link {
-        top: 0.5rem;
-        left: 0.5rem;
-        font-size: 0.75rem;
+        top: 1.5rem;
+        left: 1rem;
+        font-size: 0.8rem;
+        padding: 0.4rem 1rem;
     }
 }
 

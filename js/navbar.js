@@ -54,8 +54,10 @@ function renderNavbar() {
                 </div>
                 <!-- CENTER ZONE: Nav links truly centered -->
                 <div class="nav-links" id="nav-links">
-                    <div class="mobile-close-btn" id="mobile-close-btn">&times;</div>
-                    <div id="mobile-profile-container" style="display: none;"></div>
+                    <div class="mobile-sidebar-branding" style="display: none; align-items: flex-start; justify-content: space-between; width: 100%; box-sizing: border-box; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08);">
+                        <div id="mobile-profile-container" style="flex: 1; margin-bottom: 0; display: flex; flex-direction: column;"></div>
+                        <div class="mobile-close-btn" id="mobile-close-btn" style="font-size: 2.2rem; color: rgba(255, 255, 255, 0.6); text-shadow: none; font-weight: 300; cursor: pointer; padding: 0; line-height: 1; margin-left: 15px; margin-top: 5px;">&times;</div>
+                    </div>
                     <div class="nav-menu-items">
                         <a href="${getLinkPath('pages/dashboard')}#/notes" class="${currentPage === 'dashboard' && window.location.hash.includes('notes') ? 'active' : ''}">Notes Hub</a>
                         <div class="nav-dropdown" id="tools-dropdown-container">
@@ -243,7 +245,7 @@ function updateNavbarAuthButton(basePath) {
             }
 
             const dropdownHtml = `
-                <div class="dropdown-profile-header" style="position: relative; padding: 0.65rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.3rem; display: flex; align-items: center; gap: 10px; border: 1px solid transparent;">
+                <div class="dropdown-profile-header" onclick="window.location.href='${basePath}pages/dashboard?tab=profile'" style="cursor: pointer; position: relative; padding: 0.65rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.3rem; display: flex; align-items: center; gap: 10px; border: 1px solid transparent; transition: all 0.2s ease;">
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(123, 97, 255, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; position: relative;">
                         ${userPhoto ? `<img src="${userPhoto}" referrerpolicy="no-referrer" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.parentElement.innerHTML=\`${defaultSvg}\`">` : defaultSvg}
                     </div>
@@ -253,14 +255,14 @@ function updateNavbarAuthButton(basePath) {
                     </div>
                 </div>
                 <a href="${basePath}pages/dashboard?tab=profile" class="profile-dropdown-link" style="display: flex; align-items: center; gap: 10px; padding: 0.6rem 0.8rem; color: #e2e8f0; text-decoration: none; font-size: 0.88rem; font-weight: 600; border-radius: 10px; transition: all 0.2s ease;">
-                    <span>👤</span> Profile
+                    <i class="fa-regular fa-user" style="font-size: 0.95rem; width: 20px; text-align: center; color: rgba(255, 255, 255, 0.5);"></i> Profile
                 </a>
                 <a href="${basePath}pages/dashboard" class="profile-dropdown-link" style="display: flex; align-items: center; gap: 10px; padding: 0.6rem 0.8rem; color: #e2e8f0; text-decoration: none; font-size: 0.88rem; font-weight: 600; border-radius: 10px; transition: all 0.2s ease;">
-                    <span>📊</span> Dashboard
+                    <i class="fa-solid fa-chart-line" style="font-size: 0.95rem; width: 20px; text-align: center; color: rgba(255, 255, 255, 0.5);"></i> Dashboard
                 </a>
                 <div style="height: 1px; background: rgba(255,255,255,0.08); margin: 0.3rem 0;"></div>
                 <a href="javascript:void(0)" class="profile-dropdown-link logout-btn" style="display: flex; align-items: center; gap: 10px; padding: 0.6rem 0.8rem; color: #ff4757; text-decoration: none; font-size: 0.88rem; font-weight: 700; border-radius: 10px; transition: all 0.2s ease;">
-                    <span>🚪</span> Logout
+                    <i class="fa-solid fa-power-off" style="font-size: 0.95rem; width: 20px; text-align: center; color: rgba(255, 71, 87, 0.7);"></i> Logout
                 </a>
             `;
 
@@ -340,12 +342,19 @@ function updateNavbarAuthButton(basePath) {
             profileBtn.style.boxShadow = '0 0 15px rgba(123, 97, 255, 0.15)';
 
             const loginHtml = `
-                <div style="padding: 0.6rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.3rem;">
-                    <div style="font-weight: 700; color: #ffffff; font-size: 0.88rem;">Welcome Student</div>
-                    <div style="font-size: 0.72rem; color: #8f9bb3;">Log in to access your tools</div>
+                <div class="dropdown-profile-header guest-header" style="position: relative; padding: 0.65rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 12px; border: 1px solid transparent;">
+                    <div style="width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, rgba(123,97,255,0.15), rgba(0,242,255,0.15)); border: 1px solid rgba(0,242,255,0.3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 12px rgba(0,242,255,0.15);">
+                        <i class="fa-solid fa-user-astronaut" style="font-size: 1.1rem; color: #00f2ff;"></i>
+                    </div>
+                    <div style="overflow: hidden; display: flex; flex-direction: column; gap: 2px;">
+                        <div style="font-weight: 800; font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <span style="color: #ffffff;">Welcome,</span> <span style="background: linear-gradient(135deg, #a78bfa, #00f2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Student</span>
+                        </div>
+                        <div style="font-size: 0.72rem; color: #8f9bb3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">Log in to access your tools</div>
+                    </div>
                 </div>
-                <a href="${authPath}" class="profile-dropdown-link" style="display: flex; align-items: center; gap: 10px; padding: 0.6rem 0.8rem; color: #00f2ff; text-decoration: none; font-size: 0.88rem; font-weight: 700; border-radius: 10px; transition: all 0.2s ease; background: rgba(0, 242, 255, 0.08);">
-                    <span>🔑</span> Sign Up / Login
+                <a href="${authPath}" class="profile-dropdown-link login-btn" style="display: flex; align-items: center; gap: 10px; padding: 0.6rem 0.8rem; color: #00f2ff; text-decoration: none; font-size: 0.88rem; font-weight: 700; border-radius: 10px; transition: all 0.2s ease; background: rgba(0, 242, 255, 0.08);">
+                    <i class="fa-solid fa-right-to-bracket" style="font-size: 0.95rem; width: 20px; text-align: center; color: #00f2ff;"></i> Sign Up / Login
                 </a>
             `;
             
