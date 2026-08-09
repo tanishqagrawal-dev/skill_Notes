@@ -475,7 +475,9 @@
         window.shareNote = function() {
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             const baseUrl = isLocal ? window.location.origin : 'https://skilmatrix.site';
-            const url = baseUrl + window.location.pathname + window.location.search;
+            const urlParams = new URLSearchParams(window.location.search);
+            const noteId = urlParams.get('id');
+            const url = noteId ? (baseUrl + '/share/' + noteId) : (baseUrl + window.location.pathname + window.location.search);
 
             if (navigator.share) {
                 navigator.share({
