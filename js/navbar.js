@@ -223,8 +223,27 @@ function updateNavbarAuthButton(basePath) {
         if (isLoggedIn) {
             setAvatar(userPhoto, userName);
 
+            // Inject premium animation styles globally if not present
+            if (!document.getElementById('nav-premium-styles')) {
+                const pStyle = document.createElement('style');
+                pStyle.id = 'nav-premium-styles';
+                pStyle.textContent = `
+                    @keyframes premiumBorderPulse {
+                        0%, 100% { border-color: rgba(255, 215, 0, 0.3); box-shadow: 0 0 8px rgba(255, 215, 0, 0.1); }
+                        50% { border-color: rgba(255, 215, 0, 0.8); box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
+                    }
+                    .premium-dropdown-header {
+                        animation: premiumBorderPulse 3s ease-in-out infinite !important;
+                        border: 1px solid rgba(255, 215, 0, 0.3) !important;
+                        border-radius: 12px;
+                        margin: 0.2rem;
+                    }
+                `;
+                document.head.appendChild(pStyle);
+            }
+
             const dropdownHtml = `
-                <div style="padding: 0.65rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.3rem; display: flex; align-items: center; gap: 10px;">
+                <div class="dropdown-profile-header" style="position: relative; padding: 0.65rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.3rem; display: flex; align-items: center; gap: 10px; border: 1px solid transparent;">
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(123, 97, 255, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; position: relative;">
                         ${userPhoto ? `<img src="${userPhoto}" referrerpolicy="no-referrer" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.parentElement.innerHTML=\`${defaultSvg}\`">` : defaultSvg}
                     </div>
@@ -250,6 +269,57 @@ function updateNavbarAuthButton(basePath) {
             if (mobileProfileContainer) {
                 mobileProfileContainer.innerHTML = dropdownHtml;
             }
+
+            // Async check for active plan to add PRO badge
+            try {
+                let uid = null;
+                if (fbUser && fbUser.uid) {
+                    uid = fbUser.uid;
+                } else if (fullUserStr) {
+                    const u = JSON.parse(fullUserStr);
+                    uid = u.uid || u.localId || u.id;
+                }
+
+                if (uid) {
+                    import('./supabase-config.js?v=1.0').then(({ supabase }) => {
+                        supabase.from('user_plans').select('*').eq('firebase_uid', uid).single().then(({ data, error }) => {
+                            if (!error && data) {
+                                const expiry = data.plan_expiry ? new Date(data.plan_expiry) : null;
+                                const isActive = data.plan_id !== 'free' && (!expiry || expiry > new Date());
+                                if (isActive) {
+                                    // Update desktop dropdown
+                                    const dHeader = profileMenu.querySelector('.dropdown-profile-header');
+                                    if (dHeader) {
+                                        dHeader.classList.add('premium-dropdown-header');
+                                        const badge = document.createElement('span');
+                                        badge.innerHTML = `<i class="fa-solid fa-crown" style="margin-right: 3px; font-size: 0.55rem;"></i>${data.plan_id === 'pro' ? 'PRO' : data.plan_id.toUpperCase()}`;
+                                        badge.style.cssText = 'position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); font-size: 0.55rem; font-weight: 800; letter-spacing: 0.5px; color: #2d3748; background: linear-gradient(135deg, #FFD700 0%, #F59E0B 100%); padding: 2px 6px; border-radius: 6px; text-transform: uppercase; box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); z-index: 10; display: inline-flex; align-items: center;';
+                                        dHeader.appendChild(badge);
+                                    }
+                                    // Update mobile dropdown
+                                    if (mobileProfileContainer) {
+                                        const mHeader = mobileProfileContainer.querySelector('.dropdown-profile-header');
+                                        if (mHeader) {
+                                            mHeader.classList.add('premium-dropdown-header');
+                                            const badge2 = document.createElement('span');
+                                            badge2.innerHTML = `<i class="fa-solid fa-crown" style="margin-right: 3px; font-size: 0.55rem;"></i>${data.plan_id === 'pro' ? 'PRO' : data.plan_id.toUpperCase()}`;
+                                            badge2.style.cssText = 'position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); font-size: 0.55rem; font-weight: 800; letter-spacing: 0.5px; color: #2d3748; background: linear-gradient(135deg, #FFD700 0%, #F59E0B 100%); padding: 2px 6px; border-radius: 6px; text-transform: uppercase; box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); z-index: 10; display: inline-flex; align-items: center;';
+                                            mHeader.appendChild(badge2);
+                                        }
+                                    }
+                                    
+                                    // Update navbar avatar ring to premium gold
+                                    const ring = document.getElementById('profile-ring');
+                                    if (ring) {
+                                        ring.style.background = 'linear-gradient(135deg, #FFD700 0%, #F59E0B 100%)';
+                                        ring.style.boxShadow = '0 0 10px rgba(255, 215, 0, 0.4), 0 0 20px rgba(245, 158, 11, 0.2)';
+                                    }
+                                }
+                            }
+                        }).catch(()=>{});
+                    }).catch(()=>{});
+                }
+            } catch(e) {}
 
             document.querySelectorAll('.logout-btn').forEach(btn => {
                 btn.onclick = (e) => {

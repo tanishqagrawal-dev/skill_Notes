@@ -300,15 +300,8 @@ class ProfileManager {
                             </div>
                             <h3 class="sub-title" style="font-size: 1.35rem; font-weight: 800; color: #fff; margin: 0 0 4px 0; font-family: 'Poppins', sans-serif;">${planName}</h3>
                             <p class="sub-expiry" style="color: var(--text-secondary); font-size: 0.85rem; margin: 0;">
-                                Expires <strong style="color: #fff;">${formatDate(expiry)}</strong> &nbsp;·&nbsp;
-                                <strong style="color: ${urgentColor};">${daysLeft} days left</strong>
+                                Expires <strong style="color: #fff;">${formatDate(expiry)}</strong>
                             </p>
-                            <div class="sub-progress-container" style="margin-top: 10px; width: 220px; max-width: 100%;">
-                                <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
-                                    <div style="height: 100%; width: ${progressPct}%; background: linear-gradient(90deg, ${urgentColor}, #00d2ff); border-radius: 4px; transition: width 0.5s ease;"></div>
-                                </div>
-                                <p style="font-size: 0.7rem; color: var(--text-secondary); margin: 4px 0 0 0;">${progressPct}% time remaining</p>
-                            </div>
                         </div>
                     </div>
                     <div class="sub-card-actions" style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
@@ -395,9 +388,15 @@ class ProfileManager {
         const userInfoBox = document.querySelector('.sidebar .user-info');
         if (!userInfoBox) return;
 
-        // Remove any existing subscription badge in user info
-        const existingInfoBadge = userInfoBox.querySelector('.sub-badge');
-        if (existingInfoBadge) existingInfoBadge.remove();
+        const profileMini = userInfoBox.closest('.user-profile-mini');
+
+        // Remove any existing subscription badge in the entire profile block
+        if (profileMini) {
+            profileMini.querySelectorAll('.sub-badge').forEach(b => b.remove());
+        } else {
+            const existingInfoBadge = userInfoBox.querySelector('.sub-badge');
+            if (existingInfoBadge) existingInfoBadge.remove();
+        }
 
         if (isActive) {
             const planLabels = { 'pro': 'PRO', 'codetantra': 'CT' };
@@ -405,41 +404,66 @@ class ProfileManager {
 
             const badge = document.createElement('span');
             badge.className = 'sub-badge';
-            badge.innerText = `✦ ${label}`;
+            badge.innerHTML = `<i class="fa-solid fa-crown" style="margin-right: 3px; font-size: 0.55rem;"></i>${label}`;
             badge.style.cssText = `
-                margin-left: 6px;
                 font-size: 0.55rem;
                 font-weight: 800;
-                letter-spacing: 0.8px;
-                color: #000;
-                background: linear-gradient(135deg, #00ff88, #00d2ff);
-                padding: 1px 6px;
-                border-radius: 20px;
+                letter-spacing: 0.5px;
+                color: #2d3748;
+                background: linear-gradient(135deg, #FFD700 0%, #F59E0B 100%);
+                padding: 2px 6px;
+                border-radius: 6px;
                 text-transform: uppercase;
-                box-shadow: 0 0 8px rgba(0, 255, 136, 0.4);
-                animation: pulseBadge 2s ease-in-out infinite;
-                display: inline-block;
-                vertical-align: middle;
+                box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+                animation: pulsePremiumBadge 2s ease-in-out infinite;
+                display: inline-flex;
+                align-items: center;
+                flex-shrink: 0;
+                position: absolute;
+                top: 0;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 10;
             `;
 
-            // Add pulseBadge animation if not already present
+            // Add animations if not already present
             if (!document.getElementById('sub-badge-style')) {
                 const style = document.createElement('style');
                 style.id = 'sub-badge-style';
                 style.textContent = `
-                    @keyframes pulseBadge {
-                        0%, 100% { box-shadow: 0 0 6px rgba(0,255,136,0.4); }
-                        50% { box-shadow: 0 0 14px rgba(0,255,136,0.8); }
+                    @keyframes pulsePremiumBadge {
+                        0%, 100% { box-shadow: 0 0 6px rgba(245, 158, 11, 0.4); }
+                        50% { box-shadow: 0 0 14px rgba(245, 158, 11, 0.8); }
+                    }
+                    @keyframes premiumBorderPulse {
+                        0%, 100% { border-color: rgba(255, 215, 0, 0.3); box-shadow: 0 0 8px rgba(255, 215, 0, 0.1); }
+                        50% { border-color: rgba(255, 215, 0, 0.8); box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
+                    }
+                    .premium-profile-box {
+                        animation: premiumBorderPulse 3s ease-in-out infinite !important;
                     }
                 `;
                 document.head.appendChild(style);
             }
 
+            // Clean up old styles from previous attempts on the role element
             const roleEl = userInfoBox.querySelector('#instant-role');
             if (roleEl) {
-                roleEl.style.display = 'inline-flex';
-                roleEl.style.alignItems = 'center';
-                roleEl.appendChild(badge);
+                roleEl.style.display = '';
+                roleEl.style.alignItems = '';
+                roleEl.style.justifyContent = '';
+                roleEl.style.gap = '';
+                roleEl.style.overflow = '';
+            }
+
+            // Append directly to the user-profile-mini flex container
+            if (profileMini) {
+                // Ensure the container allows absolute positioning relative to it
+                profileMini.style.position = 'relative';
+                // Remove hidden overflow if it blocks the badge
+                profileMini.style.overflow = 'visible'; 
+                profileMini.classList.add('premium-profile-box');
+                profileMini.appendChild(badge);
             } else {
                 userInfoBox.appendChild(badge);
             }
