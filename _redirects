@@ -8,5 +8,5 @@ https://skillnotes.netlify.app/* https://skilmatrix.site/:splat 301!
 # 2. General clean URL support (200)
 /pages/*               /pages/:splat.html       200
 
-# 3. Global SPA fallback
-/*                     /index.html              200
+# 3. Global 404 fallback
+/*                     /404.html              404
