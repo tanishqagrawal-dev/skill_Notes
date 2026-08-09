@@ -738,10 +738,15 @@ app.get('/api/share/:id', async (req, res) => {
         const cleanTitle = title.replace(/"/g, '&quot;');
         const cleanDesc = description.replace(/"/g, '&quot;');
 
-        const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
+        let finalHtml = '';
+        try {
+            const templatePath = path.join(__dirname, '../pages/view.html');
+            const template = fs.readFileSync(templatePath, 'utf8');
+            
+            let cleaned = template.replace(/<!-- ═══ Open Graph[\s\S]*?<!-- Fonts & Icons -->/, '<!-- Fonts & Icons -->');
+            
+            const injection = `
+    <!-- Dynamic OG -->
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="SKiL MATRiX Notes" />
     <meta property="og:title" content="${cleanTitle}" />
@@ -753,20 +758,26 @@ app.get('/api/share/:id', async (req, res) => {
     <meta name="twitter:title" content="${cleanTitle}" />
     <meta name="twitter:description" content="${cleanDesc}" />
     <meta name="twitter:image" content="${image}" />
-    <meta http-equiv="refresh" content="0;url=https://skilmatrix.site/pages/view?id=${noteId}">
-    <title>${cleanTitle} | SKiL MATRiX</title>
-</head>
-<body style="background-color: #0f111a; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh;">
-    <div style="text-align: center;">
-        <h2>Redirecting to ${cleanTitle}...</h2>
-        <p>If you are not redirected automatically, <a href="https://skilmatrix.site/pages/view?id=${noteId}" style="color: #00d2ff;">click here</a>.</p>
-    </div>
+    
+    <base href="https://skilmatrix.site/">
+    
     <script>
-        window.location.replace("https://skilmatrix.site/pages/view?id=${noteId}");
+        const _URLSearchParams = window.URLSearchParams;
+        window.URLSearchParams = class extends _URLSearchParams {
+            get(name) {
+                if (name === 'id') return '${noteId}';
+                return super.get(name);
+            }
+        };
     </script>
-</body>
-</html>`;
-        res.send(html);
+`;
+            finalHtml = cleaned.replace('<title>View Resource | SKiL MATRiX Notes</title>', `<title>${cleanTitle} | SKiL MATRiX Notes</title>\n${injection}`);
+        } catch(e) {
+            console.error(e);
+            finalHtml = `<html><body>Redirecting... <script>window.location.replace("https://skilmatrix.site/pages/view?id=${noteId}");</script></body></html>`;
+        }
+
+        res.send(finalHtml);
     } catch (e) {
         console.error("Share endpoint error:", e);
         res.redirect(`https://skilmatrix.site/pages/view?id=${req.params.id}`);
