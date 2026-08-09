@@ -1,7 +1,8 @@
 // AI Client Service (Talks to Firebase Cloud Functions and Gemini API)
 
 // --- FREE AI COACH CONFIGURATION ---
-window.GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE"; // Replace with your free Gemini API Key
+window.GEMINI_API_KEY = "INJECT_GEMINI_API_KEY";
+window.GROQ_API_KEY = "INJECT_GROQ_API_KEY";
 window.aiConversationHistory = []; // Stores the chat context
 
 window.aiClient = {
@@ -55,8 +56,11 @@ window.aiClient = {
                     console.warn("Could not fetch .env keys dynamically.");
                 }
                 
-                if (window.GEMINI_KEYS.length === 0 && window.GEMINI_API_KEY !== "YOUR_GEMINI_API_KEY_HERE" && !window.GEMINI_API_KEY.includes("INJECT")) {
+                if (window.GEMINI_KEYS.length === 0 && window.GEMINI_API_KEY && !window.GEMINI_API_KEY.includes("INJECT")) {
                     window.GEMINI_KEYS = [window.GEMINI_API_KEY];
+                }
+                if (window.GROQ_KEYS.length === 0 && window.GROQ_API_KEY && !window.GROQ_API_KEY.includes("INJECT")) {
+                    window.GROQ_KEYS = [window.GROQ_API_KEY];
                 }
             }
 
