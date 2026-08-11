@@ -481,10 +481,18 @@ class ProfileManager {
         if (window.generateReferralCode) return window.generateReferralCode(email);
         const charset = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
         const cleaned = email.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        
+        let hash = 0;
+        for (let i = 0; i < cleaned.length; i++) {
+            hash = Math.imul(31, hash) + cleaned.charCodeAt(i) | 0;
+        }
+        hash = Math.abs(hash);
+        
         let code = '';
         for (let i = 0; i < 8; i++) {
-            const idx = (cleaned.charCodeAt(i % cleaned.length) ^ (i * 37)) % charset.length;
-            code += charset[Math.abs(idx)];
+            const idx = (hash ^ (i * 37)) % charset.length;
+            code += charset[idx];
+            hash = Math.floor(hash / 2) || (Math.abs(hash) * 3);
         }
         return code;
     }
