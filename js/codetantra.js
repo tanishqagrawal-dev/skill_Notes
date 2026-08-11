@@ -834,14 +834,28 @@ window.showCodeTantraUpgradeModal = function () {
 
     const apiUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
 
-    // Fetch dynamic pricing
-    fetch(apiUrl + '/api/pricing-config').then(r => r.json()).then(d => {
-        if (d.success && d.config.plans) {
-            if (d.config.plans.codetantra_1mo) prices['1mo'] = d.config.plans.codetantra_1mo.amount / 100;
-            if (d.config.plans.codetantra_6mo) prices['6mo'] = d.config.plans.codetantra_6mo.amount / 100;
-            updateDispPrice();
-        }
-    }).catch(() => { });
+    const _loadCtPricing = async () => {
+        try {
+            const { supabase } = window.supabase ? window : await import('./supabase-config.js');
+            const { data } = await supabase.from('pricing_config').select('*').eq('id', 1).single();
+            if (data && data.plans) {
+                if (data.plans.codetantra_1mo) prices['1mo'] = data.plans.codetantra_1mo.amount / 100;
+                if (data.plans.codetantra_6mo) prices['6mo'] = data.plans.codetantra_6mo.amount / 100;
+                updateDispPrice();
+                updateSummary();
+            }
+        } catch(e){}
+    };
+    _loadCtPricing();
+    (async () => {
+        try {
+            const { supabase } = window.supabase ? window : await import('./supabase-config.js');
+            supabase.channel('ct_pricing_config_changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'pricing_config' }, () => {
+                    _loadCtPricing();
+                }).subscribe();
+        } catch(e){}
+    })();
 
     const updateDispPrice = () => {
         const p = prices[currentDuration];
@@ -940,10 +954,10 @@ window.showCodeTantraUpgradeModal = function () {
         btn.innerText = '...'; btn.disabled = true;
 
         try {
-            const res = await fetch(apiUrl + '/api/pricing-config');
-            const data = await res.json();
-            if (data.success && data.config.coupons && data.config.coupons[inp] !== undefined) {
-                let cv = data.config.coupons[inp];
+            const { supabase } = window.supabase ? window : await import('./supabase-config.js');
+            const { data } = await supabase.from('pricing_config').select('coupons').eq('id', 1).single();
+            if (data && data.coupons && data.coupons[inp] !== undefined) {
+                let cv = data.coupons[inp];
                 activeDiscount = typeof cv === 'object' ? cv.discount : cv;
                 activeCoupon = inp;
                 fb.innerText = `✅ "${inp}" applied! ${activeDiscount}% off`; fb.style.color = '#10b981';

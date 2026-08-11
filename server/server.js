@@ -153,8 +153,6 @@ app.get('/api/compile/status', async (req, res) => {
 });
 
 // Pricing & Coupons Configuration
-const PRICING_FILE = path.join(__dirname, '../data/pricing.json');
-
 let pricingConfig = {
     plans: {
         'codetantra_1mo': { amount: 1900, name: 'CodeTantra Solutions - 1 Month', durationDays: 30 },
@@ -165,17 +163,18 @@ let pricingConfig = {
     coupons: {}
 };
 
-try {
-    if (fs.existsSync(PRICING_FILE)) {
-        pricingConfig = JSON.parse(fs.readFileSync(PRICING_FILE, 'utf8'));
-    } else {
-        const dataDir = path.dirname(PRICING_FILE);
-        if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-        fs.writeFileSync(PRICING_FILE, JSON.stringify(pricingConfig, null, 2));
+async function loadPricingConfig() {
+    try {
+        if (!supabase) return;
+        const { data, error } = await supabase.from('pricing_config').select('*').eq('id', 1).single();
+        if (data) {
+            pricingConfig = { plans: data.plans || pricingConfig.plans, coupons: data.coupons || {} };
+        }
+    } catch(e) {
+        console.error("Error loading pricing config from Supabase:", e.message);
     }
-} catch(e) {
-    console.error("Error with pricing config:", e);
 }
+loadPricingConfig();
 
 const getPlans = () => pricingConfig.plans;
 
@@ -190,6 +189,7 @@ app.post('/api/create-order', async (req, res) => {
             return res.status(500).json({ error: "Razorpay keys not configured in server/.env" });
         }
 
+        await loadPricingConfig();
         const plan = getPlans()[planId];
         if (!plan) return res.status(400).json({ error: "Invalid plan selected" });
         if (!uid) return res.status(400).json({ error: "User ID required" });
@@ -241,7 +241,7 @@ app.post('/api/create-order', async (req, res) => {
             // 3. Increment Coupon Uses (if object)
             if (couponCode && typeof pricingConfig.coupons[couponCode] === 'object') {
                 pricingConfig.coupons[couponCode].uses = (pricingConfig.coupons[couponCode].uses || 0) + 1;
-                fs.writeFileSync(PRICING_FILE, JSON.stringify(pricingConfig, null, 2));
+                await supabase.from('pricing_config').upsert({ id: 1, plans: pricingConfig.plans, coupons: pricingConfig.coupons });
             }
             
             return res.json({ success: true, zeroAmount: true, plan: basePlanId });
@@ -281,6 +281,7 @@ app.post('/api/verify-payment', async (req, res) => {
             return res.status(400).json({ success: false, error: "Invalid payment signature" });
         }
 
+        await loadPricingConfig();
         const plan = getPlans()[planId];
         if (!plan) return res.status(400).json({ error: "Invalid plan" });
 
@@ -318,7 +319,7 @@ app.post('/api/verify-payment', async (req, res) => {
         // 3. Increment Coupon Uses (if object)
         if (couponCode && typeof pricingConfig.coupons[couponCode] === 'object') {
             pricingConfig.coupons[couponCode].uses = (pricingConfig.coupons[couponCode].uses || 0) + 1;
-            fs.writeFileSync(PRICING_FILE, JSON.stringify(pricingConfig, null, 2));
+            await supabase.from('pricing_config').upsert({ id: 1, plans: pricingConfig.plans, coupons: pricingConfig.coupons });
         }
 
         res.json({ success: true, message: "Payment verified & plan upgraded", plan: basePlanId });
@@ -504,7 +505,8 @@ app.post('/api/admin/update-subscription', async (req, res) => {
 });
 
 // --- PRICING & COUPONS ENDPOINTS ---
-app.get('/api/pricing-config', (req, res) => {
+app.get('/api/pricing-config', async (req, res) => {
+    await loadPricingConfig();
     res.json({ success: true, config: pricingConfig });
 });
 
@@ -516,7 +518,7 @@ app.post('/api/admin/pricing-config', async (req, res) => {
         if (!uid) return res.status(401).json({ error: "Unauthorized" });
         
         pricingConfig = { plans, coupons };
-        fs.writeFileSync(PRICING_FILE, JSON.stringify(pricingConfig, null, 2));
+        await supabase.from('pricing_config').upsert({ id: 1, plans, coupons });
         res.json({ success: true, message: "Pricing configured successfully." });
     } catch (error) {
         console.error("Update Pricing Error:", error);

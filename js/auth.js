@@ -119,9 +119,9 @@ export async function initAuth() {
                         id: user.uid,
                         email: user.email.toLowerCase(),
                         role: "user",
-                        college: "medicaps", // Default
-                        collegeId: "medicaps",
-                        collegeName: "Medicaps University",
+                        college: "",
+                        collegeId: "",
+                        collegeName: "",
                         name: user.displayName || user.email.split('@')[0],
                         photo: user.photoURL
                     };
@@ -186,7 +186,48 @@ export async function initAuth() {
                 } catch(e) {}
                 window.currentUser = userData;
                 localStorage.setItem('auth_user_full', JSON.stringify(userData));
-                
+                // Sync basic profile and local XP to Supabase automatically on login
+                try {
+                    const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+                    if (sb) {
+                        const localSolvedStr = localStorage.getItem('ca_solved_problems_' + userData.id);
+                        let localSolved = [];
+                        if (localSolvedStr) { try { localSolved = JSON.parse(localSolvedStr); } catch(e) {} }
+                        const localXp = localSolved.length * 25;
+                        const localLevel = localSolved.length > 0 ? localSolved.length + 1 : 1;
+
+                        sb.from('users').select('*').eq('id', userData.id).single().then(({ data: sbUser }) => {
+                            const sbXp = sbUser ? (sbUser.coding_xp || 0) : 0;
+                            const finalXp = Math.max(localXp, sbXp);
+                            const finalLevel = Math.max(localLevel, sbUser ? (sbUser.current_coding_level || 1) : 1);
+                            const finalSolved = (localXp >= sbXp) ? (localSolvedStr || '[]') : (sbUser?.ca_solved_problems || '[]');
+
+                            sb.from('users').upsert({
+                                id: userData.id,
+                                email: userData.email,
+                                name: userData.name || userData.email.split('@')[0],
+                                collegename: userData.collegeName || userData.college || '',
+                                avatar: userData.photo || '',
+                                coding_xp: finalXp,
+                                current_coding_level: finalLevel,
+                                ca_solved_problems: finalSolved
+                            }, { onConflict: 'id' }).then().catch(e => console.warn("Supabase auto-sync failed:", e));
+                        }).catch(() => {
+                            // If select fails (e.g. user doesn't exist), insert local data
+                            sb.from('users').upsert({
+                                id: userData.id,
+                                email: userData.email,
+                                name: userData.name || userData.email.split('@')[0],
+                                collegename: userData.collegeName || userData.college || '',
+                                avatar: userData.photo || '',
+                                coding_xp: localXp,
+                                current_coding_level: localLevel,
+                                ca_solved_problems: localSolvedStr || '[]'
+                            }, { onConflict: 'id' }).then().catch(e => console.warn("Supabase auto-sync failed:", e));
+                        });
+                    }
+                } catch(e) {}
+
                 // ✅ Process any pending referral on successful login
                 if (window.processReferralOnLogin) {
                     window.processReferralOnLogin(userData.email);

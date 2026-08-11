@@ -598,42 +598,72 @@ export async function renderCodingArena() {
         window.caIsDoneToday = isDoneToday;
         window.caIsAdmin = isAdmin;
 
-        // Fetch real leaderboard data from Supabase
-        let lbData = [];
-        try {
-            const { data: topCoders } = await supabase.from('users')
-                .select('id, name, college, current_coding_level, coding_xp, coding_streak')
-                .order('coding_xp', { ascending: false })
-                .limit(50);
-            if (topCoders && topCoders.length > 0) {
-                lbData = topCoders.map(u => ({
-                    id: u.id,
-                    name: u.name || 'Scholar',
-                    college: u.college || 'Medicaps University',
-                    solved: Math.max(0, (u.current_coding_level || 1) - 1),
-                    streak: u.coding_streak || 0,
-                    xp: u.coding_xp || 0
-                }));
+        window.fetchCaLeaderboard = async function() {
+            let lbData = [];
+            try {
+                let sb = null;
+                if (typeof supabase !== 'undefined') sb = supabase;
+                else if (window.supabase) sb = window.supabase;
+                
+                const { data: topCoders } = await sb.from('users')
+                    .select('id, name, collegename, current_coding_level, coding_xp, coding_streak')
+                    .order('coding_xp', { ascending: false })
+                    .limit(50);
+                if (topCoders && topCoders.length > 0) {
+                    lbData = topCoders.map(u => ({
+                        id: u.id,
+                        name: u.name || 'Scholar',
+                        college: u.collegename || '',
+                        solved: Math.max(0, (u.current_coding_level || 1) - 1),
+                        streak: u.coding_streak || 0,
+                        xp: u.coding_xp || 0
+                    }));
+                }
+            } catch (err) {
+                console.warn('Could not fetch leaderboard from Supabase:', err);
             }
-        } catch (err) {
-            console.warn('Could not fetch leaderboard from Supabase:', err);
+            const myId = window.currentUser?.id || 'me';
+            const myName = window.currentUser?.user_metadata?.full_name || window.currentUser?.name || window.currentUser?.email?.split('@')[0] || 'You (Scholar)';
+            const myCollege = window.currentUser?.user_metadata?.college || window.currentUser?.college || '';
+            const mySolved = window.caSolvedProblems ? window.caSolvedProblems.length : Math.max(0, window.caCurrentLevel - 1);
+            const myXp = window.currentUser?.coding_xp || (mySolved * 25);
+            const myStreak = window.currentUser?.coding_streak || 0;
+            if (!lbData.some(u => u.id === myId)) {
+                lbData.push({ id: myId, name: myName, college: myCollege, solved: mySolved, streak: myStreak, xp: myXp, isMe: true });
+            } else {
+                const u = lbData.find(u => u.id === myId);
+                if (u) { u.name = myName; u.solved = mySolved; u.xp = myXp; u.streak = myStreak; u.isMe = true; }
+            }
+            lbData.sort((a, b) => b.xp - a.xp);
+            window.caLeaderboardData = lbData;
+            
+            const tbody = document.getElementById('ca-leaderboard-tbody');
+            if (tbody && window.getCaLeaderboardHTML) {
+                tbody.innerHTML = window.getCaLeaderboardHTML();
+            }
+        };
+
+        if (!window.caLbSubscribed) {
+            window.caLbSubscribed = true;
+            try {
+                let sb = null;
+                if (typeof supabase !== 'undefined') sb = supabase;
+                else if (window.supabase) sb = window.supabase;
+                sb.channel('ca_lb_changes')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, payload => {
+                        window.fetchCaLeaderboard();
+                    }).subscribe();
+            } catch(e){}
         }
+
+        await window.fetchCaLeaderboard();
+        
+        const lbData = window.caLeaderboardData || [];
         const myId = window.currentUser?.id || 'me';
-        const myName = window.currentUser?.user_metadata?.full_name || window.currentUser?.name || window.currentUser?.email?.split('@')[0] || 'You (Scholar)';
-        const myCollege = window.currentUser?.user_metadata?.college || window.currentUser?.college || 'Medicaps University';
-        const mySolved = window.caSolvedProblems ? window.caSolvedProblems.length : Math.max(0, currentLevel - 1);
-        const myXp = userStats?.coding_xp || (mySolved * 25);
-        const myStreak = streak;
-        if (!lbData.some(u => u.id === myId)) {
-            lbData.push({ id: myId, name: myName, college: myCollege, solved: mySolved, streak: myStreak, xp: myXp, isMe: true });
-        } else {
-            const u = lbData.find(u => u.id === myId);
-            if (u) { u.name = myName; u.solved = mySolved; u.xp = myXp; u.streak = myStreak; u.isMe = true; }
-        }
-        lbData.sort((a, b) => b.xp - a.xp);
-        window.caLeaderboardData = lbData;
         const myRankIdx = lbData.findIndex(u => u.isMe || u.id === myId);
         const myRank = myRankIdx >= 0 ? myRankIdx + 1 : 1;
+
+        // Handled above
 
         return `
         <div class="ca-explorer-container fade-in" style="padding: 0.6rem 1rem; width: 100%; max-width: 100%; margin: 0 auto; color: #fff; height: calc(100vh - 40px); max-height: calc(100vh - 40px); overflow: hidden; display: flex; flex-direction: column; box-sizing: border-box; background: #0b0f17;">
@@ -1340,8 +1370,8 @@ export async function renderCodingArena() {
                                         <th style="padding: 14px 20px; text-align: right;">Total XP</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    ${(() => {
+                                <tbody id="ca-leaderboard-tbody">
+                                    ${(window.getCaLeaderboardHTML = function() {
                                         const lb = window.caLeaderboardData || [];
                                         if (lb.length === 0) {
                                             return `<tr><td colspan="6" style="padding: 2rem; text-align: center; color: #94a3b8;">No leaderboard data available yet. Be the first to solve a challenge!</td></tr>`;
@@ -2746,28 +2776,34 @@ async function handleProblemSolved(isPractice = false, awardedXp = 0) {
         let newXP = awardedXp;
         let newLevel = 2;
 
-        if (!isPractice && sb && window.currentUser && window.currentUser.id && awardedXp > 0) {
+        if (!isPractice && sb && window.currentUser && window.currentUser.id && awardedXp >= 0) {
             // Fetch latest user state safely
             const { data: userStats, error } = await sb.from('users').select('*').eq('id', window.currentUser.id).single();
             
-            if (userStats) {
-                newStreak = userStats.coding_streak || 0;
-                if (userStats.last_coding_date !== todayStr) {
-                    newStreak += 1;
-                }
-                newMax = Math.max(newStreak, userStats.max_coding_streak || 0);
-                newXP = (userStats.coding_xp || 0) + awardedXp;
-                newLevel = (userStats.current_coding_level || 1) + 1;
-
-                await sb.from('users').update({
-                    current_coding_level: newLevel,
-                    coding_xp: newXP,
-                    coding_streak: newStreak,
-                    max_coding_streak: newMax,
-                    last_coding_date: todayStr
-                }).eq('id', window.currentUser.id);
+            newStreak = (userStats && userStats.coding_streak) ? userStats.coding_streak : 0;
+            if (!userStats || userStats.last_coding_date !== todayStr) {
+                newStreak += 1;
             }
+            newMax = Math.max(newStreak, (userStats && userStats.max_coding_streak) ? userStats.max_coding_streak : 0);
+            newXP = ((userStats && userStats.coding_xp) ? userStats.coding_xp : 0) + awardedXp;
+            newLevel = ((userStats && userStats.current_coding_level) ? userStats.current_coding_level : 1) + 1;
 
+            const myName = window.currentUser?.user_metadata?.full_name || window.currentUser?.name || window.currentUser?.email?.split('@')[0] || 'Scholar';
+            const myCollege = window.currentUser?.user_metadata?.college || window.currentUser?.collegeName || window.currentUser?.college || '';
+
+            await sb.from('users').upsert({
+                id: window.currentUser.id,
+                email: window.currentUser.email || '',
+                name: myName,
+                avatar: window.currentUser.photo || '',
+                collegename: myCollege,
+                current_coding_level: newLevel,
+                coding_xp: newXP,
+                coding_streak: newStreak,
+                max_coding_streak: newMax,
+                last_coding_date: todayStr,
+                ca_solved_problems: window.caSolvedProblems ? JSON.stringify(window.caSolvedProblems) : '[]'
+            });
             // Update global state locally so UI stays in sync
             if (window.currentUser) {
                 window.currentUser.current_coding_level = newLevel;

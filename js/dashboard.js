@@ -1215,8 +1215,8 @@ async function handleDashboardNoteSubmit(e) {
     console.log("👤 Current User Role/Email for Upload:", currentUser.role, currentUser.email, "isAdmin:", isAdmin);
     const metadata = {
         title: title,
-        college: finalCollegeId || (currentUser.collegeId || 'medicaps'),
-        collegeId: finalCollegeId || (currentUser.collegeId || 'medicaps'),
+        college: finalCollegeId || (currentUser.collegeId || ''),
+        collegeId: finalCollegeId || (currentUser.collegeId || ''),
         collegeName: finalCollegeName || 'SKiL MATRiX Scholar',
         stream: getSelectText('stream') || 'B.Tech',
         streamId: stream,
@@ -2214,16 +2214,33 @@ function renderTabContent(tabId) {
 
             let _subPlan = 'pro', _subDur = '1mo', _subCoupon = null, _subDisc = 0;
 
-            // Load live prices
-            fetch(`${_apiUrlSub}/api/pricing-config`).then(r=>r.json()).then(d=>{
-                if (!d.success) return;
-                const p = d.config.plans;
-                if (p.codetantra_1mo) SUB_P.codetantra['1mo'].amount = p.codetantra_1mo.amount/100;
-                if (p.codetantra_6mo) SUB_P.codetantra['6mo'].amount = p.codetantra_6mo.amount/100;
-                if (p.pro_1mo)        SUB_P.pro['1mo'].amount        = p.pro_1mo.amount/100;
-                if (p.pro_6mo)        SUB_P.pro['6mo'].amount        = p.pro_6mo.amount/100;
-                _subRefreshUI();
-            }).catch(()=>{});
+            // Load live prices via Supabase Realtime
+            const _loadPricingFromSupabase = async () => {
+                try {
+                    const { supabase } = window.supabase ? window : await import('./supabase-config.js');
+                    const { data, error } = await supabase.from('pricing_config').select('*').eq('id', 1).single();
+                    if (data && data.plans) {
+                        const p = data.plans;
+                        if (p.codetantra_1mo) SUB_P.codetantra['1mo'].amount = p.codetantra_1mo.amount/100;
+                        if (p.codetantra_6mo) SUB_P.codetantra['6mo'].amount = p.codetantra_6mo.amount/100;
+                        if (p.pro_1mo)        SUB_P.pro['1mo'].amount        = p.pro_1mo.amount/100;
+                        if (p.pro_6mo)        SUB_P.pro['6mo'].amount        = p.pro_6mo.amount/100;
+                        _subRefreshUI();
+                    }
+                } catch(e) { console.warn('Pricing realtime error:', e); }
+            };
+            _loadPricingFromSupabase();
+            
+            // Subscribe to pricing changes
+            (async () => {
+                try {
+                    const { supabase } = window.supabase ? window : await import('./supabase-config.js');
+                    supabase.channel('pricing_config_changes')
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'pricing_config' }, payload => {
+                            _loadPricingFromSupabase();
+                        }).subscribe();
+                } catch(e){}
+            })();
 
             function _subRefreshUI() {
                 const data = PLAN_DATA[_subPlan];
@@ -2406,10 +2423,10 @@ function renderTabContent(tabId) {
                 if (!code) { fb.textContent='Enter a coupon code.'; fb.className='err'; return; }
                 const btn = document.getElementById('sub-coupon-apply'); btn.disabled=true; btn.textContent='...';
                 try {
-                    const res = await fetch(`${_apiUrlSub}/api/pricing-config`);
-                    const data = await res.json();
-                    if (data.success && data.config.coupons && data.config.coupons[code] !== undefined) {
-                        const couponVal = data.config.coupons[code];
+                    const { supabase } = window.supabase ? window : await import('./supabase-config.js');
+                    const { data, error } = await supabase.from('pricing_config').select('coupons').eq('id', 1).single();
+                    if (data && data.coupons && data.coupons[code] !== undefined) {
+                        const couponVal = data.coupons[code];
                         const isObject = typeof couponVal === 'object';
                         
                         if (isObject && couponVal.maxUses && (couponVal.uses || 0) >= couponVal.maxUses) {
@@ -4196,7 +4213,7 @@ function renderOverview() {
 
     let greetingSubtitle = `${profileSummary} • ${collegeName}`;
     // If guest OR new user who hasn't updated profile (branch and custom college missing)
-    const hasIncompleteProfile = !currentUser.branch && (!currentUser.college || currentUser.college === 'medicaps');
+    const hasIncompleteProfile = !currentUser.branch && (!currentUser.college);
     if (currentUser.isGuest || hasIncompleteProfile) {
         greetingSubtitle = "Scholar • Welcome to SKiL MATRiX";
     }

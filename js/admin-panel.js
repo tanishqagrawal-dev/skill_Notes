@@ -1555,11 +1555,11 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
 
     window._apLoadPricing = async function() {
         try {
-            const apiUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
-            const res = await fetch(`${apiUrl}/api/pricing-config`);
-            const data = await res.json();
-            if (data.success && data.config) {
-                localPricingConfig = data.config;
+            const sb = await getSB();
+            const { data, error } = await sb.from('pricing_config').select('*').eq('id', 1).single();
+            if (error) throw error;
+            if (data) {
+                localPricingConfig = { plans: data.plans || {}, coupons: data.coupons || {} };
                 renderPricingConfig();
             } else {
                 throw new Error("Could not load pricing");
@@ -1630,18 +1630,18 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
 
         try {
             const u = getCurrentUser();
-            const apiUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
-            const res = await fetch(`${apiUrl}/api/admin/pricing-config`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ uid: u.uid || u.id, plans: localPricingConfig.plans, coupons: localPricingConfig.coupons })
+            const sb = await getSB();
+            const { error } = await sb.from('pricing_config').upsert({
+                id: 1,
+                plans: localPricingConfig.plans,
+                coupons: localPricingConfig.coupons
             });
-            const data = await res.json();
-            if (data.success) {
+
+            if (!error) {
                 if (window.showToast) window.showToast('✅ Pricing configuration saved!');
                 else alert('✅ Pricing configuration saved!');
             } else {
-                throw new Error(data.error || 'Failed to save');
+                throw new Error(error.message || 'Failed to save');
             }
         } catch (e) {
             console.error("Save Pricing Error:", e);
@@ -1905,12 +1905,13 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
 
         try {
             const sb = await getSB();
-            const { error } = await sb.from('dashboard_stats').update({
+            const { error } = await sb.from('dashboard_stats').upsert({
+                id: 1,
                 students: students,
                 views: views,
                 downloads: downloads,
                 resources: resources
-            }).eq('id', 1);
+            });
 
             if (error) throw error;
 

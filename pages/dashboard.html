@@ -323,7 +323,7 @@
 
                         if (titleEl || metaEl) {
                             const firstName = (u.name || 'Scholar').split(' ')[0];
-                            const college = u.college || u.collegeName || 'Medicaps University';
+                            const college = u.college || u.collegeName || '';
 
                             // Beautiful year formatting (Handle numbers and strings)
                             let y = String(u.year || '');
@@ -342,7 +342,7 @@
                                 titleEl.innerHTML = `Welcome back, <span class="gradient-text">${firstName}</span> <span class="waving-hand">👋</span>`;
                             }
                             if (metaEl) {
-                                const hasIncomplete = !u.branch && (!u.college || u.college === 'medicaps');
+                                const hasIncomplete = !u.branch && (!u.college);
                                 metaEl.innerText = (u.isGuest || hasIncomplete) ? "Scholar • Welcome to SKiL MATRiX" : `${roleText} • ${college}`;
                             }
                         }

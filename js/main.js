@@ -36,7 +36,7 @@ const notesData = [
     {
         id: "N102",
         title: "Database Management Systems - Full Course",
-        college: "medicaps",
+        college: "",
         branch: "cse",
         sem: "4",
         subject: "DBMS",
