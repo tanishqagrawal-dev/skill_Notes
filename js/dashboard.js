@@ -767,7 +767,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // --- DEEP LINKING SUPPORT ---
     const urlParams = new URLSearchParams(window.location.search);
-    const tabParam = urlParams.get('tab');
+    let tabParam = urlParams.get('tab');
+    
+    // Support clean URL /subscription
+    if (!tabParam && window.location.pathname.replace(/\/$/, '').endsWith('/subscription')) {
+        tabParam = 'subscription';
+    }
+
     if (tabParam) {
         const targetTab = document.querySelector(`.nav-item[data-tab="${tabParam}"]`);
         if (targetTab) {
@@ -1369,6 +1375,13 @@ function initTabs() {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             item.classList.add('active');
             renderTabContent(item.dataset.tab);
+            
+            // Clean URL for subscription tab
+            if (item.dataset.tab === 'subscription') {
+                history.pushState(null, '', '/subscription');
+            } else if (window.location.pathname.replace(/\/$/, '').endsWith('/subscription')) {
+                history.pushState(null, '', '/pages/dashboard');
+            }
 
             // ⚡ Mobile UX: Auto-close sidebar on item selection
             document.querySelector('.sidebar')?.classList.remove('active');
@@ -3803,7 +3816,7 @@ function renderAITools() {
                             <i class="fas fa-lock" style="font-size: 4rem; color: #fbbf24; margin-bottom: 20px;"></i>
                             <h2 style="color: #fbbf24; margin-bottom: 10px; font-size: 1.8rem;">Premium Locked</h2>
                             <p style="color: #a1a1aa; margin-bottom: 30px; max-width: 300px; line-height: 1.6;">You've reached your free usage limit. Upgrade to unlock unlimited AI assistance.</p>
-                            <button onclick="window.location.search = '?tab=subscription'" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; font-weight: bold; border: none; padding: 12px 30px; border-radius: 12px; cursor: pointer; font-size: 1.1rem; box-shadow: 0 5px 15px rgba(251,191,36,0.3); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Buy Subscription</button>
+                            <button onclick="window.location.href = '/subscription'" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; font-weight: bold; border: none; padding: 12px 30px; border-radius: 12px; cursor: pointer; font-size: 1.1rem; box-shadow: 0 5px 15px rgba(251,191,36,0.3); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Buy Subscription</button>
                         </div>
                     </div>
                 ` : ''}

@@ -741,6 +741,11 @@ const serveDynamicView = async (req, res, next) => {
 app.get('/api/share/:id', serveDynamicView);
 app.get(['/pages/view', '/pages/view.html'], serveDynamicView);
 
+// Clean URL for Subscription page
+app.get('/subscription', (req, res) => {
+    res.sendFile(path.join(__dirname, '../pages/dashboard.html'));
+});
+
 // Serve Static Files (The Frontend)
 app.use(express.static(path.join(__dirname, '../'), { extensions: ['html'] }));
 
@@ -790,6 +795,8 @@ app.get('/api/get-random-paper', (req, res) => {
         res.status(500).json({ error: "Failed to read local cache" });
     }
 });
+
+
 
 
 // Wildcard 404 Handler - Serves our Ultra Premium Personalized 404 Page

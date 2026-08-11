@@ -120,7 +120,7 @@ function renderNavbar() {
                 </div>
                 <!-- RIGHT ZONE: Actions pinned to right corner -->
                 <div class="nav-actions" id="nav-actions">
-                    <a href="${getLinkPath('pages/dashboard')}?tab=subscription" id="nav-subscription-link" class="btn-go-premium">
+                    <a href="/subscription" id="nav-subscription-link" class="btn-go-premium">
                         <span style="color: #ffd700; font-size: 1.1em; margin-right: 4px;">👑</span> <span class="premium-text">Go Premium</span>
                     </a>
                     
