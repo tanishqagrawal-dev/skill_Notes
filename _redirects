@@ -12,7 +12,7 @@ https://skillnotes.netlify.app/* https://skilmatrix.site/:splat 301!
 /share/*  https://skil-matrix-server.onrender.com/api/share/:splat  200
 
 # 4. Clean URL specific pages
-/subscription          /pages/dashboard.html    200
+/subscription          https://skil-matrix-server.onrender.com/api/subscription-seo    200
 
 # 5. Global 404 fallback
 /*                     /404.html              404

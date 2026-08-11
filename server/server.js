@@ -741,10 +741,34 @@ const serveDynamicView = async (req, res, next) => {
 app.get('/api/share/:id', serveDynamicView);
 app.get(['/pages/view', '/pages/view.html'], serveDynamicView);
 
-// Clean URL for Subscription page
-app.get('/subscription', (req, res) => {
-    res.sendFile(path.join(__dirname, '../pages/dashboard.html'));
-});
+// --- DYNAMIC SUBSCRIPTION SEO PROXY ---
+const serveSubscriptionSeo = (req, res) => {
+    try {
+        const templatePath = path.join(__dirname, '../pages/dashboard.html');
+        let template = fs.readFileSync(templatePath, 'utf8');
+        
+        const title = "SKiL MATRiX Subscription Plans | Unlock Premium Features";
+        const description = "Choose the perfect plan to elevate your studies. Unlock exclusive CodeTantra lab solutions, unlimited AI Model Papers, an ad-free 24/7 AI Coach, and deep analytics.";
+        const image = "https://skilmatrix.site/assets/plan_subscription_compressed.jpg?v=3";
+        
+        let finalHtml = template
+            .replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
+            .replace(/<meta property="og:title" content=".*?"\s*\/?>/g, `<meta property="og:title" content="${title}" />`)
+            .replace(/<meta property="og:description" content=".*?"\s*\/?>/g, `<meta property="og:description" content="${description}" />`)
+            .replace(/<meta property="og:image" content=".*?"\s*\/?>/g, `<meta property="og:image" content="${image}" />`)
+            .replace(/<meta name="twitter:title" content=".*?"\s*\/?>/g, `<meta name="twitter:title" content="${title}" />`)
+            .replace(/<meta name="twitter:description" content=".*?"\s*\/?>/g, `<meta name="twitter:description" content="${description}" />`)
+            .replace(/<meta name="twitter:image" content=".*?"\s*\/?>/g, `<meta name="twitter:image" content="${image}" />`);
+            
+        res.send(finalHtml);
+    } catch (e) {
+        console.error("Subscription SEO endpoint error:", e);
+        res.sendFile(path.join(__dirname, '../pages/dashboard.html'));
+    }
+};
+
+app.get('/api/subscription-seo', serveSubscriptionSeo);
+app.get('/subscription', serveSubscriptionSeo);
 
 // Serve Static Files (The Frontend)
 app.use(express.static(path.join(__dirname, '../'), { extensions: ['html'] }));
