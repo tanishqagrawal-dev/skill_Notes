@@ -277,9 +277,14 @@ export async function initAuth() {
             }
 
             if (isUserDashboard) {
-                console.log("🛑 Unauthorized access attempt. Redirecting to login...");
-                const prefix = path.includes('/pages/') ? '' : 'pages/';
-                window.location.href = prefix + 'auth';
+                const isBot = /bot|googlebot|crawler|spider|robot|crawling/i.test(navigator.userAgent);
+                if (!isBot) {
+                    console.log("🛑 Unauthorized access attempt. Redirecting to login...");
+                    const prefix = path.includes('/pages/') ? '' : 'pages/';
+                    window.location.href = prefix + 'auth';
+                } else {
+                    console.log("🤖 Bot detected. Bypassing redirect for SEO indexing.");
+                }
             }
         }
     });

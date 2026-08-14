@@ -1455,6 +1455,64 @@ function renderTabContent(tabId) {
     // 2. Scroll to top for fresh view
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
+    // 3. Update Document Title and Meta Description for SEO
+    const tabData = {
+        'overview': {
+            title: 'Dashboard | SKiL MATRiX Notes',
+            desc: 'Access your personal study dashboard: AI Doubt Solver, Focus Timer, CGPA Analyzer, Attendance Pro, and much more. Free for all students 🚀'
+        },
+        'notes': {
+            title: 'Notes Hub | SKiL MATRiX Notes',
+            desc: 'Browse and download premium engineering study notes, previous year question papers, and lab manuals.'
+        },
+        'attendance': {
+            title: 'Attendance Pro | SKiL MATRiX Notes',
+            desc: 'Track your college attendance with smart analytics and never fall below the 75% criteria again.'
+        },
+        'bookmarks': {
+            title: 'My Bookmarks | SKiL MATRiX Notes',
+            desc: 'Access all your saved study materials, notes, and specific AI doubts instantly before your exams.'
+        },
+        'codetantra': {
+            title: 'CodeTantra Solutions | SKiL MATRiX Notes',
+            desc: 'Unlock detailed solutions and explanations for all your CodeTantra lab assignments and practicals.'
+        },
+        'ai-tools': {
+            title: 'AI Coach | SKiL MATRiX Notes',
+            desc: 'Get instant, step-by-step explanations for complex engineering concepts using our AI Doubt Solver.'
+        },
+        'cgpa-analyzer': {
+            title: 'CGPA Analyzer | SKiL MATRiX Notes',
+            desc: 'Track your past results and use our smart predictor to calculate required scores for your target CGPA.'
+        },
+        'focusflow': {
+            title: 'NeuroSprint Pro | SKiL MATRiX Notes',
+            desc: 'Boost your study productivity with our specialized deep work timer designed for engineering students.'
+        },
+        'planner': {
+            title: 'Study Planner | SKiL MATRiX Notes',
+            desc: 'Generate highly optimized study schedules tailored to your exams and syllabus using AI.'
+        },
+        'model-papers': {
+            title: 'Model Papers | SKiL MATRiX Notes',
+            desc: 'Generate custom practice exam papers using AI based on your specific university syllabus and past trends.'
+        },
+        'leaderboard': {
+            title: 'Leaderboard | SKiL MATRiX Notes',
+            desc: 'Compete with your peers and track your academic rankings based on your study consistency and scores.'
+        },
+        'subscription': {
+            title: 'Premium Subscriptions | SKiL MATRiX Notes',
+            desc: 'Upgrade your SKiL MATRiX experience with premium access to lab solutions and unlimited AI features.'
+        }
+    };
+    
+    const currentTabData = tabData[tabId] || tabData['overview'];
+    document.title = currentTabData.title;
+    
+    const metaDesc = document.getElementById('meta-description');
+    if (metaDesc) metaDesc.setAttribute('content', currentTabData.desc);
+
     // GA4 SPA Tracking
     if (window.trackSPAView) {
         window.trackSPAView(`/dashboard/${tabId}`);
