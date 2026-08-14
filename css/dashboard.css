@@ -1101,16 +1101,6 @@
     animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.loader-pro::before {
-    content: '';
-    width: 20px;
-    height: 20px;
-    border: 3px solid var(--primary);
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
 @keyframes spin {
     to {
         transform: rotate(360deg);
@@ -3566,21 +3556,40 @@
     transition: 0.7s ease-in-out;
 }
 
-/* Loader Animation */
+/* Ultra-Premium Conic Gradient Loader */
 .loader-pro {
-    width: 40px;
-    height: 40px;
-    border: 3px solid rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    border-top-color: var(--secondary);
-    animation: spin 1s ease-in-out infinite;
+    position: relative;
+    width: 48px;
+    height: 48px;
     margin: 20px auto;
+    border-radius: 50%;
+    background: conic-gradient(
+        from 90deg at 50% 50%,
+        transparent 0%,
+        rgba(108, 99, 255, 0.1) 40%,
+        rgba(108, 99, 255, 0.8) 75%,
+        #00f2ff 95%,
+        #ffffff 100%
+    );
+    animation: luxuriousSpin 1s linear infinite;
+    -webkit-mask: radial-gradient(transparent 54%, #000 56%);
+    mask: radial-gradient(transparent 54%, #000 56%);
 }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+.loader-pro::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: inherit;
+    filter: blur(6px);
+    opacity: 0.6;
+    z-index: -1;
+}
+
+@keyframes luxuriousSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 /* Stagger Delay for Lists */
