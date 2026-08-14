@@ -69,12 +69,17 @@ window.goBackToHub = function () {
 // --- Views ---
 
 function renderOnboarding(root) {
-    const collegesHtml = CodeTantraDB.colleges.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-    const branchesHtml = CodeTantraDB.branches.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
-    const semestersHtml = CodeTantraDB.semesters.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+    const colDefault = CodeTantraDB.colleges.length === 1 ? '' : '<option value="">Select College</option>';
+    const collegesHtml = colDefault + CodeTantraDB.colleges.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    
+    const brDefault = CodeTantraDB.branches.length === 1 ? '' : '<option value="">Select Branch</option>';
+    const branchesHtml = brDefault + CodeTantraDB.branches.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+    
+    const semDefault = CodeTantraDB.semesters.length === 1 ? '' : '<option value="">Select Semester</option>';
+    const semestersHtml = semDefault + CodeTantraDB.semesters.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
 
     root.innerHTML = `
-        <div class="ct-dashboard-container">
+        <div class="ct-dashboard-container ct-onboarding-flex-center">
             <div class="ct-onboarding-wrapper">
                 <img src="../assets/codetantra.png" onerror="this.style.display='none'" alt="CodeTantra Logo" class="ct-setup-logo">
                 <h2 class="ct-onboarding-title">CodeTantra Solutions Hub</h2>
@@ -83,21 +88,18 @@ function renderOnboarding(root) {
                     <div class="ct-form-group">
                         <label>🏛️ College</label>
                         <select id="ct-college" class="ct-select" required>
-                            <option value="">Select College</option>
                             ${collegesHtml}
                         </select>
                     </div>
                     <div class="ct-form-group">
                         <label>🎓 Branch</label>
                         <select id="ct-branch" class="ct-select" required>
-                            <option value="">Select Branch</option>
                             ${branchesHtml}
                         </select>
                     </div>
                     <div class="ct-form-group">
                         <label>📅 Semester</label>
                         <select id="ct-semester" class="ct-select" required>
-                            <option value="">Select Semester</option>
                             ${semestersHtml}
                         </select>
                     </div>
@@ -256,19 +258,19 @@ function renderSubjectPage(root, subjectId) {
 
     root.innerHTML = `
         <div class="ct-dashboard-container" id="ct-subject-container">
-            <button class="ct-back-btn" onclick="window.goBackToHub()">← Back</button>
+            <div class="ct-subject-page-top-actions">
+                <button class="ct-back-btn" onclick="window.goBackToHub()">← Back</button>
+                <button class="ct-btn-outline ct-download-btn" onclick="window.downloadPDF()">
+                    <i class="fa-solid fa-download"></i> PDF
+                </button>
+            </div>
 
             <div class="ct-subject-page-header">
                 <div class="ct-subject-page-title-row">
                     ${headerIconHtml}
-                    <div>
-                        <h1 class="ct-subject-page-name">${subject.name}</h1>
-                        <p class="ct-subject-page-fullname">${subject.fullName} — Code Solutions</p>
-                    </div>
+                    <h1 class="ct-subject-page-name">${subject.name}</h1>
                 </div>
-                <button class="ct-btn-outline ct-download-btn" onclick="window.downloadPDF()">
-                    <i class="fa-solid fa-download"></i> PDF
-                </button>
+                <p class="ct-subject-page-fullname">${subject.fullName} — Code Solutions</p>
             </div>
 
             <input type="text" id="ct-search" class="ct-search-bar" placeholder="🔍 Search questions, weeks...">
@@ -462,26 +464,16 @@ window.downloadPDF = async function () {
 
 // ── Built-in syntax highlighter (no Prism needed) ───────────────
 function highlightCode(code, lang) {
+    if (!lang) lang = 'java'; // default to Java if missing
     if (lang === 'sql') return highlightSQL(code);
-    // For other languages, just escape
-    return escapeHtml(code);
+    if (lang === 'java' || lang === 'c' || lang === 'cpp') return highlightJava(code);
+    if (lang === 'python') return highlightPython(code);
+    
+    // Fallback for unknown languages (try to highlight like Java/C)
+    return highlightJava(code);
 }
 
-function highlightSQL(code) {
-    // Tokenize the code into segments, preserving order
-    const SQL_KEYWORDS = /\b(SELECT|FROM|WHERE|AND|OR|NOT|BETWEEN|IN|IS|NULL|ORDER|GROUP|BY|HAVING|ASC|DESC|AS|DISTINCT|JOIN|INNER|LEFT|RIGHT|OUTER|FULL|ON|UNION|ALL|EXCEPT|INTERSECT|INSERT|INTO|VALUES|UPDATE|SET|DELETE|CREATE|TABLE|DATABASE|DROP|ALTER|ADD|COLUMN|PRIMARY|FOREIGN|KEY|REFERENCES|INDEX|VIEW|TRIGGER|PROCEDURE|FUNCTION|BEGIN|END|COMMIT|ROLLBACK|TRANSACTION|COUNT|SUM|MAX|MIN|AVG|UPPER|LOWER|LENGTH|SUBSTR|TRIM|COALESCE|CASE|WHEN|THEN|ELSE|LIMIT|OFFSET|EXISTS|LIKE|ILIKE|SIMILAR|RETURNING|WITH|RECURSIVE|GRANT|REVOKE|CONSTRAINT|UNIQUE|CHECK|DEFAULT|SEQUENCE|SERIAL|AUTO_INCREMENT|IF|REPLACE|TRUNCATE|EXPLAIN|ANALYZE|VACUUM)\b/gi;
-
-    // Parse tokens in priority order
-    const patterns = [
-        { re: /--[^\n]*/g, cls: 'ct-t-comment' },  // -- comments
-        { re: /\/\*[\s\S]*?\*\//g, cls: 'ct-t-comment' },  // /* block comments */
-        { re: /'(?:[^'\\]|\\.)*'/g, cls: 'ct-t-string' },  // 'strings'
-        { re: SQL_KEYWORDS, cls: 'ct-t-keyword' },  // SQL keywords
-        { re: /\b\d+\.?\d*\b/g, cls: 'ct-t-number' },  // numbers
-        { re: /[<>=!]+|[+\-*\/]/g, cls: 'ct-t-operator' },  // operators
-    ];
-
-    // Collect all token spans with start/end positions
+function tokenizeAndHighlight(code, patterns) {
     let spans = [];
     patterns.forEach(({ re, cls }) => {
         const flags = re.flags.includes('g') ? re.flags : re.flags + 'g';
@@ -492,7 +484,6 @@ function highlightSQL(code) {
         }
     });
 
-    // Sort by position, then remove overlapping tokens (first-come wins)
     spans.sort((a, b) => a.start - b.start || a.end - b.end);
     const kept = [];
     let cursor = 0;
@@ -503,7 +494,6 @@ function highlightSQL(code) {
         }
     }
 
-    // Build highlighted output
     let out = '';
     let pos = 0;
     for (const { start, end, text, cls } of kept) {
@@ -513,6 +503,47 @@ function highlightSQL(code) {
     }
     if (pos < code.length) out += escapeHtml(code.slice(pos));
     return out;
+}
+
+function highlightSQL(code) {
+    const SQL_KEYWORDS = /\b(SELECT|FROM|WHERE|AND|OR|NOT|BETWEEN|IN|IS|NULL|ORDER|GROUP|BY|HAVING|ASC|DESC|AS|DISTINCT|JOIN|INNER|LEFT|RIGHT|OUTER|FULL|ON|UNION|ALL|EXCEPT|INTERSECT|INSERT|INTO|VALUES|UPDATE|SET|DELETE|CREATE|TABLE|DATABASE|DROP|ALTER|ADD|COLUMN|PRIMARY|FOREIGN|KEY|REFERENCES|INDEX|VIEW|TRIGGER|PROCEDURE|FUNCTION|BEGIN|END|COMMIT|ROLLBACK|TRANSACTION|COUNT|SUM|MAX|MIN|AVG|UPPER|LOWER|LENGTH|SUBSTR|TRIM|COALESCE|CASE|WHEN|THEN|ELSE|LIMIT|OFFSET|EXISTS|LIKE|ILIKE|SIMILAR|RETURNING|WITH|RECURSIVE|GRANT|REVOKE|CONSTRAINT|UNIQUE|CHECK|DEFAULT|SEQUENCE|SERIAL|AUTO_INCREMENT|IF|REPLACE|TRUNCATE|EXPLAIN|ANALYZE|VACUUM)\b/gi;
+    const patterns = [
+        { re: /--[^\n]*/g, cls: 'ct-t-comment' },
+        { re: /\/\*[\s\S]*?\*\//g, cls: 'ct-t-comment' },
+        { re: /'(?:[^'\\]|\\.)*'/g, cls: 'ct-t-string' },
+        { re: SQL_KEYWORDS, cls: 'ct-t-keyword' },
+        { re: /\b\d+\.?\d*\b/g, cls: 'ct-t-number' },
+        { re: /[<>=!]+|[+\-*\/]/g, cls: 'ct-t-operator' },
+    ];
+    return tokenizeAndHighlight(code, patterns);
+}
+
+function highlightJava(code) {
+    const JAVA_KEYWORDS = /\b(abstract|continue|for|new|switch|assert|default|goto|package|synchronized|boolean|do|if|private|this|break|double|implements|protected|throw|byte|else|import|public|throws|case|enum|instanceof|return|transient|catch|extends|int|short|try|char|final|interface|static|void|class|finally|long|strictfp|volatile|const|float|native|super|while|String|System|out|println|print|Scanner|Math|util|java)\b/g;
+    const patterns = [
+        { re: /\/\/[^\n]*/g, cls: 'ct-t-comment' },
+        { re: /\/\*[\s\S]*?\*\//g, cls: 'ct-t-comment' },
+        { re: /"(?:[^"\\]|\\.)*"/g, cls: 'ct-t-string' },
+        { re: /'(?:[^'\\]|\\.)*'/g, cls: 'ct-t-string' },
+        { re: JAVA_KEYWORDS, cls: 'ct-t-keyword' },
+        { re: /\b\d+\.?\d*[fFdDlL]?\b/g, cls: 'ct-t-number' },
+        { re: /[<>=!]+|[+\-*\/]/g, cls: 'ct-t-operator' },
+    ];
+    return tokenizeAndHighlight(code, patterns);
+}
+
+function highlightPython(code) {
+    const PY_KEYWORDS = /\b(False|None|True|and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield|print|len|range)\b/g;
+    const patterns = [
+        { re: /#[^\n]*/g, cls: 'ct-t-comment' },
+        { re: /"""[\s\S]*?"""|'''[\s\S]*?'''/g, cls: 'ct-t-string' },
+        { re: /"(?:[^"\\]|\\.)*"/g, cls: 'ct-t-string' },
+        { re: /'(?:[^'\\]|\\.)*'/g, cls: 'ct-t-string' },
+        { re: PY_KEYWORDS, cls: 'ct-t-keyword' },
+        { re: /\b\d+\.?\d*\b/g, cls: 'ct-t-number' },
+        { re: /[<>=!]+|[+\-*\/]/g, cls: 'ct-t-operator' },
+    ];
+    return tokenizeAndHighlight(code, patterns);
 }
 
 function escapeHtml(str) {
@@ -586,20 +617,22 @@ function renderTheorySubjectPage(root, subject) {
 
     root.innerHTML = `
         <div class="ct-dashboard-container" id="ct-subject-container">
-            <button class="ct-back-btn" onclick="window.goBackToHub()">← Back</button>
-
-            <div class="ct-subject-page-header">
-                <div class="ct-subject-page-title-row">
-                    ${headerIconHtml}
-                    <div>
-                        <h1 class="ct-subject-page-name">${subject.name} <span class="ct-theory-badge" style="font-size:0.6rem; background:#fff; color:#000; padding:3px 8px; border-radius:4px; vertical-align:middle; margin-left:8px;">THEORY</span></h1>
-                        <p class="ct-subject-page-fullname">${subject.fullName} — Theory Questions</p>
-                    </div>
-                </div>
+            <div class="ct-subject-page-top-actions">
+                <button class="ct-back-btn" onclick="window.goBackToHub()">← Back</button>
                 <button class="ct-btn-outline ct-download-btn" onclick="window.downloadPDF()">
                     <i class="fa-solid fa-download"></i> PDF
                 </button>
             </div>
+
+            <div class="ct-subject-page-header">
+                <div class="ct-subject-page-title-row">
+                    ${headerIconHtml}
+                    <h1 class="ct-subject-page-name">${subject.name} <span class="ct-theory-badge" style="font-size:0.6rem; background:#fff; color:#000; padding:3px 8px; border-radius:4px; vertical-align:middle; margin-left:8px;">THEORY</span></h1>
+                </div>
+                <p class="ct-subject-page-fullname">${subject.fullName} — Theory Questions</p>
+            </div>
+
+            <input type="text" id="ct-search" class="ct-search-bar" placeholder="🔍 Search questions, units...">
 
             <div id="ct-weeks-container">
                 ${unitsHtml}

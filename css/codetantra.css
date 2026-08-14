@@ -21,17 +21,24 @@
 .ct-header-info p  { color: var(--text-dim, #7a8a9e); font-size: 0.85rem; }
 
 /* ── Subject page header ─────────────── */
+.ct-subject-page-top-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+.ct-subject-page-top-actions .ct-back-btn { margin-bottom: 0; }
+
 .ct-subject-page-header {
     display: flex;
+    flex-direction: column;
     align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 1.5rem;
 }
-.ct-subject-page-title-row { display: flex; align-items: center; gap: 0.75rem; }
-.ct-subject-page-name      { font-size: 1.5rem; font-weight: 800; color: #fff; margin: 0 0 0.15rem; line-height: 1.2; }
-.ct-subject-page-fullname  { color: var(--text-dim, #7a8a9e); font-size: 0.82rem; margin: 0; }
+.ct-subject-page-title-row { display: flex; align-items: center; gap: 0.65rem; }
+.ct-subject-page-name      { font-size: 1.5rem; font-weight: 800; color: #fff; margin: 0; line-height: 1.2; }
+.ct-subject-page-fullname  { color: var(--text-dim, #7a8a9e); font-size: 0.82rem; margin: 0; line-height: 1.4; }
 
 /* ── Pill badge (SQL, PY …) ──────────── */
 .ct-subject-pill-badge {
@@ -64,13 +71,13 @@
 
 /* ── Back button ─────────────────────── */
 .ct-back-btn {
-    background: transparent; border: none;
-    color: var(--text-dim, #7a8a9e); cursor: pointer;
-    font-size: 0.88rem; margin-bottom: 0.75rem;
-    display: inline-flex; align-items: center; gap: 0.35rem;
-    padding: 0; transition: color .2s;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    color: #e0e6ed; cursor: pointer; border-radius: 8px;
+    font-size: 0.85rem; margin-bottom: 1.25rem;
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 6px 14px; transition: all .2s ease;
 }
-.ct-back-btn:hover { color: #00f2ff; }
+.ct-back-btn:hover { background: rgba(0,242,255,0.08); border-color: rgba(0,242,255,0.3); color: #00f2ff; transform: translateX(-3px); }
 
 /* ── Search bar ──────────────────────── */
 .ct-search-bar {
@@ -183,7 +190,7 @@
     padding: 0.85rem 1.1rem !important;
     background: #111318 !important;
     font-family: 'JetBrains Mono','Fira Code','Consolas',monospace;
-    font-size: 0.82rem; line-height: 1.6; overflow-x: auto;
+    font-size: 0.74rem; line-height: 1.6; overflow-x: auto;
     color: #d4d4d4;
 }
 .ct-code-container code { font-family: inherit; font-size: inherit; color: inherit; }
@@ -196,8 +203,16 @@
 .ct-t-operator { color: #d4d4d4; }                     /* <> = + -               → white-grey */
 
 /* ── Onboarding ──────────────────────── */
+.ct-onboarding-flex-center {
+    display: block;
+    min-height: calc(100vh - 120px);
+    padding: 0.5rem 1rem 2rem;
+}
+
 .ct-onboarding-wrapper {
-    max-width: 440px; margin: 2rem auto;
+    max-width: 440px; 
+    width: 100%;
+    margin: 0 auto;
     background: rgba(21,19,34,.85);
     border: 1px solid rgba(123,97,255,.2);
     border-radius: 16px; padding: 2rem 1.75rem;
@@ -256,14 +271,14 @@
 
 /* ── Responsive ──────────────────────── */
 @media(max-width:768px){
-    .ct-dashboard-container{padding:.9rem 1rem}
+    .ct-dashboard-container{padding:.9rem 0.5rem}
     .ct-subject-page-name{font-size:1.25rem}
     .ct-subject-grid{grid-template-columns:1fr 1fr}
-    .ct-code-container pre{ font-size: 0.76rem; }
+    .ct-code-container pre{ font-size: 0.65rem; }
 }
 @media(max-width:480px){
     .ct-subject-grid{grid-template-columns:1fr}
-    .ct-subject-page-title-row{flex-direction:column;align-items:flex-start}
+    .ct-subject-page-title-row{gap:0.5rem;align-items:center}
 }
 
 /* ════════════════════════════════════════
@@ -395,4 +410,64 @@
     color: var(--text-dim, #7a8a9e);
     margin: 1.5rem 0 0.6rem;
     padding-left: 0.25rem;
+}
+
+/* ── Mobile Optimization ──────────────── */
+@media (max-width: 600px) {
+    .ct-onboarding-flex-center {
+        padding: 0.5rem 0.5rem 1rem;
+    }
+    .ct-onboarding-wrapper {
+        padding: 1.25rem 1.25rem;
+    }
+    .ct-setup-logo {
+        width: 80px;
+        margin-bottom: 0.75rem;
+    }
+    .ct-onboarding-title {
+        font-size: 1.1rem;
+    }
+    .ct-onboarding-sub {
+        font-size: 0.78rem;
+        margin-bottom: 1rem;
+    }
+    .ct-form-group {
+        margin-bottom: 0.75rem;
+    }
+    .ct-form-group label {
+        margin-bottom: 0.25rem;
+        font-size: 0.78rem;
+    }
+    .ct-select {
+        padding: 7px 10px;
+        font-size: 0.85rem;
+    }
+    .ct-btn-primary {
+        padding: 8px 16px;
+    }
+
+    /* Subject View Mobile Optimizations */
+    .ct-subject-page-name {
+        font-size: 1.25rem;
+    }
+    .ct-subject-page-fullname {
+        font-size: 0.75rem;
+    }
+    .ct-subject-page-title-row {
+        gap: 0.5rem;
+    }
+    .ct-pill-lg {
+        font-size: 0.75rem;
+        padding: 3px 8px;
+    }
+    .ct-week-header {
+        padding: 0.7rem 0.8rem;
+        font-size: 0.9rem;
+    }
+    .ct-question-title {
+        font-size: 0.88rem;
+    }
+    .ct-qa-line {
+        font-size: 0.8rem;
+    }
 }
