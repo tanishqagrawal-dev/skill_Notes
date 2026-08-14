@@ -125,14 +125,21 @@
             <div class="hero-grid-top">
                 <div class="hero-text-pro" data-aos="fade-up">
                     <div class="badge-pro">
-                        <span>Next-Gen Engineering Ecosystem</span>
+                        <span>✨ The Ultimate Study Hub</span>
                     </div>
                     <h1 class="hero-heading-pro">
-                        Master Your Studies<br>
-                        Stay Ahead<br>
-                        <span class="gradient-text-pro">With SKiL MATRiX</span>
+                        <span class="desktop-only">
+                            Master Your Studies<br>
+                            Stay Ahead<br>
+                            <span class="gradient-text-pro">With SKiL MATRiX</span>
+                        </span>
+                        <span class="mobile-only">
+                            Master Your Studies<br>
+                            <span class="gradient-text-pro">With SKiL MATRiX</span>
+                        </span>
                     </h1>
-                    <p class="hero-subtitle-pro">Your all-in-one platform for structured engineering notes, AI-powered logic compilers, and real-time CGPA analytics. Built by students, for students.</p>
+                    <p class="hero-subtitle-pro desktop-only">Your all-in-one platform for structured engineering notes, AI-powered logic compilers, and real-time CGPA analytics. Built by students, for students.</p>
+                    <p class="hero-subtitle-pro mobile-only">Your all-in-one platform for engineering notes, AI tools, and real-time CGPA analytics.</p>
                     <div class="hero-cta-pro">
                         <button class="btn-primary-tech" onclick="window.location.href='pages/dashboard#/notes'">
                             <span>Explore Notes</span>
@@ -161,7 +168,36 @@
                 </div>
             </div>
         </div>
+
+        <!-- Premium Mobile Scroll Indicator -->
+        <div class="mobile-scroll-indicator-pro" id="mobileScrollIndicator">
+            <div class="scroll-mouse">
+                <div class="scroll-wheel"></div>
+            </div>
+            <div class="scroll-arrows">
+                <span class="arrow-down a1"></span>
+                <span class="arrow-down a2"></span>
+                <span class="arrow-down a3"></span>
+            </div>
+            <div class="scroll-text">Scroll Down</div>
+        </div>
     </section>
+
+    <!-- Scroll Indicator Logic -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const scrollIndicator = document.getElementById("mobileScrollIndicator");
+            if (scrollIndicator) {
+                window.addEventListener("scroll", () => {
+                    if (window.scrollY > 50) {
+                        scrollIndicator.classList.add("hidden");
+                    } else {
+                        scrollIndicator.classList.remove("hidden");
+                    }
+                }, { passive: true });
+            }
+        });
+    </script>
 
     <div class="section-divider"></div>
 

@@ -124,6 +124,23 @@ img,
     display: none;
 }
 
+/* Responsive Text Visibility Utilities */
+.mobile-only {
+    display: none !important;
+}
+
+@media screen and (max-width: 640px) {
+    .desktop-only {
+        display: none !important;
+    }
+    span.mobile-only {
+        display: inline !important;
+    }
+    p.mobile-only, div.mobile-only {
+        display: block !important;
+    }
+}
+
 html,
 body {
     overflow-x: hidden;
@@ -1405,9 +1422,17 @@ input:checked+.toggle-slider:before {
     }
 }
 
+/* Premium Mobile Scroll Indicator (Hidden on Desktop) */
+.mobile-scroll-indicator-pro {
+    display: none;
+}
+
 @media screen and (max-width: 640px) {
     .hero-heading-pro {
-        font-size: 2.2rem;
+        font-size: 2.25rem;
+        line-height: 1.2;
+        letter-spacing: -0.01em;
+        margin-bottom: 1rem;
     }
 
     .ui-grid {
@@ -1436,13 +1461,121 @@ input:checked+.toggle-slider:before {
         justify-content: center;
     }
 
+    .hero {
+        padding-top: 5rem; /* Gap between top bar and text */
+    }
+
     .hero-text-pro {
+        min-height: calc(100vh - 5rem);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
         align-items: center;
         text-align: center;
+        padding-top: 2rem;
+        padding-bottom: 6rem;
     }
 
     .hero-subtitle-pro {
+        font-size: 1.05rem;
+        line-height: 1.6;
         margin-bottom: 1.8rem;
+        padding: 0 0.5rem;
+    }
+
+    /* Premium Mobile Scroll Indicator */
+    .mobile-scroll-indicator-pro {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        bottom: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 90;
+        transition: opacity 0.3s ease-out, visibility 0.3s ease-out, transform 0.3s ease-out;
+    }
+
+    .mobile-scroll-indicator-pro.hidden {
+        opacity: 0;
+        visibility: hidden;
+        transform: translate(-50%, 15px);
+    }
+
+    .scroll-mouse {
+        width: 24px;
+        height: 40px;
+        border: 2px solid rgba(123, 97, 255, 0.7);
+        border-radius: 12px;
+        position: relative;
+        box-shadow: 0 0 15px rgba(123, 97, 255, 0.4), inset 0 0 10px rgba(123, 97, 255, 0.2);
+        background: rgba(11, 15, 25, 0.6);
+        backdrop-filter: blur(5px);
+        margin-bottom: 8px;
+    }
+
+    .scroll-wheel {
+        width: 3px;
+        height: 8px;
+        background: #00F2FF;
+        border-radius: 2px;
+        position: absolute;
+        top: 6px;
+        left: 50%;
+        transform: translateX(-50%);
+        animation: premiumScrollWheel 2s infinite cubic-bezier(0.15, 0.41, 0.69, 0.94);
+        box-shadow: 0 0 8px #00F2FF, 0 0 12px #00F2FF;
+    }
+
+    .scroll-arrows {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        margin-bottom: 6px;
+    }
+
+    .arrow-down {
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid #00F2FF;
+        border-bottom: 2px solid #00F2FF;
+        transform: rotate(45deg);
+        animation: premiumScrollArrows 2s infinite;
+    }
+
+    .arrow-down.a1 {
+        animation-delay: 0s;
+    }
+
+    .arrow-down.a2 {
+        animation-delay: 0.15s;
+    }
+
+    .arrow-down.a3 {
+        animation-delay: 0.3s;
+    }
+
+    .scroll-text {
+        font-size: 0.65rem;
+        color: #94a3b8;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        opacity: 0.8;
+    }
+
+    @keyframes premiumScrollWheel {
+        0% { top: 6px; opacity: 1; height: 8px; }
+        50% { top: 16px; opacity: 1; height: 10px; }
+        100% { top: 22px; opacity: 0; height: 4px; }
+    }
+
+    @keyframes premiumScrollArrows {
+        0% { opacity: 0; transform: rotate(45deg) translate(-3px, -3px); }
+        50% { opacity: 1; }
+        100% { opacity: 0; transform: rotate(45deg) translate(3px, 3px); }
     }
 }
 
@@ -2253,6 +2386,7 @@ input:checked+.toggle-slider:before {
         align-items: stretch;
         margin: 0;
     }
+
 
     .nav-links a,
     .nav-menu-items a {

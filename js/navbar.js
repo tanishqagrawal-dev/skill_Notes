@@ -59,6 +59,7 @@ function renderNavbar() {
                         <div class="mobile-close-btn" id="mobile-close-btn" style="font-size: 2.2rem; color: rgba(255, 255, 255, 0.6); text-shadow: none; font-weight: 300; cursor: pointer; padding: 0; line-height: 1; margin-left: 15px; margin-top: 5px;">&times;</div>
                     </div>
                     <div class="nav-menu-items">
+                        <a href="${getLinkPath('pages/dashboard')}" class="${currentPage === 'dashboard' && window.location.search === '' && window.location.hash === '' ? 'active' : ''}">Dashboard</a>
                         <a href="${getLinkPath('pages/dashboard')}#/notes" class="${currentPage === 'dashboard' && window.location.hash.includes('notes') ? 'active' : ''}">Notes Hub</a>
                         <div class="nav-dropdown" id="tools-dropdown-container">
                             <a href="javascript:void(0)" class="dropdown-toggle" id="tools-dropdown-toggle">Tools <span class="dropdown-arrow">▼</span></a>
@@ -114,7 +115,6 @@ function renderNavbar() {
                             </div>
                         </div>
                         <a href="${getLinkPath('pages/dashboard')}?tab=leaderboard" class="${currentPage === 'dashboard' && window.location.search.includes('tab=leaderboard') ? 'active' : ''}">Leaderboard</a>
-                        <a href="${getLinkPath('pages/dashboard')}" class="${currentPage === 'dashboard' && window.location.search === '' && window.location.hash === '' ? 'active' : ''}">Dashboard</a>
                         <a href="https://chat.whatsapp.com/JRfWjBhzkALJHPgeMAnNvT" target="_blank" rel="noopener noreferrer">Community</a>
                     </div>
                 </div>
