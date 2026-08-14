@@ -29,6 +29,35 @@
     <script>
         window.location.replace("dashboard.html?tab=subscription");
     </script>
+
+    <!-- Structured Data for AdSense & SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://skilmatrix.site/#website",
+          "url": "https://skilmatrix.site/",
+          "name": "SKiL MATRiX",
+          "description": "The ultimate study platform for engineering students.",
+          "publisher": {
+            "@id": "https://skilmatrix.site/#organization"
+          }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://skilmatrix.site/#organization",
+          "name": "SKiL MATRiX",
+          "url": "https://skilmatrix.site/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://skilmatrix.site/assets/logo.jpg"
+          }
+        }
+      ]
+    }
+    </script>
 </head>
 <body style="background-color: #0f111a; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh;">
     <p>Redirecting to Subscription Plans...</p>

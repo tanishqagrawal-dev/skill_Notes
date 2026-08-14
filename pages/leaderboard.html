@@ -70,12 +70,53 @@
 <!-- Google AdSense -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8465813445488249"
      crossorigin="anonymous"></script>
+
+    <!-- Structured Data for AdSense & SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://skilmatrix.site/#website",
+          "url": "https://skilmatrix.site/",
+          "name": "SKiL MATRiX",
+          "description": "The ultimate study platform for engineering students.",
+          "publisher": {
+            "@id": "https://skilmatrix.site/#organization"
+          }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://skilmatrix.site/#organization",
+          "name": "SKiL MATRiX",
+          "url": "https://skilmatrix.site/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://skilmatrix.site/assets/logo.jpg"
+          }
+        }
+      ]
+    }
+    </script>
 </head>
 
 <body class="dashboard-body">
 
     <!-- Navigation Hub -->
-    <div id="navbar-container"></div>
+    <nav id="navbar-container">
+        <!-- SEO Fallback Navigation for Bots -->
+        <div style="display:none;">
+            <ul>
+                <li><a href="https://skilmatrix.site/">Home</a></li>
+                <li><a href="https://skilmatrix.site/pages/dashboard.html">Dashboard</a></li>
+                <li><a href="https://skilmatrix.site/pages/about.html">About Us</a></li>
+                <li><a href="https://skilmatrix.site/pages/contact.html">Contact</a></li>
+                <li><a href="https://skilmatrix.site/pages/privacy.html">Privacy Policy</a></li>
+                <li><a href="https://skilmatrix.site/pages/terms.html">Terms & Conditions</a></li>
+            </ul>
+        </div>
+    </nav>
     <script src="../js/navbar.js?v=6.0"></script>
 
     <div class="dashboard-container dashboard-standalone">
