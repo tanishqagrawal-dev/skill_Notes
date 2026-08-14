@@ -3363,15 +3363,15 @@ function renderAITools() {
     const isLocked = !isPremium && aiUsage >= MAX_FREE_USAGE;
 
     return `
-        <div class="tab-pane active fade-in" style="padding: 0; padding-top: 10px; width: 100%; height: calc(100vh - 130px); display: flex; justify-content: center; align-items: flex-start; box-sizing: border-box; background: transparent;">
+        <div id="ai-coach-tab" class="tab-pane active fade-in" style="padding: 0; width: 100%; height: calc(100vh - 160px); display: flex; justify-content: center; align-items: flex-start; box-sizing: border-box; background: transparent; overflow: hidden;">
             
             <style>
                 /* Dark Premium Theme CSS */
                 .ai-premium-container {
-                    width: 100%;
-                    max-width: 1000px;
+                    width: 98%;
+                    max-width: 1400px;
                     height: 100%;
-                    max-height: calc(100vh - 140px);
+                    max-height: 100%;
                     background: #0a0a0a;
                     border: 1px solid rgba(255, 255, 255, 0.08);
                     border-radius: 20px;
@@ -3383,7 +3383,7 @@ function renderAITools() {
                 }
                 
                 .ai-header {
-                    padding: 1.2rem 2rem;
+                    padding: 0.8rem 1.5rem;
                     background: #111111;
                     border-bottom: 1px solid rgba(255,255,255,0.06);
                     display: flex;
@@ -3399,27 +3399,27 @@ function renderAITools() {
                 }
 
                 .ai-header-icon.premium-tier {
-                    width: 48px;
-                    height: 48px;
+                    width: 36px;
+                    height: 36px;
                     border-radius: 14px;
                     background: linear-gradient(135deg, #111, #222);
                     border: 1px solid rgba(251, 191, 36, 0.5);
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 1.5rem;
+                    font-size: 1.2rem;
                     color: #fbbf24;
                     box-shadow: 0 0 20px rgba(251, 191, 36, 0.2), inset 0 0 10px rgba(251, 191, 36, 0.1);
                 }
                 .ai-header-icon.free-tier {
-                    width: 44px;
-                    height: 44px;
+                    width: 32px;
+                    height: 32px;
                     border-radius: 12px;
                     background: linear-gradient(135deg, #3b82f6, #1d4ed8);
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 1.3rem;
+                    font-size: 1.1rem;
                     color: white;
                     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
                 }
@@ -3432,7 +3432,7 @@ function renderAITools() {
                 }
                 
                 .ai-header-text h3.premium-tier {
-                    font-size: 1.4rem;
+                    font-size: 1.15rem;
                     font-weight: 800;
                     background: linear-gradient(to right, #fbbf24, #f59e0b, #fbbf24);
                     background-size: 200% auto;
@@ -3443,7 +3443,7 @@ function renderAITools() {
                     letter-spacing: 0.5px;
                 }
                 .ai-header-text h3.free-tier {
-                    font-size: 1.2rem;
+                    font-size: 1rem;
                     font-weight: 600;
                     color: #fff;
                     letter-spacing: 0px;
@@ -3486,14 +3486,17 @@ function renderAITools() {
                 
                 .ai-chat-area {
                     flex: 1;
-                    overflow-y: auto;
                     min-height: 0;
                     padding: 2rem;
                     display: flex;
+                    overflow-y: auto;
+                    overscroll-behavior: contain;
                     flex-direction: column;
                     gap: 1.5rem;
                     scroll-behavior: smooth;
                     background: #0a0a0a;
+                    overflow-y: auto;
+                    overscroll-behavior: contain;
                 }
 
                 .ai-chat-area::-webkit-scrollbar {
@@ -3507,7 +3510,7 @@ function renderAITools() {
                 
                 .quick-prompts-grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    grid-template-columns: repeat(3, 1fr);
                     gap: 1rem;
                     margin-top: auto;
                     margin-bottom: 0;
@@ -3517,12 +3520,12 @@ function renderAITools() {
                     background: #141414;
                     border: 1px solid #262626;
                     border-radius: 12px;
-                    padding: 1rem;
+                    padding: 0.6rem 0.8rem;
                     cursor: pointer;
                     transition: all 0.2s;
                     display: flex;
                     flex-direction: column;
-                    gap: 10px;
+                    gap: 6px;
                 }
                 
                 .premium-prompt-card:hover {
@@ -3531,12 +3534,12 @@ function renderAITools() {
                 }
                 
                 .prompt-icon {
-                    font-size: 1.2rem;
+                    font-size: 1rem;
                     color: #3b82f6;
                 }
                 
                 .prompt-text {
-                    font-size: 0.85rem;
+                    font-size: 0.75rem;
                     color: #d4d4d8;
                     line-height: 1.4;
                 }
@@ -3546,7 +3549,7 @@ function renderAITools() {
                 }
 
                 .ai-input-wrapper {
-                    padding: 1.5rem 2rem;
+                    padding: 0.8rem 1.5rem;
                     background: #111111;
                     border-top: 1px solid rgba(255,255,255,0.06);
                     flex-shrink: 0;
@@ -3556,7 +3559,7 @@ function renderAITools() {
                     background: #1a1a1a;
                     border: 1px solid #333;
                     border-radius: 16px;
-                    padding: 0.6rem;
+                    padding: 0.4rem;
                     display: flex;
                     align-items: flex-end;
                     gap: 10px;
@@ -3575,7 +3578,7 @@ function renderAITools() {
                     color: #fff;
                     font-family: 'Inter', sans-serif;
                     font-size: 0.95rem;
-                    padding: 0.6rem 0.8rem;
+                    padding: 0.4rem 0.6rem;
                     resize: none;
                     min-height: 24px;
                     max-height: 150px;
@@ -3621,11 +3624,14 @@ function renderAITools() {
                     background: #2563eb;
                 }
                 
-                /* Message Styling */
                 .chat-message {
                     display: flex;
                     gap: 16px;
                     max-width: 85%;
+                }
+                
+                .chat-message:last-of-type {
+                    margin-bottom: 2rem;
                 }
                 
                 .user-msg {
@@ -3661,6 +3667,23 @@ function renderAITools() {
                     line-height: 1.6;
                     border-radius: 14px;
                     color: #ededed;
+                    overflow-wrap: break-word;
+                }
+                .msg-bubble p { margin: 0 0 10px 0; }
+                .msg-bubble p:last-child { margin: 0; }
+                .msg-bubble ul, .msg-bubble ol { margin: 0 0 10px 0; padding-left: 20px; }
+                .msg-bubble li { margin-bottom: 4px; }
+                .msg-bubble strong { color: #fff; font-weight: 700; }
+                .msg-bubble code { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
+                .msg-bubble pre { background: #000; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 10px 0; border: 1px solid #333; }
+                .msg-bubble pre code { background: transparent; padding: 0; }
+                .msg-bubble .katex-display {
+                    overflow-x: auto;
+                    overflow-y: hidden;
+                    max-width: 100%;
+                    -webkit-overflow-scrolling: touch;
+                    padding-bottom: 8px;
+                    margin: 10px 0;
                 }
                 
                 .ai-msg .msg-bubble {
@@ -3681,10 +3704,17 @@ function renderAITools() {
 
                 /* Mobile Responsiveness for AI Coach */
                 @media (max-width: 768px) {
+                    #ai-coach-tab {
+                        height: calc(100dvh - 120px) !important;
+                        margin-top: -0.25rem;
+                        margin-left: -0.6rem;
+                        margin-right: -0.6rem;
+                        width: calc(100% + 1.2rem) !important;
+                    }
                     .ai-premium-container {
-                        height: calc(100vh - 140px);
-                        max-height: calc(100vh - 140px);
-                        border-radius: 12px;
+                        width: 100%;
+                        border-radius: 14px;
+                        border: 1px solid rgba(255, 255, 255, 0.08);
                     }
                     .ai-header {
                         padding: 0.8rem;
@@ -3692,11 +3722,11 @@ function renderAITools() {
                         border-bottom: 1px solid #27272a;
                     }
                     .ai-header-title {
-                        gap: 8px;
+                        gap: 6px;
                     }
                     .ai-header-text h3.free-tier, 
                     .ai-header-text h3.premium-tier {
-                        font-size: 0.95rem;
+                        font-size: 0.9rem;
                         white-space: nowrap;
                     }
                     .ai-header-icon {
@@ -3716,12 +3746,34 @@ function renderAITools() {
                         gap: 1rem;
                     }
                     .chat-message {
-                        max-width: 95%;
+                        max-width: 100%;
+                        width: 100%;
                         gap: 8px;
                     }
                     .msg-bubble {
                         padding: 0.8rem;
-                        font-size: 0.82rem;
+                        font-size: 0.75rem;
+                        width: 100%;
+                        max-width: 100%;
+                    }
+                    .quick-prompts-grid {
+                        display: flex;
+                        overflow-x: auto;
+                        padding-bottom: 5px;
+                        gap: 10px;
+                        scroll-snap-type: x mandatory;
+                    }
+                    .quick-prompts-grid::-webkit-scrollbar {
+                        height: 4px;
+                    }
+                    .quick-prompts-grid::-webkit-scrollbar-thumb {
+                        background: #333;
+                        border-radius: 4px;
+                    }
+                    .premium-prompt-card {
+                        min-width: 160px;
+                        flex-shrink: 0;
+                        scroll-snap-align: start;
                     }
                     .ai-msg-actions {
                         display: flex;
@@ -3828,7 +3880,6 @@ function renderAITools() {
                             <div class="ai-header-badge-row" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                                 <h3 id="ai-header-title" class="${isPremium ? 'premium-tier' : 'free-tier'}" style="margin: 0;">SKiL Matrix AI</h3>
                                 <span id="ai-pro-badge" class="pro-badge ${isPremium ? 'premium-tier' : 'free-tier'}">${isPremium ? 'PRO' : 'FREE'}</span>
-                                ${isPremium ? `<button id="demo-downgrade-btn" onclick="window.revertToFreeAI(); this.style.display='none';" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; cursor: pointer; transition: all 0.2s;">Demo Downgrade</button>` : ''}
                             </div>
                             <div class="ai-status">
                                 <span class="online-dot" style="width:8px;height:8px;background:#10b981;border-radius:50%;display:inline-block;"></span> 
@@ -3848,14 +3899,9 @@ function renderAITools() {
                     <!-- Initial AI Greeting -->
                     <div class="chat-message ai-msg">
                         <div class="msg-avatar"><i class="fas fa-robot"></i></div>
-                        <div style="display: flex; flex-direction: row; align-items: flex-end; gap: 10px;">
-                            <div class="msg-bubble">
-                                <span class="desktop-greeting">Hello! I am your <strong>SKiL Matrix AI Coach</strong>. How can I assist your learning today?</span>
-                                <span class="mobile-greeting">How can I assist you today?</span>
-                            </div>
-                            <div class="ai-msg-actions">
-                                <button class="ai-action-icon" onclick="window.copyAIBubbleText(this)" title="Copy text" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: #8f9bb3; cursor: pointer; transition: all 0.2s; padding: 0;"><i class="far fa-copy" style="font-size: 1rem;"></i></button>
-                            </div>
+                        <div class="msg-bubble">
+                            <span class="desktop-greeting">Hello! I am your <strong>SKiL Matrix AI Coach</strong>. How can I assist your learning today?</span>
+                            <span class="mobile-greeting">How can I assist you today?</span>
                         </div>
                     </div>
 
@@ -3865,10 +3911,7 @@ function renderAITools() {
                             <div class="prompt-icon"><i class="fas fa-chart-line"></i></div>
                             <div class="prompt-text"><strong>Merge Sort</strong><br>Explain time complexity</div>
                         </div>
-                        <div class="premium-prompt-card" onclick="window.useQuickPrompt('What is the difference between TCP and UDP?')">
-                            <div class="prompt-icon"><i class="fas fa-network-wired"></i></div>
-                            <div class="prompt-text"><strong>Networking</strong><br>TCP vs UDP</div>
-                        </div>
+
                         <div class="premium-prompt-card" onclick="window.useQuickPrompt('Write a SQL query to find the second highest salary.')">
                             <div class="prompt-icon"><i class="fas fa-database"></i></div>
                             <div class="prompt-text"><strong>SQL Query</strong><br>Second highest salary</div>
@@ -3886,7 +3929,7 @@ function renderAITools() {
                         <button type="button" id="ai-mic-btn" class="ai-action-btn mic-btn" title="Voice Input" onclick="window.startAIVoiceInput()">
                             <i class="fas fa-microphone"></i>
                         </button>
-                        <textarea id="ai-chat-input" placeholder="Message AI Coach..." rows="1" oninput="this.style.height = ''; this.style.height = Math.min(this.scrollHeight, 150) + 'px';"></textarea>
+                        <textarea id="ai-chat-input" placeholder="Message AI..." rows="1" oninput="this.style.height = ''; this.style.height = Math.min(this.scrollHeight, 150) + 'px';" onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); window.handleAIChatSubmit(new Event('submit')); }"></textarea>
                         <button type="submit" id="ai-chat-send" class="ai-action-btn send-btn">
                             <i class="fas fa-arrow-up"></i>
                         </button>
@@ -4120,19 +4163,29 @@ window.handleAIChatSubmit = async function(e) {
 
         document.getElementById(loaderId).remove();
         
-        historyBox.innerHTML += `
-            <div class="chat-message ai-msg">
+        const msgId = 'msg-' + Date.now();
+        historyBox.insertAdjacentHTML('beforeend', `
+            <div class="chat-message ai-msg" id="${msgId}">
                 <div class="msg-avatar"><i class="fas fa-robot"></i></div>
-                <div style="display: flex; flex-direction: row; align-items: flex-end; gap: 10px;">
-                    <div class="msg-bubble">
-                        ${window.marked && window.marked.parse ? marked.parse(answer) : answer.replace(/\n/g, '<br>')}
-                    </div>
-                    <div class="ai-msg-actions">
-                        <button class="ai-action-icon" onclick="window.copyAIBubbleText(this)" title="Copy text" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: #8f9bb3; cursor: pointer; transition: all 0.2s; padding: 0;"><i class="far fa-copy" style="font-size: 1rem;"></i></button>
-                    </div>
+                <div class="msg-bubble">
+                    ${window.marked && window.marked.parse ? marked.parse(answer) : answer.replace(/\n/g, '<br>')}
                 </div>
             </div>
-        `;
+        `);
+        
+        if (window.renderMathInElement) {
+            try {
+                renderMathInElement(document.getElementById(msgId), {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError: false
+                });
+            } catch(e) {}
+        }
     } catch (err) {
         document.getElementById(loaderId).remove();
         historyBox.innerHTML += `

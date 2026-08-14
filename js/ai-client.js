@@ -35,25 +35,24 @@ window.aiClient = {
                 throw new Error("Please login to use the AI Coach.");
             }
 
-            // Populate window.GEMINI_KEYS and window.GROQ_KEYS dynamically from .env
+            // Populate window.GEMINI_KEYS and window.GROQ_KEYS dynamically from the backend
             if (!window.GEMINI_KEYS || !window.GROQ_KEYS) {
                 window.GEMINI_KEYS = [];
                 window.GROQ_KEYS = [];
                 try {
-                    const envRes = await fetch('/.env');
+                    const apiUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
+                    const envRes = await fetch(`${apiUrl}/api/get-ai-keys`);
                     if (envRes.ok) {
-                        const envText = await envRes.text();
-                        const matchGemini = [...envText.matchAll(/GEMINI_API_KEY\d*=(.*)/g)];
-                        if (matchGemini.length > 0) {
-                            window.GEMINI_KEYS = matchGemini.map(m => m[1].trim());
+                        const keysData = await envRes.json();
+                        if (keysData.gemini && keysData.gemini.length > 0) {
+                            window.GEMINI_KEYS = keysData.gemini;
                         }
-                        const matchGroq = [...envText.matchAll(/GROQ_API_KEY\d*=(.*)/g)];
-                        if (matchGroq.length > 0) {
-                            window.GROQ_KEYS = matchGroq.map(m => m[1].trim());
+                        if (keysData.groq && keysData.groq.length > 0) {
+                            window.GROQ_KEYS = keysData.groq;
                         }
                     }
                 } catch (e) {
-                    console.warn("Could not fetch .env keys dynamically.");
+                    console.warn("Could not fetch AI keys dynamically from the server.");
                 }
                 
                 if (window.GEMINI_KEYS.length === 0 && window.GEMINI_API_KEY && !window.GEMINI_API_KEY.includes("INJECT")) {
@@ -105,9 +104,16 @@ window.aiClient = {
                             const title = searchData.query.search[0].title;
                             const pageRes = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=4&exlimit=1&titles=${encodeURIComponent(title)}&explaintext=1&format=json&origin=*`);
                             const pageData = await pageRes.json();
-                            const extract = Object.values(pageData.query.pages)[0].extract;
+                            let extract = Object.values(pageData.query.pages)[0].extract;
                             
                             if (extract && !extract.toLowerCase().includes("may refer to")) {
+                                // Wikipedia plain text extracts can contain LaTeX Math strings and weird indentations
+                                extract = extract.replace(/\{\\displaystyle[^\n]+\}/g, '')
+                                                 .replace(/`/g, '') // remove any stray backticks just in case
+                                                 .split('\n')
+                                                 .map(line => line.trim()) // trim both sides to be absolutely sure
+                                                 .filter(line => line.length > 0)
+                                                 .join('\n'); // use single newline instead of double to keep it compact
                                 aiReply = `**${title}**\n\n${extract}`;
                             } else {
                                 usePredefined = true;
@@ -136,7 +142,7 @@ window.aiClient = {
                                 role: msg.role === "user" ? "user" : "assistant",
                                 content: msg.text
                             }));
-                            groqMessages.unshift({ role: "system", content: "You are SKiL Coach Pro, an expert engineering mentor. You answer doubts clearly and concisely." });
+                            groqMessages.unshift({ role: "system", content: "You are SKiL Coach Pro, an expert engineering mentor. You answer doubts clearly and concisely. MUST format all mathematical equations and variables using LaTeX wrapped in $ or $$." });
                             
                             const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                                 method: "POST",
@@ -164,7 +170,7 @@ window.aiClient = {
                 // 2. Fallback to Gemini API
                 if (!success && window.GEMINI_KEYS && window.GEMINI_KEYS.length > 0) {
                     const systemInstruction = {
-                        parts: [{ text: "You are SKiL Coach Pro, an expert engineering mentor. You answer doubts clearly and concisely. You can use Google Search to find current information if needed." }]
+                        parts: [{ text: "You are SKiL Coach Pro, an expert engineering mentor. You answer doubts clearly and concisely. You can use Google Search to find current information if needed. MUST format all mathematical equations and variables using LaTeX wrapped in $ or $$." }]
                     };
 
                     const contents = window.aiConversationHistory.map(msg => ({
@@ -201,7 +207,7 @@ window.aiClient = {
                 
                 if (!success) {
                     // Fallback to free if all keys fail
-                    throw new Error("All AI API keys failed limit/quota. Retrying in fallback mode.");
+                    throw new Error("Traffic limit reached.");
                 }
             }
 
@@ -215,7 +221,7 @@ window.aiClient = {
         } catch (error) {
             console.error("AI Client Request Failed:", error);
             window.aiConversationHistory.pop(); // Remove the user message
-            return "A network error occurred connecting to the AI. Please check your connection and try again.";
+            return "Our AI servers are currently experiencing unusually high traffic. Please try asking your question again in a few moments!";
         }
     },
 
@@ -299,7 +305,7 @@ window.aiClient = {
             return strategyContent;
         } catch (error) {
             console.error("AI Planner Error:", error);
-            throw new Error(error.message || "Failed to generate plan.");
+            throw new Error("Our servers are currently experiencing high traffic. Please try again in a few minutes.");
         }
     }
 };

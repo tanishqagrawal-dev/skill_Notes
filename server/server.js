@@ -55,7 +55,17 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-
+// --- AI KEYS ENDPOINT (For Client-Side AI Coach) ---
+app.get('/api/get-ai-keys', (req, res) => {
+    // Dynamically grab all GEMINI and GROQ keys from environment variables
+    const geminiKeys = Object.keys(process.env).filter(k => k.startsWith('GEMINI_API_KEY')).map(k => process.env[k]);
+    const groqKeys = Object.keys(process.env).filter(k => k.startsWith('GROQ_API_KEY')).map(k => process.env[k]);
+    
+    res.json({
+        gemini: geminiKeys.filter(Boolean),
+        groq: groqKeys.filter(Boolean)
+    });
+});
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy");
