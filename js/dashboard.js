@@ -2878,39 +2878,39 @@ function renderTimetable() {
     return `
     <style>
         .tt-premium-card {
-            background: rgba(15, 17, 26, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(20, 20, 25, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 16px;
             transition: all 0.3s ease;
         }
         .tt-premium-card:hover {
-            transform: translateY(-4px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: translateY(-2px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
         }
         .tt-input-group {
             position: relative;
         }
         .tt-select-pro {
             width: 100%;
-            border-radius: 14px;
-            background: rgba(10, 12, 20, 0.8);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255,255,255,0.1);
             padding: 0.85rem 1.2rem;
-            color: white !important;
+            color: #f8fafc !important;
             font-size: 0.95rem;
             font-weight: 500;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             appearance: none;
             cursor: pointer;
         }
         .tt-select-pro:focus {
             outline: none;
-            border-color: #7b61ff;
-            box-shadow: 0 0 15px rgba(123, 97, 255, 0.4), inset 0 2px 5px rgba(0,0,0,0.5);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 0 4px rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.06);
         }
         .tt-select-pro option {
             background: #111424;
@@ -2950,7 +2950,23 @@ function renderTimetable() {
             .tt-exam-flex-row {
                 flex-direction: column !important;
                 align-items: flex-start !important;
-                gap: 1.2rem !important;
+                gap: 0.8rem !important;
+            }
+            .tt-exam-card {
+                padding: 1rem !important;
+            }
+            .tt-exam-card h3 {
+                font-size: 1.1rem !important;
+            }
+            .tt-countdown-box {
+                padding: 0.4rem 0.5rem !important;
+                min-width: 45px !important;
+            }
+            .tt-countdown-val {
+                font-size: 1rem !important;
+            }
+            .tt-countdown-lbl {
+                font-size: 0.55rem !important;
             }
             .tt-exam-actions {
                 width: 100%;
@@ -2960,28 +2976,35 @@ function renderTimetable() {
             .tt-exam-info {
                 min-width: 100% !important;
             }
+            .tt-page-title {
+                font-size: 1.5rem !important;
+                white-space: nowrap;
+            }
+            .tt-page-desc {
+                display: none !important;
+            }
         }
         .tt-countdown-box {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 10px;
-            padding: 0.4rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+            padding: 0.5rem 0.6rem;
             text-align: center;
-            min-width: 48px;
+            min-width: 50px;
         }
         .tt-countdown-val {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             font-weight: 700;
-            color: #ffffff;
+            color: #f8fafc;
             line-height: 1.1;
         }
         .tt-countdown-lbl {
             font-size: 0.6rem;
-            color: #94a3b8;
+            color: #64748b;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-            margin-top: 2px;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            margin-top: 3px;
         }
         .tt-exam-card {
             position: relative;
@@ -3001,53 +3024,49 @@ function renderTimetable() {
             20%, 100% { left: 200%; }
         }
     </style>
-    <div class="tab-pane active fade-in" style="padding: 1rem; max-width: 1000px; margin: 0 auto; perspective: 1000px;">
-        <div style="text-align: center; margin-bottom: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-            <h1 class="font-heading" style="font-size: clamp(2rem, 5vw, 2.8rem); text-shadow: 0 10px 30px rgba(123,97,255,0.3); margin: 0;">
-                <span class="tt-floating-icon" style="font-size: 1em; vertical-align: middle; margin-right: 8px;">⏳</span> 
-                Exam <span class="gradient-text" style="background: linear-gradient(135deg, #a78bfa, #00f2ff); -webkit-background-clip: text; color: transparent;">Timetable</span>
-            </h1>
-            <p style="color: #94a3b8; max-width: 500px; margin: 0.5rem auto 0; font-size: 0.95rem; line-height: 1.5; font-weight: 400;">
-                Precision tracking for your academic milestones. Never miss a deadline with real-time dynamic countdowns.
-            </p>
-        </div>
-
-        <div class="tt-premium-card" style="padding: 1.5rem; margin-bottom: 2rem; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; position: relative; z-index: 10;">
-            <!-- Glow background blob -->
-            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 80%; background: radial-gradient(circle, rgba(123,97,255,0.1) 0%, transparent 70%); pointer-events: none; z-index: -1;"></div>
-            
-            <div class="tt-input-group" style="flex: 1; min-width: 180px; max-width: 250px;">
-                <label style="font-size: 0.75rem; color: #a78bfa; font-weight: 800; margin-bottom: 0.4rem; display: block; text-transform: uppercase; letter-spacing: 0.1em; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Target College</label>
-                <select id="user-tt-college" class="tt-select-pro" onchange="window.initTimetable()">
-                    <option value="">-- Select College --</option>
-                    ${(window.GlobalData?.colleges || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
-                </select>
+        <div class="tab-pane active fade-in" style="padding: 1rem; max-width: 1000px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <h1 class="font-heading tt-page-title" style="font-size: clamp(2rem, 5vw, 2.8rem); margin: 0; color: #fff;">
+                    <i class="fa-solid fa-calendar-days" style="margin-right: 12px; color: #7b61ff;"></i>
+                    Exam Timetable
+                </h1>
+                <p class="tt-page-desc" style="color: #94a3b8; max-width: 500px; margin: 0.5rem auto 0; font-size: 0.95rem; line-height: 1.5; font-weight: 400;">
+                    Precision tracking for your academic milestones. Never miss a deadline with real-time dynamic countdowns.
+                </p>
             </div>
-            <div class="tt-input-group" style="flex: 1; min-width: 180px; max-width: 250px;">
-                <label style="font-size: 0.75rem; color: #00f2ff; font-weight: 800; margin-bottom: 0.4rem; display: block; text-transform: uppercase; letter-spacing: 0.1em; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Academic Branch</label>
-                <select id="user-tt-branch" class="tt-select-pro" onchange="window.initTimetable()">
-                    <option value="">-- Select Branch --</option>
-                    ${(window.GlobalData?.branches || []).map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
-                </select>
-            </div>
-            <div class="tt-input-group" style="flex: 1; min-width: 180px; max-width: 250px;">
-                <label style="font-size: 0.75rem; color: #f43f5e; font-weight: 800; margin-bottom: 0.4rem; display: block; text-transform: uppercase; letter-spacing: 0.1em; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Current Semester</label>
-                <select id="user-tt-sem" class="tt-select-pro" onchange="window.initTimetable()">
-                    <option value="">-- Select Semester --</option>
-                    ${[1,2,3,4,5,6,7,8].map(s => `<option value="Semester ${s}">Semester ${s}</option>`).join('')}
-                </select>
-            </div>
-        </div>
 
+            <div class="tt-premium-card" style="padding: 2.5rem; margin-bottom: 2rem; display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center;">
+                <div class="tt-input-group" style="flex: 1; min-width: 180px; max-width: 250px;">
+                    <label style="font-size: 0.7rem; color: #64748b; font-weight: 700; margin-bottom: 0.5rem; display: block; text-transform: uppercase; letter-spacing: 0.1em;">Target College</label>
+                    <select id="user-tt-college" class="tt-select-pro" onchange="window.initTimetable()">
+                        <option value="">-- Select College --</option>
+                        ${(window.GlobalData?.colleges || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="tt-input-group" style="flex: 1; min-width: 180px; max-width: 250px;">
+                    <label style="font-size: 0.7rem; color: #64748b; font-weight: 700; margin-bottom: 0.5rem; display: block; text-transform: uppercase; letter-spacing: 0.1em;">Academic Branch</label>
+                    <select id="user-tt-branch" class="tt-select-pro" onchange="window.initTimetable()">
+                        <option value="">-- Select Branch --</option>
+                        ${(window.GlobalData?.branches || []).map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="tt-input-group" style="flex: 1; min-width: 180px; max-width: 250px;">
+                    <label style="font-size: 0.7rem; color: #64748b; font-weight: 700; margin-bottom: 0.5rem; display: block; text-transform: uppercase; letter-spacing: 0.1em;">Current Semester</label>
+                    <select id="user-tt-sem" class="tt-select-pro" onchange="window.initTimetable()">
+                        <option value="">-- Select Semester --</option>
+                        ${[1,2,3,4,5,6,7,8].map(s => `<option value="Semester ${s}">Semester ${s}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
 
-        <div id="tt-user-list" style="display: flex; flex-direction: column; gap: 2rem; position: relative;">
-            <div style="text-align: center; padding: 5rem 2rem; opacity: 0.8;">
-                <div class="tt-floating-icon" style="font-size: 4rem; margin-bottom: 1.5rem;">🎯</div>
-                <h3 style="margin-bottom: 0.8rem; color: white; font-size: 1.4rem; font-weight: 700; letter-spacing: 0.5px;">Awaiting Configuration</h3>
-                <p style="color: #94a3b8; font-size: 1.05rem; max-width: 400px; margin: 0 auto;">Select your academic profile above to synchronize your personalized exam timeline.</p>
+            <div id="tt-user-list" style="display: flex; flex-direction: column; gap: 2rem; position: relative;">
+                <div style="text-align: center; padding: 4rem 2rem; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.15); border-radius: 16px;">
+                    <i class="fa-solid fa-clipboard-list" style="font-size: 3rem; color: #475569; margin-bottom: 1rem;"></i>
+                    <h3 style="margin-bottom: 0.5rem; color: #f8fafc; font-size: 1.25rem; font-weight: 600; letter-spacing: 0.5px;">Awaiting Configuration</h3>
+                    <p style="color: #64748b; font-size: 0.95rem; max-width: 400px; margin: 0 auto; line-height: 1.6;">Select your academic profile above to synchronize your personalized exam timeline.</p>
+                </div>
             </div>
         </div>
-    </div>
     `;
 }
 
@@ -3252,8 +3271,8 @@ function renderTimetableCards() {
             const mins = Math.floor((diffMs / 1000 / 60) % 60);
             
             // Single premium style for all upcoming exams
-            cardStyle = 'background: rgba(0, 242, 255, 0.02); border: 1px solid rgba(0, 242, 255, 0.2); border-left: 1px solid rgba(0, 242, 255, 0.2); box-shadow: 0 0 20px rgba(0, 242, 255, 0.1), inset 0 0 8px rgba(0, 242, 255, 0.03);';
-            iconHtml = `<div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(0, 242, 255, 0.12); color: #00f2ff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 1px solid rgba(0, 242, 255, 0.25); box-shadow: 0 0 4px rgba(0, 242, 255, 0.15); text-shadow: none;">📘</div>`;
+            cardStyle = 'background: #000000; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 40px rgba(0,0,0,0.6);';
+            iconHtml = `<div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(255, 255, 255, 0.04); color: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 1px solid rgba(255, 255, 255, 0.08);">📘</div>`;
             
             statusHtml = `
                 <div style="display: flex; gap: 0.6rem; margin-top: 0;">
@@ -3276,25 +3295,25 @@ function renderTimetableCards() {
         const animDelay = index * 0.1;
         
         return `
-            <div class="tt-premium-card tt-exam-card" style="padding: 1rem 1.2rem; display: flex; flex-direction: column; gap: 0.8rem; ${cardStyle} animation: slideUp 0.3s ease ${animDelay}s both; position: relative; backdrop-filter: blur(12px); border-radius: 16px;">
+            <div class="tt-premium-card tt-exam-card" style="padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 0.8rem; ${cardStyle} animation: slideUp 0.3s ease ${animDelay}s both; position: relative; border-radius: 16px;">
                 
                 <div class="tt-exam-flex-row" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; width: 100%;">
                     <div class="tt-exam-info" style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 250px;">
                         ${iconHtml}
                         <div>
-                            <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.2rem;">
-                                <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: white;">
+                            <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+                                <h3 style="margin: 0; font-size: 1.2rem; font-weight: 700; color: #f8fafc; text-transform: capitalize; letter-spacing: 0.5px;">
                                     ${ex.subject}
                                 </h3>
 
                             </div>
                             
-                            <div style="display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center; font-size: 0.8rem; color: #94a3b8;">
-                                <div style="display: flex; align-items: center; gap: 4px;">
-                                    <span>📅</span> ${examDate.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; font-size: 0.85rem; color: #64748b; font-weight: 500;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-calendar-day" style="color: #475569;"></i> ${examDate.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
                                 </div>
-                                <div style="display: flex; align-items: center; gap: 4px;">
-                                    <span>⏰</span> ${examDate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-clock" style="color: #475569;"></i> ${examDate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
                                 </div>
                             </div>
                         </div>
