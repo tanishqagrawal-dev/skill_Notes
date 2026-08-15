@@ -412,10 +412,10 @@
                     return;
                 }
 
-                // Use Google Docs Viewer for mobile PDF rendering to avoid fallback UI
+                // Use Mozilla's PDF.js viewer for mobile PDF rendering to avoid fallback UI and Supabase blocks
                 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                 if (isMobile && finalUrl.toLowerCase().includes('.pdf')) {
-                    finalUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(finalUrl)}&embedded=true`;
+                    finalUrl = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(finalUrl)}`;
                 } else if(finalUrl.toLowerCase().includes('.pdf') && !finalUrl.includes('#')) {
                     finalUrl += '#toolbar=0&navpanes=0&scrollbar=0';
                 }
