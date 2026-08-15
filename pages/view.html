@@ -275,6 +275,8 @@
             <div class="error-message" id="error-msg"></div>
         </div>
         <iframe id="pdf-frame" title="PDF Viewer" allowfullscreen></iframe>
+        <!-- Overlay to hide Google Docs pop-out button while matching its dark toolbar color -->
+        <div id="popout-hider" style="display:none; position: absolute; top: 0; right: 0; width: 55px; height: 50px; background: #202124; z-index: 10;"></div>
     </div>
 
     <script type="module">
@@ -420,16 +422,18 @@
                 }
 
                 const frame = document.getElementById('pdf-frame');
+                const popoutHider = document.getElementById('popout-hider');
 
                 if (needsPdfViewer && finalUrl.toLowerCase().includes('.pdf')) {
                     finalUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(finalUrl)}&embedded=true`;
-                    // Push the Google Docs Viewer up to hide its top toolbar (and the pop-out button)
-                    frame.style.marginTop = '-56px';
-                    frame.style.height = 'calc(100% + 56px)';
+                    frame.style.marginTop = '0';
+                    frame.style.height = '100%';
+                    if (popoutHider) popoutHider.style.display = 'block';
                 } else if(finalUrl.toLowerCase().includes('.pdf') && !finalUrl.includes('#')) {
                     finalUrl += '#toolbar=0&navpanes=0&scrollbar=0';
                     frame.style.marginTop = '0';
                     frame.style.height = '100%';
+                    if (popoutHider) popoutHider.style.display = 'none';
                 }
                 
                 frame.src = finalUrl;
