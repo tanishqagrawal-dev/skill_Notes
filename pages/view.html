@@ -275,8 +275,8 @@
             <div class="error-message" id="error-msg"></div>
         </div>
         <iframe id="pdf-frame" title="PDF Viewer" allowfullscreen></iframe>
-        <!-- Overlay to hide Google Docs pop-out button while matching its dark toolbar color -->
-        <div id="popout-hider" style="display:none; position: absolute; top: 0; right: 0; width: 55px; height: 50px; background: #202124; z-index: 10;"></div>
+        <!-- Overlay to prevent clicks on Google Docs pop-out button while keeping it visible -->
+        <div id="popout-hider" style="display:none; position: absolute; top: 0; right: 0; width: 55px; height: 50px; background: transparent; z-index: 10; cursor: default;"></div>
     </div>
 
     <script type="module">
