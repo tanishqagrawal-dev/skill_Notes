@@ -251,9 +251,9 @@
         </div>
         <div class="header-right" style="display: flex; align-items: center;">
             <div class="vote-container" id="vote-container" style="display:none; align-items: center; gap: 8px; margin-right: 15px; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 15px;">
-                <button class="btn-action vote-btn" id="btn-upvote" onclick="window.handleVote(1)" style="padding: 0.5rem 0.8rem; border-radius: 8px;">
-                    <i class="fas fa-thumbs-up"></i> <span id="upvote-count" style="margin-left: 4px;">0</span>
-                </button>
+                <div class="btn-action view-count-display" style="padding: 0.5rem 0.8rem; border-radius: 8px; cursor: default; background: rgba(255,255,255,0.05);">
+                    <i class="fas fa-eye"></i> <span id="view-count-display" style="margin-left: 4px;">0</span> Views
+                </div>
             </div>
             <button class="btn-action" onclick="window.shareNote()" id="btn-share" style="display:none">
                 <i class="fas fa-share-alt"></i> <span>Share</span>
@@ -358,6 +358,7 @@
                     const { data, error } = await sb.from('approved_notes').select('*').eq('id', noteId).single();
                     if (!error && data) {
                         noteData = data;
+                        noteData.views = (noteData.views || 0) + 1; // optimistically update local UI
                     }
                 }
 
@@ -386,15 +387,8 @@
                     const voteContainer = document.getElementById('vote-container');
                     if (voteContainer) voteContainer.style.display = 'flex';
                     
-                    const upvoteCountEl = document.getElementById('upvote-count');
-                    if (upvoteCountEl) upvoteCountEl.innerText = noteData.upvotes || 0;
-                    
-                    // Check local storage if user already voted
-                    const userVote = localStorage.getItem(`vote_${noteId}`);
-                    if (userVote === '1') {
-                        const btnUpvote = document.getElementById('btn-upvote');
-                        if (btnUpvote) btnUpvote.style.color = '#00f2ff';
-                    }
+                    const viewCountEl = document.getElementById('view-count-display');
+                    if (viewCountEl) viewCountEl.innerText = noteData.views || 0;
 
                 // Remove .html from share link dynamically
                 const btnShare = document.getElementById('btn-share');
@@ -412,10 +406,19 @@
                     return;
                 }
 
-                // Use Mozilla's PDF.js viewer for mobile PDF rendering to avoid fallback UI and Supabase blocks
-                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                if (isMobile && finalUrl.toLowerCase().includes('.pdf')) {
-                    finalUrl = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(finalUrl)}`;
+                // Use Google Docs Viewer for mobile PDF rendering to avoid browser fallback UI (like Chrome's grey Open button)
+                // We use navigator.pdfViewerEnabled to detect if the browser natively supports inline PDFs.
+                // This reliably catches mobile browsers even if they are in "Desktop site" mode.
+                let needsPdfViewer = false;
+                if (typeof navigator.pdfViewerEnabled !== 'undefined') {
+                    needsPdfViewer = !navigator.pdfViewerEnabled;
+                } else {
+                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                    needsPdfViewer = isMobile;
+                }
+
+                if (needsPdfViewer && finalUrl.toLowerCase().includes('.pdf')) {
+                    finalUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(finalUrl)}&embedded=true`;
                 } else if(finalUrl.toLowerCase().includes('.pdf') && !finalUrl.includes('#')) {
                     finalUrl += '#toolbar=0&navpanes=0&scrollbar=0';
                 }
@@ -426,13 +429,9 @@
                 // Hide custom loader instantly so native browser PDF progressive loader appears
                 document.getElementById('loader').style.display = 'none';
 
-                // Track View
+                // Track View (Increment every time as requested)
                 try {
-                    const viewKey = `viewed_${noteId}`;
-                    if (!localStorage.getItem(viewKey)) {
-                        await sb.rpc('increment_note_view', { p_note_id: noteId });
-                        localStorage.setItem(viewKey, 'true');
-                    }
+                    await sb.rpc('increment_note_view', { p_note_id: noteId });
                 } catch(e){ console.error('View tracking failed', e); }
 
             } catch (err) {
@@ -523,58 +522,7 @@
             }
         };
 
-        window.handleVote = async function(voteType) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const noteId = urlParams.get('id');
-            if (!noteId) return;
 
-            // Generate an anonymous user ID if logged out, or use session
-            let userId = localStorage.getItem('auth_user_id') || localStorage.getItem('anon_vote_id');
-            if (!userId) {
-                userId = 'anon_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('anon_vote_id', userId);
-            }
-
-            try {
-                // Call RPC
-                const { error } = await sb.rpc('vote_note', { 
-                    p_note_id: noteId, 
-                    p_user_id: userId, 
-                    p_vote_type: voteType 
-                });
-
-                if (error) {
-                    console.error("Voting failed:", error);
-                    alert("Voting failed. Please try again later.");
-                    return;
-                }
-
-                // Update UI Optimistically
-                const upBtn = document.getElementById('btn-upvote');
-                const upSpan = document.getElementById('upvote-count');
-                
-                let upCount = upSpan ? parseInt(upSpan.innerText) : 0;
-
-                const currentVote = localStorage.getItem(`vote_${noteId}`);
-
-                if (currentVote == voteType) {
-                    // Removing vote
-                    localStorage.removeItem(`vote_${noteId}`);
-                    if (voteType === 1) { upCount--; if(upBtn) upBtn.style.color = ''; }
-                } else {
-                    // Changing or adding vote
-                    localStorage.setItem(`vote_${noteId}`, voteType);
-                    if (voteType === 1) {
-                        upCount++; if(upBtn) upBtn.style.color = '#00f2ff';
-                    }
-                }
-
-                if(upSpan) upSpan.innerText = Math.max(0, upCount);
-
-            } catch (err) {
-                console.error("Vote error:", err);
-            }
-        };
         // Initialize
         loadNote();
     </script>

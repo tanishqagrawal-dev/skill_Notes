@@ -604,30 +604,25 @@ function renderStaticNotes(notes) {
                     <span class="unit-tag-pro">${unit}</span>
                     <h3 class="note-title-pro">${title}</h3>
                     <div class="note-actions-pro">
-                        <span class="meta-pill-pro uploader">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                            Tanishq Agrawal
+                        <span class="meta-pill-pro uploader" style="color: var(--secondary); font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                            ${(n.uploaderName === 'SKiL MATRiX Admin' || n.uploaderName === 'SKiL MATRiX' || (!n.uploaderName && !n.uploader)) ? 
+                                '<img src="../assets/logo_transparent.png" style="width:14px;height:14px;border-radius:50%;object-fit:contain;background:rgba(0,242,255,0.1);padding:1px;">' :
+                                `<img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(n.uploaderName || n.uploader)}&backgroundColor=transparent" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.05);">`
+                            }
+                            ${n.uploaderName || n.uploader || 'SKiL MATRiX'}
                         </span>
-                        <span class="meta-pill-pro">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
-                            6 Feb 2026
-                        </span>
-                        <span class="meta-pill-pro">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                            <span class="view-count">${views}</span> Views
+                        <span class="meta-pill-pro verified" style="background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(39, 174, 96, 0.1)); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.2); padding: 2px 6px; border-radius: 4px; font-weight: 800; font-size: 0.7rem; letter-spacing: 0.5px; box-shadow: 0 0 8px rgba(46, 204, 113, 0.15); display: inline-flex; align-items: center; gap: 3px;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg>
+                            VERIFIED
                         </span>
                     </div>
                 </div>
 
                 <div class="note-tools-pro">
-                    <button class="tool-icon-pro" onclick="likeNote('${noteId}'); event.stopPropagation();" title="Like">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
-                        <span class="like-count">${likes}</span>
-                    </button>
-                    <button class="tool-icon-pro" onclick="toggleNoteDislike('${noteId}'); event.stopPropagation();" title="Dislike">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
-                        <span class="dislike-count">${dislikes}</span>
-                    </button>
+                    <div style="display: flex; align-items: center; gap: 0.4rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.3rem 0.6rem; border-radius: 6px; color: var(--text-dim); font-size: 0.8rem; font-weight: 700; cursor: default; margin-right: 0.5rem;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <span>${views} Views</span>
+                    </div>
                     <button class="tool-icon-pro" onclick="toggleBookmark('${noteId}'); event.stopPropagation();" title="Bookmark">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
                     </button>

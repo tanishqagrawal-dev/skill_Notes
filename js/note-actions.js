@@ -185,14 +185,16 @@ window.incrementNoteView = async function (noteId) {
     const { db, doc, setDoc, getDoc, increment } = getFirebase();
     if (!db || !noteId) return;
 
-    // Session-based unique view check
-    const sessionKey = `viewed_${noteId}`;
-    if (sessionStorage.getItem(sessionKey)) return;
+    // Session-based unique view check removed as requested
+    // if (sessionStorage.getItem(sessionKey)) return;
 
     // --- SYNCHRONIZE WITH SUPABASE POSTGRESQL ---
-    if (window.supabase) {
-        window.supabase.rpc('increment_note_view', { p_note_id: noteId }).catch(e => console.warn('Supabase view sync error:', e));
-    }
+    try {
+        let sb = window.supabase;
+        if (sb) {
+            sb.rpc('increment_note_view', { p_note_id: noteId }).catch(e => console.warn("Supabase view sync error:", e));
+        }
+    } catch(e) { console.warn("Supabase view sync exception:", e); }
 
     try {
         const noteRef = doc(db, "notes", noteId);
@@ -223,8 +225,6 @@ window.incrementNoteView = async function (noteId) {
                 await updateDoc(userRef, { views_activity: increment(1) }).catch(() => { });
             }
         }
-
-        sessionStorage.setItem(sessionKey, 'true');
 
         // Analytics
         if (typeof gtag === 'function') {
@@ -312,17 +312,18 @@ window.likeNote = async function (noteId) {
     }
 
     // --- SYNCHRONIZE WITH SUPABASE POSTGRESQL ---
-    if (window.supabase) {
-        try {
+    try {
+        let sb = window.supabase;
+        if (sb) {
             let voteId = user?.uid || user?.id || localStorage.getItem('anon_vote_id') || 'anon_' + Math.random().toString(36).substr(2, 9);
             localStorage.setItem('anon_vote_id', voteId);
-            window.supabase.rpc('vote_note', { 
+            sb.rpc('vote_note', { 
                 p_note_id: noteId, 
                 p_user_id: voteId, 
-                p_vote_type: 1 
+                p_vote_type: isActive ? 1 : 0 
             }).catch(e => console.warn("Supabase like sync error:", e));
-        } catch(e) {}
-    }
+        }
+    } catch(e) { console.warn("Supabase like sync exception:", e); }
 
     try {
         // Halt network transmission until Firebase Auth fully establishes a secure token payload
@@ -336,29 +337,42 @@ window.likeNote = async function (noteId) {
         const noteRef = doc(db, "notes", noteId);
         const userId = user.uid || user.id;
         const likeRef = doc(db, "notes", noteId, "likes", userId);
+        const privLikeRef = doc(db, "privateDrive", userId, "files", "like_" + noteId.replace(/[^a-zA-Z0-9]/g, '_'));
+        const privDislikeRef = doc(db, "privateDrive", userId, "files", "dislike_" + noteId.replace(/[^a-zA-Z0-9]/g, '_'));
 
         await runTransaction(db, async (transaction) => {
             const noteSnap = await transaction.get(noteRef);
 
             if (!noteSnap.exists()) {
                 const seeds = getSeedStats(noteId);
-                transaction.set(noteRef, {
+                const newData = {
                     views: seeds.views,
                     likes: seeds.likes,
                     dislikes: seeds.dislikes,
                     downloads: seeds.downloads,
                     createdAt: Date.now()
-                });
-                if (isActive) {
+                };
+                if (!isActive) { // We toggled it off
+                    transaction.delete(likeRef);
+                    transaction.delete(privLikeRef);
+                } else { // We toggled it on
                     transaction.set(likeRef, { liked: true, timestamp: Date.now() });
+                    transaction.set(privLikeRef, { noteId, type: 'like', timestamp: Date.now() });
+                    newData.likes += 1;
+                    // Clean up mutually exclusive dislikes in Private Drive
+                    if (dislikeDelta === -1) transaction.delete(privDislikeRef);
                 }
+
+                // Clean up mutually exclusive dislikes natively via transaction
+                if (dislikeDelta === -1) {
+                    const dislikeRef = doc(db, "notes", noteId, "dislikes", userId);
+                    transaction.delete(dislikeRef);
+                    newData.dislikes = Math.max(0, newData.dislikes - 1);
+                }
+
+                transaction.set(noteRef, newData);
             } else {
                 let updates = {};
-
-                // --- CENTRALIZED PERSISTENCE (Private Drive Hydration) ---
-                const privLikeRef = doc(db, "privateDrive", userId, "files", "like_" + noteId.replace(/[^a-zA-Z0-9]/g, '_'));
-                const privDislikeRef = doc(db, "privateDrive", userId, "files", "dislike_" + noteId.replace(/[^a-zA-Z0-9]/g, '_'));
-
                 if (!isActive) { // We toggled it off
                     transaction.delete(likeRef);
                     transaction.delete(privLikeRef);
@@ -480,17 +494,18 @@ window.toggleNoteDislike = async function (noteId) {
     }
 
     // --- SYNCHRONIZE WITH SUPABASE POSTGRESQL ---
-    if (window.supabase) {
-        try {
+    try {
+        let sb = window.supabase;
+        if (sb) {
             let voteId = user?.uid || user?.id || localStorage.getItem('anon_vote_id') || 'anon_' + Math.random().toString(36).substr(2, 9);
             localStorage.setItem('anon_vote_id', voteId);
-            window.supabase.rpc('vote_note', { 
+            sb.rpc('vote_note', { 
                 p_note_id: noteId, 
                 p_user_id: voteId, 
-                p_vote_type: -1 
+                p_vote_type: isActive ? -1 : 0 
             }).catch(e => console.warn("Supabase dislike sync error:", e));
-        } catch(e) {}
-    }
+        }
+    } catch(e) { console.warn("Supabase dislike sync exception:", e); }
 
     try {
         // Halt network transmission until Firebase Auth fully establishes a secure token payload
