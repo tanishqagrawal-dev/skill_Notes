@@ -4240,12 +4240,34 @@ window.handleAIChatSubmit = async function(e) {
 
         document.getElementById(loaderId).remove();
         
+        let mathBlocks = [];
+        let processedAnswer = answer;
+        
+        processedAnswer = processedAnswer.replace(/\$\$[\s\S]*?\$\$/g, match => {
+            mathBlocks.push(match); return `@@@MATH_${mathBlocks.length - 1}@@@`;
+        });
+        processedAnswer = processedAnswer.replace(/\\\[[\s\S]*?\\\]/g, match => {
+            mathBlocks.push(match); return `@@@MATH_${mathBlocks.length - 1}@@@`;
+        });
+        processedAnswer = processedAnswer.replace(/\\\([\s\S]*?\\\)/g, match => {
+            mathBlocks.push(match); return `@@@MATH_${mathBlocks.length - 1}@@@`;
+        });
+        processedAnswer = processedAnswer.replace(/(^|[^\\])\$([^\$]+?)\$/g, (match, p1, p2) => {
+            mathBlocks.push(`$${p2}$`); return `${p1}@@@MATH_${mathBlocks.length - 1}@@@`;
+        });
+
+        let finalHtml = window.marked && window.marked.parse ? marked.parse(processedAnswer) : processedAnswer.replace(/\n/g, '<br>');
+        
+        mathBlocks.forEach((block, index) => {
+            finalHtml = finalHtml.replace(`@@@MATH_${index}@@@`, () => block);
+        });
+
         const msgId = 'msg-' + Date.now();
         historyBox.insertAdjacentHTML('beforeend', `
             <div class="chat-message ai-msg" id="${msgId}">
                 <div class="msg-avatar"><i class="fas fa-robot"></i></div>
                 <div class="msg-bubble">
-                    ${window.marked && window.marked.parse ? marked.parse(answer) : answer.replace(/\n/g, '<br>')}
+                    ${finalHtml}
                 </div>
             </div>
         `);
