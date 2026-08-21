@@ -8,13 +8,14 @@ const admin = require('firebase-admin');
 const crypto = require('crypto');
 const Razorpay = require('razorpay');
 const { createClient } = require('@supabase/supabase-js');
+const { getSupabaseClients, generateR2UploadUrl } = require('./storage-config');
 
-// Initialize Supabase Admin Client
-const supabaseUrl = process.env.SUPABASE_URL || 'https://begbdglouistmaughmot.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
+// Initialize Dynamic Supabase Admin Clients
+const supabaseClients = getSupabaseClients();
 let supabase;
-if (supabaseKey) {
-    supabase = createClient(supabaseUrl, supabaseKey);
+if (supabaseClients.length > 0) {
+    // Keep the primary instance as 'supabase' for backward compatibility with payment routes
+    supabase = supabaseClients[0].client;
 }
 
 // Initialize Razorpay
@@ -27,19 +28,20 @@ if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
 }
 
 // Initialize Firebase Admin SDK
+const { initializeApp, cert, applicationDefault } = require('firebase-admin/app');
 const serviceAccountPath = path.join(__dirname, 'service-account.json');
 
 try {
     if (require('fs').existsSync(serviceAccountPath)) {
         const serviceAccount = require(serviceAccountPath);
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount)
+        initializeApp({
+            credential: cert(serviceAccount)
         });
         console.log("🔑 Authenticated using local service-account.json");
     } else {
         // Fallback to Application Default Credentials (matches your request)
-        admin.initializeApp({
-            credential: admin.credential.applicationDefault()
+        initializeApp({
+            credential: applicationDefault()
         });
         console.log("☁️  Authenticated using Google Application Default Credentials");
     }
@@ -54,6 +56,57 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+// --- STORAGE CONFIG ENDPOINT ---
+app.get('/api/storage-config', (req, res) => {
+    // Return sanitized config (no secret keys!) to the frontend
+    const dbs = supabaseClients.map(c => ({ id: c.id, url: c.url, anonKey: c.anonKey }));
+    const r2Configured = process.env.R2_ACCOUNT_ID ? true : false;
+    res.json({ success: true, databases: dbs, r2Enabled: r2Configured });
+});
+
+// --- CLOUDFLARE R2 UPLOAD ENDPOINT ---
+const r2UsageFile = path.join(__dirname, 'r2_usage.json');
+
+function checkAndIncrementR2Usage(fileSize) {
+    let usage = 0;
+    try {
+        if (fs.existsSync(r2UsageFile)) {
+            const data = fs.readFileSync(r2UsageFile, 'utf8');
+            usage = JSON.parse(data).totalBytes || 0;
+        }
+    } catch (e) { console.error("Error reading r2 usage:", e); }
+
+    const R2_LIMIT = 9 * 1024 * 1024 * 1024; // 9 GB in bytes
+    if (usage + fileSize > R2_LIMIT) {
+        return false; // Limit reached
+    }
+
+    usage += fileSize;
+    try {
+        fs.writeFileSync(r2UsageFile, JSON.stringify({ totalBytes: usage }));
+    } catch (e) { console.error("Error writing r2 usage:", e); }
+    
+    return true; // Allowed
+}
+
+app.post('/api/get-r2-upload-url', async (req, res) => {
+    try {
+        const { filename, contentType, size } = req.body;
+        if (!filename) return res.status(400).json({ error: "Filename is required" });
+        
+        const fileSize = parseInt(size) || 0;
+        if (!checkAndIncrementR2Usage(fileSize)) {
+            return res.status(403).json({ success: false, error: 'R2 limit reached' });
+        }
+        
+        const data = await generateR2UploadUrl(filename, contentType);
+        res.json({ success: true, ...data });
+    } catch (e) {
+        console.error("R2 Upload URL Generation Error:", e);
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
 
 // --- AI KEYS ENDPOINT (For Client-Side AI Coach) ---
 app.get('/api/get-ai-keys', (req, res) => {
@@ -690,12 +743,16 @@ const serveDynamicView = async (req, res, next) => {
             console.error("Failed to read static notes for share:", e);
         }
 
-        // 2. Check Supabase for user uploaded notes
-        if (!found && supabase) {
-            const { data, error } = await supabase.from('approved_notes').select('*').eq('id', noteId).single();
-            if (data && !error) {
-                title = `${data.unit_number ? data.unit_number + ' - ' : ''}${data.title}`;
-                description = `Study notes for ${data.subject || 'your subject'} on SKiL MATRiX.`;
+        // 2. Check all configured Supabase instances dynamically (k-method) for user uploaded notes
+        if (!found && supabaseClients.length > 0) {
+            for (const sbConfig of supabaseClients) {
+                const { data, error } = await sbConfig.client.from('approved_notes').select('*').eq('id', noteId).single();
+                if (data && !error) {
+                    title = `${data.unit_number ? data.unit_number + ' - ' : ''}${data.title}`;
+                    description = `Study notes for ${data.subject || 'your subject'} on SKiL MATRiX.`;
+                    found = true;
+                    break;
+                }
             }
         }
 
@@ -722,8 +779,7 @@ const serveDynamicView = async (req, res, next) => {
     <meta name="twitter:title" content="${cleanTitle}" />
     <meta name="twitter:description" content="${cleanDesc}" />
     <meta name="twitter:image" content="${image}" />
-    
-    <base href="https://skilmatrix.site/">
+    <base href="/">
     
     <script>
         const _URLSearchParams = window.URLSearchParams;
@@ -749,6 +805,7 @@ const serveDynamicView = async (req, res, next) => {
 };
 
 app.get('/api/share/:id', serveDynamicView);
+app.get('/share/:id', serveDynamicView);
 app.get(['/pages/view', '/pages/view.html'], serveDynamicView);
 
 // --- DYNAMIC SUBSCRIPTION SEO PROXY ---

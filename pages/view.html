@@ -358,11 +358,26 @@
                         file_url: staticNote.url || staticNote.fileUrl || staticNote.driveLink
                     };
                 } else {
-                    // 2. Fetch from Supabase for new user-uploaded notes
-                    const { data, error } = await sb.from('approved_notes').select('*').eq('id', noteId).single();
-                    if (!error && data) {
-                        noteData = data;
-                        noteData.views = (noteData.views || 0) + 1; // optimistically update local UI
+                    // 2. Fetch from all databases (Federated)
+                    try {
+                        const configRes = await fetch('/api/storage-config');
+                        const configData = await configRes.json();
+                        
+                        // Import dynamically to create multiple clients
+                        const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+                        
+                        for (const db of configData.databases) {
+                            const client = createClient(db.url, db.anonKey);
+                            const { data, error } = await client.from('approved_notes').select('*').eq('id', noteId).single();
+                            if (!error && data) {
+                                noteData = data;
+                                noteData.views = (noteData.views || 0) + 1; // optimistically update local UI
+                                window._currentNoteClient = client; // Save the client to track views later
+                                break;
+                            }
+                        }
+                    } catch(e) {
+                        console.error("Federated DB search failed:", e);
                     }
                 }
 
@@ -443,7 +458,7 @@
 
                 // Track View (Increment every time as requested)
                 try {
-                    await sb.rpc('increment_note_view', { p_note_id: noteId });
+                    await (window._currentNoteClient || sb).rpc('increment_note_view', { p_note_id: noteId });
                 } catch(e){ console.error('View tracking failed', e); }
 
             } catch (err) {

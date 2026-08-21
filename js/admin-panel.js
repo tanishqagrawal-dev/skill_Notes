@@ -200,6 +200,32 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
         });
     }
 
+    async function getAllSBs() {
+        if (window._apAllSBs) return window._apAllSBs;
+        
+        let clients = [await getSB()]; // default primary
+        
+        try {
+            const configResponse = await fetch('/api/storage-config');
+            if (configResponse.ok) {
+                const configs = await configResponse.json();
+                if (configs.databases && configs.databases.length > 0) {
+                    // Only load createClient if not already loaded, but getSB does it.
+                    // Wait for import since we might need it.
+                    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+                    clients = configs.databases.map(dbConfig => 
+                        createClient(dbConfig.url, dbConfig.key)
+                    );
+                }
+            }
+        } catch(e) {
+            console.error("Failed to fetch storage configs for admin panel:", e);
+        }
+        
+        window._apAllSBs = clients;
+        return clients;
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────────
     function animNum(el, target, dur = 600) {
         if (!el) return;
@@ -784,19 +810,29 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
     }
 
     // ── Stats ────────────────────────────────────────────────────────────────
-    async function loadStats(sb, college = null) {
-        let pQuery = sb.from('pending_notes').select('*', { count: 'exact', head: true });
-        let aQuery = sb.from('approved_notes').select('*', { count: 'exact', head: true });
-        if (college) { pQuery = pQuery.eq('college', college); aQuery = aQuery.eq('college', college); }
+    async function loadStats(ignoredSb, college = null) {
+        const clients = await getAllSBs();
+        
+        let pending = 0;
+        let approved = 0;
+        
+        for (const client of clients) {
+            let pQuery = client.from('pending_notes').select('*', { count: 'exact', head: true });
+            let aQuery = client.from('approved_notes').select('*', { count: 'exact', head: true });
+            if (college) { pQuery = pQuery.eq('college', college); aQuery = aQuery.eq('college', college); }
+            
+            const [{ count: pCount }, { count: aCount }] = await Promise.all([pQuery, aQuery]);
+            if (pCount) pending += pCount;
+            if (aCount) approved += aCount;
+        }
 
-        const [{ count: pending }, { count: approved }] = await Promise.all([pQuery, aQuery]);
-
+        const primarySb = await getSB();
         const u = getCurrentUser();
         const superAdmin = isSuperAdmin(u);
         let extraCount;
 
         if (superAdmin) {
-            const { data: caList } = await sb.from('co_admins').select('email');
+            const { data: caList } = await primarySb.from('co_admins').select('email');
             extraCount = caList?.length || 0;
         } else {
             extraCount = 1; // 1 college for co-admin
@@ -809,103 +845,153 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
     }
 
     // ── Pending List ─────────────────────────────────────────────────────────
-    async function loadList(sb, college = null) {
+    async function loadList(ignoredSb, college = null) {
         const list = document.getElementById('ap-list');
         if (!list) return;
 
-        let q = sb.from('pending_notes').select('*').order('created_at', { ascending: false });
-        if (college) q = q.eq('college', college);
+        try {
+            const clients = await getAllSBs();
+            const promises = clients.map((client, idx) => {
+                let q = client.from('pending_notes').select('*').order('created_at', { ascending: false });
+                if (college) q = q.eq('college', college);
+                return q.then(res => ({ ...res, dbIndex: idx })); // Keep track of which db it came from
+            });
 
-        const { data, error } = await q;
-        if (error) throw error;
+            const results = await Promise.all(promises);
+            let data = [];
+            let hasError = false;
+            let errMsg = '';
+            results.forEach(res => {
+                if (res.error) {
+                    hasError = true;
+                    errMsg = res.error.message;
+                } else if (res.data) {
+                    res.data.forEach(item => { item._dbIndex = res.dbIndex; });
+                    data = data.concat(res.data);
+                }
+            });
 
-        if (!data || data.length === 0) {
-            list.innerHTML = `
-              <div class="ap-empty">
-                <div class="ap-empty-ico">🎉</div>
-                <h3>All caught up!</h3>
-                <p>No pending submissions${college ? ` for ${college}` : ''} right now.</p>
-              </div>`;
-            return;
+            if (hasError && data.length === 0) throw new Error(errMsg);
+
+            // Sort combined results
+            data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            if (!data || data.length === 0) {
+                list.innerHTML = `
+                  <div class="ap-empty">
+                    <div class="ap-empty-ico">🎉</div>
+                    <h3>All caught up!</h3>
+                    <p>No pending submissions${college ? ` for ${college}` : ''} right now.</p>
+                  </div>`;
+                return;
+            }
+
+            list.innerHTML = data.map((n, i) => `
+              <div class="ap-item" id="ap-n-${n.id}" data-dbindex="${n._dbIndex}" style="animation-delay:${i * 40}ms">
+                <div>
+                  <div class="ap-tags">
+                    ${n.subject ? `<span class="ap-tag subject">${n.subject}</span>` : ''}
+                    ${n.college ? `<span class="ap-tag college">${n.college}</span>` : ''}
+                    ${n.branch  ? `<span class="ap-tag branch">${n.branch}</span>`  : ''}
+                    ${n.semester? `<span class="ap-tag sem">Sem ${n.semester}</span>`:''}
+                    ${n.type && n.type !== 'notes' ? `<span class="ap-tag" style="background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2)">${n.type.toUpperCase()}</span>` : ''}
+                  </div>
+                  <div class="ap-title" title="${n.title || ''}">${n.title || 'Untitled Note'}</div>
+                  <div class="ap-meta">Uploaded by <span>${n.uploader_name || (n.uploader_email ? n.uploader_email.split('@')[0] : 'Unknown')}</span></div>
+                  ${n.created_at ? `<div class="ap-time">${fmtDate(n.created_at)}</div>` : ''}
+                </div>
+                  <div style="margin-top: 10px; display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="ap-dl-${n.id}" checked style="accent-color: var(--primary); cursor: pointer; width: 16px; height: 16px;">
+                    <label for="ap-dl-${n.id}" style="color: var(--text-dim); font-size: 0.85rem; cursor: pointer;">Allow users to download this file</label>
+                  </div>
+                </div>
+                <div class="ap-actions" style="margin-top: 15px;">
+                  ${n.file_url ? `<a href="${window.getViewerUrl(n.file_url, n.title)}" target="_blank" class="apb apb-view">👁 View</a>` : ''}
+                  <button class="apb apb-ok" onclick="window._apApprove('${n.id}', ${n._dbIndex})">✓ Approve</button>
+                  <button class="apb apb-no" onclick="window._apReject('${n.id}', ${n._dbIndex})">✕ Reject</button>
+                </div>
+              </div>`).join('');
+        } catch(e) {
+            console.error("loadList err", e);
+            list.innerHTML = `<div class="ap-err">⚠️ ${e.message}</div>`;
         }
-
-        list.innerHTML = data.map((n, i) => `
-          <div class="ap-item" id="ap-n-${n.id}" style="animation-delay:${i * 40}ms">
-            <div>
-              <div class="ap-tags">
-                ${n.subject ? `<span class="ap-tag subject">${n.subject}</span>` : ''}
-                ${n.college ? `<span class="ap-tag college">${n.college}</span>` : ''}
-                ${n.branch  ? `<span class="ap-tag branch">${n.branch}</span>`  : ''}
-                ${n.semester? `<span class="ap-tag sem">Sem ${n.semester}</span>`:''}
-                ${n.type && n.type !== 'notes' ? `<span class="ap-tag" style="background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2)">${n.type.toUpperCase()}</span>` : ''}
-              </div>
-              <div class="ap-title" title="${n.title || ''}">${n.title || 'Untitled Note'}</div>
-              <div class="ap-meta">Uploaded by <span>${n.uploader_name || (n.uploader_email ? n.uploader_email.split('@')[0] : 'Unknown')}</span></div>
-              ${n.created_at ? `<div class="ap-time">${fmtDate(n.created_at)}</div>` : ''}
-            </div>
-              <div style="margin-top: 10px; display: flex; align-items: center; gap: 8px;">
-                <input type="checkbox" id="ap-dl-${n.id}" checked style="accent-color: var(--primary); cursor: pointer; width: 16px; height: 16px;">
-                <label for="ap-dl-${n.id}" style="color: var(--text-dim); font-size: 0.85rem; cursor: pointer;">Allow users to download this file</label>
-              </div>
-            </div>
-            <div class="ap-actions" style="margin-top: 15px;">
-              ${n.file_url ? `<a href="${window.getViewerUrl(n.file_url, n.title)}" target="_blank" class="apb apb-view">👁 View</a>` : ''}
-              <button class="apb apb-ok" onclick="window._apApprove('${n.id}')">✓ Approve</button>
-              <button class="apb apb-no" onclick="window._apReject('${n.id}')">✕ Reject</button>
-            </div>
-          </div>`).join('');
     }
 
     // ── Approved List ────────────────────────────────────────────────────────
-    async function loadApproved(sb, college = null) {
+    async function loadApproved(ignoredSb, college = null) {
         const list = document.getElementById('ap-approved-list');
         if (!list) return;
 
-        let q = sb.from('approved_notes').select('*').order('created_at', { ascending: false });
-        if (college) q = q.eq('college', college);
+        try {
+            const clients = await getAllSBs();
+            const promises = clients.map((client, idx) => {
+                let q = client.from('approved_notes').select('*').order('created_at', { ascending: false });
+                if (college) q = q.eq('college', college);
+                return q.then(res => ({ ...res, dbIndex: idx })); // Keep track of which db it came from
+            });
 
-        const { data, error } = await q;
-        if (error) { list.innerHTML = `<div class="ap-err">⚠️ ${error.message}</div>`; return; }
+            const results = await Promise.all(promises);
+            let data = [];
+            let hasError = false;
+            let errMsg = '';
+            results.forEach(res => {
+                if (res.error) {
+                    hasError = true;
+                    errMsg = res.error.message;
+                } else if (res.data) {
+                    res.data.forEach(item => { item._dbIndex = res.dbIndex; });
+                    data = data.concat(res.data);
+                }
+            });
 
-        if (!data || data.length === 0) {
-            list.innerHTML = `
-              <div class="ap-empty">
-                <div class="ap-empty-ico">📭</div>
-                <h3>No approved notes yet</h3>
-                <p>Notes approved above will appear here.</p>
-              </div>`;
-            return;
+            if (hasError && data.length === 0) throw new Error(errMsg);
+
+            // Sort combined results
+            data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            if (!data || data.length === 0) {
+                list.innerHTML = `
+                  <div class="ap-empty">
+                    <div class="ap-empty-ico">📭</div>
+                    <h3>No approved notes yet</h3>
+                    <p>Notes approved above will appear here.</p>
+                  </div>`;
+                return;
+            }
+
+            list.innerHTML = data.map((n, i) => `
+              <div class="ap-item" id="ap-a-${n.id}" data-dbindex="${n._dbIndex}" style="animation-delay:${i * 40}ms">
+                <div>
+                  <div class="ap-tags">
+                    ${n.subject ? `<span class="ap-tag subject">${n.subject}</span>` : ''}
+                    ${n.college ? `<span class="ap-tag college">${n.college}</span>` : ''}
+                    ${n.branch  ? `<span class="ap-tag branch">${n.branch}</span>`  : ''}
+                    ${n.semester? `<span class="ap-tag sem">Sem ${n.semester}</span>`:''}
+                    ${n.type && n.type !== 'notes' ? `<span class="ap-tag" style="background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2)">${n.type.toUpperCase()}</span>` : ''}
+                    <span class="ap-tag" style="background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.2)">✓ LIVE</span>
+                  </div>
+                  <div class="ap-title" title="${n.title || ''}">${n.title || 'Untitled Note'}</div>
+                  <div class="ap-meta">By <span>${n.uploader_name || (n.uploader_email ? n.uploader_email.split('@')[0] : 'Unknown')}</span></div>
+                  ${n.created_at ? `<div class="ap-time">${fmtDate(n.created_at)}</div>` : ''}
+                </div>
+                  <div style="margin-top: 10px;">
+                    <span class="ap-tag" style="background: ${n.allow_download !== false ? 'rgba(0, 255, 136, 0.1)' : 'rgba(255, 107, 107, 0.1)'}; color: ${n.allow_download !== false ? '#00ff88' : '#ff6b6b'}; border: 1px solid ${n.allow_download !== false ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 107, 107, 0.2)'};">
+                      ${n.allow_download !== false ? '✅ Downloadable' : '❌ View Only'}
+                    </span>
+                  </div>
+                </div>
+                <div class="ap-actions" style="margin-top: 15px;">
+                  ${n.file_url ? `<a href="${window.getViewerUrl(n.file_url, n.title, n.id)}" target="_blank" class="apb apb-view">👁 View</a>` : ''}
+                  <button class="apb" style="background: rgba(255,255,255,0.05); color: var(--text-main);" onclick="window._apToggleDownload('${n.id}', ${n.allow_download !== false}, ${n._dbIndex})">
+                    ${n.allow_download !== false ? 'Disable DL' : 'Enable DL'}
+                  </button>
+                  <button class="apb apb-no" onclick="window._apDeleteApproved('${n.id}', ${n._dbIndex})">🗑 Delete</button>
+                </div>
+              </div>`).join('');
+        } catch(e) {
+            console.error("loadApproved err", e);
+            list.innerHTML = `<div class="ap-err">⚠️ ${e.message}</div>`;
         }
-
-        list.innerHTML = data.map((n, i) => `
-          <div class="ap-item" id="ap-a-${n.id}" style="animation-delay:${i * 40}ms">
-            <div>
-              <div class="ap-tags">
-                ${n.subject ? `<span class="ap-tag subject">${n.subject}</span>` : ''}
-                ${n.college ? `<span class="ap-tag college">${n.college}</span>` : ''}
-                ${n.branch  ? `<span class="ap-tag branch">${n.branch}</span>`  : ''}
-                ${n.semester? `<span class="ap-tag sem">Sem ${n.semester}</span>`:''}
-                ${n.type && n.type !== 'notes' ? `<span class="ap-tag" style="background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2)">${n.type.toUpperCase()}</span>` : ''}
-                <span class="ap-tag" style="background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.2)">✓ LIVE</span>
-              </div>
-              <div class="ap-title" title="${n.title || ''}">${n.title || 'Untitled Note'}</div>
-              <div class="ap-meta">By <span>${n.uploader_name || (n.uploader_email ? n.uploader_email.split('@')[0] : 'Unknown')}</span></div>
-              ${n.created_at ? `<div class="ap-time">${fmtDate(n.created_at)}</div>` : ''}
-            </div>
-              <div style="margin-top: 10px;">
-                <span class="ap-tag" style="background: ${n.allow_download !== false ? 'rgba(0, 255, 136, 0.1)' : 'rgba(255, 107, 107, 0.1)'}; color: ${n.allow_download !== false ? '#00ff88' : '#ff6b6b'}; border: 1px solid ${n.allow_download !== false ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 107, 107, 0.2)'};">
-                  ${n.allow_download !== false ? '✅ Downloadable' : '❌ View Only'}
-                </span>
-              </div>
-            </div>
-            <div class="ap-actions" style="margin-top: 15px;">
-              ${n.file_url ? `<a href="${window.getViewerUrl(n.file_url, n.title, n.id)}" target="_blank" class="apb apb-view">👁 View</a>` : ''}
-              <button class="apb" style="background: rgba(255,255,255,0.05); color: var(--text-main);" onclick="window._apToggleDownload('${n.id}', ${n.allow_download !== false})">
-                ${n.allow_download !== false ? 'Disable DL' : 'Enable DL'}
-              </button>
-              <button class="apb apb-no" onclick="window._apDeleteApproved('${n.id}')">🗑 Delete</button>
-            </div>
-          </div>`).join('');
     }
 
     // ── Co-Admin List (superadmin only) ──────────────────────────────────────
@@ -935,13 +1021,14 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
     }
 
     // ── Actions: Approve ─────────────────────────────────────────────────────
-    window._apApprove = async function (id) {
+    window._apApprove = async function (id, dbIndex = 0) {
         const el = document.getElementById(`ap-n-${id}`);
         const btns = el ? el.querySelectorAll('.apb') : [];
         btns.forEach(b => { b.disabled = true; });
 
         try {
-            const sb = await getSB();
+            const clients = await getAllSBs();
+            const sb = clients[dbIndex] || clients[0];
             const { data: notes, error: fe } = await sb.from('pending_notes').select('*').eq('id', id).limit(1);
             if (fe) throw fe;
             if (!notes || notes.length === 0) throw new Error("Note not found or already processed.");
@@ -969,8 +1056,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
 
             const u = getCurrentUser();
             const col = isSuperAdmin(u) ? null : (u.assignedCollege || null);
-            const sb2 = await getSB();
-            await Promise.all([loadStats(sb2, col), loadApproved(sb2, col)]);
+            await Promise.all([loadStats(null, col), loadApproved(null, col)]);
 
         } catch (e) {
             console.error('[AP] Approve error:', e);
@@ -980,14 +1066,15 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
     };
 
     // ── Actions: Reject ──────────────────────────────────────────────────────
-    window._apReject = async function (id) {
+    window._apReject = async function (id, dbIndex = 0) {
         if (!confirm('Reject and permanently delete this submission?')) return;
         const el = document.getElementById(`ap-n-${id}`);
         const btns = el ? el.querySelectorAll('.apb') : [];
         btns.forEach(b => { b.disabled = true; });
 
         try {
-            const sb = await getSB();
+            const clients = await getAllSBs();
+            const sb = clients[dbIndex] || clients[0];
             const { error } = await sb.from('pending_notes').delete().eq('id', id);
             if (error) throw error;
 
@@ -996,7 +1083,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
 
             const u = getCurrentUser();
             const col = isSuperAdmin(u) ? null : (u.assignedCollege || null);
-            await loadStats(await getSB(), col);
+            await loadStats(null, col);
 
         } catch (e) {
             console.error('[AP] Reject error:', e);
@@ -1006,14 +1093,15 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
     };
 
     // ── Actions: Delete Approved ─────────────────────────────────────────────
-    window._apDeleteApproved = async function (id) {
+    window._apDeleteApproved = async function (id, dbIndex = 0) {
         if (!confirm('Permanently delete this approved note? It will be removed for all users.')) return;
         const el = document.getElementById(`ap-a-${id}`);
         const btns = el ? el.querySelectorAll('.apb') : [];
         btns.forEach(b => { b.disabled = true; });
 
         try {
-            const sb = await getSB();
+            const clients = await getAllSBs();
+            const sb = clients[dbIndex] || clients[0];
             const { error } = await sb.from('approved_notes').delete().eq('id', id);
             if (error) throw error;
 
@@ -1022,7 +1110,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
 
             const u = getCurrentUser();
             const col = isSuperAdmin(u) ? null : (u.assignedCollege || null);
-            await loadStats(await getSB(), col);
+            await loadStats(null, col);
 
         } catch (e) {
             console.error('[AP] Delete approved error:', e);
@@ -1081,9 +1169,10 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
         }
     };
 
-    window._apToggleDownload = async function (id, currentStatus) {
+    window._apToggleDownload = async function (id, currentStatus, dbIndex = 0) {
         if (!confirm(`Are you sure you want to ${currentStatus ? 'disable' : 'enable'} downloading for this note?`)) return;
-        const sb = await getSB();
+        const clients = await getAllSBs();
+        const sb = clients[dbIndex] || clients[0];
         const { error } = await sb.from('approved_notes').update({ allow_download: !currentStatus }).eq('id', id);
         if (error) {
             if (window.showToast) window.showToast('❌ Update failed: ' + error.message, 'error');
@@ -1091,7 +1180,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             if (window.showToast) window.showToast('✅ Download status updated!');
             const u = getCurrentUser();
             const col = isSuperAdmin(u) ? null : (u.assignedCollege || null);
-            loadApproved(sb, col);
+            loadApproved(null, col);
         }
     };
 
@@ -1327,41 +1416,66 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
     };
 
     // ── Note Titles ───────────────────────────────────────────────────────────
-    async function loadCmNoteTitles(sb, college = null) {
+    async function loadCmNoteTitles(ignoredSb, college = null) {
         const list = document.getElementById('cm-notes-title-list');
         if (!list) return;
 
-        let q = sb.from('approved_notes').select('id, title, subject, college, type').order('created_at', { ascending: false });
-        if (college) q = q.eq('college', college);
+        try {
+            const clients = await getAllSBs();
+            const promises = clients.map((client, idx) => {
+                let q = client.from('approved_notes').select('id, title, subject, college, type').order('created_at', { ascending: false });
+                if (college) q = q.eq('college', college);
+                return q.then(res => ({ ...res, dbIndex: idx })); // Keep track of which db it came from
+            });
 
-        const { data, error } = await q;
-        if (error) { list.innerHTML = `<div class="ap-err">⚠️ ${error.message}</div>`; return; }
+            const results = await Promise.all(promises);
+            let data = [];
+            let hasError = false;
+            let errMsg = '';
+            results.forEach(res => {
+                if (res.error) {
+                    hasError = true;
+                    errMsg = res.error.message;
+                } else if (res.data) {
+                    res.data.forEach(item => { item._dbIndex = res.dbIndex; });
+                    data = data.concat(res.data);
+                }
+            });
 
-        if (!data || data.length === 0) {
-            list.innerHTML = `<div class="ap-empty" style="padding:2rem"><div class="ap-empty-ico">📝</div><h3>No approved notes</h3><p>Notes appear here once approved.</p></div>`;
-            return;
+            if (hasError && data.length === 0) throw new Error(errMsg);
+
+            // Sort combined results
+            data.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+            if (!data || data.length === 0) {
+                list.innerHTML = `<div class="ap-empty" style="padding:2rem"><div class="ap-empty-ico">📝</div><h3>No approved notes</h3><p>Notes appear here once approved.</p></div>`;
+                return;
+            }
+
+            list.innerHTML = data.map(n => `
+              <div class="cm-row" id="cnt-${n.id}">
+                <div>
+                  <div class="cm-name" id="cnt-title-${n.id}">${n.title}</div>
+                  <div class="cm-meta">${n.subject || ''} · ${n.college || ''} ${n.type && n.type !== 'notes' ? `· ${n.type}` : ''}</div>
+                </div>
+                <div class="cm-actions">
+                  <button class="apb apb-view" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._cmRenameNote('${n.id}', ${n._dbIndex})">✏️ Rename</button>
+                  <button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._apDeleteApproved('${n.id}', ${n._dbIndex})">🗑</button>
+                </div>
+              </div>`).join('');
+        } catch(e) {
+            list.innerHTML = `<div class="ap-err">⚠️ ${e.message}</div>`;
         }
-
-        list.innerHTML = data.map(n => `
-          <div class="cm-row" id="cnt-${n.id}">
-            <div>
-              <div class="cm-name" id="cnt-title-${n.id}">${n.title}</div>
-              <div class="cm-meta">${n.subject || ''} · ${n.college || ''} ${n.type && n.type !== 'notes' ? `· ${n.type}` : ''}</div>
-            </div>
-            <div class="cm-actions">
-              <button class="apb apb-view" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._cmRenameNote('${n.id}')">✏️ Rename</button>
-              <button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._apDeleteApproved('${n.id}')">🗑</button>
-            </div>
-          </div>`).join('');
     }
 
-    window._cmRenameNote = async function (id) {
+    window._cmRenameNote = async function (id, dbIndex = 0) {
         const currentTitle = document.getElementById(`cnt-title-${id}`)?.innerText || '';
         const newTitle = prompt(`Rename note:`, currentTitle);
         if (!newTitle || newTitle.trim() === currentTitle) return;
 
         try {
-            const sb = await getSB();
+            const clients = await getAllSBs();
+            const sb = clients[dbIndex] || clients[0];
             const { error } = await sb.from('approved_notes').update({ title: newTitle.trim() }).eq('id', id);
             if (error) throw error;
             const el = document.getElementById(`cnt-title-${id}`);

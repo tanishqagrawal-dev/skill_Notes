@@ -529,24 +529,53 @@ function initDynamicColleges() {
 
 import { supabase } from './supabase-config.js?v=1.0';
 
-function initNotesSync() {
+async function initNotesSync() {
     if (isNotesSyncInit) return;
     if (unsubscribeNotes) {
-        supabase.removeChannel(unsubscribeNotes);
+        if (Array.isArray(unsubscribeNotes)) {
+            unsubscribeNotes.forEach(ch => ch.unsubscribe());
+        } else {
+            supabase.removeChannel(unsubscribeNotes);
+        }
     }
 
     isNotesSyncInit = true;
-    console.log("📡 Initializing Notes Hub Synchronization (Supabase)...");
+    console.log("📡 Initializing Notes Hub Synchronization (Federated Supabase)...");
+
+    let federatedClients = [supabase]; // default
+    try {
+        const configResponse = await fetch('/api/storage-config');
+        if (configResponse.ok) {
+            const configs = await configResponse.json();
+            if (configs.databases && configs.databases.length > 0) {
+                federatedClients = configs.databases.map(dbConfig => 
+                    window.supabase.createClient(dbConfig.url, dbConfig.key)
+                );
+            }
+        }
+    } catch(e) {
+        console.error("Failed to fetch storage configs for dashboard:", e);
+    }
 
     const fetchApprovedNotes = async () => {
         try {
-            const { data, error } = await supabase
-                .from('approved_notes')
-                .select('*')
-                .order('created_at', { ascending: false })
-                .limit(50);
-                
-            if (error) throw error;
+            const promises = federatedClients.map(client => 
+                client.from('approved_notes')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(50)
+            );
+            const results = await Promise.all(promises);
+            let allData = [];
+            results.forEach(res => {
+                if (!res.error && res.data) {
+                    allData = allData.concat(res.data);
+                }
+            });
+            // Sort combined results
+            allData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            // Limit overall
+            const data = allData.slice(0, 50);
             
             if (JSON.stringify(NotesDB) !== JSON.stringify(data)) {
                 NotesDB = data.map(d => ({
@@ -557,20 +586,22 @@ function initNotesSync() {
                     name: d.title
                 }));
                 window.NotesDB = NotesDB;
-                console.log(`📦 Notes Hub Updated: ${NotesDB.length} records in cache.`);
+                console.log(`📦 Notes Hub Updated: ${NotesDB.length} records in cache from ${federatedClients.length} databases.`);
                 
                 // Note: The UI updates based on NotesDB in the notes tab
             }
         } catch (e) {
-            console.error("Supabase sync error:", e);
+            console.error("Supabase federated sync error:", e);
         }
     };
 
     fetchApprovedNotes();
 
-    unsubscribeNotes = supabase.channel('public:approved_notes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'approved_notes' }, fetchApprovedNotes)
-        .subscribe();
+    unsubscribeNotes = federatedClients.map(client => 
+        client.channel('public:approved_notes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'approved_notes' }, fetchApprovedNotes)
+            .subscribe()
+    );
 }
 
 // Redundant toggleNoteBookmark removed (Handled by toggleBookmark in note-actions.js)
@@ -5729,18 +5760,38 @@ window.renderMyUploads = function () {
     import('./supabase-config.js?v=1.0').then(async ({ supabase }) => {
         try {
             const userEmail = currentUser.email;
-            
-            const [pendingRes, approvedRes] = await Promise.all([
-                supabase.from('pending_notes').select('*').eq('uploader_email', userEmail),
-                supabase.from('approved_notes').select('*').eq('uploader_email', userEmail)
-            ]);
-            
+
+            let clients = [supabase];
+            try {
+                const configResponse = await fetch('/api/storage-config');
+                if (configResponse.ok) {
+                    const configs = await configResponse.json();
+                    if (configs.databases && configs.databases.length > 0) {
+                        clients = configs.databases.map(dbConfig => 
+                            window.supabase.createClient(dbConfig.url, dbConfig.key)
+                        );
+                    }
+                }
+            } catch(e) { console.error("Failed to fetch storage configs:", e); }
+
+            const promises = [];
+            clients.forEach(client => {
+                promises.push(client.from('pending_notes').select('*').eq('uploader_email', userEmail));
+                promises.push(client.from('approved_notes').select('*').eq('uploader_email', userEmail));
+            });
+
+            const results = await Promise.all(promises);
             let allUploads = [];
-            if (pendingRes.data) {
-                allUploads.push(...pendingRes.data.map(d => ({...d, status: 'pending'})));
-            }
-            if (approvedRes.data) {
-                allUploads.push(...approvedRes.data.map(d => ({...d, status: 'approved'})));
+
+            for (let i = 0; i < results.length; i += 2) {
+                const pendingRes = results[i];
+                const approvedRes = results[i+1];
+                if (pendingRes.data) {
+                    allUploads.push(...pendingRes.data.map(d => ({...d, status: 'pending'})));
+                }
+                if (approvedRes.data) {
+                    allUploads.push(...approvedRes.data.map(d => ({...d, status: 'approved'})));
+                }
             }
             
             // Sort by creation date descending
