@@ -730,9 +730,17 @@
 
     </style>
 
-<!-- Google AdSense -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8465813445488249"
-     crossorigin="anonymous"></script>
+    <script>
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                var script = document.createElement('script');
+                script.async = true;
+                script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8465813445488249';
+                script.crossOrigin = 'anonymous';
+                document.head.appendChild(script);
+            }, 1000);
+        });
+    </script>
     <link rel="canonical" href="https://skilmatrix.site/about.html">
 
     <!-- Structured Data for AdSense & SEO -->

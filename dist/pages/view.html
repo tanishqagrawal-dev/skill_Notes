@@ -1,5 +1,29 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>View Resource | SKiL MATRiX Notes</title><meta property="og:type" content="article"><meta property="og:url" content="https://skilmatrix.site/pages/view.html"><meta property="og:site_name" content="SKiL MATRiX Notes"><meta property="og:title" content="View Academic Resource | SKiL MATRiX Notes"><meta property="og:description" content="Access free study notes, PYQs, and formula sheets on SKiL MATRiX – Your smartest academic companion 🎓"><meta property="og:image" content="https://skilmatrix.site/assets/og-banner.png?v=9f808235"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="SKiL MATRiX Notes – Free Study Material"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="View Academic Resource | SKiL MATRiX Notes"><meta name="twitter:description" content="Access free study notes, PYQs, and formula sheets on SKiL MATRiX – Your smartest academic companion 🎓"><meta name="twitter:image" content="https://skilmatrix.site/assets/og-banner.png?v=9f808235"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css?v=9f808235"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><style>:root{--primary:#6c63ff;--secondary:#00d2ff;--bg-color:#0f111a;--surface:#1a1a2e;--text-main:#ffffff;--text-dim:rgba(255, 255, 255, 0.6)}body,html{margin:0;padding:0;width:100%;height:100%;background-color:var(--bg-color);font-family:Inter,sans-serif;color:var(--text-main);overflow:hidden;display:flex;flex-direction:column}.viewer-header{display:flex;align-items:center;justify-content:space-between;background:rgba(26,26,46,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);padding:.75rem 1.5rem;z-index:100;height:60px;box-sizing:border-box}.header-left{display:flex;align-items:center;gap:1rem}.brand-logo{height:32px;width:32px;border-radius:8px;object-fit:cover;box-shadow:0 0 12px rgba(0,210,255,.3)}.note-info{display:flex;flex-direction:column}.note-title{font-size:1rem;font-weight:600;color:#fff;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px}.note-meta{font-size:.75rem;color:var(--text-dim);margin-top:.15rem}.header-right{display:flex;align-items:center;gap:.75rem}.btn-action{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#fff;padding:.5rem 1rem;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem}.btn-action:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);transform:translateY(-1px)}.btn-primary{background:linear-gradient(135deg,var(--primary),#9d50bb);border:none;box-shadow:0 4px 15px rgba(108,99,255,.25)}.btn-primary:hover{background:linear-gradient(135deg,#7b73ff,#a860c6);box-shadow:0 6px 20px rgba(108,99,255,.4)}.viewer-content{flex:1;width:100%;position:relative;background:#111}iframe{width:100%;height:100%;border:none;display:block}.status-overlay{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg-color);z-index:10}.spinner{width:40px;height:40px;border:3px solid rgba(0,210,255,.2);border-top-color:var(--secondary);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:1rem}@keyframes spin{to{transform:rotate(360deg)}}.error-message{color:#ff6b6b;text-align:center;max-width:400px;padding:2rem;background:rgba(255,107,107,.05);border:1px solid rgba(255,107,107,.2);border-radius:12px;display:none}@media (max-width:600px){.note-title{max-width:150px;font-size:.9rem}.note-meta{display:none}.btn-action span{display:none}.btn-action{padding:.5rem .6rem}}</style></head><body><header class="viewer-header"><div class="header-left"><a href="../index.html"><img src="../assets/logo.jpg?v=9f808235" alt="Logo" class="brand-logo"></a><div class="note-info"><h1 class="note-title" id="ui-title">Loading...</h1><div class="note-meta" id="ui-meta">SKiL MATRiX Notes</div></div></div><div class="header-right" style="display:flex;align-items:center"><div class="vote-container" id="vote-container" style="display:none;align-items:center;gap:8px;margin-right:15px;border-right:1px solid rgba(255,255,255,.1);padding-right:15px"><button class="btn-action vote-btn" id="btn-upvote" onclick="window.handleVote(1)" style="padding:.5rem .8rem;border-radius:8px"><i class="fas fa-thumbs-up"></i> <span id="upvote-count" style="margin-left:4px">0</span></button></div><button class="btn-action" onclick="window.shareNote()" id="btn-share" style="display:none"><i class="fas fa-share-alt"></i> <span>Share</span></button> <a href="#" class="btn-action btn-primary" id="btn-download" target="_blank" style="display:none" download><i class="fas fa-download"></i> <span>Download</span></a></div></header><div class="viewer-content"><div class="status-overlay" id="loader"><div class="spinner"></div><div style="color:var(--text-dim);font-size:.9rem">Fetching Secure Resource...</div></div><div class="status-overlay" id="error-overlay" style="display:none;background:0 0"><div class="error-message" id="error-msg"></div></div><iframe id="pdf-frame" title="PDF Viewer" allowfullscreen></iframe></div><script type="module">import { supabase } from '../js/supabase-config.js?v=9f808235';
-        import { globalNotes } from '../data/globalNotes.js?v=9f808235';
+<!DOCTYPE html><html lang="en"><head><link rel="shortcut icon" href="../assets/logo_transparent.png" type="image/png"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>View Resource | SKiL MATRiX Notes</title><meta property="og:type" content="article"><meta property="og:url" content="https://skilmatrix.site/pages/view.html"><meta property="og:site_name" content="SKiL MATRiX Notes"><meta property="og:title" content="View Academic Resource | SKiL MATRiX Notes"><meta property="og:description" content="Access free study notes, PYQs, and formula sheets on SKiL MATRiX – Your smartest academic companion 🎓"><meta property="og:image" content="https://skilmatrix.site/assets/og-banner.png?v=c0d28362"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="SKiL MATRiX Notes – Free Study Material"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="View Academic Resource | SKiL MATRiX Notes"><meta name="twitter:description" content="Access free study notes, PYQs, and formula sheets on SKiL MATRiX – Your smartest academic companion 🎓"><meta name="twitter:image" content="https://skilmatrix.site/assets/og-banner.png?v=c0d28362"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css?v=c0d28362"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><style>:root{--primary:#6c63ff;--secondary:#00d2ff;--bg-color:#0f111a;--surface:#1a1a2e;--text-main:#ffffff;--text-dim:rgba(255, 255, 255, 0.6)}body,html{margin:0;padding:0;width:100%;height:100%;background-color:var(--bg-color);font-family:Inter,sans-serif;color:var(--text-main);overflow:hidden;display:flex;flex-direction:column}.viewer-header{display:flex;align-items:center;justify-content:space-between;background:rgba(26,26,46,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);padding:.75rem 1.5rem;z-index:100;height:60px;box-sizing:border-box}.header-left{display:flex;align-items:center;gap:1rem}.brand-logo{height:32px;width:32px;border-radius:8px;object-fit:cover;box-shadow:0 0 12px rgba(0,210,255,.3)}.note-info{display:flex;flex-direction:column}.note-title{font-size:1rem;font-weight:600;color:#fff;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px}.note-meta{font-size:.75rem;color:var(--text-dim);margin-top:.15rem}.header-right{display:flex;align-items:center;gap:.75rem}.btn-action{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#fff;padding:.5rem 1rem;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem}.btn-action:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);transform:translateY(-1px)}.btn-primary{background:linear-gradient(135deg,var(--primary),#9d50bb);border:none;box-shadow:0 4px 15px rgba(108,99,255,.25)}.btn-primary:hover{background:linear-gradient(135deg,#7b73ff,#a860c6);box-shadow:0 6px 20px rgba(108,99,255,.4)}.viewer-content{flex:1;width:100%;position:relative;background:#111;overflow:hidden}iframe{width:100%;height:100%;border:none;display:block}.status-overlay{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg-color);z-index:10}.spinner{width:40px;height:40px;border:3px solid rgba(0,210,255,.2);border-top-color:var(--secondary);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:1rem}@keyframes spin{to{transform:rotate(360deg)}}.error-message{color:#ff6b6b;text-align:center;max-width:400px;padding:2rem;background:rgba(255,107,107,.05);border:1px solid rgba(255,107,107,.2);border-radius:12px;display:none}@media (max-width:600px){.note-title{max-width:150px;font-size:.9rem}.note-meta{display:none}.btn-action span:not(#view-count-display){display:none}.btn-action{padding:.5rem .6rem}.hide-mobile{display:none!important}}</style><script type="application/ld+json">{
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://skilmatrix.site/#website",
+          "url": "https://skilmatrix.site/",
+          "name": "SKiL MATRiX",
+          "description": "The ultimate study platform for engineering students.",
+          "publisher": {
+            "@id": "https://skilmatrix.site/#organization"
+          }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://skilmatrix.site/#organization",
+          "name": "SKiL MATRiX",
+          "url": "https://skilmatrix.site/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://skilmatrix.site/assets/logo.jpg"
+          }
+        }
+      ]
+    }</script></head><body><header class="viewer-header"><div class="header-left"><a href="../index.html"><img src="../assets/logo.jpg?v=c0d28362" alt="Logo" class="brand-logo"></a><div class="note-info"><h1 class="note-title" id="ui-title">Loading...</h1><div class="note-meta" id="ui-meta">SKiL MATRiX Notes</div></div></div><div class="header-right" style="display:flex;align-items:center"><div class="vote-container" id="vote-container" style="display:none;align-items:center;gap:8px;margin-right:15px;border-right:1px solid rgba(255,255,255,.1);padding-right:15px"><div class="btn-action view-count-display" style="padding:.5rem .8rem;border-radius:8px;cursor:default;background:rgba(255,255,255,.05)"><i class="fas fa-eye"></i> <span id="view-count-display" style="margin-left:4px">0</span><span class="hide-mobile">&nbsp;Views</span></div></div><button class="btn-action" onclick="window.shareNote()" id="btn-share" style="display:none"><i class="fas fa-share-alt"></i> <span>Share</span></button> <a href="#" class="btn-action btn-primary" id="btn-download" target="_blank" style="display:none" download><i class="fas fa-download"></i> <span>Download</span></a></div></header><div class="viewer-content"><div class="status-overlay" id="loader"><div class="spinner"></div><div style="color:var(--text-dim);font-size:.9rem">Fetching Secure Resource...</div></div><div class="status-overlay" id="error-overlay" style="display:none;background:0 0"><div class="error-message" id="error-msg"></div></div><iframe id="pdf-frame" title="PDF Viewer" allowfullscreen></iframe><div id="popout-hider" style="display:none;position:absolute;top:0;right:0;width:55px;height:50px;background:0 0;z-index:10;cursor:default"></div></div><script type="module">import { supabase } from '../js/supabase-config.js?v=c0d28362';
+        import { globalNotes } from '../data/globalNotes.js?v=c0d28362';
 
         const sb = supabase;
         
@@ -76,10 +100,29 @@
                         file_url: staticNote.url || staticNote.fileUrl || staticNote.driveLink
                     };
                 } else {
-                    // 2. Fetch from Supabase for new user-uploaded notes
-                    const { data, error } = await sb.from('approved_notes').select('*').eq('id', noteId).single();
-                    if (!error && data) {
-                        noteData = data;
+                    // 2. Fetch from all databases (Federated)
+                    try {
+                        const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+                            ? '' 
+                            : 'https://skil-matrix-server.onrender.com';
+                        const configRes = await fetch(`${API_BASE}/api/storage-config`);
+                        const configData = await configRes.json();
+                        
+                        // Import dynamically to create multiple clients
+                        const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+                        
+                        for (const db of configData.databases) {
+                            const client = createClient(db.url, db.anonKey);
+                            const { data, error } = await client.from('approved_notes').select('*').eq('id', noteId).single();
+                            if (!error && data) {
+                                noteData = data;
+                                noteData.views = (noteData.views || 0) + 1; // optimistically update local UI
+                                window._currentNoteClient = client; // Save the client to track views later
+                                break;
+                            }
+                        }
+                    } catch(e) {
+                        console.error("Federated DB search failed:", e);
                     }
                 }
 
@@ -108,15 +151,8 @@
                     const voteContainer = document.getElementById('vote-container');
                     if (voteContainer) voteContainer.style.display = 'flex';
                     
-                    const upvoteCountEl = document.getElementById('upvote-count');
-                    if (upvoteCountEl) upvoteCountEl.innerText = noteData.upvotes || 0;
-                    
-                    // Check local storage if user already voted
-                    const userVote = localStorage.getItem(`vote_${noteId}`);
-                    if (userVote === '1') {
-                        const btnUpvote = document.getElementById('btn-upvote');
-                        if (btnUpvote) btnUpvote.style.color = '#00f2ff';
-                    }
+                    const viewCountEl = document.getElementById('view-count-display');
+                    if (viewCountEl) viewCountEl.innerText = noteData.views || 0;
 
                 // Remove .html from share link dynamically
                 const btnShare = document.getElementById('btn-share');
@@ -134,27 +170,40 @@
                     return;
                 }
 
-                // Use Google Docs Viewer for mobile PDF rendering to avoid fallback UI
-                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                if (isMobile && finalUrl.toLowerCase().includes('.pdf')) {
+                // Use Google Docs Viewer for mobile PDF rendering to avoid browser fallback UI (like Chrome's grey Open button)
+                // We use navigator.pdfViewerEnabled to detect if the browser natively supports inline PDFs.
+                // This reliably catches mobile browsers even if they are in "Desktop site" mode.
+                let needsPdfViewer = false;
+                if (typeof navigator.pdfViewerEnabled !== 'undefined') {
+                    needsPdfViewer = !navigator.pdfViewerEnabled;
+                } else {
+                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                    needsPdfViewer = isMobile;
+                }
+
+                const frame = document.getElementById('pdf-frame');
+                const popoutHider = document.getElementById('popout-hider');
+
+                if (needsPdfViewer && finalUrl.toLowerCase().includes('.pdf')) {
                     finalUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(finalUrl)}&embedded=true`;
+                    frame.style.marginTop = '0';
+                    frame.style.height = '100%';
+                    if (popoutHider) popoutHider.style.display = 'block';
                 } else if(finalUrl.toLowerCase().includes('.pdf') && !finalUrl.includes('#')) {
                     finalUrl += '#toolbar=0&navpanes=0&scrollbar=0';
+                    frame.style.marginTop = '0';
+                    frame.style.height = '100%';
+                    if (popoutHider) popoutHider.style.display = 'none';
                 }
                 
-                const frame = document.getElementById('pdf-frame');
                 frame.src = finalUrl;
                 
                 // Hide custom loader instantly so native browser PDF progressive loader appears
                 document.getElementById('loader').style.display = 'none';
 
-                // Track View
+                // Track View (Increment every time as requested)
                 try {
-                    const viewKey = `viewed_${noteId}`;
-                    if (!localStorage.getItem(viewKey)) {
-                        await sb.rpc('increment_note_view', { p_note_id: noteId });
-                        localStorage.setItem(viewKey, 'true');
-                    }
+                    await (window._currentNoteClient || sb).rpc('increment_note_view', { p_note_id: noteId });
                 } catch(e){ console.error('View tracking failed', e); }
 
             } catch (err) {
@@ -245,57 +294,6 @@
             }
         };
 
-        window.handleVote = async function(voteType) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const noteId = urlParams.get('id');
-            if (!noteId) return;
 
-            // Generate an anonymous user ID if logged out, or use session
-            let userId = localStorage.getItem('auth_user_id') || localStorage.getItem('anon_vote_id');
-            if (!userId) {
-                userId = 'anon_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('anon_vote_id', userId);
-            }
-
-            try {
-                // Call RPC
-                const { error } = await sb.rpc('vote_note', { 
-                    p_note_id: noteId, 
-                    p_user_id: userId, 
-                    p_vote_type: voteType 
-                });
-
-                if (error) {
-                    console.error("Voting failed:", error);
-                    alert("Voting failed. Please try again later.");
-                    return;
-                }
-
-                // Update UI Optimistically
-                const upBtn = document.getElementById('btn-upvote');
-                const upSpan = document.getElementById('upvote-count');
-                
-                let upCount = upSpan ? parseInt(upSpan.innerText) : 0;
-
-                const currentVote = localStorage.getItem(`vote_${noteId}`);
-
-                if (currentVote == voteType) {
-                    // Removing vote
-                    localStorage.removeItem(`vote_${noteId}`);
-                    if (voteType === 1) { upCount--; if(upBtn) upBtn.style.color = ''; }
-                } else {
-                    // Changing or adding vote
-                    localStorage.setItem(`vote_${noteId}`, voteType);
-                    if (voteType === 1) {
-                        upCount++; if(upBtn) upBtn.style.color = '#00f2ff';
-                    }
-                }
-
-                if(upSpan) upSpan.innerText = Math.max(0, upCount);
-
-            } catch (err) {
-                console.error("Vote error:", err);
-            }
-        };
         // Initialize
         loadNote();</script></body></html>

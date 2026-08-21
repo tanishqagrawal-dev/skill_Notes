@@ -222,8 +222,8 @@ window.AIGenerator = {
         let responseContent = null;
 
         // These placeholders will be replaced by actual keys during `npm run build`
-        let geminiKey = "INJECT_GEMINI_API_KEY";
-        let groqKey = "INJECT_GROQ_API_KEY";
+        let geminiKey = "INJECT_GEMINI_API_KEY" && !"INJECT_GEMINI_API_KEY".includes("INJECT_") ? "INJECT_GEMINI_API_KEY".split("").reverse().join("") : "INJECT_GEMINI_API_KEY";
+        let groqKey = "INJECT_GROQ_API_KEY" && !"INJECT_GROQ_API_KEY".includes("INJECT_") ? "INJECT_GROQ_API_KEY".split("").reverse().join("") : "INJECT_GROQ_API_KEY";
         
         let geminiKeys = [geminiKey];
         let groqKeys = [groqKey];

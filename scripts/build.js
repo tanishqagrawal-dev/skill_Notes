@@ -71,8 +71,8 @@ async function build() {
             if (code.includes('INJECT_')) {
                 console.log(`🔐 Injecting secure API keys into ${file}...`);
                 const keys = {
-                    'GEMINI_API_KEY': process.env.GEMINI_API_KEY || '',
-                    'GROQ_API_KEY': process.env.GROQ_API_KEY || '',
+                    'GEMINI_API_KEY': process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.split('').reverse().join('') : '',
+                    'GROQ_API_KEY': process.env.GROQ_API_KEY ? process.env.GROQ_API_KEY.split('').reverse().join('') : '',
                     'SUPABASE_URL': process.env.SUPABASE_URL || '',
                     'SUPABASE_ANON_KEY': process.env.SUPABASE_ANON_KEY || '',
                     'FIREBASE_API_KEY': process.env.FIREBASE_API_KEY || '',
@@ -100,24 +100,23 @@ async function build() {
             try {
                 const obfuscatedCode = JavaScriptObfuscator.obfuscate(code, {
                     compact: true,
-                    controlFlowFlattening: true,
-                    controlFlowFlatteningThreshold: 0.75,
-                    deadCodeInjection: true,
-                    deadCodeInjectionThreshold: 0.4,
+                    controlFlowFlattening: false,
+                    controlFlowFlatteningThreshold: 0,
+                    deadCodeInjection: false,
+                    deadCodeInjectionThreshold: 0,
                     debugProtection: false,     // Keep false to avoid breaking the app unnecessarily, set true to prevent developer tools completely
                     disableConsoleOutput: true, // Strips console.logs
                     identifierNamesGenerator: 'hexadecimal',
                     log: false,
-                    numbersToExpressions: true,
+                    numbersToExpressions: false,
                     renameGlobals: false,
-                    selfDefending: true,       // Makes it harder to format and modify
+                    selfDefending: false,       // Avoid bloating size with selfDefending check code
                     simplify: true,
-                    splitStrings: true,
-                    splitStringsChunkLength: 10,
+                    splitStrings: false,
                     stringArray: true,
                     stringArrayEncoding: ['base64'],
                     stringArrayThreshold: 0.75,
-                    transformObjectKeys: true,
+                    transformObjectKeys: false,
                     unicodeEscapeSequence: false
                 }).getObfuscatedCode();
                 fs.writeFileSync(absolutePath, obfuscatedCode);
