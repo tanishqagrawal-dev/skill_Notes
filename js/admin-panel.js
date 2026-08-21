@@ -439,6 +439,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                   <button class="cm-tab active" onclick="window._cmTab('subjects',this)">📚 Subjects</button>
                   <button class="cm-tab" onclick="window._cmTab('syllabus',this)">📋 Syllabus</button>
                   <button class="cm-tab" onclick="window._cmTab('notes-titles',this)">✏️ Edit Note Titles</button>
+                  ${superAdmin ? `<button class="cm-tab" onclick="window._cmTab('colleges',this)">🏫 Colleges</button>` : ''}
                 </div>
 
                 <!-- Subjects Panel -->
@@ -515,6 +516,26 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                   <div style="font-size:.82rem;color:rgba(255,255,255,.4);margin-bottom:.5rem">Rename or delete approved notes directly</div>
                   <div id="cm-notes-title-list"><div class="ap-loader"><div class="ap-spin"></div><p>Loading approved notes…</p></div></div>
                 </div>
+                
+                ${superAdmin ? `
+                <!-- Colleges Panel -->
+                <div class="cm-panel" id="cm-colleges">
+                  <div class="cm-add-form">
+                    <div style="font-size:.8rem;font-weight:700;color:#a78bfa;margin-bottom:.25rem">➕ Add New College</div>
+                    <div class="cm-row-grid">
+                      <input type="text" id="cm-new-college-id" placeholder="College ID (e.g. mit-pune, no spaces)" />
+                      <input type="text" id="cm-new-college-name" placeholder="College Name (e.g. MIT Pune)" />
+                    </div>
+                    <button class="btn-action" style="margin-top:.75rem;width:100%" onclick="window._cmAddCollege()">
+                      <i class="fas fa-plus"></i> Add College
+                    </button>
+                  </div>
+                  <div style="font-size:.82rem;color:rgba(255,255,255,.4);margin-top:1rem;margin-bottom:.5rem">Existing Colleges</div>
+                  <div id="cm-colleges-list" style="display:flex;flex-direction:column;gap:.5rem;max-height:400px;overflow-y:auto;padding-right:.25rem">
+                    <div class="ap-loader"><div class="ap-spin"></div><p>Loading colleges…</p></div>
+                  </div>
+                </div>
+                ` : ''}
               </div>
             </div>
 
@@ -1217,6 +1238,10 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
         btn.classList.add('active');
         const el = document.getElementById(`cm-${panel}`);
         if (el) el.classList.add('active');
+        
+        if (panel === 'colleges' && window._cmLoadColleges) {
+            window._cmLoadColleges();
+        }
     };
 
     // ── Subjects ─────────────────────────────────────────────────────────────
@@ -1285,6 +1310,83 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
         }
     };
 
+    // ── Colleges (Super Admin Only) ───────────────────────────────────────────
+    window._cmLoadColleges = function() {
+        const list = document.getElementById('cm-colleges-list');
+        if (!list) return;
+        
+        const colleges = window.GlobalData?.colleges || [];
+        if (colleges.length === 0) {
+            list.innerHTML = `<div style="color:rgba(255,255,255,.4);padding:1.5rem;text-align:center">No colleges found.</div>`;
+            return;
+        }
+        
+        list.innerHTML = colleges.map(c => `
+            <div class="cm-row" id="cm-col-${c.id}">
+                <div>
+                  <div class="cm-name">${c.name}</div>
+                  <div class="cm-meta">ID: ${c.id}</div>
+                </div>
+                <div class="cm-actions">
+                  <button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._cmDeleteCollege('${c.id}')">🗑 Delete</button>
+                </div>
+            </div>
+        `).join('');
+    };
+
+    window._cmAddCollege = async function() {
+        const idInput = document.getElementById('cm-new-college-id');
+        const nameInput = document.getElementById('cm-new-college-name');
+        const id = idInput?.value?.trim().toLowerCase().replace(/[^a-z0-9\-]/g, '-');
+        const name = nameInput?.value?.trim();
+
+        if (!id || !name) {
+            if (window.showToast) window.showToast('❌ Both ID and Name are required.', 'error');
+            return;
+        }
+
+        try {
+            if (!window.firebaseServices) throw new Error("Firebase services not loaded.");
+            const { db, doc, setDoc } = window.firebaseServices;
+            
+            await setDoc(doc(db, 'colleges', id), { name });
+            if (window.showToast) window.showToast('✅ College added successfully!', 'success');
+            
+            if (idInput) idInput.value = '';
+            if (nameInput) nameInput.value = '';
+            
+            // GlobalData updates automatically via onSnapshot, reload UI after delay
+            setTimeout(() => { if (window._cmLoadColleges) window._cmLoadColleges(); }, 800);
+        } catch (e) {
+            console.error(e);
+            if (window.showToast) window.showToast('❌ Failed: ' + e.message, 'error');
+        }
+    };
+
+    window._cmDeleteCollege = async function(id) {
+        if (!confirm(`Are you sure you want to delete the college "${id}"? This might break subjects associated with it!`)) return;
+        try {
+            if (!window.firebaseServices) throw new Error("Firebase services not loaded.");
+            const { db, doc, deleteDoc } = window.firebaseServices;
+            
+            await deleteDoc(doc(db, 'colleges', id));
+            if (window.showToast) window.showToast('✅ College deleted successfully!', 'success');
+            
+            setTimeout(() => { if (window._cmLoadColleges) window._cmLoadColleges(); }, 800);
+        } catch (e) {
+            console.error(e);
+            if (window.showToast) window.showToast('❌ Failed: ' + e.message, 'error');
+        }
+    };
+
+    // Listen for colleges update to refresh UI automatically
+    window.addEventListener('collegesUpdated', () => {
+        if (document.getElementById('cm-colleges')?.classList.contains('active')) {
+            if (window._cmLoadColleges) window._cmLoadColleges();
+        }
+    });
+
+    // ── Add Subject ─────────────────────────────────────────────────────────
     window._cmAddSubject = async function () {
         const name = document.getElementById('cm-new-subject-name')?.value?.trim();
         const code = document.getElementById('cm-new-subject-code')?.value?.trim();
