@@ -315,6 +315,7 @@
             style="display:none; width: 100%; height: 100%; overflow-y: auto; background: #222; text-align: center; padding: 20px 0; box-sizing: border-box;">
             <!-- Canvas pages appended here -->
         </div>
+        <iframe id="office-frame" style="display:none; width: 100%; height: 100%; border: none; background: #fff;"></iframe>
     </div>
 
     <script type="module">
@@ -465,8 +466,11 @@
                     return;
                 }
 
-                if (finalUrl.toLowerCase().includes('.pdf')) {
+                const finalUrlLower = finalUrl.toLowerCase();
+                if (finalUrlLower.includes('.pdf')) {
                     renderPDF(finalUrl);
+                } else if (finalUrlLower.match(/\.(ppt|pptx|doc|docx|xls|xlsx)(\?|$)/)) {
+                    renderOffice(finalUrl);
                 } else {
                     showError("Unsupported file format.");
                 }
@@ -616,6 +620,27 @@
                 console.error("PDF.js render failed:", err);
                 showError("Could not load PDF document.");
             }
+        }
+
+        function renderOffice(url) {
+            const officeFrame = document.getElementById('office-frame');
+            const loader = document.getElementById('loader');
+            
+            // Microsoft Office Online Viewer requires public, accessible URLs
+            officeFrame.src = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+            
+            officeFrame.onload = () => {
+                loader.style.display = 'none';
+            };
+            
+            officeFrame.style.display = 'block';
+            
+            // In case the iframe onload fails to fire or takes too long, hide loader after 3s
+            setTimeout(() => {
+                if (loader.style.display !== 'none') {
+                    loader.style.display = 'none';
+                }
+            }, 3000);
         }
 
         async function renderPage(pdf, pageNum, wrapper) {
