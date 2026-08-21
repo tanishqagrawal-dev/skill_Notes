@@ -13,7 +13,8 @@
     <meta property="og:url" content="https://skilmatrix.site/pages/view.html" />
     <meta property="og:site_name" content="SKiL MATRiX Notes" />
     <meta property="og:title" content="View Academic Resource | SKiL MATRiX Notes" />
-    <meta property="og:description" content="Access free study notes, PYQs, and formula sheets on SKiL MATRiX – Your smartest academic companion 🎓" />
+    <meta property="og:description"
+        content="Access free study notes, PYQs, and formula sheets on SKiL MATRiX – Your smartest academic companion 🎓" />
     <meta property="og:image" content="https://skilmatrix.site/assets/og-banner.png?v=2" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -22,7 +23,8 @@
     <!-- ═══ Twitter / X Card ═══ -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="View Academic Resource | SKiL MATRiX Notes" />
-    <meta name="twitter:description" content="Access free study notes, PYQs, and formula sheets on SKiL MATRiX – Your smartest academic companion 🎓" />
+    <meta name="twitter:description"
+        content="Access free study notes, PYQs, and formula sheets on SKiL MATRiX – Your smartest academic companion 🎓" />
     <meta name="twitter:image" content="https://skilmatrix.site/assets/og-banner.png?v=2" />
 
     <!-- Fonts & Icons -->
@@ -34,6 +36,12 @@
     <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+    </script>
+
     <style>
         :root {
             --primary: #6c63ff;
@@ -44,7 +52,8 @@
             --text-dim: rgba(255, 255, 255, 0.6);
         }
 
-        body, html {
+        body,
+        html {
             margin: 0;
             padding: 0;
             width: 100%;
@@ -166,7 +175,10 @@
         /* Loader & Error */
         .status-overlay {
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -186,7 +198,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .error-message {
@@ -201,11 +215,26 @@
         }
 
         @media (max-width: 600px) {
-            .note-title { max-width: 150px; font-size: 0.9rem; }
-            .note-meta { display: none; }
-            .btn-action span:not(#view-count-display) { display: none; }
-            .btn-action { padding: 0.5rem 0.6rem; }
-            .hide-mobile { display: none !important; }
+            .note-title {
+                max-width: 150px;
+                font-size: 0.9rem;
+            }
+
+            .note-meta {
+                display: none;
+            }
+
+            .btn-action span:not(#view-count-display) {
+                display: none;
+            }
+
+            .btn-action {
+                padding: 0.5rem 0.6rem;
+            }
+
+            .hide-mobile {
+                display: none !important;
+            }
         }
     </style>
 
@@ -252,9 +281,17 @@
             </div>
         </div>
         <div class="header-right" style="display: flex; align-items: center;">
-            <div class="vote-container" id="vote-container" style="display:none; align-items: center; gap: 8px; margin-right: 15px; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 15px;">
-                <div class="btn-action view-count-display" style="padding: 0.5rem 0.8rem; border-radius: 8px; cursor: default; background: rgba(255,255,255,0.05);">
-                    <i class="fas fa-eye"></i> <span id="view-count-display" style="margin-left: 4px;">0</span><span class="hide-mobile">&nbsp;Views</span>
+            <div id="page-indicator"
+                style="display:none; align-items: center; background: rgba(0,0,0,0.5); padding: 0.4rem 0.8rem; border-radius: 8px; margin-right: 15px; font-weight: 600; font-family: 'JetBrains Mono', monospace; border: 1px solid rgba(255,255,255,0.1);">
+                <span id="current-page" style="color: var(--secondary); margin-right: 4px;">1</span> / <span
+                    id="total-pages" style="margin-left: 4px; color: var(--text-dim);">--</span>
+            </div>
+            <div class="vote-container" id="vote-container"
+                style="display:none; align-items: center; gap: 8px; margin-right: 15px; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 15px;">
+                <div class="btn-action view-count-display"
+                    style="padding: 0.5rem 0.8rem; border-radius: 8px; cursor: default; background: rgba(255,255,255,0.05);">
+                    <i class="fas fa-eye"></i> <span id="view-count-display" style="margin-left: 4px;">0</span><span
+                        class="hide-mobile">&nbsp;Views</span>
                 </div>
             </div>
             <button class="btn-action" onclick="window.shareNote()" id="btn-share" style="display:none">
@@ -274,9 +311,10 @@
         <div class="status-overlay" id="error-overlay" style="display:none; background: transparent;">
             <div class="error-message" id="error-msg"></div>
         </div>
-        <iframe id="pdf-frame" title="PDF Viewer" allowfullscreen></iframe>
-        <!-- Overlay to prevent clicks on Google Docs pop-out button while keeping it visible -->
-        <div id="popout-hider" style="display:none; position: absolute; top: 0; right: 0; width: 55px; height: 50px; background: transparent; z-index: 10; cursor: default;"></div>
+        <div id="pdf-container"
+            style="display:none; width: 100%; height: 100%; overflow-y: auto; background: #222; text-align: center; padding: 20px 0; box-sizing: border-box;">
+            <!-- Canvas pages appended here -->
+        </div>
     </div>
 
     <script type="module">
@@ -284,7 +322,7 @@
         import { globalNotes } from '../data/globalNotes.js?v=6.0';
 
         const sb = supabase;
-        
+
         function findStaticNote(id) {
             for (const college in globalNotes) {
                 for (const subject in globalNotes[college]) {
@@ -307,14 +345,14 @@
                 try {
                     const decodedUrl = decodeURIComponent(atob(legacyUrlBase64));
                     const decodedTitle = legacyTitleBase64 ? decodeURIComponent(atob(legacyTitleBase64)) : 'Document';
-                    
+
                     document.title = `${decodedTitle} | SKiL MATRiX Viewer`;
                     document.getElementById('ui-title').innerText = decodedTitle;
                     document.getElementById('ui-meta').innerText = `Direct View`;
-                    
+
                     const btnDownload = document.getElementById('btn-download');
                     btnDownload.style.display = 'inline-flex';
-                    btnDownload.onclick = function(e) {
+                    btnDownload.onclick = function (e) {
                         e.preventDefault();
                         forceDownload(decodedUrl, `${decodedTitle}.pdf`);
                     };
@@ -327,18 +365,17 @@
                         showDriveLink(finalUrl);
                         return;
                     }
-                    if(finalUrl.includes('.pdf') && !finalUrl.includes('#')) {
-                        finalUrl += '#toolbar=0&navpanes=0&scrollbar=0';
+                    if (finalUrl.toLowerCase().includes('.pdf')) {
+                        renderPDF(finalUrl);
+                    } else {
+                        showError("Unsupported file format.");
                     }
-                    const frame = document.getElementById('pdf-frame');
-                    frame.src = finalUrl;
-                    document.getElementById('loader').style.display = 'none';
                     return;
-                } catch(e) {
+                } catch (e) {
                     console.error("Failed to decode direct URL", e);
                 }
             }
-            
+
             if (!noteId) {
                 showError("Invalid link. No resource ID provided.");
                 return;
@@ -349,7 +386,7 @@
 
                 // 1. Check if it's an old static note from globalNotes.js
                 const staticNote = findStaticNote(noteId);
-                
+
                 if (staticNote) {
                     noteData = {
                         title: staticNote.title || staticNote.subjectName,
@@ -360,15 +397,15 @@
                 } else {
                     // 2. Fetch from all databases (Federated)
                     try {
-                        const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
-                            ? '' 
+                        const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                            ? ''
                             : 'https://skil-matrix-server.onrender.com';
                         const configRes = await fetch(`${API_BASE}/api/storage-config`);
                         const configData = await configRes.json();
-                        
+
                         // Import dynamically to create multiple clients
                         const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-                        
+
                         for (const db of configData.databases) {
                             const client = createClient(db.url, db.anonKey);
                             const { data, error } = await client.from('approved_notes').select('*').eq('id', noteId).single();
@@ -379,7 +416,7 @@
                                 break;
                             }
                         }
-                    } catch(e) {
+                    } catch (e) {
                         console.error("Federated DB search failed:", e);
                     }
                 }
@@ -394,11 +431,11 @@
                 document.title = `${noteData.title} | SKiL MATRiX Viewer`;
                 document.getElementById('ui-title').innerText = noteData.title || 'Untitled Note';
                 document.getElementById('ui-meta').innerText = `Uploaded by ${noteData.uploader_name || 'Verified'}`;
-                
+
                 const btnDownload = document.getElementById('btn-download');
                 if (noteData.allow_download !== false) {
                     btnDownload.style.display = 'inline-flex';
-                    btnDownload.onclick = function(e) {
+                    btnDownload.onclick = function (e) {
                         e.preventDefault();
                         window.forceDownload(noteData.file_url, `${noteData.title}.pdf`);
                     };
@@ -406,11 +443,11 @@
                     btnDownload.style.display = 'none';
                 }
 
-                    const voteContainer = document.getElementById('vote-container');
-                    if (voteContainer) voteContainer.style.display = 'flex';
-                    
-                    const viewCountEl = document.getElementById('view-count-display');
-                    if (viewCountEl) viewCountEl.innerText = noteData.views || 0;
+                const voteContainer = document.getElementById('vote-container');
+                if (voteContainer) voteContainer.style.display = 'flex';
+
+                const viewCountEl = document.getElementById('view-count-display');
+                if (viewCountEl) viewCountEl.innerText = noteData.views || 0;
 
                 // Remove .html from share link dynamically
                 const btnShare = document.getElementById('btn-share');
@@ -419,7 +456,7 @@
                 // Dynamically update OG tags via JS
                 try {
                     document.querySelector('meta[property="og:title"]').setAttribute("content", `${noteData.title} | SKiL MATRiX`);
-                } catch(e) {}
+                } catch (e) { }
 
                 // Load iframe securely
                 let finalUrl = noteData.file_url;
@@ -428,41 +465,16 @@
                     return;
                 }
 
-                // Use Google Docs Viewer for mobile PDF rendering to avoid browser fallback UI (like Chrome's grey Open button)
-                // We use navigator.pdfViewerEnabled to detect if the browser natively supports inline PDFs.
-                // This reliably catches mobile browsers even if they are in "Desktop site" mode.
-                let needsPdfViewer = false;
-                if (typeof navigator.pdfViewerEnabled !== 'undefined') {
-                    needsPdfViewer = !navigator.pdfViewerEnabled;
+                if (finalUrl.toLowerCase().includes('.pdf')) {
+                    renderPDF(finalUrl);
                 } else {
-                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                    needsPdfViewer = isMobile;
+                    showError("Unsupported file format.");
                 }
-
-                const frame = document.getElementById('pdf-frame');
-                const popoutHider = document.getElementById('popout-hider');
-
-                if (needsPdfViewer && finalUrl.toLowerCase().includes('.pdf')) {
-                    finalUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(finalUrl)}&embedded=true`;
-                    frame.style.marginTop = '0';
-                    frame.style.height = '100%';
-                    if (popoutHider) popoutHider.style.display = 'block';
-                } else if(finalUrl.toLowerCase().includes('.pdf') && !finalUrl.includes('#')) {
-                    finalUrl += '#toolbar=0&navpanes=0&scrollbar=0';
-                    frame.style.marginTop = '0';
-                    frame.style.height = '100%';
-                    if (popoutHider) popoutHider.style.display = 'none';
-                }
-                
-                frame.src = finalUrl;
-                
-                // Hide custom loader instantly so native browser PDF progressive loader appears
-                document.getElementById('loader').style.display = 'none';
 
                 // Track View (Increment every time as requested)
                 try {
                     await (window._currentNoteClient || sb).rpc('increment_note_view', { p_note_id: noteId });
-                } catch(e){ console.error('View tracking failed', e); }
+                } catch (e) { console.error('View tracking failed', e); }
 
             } catch (err) {
                 console.error(err);
@@ -485,12 +497,12 @@
             const errMsg = document.getElementById('error-msg');
             errDiv.style.display = 'flex';
             errMsg.style.display = 'block';
-            
+
             errMsg.style.background = 'rgba(0, 255, 136, 0.05)';
             errMsg.style.borderColor = 'rgba(0, 255, 136, 0.2)';
             errMsg.style.color = 'var(--text-bright)';
             errMsg.style.maxWidth = '500px';
-            
+
             errMsg.innerHTML = `
                 <i class="fab fa-google-drive" style="font-size:3.5rem; margin-bottom:1.5rem; display:block; color:#00ff88"></i>
                 <h3 style="margin-bottom: 1rem; font-size:1.5rem;">Google Drive Resource</h3>
@@ -499,32 +511,31 @@
                     Open in Google Drive <i class="fas fa-external-link-alt" style="margin-left: 8px;"></i>
                 </a>
             `;
-            document.getElementById('pdf-frame').style.display = 'none';
         }
 
-        window.forceDownload = async function(url, filename) {
+        window.forceDownload = async function (url, filename) {
             try {
                 const btn = document.getElementById('btn-download');
                 const originalHTML = btn.innerHTML;
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Downloading...</span>';
-                
+
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('Network response was not ok');
-                
+
                 const blob = await response.blob();
                 const objectUrl = URL.createObjectURL(blob);
-                
+
                 const a = document.createElement('a');
                 a.href = objectUrl;
                 a.download = filename || 'document.pdf';
                 document.body.appendChild(a);
                 a.click();
-                
+
                 document.body.removeChild(a);
                 URL.revokeObjectURL(objectUrl);
-                
+
                 btn.innerHTML = originalHTML;
-            } catch(e) {
+            } catch (e) {
                 console.error("Forced download failed, falling back to new tab", e);
                 window.open(url, '_blank');
                 const btn = document.getElementById('btn-download');
@@ -532,7 +543,7 @@
             }
         };
 
-        window.shareNote = function() {
+        window.shareNote = function () {
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             const baseUrl = isLocal ? window.location.origin : 'https://skilmatrix.site';
             const urlParams = new URLSearchParams(window.location.search);
@@ -553,8 +564,96 @@
         };
 
 
+        async function renderPDF(url) {
+            const container = document.getElementById('pdf-container');
+            const pageIndicator = document.getElementById('page-indicator');
+            const loader = document.getElementById('loader');
+
+            container.style.display = 'block';
+            pageIndicator.style.display = 'flex';
+
+            try {
+                const loadingTask = pdfjsLib.getDocument(url);
+                const pdf = await loadingTask.promise;
+
+                document.getElementById('total-pages').innerText = pdf.numPages;
+                loader.style.display = 'none';
+
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'pdf-page-wrapper';
+                    wrapper.dataset.pageNumber = pageNum;
+                    wrapper.style.marginBottom = '20px';
+                    wrapper.style.minHeight = '800px';
+                    wrapper.style.display = 'flex';
+                    wrapper.style.justifyContent = 'center';
+
+                    container.appendChild(wrapper);
+                }
+
+                const observer = new IntersectionObserver((entries) => {
+                    // Update current page based on visible intersecting items
+                    let topVisible = null;
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const wrapper = entry.target;
+                            const pageNum = parseInt(wrapper.dataset.pageNumber);
+
+                            // Naive way to just set to last intersecting we find in list
+                            document.getElementById('current-page').innerText = pageNum;
+
+                            if (!wrapper.dataset.rendered) {
+                                wrapper.dataset.rendered = 'true';
+                                renderPage(pdf, pageNum, wrapper);
+                            }
+                        }
+                    });
+                }, { root: container, rootMargin: '300px 0px' });
+
+                document.querySelectorAll('.pdf-page-wrapper').forEach(w => observer.observe(w));
+
+            } catch (err) {
+                console.error("PDF.js render failed:", err);
+                showError("Could not load PDF document.");
+            }
+        }
+
+        async function renderPage(pdf, pageNum, wrapper) {
+            try {
+                const page = await pdf.getPage(pageNum);
+
+                const container = document.getElementById('pdf-container');
+                const containerWidth = container.clientWidth - 40;
+
+                const unscaledViewport = page.getViewport({ scale: 1.0 });
+                let scale = containerWidth / unscaledViewport.width;
+                if (scale > 2.0) scale = 2.0; // max scale 
+
+                const viewport = page.getViewport({ scale: scale });
+
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                canvas.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
+                canvas.style.borderRadius = '4px';
+
+                wrapper.style.minHeight = viewport.height + 'px';
+                wrapper.innerHTML = ''; // clear
+                wrapper.appendChild(canvas);
+
+                await page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                }).promise;
+            } catch (e) {
+                console.error(`Page ${pageNum} render error:`, e);
+            }
+        }
+
         // Initialize
         loadNote();
     </script>
 </body>
+
 </html>
