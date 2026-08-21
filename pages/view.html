@@ -360,7 +360,10 @@
                 } else {
                     // 2. Fetch from all databases (Federated)
                     try {
-                        const configRes = await fetch('/api/storage-config');
+                        const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+                            ? '' 
+                            : 'https://skil-matrix-server.onrender.com';
+                        const configRes = await fetch(`${API_BASE}/api/storage-config`);
                         const configData = await configRes.json();
                         
                         // Import dynamically to create multiple clients

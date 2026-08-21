@@ -5,8 +5,12 @@ let supabaseClients = [];
 async function getStorageConfig() {
     if (storageConfig) return storageConfig;
     
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+        ? '' 
+        : 'https://skil-matrix-server.onrender.com';
+
     try {
-        const res = await fetch('/api/storage-config');
+        const res = await fetch(`${API_BASE}/api/storage-config`);
         storageConfig = await res.json();
         
         // Initialize all Supabase clients
@@ -42,8 +46,12 @@ async function uploadToSupabase(sbClient, filePath, file) {
 
 // Upload to Cloudflare R2 via Backend Proxy
 async function uploadToR2(filename, file) {
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+        ? '' 
+        : 'https://skil-matrix-server.onrender.com';
+
     // 1. Get Presigned URL
-    const urlRes = await fetch('/api/get-r2-upload-url', {
+    const urlRes = await fetch(`${API_BASE}/api/get-r2-upload-url`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ filename, contentType: file.type || 'application/pdf', size: file.size })

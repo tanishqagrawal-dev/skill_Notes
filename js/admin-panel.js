@@ -206,9 +206,13 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
         let clients = [await getSB()]; // default primary
         
         try {
-            const configResponse = await fetch('/api/storage-config');
-            if (configResponse.ok) {
-                const configs = await configResponse.json();
+           // Fetch dynamic storage configuration (federated)
+        const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+            ? '' 
+            : 'https://skil-matrix-server.onrender.com';
+        const res = await fetch(`${API_BASE}/api/storage-config`);
+            if (res.ok) {
+                const configs = await res.json();
                 if (configs.databases && configs.databases.length > 0) {
                     // Only load createClient if not already loaded, but getSB does it.
                     // Wait for import since we might need it.
