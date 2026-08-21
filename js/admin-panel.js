@@ -1328,7 +1328,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                   <div class="cm-meta">ID: ${c.id}</div>
                 </div>
                 <div class="cm-actions">
-                  <button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._cmDeleteCollege('${c.id}')">🗑 Delete</button>
+                  <!-- Delete option removed by request -->
                 </div>
             </div>
         `).join('');
@@ -1356,22 +1356,6 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             if (nameInput) nameInput.value = '';
             
             // GlobalData updates automatically via onSnapshot, reload UI after delay
-            setTimeout(() => { if (window._cmLoadColleges) window._cmLoadColleges(); }, 800);
-        } catch (e) {
-            console.error(e);
-            if (window.showToast) window.showToast('❌ Failed: ' + e.message, 'error');
-        }
-    };
-
-    window._cmDeleteCollege = async function(id) {
-        if (!confirm(`Are you sure you want to delete the college "${id}"? This might break subjects associated with it!`)) return;
-        try {
-            if (!window.firebaseServices) throw new Error("Firebase services not loaded.");
-            const { db, doc, deleteDoc } = window.firebaseServices;
-            
-            await deleteDoc(doc(db, 'colleges', id));
-            if (window.showToast) window.showToast('✅ College deleted successfully!', 'success');
-            
             setTimeout(() => { if (window._cmLoadColleges) window._cmLoadColleges(); }, 800);
         } catch (e) {
             console.error(e);
