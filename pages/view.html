@@ -649,10 +649,11 @@
 
                 const container = document.getElementById('pdf-container');
                 const containerWidth = container.clientWidth - 40;
+                const targetWidth = Math.min(containerWidth, 900); // Prevent excessive zoom on desktop
 
                 const unscaledViewport = page.getViewport({ scale: 1.0 });
-                let scale = containerWidth / unscaledViewport.width;
-                if (scale > 2.0) scale = 2.0; // max scale 
+                let scale = targetWidth / unscaledViewport.width;
+                if (scale > 1.5) scale = 1.5; // max scale limit
 
                 const viewport = page.getViewport({ scale: scale });
 
