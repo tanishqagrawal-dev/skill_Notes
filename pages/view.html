@@ -36,12 +36,6 @@
     <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- PDF.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
-    <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
-    </script>
-
     <style>
         :root {
             --primary: #6c63ff;
@@ -214,6 +208,17 @@
             display: none;
         }
 
+        #office-blocker {
+            display: none;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 200px;
+            height: 45px;
+            z-index: 100;
+            background: transparent;
+        }
+
         @media (max-width: 600px) {
             .note-title {
                 max-width: 150px;
@@ -311,11 +316,9 @@
         <div class="status-overlay" id="error-overlay" style="display:none; background: transparent;">
             <div class="error-message" id="error-msg"></div>
         </div>
-        <div id="pdf-container"
-            style="display:none; width: 100%; height: 100%; overflow-y: auto; background: #222; text-align: center; padding: 20px 0; box-sizing: border-box;">
-            <!-- Canvas pages appended here -->
-        </div>
+
         <iframe id="office-frame" style="display:none; width: 100%; height: 100%; border: none; background: #fff;"></iframe>
+        <div id="office-blocker" title="Action disabled by administrator"></div>
     </div>
 
     <script type="module">
@@ -467,9 +470,7 @@
                 }
 
                 const finalUrlLower = finalUrl.toLowerCase();
-                if (finalUrlLower.includes('.pdf')) {
-                    renderPDF(finalUrl);
-                } else if (finalUrlLower.match(/\.(ppt|pptx|doc|docx|xls|xlsx)(\?|$)/)) {
+                if (finalUrlLower.match(/\.(pdf|ppt|pptx|doc|docx|xls|xlsx)(\?|$)/)) {
                     renderOffice(finalUrl);
                 } else {
                     showError("Unsupported file format.");
@@ -568,72 +569,31 @@
         };
 
 
-        async function renderPDF(url) {
-            const container = document.getElementById('pdf-container');
-            const pageIndicator = document.getElementById('page-indicator');
-            const loader = document.getElementById('loader');
-
-            container.style.display = 'block';
-            pageIndicator.style.display = 'flex';
-
-            try {
-                const loadingTask = pdfjsLib.getDocument(url);
-                const pdf = await loadingTask.promise;
-
-                document.getElementById('total-pages').innerText = pdf.numPages;
-                loader.style.display = 'none';
-
-                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'pdf-page-wrapper';
-                    wrapper.dataset.pageNumber = pageNum;
-                    wrapper.style.marginBottom = '20px';
-                    wrapper.style.minHeight = '800px';
-                    wrapper.style.display = 'flex';
-                    wrapper.style.justifyContent = 'center';
-
-                    container.appendChild(wrapper);
-                }
-
-                const observer = new IntersectionObserver((entries) => {
-                    // Update current page based on visible intersecting items
-                    let topVisible = null;
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            const wrapper = entry.target;
-                            const pageNum = parseInt(wrapper.dataset.pageNumber);
-
-                            // Naive way to just set to last intersecting we find in list
-                            document.getElementById('current-page').innerText = pageNum;
-
-                            if (!wrapper.dataset.rendered) {
-                                wrapper.dataset.rendered = 'true';
-                                renderPage(pdf, pageNum, wrapper);
-                            }
-                        }
-                    });
-                }, { root: container, rootMargin: '300px 0px' });
-
-                document.querySelectorAll('.pdf-page-wrapper').forEach(w => observer.observe(w));
-
-            } catch (err) {
-                console.error("PDF.js render failed:", err);
-                showError("Could not load PDF document.");
-            }
-        }
-
         function renderOffice(url) {
             const officeFrame = document.getElementById('office-frame');
+            const officeBlocker = document.getElementById('office-blocker');
             const loader = document.getElementById('loader');
             
-            // Microsoft Office Online Viewer requires public, accessible URLs
-            officeFrame.src = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+            // Google Docs Viewer handles scrolling and touch perfectly for PPT/Docs, 
+            // and provides a unified experience across all devices.
+            officeFrame.src = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
+            
+            if (officeBlocker) {
+                // Google Docs Viewer's "Pop-out" download button is at the top right.
+                // Block this universally so users cannot download the file.
+                officeBlocker.style.bottom = 'auto';
+                officeBlocker.style.top = '0';
+                officeBlocker.style.right = '0';
+                officeBlocker.style.width = '60px';
+                officeBlocker.style.height = '60px';
+            }
             
             officeFrame.onload = () => {
                 loader.style.display = 'none';
             };
             
             officeFrame.style.display = 'block';
+            if (officeBlocker) officeBlocker.style.display = 'block';
             
             // In case the iframe onload fails to fire or takes too long, hide loader after 3s
             setTimeout(() => {

@@ -539,7 +539,16 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                       <input type="text" id="cm-new-college-id" placeholder="College ID (e.g. mit-pune, no spaces)" />
                       <input type="text" id="cm-new-college-name" placeholder="College Name (e.g. MIT Pune)" />
                     </div>
-                    <button class="btn-action" style="margin-top:.75rem;width:100%" onclick="window._cmAddCollege()">
+                    
+                    <div id="cm-logo-dropzone" style="margin-top: .6rem; border: 2px dashed rgba(255,255,255,.2); border-radius: 9px; padding: 1.5rem; text-align: center; cursor: pointer; background: rgba(255,255,255,.02); transition: all 0.2s;" ondragover="event.preventDefault(); this.style.borderColor='#a78bfa'; this.style.background='rgba(167,139,250,.05)';" ondragleave="this.style.borderColor='rgba(255,255,255,.2)'; this.style.background='rgba(255,255,255,.02)';" ondrop="window._cmHandleLogoDrop(event)" onclick="if(event.target.id !== 'cm-new-college-logo-file') document.getElementById('cm-new-college-logo-file')?.click()">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem; color: rgba(255,255,255,.5);" id="cm-logo-preview">🖼️</div>
+                        <div style="font-size: 0.85rem; color: rgba(255,255,255,.7);">Drag & drop logo image here or click to browse</div>
+                        <input type="file" id="cm-new-college-logo-file" accept="image/*" style="display: none;" onchange="window._cmHandleLogoFile(this.files[0])" />
+                    </div>
+                    <div style="text-align: center; font-size: 0.75rem; color: rgba(255,255,255,.4); margin: 0.5rem 0;">OR</div>
+                    <input type="text" id="cm-new-college-logo-url" placeholder="Paste College Logo URL or Emoji" style="background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); color:#fff; border-radius:9px; padding:.5rem .9rem; font-size:.83rem; outline:none; width:100%; box-sizing:border-box;" />
+                    
+                    <button id="cm-add-college-btn" class="btn-action" style="margin-top:.75rem;width:100%" onclick="window._cmAddCollege()">
                       <i class="fas fa-plus"></i> Add College
                     </button>
                   </div>
@@ -1417,45 +1426,135 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             return;
         }
         
-        list.innerHTML = colleges.map(c => `
+        // One-time cleanup of unwanted colleges
+        if (window.firebaseServices && !localStorage.getItem('colleges_cleaned_v2')) {
+            const allowed = ['medicaps', 'ips', 'lnct', 'cdgi'];
+            const { db, doc, deleteDoc } = window.firebaseServices;
+            let deletedAny = false;
+            colleges.forEach(c => {
+                if (!allowed.includes(c.id)) {
+                    deleteDoc(doc(db, 'colleges', c.id)).catch(console.error);
+                    deletedAny = true;
+                }
+            });
+            if (deletedAny) {
+                console.log('Cleaned up extra colleges from DB.');
+                // Remove them from local array so UI updates immediately
+                for (let i = colleges.length - 1; i >= 0; i--) {
+                    if (!allowed.includes(colleges[i].id)) colleges.splice(i, 1);
+                }
+            }
+            localStorage.setItem('colleges_cleaned_v2', 'true');
+        }
+
+        list.innerHTML = colleges.map(c => {
+            const logoHtml = c.logo 
+                ? (c.logo.startsWith('http') || c.logo.startsWith('assets') || c.logo.startsWith('../') || c.logo.startsWith('data:'))
+                    ? `<img src="${c.logo}" style="width: 32px; height: 32px; object-fit: contain; border-radius: 4px; margin-right: 12px; background: white; padding: 2px;" />`
+                    : `<span style="font-size: 1.5rem; margin-right: 12px;">${c.logo}</span>`
+                : `<span style="font-size: 1.5rem; margin-right: 12px;">🏛️</span>`;
+            
+            return `
             <div class="cm-row" id="cm-col-${c.id}">
-                <div>
-                  <div class="cm-name">${c.name}</div>
-                  <div class="cm-meta">ID: ${c.id}</div>
+                <div style="display: flex; align-items: center;">
+                  ${logoHtml}
+                  <div>
+                    <div class="cm-name">${c.name}</div>
+                    <div class="cm-meta">ID: ${c.id}</div>
+                  </div>
                 </div>
                 <div class="cm-actions">
                   <!-- Delete option removed by request -->
                 </div>
             </div>
-        `).join('');
+        `}).join('');
+    };
+
+    let pendingLogoFile = null;
+
+    window._cmHandleLogoDrop = function(e) {
+        e.preventDefault();
+        const dropzone = document.getElementById('cm-logo-dropzone');
+        if (dropzone) {
+            dropzone.style.borderColor = 'rgba(255,255,255,.2)';
+            dropzone.style.background = 'rgba(255,255,255,.02)';
+        }
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            window._cmHandleLogoFile(e.dataTransfer.files[0]);
+        }
+    };
+
+    window._cmHandleLogoFile = function(file) {
+        if (!file || !file.type.startsWith('image/')) {
+            if (window.showToast) window.showToast('❌ Please select a valid image file.', 'error');
+            return;
+        }
+        pendingLogoFile = file;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('cm-logo-preview');
+            if (preview) {
+                preview.innerHTML = `<img src="${e.target.result}" style="max-height: 60px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" />`;
+            }
+        };
+        reader.readAsDataURL(file);
     };
 
     window._cmAddCollege = async function() {
         const idInput = document.getElementById('cm-new-college-id');
         const nameInput = document.getElementById('cm-new-college-name');
+        const urlInput = document.getElementById('cm-new-college-logo-url');
+        const btn = document.getElementById('cm-add-college-btn');
+        
         const id = idInput?.value?.trim().toLowerCase().replace(/[^a-z0-9\-]/g, '-');
         const name = nameInput?.value?.trim();
+        let logo = urlInput?.value?.trim() || '';
 
         if (!id || !name) {
             if (window.showToast) window.showToast('❌ Both ID and Name are required.', 'error');
             return;
         }
+        
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `<span class="ap-spin" style="width:16px;height:16px;margin:0;display:inline-block;"></span> Adding...`;
+        }
 
         try {
             if (!window.firebaseServices) throw new Error("Firebase services not loaded.");
-            const { db, doc, setDoc } = window.firebaseServices;
+            const { db, doc, setDoc, storage, ref, uploadBytes, getDownloadURL } = window.firebaseServices;
             
-            await setDoc(doc(db, 'colleges', id), { name });
+            // Upload local file if provided
+            if (pendingLogoFile && storage) {
+                const logoRef = ref(storage, `college_logos/${id}_${Date.now()}_${pendingLogoFile.name.replace(/[^a-zA-Z0-9.\-]/g, '_')}`);
+                await uploadBytes(logoRef, pendingLogoFile);
+                logo = await getDownloadURL(logoRef);
+            }
+            
+            const dataToSave = { name };
+            if (logo) dataToSave.logo = logo;
+            
+            await setDoc(doc(db, 'colleges', id), dataToSave);
             if (window.showToast) window.showToast('✅ College added successfully!', 'success');
             
             if (idInput) idInput.value = '';
             if (nameInput) nameInput.value = '';
+            if (urlInput) urlInput.value = '';
+            
+            pendingLogoFile = null;
+            const preview = document.getElementById('cm-logo-preview');
+            if (preview) preview.innerHTML = '🖼️';
             
             // GlobalData updates automatically via onSnapshot, reload UI after delay
             setTimeout(() => { if (window._cmLoadColleges) window._cmLoadColleges(); }, 800);
         } catch (e) {
             console.error(e);
             if (window.showToast) window.showToast('❌ Failed: ' + e.message, 'error');
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fas fa-plus"></i> Add College`;
+            }
         }
     };
 

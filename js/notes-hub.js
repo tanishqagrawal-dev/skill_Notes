@@ -7,9 +7,10 @@ import { RoutingSystem } from "./routing.js?v=6.0";
 // --- GLOBAL CONSTANTS ---
 const LocalData = {
     colleges: [
-        { id: 'medicaps', name: 'Medi-Caps University', logo: '🏛️' },
-        { id: 'lpu', name: 'LPU University', logo: '🏰' },
-        { id: 'iitd', name: 'IIT Delhi', logo: '🎓' }
+        { id: 'medicaps', name: 'Medicaps University', logo: 'assets/logos/medicaps.png' },
+        { id: 'ips', name: 'IPS Academy', logo: 'assets/logos/ips.png' },
+        { id: 'lnct', name: 'LNCT COLLEGE BHOPAL', logo: 'assets/logos/lnct.jpg' },
+        { id: 'cdgi', name: 'CDGI University', logo: 'assets/logos/cdgi.png' }
     ],
     branches: [
         { id: 'cse', name: 'Computer Science', icon: '💻' },
@@ -227,12 +228,11 @@ window.renderCollegeStep = function () {
     }
 
     container.innerHTML = GlobalData.colleges.map(c => `
-        <div class="selection-card glass-card ${c.status === 'locked' ? 'locked' : ''}" 
-             onclick="${c.status === 'locked' ? 'window.lockOverlay.show()' : `selectCollege('${c.id}', '${c.name}')`}">
+        <div class="selection-card glass-card" 
+             onclick="selectCollege('${c.id}', '${c.name}')">
             <div class="card-icon" style="font-size: 3rem;">${c.logo || '🏛️'}</div>
             <h3 class="font-heading" style="margin-top: 1.5rem;">${c.name}</h3>
-            <p style="color: var(--text-dim); margin-top: 0.5rem;">${c.status === 'locked' ? 'Coming Soon' : 'Verified Academic Partner'}</p>
-            ${c.status === 'locked' ? '<div style="position:absolute; top:10px; right:10px; opacity:0.5;">🔒</div>' : ''}
+            <p style="color: var(--text-dim); margin-top: 0.5rem;">Verified Academic Partner</p>
         </div>
     `).join('');
 };
@@ -595,8 +595,12 @@ window.showNotes = async function (activeTab = 'notes', loadMore = false) {
 function renderStaticNotes(notes) {
     const cards = notes.map((n, idx) => {
         const createNoteCard = (unit, title, url, likes = 0, views = 0, id = '', downloads = 0, dislikes = 0) => {
-            const noteId = id || 'undefined';
-            return `
+            const noteId = id || 'undefined';        const fallbackName = n.uploaderName || n.uploader || 'U';
+        const initial = fallbackName.charAt(0).toUpperCase();
+        const fallbackSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#ff6b00"/><text x="50" y="50" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="45" font-weight="bold" text-anchor="middle" dominant-baseline="central">${initial}</text></svg>`;
+        const fallbackUri = `data:image/svg+xml;utf8,${encodeURIComponent(fallbackSvg)}`;
+
+        return `
             <div class="note-card-pro card-reveal" data-note-id="${noteId}" style="animation-delay: ${idx * 0.1}s;">
                 <div class="note-icon-pro">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -607,9 +611,10 @@ function renderStaticNotes(notes) {
                     <h3 class="note-title-pro">${title}</h3>
                     <div class="note-actions-pro">
                         <span class="meta-pill-pro uploader" style="color: var(--secondary); font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-                            ${(n.uploaderName === 'SKiL MATRiX Admin' || n.uploaderName === 'SKiL MATRiX' || (!n.uploaderName && !n.uploader)) ? 
+                            ${((n.uploaderName || n.uploader || '').toLowerCase().includes('skil matrix') || (!n.uploaderName && !n.uploader)) ? 
                                 '<img src="../assets/logo_transparent.png" style="width:14px;height:14px;border-radius:50%;object-fit:contain;background:rgba(0,242,255,0.1);padding:1px;">' :
-                                `<img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(n.uploaderName || n.uploader)}&backgroundColor=transparent" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.05);">`
+                                (n.uploaderAvatar || n.avatar) ? `<img src="${n.uploaderAvatar || n.avatar}" style="width:14px;height:14px;border-radius:50%;object-fit:cover;">` :
+                                `<img src="${fallbackUri}" style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.05);" onload="if(!this.dataset.loaded){ this.dataset.loaded=true; window.loadUserAvatar('${n.uploadedBy}', this, '${fallbackName.replace(/'/g, "\\'")}'); }">`
                             }
                             ${n.uploaderName || n.uploader || 'SKiL MATRiX'}
                         </span>

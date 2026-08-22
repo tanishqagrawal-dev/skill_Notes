@@ -57,9 +57,8 @@ const GlobalData = {
     colleges: [
         { id: 'medicaps', name: 'Medicaps University', status: 'active', logo: '../assets/logos/medicaps.png?v=6.0' },
         { id: 'lnct', name: 'LNCT COLLEGE BHOPAL', status: 'active', logo: '../assets/logos/lnct.jpg?v=6.0' },
-        { id: 'cdgi', name: 'CDGI University', status: 'locked', logo: '../assets/logos/cdgi.png?v=6.0' },
-        { id: 'ips', name: 'IPS Academy', status: 'active', logo: '../assets/logos/ips.png?v=6.0' },
-        { id: 'iitd', name: 'IIT Delhi', status: 'locked', logo: '../assets/logos/iitd.png?v=6.0' }
+        { id: 'cdgi', name: 'CDGI University', status: 'active', logo: '../assets/logos/cdgi.png?v=6.0' },
+        { id: 'ips', name: 'IPS Academy', status: 'active', logo: '../assets/logos/ips.png?v=6.0' }
     ], // Now fetched dynamically from Firestore, seeded with defaults for refresh reliability
     branches: [
         { id: 'cse', name: 'Computer Science', icon: '💻' },
@@ -5329,26 +5328,18 @@ function renderCollegeStep() {
         });
 
         return sortedItems.map(c => {
-            const isLocked = (c.status === 'locked');
-
             return `
         <div class="selection-card glass-card fade-in" 
-             style="position: relative; ${isLocked ? 'opacity: 0.7; cursor: not-allowed;' : ''}"
-             onclick="${isLocked ? '' : `selectCollege('${c.id}', '${c.name}')`}">
-             
-            ${isLocked ? `
-                <div style="position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.6); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; color: #fff; display: flex; align-items: center; gap: 0.3rem; border: 1px solid rgba(255,255,255,0.1);">
-                    🔒 <span style="font-weight: 500;">Coming Soon</span>
-                </div>
-            ` : ''}
+             style="position: relative;"
+             onclick="selectCollege('${c.id}', '${c.name}')">
 
-            <div class="card-icon" style="width: 80px; height: 80px; margin: 0 auto 1.5rem auto; background: white; border-radius: 12px; padding: 10px; display: flex; align-items: center; justify-content: center; ${isLocked ? 'filter: grayscale(1); opacity: 0.8;' : ''}">
+            <div class="card-icon" style="width: 80px; height: 80px; margin: 0 auto 1.5rem auto; background: white; border-radius: 12px; padding: 10px; display: flex; align-items: center; justify-content: center;">
                 <img src="${c.logo}" 
                      alt="${c.name}" 
                      onerror="this.src='https://cdn-icons-png.flaticon.com/512/2940/2940651.png'"
                      style="width: 100%; height: 100%; object-fit: contain;">
             </div>
-            <h3 class="font-heading" style="margin-top: 1.5rem; text-transform: uppercase; font-size: 1.1rem; ${isLocked ? 'color: var(--text-dim);' : ''}">${c.name}</h3>
+            <h3 class="font-heading" style="margin-top: 1.5rem; text-transform: uppercase; font-size: 1.1rem;">${c.name}</h3>
         </div>
     `}).join('');
     };
@@ -5964,6 +5955,41 @@ window.deleteUploadedNote = async function (noteId) {
     });
 };
 
+window._avatarCache = {};
+window.loadUserAvatar = async function(uid, imgElement, fallbackName) {
+    if (!uid) return;
+    if (window._avatarCache[uid]) {
+        if (window._avatarCache[uid] !== 'none') imgElement.src = window._avatarCache[uid];
+        return;
+    }
+    if (window.firebaseServices && window.firebaseServices.db) {
+        try {
+            const { db, doc, getDoc } = window.firebaseServices;
+            const userDoc = await getDoc(doc(db, 'users', uid));
+            if (userDoc.exists()) {
+                const data = userDoc.data();
+                const avatar = data.photo || data.avatar || data.photoURL;
+                if (avatar) {
+                    window._avatarCache[uid] = avatar;
+                    imgElement.src = avatar;
+                    return;
+                } else {
+                    const name = data.name || fallbackName || 'U';
+                    const initial = name.charAt(0).toUpperCase();
+                    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#ff6b00"/><text x="50" y="50" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="45" font-weight="bold" text-anchor="middle" dominant-baseline="central">${initial}</text></svg>`;
+                    const dataUri = `data:image/svg+xml;base64,${btoa(svg)}`;
+                    window._avatarCache[uid] = dataUri;
+                    imgElement.src = dataUri;
+                    return;
+                }
+            }
+            window._avatarCache[uid] = 'none';
+        } catch (e) {
+            console.error('Error fetching avatar', e);
+        }
+    }
+};
+
 function renderNotesList(list, tabType) {
     if (list.length === 0) {
         return `
@@ -6214,6 +6240,10 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
         const isLiked = window.likedNoteIds?.has(n.id) || localVote == 1;
         const isDisliked = window.dislikedNoteIds?.has(n.id) || localVote == -1;
         const isSaved = window.savedNoteIds?.has(n.id);
+        const fallbackName = n.uploaderName || n.uploader || 'U';
+        const initial = fallbackName.charAt(0).toUpperCase();
+        const fallbackSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#ff6b00"/><text x="50" y="50" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="45" font-weight="bold" text-anchor="middle" dominant-baseline="central">${initial}</text></svg>`;
+        const fallbackUri = `data:image/svg+xml;utf8,${encodeURIComponent(fallbackSvg)}`;
 
         return `
             <div class="premium-note-item card-reveal" data-note-id="${n.id}" style="animation-delay: ${idx * 0.1}s;">
@@ -6226,9 +6256,10 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                         <h3 class="item-title" style="font-size: 1.2rem; font-weight: 700; color: white; margin: 0 0 0.4rem 0;">${n.title}</h3>
                         <div class="item-meta-row" style="display: flex; align-items: center; gap: 1.2rem; font-size: 0.85rem; color: var(--text-dim);">
                             <div class="uploader-mini" style="display: flex; align-items: center; gap: 0.5rem; white-space: nowrap; color: var(--secondary); font-weight: 700;">
-                                ${(n.uploaderName === 'SKiL MATRiX Admin' || n.uploaderName === 'SKiL MATRiX' || (!n.uploaderName && !n.uploader)) ? 
+                                ${((n.uploaderName || n.uploader || '').toLowerCase().includes('skil matrix') || (!n.uploaderName && !n.uploader)) ? 
                                     '<img src="../assets/logo_transparent.png" style="width:18px;height:18px;border-radius:50%;object-fit:contain;background:rgba(0,242,255,0.1);padding:2px;">' :
-                                    `<img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(n.uploaderName || n.uploader)}&backgroundColor=transparent" style="width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.05);">`
+                                    (n.uploaderAvatar || n.avatar) ? `<img src="${n.uploaderAvatar || n.avatar}" style="width:18px;height:18px;border-radius:50%;object-fit:cover;">` :
+                                    `<img src="${fallbackUri}" style="width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.05);" onload="if(!this.dataset.loaded){ this.dataset.loaded=true; window.loadUserAvatar('${n.uploadedBy}', this, '${fallbackName.replace(/'/g, "\\'")}'); }">`
                                 }
                                 <span>${n.uploaderName || n.uploader || 'SKiL MATRiX'}</span>
                             </div>
@@ -6554,6 +6585,7 @@ window.uploadNote = async function (formData) {
             stream: formData.get('stream') || 'B.Tech',
             fileUrl: downloadURL,
             uploaderName: currentUser.name,
+            uploaderAvatar: currentUser.avatar || currentUser.photoURL || null,
             uploadedBy: currentUser.id,
             uploaderEmail: currentUser.email,
             status: 'approved', // Auto-approve per user request for instant visibility
