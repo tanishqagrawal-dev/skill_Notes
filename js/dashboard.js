@@ -66,12 +66,13 @@ const GlobalData = {
         { id: 'ee', name: 'Electrical Engineering', icon: '🔌' },
         { id: 'me', name: 'Mechanical', icon: '⚙️' },
         { id: 'aiml', name: 'AI & Machine Learning', icon: '🧠' },
+        { id: 'advanced-ai-ibm', name: 'ADVANCED AI-IBM', icon: '🤖' },
         { id: 'vlsi', name: 'VLSI Design', icon: '🔌' },
         { id: 'finance', name: 'Finance', icon: '💰' },
         { id: 'marketing', name: 'Marketing', icon: '📣' }
     ],
     streams: [
-        { id: 'btech', name: 'B.Tech', icon: '🎓', branches: ['cse', 'ece', 'ee', 'me'] },
+        { id: 'btech', name: 'B.Tech', icon: '🎓', branches: ['cse', 'ece', 'ee', 'me', 'aiml', 'advanced-ai-ibm'] },
         { id: 'mtech', name: 'M.Tech', icon: '🔬', branches: ['cse', 'vlsi'] },
         { id: 'mba', name: 'MBA', icon: '📊', branches: ['finance', 'marketing'] }
     ],
@@ -173,6 +174,7 @@ const GlobalData = {
         ]
     }
 };
+
 window.GlobalData = GlobalData;
 window.globalNotes = globalNotes;
 

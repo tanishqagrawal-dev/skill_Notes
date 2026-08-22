@@ -16,7 +16,8 @@ const LocalData = {
         { id: 'cse', name: 'Computer Science', icon: '💻' },
         { id: 'ece', name: 'Electronics', icon: '⚡' },
         { id: 'me', name: 'Mechanical', icon: '⚙️' },
-        { id: 'aiml', name: 'AI & Machine Learning', icon: '🧠' }
+        { id: 'aiml', name: 'AI & Machine Learning', icon: '🧠' },
+        { id: 'advanced-ai-ibm', name: 'ADVANCED AI-IBM', icon: '🤖' }
     ],
     years: ['1st Year', '2nd Year', '3rd Year', '4th Year'],
     subjects: {
@@ -100,7 +101,6 @@ const LocalData = {
     }
 };
 
-// Use Dashboard's GlobalData if available, otherwise fallback to local
 const GlobalData = window.GlobalData || LocalData;
 
 // Use Dashboard's selState if available, otherwise fallback to local
