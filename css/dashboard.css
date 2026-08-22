@@ -5772,16 +5772,33 @@
     border-color: rgba(123, 97, 255, 0.3);
 }
 
+.exam-type-card {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.exam-type-card:hover {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    transform: translateY(-1px);
+}
+
 .exam-type-card.active {
-    border-color: #7B61FF !important;
-    background: rgba(123, 97, 255, 0.1) !important;
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3), 0 0 15px rgba(123, 97, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45) !important;
 }
 
 .exam-type-card.active div:last-child {
-    color: #7B61FF !important;
-    font-weight: 800 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+.exam-type-card.active div:first-child {
+    background: rgba(255, 255, 255, 0.16) !important;
+    color: #ffffff !important;
 }
 
 /* Notification Panel Animations */
@@ -6090,4 +6107,52 @@
 
 .glow-pulse {
     animation: glowPulseToday 2s infinite ease-in-out;
+}
+
+/* --- PREMIUM SUMMARY CARDS --- */
+.summary-type-card {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.summary-type-card:hover {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    transform: translateY(-1px);
+}
+
+.summary-type-card.active {
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45) !important;
+}
+
+.summary-type-card.active div:last-child {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+.summary-type-card.active .summary-badge {
+    background: rgba(255, 255, 255, 0.16) !important;
+    color: #ffffff !important;
+}
+
+/* --- SCANNING GLOW ANIMATION FOR SUMMARIES --- */
+@keyframes scan-animation {
+    0% { top: 0%; opacity: 0; }
+    10% { opacity: 0.8; }
+    90% { opacity: 0.8; }
+    100% { top: 100%; opacity: 0; }
+}
+
+.scan-line {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #7B61FF, #00F2FF, #7B61FF, transparent);
+    animation: scan-animation 2.5s infinite linear;
+    pointer-events: none;
 }

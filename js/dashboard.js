@@ -2368,6 +2368,7 @@ function renderTabContent(tabId) {
                         { text: 'CodeTantra Lab Solutions', ok: true },
                         { text: 'AI Coach (5/day)', ok: true },
                         { text: '3 AI Model Papers / mo', ok: true },
+                        { text: '5 AI Summaries / mo', ok: true },
                         { text: 'Verified Scholar Badge', ok: false },
                         { text: 'Ad-free Experience', ok: false }
                     ]
@@ -2391,6 +2392,7 @@ function renderTabContent(tabId) {
                         { text: 'Everything in CodeTantra', ok: true },
                         { text: 'Unlimited AI Coach', ok: true },
                         { text: '30 AI Model Papers / mo', ok: true },
+                        { text: '30 AI Summaries / mo', ok: true },
                         { text: 'Verified "Scholar" Badge', ok: true },
                         { text: '100% Ad-free Interface', ok: true }
                     ]
@@ -6408,49 +6410,74 @@ window.showAIModal = function (type, subject) {
         content = typeof window.getSubjectSyllabusHTML === 'function' ? window.getSubjectSyllabusHTML(subject) : '<p style="color:var(--text-dim); text-align:center; padding: 2rem;">Syllabus details are coming soon for this subject.</p>';
     } else if (type === 'summary') {
         title = '✨ AI Concept Summary';
-        content = `<div class="ai-modal-content-wrapper" style="text-align: center;">
-            <div style="margin-bottom: 1.5rem;">
-                <div style="font-size: 2.8rem; margin-bottom: 0.8rem; filter: drop-shadow(0 0 15px rgba(255, 184, 0, 0.3));">🚧</div>
-                <h3 style="color: white; font-size: 1.4rem; font-weight: 800; margin-bottom: 0.5rem;">Feature Coming Soon</h3>
-                <p style="color: var(--text-dim); font-size: 0.9rem; line-height: 1.5; max-width: 300px; margin: 0 auto;">
-                    Our AI summary engine for <b style="color: var(--secondary);">${subject}</b> is currently in development.
-                </p>
-            </div>
-            
-            <div style="font-size: 0.8rem; color: #00F2FF; background: rgba(0, 242, 255, 0.05); padding: 0.75rem 1.25rem; border-radius: 16px; border: 1px solid rgba(0, 242, 255, 0.12); display: inline-flex; align-items: center; gap: 8px;">
-                <span>🚀</span> <span>Available in <b style="color: white;">Pro Sandbox</b> update.</span>
-            </div>
-        </div>`;
+        content = `
+            <div class="ai-modal-content-wrapper" id="ai-summary-ui" style="padding: 0.2rem 0;">
+                <div style="text-align: center; margin-bottom: 1.25rem; animation-delay: 0.1s;">
+                    <h3 style="color: white; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.3px;">Concept Summary Mode</h3>
+                    <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 0.25rem;">Select how you want to summarize ${subject}.</p>
+                </div>
+                
+                <div class="summary-type-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1.25rem; animation-delay: 0.2s;">
+                    <div class="summary-type-card" id="summary-card-single" onclick="window.selectSummaryType(this, 'single-unit')" style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); padding: 1.25rem 0.5rem; border-radius: 14px; cursor: pointer; text-align: center; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden;">
+                        <div class="summary-badge" style="font-size: 0.95rem; font-weight: 800; color: #a18eff; background: rgba(123, 97, 255, 0.08); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.6rem; transition: all 0.2s ease;">📂</div>
+                        <div style="font-weight: 600; color: rgba(255,255,255,0.55); font-size: 0.85rem; letter-spacing: 0.2px;">Single Unit Summary</div>
+                    </div>
+                    <div class="summary-type-card" id="summary-card-unit" onclick="window.selectSummaryType(this, 'unit-wise')" style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); padding: 1.25rem 0.5rem; border-radius: 14px; cursor: pointer; text-align: center; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden;">
+                        <div class="summary-badge" style="font-size: 0.95rem; font-weight: 800; color: #3be2ff; background: rgba(0, 242, 255, 0.08); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.6rem; transition: all 0.2s ease;">📚</div>
+                        <div style="font-weight: 600; color: rgba(255,255,255,0.55); font-size: 0.85rem; letter-spacing: 0.2px;">Full Unit-wise Summary</div>
+                    </div>
+                </div>
+
+                <div id="unit-pills-container" style="display: none; justify-content: center; gap: 8px; margin-bottom: 1.25rem; animation: fadeIn 0.3s ease-out;">
+                    <div onclick="window.selectUnitNumber(this, 1)" class="unit-pill" style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.7); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">1</div>
+                    <div onclick="window.selectUnitNumber(this, 2)" class="unit-pill" style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.7); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">2</div>
+                    <div onclick="window.selectUnitNumber(this, 3)" class="unit-pill" style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.7); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">3</div>
+                    <div onclick="window.selectUnitNumber(this, 4)" class="unit-pill" style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.7); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">4</div>
+                    <div onclick="window.selectUnitNumber(this, 5)" class="unit-pill" style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.7); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">5</div>
+                </div>
+
+                <div id="ai-summary-status-msg" style="text-align: center; margin: 0.5rem 0; color: #7B61FF; font-size: 0.8rem; animation-delay: 0.3s; min-height: 1.2rem;"></div>
+
+                <div style="animation-delay: 0.4s;">
+                    <button id="ai-summary-generate-btn" class="btn" style="width: 100%; border-radius: 12px; padding: 0.8rem; font-weight: 700; background: rgba(255,255,255,0.02) !important; border: 1px solid rgba(255,255,255,0.05) !important; color: rgba(255,255,255,0.2) !important; cursor: not-allowed; transition: all 0.25s ease;" onclick="window.handleAISummaryGeneration('${subject}')" disabled>
+                        Generate AI Summary
+                    </button>
+                </div>
+
+                <div class="credit-info" style="text-align: center; margin-top: 1rem; animation-delay: 0.5s;">
+                    <span id="ai-summary-credits-left" style="font-size: 0.8rem; color: var(--text-dim);">Please select a summary mode above.</span>
+                </div>
+            </div>`;
     } else if (type === 'questions') {
         title = '📝 Model Exam Questions';
 
         content = `
-            <div class="ai-modal-content-wrapper" id="ai-generator-ui">
-                <div style="text-align: center; margin-bottom: 1.5rem; animation-delay: 0.1s;">
-                    <h3 style="color: white; font-size: 1.4rem;">Select Examination Type</h3>
-                    <p style="color: var(--text-dim); font-size: 0.9rem;">Generate high-probability questions for ${subject}.</p>
+            <div class="ai-modal-content-wrapper" id="ai-generator-ui" style="padding: 0.2rem 0;">
+                <div style="text-align: center; margin-bottom: 1.25rem; animation-delay: 0.1s;">
+                    <h3 style="color: white; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.3px;">Select Examination Type</h3>
+                    <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 0.25rem;">Generate high-probability questions for ${subject}.</p>
                 </div>
                 
-                <div class="exam-type-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; animation-delay: 0.2s;">
-                    <div class="exam-type-card" onclick="window.selectExamType(this, 'MST 1')" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 1rem; border-radius: 16px; cursor: pointer; text-align: center; transition: 0.3s;">
-                        <div style="font-size: 1.6rem; margin-bottom: 0.4rem;">1️⃣</div>
-                        <div style="font-weight: 700; color: white; font-size: 0.9rem;">MST 1</div>
+                <div class="exam-type-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.65rem; margin-bottom: 1.25rem; animation-delay: 0.2s;">
+                    <div class="exam-type-card" onclick="window.selectExamType(this, 'MST 1')" style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); padding: 1.1rem 0.5rem; border-radius: 14px; cursor: pointer; text-align: center; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden;">
+                        <div style="font-size: 0.95rem; font-weight: 800; color: #a18eff; background: rgba(123, 97, 255, 0.08); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.6rem; transition: all 0.2s ease;">01</div>
+                        <div style="font-weight: 600; color: rgba(255,255,255,0.55); font-size: 0.82rem; letter-spacing: 0.2px;">MST 1</div>
                     </div>
-                    <div class="exam-type-card" onclick="window.selectExamType(this, 'MST 2')" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 1rem; border-radius: 16px; cursor: pointer; text-align: center; transition: 0.3s;">
-                        <div style="font-size: 1.6rem; margin-bottom: 0.4rem;">2️⃣</div>
-                        <div style="font-weight: 700; color: white; font-size: 0.9rem;">MST 2</div>
+                    <div class="exam-type-card" onclick="window.selectExamType(this, 'MST 2')" style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); padding: 1.1rem 0.5rem; border-radius: 14px; cursor: pointer; text-align: center; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden;">
+                        <div style="font-size: 0.95rem; font-weight: 800; color: #3be2ff; background: rgba(0, 242, 255, 0.08); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.6rem; transition: all 0.2s ease;">02</div>
+                        <div style="font-weight: 600; color: rgba(255,255,255,0.55); font-size: 0.82rem; letter-spacing: 0.2px;">MST 2</div>
                     </div>
-                    <div class="exam-type-card" onclick="window.selectExamType(this, 'End Sem')" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 1rem; border-radius: 16px; cursor: pointer; text-align: center; transition: 0.3s;">
-                        <div style="font-size: 1.6rem; margin-bottom: 0.4rem;">🎓</div>
-                        <div style="font-weight: 700; color: white; font-size: 0.9rem;">End Sem</div>
+                    <div class="exam-type-card" onclick="window.selectExamType(this, 'End Sem')" style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); padding: 1.1rem 0.5rem; border-radius: 14px; cursor: pointer; text-align: center; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden;">
+                        <div style="font-size: 1rem; font-weight: 800; color: #ff52a3; background: rgba(255, 82, 163, 0.08); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.6rem; transition: all 0.2s ease;">🎓</div>
+                        <div style="font-weight: 600; color: rgba(255,255,255,0.55); font-size: 0.82rem; letter-spacing: 0.2px;">End Sem</div>
                     </div>
                 </div>
 
-                <div id="ai-status-msg" style="text-align: center; margin: 0.5rem 0; color: #7B61FF; font-size: 0.8rem; animation-delay: 0.3s;"></div>
+                <div id="ai-status-msg" style="text-align: center; margin: 0.5rem 0; color: #7B61FF; font-size: 0.8rem; animation-delay: 0.3s; min-height: 1.2rem;"></div>
 
                 <div style="animation-delay: 0.4s;">
-                    <button id="ai-generate-btn" class="btn btn-primary" style="width: 100%; border-radius: 14px; padding: 0.85rem; font-weight: 800; background: linear-gradient(135deg, #7B61FF, #00F2FF); border: none; color: white; cursor: pointer; box-shadow: 0 10px 20px rgba(123, 97, 255, 0.2); transition: 0.3s;" onclick="window.handleAIGeneration('${subject}')" disabled>
-                        ✨ Generate AI Model Paper
+                    <button id="ai-generate-btn" class="btn" style="width: 100%; border-radius: 12px; padding: 0.8rem; font-weight: 700; background: rgba(255,255,255,0.02) !important; border: 1px solid rgba(255,255,255,0.05) !important; color: rgba(255,255,255,0.2) !important; cursor: not-allowed; transition: all 0.25s ease;" onclick="window.handleAIGeneration('${subject}')" disabled>
+                        Generate AI Model Paper
                     </button>
                 </div>
 
@@ -6470,21 +6497,17 @@ window.showAIModal = function (type, subject) {
         modal.id = 'dynamic-ai-modal';
         modal.style.cssText = `
     display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
+    background-color: rgba(5, 5, 5, 0.7); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
     align-items: center; justify-content: center;
     `;
 
         modal.innerHTML = `
-        <div style="background: #050505; border: 1.5px solid rgba(123, 97, 255, 0.3); border-radius: 30px; width: 92%; max-width: 360px; padding: 1.25rem; position: relative; box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9); animation: modalFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1), premium-glow-border 4s ease-in-out infinite; overflow: hidden;">
-                <!-- Subtle Decorative Glows -->
-                <div style="position: absolute; top: -80px; right: -80px; width: 160px; height: 160px; background: radial-gradient(circle, rgba(123, 97, 255, 0.12) 0%, transparent 70%); pointer-events: none;"></div>
-                <div style="position: absolute; bottom: -80px; left: -80px; width: 160px; height: 160px; background: radial-gradient(circle, rgba(0, 242, 255, 0.08) 0%, transparent 70%); pointer-events: none;"></div>
-
-                <button class="ai-modal-close" onclick="document.getElementById('dynamic-ai-modal').style.display='none'" style="position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; transition: 0.3s; font-size: 1rem;">&times;</button>
+        <div style="background: linear-gradient(135deg, rgba(20, 20, 25, 0.9) 0%, rgba(10, 10, 12, 0.95) 100%); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; width: 92%; max-width: 360px; padding: 1.25rem; position: relative; box-shadow: 0 32px 64px -16px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.08); animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow: hidden;">
+                <button class="ai-modal-close" onclick="document.getElementById('dynamic-ai-modal').style.display='none'" style="position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; transition: all 0.2s ease; font-size: 0.9rem; font-family: sans-serif;" onmouseenter="this.style.color='white'; this.style.backgroundColor='rgba(255,255,255,0.08)'; this.style.borderColor='rgba(255,255,255,0.15)'" onmouseleave="this.style.color='rgba(255,255,255,0.6)'; this.style.backgroundColor='rgba(255,255,255,0.03)'; this.style.borderColor='rgba(255,255,255,0.06)'">&times;</button>
                 
                 <div style="margin-bottom: 1.25rem; text-align: center; position: relative; z-index: 1;">
-                    <h2 id="dynamic-ai-modal-title" style="font-size: 1.2rem; font-weight: 800; color: white; letter-spacing: -0.5px; opacity: 0; animation: fadeSlideUp 0.6s ease-out forwards; animation-delay: 0.1s;"></h2>
-                    <div style="width: 40px; height: 3px; background: linear-gradient(90deg, var(--primary), var(--secondary)); margin: 10px auto; border-radius: 10px; opacity: 0; animation: fadeSlideUp 0.6s ease-out forwards; animation-delay: 0.15s;"></div>
+                    <h2 id="dynamic-ai-modal-title" style="font-size: 1.15rem; font-weight: 700; color: white; letter-spacing: -0.3px; opacity: 0; animation: fadeSlideUp 0.6s ease-out forwards; animation-delay: 0.1s;"></h2>
+                    <div style="width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08) 20%, rgba(255, 255, 255, 0.08) 80%, transparent); margin: 12px 0; opacity: 0.7;"></div>
                 </div>
                 <div id="dynamic-ai-modal-content" style="position: relative; z-index: 1;"></div>
             </div>
@@ -8397,7 +8420,29 @@ window.selectExamType = function (el, type) {
     });
     el.classList.add('active');
     window.selectedExamType = type;
-    document.getElementById('ai-generate-btn').disabled = false;
+    
+    const btn = document.getElementById('ai-generate-btn');
+    btn.disabled = false;
+    btn.style.setProperty('background', '#ffffff', 'important');
+    btn.style.setProperty('color', '#050505', 'important');
+    btn.style.setProperty('cursor', 'pointer', 'important');
+    btn.style.setProperty('border-color', '#ffffff', 'important');
+    
+    btn.onmouseenter = () => {
+        if (!btn.disabled) {
+            btn.style.setProperty('background', 'rgba(255,255,255,0.9)', 'important');
+            btn.style.setProperty('transform', 'translateY(-1px)', 'important');
+            btn.style.setProperty('box-shadow', '0 8px 24px rgba(255, 255, 255, 0.1)', 'important');
+        }
+    };
+    btn.onmouseleave = () => {
+        if (!btn.disabled) {
+            btn.style.setProperty('background', '#ffffff', 'important');
+            btn.style.setProperty('transform', 'none', 'important');
+            btn.style.setProperty('box-shadow', 'none', 'important');
+        }
+    };
+    
     document.getElementById('ai-credits-left').innerText = `Ready to generate ${type} paper.`;
 };
 
@@ -8409,7 +8454,12 @@ window.handleAIGeneration = async function (subject) {
 
     try {
         btn.disabled = true;
-        btn.innerHTML = `<span class="loader-pro" style="width: 16px; height: 16px; border-width: 2px;"></span> Processing...`;
+        btn.style.setProperty('background', 'rgba(255,255,255,0.05)', 'important');
+        btn.style.setProperty('color', 'rgba(255,255,255,0.5)', 'important');
+        btn.style.setProperty('border-color', 'rgba(255,255,255,0.08)', 'important');
+        btn.style.setProperty('cursor', 'not-allowed', 'important');
+        btn.innerHTML = `<span class="loader-pro" style="width: 14px; height: 14px; border-width: 2px; border-color: rgba(255,255,255,0.4) transparent transparent transparent;"></span> Processing...`;
+        
         statusMsg.innerText = "Processing High-Quality Model Paper...";
         statusMsg.style.color = "var(--secondary)";
 
@@ -8427,7 +8477,7 @@ window.handleAIGeneration = async function (subject) {
         statusMsg.innerText = "✨ Paper Generated Successfully!";
 
         // Transform the generator area into a Download Center
-        const modalBody = btn.closest('.modal-content-pro') || btn.parentElement;
+        const modalBody = document.getElementById('dynamic-ai-modal-content');
         if (modalBody) {
             modalBody.innerHTML = `
                 <div style="text-align: center; padding: 0.5rem 0.25rem; animation: fadeIn 0.5s ease-out;">
@@ -8437,7 +8487,7 @@ window.handleAIGeneration = async function (subject) {
                     </div>
                     
                     <div style="display: flex; flex-direction: column; gap: 8px; max-width: 280px; margin: 0 auto;">
-                        <button id="final-download-btn" class="btn btn-primary" style="width: 100%; border-radius: 14px; padding: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #2ed573, #1dd1a1); border: none; color: #050505; cursor: pointer; box-shadow: 0 10px 20px rgba(46, 213, 115, 0.2); transition: 0.3s;">
+                        <button id="final-download-btn" class="btn" style="width: 100%; border-radius: 12px; padding: 0.8rem; font-weight: 700; background: #ffffff !important; border: 1px solid #ffffff !important; color: #050505 !important; cursor: pointer; transition: all 0.25s ease;" onmouseenter="this.style.background='rgba(255,255,255,0.9)'" onmouseleave="this.style.background='#ffffff'">
                             📥 Download PDF
                         </button>
                     </div>
@@ -8457,6 +8507,673 @@ window.handleAIGeneration = async function (subject) {
         statusMsg.innerText = "Error: " + e.message;
         btn.disabled = false;
         btn.innerHTML = `✨ Try Again`;
+    }
+};
+
+window.selectSummaryType = function (el, type) {
+    document.querySelectorAll('.summary-type-card').forEach(c => {
+        c.classList.remove('active');
+    });
+    el.classList.add('active');
+    window.selectedSummaryType = type;
+    
+    const unitContainer = document.getElementById('unit-pills-container');
+    const btn = document.getElementById('ai-summary-generate-btn');
+    
+    if (type === 'single-unit') {
+        unitContainer.style.display = 'flex';
+        window.selectedUnitNumber = null;
+        document.querySelectorAll('.unit-pill').forEach(p => {
+            p.style.background = 'rgba(255,255,255,0.02)';
+            p.style.color = 'rgba(255,255,255,0.7)';
+            p.style.borderColor = 'rgba(255,255,255,0.08)';
+        });
+        
+        btn.disabled = true;
+        btn.style.setProperty('background', 'rgba(255,255,255,0.02)', 'important');
+        btn.style.setProperty('color', 'rgba(255,255,255,0.2)', 'important');
+        btn.style.setProperty('border-color', 'rgba(255,255,255,0.05)', 'important');
+        btn.style.setProperty('cursor', 'not-allowed', 'important');
+        document.getElementById('ai-summary-credits-left').innerText = "Please select a specific Unit from the pills above.";
+    } else {
+        unitContainer.style.display = 'none';
+        window.selectedUnitNumber = null;
+        
+        btn.disabled = false;
+        btn.style.setProperty('background', '#ffffff', 'important');
+        btn.style.setProperty('color', '#050505', 'important');
+        btn.style.setProperty('cursor', 'pointer', 'important');
+        btn.style.setProperty('border-color', '#ffffff', 'important');
+        document.getElementById('ai-summary-credits-left').innerText = "Ready to summarize using Full Unit-wise Summary mode.";
+    }
+    
+    btn.onmouseenter = () => {
+        if (!btn.disabled) {
+            btn.style.setProperty('background', 'rgba(255,255,255,0.9)', 'important');
+            btn.style.setProperty('transform', 'translateY(-1px)', 'important');
+            btn.style.setProperty('box-shadow', '0 8px 24px rgba(255, 255, 255, 0.1)', 'important');
+        }
+    };
+    btn.onmouseleave = () => {
+        if (!btn.disabled) {
+            btn.style.setProperty('background', '#ffffff', 'important');
+            btn.style.setProperty('transform', 'none', 'important');
+            btn.style.setProperty('box-shadow', 'none', 'important');
+        }
+    };
+};
+
+window.selectUnitNumber = function (el, unitNum) {
+    window.selectedUnitNumber = unitNum;
+    document.querySelectorAll('.unit-pill').forEach(p => {
+        p.style.background = 'rgba(255,255,255,0.02)';
+        p.style.color = 'rgba(255,255,255,0.7)';
+        p.style.borderColor = 'rgba(255,255,255,0.08)';
+    });
+    if (el) {
+        el.style.background = 'rgba(123, 97, 255, 0.12)';
+        el.style.color = '#a18eff';
+        el.style.borderColor = '#a18eff';
+    }
+    
+    const btn = document.getElementById('ai-summary-generate-btn');
+    btn.disabled = false;
+    btn.style.setProperty('background', '#ffffff', 'important');
+    btn.style.setProperty('color', '#050505', 'important');
+    btn.style.setProperty('cursor', 'pointer', 'important');
+    btn.style.setProperty('border-color', '#ffffff', 'important');
+    document.getElementById('ai-summary-credits-left').innerText = `Ready to summarize Unit ${unitNum} only.`;
+};
+
+window.fetchSubjectSyllabusText = async function(subjectName) {
+    try {
+        const colId = selState?.college?.id;
+        const branchId = selState?.branch?.id;
+        const semName = selState?.semester;
+        
+        let { data, error } = await sb.from('college_subjects')
+            .select('syllabus, description')
+            .eq('college_id', colId)
+            .eq('branch_id', branchId)
+            .eq('semester', semName)
+            .eq('subject_name', subjectName)
+            .single();
+
+        let syllabusText = null;
+        if (data && (data.syllabus || data.description)) {
+            syllabusText = data.syllabus || data.description;
+        }
+        
+        if (!syllabusText) {
+            const { data: globalData } = await sb.from('college_subjects')
+                .select('syllabus, description')
+                .eq('college_id', 'global')
+                .eq('subject_name', subjectName)
+                .single();
+                
+            if (globalData && (globalData.syllabus || globalData.description)) {
+                syllabusText = globalData.syllabus || globalData.description;
+            }
+        }
+        
+        return syllabusText || "";
+    } catch (err) {
+        console.error('[Dashboard] Error fetching syllabus text:', err);
+        return "";
+    }
+};
+
+window.handleAISummaryGeneration = async function (subject) {
+    const btn = document.getElementById('ai-summary-generate-btn');
+    const statusMsg = document.getElementById('ai-summary-status-msg');
+
+    if (!window.selectedSummaryType) return;
+
+    try {
+        btn.disabled = true;
+        btn.style.setProperty('background', 'rgba(255,255,255,0.05)', 'important');
+        btn.style.setProperty('color', 'rgba(255,255,255,0.5)', 'important');
+        btn.style.setProperty('border-color', 'rgba(255,255,255,0.08)', 'important');
+        btn.style.setProperty('cursor', 'not-allowed', 'important');
+        btn.innerHTML = `<span class="loader-pro" style="width: 14px; height: 14px; border-width: 2px; border-color: rgba(255,255,255,0.4) transparent transparent transparent;"></span> Processing...`;
+        
+        statusMsg.innerText = "Checking usage limits...";
+        statusMsg.style.color = "var(--secondary)";
+
+        // 0. Server-side usage gate
+        const currentUser = window.currentUser;
+        const uid = currentUser?.uid || currentUser?.id;
+        if (uid) {
+            const apiUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
+            const usageRes = await fetch(`${apiUrl}/api/use-feature`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid, feature: 'aiSummary' })
+            });
+            if (!usageRes.ok) {
+                const usageData = await usageRes.json();
+                statusMsg.style.color = "#f87171";
+                statusMsg.innerText = usageData.error || "Usage limit reached.";
+                btn.disabled = false;
+                btn.style.removeProperty('background');
+                btn.style.removeProperty('color');
+                btn.style.removeProperty('border-color');
+                btn.style.removeProperty('cursor');
+                btn.innerHTML = `Generate AI Summary`;
+                return;
+            }
+        }
+
+        statusMsg.innerText = "Analyzing course syllabus from database...";
+        statusMsg.style.color = "var(--secondary)";
+
+
+        // 1. Fetch latest syllabus context from database
+        const syllabusText = await window.fetchSubjectSyllabusText(subject);
+
+        statusMsg.innerText = "Generating AI concept summary...";
+        // 2. Call summary generation API
+        const rawSummary = await window.AIGenerator.getSummary(subject, window.selectedSummaryType, syllabusText, window.selectedUnitNumber);
+
+        statusMsg.style.color = "#2ed573";
+        statusMsg.innerText = "✨ Concept Summary Generated!";
+
+        // 3. Simple elegant local Markdown parser
+        const parseMarkdownToHTML = (md) => {
+            if (!md) return "";
+            
+            const lines = md.split(/\r?\n/);
+            const parsedLines = [];
+            let inTable = false;
+            let tableRows = [];
+            let inCodeBlock = false;
+            let codeContent = [];
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const trimmed = line.trim();
+                
+                // 1. Handle Fenced Code Blocks (ASCII diagrams / code)
+                if (trimmed.startsWith('```')) {
+                    if (inCodeBlock) {
+                        parsedLines.push(`<pre style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 1.25rem; border-radius: 8px; overflow-x: auto; font-family: monospace; color: #e4e4e7; line-height: 1.4; margin: 1.5rem 0; white-space: pre;"><code style="font-family: monospace;">${codeContent.join('\n')}</code></pre>`);
+                        inCodeBlock = false;
+                        codeContent = [];
+                    } else {
+                        inCodeBlock = true;
+                    }
+                    continue;
+                }
+                
+                if (inCodeBlock) {
+                    const escapedLine = line
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+                    codeContent.push(escapedLine);
+                    continue;
+                }
+                
+                // 2. Handle Markdown Tables
+                if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+                    inTable = true;
+                    tableRows.push(trimmed);
+                    continue;
+                } else {
+                    if (inTable) {
+                        parsedLines.push(renderHTMLTable(tableRows));
+                        inTable = false;
+                        tableRows = [];
+                    }
+                }
+                
+                // 3. Horizontal Rules
+                if (trimmed === '---') {
+                    parsedLines.push('<hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.08); margin: 1.5rem 0;">');
+                    continue;
+                }
+                
+                parsedLines.push(line);
+            }
+            
+            if (inTable && tableRows.length > 0) {
+                parsedLines.push(renderHTMLTable(tableRows));
+            }
+            
+            // Helper to render HTML table inside the parser scope
+            function renderHTMLTable(rows) {
+                if (rows.length < 2) return rows.join('\n');
+                let tableHtml = '<div style="overflow-x: auto; margin: 1.5rem 0; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;"><table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">';
+                let isFirstRow = true;
+                
+                rows.forEach(row => {
+                    if (row.includes('---')) return; // skip divider
+                    const cells = row.split('|').map(c => c.trim()).filter((c, idx, arr) => idx > 0 && idx < arr.length - 1);
+                    if (cells.length === 0) return;
+                    
+                    tableHtml += '<tr style="' + (isFirstRow ? 'background: rgba(255,255,255,0.04); border-bottom: 1.5px solid rgba(255,255,255,0.12);' : 'border-bottom: 1px solid rgba(255,255,255,0.06);') + '">';
+                    cells.forEach(cell => {
+                        const cellTag = isFirstRow ? 'th' : 'td';
+                        const parsedCell = cell
+                            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                            .replace(/`([^`]+)`/g, '<code>$1</code>');
+                        const cellStyle = isFirstRow 
+                            ? 'padding: 0.8rem 1rem; font-weight: 700; color: white;' 
+                            : 'padding: 0.8rem 1rem; color: rgba(255,255,255,0.75);';
+                        tableHtml += `<${cellTag} style="${cellStyle}">${parsedCell}</${cellTag}>`;
+                    });
+                    tableHtml += '</tr>';
+                    isFirstRow = false;
+                });
+                
+                tableHtml += '</table></div>';
+                return tableHtml;
+            }
+            
+            // 4. Do inline regex replaces
+            let htmlContent = parsedLines.join('\n');
+            htmlContent = htmlContent
+                .replace(/### (.*?)(\n|$)/g, '<h4>$1</h4>')
+                .replace(/## (.*?)(\n|$)/g, '<h3>$1</h3>')
+                .replace(/# (.*?)(\n|$)/g, '<h2>$1</h2>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/> (.*?)(\n|$)/g, '<blockquote>$1</blockquote>')
+                .replace(/^\s*-\s+(.*?)(\n|$)/gm, '<li>$1</li>');
+                
+            htmlContent = htmlContent.replace(/(<li.*?>.*?<\/li>)+/g, '<ul>$&</ul>');
+            
+            const finalLines = htmlContent.split('\n');
+            const finalParsed = finalLines.map(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return "";
+                if (trimmed.startsWith('<h') || trimmed.startsWith('<ul') || trimmed.startsWith('<li') || trimmed.startsWith('<blockquote') || trimmed.startsWith('</ul') || trimmed.startsWith('<div') || trimmed.startsWith('<table') || trimmed.startsWith('<tr') || trimmed.startsWith('<td') || trimmed.startsWith('<th') || trimmed.startsWith('</table') || trimmed.startsWith('</div') || trimmed.startsWith('<pre') || trimmed.startsWith('</pre>') || trimmed.startsWith('<hr')) {
+                    return line;
+                }
+                return `<p>${line}</p>`;
+            });
+            
+            return finalParsed.join('\n');
+        };
+
+        const htmlContent = parseMarkdownToHTML(rawSummary);
+        const today = new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        const logoUrl = window.location.origin + '/assets/logo.jpg';
+        const summaryMode = window.selectedSummaryType === 'single-unit' ? `Unit ${window.selectedUnitNumber} Summary` : 'Full Unit-wise Revision';
+
+        // High fidelity branded university revision template in Dark Mode
+        const summaryHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SKiL MATRiX AI Summary - ${subject}</title>
+    <!-- MathJax for rendering high-fidelity equations, matrices, LaTeX -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
+                displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']],
+                processEscapes: true
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #09090b;
+            color: #e4e4e7;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        .summary-print-container {
+            background: rgba(18, 18, 24, 0.7);
+            color: #e4e4e7;
+            padding: 4rem;
+            position: relative;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 2rem auto;
+            line-height: 1.6;
+            box-shadow: 0 32px 64px -16px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            box-sizing: border-box;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .summary-print-container::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400' opacity='0.02'><text x='50%' y='50%' text-anchor='middle' fill='white' font-size='40' font-family='sans-serif' transform='rotate(-45 200,200)' font-weight='900'>SKiL MATRiX</text></svg>");
+            background-repeat: repeat;
+            opacity: 1;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .header-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+        .logo-box {
+            flex: 0 0 100px;
+        }
+        .logo-box img {
+            width: 75px;
+            height: 75px;
+            object-fit: contain;
+        }
+        .header-text {
+            flex: 1;
+            text-align: center;
+        }
+        .header-text h2 {
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #ffffff;
+        }
+        .header-text h3 {
+            margin: 3px 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 5px 0;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            position: relative;
+            z-index: 1;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .note-box {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+            padding: 10px;
+            border: 1px dashed rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.02);
+            color: rgba(255, 255, 255, 0.55);
+            border-radius: 6px;
+        }
+        .summary-body {
+            position: relative;
+            z-index: 1;
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: justify;
+        }
+        .summary-body h2 {
+            font-size: 1.35rem;
+            font-weight: bold;
+            margin: 2rem 0 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 0.4rem;
+            color: #ffffff;
+        }
+        .summary-body h3 {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 1.5rem 0 0.75rem;
+            color: #ffffff;
+        }
+        .summary-body h4 {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin: 1.25rem 0 0.5rem;
+            color: #ffffff;
+        }
+        .summary-body p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        .summary-body ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+        .summary-body li {
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.75);
+        }
+        .summary-body blockquote {
+            border-left: 4px solid #7B61FF;
+            background: rgba(123, 97, 255, 0.04);
+            margin: 1.5rem 0;
+            padding: 1rem 1.5rem;
+            font-style: italic;
+            border-radius: 4px;
+        }
+        .summary-body pre {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: monospace;
+            color: #e4e4e7;
+            line-height: 1.4;
+            margin: 1.5rem 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .footer-branding {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            margin-top: 4rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 1.5rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .summary-print-container {
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 1.5rem !important;
+                width: 100% !important;
+                background: white !important;
+                color: black !important;
+                border: none !important;
+                border-radius: 0 !important;
+            }
+            .summary-print-container::before {
+                background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400' opacity='0.08'><text x='50%' y='50%' text-anchor='middle' fill='black' font-size='40' font-family='sans-serif' transform='rotate(-45 200,200)' font-weight='900'>SKiL MATRiX</text></svg>") !important;
+            }
+            .logo-box img {
+                filter: none !important;
+            }
+            .header-section {
+                border-bottom: 2px solid #000 !important;
+            }
+            .header-text h2, .header-text h3 {
+                color: #000 !important;
+            }
+            .metadata-grid {
+                border-bottom: 2px solid #000 !important;
+                color: #333 !important;
+            }
+            .note-box {
+                border: 1px dashed #ccc !important;
+                background: #fcfcfc !important;
+                color: #333 !important;
+            }
+            .summary-body {
+                color: black !important;
+            }
+            .summary-body h2 {
+                color: #000 !important;
+                border-bottom: 1px solid #ccc !important;
+            }
+            .summary-body h3, .summary-body h4 {
+                color: #111 !important;
+            }
+            .summary-body p {
+                color: #222 !important;
+            }
+            .summary-body li {
+                color: #222 !important;
+            }
+            .summary-body td {
+                color: #222 !important;
+                border-bottom: 1px solid #ddd !important;
+            }
+            .summary-body th {
+                background: #f0f0f0 !important;
+                color: #000 !important;
+                border-bottom: 2px solid #000 !important;
+            }
+            .summary-body blockquote {
+                border-left: 4px solid #333 !important;
+                background: #f7f7f7 !important;
+                color: #222 !important;
+            }
+            .summary-body pre {
+                background: #f4f4f4 !important;
+                border: 1px solid #ddd !important;
+                color: #000 !important;
+            }
+            .footer-branding {
+                color: #666 !important;
+                border-top: 1px solid #ccc !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="position: fixed; top: 1rem; right: 1rem; z-index: 1000; display: flex; gap: 8px;">
+        <button onclick="window.copyRawSummary()" style="background: rgba(255,255,255,0.06); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.6rem 1.2rem; font-weight: bold; border-radius: 6px; cursor: pointer; backdrop-filter: blur(10px); transition: all 0.2s;" onmouseenter="this.style.background='rgba(255,255,255,0.12)'" onmouseleave="this.style.background='rgba(255,255,255,0.06)'">📋 Copy Text</button>
+        <button onclick="window.downloadSummaryPDF()" style="background: white; color: black; border: 1px solid white; padding: 0.6rem 1.2rem; font-weight: bold; border-radius: 6px; cursor: pointer; transition: all 0.2s;" onmouseenter="this.style.opacity='0.9'" onmouseleave="this.style.opacity='1'">📥 Download PDF</button>
+        <button onclick="window.close()" style="background: #ef4444; color: white; border: none; padding: 0.6rem 1.2rem; font-weight: bold; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.15);">❌ Close Tab</button>
+    </div>
+
+    <div class="summary-print-container">
+        <div class="header-section">
+            <div class="logo-box">
+                <img src="${logoUrl}" alt="Logo">
+            </div>
+            <div class="header-text">
+                <h2>Faculty of Engineering</h2>
+                <h3>AI Concept Summary ${today}</h3>
+                <h3>SKL-MOD / ${subject}</h3>
+            </div>
+        </div>
+
+        <div class="metadata-grid">
+            <div>
+                <div>Programme: B.Tech. / B.Sc.</div>
+                <div>Document: Concept Revision Pack</div>
+            </div>
+            <div>
+                <div>Branch/Specialization: CSE</div>
+                <div>Summary Mode: ${summaryMode}</div>
+            </div>
+        </div>
+
+        <div class="note-box">
+            <b>Note:</b> This is an AI-generated study summary by <b>SKiL MATRiX</b> for revision purposes. It is structured based on the active course syllabus registered in the database.
+        </div>
+
+        <div class="summary-body">
+            ${htmlContent}
+        </div>
+
+        <div class="footer-branding">
+            For more resources visit <a href="https://skilmatrix.site/" style="color: #666; text-decoration: none; font-weight: bold;">skilmatrix.site</a>
+        </div>
+    </div>
+
+    <script>
+        window.copyRawSummary = async function() {
+            try {
+                const text = \`${rawSummary.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`;
+                await navigator.clipboard.writeText(text);
+                alert("✅ Summary text copied to clipboard!");
+            } catch (e) {
+                alert("❌ Copy failed. Please select and copy manually.");
+            }
+        };
+
+        window.downloadSummaryPDF = function() {
+            window.print();
+        };
+    </script>
+</body>
+</html>`;
+
+        // 4. Update UI to Success State
+        const modalBody = document.getElementById('dynamic-ai-modal-content');
+        if (modalBody) {
+            modalBody.innerHTML = `
+                <div style="animation: fadeIn 0.4s ease-out; position: relative; text-align: center; padding: 0.5rem 0.25rem;">
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="font-size: 2rem; margin-bottom: 0.6rem;">✨</div>
+                        <h3 style="color: white; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.3px;">Summary Prepared</h3>
+                        <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 0.25rem; line-height: 1.4;">
+                            AI has analyzed the syllabus for <strong style="color: white;">${subject}</strong> and prepared a branded revision pack.
+                        </p>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 8px; max-width: 280px; margin: 0 auto 1rem;">
+                        <button id="summary-view-btn" class="btn" style="width: 100%; border-radius: 12px; padding: 0.8rem; font-weight: 700; background: #ffffff !important; border: 1px solid #ffffff !important; color: #050505 !important; cursor: pointer; transition: all 0.25s ease;" onmouseenter="this.style.background='rgba(255,255,255,0.9)'" onmouseleave="this.style.background='#ffffff'">
+                            👁️ View Summary
+                        </button>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 0.85rem;">
+                        <span onclick="window.showAIModal('summary', '${subject}')" style="font-size: 0.8rem; color: #7B61FF; cursor: pointer; text-decoration: underline;" onmouseenter="this.style.color='#00F2FF'" onmouseleave="this.style.color='#7B61FF'">
+                            Choose a different summary mode
+                        </span>
+                    </div>
+                </div>
+            `;
+
+            // View in new tab listener
+            document.getElementById('summary-view-btn').onclick = () => {
+                const newTab = window.open("", "_blank");
+                if (newTab) {
+                    newTab.document.write(summaryHTML);
+                    newTab.document.close();
+                } else {
+                    alert("Pop-up blocked. Please allow pop-ups for this site.");
+                }
+            };
+        }
+    } catch (e) {
+        console.error(e);
+        statusMsg.style.color = "#ff4757";
+        statusMsg.innerText = "Error: " + e.message;
+        btn.disabled = false;
+        btn.innerHTML = `Generate AI Summary`;
+        
+        // Restore button styling
+        btn.style.setProperty('background', '#ffffff', 'important');
+        btn.style.setProperty('color', '#050505', 'important');
+        btn.style.setProperty('cursor', 'pointer', 'important');
+        btn.style.setProperty('border-color', '#ffffff', 'important');
     }
 };
 

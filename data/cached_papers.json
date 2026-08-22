@@ -6588,5 +6588,1185 @@
       ]
     },
     "createdAt": "2026-08-22T08:39:44.708Z"
+  },
+  {
+    "id": 1787388349491,
+    "subjectId": "Fundamentals of Management, Economics & Accountancy",
+    "subjectName": "Fundamentals of Management, Economics & Accountancy",
+    "examType": "End Sem",
+    "content": {
+      "university": "SKiL MATRiX",
+      "examTitle": "End Sem 2026",
+      "subjectCode": "SKL-MOD",
+      "subjectName": "Fundamentals of Management, Economics & Accountancy",
+      "sections": [
+        {
+          "title": "Section A",
+          "questions": [
+            {
+              "id": "1",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Define the term 'Management' and state its primary objective in a modern organization.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "01",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "2",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Explain the practical relevance of Henry Fayol's principles of 'Unity of Command' and 'Unity of Direction' in a matrix organization structure.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "01",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "3",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Compare and contrast F.W. Taylor's Scientific Management Theory with Henry Fayol's Administrative Theory. Highlight how their core focuses differ in operational excellence.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "01",
+                  "po": "3",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Analyze the classic corporate management hierarchy (Top, Middle, and Lower levels). Discuss the key conceptual, human, and technical skills required at each level.",
+                "marks": "6",
+                "bl": "02",
+                "co": "01",
+                "po": "3",
+                "pso": "2"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section B",
+          "questions": [
+            {
+              "id": "4",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "What is meant by 'Span of Control'? Distinguish briefly between a wide and a narrow span.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "02",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "5",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Distinguish between the delegation of authority and decentralization. Provide appropriate organizational examples for each.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "02",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "6",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Illustrate the sequential steps involved in a systematic Planning process. Why is Planning considered the foundational function of management?",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "02",
+                  "po": "4",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Explain the step-by-step process of Controlling in management. Explain how the feedback loop mechanism acts as a corrective force in operations.",
+                "marks": "6",
+                "bl": "03",
+                "co": "02",
+                "po": "4",
+                "pso": "2"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section C",
+          "questions": [
+            {
+              "id": "7",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "State the Law of Demand and represent the general demand function mathematically.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "03",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "8",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Explain the concept of Price Elasticity of Demand. What are the key factors that determine whether demand for a product is elastic or inelastic?",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "03",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "9",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Compare Perfect Competition, Monopoly, and Oligopoly market structures with respect to the number of sellers, barriers to entry, pricing power, and product differentiation.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "03",
+                  "po": "5",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Examine the Law of Diminishing Marginal Utility (LDMU) with the help of a hypothetical schedule and corresponding graphical diagram. List any two exceptions to LDMU.",
+                "marks": "6",
+                "bl": "04",
+                "co": "03",
+                "po": "5",
+                "pso": "2"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section D",
+          "questions": [
+            {
+              "id": "10",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Define the Double Entry System of Bookkeeping and write down the accounting equation.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "04",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "11",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Explain the significance of the 'Going Concern Concept' and 'Matching Concept' in financial accounting with respect to income recognition.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "04",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "12",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Journalize the following business transactions in the books of ABC Retailers: (i) Commenced business with Cash Rs. 2,00,000. (ii) Purchased Office Furniture for cash Rs. 25,000. (iii) Purchased goods from XYZ Trade on credit Rs. 40,000. (iv) Cash sales to customers Rs. 15,000. (v) Paid salary to employee Rs. 8,000. (vi) Settled XYZ Trade account by cash.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "04",
+                  "po": "6",
+                  "pso": "3"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Detail the process of posting journal entries to Ledger accounts. Explain the primary objectives of preparing a Trial Balance and outline how it identifies arithmetical errors.",
+                "marks": "6",
+                "bl": "03",
+                "co": "04",
+                "po": "6",
+                "pso": "3"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section E",
+          "questions": [
+            {
+              "id": "13",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Define a 'Balance Sheet' and explain why it is referred to as a snapshot statement rather than a period statement.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "05",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "14",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Differentiate between a Trading Account and a Profit & Loss Account. How do 'Gross Profit' and 'Net Profit' differ in terms of their computational factors?",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "05",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "15",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "From the following ledger balances of Zen Enterprises as of 31st March 2025, prepare a classified Balance Sheet: Capital: Rs. 3,50,000; Machinery: Rs. 2,50,000; Debtors: Rs. 80,000; Bank Balance: Rs. 60,000; Trade Creditors: Rs. 50,000; Cash-in-hand: Rs. 10,000; Output Stock: Rs. 30,000; Short-term Loan: Rs. 30,000.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "05",
+                  "po": "11",
+                  "pso": "3"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Define Cost Accounting. Explain the classification of costs based on their variability (Fixed Cost, Variable Cost, and Semi-Variable Cost) with real-world manufacturing examples.",
+                "marks": "6",
+                "bl": "03",
+                "co": "05",
+                "po": "11",
+                "pso": "3"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "createdAt": "2026-08-22T08:45:49.491Z"
+  },
+  {
+    "id": 1787388591742,
+    "subjectId": "Artificial Intelligence",
+    "subjectName": "Artificial Intelligence",
+    "examType": "End Sem",
+    "content": {
+      "university": "SKiL MATRiX",
+      "examTitle": "End Sem 2026",
+      "subjectCode": "SKL-MOD",
+      "subjectName": "Artificial Intelligence",
+      "sections": [
+        {
+          "title": "Section A",
+          "questions": [
+            {
+              "id": "1",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Define the Turing Test and discuss its significance in evaluating the intelligence of a machine.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "01",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "2",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Differentiate between goal-based agents and utility-based agents. Illustrate with structural diagrams.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "01",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "3",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Formulate the 8-puzzle problem as a state space search. Clearly define its state representation, initial state, transition model, path cost, and goal test.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "01",
+                  "po": "2",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Explain the architecture of a learning agent. Describe how elements like the learning element, performance element, critic, and problem generator interact with each other.",
+                "marks": "6",
+                "bl": "02",
+                "co": "01",
+                "po": "1",
+                "pso": "1"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section B",
+          "questions": [
+            {
+              "id": "4",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "State the condition of admissibility and consistency for a heuristic function in A* search.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "02",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "5",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Compare Breadth-First Search (BFS) and Depth-First Search (DFS) algorithms in terms of completeness, optimality, time complexity, and space complexity.",
+                  "marks": "4",
+                  "bl": "04",
+                  "co": "02",
+                  "po": "2",
+                  "pso": "2"
+                }
+              ]
+            },
+            {
+              "id": "6",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Demonstrate the execution of the Alpha-Beta Pruning algorithm on a generic game tree of depth 3. Clearly mark the pruned branches and specify the values computed at each internal node.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "02",
+                  "po": "2",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Explain the components of a Genetic Algorithm. Detail how selection, crossover, and mutation operators are utilized to find an optimal solution in a search space.",
+                "marks": "6",
+                "bl": "02",
+                "co": "02",
+                "po": "2",
+                "pso": "1"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section C",
+          "questions": [
+            {
+              "id": "7",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Convert the statement: 'Every student who likes programming will pass the exam' into First-Order Logic (FOL).",
+                  "marks": "2",
+                  "bl": "03",
+                  "co": "03",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "8",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Explain the process of Resolution in Propositional Logic. Show how resolution is used to prove a goal using a suitable propositional example.",
+                  "marks": "4",
+                  "bl": "03",
+                  "co": "03",
+                  "po": "2",
+                  "pso": "2"
+                }
+              ]
+            },
+            {
+              "id": "9",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Compare Forward Chaining and Backward Chaining inference mechanisms in Expert Systems. Provide appropriate rule-base examples to support your comparison.",
+                  "marks": "6",
+                  "bl": "04",
+                  "co": "03",
+                  "po": "2",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Construct a Semantic Net representation and a Conceptual Dependency (CD) graph for the sentence: 'John gave a book to Mary at the library yesterday.'",
+                "marks": "6",
+                "bl": "03",
+                "co": "03",
+                "po": "3",
+                "pso": "2"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section D",
+          "questions": [
+            {
+              "id": "10",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Define the Markov property and specify how transition probabilities are formulated in a Markov Chain.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "04",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "11",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Explain the components of STRIPS (Stanford Research Institute Planning System) representation using a simple Blocks World problem involving a robotic arm.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "04",
+                  "po": "2",
+                  "pso": "2"
+                }
+              ]
+            },
+            {
+              "id": "12",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Describe the core elements of a Markov Decision Process (MDP). Explain how the Value Iteration algorithm calculates the optimal policy in stochastic environments.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "04",
+                  "po": "3",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Explain how conditional probability tables (CPTs) are constructed in a Bayesian Belief Network. Show how joint probability is computed using a 3-node network (e.g., Rain -> Wet Grass -> Slippery Road).",
+                "marks": "6",
+                "bl": "03",
+                "co": "04",
+                "po": "2",
+                "pso": "2"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section E",
+          "questions": [
+            {
+              "id": "13",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Distinguish between Supervised Learning and Unsupervised Learning paradigms with real-world applications of each.",
+                  "marks": "2",
+                  "bl": "02",
+                  "co": "05",
+                  "po": "1",
+                  "pso": "3"
+                }
+              ]
+            },
+            {
+              "id": "14",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Describe the architecture of a single-layer perceptron. Write down the equation representing its activation function and its parameter update rule.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "05",
+                  "po": "1",
+                  "pso": "3"
+                }
+              ]
+            },
+            {
+              "id": "15",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Analyze the sequential phases of Natural Language Processing (NLP) starting from lexical analysis, syntactic parsing, semantic interpretation, up to pragmatic and discourse processing.",
+                  "marks": "6",
+                  "bl": "04",
+                  "co": "05",
+                  "po": "2",
+                  "pso": "3"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Explain the working of the ID3 Decision Tree induction algorithm. Clearly state the mathematical formulas used to compute Entropy and Information Gain for selection of an attribute.",
+                "marks": "6",
+                "bl": "03",
+                "co": "05",
+                "po": "2",
+                "pso": "3"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "createdAt": "2026-08-22T08:49:51.742Z"
+  },
+  {
+    "id": 1787388790430,
+    "subjectId": "Artificial Intelligence",
+    "subjectName": "Artificial Intelligence",
+    "examType": "End Sem",
+    "content": {
+      "university": "SKiL MATRiX",
+      "examTitle": "End Sem 2026",
+      "subjectCode": "SKL-MOD",
+      "subjectName": "Artificial Intelligence",
+      "sections": [
+        {
+          "title": "Section A",
+          "questions": [
+            {
+              "id": "1",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "State the difference between a rational agent and a thinking human agent.",
+                  "marks": "2",
+                  "bl": "02",
+                  "co": "01",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "2",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Explain the properties of environments: Static vs Dynamic, and Episodic vs Sequential with suitable examples.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "01",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "3",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Discuss Iterative Deepening Search (IDS). Prove how it combines the advantages of Breadth-First Search and Depth-First Search.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "01",
+                  "po": "2",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Illustrate the Depth-Limited Search algorithm with a state space graph. Analyze its completeness and optimality conditions.",
+                "marks": "6",
+                "bl": "04",
+                "co": "01",
+                "po": "3",
+                "pso": "2"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section B",
+          "questions": [
+            {
+              "id": "4",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Define what constitutes an admissible heuristic in A* search.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "02",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "5",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Contrast Greedy Best-First Search with A* Search in terms of completeness, optimality, and time complexity.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "02",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "6",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Explain the Minimax algorithm. Demonstrate its working on a 3-level game tree and apply Alpha-Beta pruning to show how branches are eliminated.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "02",
+                  "po": "2",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Formulate the 8-Queens problem as a constraint satisfaction problem (CSP). Outline the backtracking search method used to solve it.",
+                "marks": "6",
+                "bl": "03",
+                "co": "02",
+                "po": "3",
+                "pso": "2"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section C",
+          "questions": [
+            {
+              "id": "7",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Represent the statement 'All AI students are hard-working' using First-Order Logic (FOL).",
+                  "marks": "2",
+                  "bl": "02",
+                  "co": "03",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "8",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Describe the steps involved in converting a given First-Order Logic formula into Conjunctive Normal Form (CNF).",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "03",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "9",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Apply the Resolution Refutation method to prove the conclusion 'S' given the knowledge base: (P OR Q), (P implies R), (Q implies S), and (NOT R).",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "03",
+                  "po": "3",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Differentiate between Semantic Networks and Frames as structured representation tools. Draw a semantic network representing a hierarchical relationship of vehicles.",
+                "marks": "6",
+                "bl": "03",
+                "co": "03",
+                "po": "2",
+                "pso": "1"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section D",
+          "questions": [
+            {
+              "id": "10",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "State the Axioms of Probability used in handling uncertain knowledge.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "04",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "11",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Explain the components of a planning problem in STRIPS language using a simple blocks world domain.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "04",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "12",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "State and explain Bayes' Theorem. Given a Bayesian Network with variables (Cloudy, Sprinkler, Rain, WetGrass), compute the joint probability P(C, S, R, W) using the chain rule.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "04",
+                  "po": "2",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Formulate a Markov Decision Process (MDP). Describe how Value Iteration is used to find the optimal policy for an agent in a grid world.",
+                "marks": "6",
+                "bl": "03",
+                "co": "04",
+                "po": "3",
+                "pso": "2"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section E",
+          "questions": [
+            {
+              "id": "13",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Define the term 'Overfitting' in machine learning and state one method to prevent it.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "05",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "14",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Explain the key phases of Natural Language Processing (NLP) starting from Lexical Analysis to Pragmatic Analysis.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "05",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "15",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Compare Supervised, Unsupervised, and Reinforcement Learning paradigms with practical real-world applications for each.",
+                  "marks": "6",
+                  "bl": "02",
+                  "co": "05",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Explain the architecture and components of an Expert System. Discuss the role of the Inference Engine and Knowledge Base in its decision-making.",
+                "marks": "6",
+                "bl": "02",
+                "co": "05",
+                "po": "3",
+                "pso": "2"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "createdAt": "2026-08-22T08:53:10.430Z"
+  },
+  {
+    "id": 1787392255003,
+    "subjectId": "Artificial Intelligence",
+    "subjectName": "Artificial Intelligence",
+    "examType": "End Sem",
+    "content": {
+      "university": "SKiL MATRiX",
+      "examTitle": "End Sem 2026",
+      "subjectCode": "SKL-MOD",
+      "subjectName": "Artificial Intelligence",
+      "sections": [
+        {
+          "title": "Section A",
+          "questions": [
+            {
+              "id": "1",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Define the PEAS description of an AI agent. Provide a complete PEAS description for an Automated Taxi Driver agent.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "01",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "2",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Compare Breadth-First Search (BFS) and Depth-First Search (DFS) strategies based on completeness, optimality, time complexity, and space complexity.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "01",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "3",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Formulate the 8-puzzle problem as a state space search problem. Specify its states, initial state, actions, transition model, goal test, and path cost.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "01",
+                  "po": "3",
+                  "pso": "1"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Explain the A* search algorithm. Prove why A* search is guaranteed to find an optimal path if the heuristic function is admissible.",
+                "marks": "6",
+                "bl": "03",
+                "co": "01",
+                "po": "3",
+                "pso": "1"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section B",
+          "questions": [
+            {
+              "id": "4",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "What is an admissible heuristic? Provide an example of an admissible heuristic function for the 8-puzzle problem.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "02",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "5",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Describe the Minimax decision-making algorithm for game playing. What are its critical limitations in deep game trees?",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "02",
+                  "po": "2",
+                  "pso": "2"
+                }
+              ]
+            },
+            {
+              "id": "6",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Explain the working of the Alpha-Beta Pruning algorithm. Draw a small game tree to illustrate how alpha and beta cuts are determined to prune search space.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "02",
+                  "po": "3",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Discuss the Hill Climbing search algorithm. Critically analyze its major drawbacks (Local Maxima, Ridges, Plateaus) and propose techniques to solve them.",
+                "marks": "6",
+                "bl": "03",
+                "co": "02",
+                "po": "3",
+                "pso": "2"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section C",
+          "questions": [
+            {
+              "id": "7",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Distinguish between Propositional Logic and First-Order Logic (FOL) in terms of expressiveness and syntactic elements.",
+                  "marks": "2",
+                  "bl": "02",
+                  "co": "03",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "8",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Explain the sequence of steps required to convert an arbitrary First-Order Logic formula into Conjunctive Normal Form (CNF).",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "03",
+                  "po": "2",
+                  "pso": "2"
+                }
+              ]
+            },
+            {
+              "id": "9",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Explain the concept of Resolution Refutation in First-Order Logic. Using resolution, prove that 'Fido likes food' given: 'All dogs like food' and 'Fido is a dog'.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "03",
+                  "po": "3",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Describe Semantic Networks and Frames as structured knowledge representation schemes. Illustrate both concepts using a suitable real-world ontology example.",
+                "marks": "6",
+                "bl": "03",
+                "co": "03",
+                "po": "3",
+                "pso": "2"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section D",
+          "questions": [
+            {
+              "id": "10",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Explain the 'Frame Problem' in classical planning and briefly state how modern planning languages address it.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "04",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "11",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Define STRIPS planning operators. Describe the components (Preconditions, Add-List, Delete-List) using a concrete Block World example.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "04",
+                  "po": "2",
+                  "pso": "2"
+                }
+              ]
+            },
+            {
+              "id": "12",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Define Bayesian Belief Networks (BBNs). Explain how the joint probability distribution can be factorized using conditional independence in a BBN with a 3-node example.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "04",
+                  "po": "3",
+                  "pso": "3"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Explain Dempster-Shafer theory of evidence. How does it manage uncertainty compared to classical probability theory? Illustrate using belief and plausibility bounds.",
+                "marks": "6",
+                "bl": "03",
+                "co": "04",
+                "po": "3",
+                "pso": "3"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section E",
+          "questions": [
+            {
+              "id": "13",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "What is supervised inductive learning? Differentiate it briefly from unsupervised clustering models.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "05",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "14",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Discuss the structural architecture of a Rule-Based Expert System. Clearly explain the role of the Inference Engine and the Knowledge Base.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "05",
+                  "po": "2",
+                  "pso": "3"
+                }
+              ]
+            },
+            {
+              "id": "15",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Explain Decision Tree learning using the ID3 algorithm. Discuss how mathematical formulations of Entropy and Information Gain are utilized to determine tree splits.",
+                  "marks": "6",
+                  "bl": "04",
+                  "co": "05",
+                  "po": "3",
+                  "pso": "3"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Explain the Reinforcement Learning (RL) framework. Detail the interaction cycle between an Agent and its Environment, defining States, Actions, Policy, and Rewards.",
+                "marks": "6",
+                "bl": "04",
+                "co": "05",
+                "po": "3",
+                "pso": "3"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "createdAt": "2026-08-22T09:50:55.003Z"
   }
 ]
