@@ -29,8 +29,11 @@ if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
 
 // Initialize Firebase Admin SDK
 const { initializeApp, cert, applicationDefault } = require('firebase-admin/app');
+const { getAuth } = require('firebase-admin/auth');
+const { getFirestore } = require('firebase-admin/firestore');
 const serviceAccountPath = path.join(__dirname, 'service-account.json');
 
+let firebaseAdminInitialized = false;
 try {
     if (require('fs').existsSync(serviceAccountPath)) {
         const serviceAccount = require(serviceAccountPath);
@@ -38,12 +41,19 @@ try {
             credential: cert(serviceAccount)
         });
         console.log("🔑 Authenticated using local service-account.json");
+        firebaseAdminInitialized = true;
     } else {
-        // Fallback to Application Default Credentials (matches your request)
+        // Fallback to Application Default Credentials
         initializeApp({
-            credential: applicationDefault()
+            credential: applicationDefault(),
+            projectId: process.env.FIREBASE_PROJECT_ID || 'skill-notes'
         });
         console.log("☁️  Authenticated using Google Application Default Credentials");
+        if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+            firebaseAdminInitialized = true;
+        } else {
+            console.log("⚠️ No local service-account.json or GOOGLE_APPLICATION_CREDENTIALS environment variable found. Server will skip Firestore/Auth direct queries and rely on Supabase + client-side fallbacks.");
+        }
     }
 } catch (e) {
     console.error("Auth Init Error:", e);
@@ -136,7 +146,7 @@ async function generateAIContent(prompt, isJson = false) {
         try {
             console.log(`✨ [Tier 1] Attempting Gemini API Generation (Key index: ${i})...`);
             const localGenAI = new GoogleGenerativeAI(key);
-            const model = localGenAI.getGenerativeModel({ model: "gemini-3.5-flash" });
+            const model = localGenAI.getGenerativeModel({ model: "gemini-1.5-flash" });
             const result = await model.generateContent(prompt);
             const response = await result.response;
             return response.text();
@@ -511,25 +521,156 @@ app.get('/api/admin/subscriptions', async (req, res) => {
         const { data: paymentsData, error: paymentsError } = await supabase.from('payment_logs').select('*').order('created_at', { ascending: false });
         if (paymentsError) throw paymentsError;
 
-        // Group payments by user
-        const usersMap = {};
+        // Fetch user profile details selectively from Supabase tables
+        const uniqueUids = new Set();
+        if (plansData) plansData.forEach(p => uniqueUids.add(p.firebase_uid));
+        if (paymentsData) paymentsData.forEach(p => uniqueUids.add(p.firebase_uid));
+
+        const uidsArray = Array.from(uniqueUids);
+        let profilesData = [];
+        let supabaseUsersData = [];
+        if (uidsArray.length > 0) {
+            try {
+                const [profilesRes, usersRes] = await Promise.all([
+                    supabase.from('profiles').select('id, name, email').in('id', uidsArray),
+                    supabase.from('users').select('id, name, email').in('id', uidsArray)
+                ]);
+                if (profilesRes.data) profilesData = profilesRes.data;
+                if (usersRes.data) supabaseUsersData = usersRes.data;
+            } catch (supabaseErr) {
+                console.error("Supabase profiles/users fetch error:", supabaseErr);
+            }
+        }
+
+        // Fetch Firestore users details selectively
+        let firestoreUsers = [];
+        if (firebaseAdminInitialized && uidsArray.length > 0) {
+            try {
+                const db = getFirestore();
+                const userRefs = uidsArray.map(uid => db.collection('users').doc(uid));
+                if (userRefs.length > 0) {
+                    const docSnaps = await db.getAll(...userRefs);
+                    docSnaps.forEach(doc => {
+                        if (doc.exists) {
+                            const data = doc.data();
+                            firestoreUsers.push({
+                                uid: doc.id,
+                                name: data.name || data.displayName || '',
+                                email: data.email || ''
+                            });
+                        }
+                    });
+                }
+            } catch (firestoreErr) {
+                console.error("Firestore users fetch error (ignored):", firestoreErr);
+            }
+        }
+
+        // Fetch Firebase Auth details selectively
+        let firebaseUsers = [];
+        if (firebaseAdminInitialized && uidsArray.length > 0) {
+            try {
+                const identifiers = uidsArray.map(id => ({ uid: id }));
+                const firebaseResult = await getAuth().getUsers(identifiers);
+                firebaseUsers = firebaseResult.users || [];
+            } catch (firebaseErr) {
+                console.error("Firebase getUsers Error (ignored):", firebaseErr);
+            }
+        }
+
+        const profilesMap = {};
         
-        plansData.forEach(p => {
-            usersMap[p.firebase_uid] = {
-                uid: p.firebase_uid,
-                plan: p,
-                payments: []
+        // 1. Map Supabase profiles
+        profilesData.forEach(pr => {
+            profilesMap[pr.id] = {
+                name: pr.name || '',
+                email: pr.email || '',
+                created: null,
+                lastSeen: null
             };
         });
 
-        paymentsData.forEach(pay => {
-            if (!usersMap[pay.firebase_uid]) {
-                usersMap[pay.firebase_uid] = { uid: pay.firebase_uid, plan: { plan_id: 'free' }, payments: [] };
-            }
-            usersMap[pay.firebase_uid].payments.push(pay);
+        // 2. Merge Supabase users
+        supabaseUsersData.forEach(usr => {
+            const existing = profilesMap[usr.id] || { name: '', email: '' };
+            profilesMap[usr.id] = {
+                name: existing.name || usr.name || '',
+                email: existing.email || usr.email || '',
+                created: null,
+                lastSeen: null
+            };
         });
 
-        res.json({ success: true, users: Object.values(usersMap) });
+        // 3. Merge Firestore users
+        firestoreUsers.forEach(fu => {
+            const existing = profilesMap[fu.uid] || { name: '', email: '' };
+            profilesMap[fu.uid] = {
+                name: existing.name || fu.name || '',
+                email: existing.email || fu.email || '',
+                created: null,
+                lastSeen: null
+            };
+        });
+
+        // 4. Merge Firebase Auth users
+        firebaseUsers.forEach(fu => {
+            const existing = profilesMap[fu.uid] || { name: '', email: '' };
+            profilesMap[fu.uid] = {
+                name: existing.name || fu.displayName || 'Unknown User',
+                email: existing.email || fu.email || 'N/A',
+                created: fu.metadata?.creationTime || null,
+                lastSeen: fu.metadata?.lastSignInTime || null
+            };
+        });
+
+        // Flat map payments and plans into separate rows sorted by date (latest first)
+        const rows = [];
+
+        // 1. Process payment logs
+        paymentsData.forEach(pay => {
+            const profile = profilesMap[pay.firebase_uid] || { name: 'Unknown User', email: 'N/A' };
+            const plan = plansData.find(p => p.firebase_uid === pay.firebase_uid) || { plan_id: 'free' };
+            
+            rows.push({
+                id: `pay-${pay.id}`,
+                uid: pay.firebase_uid,
+                name: profile.name || 'Unknown User',
+                email: profile.email || 'N/A',
+                plan_id: pay.plan_id,
+                plan_expiry: plan.plan_expiry,
+                amount: pay.amount_paid,
+                date: pay.created_at || pay.updated_at,
+                type: 'payment',
+                payment_id: pay.id,
+                active_plan_id: plan.plan_id
+            });
+        });
+
+        // 2. Process users who have plans but no payments
+        plansData.forEach(plan => {
+            const hasPayments = paymentsData.some(pay => pay.firebase_uid === plan.firebase_uid);
+            if (!hasPayments) {
+                const profile = profilesMap[plan.firebase_uid] || { name: 'Unknown User', email: 'N/A' };
+                rows.push({
+                    id: `plan-${plan.id}`,
+                    uid: plan.firebase_uid,
+                    name: profile.name || 'Unknown User',
+                    email: profile.email || 'N/A',
+                    plan_id: plan.plan_id,
+                    plan_expiry: plan.plan_expiry,
+                    amount: 0,
+                    date: plan.updated_at || plan.created_at || plan.plan_expiry || new Date().toISOString(),
+                    type: 'grant',
+                    payment_id: null,
+                    active_plan_id: plan.plan_id
+                });
+            }
+        });
+
+        // Sort latest first
+        rows.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        res.json({ success: true, users: rows });
     } catch (error) {
         console.error("Admin Subscriptions Error:", error);
         res.status(500).json({ success: false, error: error.message });

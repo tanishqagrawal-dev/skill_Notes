@@ -412,12 +412,25 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
               </div>
 
               <div class="ap-box">
-                <div class="ap-box-head">
+                <div class="ap-box-head" style="flex-wrap:wrap; gap:1rem;">
                   <div class="ap-box-title">
                     <span style="width:8px;height:8px;border-radius:50%;background:#34d399;box-shadow:0 0 10px #34d39988;display:inline-block"></span>
                     Approved Notes${!superAdmin ? ` — ${assignedCollegeName}` : ''}
                   </div>
-                  <span style="font-size:.75rem;color:rgba(255,255,255,.35);">Admin can delete any note</span>
+                  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                    ${superAdmin ? `
+                    <select id="ap-app-filter-college" style="padding:0.35rem 1.8rem 0.35rem 0.75rem; border-radius:6px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.03) url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='50' fill='%23ffffff'><polygon points='0,0 100,0 50,50'/></svg>&quot;) no-repeat; background-position: right 0.75rem center; background-size: 8px 6px; appearance:none; -webkit-appearance:none; -moz-appearance:none; color:#fff; font-size:0.8rem; cursor:pointer; outline:none; transition: border-color 0.2s;" onchange="window._apFilterApprovedNotes()">
+                      <option value="" style="background:#1a1a1a;color:#fff;">All Colleges</option>
+                    </select>
+                    ` : ''}
+                    <select id="ap-app-filter-branch" style="padding:0.35rem 1.8rem 0.35rem 0.75rem; border-radius:6px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.03) url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='50' fill='%23ffffff'><polygon points='0,0 100,0 50,50'/></svg>&quot;) no-repeat; background-position: right 0.75rem center; background-size: 8px 6px; appearance:none; -webkit-appearance:none; -moz-appearance:none; color:#fff; font-size:0.8rem; cursor:pointer; outline:none; transition: border-color 0.2s;" onchange="window._apFilterApprovedNotes()">
+                      <option value="" style="background:#1a1a1a;color:#fff;">All Branches</option>
+                    </select>
+                    <select id="ap-app-filter-sem" style="padding:0.35rem 1.8rem 0.35rem 0.75rem; border-radius:6px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.03) url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='50' fill='%23ffffff'><polygon points='0,0 100,0 50,50'/></svg>&quot;) no-repeat; background-position: right 0.75rem center; background-size: 8px 6px; appearance:none; -webkit-appearance:none; -moz-appearance:none; color:#fff; font-size:0.8rem; cursor:pointer; outline:none; transition: border-color 0.2s;" onchange="window._apFilterApprovedNotes()">
+                      <option value="" style="background:#1a1a1a;color:#fff;">All Semesters</option>
+                    </select>
+                    <input type="text" id="ap-app-filter-subject" placeholder="Filter by Subject..." style="padding:0.35rem 0.75rem; border-radius:6px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.03); color:#fff; font-size:0.8rem; min-width:160px; outline:none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'" onkeyup="window._apFilterApprovedNotes()" />
+                  </div>
                 </div>
                 <div class="ap-list" id="ap-approved-list">
                   <div class="ap-loader"><div class="ap-spin"></div><p>Fetching approved notes…</p></div>
@@ -606,7 +619,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                     User Subscriptions & Payments
                   </div>
                   <div style="display:flex;gap:0.5rem">
-                    <input type="text" id="ap-sub-search" placeholder="Search by UID..." style="padding:0.35rem 0.5rem;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#fff;font-size:0.85rem;" onkeyup="window._apSearchSubs(this.value)" />
+                    <input type="text" id="ap-sub-search" placeholder="Search by Name, Email or UID..." style="padding:0.35rem 0.5rem;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#fff;font-size:0.85rem;min-width:240px;" onkeyup="window._apSearchSubs(this.value)" />
                     <button class="ap-ref-btn" onclick="window._apLoadSubscriptions()">↻ Refresh</button>
                   </div>
                 </div>
@@ -943,6 +956,121 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
     }
 
     // ── Approved List ────────────────────────────────────────────────────────
+    let loadedApprovedNotes = [];
+
+    window._apFilterApprovedNotes = function() {
+        const collegeVal = document.getElementById('ap-app-filter-college')?.value || '';
+        const branchVal = document.getElementById('ap-app-filter-branch')?.value || '';
+        const semVal = document.getElementById('ap-app-filter-sem')?.value || '';
+        const subjectVal = document.getElementById('ap-app-filter-subject')?.value?.toLowerCase() || '';
+
+        const filtered = loadedApprovedNotes.filter(n => {
+            if (collegeVal && n.college !== collegeVal) return false;
+            if (branchVal && n.branch !== branchVal) return false;
+            if (semVal && !n.semester.toLowerCase().includes(semVal.toLowerCase())) return false;
+            if (subjectVal && (!n.subject || !n.subject.toLowerCase().includes(subjectVal))) return false;
+            return true;
+        });
+
+        renderApprovedListItems(filtered);
+    };
+
+    function renderApprovedListItems(data) {
+        const list = document.getElementById('ap-approved-list');
+        if (!list) return;
+
+        if (!data || data.length === 0) {
+            list.innerHTML = `
+              <div class="ap-empty" style="padding:2rem">
+                <div class="ap-empty-ico">📭</div>
+                <h3>No matching approved notes</h3>
+                <p>Try modifying your filters.</p>
+              </div>`;
+            return;
+        }
+
+        list.innerHTML = data.map((n, i) => {
+            const colObj = window.GlobalData?.colleges?.find(c => c.id === n.college) || { name: n.college ? n.college.toUpperCase() : '' };
+            const collegeLabel = colObj.name;
+            const semLabel = n.semester ? (n.semester.toLowerCase().includes('sem') ? n.semester : `Sem ${n.semester}`) : '';
+
+            return `
+              <div class="ap-item" id="ap-a-${n.id}" data-dbindex="${n._dbIndex}" style="animation-delay:${i * 40}ms">
+                <div>
+                  <div class="ap-tags">
+                    ${n.subject ? `<span class="ap-tag subject">${n.subject}</span>` : ''}
+                    ${collegeLabel ? `<span class="ap-tag college">${collegeLabel}</span>` : ''}
+                    ${n.branch  ? `<span class="ap-tag branch">${n.branch.toUpperCase()}</span>`  : ''}
+                    ${semLabel ? `<span class="ap-tag sem">${semLabel}</span>` : ''}
+                    ${n.type && n.type !== 'notes' ? `<span class="ap-tag" style="background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2)">${n.type.toUpperCase()}</span>` : ''}
+                    <span class="ap-tag" style="background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.2)">✓ LIVE</span>
+                  </div>
+                  <div class="ap-title" title="${n.title || ''}">${n.title || 'Untitled Note'}</div>
+                  <div class="ap-meta">By <span>${n.uploader_name || (n.uploader_email ? n.uploader_email.split('@')[0] : 'Unknown')}</span></div>
+                  ${n.created_at ? `<div class="ap-time">${fmtDate(n.created_at)}</div>` : ''}
+                </div>
+                <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                  <div>
+                    <span class="ap-tag" style="background: ${n.allow_download !== false ? 'rgba(0, 255, 136, 0.1)' : 'rgba(255, 107, 107, 0.1)'}; color: ${n.allow_download !== false ? '#00ff88' : '#ff6b6b'}; border: 1px solid ${n.allow_download !== false ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 107, 107, 0.2)'};">
+                      ${n.allow_download !== false ? '✅ Downloadable' : '❌ View Only'}
+                    </span>
+                  </div>
+                  <div class="ap-actions" style="margin-top: 0;">
+                    ${n.file_url ? `<a href="${window.getViewerUrl(n.file_url, n.title, n.id)}" target="_blank" class="apb apb-view">👁 View</a>` : ''}
+                    <button class="apb" style="background: rgba(255,255,255,0.05); color: var(--text-main);" onclick="window._apToggleDownload('${n.id}', ${n.allow_download !== false}, ${n._dbIndex})">
+                      ${n.allow_download !== false ? 'Disable DL' : 'Enable DL'}
+                    </button>
+                    <button class="apb apb-no" onclick="window._apDeleteApproved('${n.id}', ${n._dbIndex})">🗑 Delete</button>
+                  </div>
+                </div>
+              </div>`;
+        }).join('');
+    }
+
+    function populateFilterDropdowns(data) {
+        const collegeSelect = document.getElementById('ap-app-filter-college');
+        const branchSelect = document.getElementById('ap-app-filter-branch');
+        const semSelect = document.getElementById('ap-app-filter-sem');
+
+        const prevCollege = collegeSelect?.value || '';
+        const prevBranch = branchSelect?.value || '';
+        const prevSem = semSelect?.value || '';
+
+        if (collegeSelect) {
+            const uniqueColleges = [...new Set(data.map(n => n.college).filter(Boolean))];
+            let html = '<option value="" style="background:#1a1a1a;color:#fff;">All Colleges</option>';
+            uniqueColleges.forEach(colId => {
+                const colObj = window.GlobalData?.colleges?.find(c => c.id === colId) || { name: colId.toUpperCase() };
+                html += `<option value="${colId}" style="background:#1a1a1a;color:#fff;">${colObj.name}</option>`;
+            });
+            collegeSelect.innerHTML = html;
+            collegeSelect.value = prevCollege;
+        }
+
+        if (branchSelect) {
+            const uniqueBranches = [...new Set(data.map(n => n.branch).filter(Boolean))];
+            let html = '<option value="" style="background:#1a1a1a;color:#fff;">All Branches</option>';
+            uniqueBranches.forEach(branch => {
+                html += `<option value="${branch}" style="background:#1a1a1a;color:#fff;">${branch.toUpperCase()}</option>`;
+            });
+            branchSelect.innerHTML = html;
+            branchSelect.value = prevBranch;
+        }
+
+        if (semSelect) {
+            const uniqueSemesters = [...new Set(data.map(n => n.semester).filter(Boolean))];
+            uniqueSemesters.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+            
+            let html = '<option value="" style="background:#1a1a1a;color:#fff;">All Semesters</option>';
+            uniqueSemesters.forEach(sem => {
+                const semLabel = sem.toLowerCase().includes('sem') ? sem : `Sem ${sem}`;
+                html += `<option value="${sem}" style="background:#1a1a1a;color:#fff;">${semLabel}</option>`;
+            });
+            semSelect.innerHTML = html;
+            semSelect.value = prevSem;
+        }
+    }
+
     async function loadApproved(ignoredSb, college = null) {
         const list = document.getElementById('ap-approved-list');
         if (!list) return;
@@ -952,7 +1080,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             const promises = clients.map((client, idx) => {
                 let q = client.from('approved_notes').select('*').order('created_at', { ascending: false });
                 if (college) q = q.eq('college', college);
-                return q.then(res => ({ ...res, dbIndex: idx })); // Keep track of which db it came from
+                return q.then(res => ({ ...res, dbIndex: idx }));
             });
 
             const results = await Promise.all(promises);
@@ -971,48 +1099,10 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
 
             if (hasError && data.length === 0) throw new Error(errMsg);
 
-            // Sort combined results
             data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-            if (!data || data.length === 0) {
-                list.innerHTML = `
-                  <div class="ap-empty">
-                    <div class="ap-empty-ico">📭</div>
-                    <h3>No approved notes yet</h3>
-                    <p>Notes approved above will appear here.</p>
-                  </div>`;
-                return;
-            }
-
-            list.innerHTML = data.map((n, i) => `
-              <div class="ap-item" id="ap-a-${n.id}" data-dbindex="${n._dbIndex}" style="animation-delay:${i * 40}ms">
-                <div>
-                  <div class="ap-tags">
-                    ${n.subject ? `<span class="ap-tag subject">${n.subject}</span>` : ''}
-                    ${n.college ? `<span class="ap-tag college">${n.college}</span>` : ''}
-                    ${n.branch  ? `<span class="ap-tag branch">${n.branch}</span>`  : ''}
-                    ${n.semester? `<span class="ap-tag sem">Sem ${n.semester}</span>`:''}
-                    ${n.type && n.type !== 'notes' ? `<span class="ap-tag" style="background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2)">${n.type.toUpperCase()}</span>` : ''}
-                    <span class="ap-tag" style="background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.2)">✓ LIVE</span>
-                  </div>
-                  <div class="ap-title" title="${n.title || ''}">${n.title || 'Untitled Note'}</div>
-                  <div class="ap-meta">By <span>${n.uploader_name || (n.uploader_email ? n.uploader_email.split('@')[0] : 'Unknown')}</span></div>
-                  ${n.created_at ? `<div class="ap-time">${fmtDate(n.created_at)}</div>` : ''}
-                </div>
-                  <div style="margin-top: 10px;">
-                    <span class="ap-tag" style="background: ${n.allow_download !== false ? 'rgba(0, 255, 136, 0.1)' : 'rgba(255, 107, 107, 0.1)'}; color: ${n.allow_download !== false ? '#00ff88' : '#ff6b6b'}; border: 1px solid ${n.allow_download !== false ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 107, 107, 0.2)'};">
-                      ${n.allow_download !== false ? '✅ Downloadable' : '❌ View Only'}
-                    </span>
-                  </div>
-                </div>
-                <div class="ap-actions" style="margin-top: 15px;">
-                  ${n.file_url ? `<a href="${window.getViewerUrl(n.file_url, n.title, n.id)}" target="_blank" class="apb apb-view">👁 View</a>` : ''}
-                  <button class="apb" style="background: rgba(255,255,255,0.05); color: var(--text-main);" onclick="window._apToggleDownload('${n.id}', ${n.allow_download !== false}, ${n._dbIndex})">
-                    ${n.allow_download !== false ? 'Disable DL' : 'Enable DL'}
-                  </button>
-                  <button class="apb apb-no" onclick="window._apDeleteApproved('${n.id}', ${n._dbIndex})">🗑 Delete</button>
-                </div>
-              </div>`).join('');
+            loadedApprovedNotes = data;
+            populateFilterDropdowns(data);
+            renderApprovedListItems(data);
         } catch(e) {
             console.error("loadApproved err", e);
             list.innerHTML = `<div class="ap-err">⚠️ ${e.message}</div>`;
@@ -1928,52 +2018,117 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
     window._apSearchSubs = function(q) {
         if (!q) return window._apRenderSubs(allSubs);
         q = q.toLowerCase();
-        const filtered = allSubs.filter(u => u.uid.toLowerCase().includes(q) || (u.plan && u.plan.plan_id.toLowerCase().includes(q)));
+        const filtered = allSubs.filter(u => 
+            u.uid.toLowerCase().includes(q) || 
+            (u.name && u.name.toLowerCase().includes(q)) || 
+            (u.email && u.email.toLowerCase().includes(q)) || 
+            (u.plan_id && u.plan_id.toLowerCase().includes(q)) ||
+            (u.active_plan_id && u.active_plan_id.toLowerCase().includes(q))
+        );
         window._apRenderSubs(filtered);
     };
 
-    window._apRenderSubs = function(users) {
+    window._apRenderSubs = function(rows) {
         const list = document.getElementById('ap-subs-list');
         if (!list) return;
-        if (users.length === 0) {
+        if (rows.length === 0) {
             list.innerHTML = `<div class="ap-empty">No subscriptions found</div>`;
             return;
         }
-        list.innerHTML = users.map(u => {
-            const plan = u.plan;
-            const payments = u.payments || [];
-            const isActive = plan.plan_id !== 'free' && (!plan.plan_expiry || new Date(plan.plan_expiry) > new Date());
-            
-            let statusBadge = isActive ? `<span class="ap-tag" style="background:#10b981;color:#000;border:none">ACTIVE</span>` : `<span class="ap-tag" style="background:#4b5563;color:#fff;border:none">INACTIVE</span>`;
-            
-            let html = `
-            <div class="ap-item" style="display:flex;flex-direction:column;gap:1rem;background:rgba(255,255,255,0.02)">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start">
-                    <div>
-                        <div class="ap-title" style="font-family:monospace;font-size:0.9rem">${u.uid}</div>
-                        <div class="ap-meta" style="margin-top:0.4rem;color:#fff">
-                            Plan: <strong style="color:#a78bfa">${plan.plan_id.toUpperCase()}</strong> ${statusBadge}
+
+        let html = `
+        <div style="overflow-x:auto; margin-top: 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.01);">
+            <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.82rem; color: rgba(255,255,255,0.85);">
+                <thead>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color:rgba(255,255,255,0.5); font-weight:600;">
+                        <th style="padding:0.9rem 1.25rem;">User Details</th>
+                        <th style="padding:0.9rem 1.25rem;">Active Plan Status</th>
+                        <th style="padding:0.9rem 1.25rem;">Transaction</th>
+                        <th style="padding:0.9rem 1.25rem;">Date & Time</th>
+                        <th style="padding:0.9rem 1.25rem; text-align:right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        html += rows.map(r => {
+            const isActive = r.active_plan_id !== 'free' && (!r.plan_expiry || new Date(r.plan_expiry) > new Date());
+            const statusBadge = isActive 
+                ? `<span class="ap-tag" style="background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);font-size:0.65rem;padding:2px 6px;border-radius:4px;font-weight:600;">ACTIVE</span>` 
+                : `<span class="ap-tag" style="background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);font-size:0.65rem;padding:2px 6px;border-radius:4px;font-weight:600;">INACTIVE</span>`;
+
+            const planDisplay = `<strong style="color:#a78bfa; font-weight:700;">${r.active_plan_id.toUpperCase()}</strong> ${statusBadge}`;
+            const expiryDisplay = r.plan_expiry && isActive 
+                ? `<div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:0.25rem;">📅 ${new Date(r.plan_expiry).toLocaleDateString()} ${new Date(r.plan_expiry).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>` 
+                : '';
+
+            const transactionText = r.type === 'payment' 
+                ? `<span style="color:#34d399;font-weight:700;font-size:0.9rem;">₹${r.amount}</span> <span style="font-size:0.75rem;opacity:0.75;">(Paid: ${r.plan_id.toUpperCase()})</span>` 
+                : `<span style="color:rgba(255,255,255,0.35);font-size:0.75rem;">🎁 System Grant</span>`;
+
+            return `
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.05); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.015)'" onmouseout="this.style.background='transparent'">
+                    <td style="padding:0.9rem 1.25rem;">
+                        <div class="ap-title" id="ap-name-${r.uid}" style="font-size:0.95rem;font-weight:700;color:#fff;margin-bottom:0.25rem">${r.name || 'Unknown User'}</div>
+                        <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);display:flex;flex-wrap:wrap;gap:0.4rem;align-items:center;">
+                            <span id="ap-email-${r.uid}">📧 ${r.email || 'N/A'}</span>
+                            <span style="opacity:0.3;">|</span>
+                            <span style="font-family:monospace;font-size:0.7rem;opacity:0.75;">🔑 ${r.uid}</span>
                         </div>
-                        ${isActive && plan.plan_expiry ? `<div class="ap-meta" style="margin-top:0.25rem">Expires: ${new Date(plan.plan_expiry).toLocaleString()}</div>` : ''}
-                    </div>
-                    <div style="display:flex;gap:0.5rem">
-                        ${isActive ? `<button class="apb apb-no" style="padding:0.4rem 0.8rem;font-size:0.8rem" onclick="window._apUpdateSub('${u.uid}','cancel')">Cancel Plan</button>` : ''}
-                        <button class="apb apb-ok" style="padding:0.4rem 0.8rem;font-size:0.8rem" onclick="window._apUpdateSub('${u.uid}','grant')">Grant Plan</button>
-                    </div>
-                </div>
-                ${payments.length > 0 ? `
-                <div style="background:rgba(0,0,0,0.2);padding:0.75rem;border-radius:8px;border:1px solid rgba(255,255,255,0.05)">
-                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:1px">Payment History</div>
-                    ${payments.map(p => `
-                        <div style="display:flex;justify-content:space-between;font-size:0.8rem;padding:0.25rem 0;border-bottom:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.8)">
-                            <span>₹${p.amount_paid} — ${p.plan_id}</span>
-                            <span style="color:rgba(255,255,255,0.4)">${new Date(p.created_at).toLocaleDateString()}</span>
-                        </div>
-                    `).join('')}
-                </div>` : ''}
-            </div>`;
-            return html;
+                    </td>
+                    <td style="padding:0.9rem 1.25rem;">
+                        <div>${planDisplay}</div>
+                        ${expiryDisplay}
+                    </td>
+                    <td style="padding:0.9rem 1.25rem;">
+                        ${transactionText}
+                    </td>
+                    <td style="padding:0.9rem 1.25rem; color:rgba(255,255,255,0.6); font-size:0.78rem;">
+                        🕒 ${new Date(r.date).toLocaleString()}
+                    </td>
+                    <td style="padding:0.9rem 1.25rem; text-align:right;">
+                        ${isActive ? `
+                            <button class="apb apb-no" style="padding:0.35rem 0.7rem;font-size:0.72rem;border-radius:6px;font-weight:600;" onclick="window._apUpdateSub('${r.uid}','cancel')">Cancel</button>
+                        ` : '<span style="color:rgba(255,255,255,0.25);font-size:0.75rem;">—</span>'}
+                    </td>
+                </tr>
+            `;
         }).join('');
+
+        html += `
+                </tbody>
+            </table>
+        </div>
+        `;
+
+        list.innerHTML = html;
+
+        // Asynchronously check and load fallback info from client-side Firestore for any unknown users
+        rows.forEach(async r => {
+            if ((!r.name || r.name === 'Unknown User' || !r.email || r.email === 'N/A') && window.firebaseServices) {
+                try {
+                    const { db, doc, getDoc } = window.firebaseServices;
+                    const docSnap = await getDoc(doc(db, 'users', r.uid));
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        const name = data.name || data.displayName || '';
+                        const email = data.email || '';
+                        if (name) {
+                            r.name = name;
+                            const nameEls = document.querySelectorAll(`[id="ap-name-${r.uid}"]`);
+                            nameEls.forEach(el => el.textContent = name);
+                        }
+                        if (email) {
+                            r.email = email;
+                            const emailEls = document.querySelectorAll(`[id="ap-email-${r.uid}"]`);
+                            emailEls.forEach(el => el.innerHTML = `📧 ${email}`);
+                        }
+                    }
+                } catch (err) {
+                    console.warn("Client-side fallback profile load failed for:", r.uid, err);
+                }
+            }
+        });
     };
 
     window._apUpdateSub = async function(uid, action) {
