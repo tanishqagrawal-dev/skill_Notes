@@ -154,6 +154,108 @@ window.AIGenerator = {
         return filtered.join("\n\n");
     },
 
+    getExactUnitSyllabus: (html, unitNumber) => {
+        if (!html) return "";
+        const temp = document.createElement("div");
+        temp.innerHTML = html;
+        const text = temp.innerText || temp.textContent || html;
+        
+        // Find all matches of Unit headers in the text
+        const regex = /\bunit\b\s*[-–: ]*\s*\b(i|ii|iii|iv|v|1|2|3|4|5)\b/gi;
+        let matches = [];
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+            const matchedNumText = match[1].toLowerCase();
+            let matchedUnitNum = 0;
+            if (["1", "i", "one"].includes(matchedNumText)) matchedUnitNum = 1;
+            else if (["2", "ii", "two"].includes(matchedNumText)) matchedUnitNum = 2;
+            else if (["3", "iii", "three"].includes(matchedNumText)) matchedUnitNum = 3;
+            else if (["4", "iv", "four"].includes(matchedNumText)) matchedUnitNum = 4;
+            else if (["5", "v", "five"].includes(matchedNumText)) matchedUnitNum = 5;
+            
+            matches.push({
+                index: match.index,
+                length: match[0].length,
+                unit: matchedUnitNum
+            });
+        }
+        
+        // Sort matches by index
+        matches.sort((a, b) => a.index - b.index);
+        
+        // Find the match for the chosen unit number
+        const unitMatchIndex = matches.findIndex(m => m.unit === unitNumber);
+        if (unitMatchIndex !== -1) {
+            const startIdx = matches[unitMatchIndex].index;
+            const nextMatch = matches[unitMatchIndex + 1];
+            const endIdx = nextMatch ? nextMatch.index : text.length;
+            const exactText = text.substring(startIdx, endIdx).trim();
+            if (exactText) return exactText;
+        }
+        
+        // Sibling/DOM Fallback:
+        let headerElement = null;
+        const romanMap = {
+            1: ["i", "1", "one"],
+            2: ["ii", "2", "two"],
+            3: ["iii", "3", "three"],
+            4: ["iv", "4", "four"],
+            5: ["v", "5", "five"]
+        };
+        const targets = romanMap[unitNumber] || [];
+        for (let el of temp.querySelectorAll("h4, h3, strong, p, div")) {
+            const elText = el.innerText.trim().toLowerCase();
+            const headingRegex = new RegExp(`\\bunit\\b\\s*[-:]?\\s*\\b(${targets.join("|")})\\b`, "i");
+            if (headingRegex.test(elText)) {
+                headerElement = el;
+                break;
+            }
+        }
+        
+        if (headerElement) {
+            let content = [headerElement.innerText];
+            let sibling = headerElement.nextElementSibling;
+            while (sibling) {
+                const sibText = sibling.innerText.trim().toLowerCase();
+                let isNextHeader = false;
+                if (["h3", "h4"].includes(sibling.tagName.toLowerCase())) {
+                    isNextHeader = true;
+                } else {
+                    const unitRegex = /\bunit\b\s*[-:]?\\s*\b(i|ii|iii|iv|v|1|2|3|4|5)\b/i;
+                    if (unitRegex.test(sibText)) {
+                        isNextHeader = true;
+                    }
+                }
+                
+                if (isNextHeader) break;
+                
+                content.push(sibling.innerText);
+                sibling = sibling.nextElementSibling;
+            }
+            return content.join("\n").trim();
+        }
+        
+        const h4s = Array.from(temp.querySelectorAll("h4"));
+        const ps = Array.from(temp.querySelectorAll("p"));
+        if (h4s.length > 0) {
+            let foundIdx = -1;
+            h4s.forEach((h, idx) => {
+                const hText = h.innerText.toLowerCase();
+                const headingRegex = new RegExp(`\\bunit\\b\\s*[-:]?\\s*\\b(${targets.join("|")})\\b`, "i");
+                if (headingRegex.test(hText)) {
+                    foundIdx = idx;
+                }
+            });
+            if (foundIdx !== -1) {
+                const title = h4s[foundIdx].innerText;
+                const desc = ps[foundIdx] ? ps[foundIdx].innerText : "";
+                return `${title}\n${desc}`;
+            }
+        }
+        
+        return text.trim();
+    },
+
     callGemini: async (subject, type, syllabus) => {
         const isMST = type.includes('MST');
         
@@ -484,5 +586,144 @@ window.AIGenerator = {
             script.onload = () => window.AIGenerator.downloadAsPDF(paperHTML, fileName);
             document.head.appendChild(script);
         }
+    },
+
+    getSummary: async (subjectName, summaryType, syllabusText, unitNumber) => {
+        let geminiKey = "INJECT_GEMINI_API_KEY" && !"INJECT_GEMINI_API_KEY".includes("INJECT_") ? "INJECT_GEMINI_API_KEY".split("").reverse().join("") : "INJECT_GEMINI_API_KEY";
+        let groqKey = "INJECT_GROQ_API_KEY" && !"INJECT_GROQ_API_KEY".includes("INJECT_") ? "INJECT_GROQ_API_KEY".split("").reverse().join("") : "INJECT_GROQ_API_KEY";
+        
+        let geminiKeys = [geminiKey];
+        let groqKeys = [groqKey];
+        
+        if (geminiKey.includes("INJECT")) {
+            if (window.GEMINI_KEYS && window.GEMINI_KEYS.length > 0) {
+                geminiKeys = window.GEMINI_KEYS;
+            }
+            if (window.GROQ_KEYS && window.GROQ_KEYS.length > 0) {
+                groqKeys = window.GROQ_KEYS;
+            }
+            if (geminiKeys.some(k => k.includes("INJECT")) || geminiKeys.length === 0 || geminiKeys[0] === "INJECT_GEMINI_API_KEY") {
+                try {
+                    const apiKeysRes = await fetch('/api/get-ai-keys');
+                    if (apiKeysRes.ok) {
+                        const keysData = await apiKeysRes.json();
+                        if (keysData.gemini && keysData.gemini.length > 0) geminiKeys = keysData.gemini;
+                        if (keysData.groq && keysData.groq.length > 0) groqKeys = keysData.groq;
+                    }
+                } catch (e) {
+                    console.warn("Local API keys fetch failed.");
+                }
+            }
+        }
+
+        let cleanSyllabus = "";
+        if (summaryType === 'single-unit' && unitNumber) {
+            cleanSyllabus = window.AIGenerator.getExactUnitSyllabus(syllabusText, unitNumber);
+            if (!cleanSyllabus) {
+                cleanSyllabus = syllabusText ? syllabusText.replace(/<[^>]*>?/gm, '').trim() : "Official university curriculum";
+            }
+        } else {
+            cleanSyllabus = syllabusText ? syllabusText.replace(/<[^>]*>?/gm, '').trim() : "Official university curriculum";
+        }
+
+        let prompt = "";
+        if (summaryType === 'single-unit' && unitNumber) {
+            prompt = `You are a world-class academic tutor. Create a highly structured, concise, and systematic Concept Revision Summary for ONLY Unit ${unitNumber} of the subject "${subjectName}" based on the following syllabus context:
+            
+            Syllabus:
+            ${cleanSyllabus}
+            
+            Guidelines:
+            1. Focus strictly, exclusively, and only on the topics belonging to Unit ${unitNumber} explicitly listed in the Syllabus block above.
+            2. STRICT CRITICAL REQUIREMENT: You must NOT include, explain, or define topics (such as Turing Test, Intelligent Agents, PEAS framework, or Agent Architectures) unless they are explicitly written inside the "Syllabus" text provided above. If a topic is not mentioned in the provided Syllabus text, you MUST NOT include it in the summary. Focus only on summarizing the exact topics provided (e.g. if BFS/DFS are listed, explain BFS/DFS; if Production Systems are listed, explain Production Systems).
+            3. Keep the summary extremely concise, crisp, and high-yield. Explain every concept in at most 1-2 brief, direct sentences. Avoid long descriptions or wordy explanations.
+            4. Structure the summary topic-by-topic matching the syllabus units. Use clear, bold headings for each sub-topic.
+            5. Explain concepts point-by-point with bold terminology prefixes (e.g., "- **Production System**: A structure that..."). Do NOT use paragraphs.
+            6. Highlight formal definitions of core terms inside blockquotes (e.g., "> **Definition - [Term]**: [Definition text]").
+            7. Use comparison tables to summarize parameters, algorithms, or theories. Keep columns clean.
+            8. Do NOT generate any ASCII/text flowcharts, diagrams, or boxes to avoid mobile/screen overflow issues.
+            9. Include key mathematical formulas, algorithms, or equations if applicable. Make sure equations are written on separate lines.
+            10. The output must be structured for rapid, efficient student revision before examinations. Use extremely clean, premium Markdown formatting. No raw HTML.
+            11. Do NOT include any topics or definitions from other units or outside the provided Syllabus context. Your summary must match ONLY the topics listed in the Syllabus context above.`;
+        } else {
+            prompt = `You are a world-class academic tutor. Create a highly structured, concise, and systematic Unit-Wise Concept Revision Summary for the subject "${subjectName}" based on the following syllabus context:
+            
+            Syllabus:
+            ${cleanSyllabus}
+            
+            Guidelines:
+            1. Divide the summary clearly by units found in the syllabus (e.g., Unit 1, Unit 2, Unit 3, etc.).
+            2. Focus strictly, exclusively, and only on the topics explicitly listed in the Syllabus block above.
+            3. STRICT CRITICAL REQUIREMENT: You must NOT include, explain, or define topics (such as Turing Test, Intelligent Agents, PEAS framework, or Agent Architectures) unless they are explicitly written inside the "Syllabus" text provided above. If a topic is not mentioned in the provided Syllabus text, you MUST NOT include it in the summary.
+            4. Keep the summary extremely concise, crisp, and high-yield. Explain every concept in at most 1-2 brief, direct sentences. Avoid long descriptions or wordy explanations.
+            5. For EACH unit, structure the summary topic-by-topic matching the syllabus topics. Use clear, bold headings for each sub-topic.
+            6. Explain concepts point-by-point with bold terminology prefixes. Do NOT use paragraphs.
+            7. Highlight formal definitions of core terms inside blockquotes (e.g., "> **Definition - [Term]**: [Definition text]").
+            8. Use comparison tables to summarize parameters, algorithms, or theories. Keep columns clean.
+            9. Do NOT generate any ASCII/text flowcharts, diagrams, or boxes to avoid mobile/screen overflow issues.
+            10. Include key mathematical formulas, algorithms, or equations if applicable. Make sure equations are written on separate lines.
+            11. The output must be structured for rapid, efficient student revision before examinations. Use extremely clean, premium Markdown formatting. No raw HTML.
+            12. Do NOT include any topics or definitions from other units or outside the provided Syllabus context. Your summary must match ONLY the topics listed in the Syllabus context above.`;
+        }
+
+        let responseContent = null;
+
+        // Tier 1: Try Gemini
+        for (let i = 0; i < geminiKeys.length; i++) {
+            const key = geminiKeys[i];
+            if (!key || key.includes("INJECT")) continue;
+            
+            try {
+                console.log(`✨ [Summary] Attempting Gemini API (Key index: ${i})...`);
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${key}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+
+                if (!res.ok) throw new Error("Gemini API Error");
+                const data = await res.json();
+                responseContent = data.candidates[0].content.parts[0].text;
+                break;
+            } catch (e) {
+                console.warn(`⚠️ [Summary] Gemini failed (Key index: ${i}):`, e.message);
+            }
+        }
+
+        // Tier 2: Try Groq
+        if (!responseContent) {
+            for (let i = 0; i < groqKeys.length; i++) {
+                const key = groqKeys[i];
+                if (!key || key.includes("INJECT")) continue;
+                
+                try {
+                    console.log(`♻️ [Summary] Falling back to Groq API (Key index: ${i})...`);
+                    const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${key}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            model: "llama-3.3-70b-versatile",
+                            messages: [{ role: "user", content: prompt }]
+                        })
+                    });
+
+                    if (!groqRes.ok) throw new Error(`Groq Error: ${groqRes.status}`);
+                    const data = await groqRes.json();
+                    responseContent = data.choices[0].message.content;
+                    break;
+                } catch (e) {
+                    console.warn(`⚠️ [Summary] Groq failed (Key index: ${i}):`, e.message);
+                }
+            }
+        }
+
+        if (!responseContent) {
+            throw new Error("AI Summary Generation Failed. Please try again.");
+        }
+
+        return responseContent;
     }
 };
