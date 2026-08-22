@@ -180,6 +180,29 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             border-radius:9px; padding:.75rem; color:rgba(255,255,255,.65); font-size:.82rem; line-height:1.6;
             min-height:60px; white-space:pre-wrap; }
 
+
+        /* Real-Time Analytics Styles */
+        .ap-real-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+        .ap-real-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 14px; padding: 1.2rem; position: relative; }
+        .ap-real-card-val { font-size: 1.8rem; font-weight: 800; color: #fff; margin-top: 0.4rem; }
+        .ap-real-card-lbl { font-size: 0.75rem; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.05em; }
+        .ap-real-flex-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+        @media(max-width: 900px) { .ap-real-flex-sections { grid-template-columns: 1fr; } }
+        .ap-progress-item { margin-bottom: 1rem; }
+        .ap-progress-lbl { display: flex; justify-content: space-between; font-size: 0.8rem; color: rgba(255,255,255,0.7); margin-bottom: 0.35rem; }
+        .ap-progress-lbl span:nth-child(2) { color: #a78bfa; font-weight: bold; }
+        .ap-progress-track { background: rgba(255,255,255,0.05); height: 8px; border-radius: 4px; overflow: hidden; }
+        .ap-progress-fill { background: linear-gradient(90deg, #7c3aed, #a78bfa); height: 100%; border-radius: 4px; width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .ap-progress-fill.c2 { background: linear-gradient(90deg, #059669, #34d399); }
+        .ap-progress-fill.c3 { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+        .ap-progress-fill.c4 { background: linear-gradient(90deg, #ea580c, #fb923c); }
+        .ap-table-wrap { overflow-x: auto; background: rgba(0, 0, 0, 0.15); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 1.5rem; }
+        .ap-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
+        .ap-table th { padding: 0.9rem 1.2rem; background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.5); font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.08); text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.05em; }
+        .ap-table td { padding: 0.9rem 1.2rem; color: rgba(255,255,255,0.85); border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .ap-table tr:last-child td { border-bottom: none; }
+        .ap-table tr:hover td { background: rgba(255,255,255,0.015); }
+
         @media(max-width:600px){
             .ap-item { grid-template-columns:1fr; }
             .ap-stats { grid-template-columns:repeat(2,1fr); }
@@ -375,10 +398,10 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
               </button>
               <button class="ap-page-tab" id="aptab-subscriptions" onclick="window._apPage('subscriptions',this)">
                 <span>💎</span> Subscriptions
-              </button>
-              <button class="ap-page-tab" id="aptab-analytics" onclick="window._apPage('analytics',this)">
-                <span>📊</span> Analytics Settings
               </button>` : ''}
+              <button class="ap-page-tab" id="aptab-analytics" onclick="window._apPage('analytics',this)">
+                <span>📊</span> Analytics
+              </button>
               <button class="ap-page-tab" id="aptab-referrals" onclick="window._apPage('referrals',this)">
                 <span>🔗</span> Referrals
               </button>
@@ -750,13 +773,14 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
               </div>
             </div>
 
-            <!-- ── PAGE: ANALYTICS SETTINGS ── -->
+            <!-- ── PAGE: ANALYTICS ── -->
             <div class="ap-page" id="appage-analytics">
+              ${superAdmin ? `
               <div class="ap-box">
                 <div class="ap-box-head">
                   <div class="ap-box-title">
                     <span style="width:8px;height:8px;border-radius:50%;background:#00e5ff;box-shadow:0 0 10px #00e5ff88;display:inline-block"></span>
-                    Dashboard Stats Configuration
+                    Dashboard Stats Configuration (Overrides)
                   </div>
                   <span style="font-size:.75rem;color:rgba(255,255,255,.35);">Override the 4 stats boxes on the main dashboard</span>
                 </div>
@@ -791,6 +815,21 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                   <button class="apb apb-ok" onclick="window._apSaveAnalyticsConfig()" style="width: 100%; padding: 1rem; font-size: 1rem; font-weight: bold;">💾 Save Configuration</button>
                 </div>
               </div>
+              ` : ''}
+
+              <!-- Real-time Database Analytics -->
+              <div class="ap-box" style="margin-top: 1.5rem;">
+                <div class="ap-box-head" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                  <div class="ap-box-title">
+                    <span style="width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b98188;display:inline-block"></span>
+                    📊 Real-Time Database Analytics
+                  </div>
+                  <button class="ap-ref-btn" onclick="window._apLoadRealAnalytics()" id="ap-real-refresh-btn">↻ Refresh Metrics</button>
+                </div>
+                <div id="ap-real-analytics-container" style="padding: 2rem; background: rgba(255,255,255,0.01);">
+                  <div class="ap-loader"><div class="ap-spin"></div><p>Fetching database metrics...</p></div>
+                </div>
+              </div>
             </div>
 
           </div>`;
@@ -804,8 +843,13 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             const page = document.getElementById('appage-' + name);
             if (page) page.classList.add('active');
             
-            if (name === 'analytics' && typeof window._apPopulateAnalytics === 'function') {
-                window._apPopulateAnalytics();
+            if (name === 'analytics') {
+                if (typeof window._apPopulateAnalytics === 'function') {
+                    window._apPopulateAnalytics();
+                }
+                if (typeof window._apLoadRealAnalytics === 'function') {
+                    window._apLoadRealAnalytics();
+                }
             }
         };
 
@@ -2425,6 +2469,310 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             }
         } catch (e) {
             console.error("Error populating analytics config:", e);
+        }
+    };
+
+    // ── Real-Time Database Analytics ─────────────────────────────────────────
+    window._apLoadRealAnalytics = async function () {
+        const container = document.getElementById('ap-real-analytics-container');
+        if (!container) return;
+
+        container.innerHTML = `<div class="ap-loader"><div class="ap-spin"></div><p>Compiling live database metrics…</p></div>`;
+
+        try {
+            const clients = await getAllSBs();
+            const results = await Promise.all(
+                clients.map(c => c.from('approved_notes').select('*'))
+            );
+
+            let allNotes = [];
+            results.forEach(res => { if (res.data) allNotes = allNotes.concat(res.data); });
+
+            // ── Merge pre-existing Drive/Global notes ────────────────────────
+            // These are hardcoded in globalNotes.js and never reach approved_notes
+            const gn = window.globalNotes || {};
+            let driveCount = 0;
+            for (const collegeKey in gn) {
+                const subjectsObj = gn[collegeKey];
+                if (!subjectsObj || typeof subjectsObj !== 'object') continue;
+                for (const subjectKey in subjectsObj) {
+                    const items = subjectsObj[subjectKey];
+                    if (!Array.isArray(items)) continue;
+                    items.forEach(item => {
+                        // Normalize to same shape used by approved_notes
+                        allNotes.push({
+                            id: item.id || `drive-${driveCount}`,
+                            type: item.type || 'notes',
+                            college: item.collegeId || item.college || collegeKey || 'unknown',
+                            semester: item.semester || null,
+                            branch: item.branch || null,
+                            uploader_email: '__drive__',
+                            uploader_name: 'Drive (Pre-existing)',
+                            created_at: null,
+                            _isDrive: true
+                        });
+                        driveCount++;
+                    });
+                }
+            }
+
+            // Scope to assigned college if Co-Admin
+            const isSuper = window._apIsSuperAdmin;
+            const col = window._apCurrentCollege;
+            if (!isSuper && col) allNotes = allNotes.filter(n => n.college === col);
+
+            if (allNotes.length === 0) {
+                container.innerHTML = `
+                    <div class="ap-empty" style="padding:2rem;">
+                        <div class="ap-empty-ico">📊</div>
+                        <h3>No Approved Notes Yet</h3>
+                        <p>Real-time metrics will appear as soon as notes are approved.</p>
+                    </div>`;
+                return;
+            }
+
+            const total = allNotes.length;
+            const supabaseCount = allNotes.filter(n => !n._isDrive).length;
+            const driveTotal = allNotes.filter(n => n._isDrive).length;
+
+            // Helpers
+            const getColName = id => (window.GlobalData?.colleges?.find(c => c.id === id)?.name) || id || 'Unknown';
+            const typify = t => {
+                const s = (t || '').toLowerCase();
+                if (s === 'notes') return 'notes';
+                if (s === 'pyqs') return 'pyqs';
+                if (s === 'practicals' || s === 'practical' || s.includes('lab')) return 'practicals';
+                if (s === 'formula' || s.includes('formula')) return 'formula';
+                return 'others';
+            };
+
+            // Counts
+            const typeCounts = { notes: 0, pyqs: 0, practicals: 0, formula: 0, others: 0 };
+            const collegeMap = {};  // { name: { notes,pyqs,practicals,formula,others,total } }
+            const semMap = {};
+            const branchMap = {};
+            const uploaderMap = {};
+
+            allNotes.forEach(n => {
+                const t = typify(n.type);
+                typeCounts[t]++;
+
+                // College
+                const cName = getColName(n.college);
+                if (!collegeMap[cName]) collegeMap[cName] = { notes: 0, pyqs: 0, practicals: 0, formula: 0, others: 0, total: 0 };
+                collegeMap[cName][t]++;
+                collegeMap[cName].total++;
+
+                // Semester (Drive notes have no semester — skip from sem chart)
+                if (!n._isDrive) {
+                    const sem = n.semester || 'Unspecified';
+                    semMap[sem] = (semMap[sem] || 0) + 1;
+                }
+
+                // Branch (Drive notes have no branch — skip from branch chart)
+                if (!n._isDrive) {
+                    const br = (n.branch || 'Unspecified').toUpperCase();
+                    branchMap[br] = (branchMap[br] || 0) + 1;
+                }
+
+                // Uploaders — skip the drive pseudo-uploader from leaderboard
+                if (!n._isDrive) {
+                    const email = (n.uploader_email || 'anonymous').toLowerCase();
+                    const name  = n.uploader_name || email.split('@')[0];
+                    if (!uploaderMap[email]) uploaderMap[email] = { name, count: 0 };
+                    uploaderMap[email].count++;
+                }
+            });
+
+            // Newest upload
+            const dates = allNotes.map(n => new Date(n.created_at)).filter(d => !isNaN(d));
+            const newestStr = dates.length
+                ? new Date(Math.max(...dates)).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+                : '—';
+
+            // Most popular type
+            const mostPopular = Object.entries(typeCounts)
+                .sort((a, b) => b[1] - a[1])[0][0].toUpperCase();
+
+            // Unique uploaders
+            const uniqueUploaders = Object.keys(uploaderMap).length;
+
+            // Top contributors
+            const topUploaders = Object.entries(uploaderMap)
+                .map(([email, info]) => ({ email, ...info }))
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 8);
+
+            // Pct helper
+            const pct = n => total > 0 ? ((n / total) * 100).toFixed(1) : '0.0';
+
+            // Type labels
+            const typeLabels = {
+                notes: '📄 Notes',
+                pyqs: '📝 PYQs (Previous Year Questions)',
+                practicals: '⚗️ Practical / Lab Work',
+                formula: '🔢 Formula Sheets',
+                others: '❓ Others'
+            };
+            const typeFills = ['', 'c2', 'c3', 'c4', ''];
+
+            container.innerHTML = `
+                <!-- Summary Cards -->
+                <div class="ap-real-grid">
+                  <div class="ap-real-card" style="border-left:3px solid #10b981;">
+                    <div class="ap-real-card-lbl">Total Documents (Real)</div>
+                    <div class="ap-real-card-val">${total}</div>
+                    <div style="margin-top:.6rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+                      <span style="font-size:.72rem;background:rgba(16,185,129,.15);color:#10b981;padding:.2rem .5rem;border-radius:4px;">📁 Drive: ${driveTotal}</span>
+                      <span style="font-size:.72rem;background:rgba(167,139,250,.15);color:#a78bfa;padding:.2rem .5rem;border-radius:4px;">☁️ Supabase: ${supabaseCount}</span>
+                    </div>
+                  </div>
+                  <div class="ap-real-card" style="border-left:3px solid #a78bfa;">
+                    <div class="ap-real-card-lbl">Unique Contributors</div>
+                    <div class="ap-real-card-val">${uniqueUploaders}</div>
+                    <div style="margin-top:.6rem;font-size:.72rem;color:rgba(255,255,255,.35);">+ Drive pre-existing</div>
+                  </div>
+                  <div class="ap-real-card" style="border-left:3px solid #00e5ff;">
+                    <div class="ap-real-card-lbl">Most Uploaded Type</div>
+                    <div class="ap-real-card-val" style="font-size:1.2rem;margin-top:.6rem;">${mostPopular}</div>
+                  </div>
+                  <div class="ap-real-card" style="border-left:3px solid #f1c40f;">
+                    <div class="ap-real-card-lbl">Latest Upload</div>
+                    <div class="ap-real-card-val" style="font-size:1.2rem;margin-top:.6rem;">${newestStr}</div>
+                  </div>
+                </div>
+
+                <div class="ap-real-flex-sections">
+                  <!-- Type distribution -->
+                  <div>
+                    <h3 style="font-size:.95rem;color:#fff;font-weight:700;margin-bottom:1.25rem;">📁 Document Type Distribution</h3>
+                    ${Object.entries(typeCounts).map(([key, cnt], i) => `
+                      <div class="ap-progress-item">
+                        <div class="ap-progress-lbl">
+                          <span>${typeLabels[key]}</span>
+                          <span>${cnt} (${pct(cnt)}%)</span>
+                        </div>
+                        <div class="ap-progress-track">
+                          <div class="ap-progress-fill ${typeFills[i]}" style="width:${pct(cnt)}%"></div>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+
+                  <!-- Top contributors -->
+                  <div>
+                    <h3 style="font-size:.95rem;color:#fff;font-weight:700;margin-bottom:1.25rem;">🏆 Top Contributors</h3>
+                    <div class="ap-table-wrap">
+                      <table class="ap-table">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Scholar</th>
+                            <th>Email</th>
+                            <th style="text-align:right;">Uploads</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          ${topUploaders.map((u, i) => `
+                            <tr>
+                              <td style="font-weight:bold;color:${i===0?'#f1c40f':i===1?'#e1e1e1':i===2?'#cd7f32':'rgba(255,255,255,.4)'};">${i+1}</td>
+                              <td style="font-weight:600;color:#fff;">${u.name}</td>
+                              <td style="color:rgba(255,255,255,.5);font-size:.78rem;">${u.email}</td>
+                              <td style="text-align:right;font-weight:800;color:#10b981;">${u.count}</td>
+                            </tr>
+                          `).join('')}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- College-wise breakdown -->
+                <h3 style="font-size:.95rem;color:#fff;font-weight:700;margin:2rem 0 1.25rem;display:flex;align-items:center;gap:.5rem;">🏫 College-Wise Breakdown</h3>
+                <div class="ap-table-wrap">
+                  <table class="ap-table">
+                    <thead>
+                      <tr>
+                        <th>College / Institution</th>
+                        <th style="text-align:center;">Notes</th>
+                        <th style="text-align:center;">PYQs</th>
+                        <th style="text-align:center;">Practicals</th>
+                        <th style="text-align:center;">Formula</th>
+                        <th style="text-align:center;">Others</th>
+                        <th style="text-align:right;color:#a78bfa;">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${Object.entries(collegeMap)
+                        .sort((a, b) => b[1].total - a[1].total)
+                        .map(([name, s]) => `
+                          <tr>
+                            <td style="font-weight:700;color:#fff;max-width:220px;white-space:normal;">${name}</td>
+                            <td style="text-align:center;">${s.notes}</td>
+                            <td style="text-align:center;">${s.pyqs}</td>
+                            <td style="text-align:center;">${s.practicals}</td>
+                            <td style="text-align:center;">${s.formula}</td>
+                            <td style="text-align:center;color:rgba(255,255,255,.4);">${s.others}</td>
+                            <td style="text-align:right;font-weight:800;color:#a78bfa;">${s.total}</td>
+                          </tr>
+                        `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Semester & Branch -->
+                <div class="ap-real-flex-sections" style="margin-top:2rem;">
+                  <div>
+                    <h3 style="font-size:.95rem;color:#fff;font-weight:700;margin-bottom:1.25rem;">📅 Semester Distribution</h3>
+                    <div class="ap-table-wrap">
+                      <table class="ap-table">
+                        <thead><tr><th>Semester</th><th style="text-align:right;">Count</th></tr></thead>
+                        <tbody>
+                          ${Object.entries(semMap).sort((a,b)=>b[1]-a[1]).map(([sem, cnt]) => `
+                            <tr>
+                              <td style="font-weight:600;color:#fff;">${sem}</td>
+                              <td style="text-align:right;font-weight:800;color:#34d399;">${cnt}</td>
+                            </tr>
+                          `).join('')}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 style="font-size:.95rem;color:#fff;font-weight:700;margin-bottom:1.25rem;">🔬 Branch Distribution</h3>
+                    <div class="ap-table-wrap">
+                      <table class="ap-table">
+                        <thead><tr><th>Branch / Dept</th><th style="text-align:right;">Count</th></tr></thead>
+                        <tbody>
+                          ${Object.entries(branchMap).sort((a,b)=>b[1]-a[1]).map(([br, cnt]) => `
+                            <tr>
+                              <td style="font-weight:600;color:#fff;">${br}</td>
+                              <td style="text-align:right;font-weight:800;color:#60a5fa;">${cnt}</td>
+                            </tr>
+                          `).join('')}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                <p style="font-size:.72rem;color:rgba(255,255,255,.25);margin-top:1rem;text-align:right;">
+                  Last refreshed: ${new Date().toLocaleString('en-IN')} · ${total} total records pulled live from database
+                </p>
+            `;
+
+            // Animate progress bars after render
+            requestAnimationFrame(() => {
+                document.querySelectorAll('.ap-progress-fill').forEach(el => {
+                    const w = el.style.width;
+                    el.style.width = '0%';
+                    requestAnimationFrame(() => { el.style.width = w; });
+                });
+            });
+
+        } catch (e) {
+            console.error('[AdminPanel] _apLoadRealAnalytics error:', e);
+            container.innerHTML = `<div class="ap-err">⚠️ Failed to load real analytics: ${e.message}</div>`;
         }
     };
 
