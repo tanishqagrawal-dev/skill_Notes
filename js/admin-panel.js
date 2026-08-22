@@ -126,14 +126,14 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
 
 
         /* Co-Admin Manager */
-        .ca-form { display:grid; grid-template-columns:1fr 1fr auto; gap:.75rem; align-items:end; padding:1.25rem 1.5rem; border-bottom:1px solid rgba(255,255,255,.06); }
+        .ca-form { display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:.75rem; align-items:end; padding:1.25rem 1.5rem; border-bottom:1px solid rgba(255,255,255,.06); }
         .ca-form input, .ca-form select { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12);
             color:#fff; border-radius:9px; padding:.55rem 1rem; font-size:.85rem; outline:none; }
         .ca-form input::placeholder { color:rgba(255,255,255,.3); }
         .ca-form input:focus, .ca-form select:focus { border-color:#a78bfa; }
         .ca-form select option { background:#1a1a2e; }
         .ca-form .apb-ok { height:38px; }
-        .ca-row { display:grid; grid-template-columns:1fr 1fr auto; gap:.75rem; align-items:center;
+        .ca-row { display:grid; grid-template-columns:1fr 1.2fr auto; gap:.75rem; align-items:center;
             background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.07); border-radius:11px;
             padding:.85rem 1.2rem; transition:all .2s; }
         .ca-row:hover { border-color:rgba(167,139,250,.25); }
@@ -302,14 +302,14 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
 
         const u = getCurrentUser();
         const superAdmin = isSuperAdmin(u);
-        const coAdmin = isCoAdmin(u);
 
-        // Check if co-admin via Supabase if not already set
-        let assignedCollege = u?.assignedCollege || null;
-        let assignedCollegeName = u?.assignedCollegeName || '';
+        // Check co-admin permissions via Supabase
+        let assignedCollege = null;
+        let assignedCollegeName = '';
+        let assignedBranch = null;
+        let assignedBranchName = '';
 
-        if (!superAdmin && !coAdmin) {
-            // Check Supabase co_admins table
+        if (!superAdmin) {
             try {
                 const sb = await getSB();
                 const { data: caList } = await sb.from('co_admins').select('*').eq('email', u?.email?.toLowerCase()).limit(1);
@@ -317,11 +317,16 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                 if (caData) {
                     assignedCollege = caData.college_id;
                     assignedCollegeName = caData.college_name;
-                    // Update user object
+                    assignedBranch = caData.branch_id || null;
+                    assignedBranchName = caData.branch_name || '';
+                    
+                    // Update user object dynamically
                     if (window.currentUser) {
                         window.currentUser.role = 'coadmin';
                         window.currentUser.assignedCollege = assignedCollege;
                         window.currentUser.assignedCollegeName = assignedCollegeName;
+                        window.currentUser.assignedBranch = assignedBranch;
+                        window.currentUser.assignedBranchName = assignedBranchName;
                     }
                 } else {
                     wrap.innerHTML = `<div style="text-align:center;padding:4rem;color:#f87171">
@@ -341,7 +346,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             }
         }
 
-        const roleLabel = superAdmin ? 'Super Admin' : `Co-Admin · ${assignedCollegeName || assignedCollege}`;
+        const roleLabel = superAdmin ? 'Super Admin' : `Co-Admin · ${assignedCollegeName || assignedCollege}${assignedBranchName ? ` (${assignedBranchName})` : ''}`;
 
         wrap.innerHTML = `
           <div class="ap">
@@ -354,8 +359,8 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             </div>
 
             ${!superAdmin ? `<div class="ca-notice">
-              ℹ️ You have been assigned as <strong>Co-Admin</strong> for <strong>${assignedCollegeName || assignedCollege}</strong>.
-              You can approve or reject notes submitted for your college only.
+              ℹ️ You have been assigned as <strong>Co-Admin</strong> for <strong>${assignedCollegeName || assignedCollege}</strong>${assignedBranchName ? ` (Branch: <strong>${assignedBranchName}</strong>)` : ''}.
+              You can approve or reject notes submitted for your college${assignedBranchName ? ` and branch` : ''} only.
             </div>` : ''}
 
             <!-- Stats always visible -->
@@ -398,10 +403,10 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
               </button>
               <button class="ap-page-tab" id="aptab-subscriptions" onclick="window._apPage('subscriptions',this)">
                 <span>💎</span> Subscriptions
-              </button>` : ''}
+              </button>
               <button class="ap-page-tab" id="aptab-analytics" onclick="window._apPage('analytics',this)">
                 <span>📊</span> Analytics
-              </button>
+              </button>` : ''}
               <button class="ap-page-tab" id="aptab-referrals" onclick="window._apPage('referrals',this)">
                 <span>🔗</span> Referrals
               </button>
@@ -486,10 +491,12 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                       <option value="global" style="color:#a78bfa;font-weight:bold;">🌐 Global (Default for all)</option>
                       ${(window.GlobalData?.colleges || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
                     </select>` : `<input type="text" value="${assignedCollegeName || assignedCollege}" disabled style="opacity:.6" />`}
-                    <select id="cm-s-branch" onchange="window._cmLoadSubjects()">
+                    <select id="cm-s-branch" ${!superAdmin && assignedBranch ? 'disabled' : ''} onchange="window._cmLoadSubjects()">
+                      ${!superAdmin && assignedBranch ? `<option value="${assignedBranch}">${assignedBranchName || assignedBranch.toUpperCase()}</option>` : `
                       <option value="">All Branches</option>
                       <option value="global" style="color:#a78bfa;font-weight:bold;">🌐 Global / All Branches</option>
                       ${(window.GlobalData?.branches || []).map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
+                      `}
                     </select>
                     <select id="cm-s-sem" onchange="window._cmLoadSubjects()">
                       <option value="">All Semesters</option>
@@ -504,13 +511,15 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                       <input type="text" id="cm-new-subject-code" placeholder="Code (e.g. CS301)" />
                     </div>
                     <div class="cm-row-grid">
-                      <select id="cm-new-subject-college">
+                      <select id="cm-new-subject-college" ${!superAdmin ? 'disabled' : ''}>
                         ${superAdmin ? `<option value="">Select College</option><option value="global" style="color:#a78bfa;font-weight:bold;">🌐 Global (Default for all)</option>${(window.GlobalData?.colleges || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('')}` : `<option value="${assignedCollege}">${assignedCollegeName}</option>`}
                       </select>
-                      <select id="cm-new-subject-branch">
+                      <select id="cm-new-subject-branch" ${!superAdmin && assignedBranch ? 'disabled' : ''}>
+                        ${!superAdmin && assignedBranch ? `<option value="${assignedBranch}">${assignedBranchName || assignedBranch.toUpperCase()}</option>` : `
                         <option value="">Select Branch</option>
                         <option value="global" style="color:#a78bfa;font-weight:bold;">🌐 Global / All Branches</option>
                         ${(window.GlobalData?.branches || []).map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
+                        `}
                       </select>
                     </div>
                     <select id="cm-new-subject-sem">
@@ -533,10 +542,12 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                       <option value="global" style="color:#a78bfa;font-weight:bold;">🌐 Global (Default for all)</option>
                       ${(window.GlobalData?.colleges || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
                     </select>` : `<input type="text" value="${assignedCollegeName || assignedCollege}" disabled style="opacity:.6" />`}
-                    <select id="cm-syl-branch" onchange="window._cmLoadSyllabusList()">
+                    <select id="cm-syl-branch" ${!superAdmin && assignedBranch ? 'disabled' : ''} onchange="window._cmLoadSyllabusList()">
+                      ${!superAdmin && assignedBranch ? `<option value="${assignedBranch}">${assignedBranchName || assignedBranch.toUpperCase()}</option>` : `
                       <option value="">Select Branch</option>
                       <option value="global" style="color:#a78bfa;font-weight:bold;">🌐 Global / All Branches</option>
                       ${(window.GlobalData?.branches || []).map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
+                      `}
                     </select>
                     <select id="cm-syl-sem" onchange="window._cmLoadSyllabusList()">
                       <option value="">Select Semester</option>
@@ -595,11 +606,15 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                   </div>
                   <span style="font-size:.75rem;color:rgba(255,255,255,.35);">Assign moderators per college</span>
                 </div>
-                <div class="ca-form">
+                <div class="ca-form" style="grid-template-columns: 1fr 1fr 1fr auto;">
                   <input type="email" id="ca-email-input" placeholder="Enter user email (e.g. john@college.edu)" />
                   <select id="ca-college-select">
                     <option value="">— Select College —</option>
                     ${(window.GlobalData?.colleges || []).map(c => `<option value="${c.id}" data-name="${c.name}">${c.name}</option>`).join('')}
+                  </select>
+                  <select id="ca-branch-select">
+                    <option value="">— All Branches —</option>
+                    ${(window.GlobalData?.branches || []).map(b => `<option value="${b.id}" data-name="${b.name}">${b.name}</option>`).join('')}
                   </select>
                   <button class="apb apb-ok" onclick="window._apAssignCoAdmin()">+ Assign</button>
                 </div>
@@ -742,10 +757,12 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                       <select id="tt-college">
                         ${superAdmin ? `<option value="">Select College</option><option value="global" style="color:#a78bfa;font-weight:bold;">🌐 Global (Default for all)</option>${(window.GlobalData?.colleges || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('')}` : `<option value="${assignedCollege}">${assignedCollegeName}</option>`}
                       </select>
-                      <select id="tt-branch" onchange="if(window._ttUpdateSubjects) window._ttUpdateSubjects()">
+                      <select id="tt-branch" ${!superAdmin && assignedBranch ? 'disabled' : ''} onchange="if(window._ttUpdateSubjects) window._ttUpdateSubjects()">
+                        ${!superAdmin && assignedBranch ? `<option value="${assignedBranch}">${assignedBranchName || assignedBranch.toUpperCase()}</option>` : `
                         <option value="">Select Branch</option>
                         <option value="global" style="color:#a78bfa;font-weight:bold;">🌐 Global / All Branches</option>
                         ${(window.GlobalData?.branches || []).map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
+                        `}
                       </select>
                     </div>
                     <div class="cm-row-grid">
@@ -859,17 +876,19 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
         // Store assignedCollege for content manager
         window._apCurrentCollege = assignedCollege;
         window._apCurrentCollegeName = assignedCollegeName;
+        window._apCurrentBranch = assignedBranch;
+        window._apCurrentBranchName = assignedBranchName;
         window._apIsSuperAdmin = superAdmin;
 
         try {
             const sb = await getSB();
             await Promise.all([
-                loadStats(sb, assignedCollege),
-                loadList(sb, assignedCollege),
-                loadApproved(sb, assignedCollege),
+                loadStats(sb, assignedCollege, assignedBranch),
+                loadList(sb, assignedCollege, assignedBranch),
+                loadApproved(sb, assignedCollege, assignedBranch),
                 superAdmin ? loadCoAdmins(sb) : Promise.resolve(),
-                loadCmSubjects(sb, assignedCollege),
-                loadCmNoteTitles(sb, assignedCollege),
+                loadCmSubjects(sb, assignedCollege, assignedBranch),
+                loadCmNoteTitles(sb, assignedCollege, assignedBranch),
                 loadReferrals(sb),
                 loadCoders(sb),
                 loadAcademic(sb),
@@ -877,6 +896,9 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                 window._ttLoadExams(),
                 superAdmin ? window._apLoadPricing() : Promise.resolve()
             ]);
+            if (!superAdmin && assignedBranch && window._ttUpdateSubjects) {
+                setTimeout(() => window._ttUpdateSubjects(), 100);
+            }
         } catch (e) {
             console.error('[AdminPanel] Init error:', e);
             const list = document.getElementById('ap-list');
@@ -885,7 +907,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
     }
 
     // ── Refresh ──────────────────────────────────────────────────────────────
-    async function refresh(assignedCollege) {
+    async function refresh(assignedCollege, assignedBranch) {
         const list = document.getElementById('ap-list');
         if (list) list.innerHTML = `<div class="ap-loader"><div class="ap-spin"></div><p>Refreshing…</p></div>`;
         const aList = document.getElementById('ap-approved-list');
@@ -894,27 +916,47 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             const sb = await getSB();
             const u = getCurrentUser();
             const col = assignedCollege || (isCoAdmin(u) ? u.assignedCollege : null);
-            await Promise.all([loadStats(sb, col), loadList(sb, col), loadApproved(sb, col)]);
+            const br = assignedBranch || (isCoAdmin(u) ? u.assignedBranch : null);
+            await Promise.all([loadStats(sb, col, br), loadList(sb, col, br), loadApproved(sb, col, br)]);
         } catch (e) {
             if (list) list.innerHTML = `<div class="ap-err">⚠️ ${e.message}</div>`;
         }
     }
 
     // ── Stats ────────────────────────────────────────────────────────────────
-    async function loadStats(ignoredSb, college = null) {
+    async function loadStats(ignoredSb, college = null, branch = null) {
         const clients = await getAllSBs();
         
         let pending = 0;
         let approved = 0;
         
         for (const client of clients) {
-            let pQuery = client.from('pending_notes').select('*', { count: 'exact', head: true });
-            let aQuery = client.from('approved_notes').select('*', { count: 'exact', head: true });
+            let pQuery = client.from('pending_notes').select('branch');
+            let aQuery = client.from('approved_notes').select('branch');
             if (college) { pQuery = pQuery.eq('college', college); aQuery = aQuery.eq('college', college); }
             
-            const [{ count: pCount }, { count: aCount }] = await Promise.all([pQuery, aQuery]);
-            if (pCount) pending += pCount;
-            if (aCount) approved += aCount;
+            const [{ data: pData }, { data: aData }] = await Promise.all([pQuery, aQuery]);
+            
+            if (pData) {
+                let filteredP = pData;
+                if (branch) {
+                    const branchObj = window.GlobalData?.branches?.find(b => b.id === branch);
+                    const bName = branchObj ? branchObj.name.toLowerCase() : branch.toLowerCase();
+                    const bId = branch.toLowerCase();
+                    filteredP = pData.filter(n => n.branch && (n.branch.toLowerCase() === bName || n.branch.toLowerCase() === bId));
+                }
+                pending += filteredP.length;
+            }
+            if (aData) {
+                let filteredA = aData;
+                if (branch) {
+                    const branchObj = window.GlobalData?.branches?.find(b => b.id === branch);
+                    const bName = branchObj ? branchObj.name.toLowerCase() : branch.toLowerCase();
+                    const bId = branch.toLowerCase();
+                    filteredA = aData.filter(n => n.branch && (n.branch.toLowerCase() === bName || n.branch.toLowerCase() === bId));
+                }
+                approved += filteredA.length;
+            }
         }
 
         const primarySb = await getSB();
@@ -936,7 +978,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
     }
 
     // ── Pending List ─────────────────────────────────────────────────────────
-    async function loadList(ignoredSb, college = null) {
+    async function loadList(ignoredSb, college = null, branch = null) {
         const list = document.getElementById('ap-list');
         if (!list) return;
 
@@ -963,6 +1005,14 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             });
 
             if (hasError && data.length === 0) throw new Error(errMsg);
+
+            // Filter combined results by branch ID or Name client-side
+            if (branch) {
+                const branchObj = window.GlobalData?.branches?.find(b => b.id === branch);
+                const bName = branchObj ? branchObj.name.toLowerCase() : branch.toLowerCase();
+                const bId = branch.toLowerCase();
+                data = data.filter(n => n.branch && (n.branch.toLowerCase() === bName || n.branch.toLowerCase() === bId));
+            }
 
             // Sort combined results
             data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -992,12 +1042,12 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                   ${n.created_at ? `<div class="ap-time">${fmtDate(n.created_at)}</div>` : ''}
                 </div>
                   <div style="margin-top: 10px; display: flex; align-items: center; gap: 8px;">
-                    <input type="checkbox" id="ap-dl-${n.id}" checked style="accent-color: var(--primary); cursor: pointer; width: 16px; height: 16px;">
+                    <input type="checkbox" id="ap-dl-${n.id}" style="accent-color: var(--primary); cursor: pointer; width: 16px; height: 16px;">
                     <label for="ap-dl-${n.id}" style="color: var(--text-dim); font-size: 0.85rem; cursor: pointer;">Allow users to download this file</label>
                   </div>
                 </div>
                 <div class="ap-actions" style="margin-top: 15px;">
-                  ${n.file_url ? `<a href="${window.getViewerUrl(n.file_url, n.title)}" target="_blank" class="apb apb-view">👁 View</a>` : ''}
+                  ${n.file_url ? `<a href="${n.file_url}" target="_blank" class="apb apb-view">👁 View</a>` : ''}
                   <button class="apb apb-ok" onclick="window._apApprove('${n.id}', ${n._dbIndex})">✓ Approve</button>
                   <button class="apb apb-no" onclick="window._apReject('${n.id}', ${n._dbIndex})">✕ Reject</button>
                 </div>
@@ -1069,7 +1119,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                     </span>
                   </div>
                   <div class="ap-actions" style="margin-top: 0;">
-                    ${n.file_url ? `<a href="${window.getViewerUrl(n.file_url, n.title, n.id)}" target="_blank" class="apb apb-view">👁 View</a>` : ''}
+                    ${n.file_url ? `<a href="${n.file_url}" target="_blank" class="apb apb-view">👁 View</a>` : ''}
                     <button class="apb" style="background: rgba(255,255,255,0.05); color: var(--text-main);" onclick="window._apToggleDownload('${n.id}', ${n.allow_download !== false}, ${n._dbIndex})">
                       ${n.allow_download !== false ? 'Disable DL' : 'Enable DL'}
                     </button>
@@ -1124,7 +1174,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
         }
     }
 
-    async function loadApproved(ignoredSb, college = null) {
+    async function loadApproved(ignoredSb, college = null, branch = null) {
         const list = document.getElementById('ap-approved-list');
         if (!list) return;
 
@@ -1151,6 +1201,14 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             });
 
             if (hasError && data.length === 0) throw new Error(errMsg);
+
+            // Filter combined results by branch ID or Name client-side
+            if (branch) {
+                const branchObj = window.GlobalData?.branches?.find(b => b.id === branch);
+                const bName = branchObj ? branchObj.name.toLowerCase() : branch.toLowerCase();
+                const bId = branch.toLowerCase();
+                data = data.filter(n => n.branch && (n.branch.toLowerCase() === bName || n.branch.toLowerCase() === bId));
+            }
 
             data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             loadedApprovedNotes = data;
@@ -1180,12 +1238,15 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             return;
         }
 
-        list.innerHTML = data.map(ca => `
-          <div class="ca-row" id="ca-${ca.id}">
+        list.innerHTML = data.map(ca => {
+          const branchLabel = ca.branch_name ? ` | 🌿 ${ca.branch_name}` : ' | 🌐 All Branches';
+          return `
+          <div class="ca-row" id="ca-${ca.id}" style="grid-template-columns: 1fr 1.2fr auto;">
             <div class="ca-email">📧 ${ca.email}</div>
-            <div class="ca-college">🏫 ${ca.college_name || ca.college_id}</div>
+            <div class="ca-college">🏫 ${ca.college_name || ca.college_id}${branchLabel}</div>
             <button class="apb apb-no" style="padding:.4rem .8rem;font-size:.75rem;" onclick="window._apRemoveCoAdmin('${ca.id}', '${ca.email}')">✕ Remove</button>
-          </div>`).join('');
+          </div>`;
+        }).join('');
     }
 
     // ── Actions: Approve ─────────────────────────────────────────────────────
@@ -1201,6 +1262,17 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             if (fe) throw fe;
             if (!notes || notes.length === 0) throw new Error("Note not found or already processed.");
             const note = notes[0];
+
+            // Branch restriction verification
+            if (!window._apIsSuperAdmin && window._apCurrentBranch) {
+                const branchObj = window.GlobalData?.branches?.find(b => b.id === window._apCurrentBranch);
+                const bName = branchObj ? branchObj.name.toLowerCase() : window._apCurrentBranch.toLowerCase();
+                const bId = window._apCurrentBranch.toLowerCase();
+                const noteBranch = (note.branch || '').toLowerCase();
+                if (noteBranch !== bName && noteBranch !== bId) {
+                    throw new Error("You are not authorized to approve notes for other branches.");
+                }
+            }
 
             const dlCheck = document.getElementById(`ap-dl-${id}`);
             const allowDl = dlCheck ? dlCheck.checked : true;
@@ -1224,7 +1296,8 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
 
             const u = getCurrentUser();
             const col = isSuperAdmin(u) ? null : (u.assignedCollege || null);
-            await Promise.all([loadStats(null, col), loadApproved(null, col)]);
+            const br = isSuperAdmin(u) ? null : (u.assignedBranch || null);
+            await Promise.all([loadStats(null, col, br), loadApproved(null, col, br)]);
 
         } catch (e) {
             console.error('[AP] Approve error:', e);
@@ -1243,6 +1316,21 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
         try {
             const clients = await getAllSBs();
             const sb = clients[dbIndex] || clients[0];
+
+            // Branch restriction verification
+            if (!window._apIsSuperAdmin && window._apCurrentBranch) {
+                const { data: notes } = await sb.from('pending_notes').select('branch').eq('id', id).limit(1);
+                if (notes && notes.length > 0) {
+                    const branchObj = window.GlobalData?.branches?.find(b => b.id === window._apCurrentBranch);
+                    const bName = branchObj ? branchObj.name.toLowerCase() : window._apCurrentBranch.toLowerCase();
+                    const bId = window._apCurrentBranch.toLowerCase();
+                    const noteBranch = (notes[0].branch || '').toLowerCase();
+                    if (noteBranch !== bName && noteBranch !== bId) {
+                        throw new Error("You are not authorized to reject notes for other branches.");
+                    }
+                }
+            }
+
             const { error } = await sb.from('pending_notes').delete().eq('id', id);
             if (error) throw error;
 
@@ -1251,7 +1339,8 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
 
             const u = getCurrentUser();
             const col = isSuperAdmin(u) ? null : (u.assignedCollege || null);
-            await loadStats(null, col);
+            const br = isSuperAdmin(u) ? null : (u.assignedBranch || null);
+            await loadStats(null, col, br);
 
         } catch (e) {
             console.error('[AP] Reject error:', e);
@@ -1264,21 +1353,39 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
     window._apDeleteApproved = async function (id, dbIndex = 0) {
         if (!confirm('Permanently delete this approved note? It will be removed for all users.')) return;
         const el = document.getElementById(`ap-a-${id}`);
+        const cntEl = document.getElementById(`cnt-${id}`);
         const btns = el ? el.querySelectorAll('.apb') : [];
         btns.forEach(b => { b.disabled = true; });
 
         try {
             const clients = await getAllSBs();
             const sb = clients[dbIndex] || clients[0];
+
+            // Branch restriction verification
+            if (!window._apIsSuperAdmin && window._apCurrentBranch) {
+                const { data: notes } = await sb.from('approved_notes').select('branch').eq('id', id).limit(1);
+                if (notes && notes.length > 0) {
+                    const branchObj = window.GlobalData?.branches?.find(b => b.id === window._apCurrentBranch);
+                    const bName = branchObj ? branchObj.name.toLowerCase() : window._apCurrentBranch.toLowerCase();
+                    const bId = window._apCurrentBranch.toLowerCase();
+                    const noteBranch = (notes[0].branch || '').toLowerCase();
+                    if (noteBranch !== bName && noteBranch !== bId) {
+                        throw new Error("You are not authorized to delete notes for other branches.");
+                    }
+                }
+            }
+
             const { error } = await sb.from('approved_notes').delete().eq('id', id);
             if (error) throw error;
 
             if (el) { el.classList.add('removing'); setTimeout(() => el.remove(), 300); }
+            if (cntEl) { cntEl.classList.add('removing'); setTimeout(() => cntEl.remove(), 300); }
             if (window.showToast) window.showToast('🗑 Note removed from public library.');
 
             const u = getCurrentUser();
             const col = isSuperAdmin(u) ? null : (u.assignedCollege || null);
-            await loadStats(null, col);
+            const br = isSuperAdmin(u) ? null : (u.assignedBranch || null);
+            await loadStats(null, col, br);
 
         } catch (e) {
             console.error('[AP] Delete approved error:', e);
@@ -1291,9 +1398,12 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
     window._apAssignCoAdmin = async function () {
         const emailInput = document.getElementById('ca-email-input');
         const collegeSelect = document.getElementById('ca-college-select');
+        const branchSelect = document.getElementById('ca-branch-select');
         const email = emailInput?.value?.trim().toLowerCase();
         const collegeId = collegeSelect?.value;
         const collegeName = collegeSelect?.options[collegeSelect.selectedIndex]?.dataset?.name || collegeId;
+        const branchId = branchSelect?.value || null;
+        const branchName = branchSelect?.options[branchSelect.selectedIndex]?.dataset?.name || '';
 
         if (!email || !email.includes('@')) {
             if (window.showToast) window.showToast('❌ Please enter a valid email.', 'error');
@@ -1312,22 +1422,30 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             const { data: existing } = await sb.from('co_admins').select('id').eq('email', email);
             if (existing && existing.length > 0) {
                 // Update college assignment
-                const { error } = await sb.from('co_admins').update({ college_id: collegeId, college_name: collegeName }).eq('email', email);
+                const { error } = await sb.from('co_admins').update({ 
+                    college_id: collegeId, 
+                    college_name: collegeName,
+                    branch_id: branchId,
+                    branch_name: branchName
+                }).eq('email', email);
                 if (error) throw error;
-                if (window.showToast) window.showToast(`✅ Co-Admin updated: ${email} → ${collegeName}`);
+                if (window.showToast) window.showToast(`✅ Co-Admin updated: ${email} → ${collegeName}${branchName ? ` (${branchName})` : ''}`);
             } else {
                 const { error } = await sb.from('co_admins').insert([{
                     email,
                     college_id: collegeId,
                     college_name: collegeName,
+                    branch_id: branchId,
+                    branch_name: branchName,
                     assigned_by: u?.email || 'admin'
                 }]);
                 if (error) throw error;
-                if (window.showToast) window.showToast(`✅ ${email} assigned as Co-Admin for ${collegeName}`);
+                if (window.showToast) window.showToast(`✅ ${email} assigned as Co-Admin for ${collegeName}${branchName ? ` (${branchName})` : ''}`);
             }
 
             emailInput.value = '';
             collegeSelect.value = '';
+            if (branchSelect) branchSelect.value = '';
             await loadCoAdmins(await getSB());
             await loadStats(await getSB(), null);
 
@@ -1348,7 +1466,8 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             if (window.showToast) window.showToast('✅ Download status updated!');
             const u = getCurrentUser();
             const col = isSuperAdmin(u) ? null : (u.assignedCollege || null);
-            loadApproved(null, col);
+            const br = isSuperAdmin(u) ? null : (u.assignedBranch || null);
+            loadApproved(null, col, br);
         }
     };
 
@@ -1388,12 +1507,13 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
     };
 
     // ── Subjects ─────────────────────────────────────────────────────────────
-    async function loadCmSubjects(sb, college = null) {
+    async function loadCmSubjects(sb, college = null, branch = null) {
         const list = document.getElementById('cm-subjects-list');
         if (!list) return;
 
         let q = sb.from('college_subjects').select('*').order('created_at', { ascending: false });
         if (college) q = q.eq('college_id', college);
+        if (branch) q = q.eq('branch_id', branch);
 
         const { data, error } = await q;
         if (error) { list.innerHTML = `<div class="ap-err">⚠️ ${error.message}</div>`; return; }
@@ -1407,6 +1527,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             return;
         }
 
+        const isSuper = window._apIsSuperAdmin;
         list.innerHTML = data.map(s => {
             const colObj = window.GlobalData?.colleges?.find(c => c.id === s.college_id) || { name: s.college_id.toUpperCase() };
             return `
@@ -1416,7 +1537,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                   <div class="cm-meta">${colObj.name} · ${s.branch_id || 'All Branches'} · ${s.semester || 'All Sems'}</div>
                 </div>
                 <div class="cm-actions">
-                  <button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._cmDeleteSubject('${s.id}')">🗑</button>
+                  ${isSuper ? `<button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._cmDeleteSubject('${s.id}')">🗑</button>` : ''}
                 </div>
               </div>`;
         }).join('');
@@ -1440,6 +1561,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                 list.innerHTML = `<div style="color:rgba(255,255,255,.4);padding:1.5rem;text-align:center">No subjects found for this filter.</div>`;
                 return;
             }
+            const isSuper = window._apIsSuperAdmin;
             list.innerHTML = data.map(s => {
                 const colObj = window.GlobalData?.colleges?.find(c => c.id === s.college_id) || { name: s.college_id.toUpperCase() };
                 return `
@@ -1450,7 +1572,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                       ${s.description ? `<div class="cm-meta" style="margin-top:.2rem">${s.description}</div>` : ''}
                     </div>
                     <div class="cm-actions">
-                      <button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._cmDeleteSubject('${s.id}')">🗑 Delete</button>
+                      ${isSuper ? `<button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._cmDeleteSubject('${s.id}')">🗑 Delete</button>` : ''}
                     </div>
                   </div>`;
             }).join('');
@@ -1651,6 +1773,11 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
     };
 
     window._cmDeleteSubject = async function (id) {
+        if (!window._apIsSuperAdmin) {
+            if (window.showToast) window.showToast('❌ Only Super Admins can delete subjects.', 'error');
+            else alert('❌ Only Super Admins can delete subjects.');
+            return;
+        }
         if (!confirm('Delete this custom subject?')) return;
         try {
             const sb = await getSB();
@@ -1751,14 +1878,14 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
     };
 
     // ── Note Titles ───────────────────────────────────────────────────────────
-    async function loadCmNoteTitles(ignoredSb, college = null) {
+    async function loadCmNoteTitles(ignoredSb, college = null, branch = null) {
         const list = document.getElementById('cm-notes-title-list');
         if (!list) return;
 
         try {
             const clients = await getAllSBs();
             const promises = clients.map((client, idx) => {
-                let q = client.from('approved_notes').select('id, title, subject, college, type').order('created_at', { ascending: false });
+                let q = client.from('approved_notes').select('id, title, subject, college, type, branch').order('created_at', { ascending: false });
                 if (college) q = q.eq('college', college);
                 return q.then(res => ({ ...res, dbIndex: idx })); // Keep track of which db it came from
             });
@@ -1778,6 +1905,14 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             });
 
             if (hasError && data.length === 0) throw new Error(errMsg);
+
+            // Filter combined results by branch ID or Name client-side
+            if (branch) {
+                const branchObj = window.GlobalData?.branches?.find(b => b.id === branch);
+                const bName = branchObj ? branchObj.name.toLowerCase() : branch.toLowerCase();
+                const bId = branch.toLowerCase();
+                data = data.filter(n => n.branch && (n.branch.toLowerCase() === bName || n.branch.toLowerCase() === bId));
+            }
 
             // Sort combined results
             data.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
@@ -1811,10 +1946,27 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
         try {
             const clients = await getAllSBs();
             const sb = clients[dbIndex] || clients[0];
+
+            // Branch restriction verification
+            if (!window._apIsSuperAdmin && window._apCurrentBranch) {
+                const { data: notes } = await sb.from('approved_notes').select('branch').eq('id', id).limit(1);
+                if (notes && notes.length > 0) {
+                    const branchObj = window.GlobalData?.branches?.find(b => b.id === window._apCurrentBranch);
+                    const bName = branchObj ? branchObj.name.toLowerCase() : window._apCurrentBranch.toLowerCase();
+                    const bId = window._apCurrentBranch.toLowerCase();
+                    const noteBranch = (notes[0].branch || '').toLowerCase();
+                    if (noteBranch !== bName && noteBranch !== bId) {
+                        throw new Error("You are not authorized to edit notes for other branches.");
+                    }
+                }
+            }
+
             const { error } = await sb.from('approved_notes').update({ title: newTitle.trim() }).eq('id', id);
             if (error) throw error;
             const el = document.getElementById(`cnt-title-${id}`);
             if (el) el.innerText = newTitle.trim();
+            const apEl = document.querySelector(`#ap-a-${id} .ap-title`);
+            if (apEl) apEl.innerText = newTitle.trim();
             if (window.showToast) window.showToast('✅ Note renamed successfully!');
         } catch (e) {
             if (window.showToast) window.showToast('❌ Rename failed: ' + e.message, 'error');
@@ -2320,7 +2472,10 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
         try {
             const sb = await getSB();
             let q = sb.from('exam_timetable').select('*').order('exam_date', { ascending: true });
-            if (!window._apIsSuperAdmin) q = q.eq('college', window._apCurrentCollege);
+            if (!window._apIsSuperAdmin) {
+                q = q.eq('college', window._apCurrentCollege);
+                if (window._apCurrentBranch) q = q.eq('branch', window._apCurrentBranch);
+            }
             const { data, error } = await q;
             if (error) throw error;
             if (!data || data.length === 0) {
@@ -2476,6 +2631,11 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
     window._apLoadRealAnalytics = async function () {
         const container = document.getElementById('ap-real-analytics-container');
         if (!container) return;
+
+        if (!window._apIsSuperAdmin) {
+            container.innerHTML = `<div class="ap-err">⚠️ Access Denied: Analytics are reserved for Super Admins.</div>`;
+            return;
+        }
 
         container.innerHTML = `<div class="ap-loader"><div class="ap-spin"></div><p>Compiling live database metrics…</p></div>`;
 

@@ -38,3 +38,19 @@ CREATE POLICY "Allow public read of own plan" ON user_plans
 
 -- Note: Writes to these tables will be done by the Backend (Node.js) using the Supabase Service Role Key, 
 -- which bypasses RLS. So no write policies are needed for anon.
+
+-- 4. Create co_admins table
+CREATE TABLE IF NOT EXISTS co_admins (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  college_id TEXT NOT NULL,
+  college_name TEXT NOT NULL,
+  branch_id TEXT, -- Null if all branches
+  branch_name TEXT,
+  assigned_by TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- MIGRATION: Run this in your Supabase SQL Editor if co_admins table already exists:
+-- ALTER TABLE co_admins ADD COLUMN IF NOT EXISTS branch_id TEXT;
+-- ALTER TABLE co_admins ADD COLUMN IF NOT EXISTS branch_name TEXT;

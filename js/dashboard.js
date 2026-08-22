@@ -1055,10 +1055,7 @@ window.openUploadModal = async function () {
                     <label for="branch">Branch</label>
                     <select id="branch" onchange="updateUploadSubjects()">
                         <option value="">Select branch</option>
-                        <option value="cse">CSE</option>
-                        <option value="cse_ai">CSE (AI/ML)</option>
-                        <option value="it">IT</option>
-                        <option value="ece">ECE</option>
+                        ${(window.GlobalData?.branches || []).map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
                     </select>
                     </div>
 
@@ -1274,11 +1271,8 @@ window.closeDashboardUploadModal = function () {
 
 async function handleDashboardNoteSubmit(e) {
     e.preventDefault();
-    const btn = document.getElementById('dash-submit-btn');
-    const statusArea = document.getElementById('upload-status-area');
-    const statusText = document.getElementById('upload-status-text');
 
-    const title = document.getElementById('title').value;
+    const title = document.getElementById('title').value.trim();
     const collegeId = document.getElementById('college').value;
     const stream = document.getElementById('stream').value;
     const branch = document.getElementById('branch').value;
@@ -1287,16 +1281,26 @@ async function handleDashboardNoteSubmit(e) {
     const noteType = document.getElementById('note-type')?.value || 'notes';
     const file = document.getElementById('file').files[0];
 
-    if (!file) {
-        alert("Please select a file.");
-        return;
+    // Validation checks
+    if (!collegeId) return alert("Please select a college.");
+    if (collegeId === 'new_college' && !document.getElementById('college-new-name')?.value?.trim()) {
+        return alert("Please enter the new college name.");
     }
+    if (!stream) return alert("Please select a stream.");
+    if (!branch) return alert("Please select a branch.");
+    if (!semester) return alert("Please select a semester.");
+    if (!subject) return alert("Please select a subject.");
+    if (!title) return alert("Please enter a notes title.");
+    if (!file) return alert("Please select a file.");
 
     const maxAllowedSize = 50 * 1024 * 1024; // 50MB
     if (file.size > maxAllowedSize) {
-        alert("File size exceeds the 50MB limit.");
-        return;
+        return alert("File size exceeds the 50MB limit.");
     }
+
+    const btn = document.getElementById('dash-submit-btn');
+    const statusArea = document.getElementById('upload-status-area');
+    const statusText = document.getElementById('upload-status-text');
 
     btn.disabled = true;
     btn.innerText = "Processing...";
@@ -1313,14 +1317,8 @@ async function handleDashboardNoteSubmit(e) {
     let finalCollegeName = getSelectText('college');
 
     if (collegeId === 'new_college') {
-        const newName = document.getElementById('college-new-name').value;
-        if (!newName) {
-            alert("Please enter the new college name.");
-            btn.disabled = false;
-            btn.innerText = "Upload Note";
-            return;
-        }
-        finalCollegeId = newName.toLowerCase().trim().replace(/\s+/g, '-');
+        const newName = document.getElementById('college-new-name').value.trim();
+        finalCollegeId = newName.toLowerCase().replace(/\s+/g, '-');
         finalCollegeName = newName;
 
         const { db, doc, setDoc, serverTimestamp } = getFirebase();
