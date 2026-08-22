@@ -405,12 +405,15 @@ app.post('/api/verify-payment', async (req, res) => {
 // 3. Usage Limits Checker
 app.post('/api/use-feature', async (req, res) => {
     try {
-        const { uid, feature } = req.body; // feature: 'askDoubt' or 'modelPaper'
+        const { uid, feature } = req.body; // feature: 'askDoubt', 'modelPaper', or 'aiSummary'
         
         if (!uid) return res.status(400).json({ error: "User ID required" });
 
         const { data, error } = await supabase.from('user_plans').select('*').eq('firebase_uid', uid).single();
-        let plan = data || { plan_id: 'free', ai_coach_count: 0, model_papers_count: 0, ai_coach_last_reset: new Date().toISOString(), model_papers_last_reset: new Date().toISOString() };
+        let plan = data || { plan_id: 'free', ai_coach_count: 0, model_papers_count: 0, ai_summary_count: 0, ai_coach_last_reset: new Date().toISOString(), model_papers_last_reset: new Date().toISOString(), ai_summary_last_reset: new Date().toISOString() };
+        // Ensure ai_summary fields exist for older records
+        if (plan.ai_summary_count === undefined || plan.ai_summary_count === null) plan.ai_summary_count = 0;
+        if (!plan.ai_summary_last_reset) plan.ai_summary_last_reset = new Date().toISOString();
         
         const now = new Date();
         const coachReset = new Date(plan.ai_coach_last_reset);
@@ -424,11 +427,19 @@ app.post('/api/use-feature', async (req, res) => {
             updates.ai_coach_last_reset = now.toISOString();
         }
         
-        // Reset monthly limits
+        // Reset monthly limits (model papers)
         if (now.getMonth() !== paperReset.getMonth() || now.getFullYear() !== paperReset.getFullYear()) {
             plan.model_papers_count = 0;
             updates.model_papers_count = 0;
             updates.model_papers_last_reset = now.toISOString();
+        }
+
+        // Reset monthly limits (AI summaries)
+        const summaryReset = new Date(plan.ai_summary_last_reset);
+        if (now.getMonth() !== summaryReset.getMonth() || now.getFullYear() !== summaryReset.getFullYear()) {
+            plan.ai_summary_count = 0;
+            updates.ai_summary_count = 0;
+            updates.ai_summary_last_reset = now.toISOString();
         }
         
         // Check Expiry
@@ -447,9 +458,15 @@ app.post('/api/use-feature', async (req, res) => {
         } else if (feature === 'modelPaper') {
             const limit = isPro ? 30 : 3;
             if (plan.model_papers_count >= limit) {
-                return res.status(403).json({ error: `You have reached your monthly limit (${limit}/mo) for Model Papers.${!isPro ? " Upgrade to Scholar PRO for 30 Model Papers!" : ""}` });
+                return res.status(403).json({ error: `You have reached your monthly limit (${limit}/mo) for Model Papers.${!isPro ? " Upgrade to Premium Scholar for 30 Model Papers!" : ""}` });
             }
             updates.model_papers_count = plan.model_papers_count + 1;
+        } else if (feature === 'aiSummary') {
+            const limit = isPro ? 30 : 5;
+            if (plan.ai_summary_count >= limit) {
+                return res.status(403).json({ error: `You have reached your monthly limit (${limit}/mo) for AI Summaries.${!isPro ? " Upgrade to Premium Scholar for 30 AI Summaries/month!" : ""}` });
+            }
+            updates.ai_summary_count = plan.ai_summary_count + 1;
         }
         
         if (data) {

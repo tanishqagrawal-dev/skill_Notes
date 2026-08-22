@@ -2369,6 +2369,7 @@ function renderTabContent(tabId) {
                         { text: 'CodeTantra Lab Solutions', ok: true },
                         { text: 'AI Coach (5/day)', ok: true },
                         { text: '3 AI Model Papers / mo', ok: true },
+                        { text: '5 AI Summaries / mo', ok: true },
                         { text: 'Verified Scholar Badge', ok: false },
                         { text: 'Ad-free Experience', ok: false }
                     ]
@@ -2392,6 +2393,7 @@ function renderTabContent(tabId) {
                         { text: 'Everything in CodeTantra', ok: true },
                         { text: 'Unlimited AI Coach', ok: true },
                         { text: '30 AI Model Papers / mo', ok: true },
+                        { text: '30 AI Summaries / mo', ok: true },
                         { text: 'Verified "Scholar" Badge', ok: true },
                         { text: '100% Ad-free Interface', ok: true }
                     ]
@@ -8603,8 +8605,36 @@ window.handleAISummaryGeneration = async function (subject) {
         btn.style.setProperty('cursor', 'not-allowed', 'important');
         btn.innerHTML = `<span class="loader-pro" style="width: 14px; height: 14px; border-width: 2px; border-color: rgba(255,255,255,0.4) transparent transparent transparent;"></span> Processing...`;
         
+        statusMsg.innerText = "Checking usage limits...";
+        statusMsg.style.color = "var(--secondary)";
+
+        // 0. Server-side usage gate
+        const currentUser = window.currentUser;
+        const uid = currentUser?.uid || currentUser?.id;
+        if (uid) {
+            const apiUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
+            const usageRes = await fetch(`${apiUrl}/api/use-feature`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid, feature: 'aiSummary' })
+            });
+            if (!usageRes.ok) {
+                const usageData = await usageRes.json();
+                statusMsg.style.color = "#f87171";
+                statusMsg.innerText = usageData.error || "Usage limit reached.";
+                btn.disabled = false;
+                btn.style.removeProperty('background');
+                btn.style.removeProperty('color');
+                btn.style.removeProperty('border-color');
+                btn.style.removeProperty('cursor');
+                btn.innerHTML = `Generate AI Summary`;
+                return;
+            }
+        }
+
         statusMsg.innerText = "Analyzing course syllabus from database...";
         statusMsg.style.color = "var(--secondary)";
+
 
         // 1. Fetch latest syllabus context from database
         const syllabusText = await window.fetchSubjectSyllabusText(subject);
