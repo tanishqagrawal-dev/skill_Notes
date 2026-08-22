@@ -1415,11 +1415,11 @@ window.updateUploadSubjects = async function () {
 
     let customSubjects = [];
     try {
-        let sb = window._apSB;
+        let sb = window.supabase;
         if (!sb) {
-            const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-            sb = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
-            window._apSB = sb;
+            const module = await import('./supabase-config.js?v=1.0');
+            sb = module.supabase;
+            window.supabase = sb;
         }
         
         // Fetch subjects added by admin for this specific college/branch/sem
@@ -5538,11 +5538,11 @@ async function renderSubjectStep() {
 
     let customSubjects = [];
     try {
-        let sb = window._apSB;
+        let sb = window.supabase;
         if (!sb) {
-            const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-            sb = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
-            window._apSB = sb;
+            const module = await import('./supabase-config.js?v=1.0');
+            sb = module.supabase;
+            window.supabase = sb;
         }
         
         // Fetch subjects added by admin for this specific college/branch/sem
@@ -6063,11 +6063,13 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
 
         (async () => {
             try {
-                let sb = window._apSB;
+                let sb = window.supabase;
                 if (!sb) {
-                    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-                    sb = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+                    const module = await import('./supabase-config.js?v=1.0');
+                    sb = module.supabase;
+                    window.supabase = sb;
                 }
+                if (!sb) throw new Error("Supabase client not initialized.");
 
                 const colId = selState.college?.id;
                 const branchId = selState.branch?.id;
@@ -6232,7 +6234,11 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
     const cardsHTML = filtered.map((n, idx) => {
         const sequentialId = `unit${idx + 1}`;
         const yearDate = selState?.year && selState.year.includes('2') ? 'Jan 2026' : (selState?.year && selState.year.includes('1') ? 'Feb 2026' : 'Dec 2025');
-        const unitTag = n.unit || (n.title.toLowerCase().includes('unit') ? n.title.match(/unit\s*\d+/i)?.[0].toUpperCase() : 'UNIT 1');
+        const rawUnit6 = n.unit || n.unit_number || n.unitTag;
+        const rawUnit6Str = rawUnit6 ? String(rawUnit6).trim().toLowerCase() : '';
+        const unitTag = (rawUnit6Str && rawUnit6Str !== 'undefined' && rawUnit6Str !== 'null')
+            ? String(rawUnit6).trim().toUpperCase()
+            : (n.title?.match(/unit\s*[-–]?\s*\d+/i)?.[0]?.toUpperCase() || `UNIT ${idx + 1}`);
 
         const displayViews = n.views || 0;
         const displayLikes = n.upvotes || 0;
@@ -7565,14 +7571,15 @@ window.renderBookmarks = function () {
                     const isLiked = window.likedNoteIds?.has(n.id);
 
                     // Improved Unit Tag Extraction
-                    let unitTag = 'UNIT 1';
-                    if (n.unit && n.unit !== 'undefined') {
-                        unitTag = n.unit;
+                    const rawUnit7 = n.unit || n.unit_number || n.unitTag;
+                    const rawUnit7Str = rawUnit7 ? String(rawUnit7).trim().toLowerCase() : '';
+                    let unitTag;
+                    if (rawUnit7Str && rawUnit7Str !== 'undefined' && rawUnit7Str !== 'null') {
+                        unitTag = String(rawUnit7).trim().toUpperCase();
                     } else {
-                        const unitMatch = n.title?.match(/unit\s*[-_]?\s*\d+/i);
-                        if (unitMatch) unitTag = unitMatch[0];
+                        const unitMatch = n.title?.match(/unit\s*[-–_]?\s*\d+/i);
+                        unitTag = unitMatch ? unitMatch[0].toUpperCase() : `UNIT ${index + 1}`;
                     }
-                    unitTag = unitTag.toUpperCase();
 
                     return `
                         <div class="detailed-item glass-card card-reveal" data-note-id="${n.id}" style="animation-delay: ${index * 0.05}s; margin-bottom: 1rem; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
@@ -8587,6 +8594,14 @@ window.selectUnitNumber = function (el, unitNum) {
 
 window.fetchSubjectSyllabusText = async function(subjectName) {
     try {
+        let sb = window.supabase;
+        if (!sb) {
+            const module = await import('./supabase-config.js?v=1.0');
+            sb = module.supabase;
+            window.supabase = sb;
+        }
+        if (!sb) throw new Error("Supabase client not initialized.");
+
         const colId = selState?.college?.id;
         const branchId = selState?.branch?.id;
         const semName = selState?.semester;

@@ -645,7 +645,12 @@ function renderStaticNotes(notes) {
             </div>`;
         };
 
-        return createNoteCard(n.unit || `UNIT ${idx + 1}`, n.title || n.subjectName, n.url || n.fileUrl || n.driveLink, n.upvotes || 0, n.views || 0, n.id, n.downloads || 0, n.downvotes || 0);
+        const rawUnit = n.unit || n.unit_number || n.unitTag || n.unit_tag;
+        const rawUnitStr = rawUnit ? String(rawUnit).trim().toLowerCase() : '';
+        const safeUnit = (rawUnitStr && rawUnitStr !== 'undefined' && rawUnitStr !== 'null' && rawUnitStr !== 'n/a') 
+            ? String(rawUnit).trim().toUpperCase() 
+            : `UNIT ${idx + 1}`;
+        return createNoteCard(safeUnit, n.title || n.subjectName, n.url || n.fileUrl || n.driveLink, n.upvotes || 0, n.views || 0, n.id, n.downloads || 0, n.downvotes || 0);
     }).join('');
 
     setTimeout(() => {
