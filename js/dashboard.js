@@ -636,6 +636,31 @@ document.addEventListener('DOMContentLoaded', () => {
     searchResults.style.display = 'none';
     if (searchBarContainer) searchBarContainer.appendChild(searchResults);
 
+    // Global cache of custom subjects for global search
+    let dbCustomSubjects = [];
+    async function loadAllCustomSubjectsForSearch() {
+        try {
+            let sb = window.supabase;
+            if (!sb) {
+                const module = await import('./supabase-config.js?v=1.0');
+                sb = module.supabase;
+            }
+            if (!sb) return;
+            const { data, error } = await sb.from('college_subjects')
+                .select('id, subject_name, subject_code, college_id, branch_id, semester');
+            if (data) {
+                dbCustomSubjects = data;
+                console.log(`Loaded ${dbCustomSubjects.length} custom subjects for global search.`);
+            }
+        } catch (e) {
+            console.error('Error loading custom subjects for search:', e);
+        }
+    }
+    // Expose dynamically for Admin Panel cache busting
+    window.refreshCustomSubjectsForSearch = loadAllCustomSubjectsForSearch;
+    // Kick off load
+    loadAllCustomSubjectsForSearch();
+
     function updateSearchResults(query) {
         if (!query.trim() || query.length < 2) {
             searchResults.style.display = 'none';
@@ -645,16 +670,51 @@ document.addEventListener('DOMContentLoaded', () => {
         const lowQuery = query.toLowerCase().trim();
         const matches = [];
 
-        // 1. Search Subjects
+        // 1. Search Static Subjects
         for (const [key, list] of Object.entries(GlobalData.subjects)) {
+            const keyParts = key.split('-');
+            const collegeId = keyParts.length > 2 ? keyParts[0] : 'medicaps';
+            const colObj = GlobalData.colleges.find(c => c.id === collegeId) || { name: 'Medicaps University' };
+
             list.forEach(s => {
                 if (s.name.toLowerCase().includes(lowQuery) || (s.code && s.code.toLowerCase().includes(lowQuery))) {
                     if (!matches.find(m => m.id === s.id)) {
-                        matches.push({ ...s, type: 'subject', key });
+                        matches.push({ 
+                            ...s, 
+                            type: 'subject', 
+                            key: keyParts.length > 2 ? `${keyParts[1]}-${keyParts[2]}` : key,
+                            collegeId: collegeId,
+                            collegeName: colObj.name
+                        });
                     }
                 }
             });
         }
+
+        // 2. Search Dynamic Custom Subjects
+        dbCustomSubjects.forEach(cs => {
+            if (cs.subject_name.toLowerCase().includes(lowQuery) || (cs.subject_code && cs.subject_code.toLowerCase().includes(lowQuery))) {
+                const hasDuplicate = matches.some(m => 
+                    m.id === cs.id || 
+                    (m.name.toLowerCase() === cs.subject_name.toLowerCase() && 
+                     m.collegeId === cs.college_id &&
+                     m.key === `${cs.branch_id}-${cs.semester}`)
+                );
+                if (!hasDuplicate) {
+                    const colObj = GlobalData.colleges.find(c => c.id === cs.college_id) || { name: cs.college_id.toUpperCase() };
+                    matches.push({
+                        id: cs.id,
+                        name: cs.subject_name,
+                        code: cs.subject_code || 'SUB',
+                        icon: '📚',
+                        type: 'subject',
+                        key: `${cs.branch_id}-${cs.semester}`,
+                        collegeId: cs.college_id,
+                        collegeName: colObj.name
+                    });
+                }
+            }
+        });
 
         // Limit results to 6 for performance/UX
         const displayMatches = matches.slice(0, 6);
@@ -665,7 +725,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="result-icon-box">${m.icon || '📚'}</div>
                     <div class="result-info-content">
                         <div class="result-name-text">${m.name}</div>
-                        <div class="result-meta-text">${m.code || 'Academic'} • ${m.key.split('-')[0].toUpperCase()}</div>
+                        <div class="result-meta-text">${m.code || 'Academic'} • ${m.key.split('-')[0].toUpperCase()} • ${m.collegeName || 'Medicaps University'}</div>
                     </div>
                     <span class="result-type-badge">Subject</span>
                 </div>
@@ -693,35 +753,59 @@ document.addEventListener('DOMContentLoaded', () => {
         const lowQuery = queryOrId.toLowerCase().trim();
         let foundSubject = null;
         let foundKey = null;
+        let foundCollegeId = null;
 
-        // 1. Resolve Subject (by ID or exact Name match)
-        for (const [key, list] of Object.entries(GlobalData.subjects)) {
-            // First try exact ID match (most reliable)
-            const idMatch = list.find(s => s.id === queryOrId);
-            if (idMatch) {
-                foundSubject = idMatch;
-                foundKey = key;
-                break;
-            }
+        // First try dynamic custom subjects
+        const dbMatch = dbCustomSubjects.find(cs => cs.id === queryOrId || cs.id.toString() === queryOrId.toString());
+        if (dbMatch) {
+            foundSubject = {
+                id: dbMatch.id,
+                name: dbMatch.subject_name,
+                code: dbMatch.subject_code || 'SUB',
+                icon: '📚'
+            };
+            foundKey = `${dbMatch.branch_id}-${dbMatch.semester}`;
+            foundCollegeId = dbMatch.college_id;
+        }
 
-            // Second try name inclusion
-            const nameMatch = list.find(s =>
-                s.name.toLowerCase() === lowQuery ||
-                s.name.toLowerCase().includes(lowQuery)
-            );
-            if (nameMatch) {
-                foundSubject = nameMatch;
-                foundKey = key;
-                // Don't break yet, exact match preferred
-                if (nameMatch.name.toLowerCase() === lowQuery) break;
+        if (!foundSubject) {
+            // Second try static subjects
+            for (const [key, list] of Object.entries(GlobalData.subjects)) {
+                // First try exact ID match (most reliable)
+                const idMatch = list.find(s => s.id === queryOrId);
+                if (idMatch) {
+                    foundSubject = idMatch;
+                    foundKey = key;
+                    break;
+                }
+
+                // Second try name inclusion
+                const nameMatch = list.find(s =>
+                    s.name.toLowerCase() === lowQuery ||
+                    s.name.toLowerCase().includes(lowQuery)
+                );
+                if (nameMatch) {
+                    foundSubject = nameMatch;
+                    foundKey = key;
+                    // Don't break yet, exact match preferred
+                    if (nameMatch.name.toLowerCase() === lowQuery) break;
+                }
             }
         }
 
         if (foundSubject) {
+            if (!foundCollegeId) {
+                const keyParts = foundKey.split('-');
+                foundCollegeId = keyParts.length > 2 ? keyParts[0] : 'medicaps';
+                if (keyParts.length > 2) {
+                    foundKey = `${keyParts[1]}-${keyParts[2]}`;
+                }
+            }
+
             const [branchId, sem] = foundKey.split('-');
             console.log(`✅ Subject Found: ${foundSubject.name} in ${branchId} (${sem})`);
 
-            const collegeId = localStorage.getItem('user_college_id') || 'medicaps';
+            const collegeId = foundCollegeId || localStorage.getItem('user_college_id') || 'medicaps';
             const college = window.GlobalData.colleges.find(c => c.id === collegeId) || { id: collegeId, name: 'University' };
             const branch = window.GlobalData.branches.find(b => b.id === branchId) || { id: branchId, name: branchId.toUpperCase() };
 
@@ -5506,6 +5590,7 @@ async function renderSubjectStep() {
             <div class="card-icon" style="font-size: 2.5rem; margin-bottom: 0.5rem;">${s.icon || '📚'}</div>
             <div style="font-size: 0.7rem; color: var(--primary); font-weight: 700; margin-bottom: 0.5rem; background: rgba(108, 99, 255, 0.1); padding: 2px 8px; border-radius: 4px; display: inline-block;">${s.code || 'SUB'}</div>
             <h3 class="font-heading">${s.name}</h3>
+            <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.5rem; font-weight: 500;">${selState.college?.name || 'Academic'}</div>
         </div>
     `).join('');
 };
@@ -5559,6 +5644,7 @@ window.showNotes = function (activeTab = 'notes') {
         })()}
                              </span>
                              <div class="sub-badges" style="display: flex; gap: 0.6rem;">
+                                <span class="meta-badge" style="background: rgba(123, 97, 255, 0.12); padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; color: var(--secondary); border: 1px solid rgba(123, 97, 255, 0.25); font-weight: 600; letter-spacing: 0.5px;">${selState.college.name}</span>
                                 <span class="meta-badge" style="background: rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); font-weight: 600; letter-spacing: 0.5px;">${selState.branch.id.toUpperCase()}</span>
                                 <span class="meta-badge" style="background: rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); font-weight: 600; letter-spacing: 0.5px;">${selState.year.toUpperCase()}</span>
                             </div>

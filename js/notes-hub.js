@@ -365,6 +365,7 @@ window.renderSubjectStep = function () {
         <div class="selection-card glass-card" onclick="selectSubject('${s.id}', '${s.name}')">
             <div class="card-icon" style="font-size: 2.5rem;">${s.icon}</div>
             <h3 class="font-heading" style="margin-top: 1rem;">${s.name}</h3>
+            <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.5rem; font-weight: 500;">${selState.college?.name || 'Academic'}</div>
         </div>
     `).join('');
 };
@@ -543,6 +544,7 @@ window.showNotes = async function (activeTab = 'notes', loadMore = false) {
                     <div>
                         <h1 class="font-heading" style="font-size: 3rem; margin: 0; line-height: 1.1;">${selState.subject.name}</h1>
                         <div class="sub-badges" style="margin-top: 0.8rem;">
+                            <span class="meta-badge">${selState.college?.name || 'Academic'}</span>
                             <span class="meta-badge">${selState.branch.id}</span>
                             <span class="meta-badge">${selState.year}</span>
                             <span class="meta-badge">${subjectData.code}</span>

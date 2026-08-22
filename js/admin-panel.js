@@ -1264,16 +1264,19 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             return;
         }
 
-        list.innerHTML = data.map(s => `
-          <div class="cm-row" id="cms-${s.id}">
-            <div>
-              <div class="cm-name">${s.subject_name} ${s.subject_code ? `<span style="font-size:.72rem;color:#60a5fa;margin-left:.4rem">${s.subject_code}</span>` : ''}</div>
-              <div class="cm-meta">${s.college_id} · ${s.branch_id || 'All Branches'} · ${s.semester || 'All Sems'}</div>
-            </div>
-            <div class="cm-actions">
-              <button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._cmDeleteSubject('${s.id}')">🗑</button>
-            </div>
-          </div>`).join('');
+        list.innerHTML = data.map(s => {
+            const colObj = window.GlobalData?.colleges?.find(c => c.id === s.college_id) || { name: s.college_id.toUpperCase() };
+            return `
+              <div class="cm-row" id="cms-${s.id}">
+                <div>
+                  <div class="cm-name">${s.subject_name} ${s.subject_code ? `<span style="font-size:.72rem;color:#60a5fa;margin-left:.4rem">${s.subject_code}</span>` : ''}</div>
+                  <div class="cm-meta">${colObj.name} · ${s.branch_id || 'All Branches'} · ${s.semester || 'All Sems'}</div>
+                </div>
+                <div class="cm-actions">
+                  <button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._cmDeleteSubject('${s.id}')">🗑</button>
+                </div>
+              </div>`;
+        }).join('');
     }
 
     window._cmLoadSubjects = async function () {
@@ -1294,17 +1297,20 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                 list.innerHTML = `<div style="color:rgba(255,255,255,.4);padding:1.5rem;text-align:center">No subjects found for this filter.</div>`;
                 return;
             }
-            list.innerHTML = data.map(s => `
-              <div class="cm-row" id="cms-${s.id}">
-                <div>
-                  <div class="cm-name">${s.subject_name} ${s.subject_code ? `<span style="font-size:.72rem;color:#60a5fa;margin-left:.4rem">${s.subject_code}</span>` : ''}</div>
-                  <div class="cm-meta">${s.college_id} · ${s.branch_id || '—'} · ${s.semester || '—'}</div>
-                  ${s.description ? `<div class="cm-meta" style="margin-top:.2rem">${s.description}</div>` : ''}
-                </div>
-                <div class="cm-actions">
-                  <button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._cmDeleteSubject('${s.id}')">🗑 Delete</button>
-                </div>
-              </div>`).join('');
+            list.innerHTML = data.map(s => {
+                const colObj = window.GlobalData?.colleges?.find(c => c.id === s.college_id) || { name: s.college_id.toUpperCase() };
+                return `
+                  <div class="cm-row" id="cms-${s.id}">
+                    <div>
+                      <div class="cm-name">${s.subject_name} ${s.subject_code ? `<span style="font-size:.72rem;color:#60a5fa;margin-left:.4rem">${s.subject_code}</span>` : ''}</div>
+                      <div class="cm-meta">${colObj.name} · ${s.branch_id || '—'} · ${s.semester || '—'}</div>
+                      ${s.description ? `<div class="cm-meta" style="margin-top:.2rem">${s.description}</div>` : ''}
+                    </div>
+                    <div class="cm-actions">
+                      <button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._cmDeleteSubject('${s.id}')">🗑 Delete</button>
+                    </div>
+                  </div>`;
+            }).join('');
         } catch (e) {
             if (list) list.innerHTML = `<div class="ap-err">⚠️ ${e.message}</div>`;
         }
@@ -1403,6 +1409,9 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                 const el = document.getElementById(id); if (el) el.value = '';
             });
             await loadCmSubjects(await getSB(), window._apCurrentCollege || null);
+            if (typeof window.refreshCustomSubjectsForSearch === 'function') {
+                await window.refreshCustomSubjectsForSearch();
+            }
         } catch (e) {
             if (window.showToast) window.showToast('❌ Failed: ' + e.message, 'error');
         }
@@ -1417,6 +1426,9 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             const el = document.getElementById(`cms-${id}`);
             if (el) { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }
             if (window.showToast) window.showToast('🗑 Subject deleted.');
+            if (typeof window.refreshCustomSubjectsForSearch === 'function') {
+                await window.refreshCustomSubjectsForSearch();
+            }
         } catch (e) {
             if (window.showToast) window.showToast('❌ Failed: ' + e.message, 'error');
         }
