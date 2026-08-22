@@ -1,1 +1,197 @@
-#comingSoonOverlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s cubic-bezier(.16, 1, .3, 1);background:rgba(0,0,0,.6);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}#comingSoonOverlay.active{opacity:1;pointer-events:all}.lockCard{background:rgba(255,255,255,.04);-webkit-backdrop-filter:blur(25px);backdrop-filter:blur(25px);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:48px;text-align:center;max-width:420px;width:90%;box-shadow:0 0 80px rgba(0,246,255,.15),inset 0 0 20px rgba(255,255,255,.05);transform:translateY(20px) scale(.98);transition:transform .8s cubic-bezier(.16, 1, .3, 1);position:relative;overflow:hidden}#comingSoonOverlay.active .lockCard{transform:translateY(0) scale(1)}.lock-icon-container{margin-bottom:24px;display:inline-block;animation:float 4s infinite ease-in-out}@keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-12px)}100%{transform:translateY(0)}}.lock-svg{width:64px;height:64px;fill:url(#lock-gradient);filter:drop-shadow(0 0 15px rgba(0, 242, 255, .5));animation:lockPulse 3s infinite ease-in-out}@keyframes lockPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 15px rgba(0, 242, 255, .5))}50%{transform:scale(1.05);filter:drop-shadow(0 0 25px rgba(0, 242, 255, .8))}}.coming-soon-title{font-family:Poppins,sans-serif;font-size:3.5rem;font-weight:900;line-height:1;margin-bottom:16px;background:linear-gradient(135deg,#00f2ff 0,#7b61ff 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-2px;text-shadow:0 10px 30px rgba(0,242,255,.2);animation:wave 5s infinite ease-in-out}@keyframes wave{0%,100%{transform:rotate(0) scale(1)}33%{transform:rotate(-1deg) scale(1.02)}66%{transform:rotate(1deg) scale(.98)}}.development-caption{color:var(--text-muted);font-size:.95rem;letter-spacing:.5px;opacity:.8;max-width:250px;margin:0 auto;line-height:1.5}.content-blurred{filter:blur(6px)!important;opacity:.4!important;pointer-events:none!important;transition:filter .8s ease,opacity .8s ease}.nav-item.locked{opacity:.4;cursor:not-allowed!important;position:relative}.nav-item.locked::after{content:'🔒';position:absolute;right:.75rem;font-size:.7rem;font-weight:800;letter-spacing:.5px;background:rgba(255,255,255,.05);padding:3px 5px;border-radius:6px;opacity:.8}.esc-hint{margin-top:32px;font-size:.75rem;color:rgba(255,255,255,.4);letter-spacing:2px;font-weight:500;text-transform:uppercase}.coming-soon-btn{margin-top:32px;width:100%;padding:14px;border-radius:14px;font-weight:700;font-size:.95rem;letter-spacing:.5px;background:linear-gradient(135deg,#00f2ff,#7b61ff);color:#fff;border:none;cursor:pointer;box-shadow:0 10px 20px rgba(123,97,255,.3);transition:all .3s cubic-bezier(.4, 0, .2, 1)}.coming-soon-btn:hover{transform:translateY(-2px);box-shadow:0 15px 30px rgba(123,97,255,.5);filter:brightness(1.1)}@media (max-width:480px){.lockCard{padding:32px 24px}.coming-soon-title{font-size:2.5rem}}
+/* Refined Lock Overlay Styling - Apple/Vercel/Linear Aesthetic */
+#comingSoonOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    background: rgba(0, 0, 0, 0.6);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+#comingSoonOverlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.lockCard {
+    background: rgba(255, 255, 255, 0.04);
+    -webkit-backdrop-filter: blur(25px);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 48px;
+    text-align: center;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 0 80px rgba(0, 246, 255, 0.15),
+        inset 0 0 20px rgba(255, 255, 255, 0.05);
+    transform: translateY(20px) scale(0.98);
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+#comingSoonOverlay.active .lockCard {
+    transform: translateY(0) scale(1);
+}
+
+/* 3D Lock Animation */
+.lock-icon-container {
+    margin-bottom: 24px;
+    display: inline-block;
+    animation: float 4s infinite ease-in-out;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.lock-svg {
+    width: 64px;
+    height: 64px;
+    fill: url(#lock-gradient);
+    filter: drop-shadow(0 0 15px rgba(0, 242, 255, 0.5));
+    animation: lockPulse 3s infinite ease-in-out;
+}
+
+@keyframes lockPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 15px rgba(0, 242, 255, 0.5));
+    }
+
+    50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 25px rgba(0, 242, 255, 0.8));
+    }
+}
+
+/* Text Styles */
+.coming-soon-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #00F2FF 0%, #7B61FF 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -2px;
+    text-shadow: 0 10px 30px rgba(0, 242, 255, 0.2);
+    animation: wave 5s infinite ease-in-out;
+}
+
+@keyframes wave {
+
+    0%,
+    100% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    33% {
+        transform: rotate(-1deg) scale(1.02);
+    }
+
+    66% {
+        transform: rotate(1deg) scale(0.98);
+    }
+}
+
+.development-caption {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+    max-width: 250px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+/* Blur Utility for Page Content */
+.content-blurred {
+    filter: blur(6px) !important;
+    opacity: 0.4 !important;
+    pointer-events: none !important;
+    transition: filter 0.8s ease, opacity 0.8s ease;
+}
+
+/* Sidebar Lock */
+.nav-item.locked {
+    opacity: 0.4;
+    cursor: not-allowed !important;
+    position: relative;
+}
+
+.nav-item.locked::after {
+    content: '🔒';
+    position: absolute;
+    right: 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 3px 5px;
+    border-radius: 6px;
+    opacity: 0.8;
+}
+
+.esc-hint {
+    margin-top: 32px;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 2px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.coming-soon-btn {
+    margin-top: 32px;
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    background: linear-gradient(135deg, #00F2FF, #7B61FF);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(123, 97, 255, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.coming-soon-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(123, 97, 255, 0.5);
+    filter: brightness(1.1);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .lockCard {
+        padding: 32px 24px;
+    }
+
+    .coming-soon-title {
+        font-size: 2.5rem;
+    }
+}

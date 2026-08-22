@@ -228,9 +228,33 @@ export async function initAuth() {
                     }
                 } catch(e) {}
 
-                // ✅ Process any pending referral on successful login
+                // ✅ Process any pending referral on successful login/signup
                 if (window.processReferralOnLogin) {
-                    window.processReferralOnLogin(userData.email);
+                    // Check if this login follows a brand-new signup (stored flag)
+                    let isNewUser = false;
+                    let storedRef = '';
+                    try {
+                        let flagRaw = sessionStorage.getItem('skilmatrix_new_signup') || localStorage.getItem('skilmatrix_new_signup');
+                        if (flagRaw) {
+                            const flag = JSON.parse(flagRaw);
+                            // Flag valid for 10 minutes and email must match
+                            if (flag.email === userData.email.toLowerCase() && (Date.now() - flag.ts) < 600000) {
+                                isNewUser = true;
+                                storedRef = flag.refCode || '';
+                                // Clear the flag so it can't be reused
+                                try { sessionStorage.removeItem('skilmatrix_new_signup'); } catch(_) {}
+                                try { localStorage.removeItem('skilmatrix_new_signup'); }   catch(_) {}
+                            }
+                        }
+                    } catch (_) {}
+                    // Fallback: Firebase metadata check (creationTime ≈ lastSignInTime)
+                    if (!isNewUser) {
+                        const creationTime = user.metadata?.creationTime  ? new Date(user.metadata.creationTime).getTime()  : 0;
+                        const lastSignIn   = user.metadata?.lastSignInTime ? new Date(user.metadata.lastSignInTime).getTime() : 0;
+                        isNewUser = Math.abs(creationTime - lastSignIn) < 15000;
+                    }
+                    const pendingRefCode = storedRef || (window.getPendingRefCode ? window.getPendingRefCode() : '');
+                    window.processReferralOnLogin(userData.email, user.uid, pendingRefCode, isNewUser);
                 }
 
                 // Refresh sidebar avatar with the saved photo
@@ -354,7 +378,12 @@ function initAuthForms() {
             if (submitBtn) submitBtn.innerHTML = 'Creating Account...';
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-                // Also immediately sign out so user must log in fresh
+                // ✅ Save 'just signed up' flag so referral fires on the next login
+                const pendingRef = window.getPendingRefCode ? window.getPendingRefCode() : '';
+                const newUserMeta = JSON.stringify({ email: email.toLowerCase(), refCode: pendingRef, ts: Date.now() });
+                try { sessionStorage.setItem('skilmatrix_new_signup', newUserMeta); } catch (_) {}
+                try { localStorage.setItem('skilmatrix_new_signup', newUserMeta); } catch (_) {}
+                // Also sign out so user logs in fresh (original behaviour)
                 await signOut(auth);
                 if (window.statServices?.trackSignUp) window.statServices.trackSignUp('email');
                 if (typeof gtag === 'function') gtag('event', 'sign_up', { method: 'Email' });

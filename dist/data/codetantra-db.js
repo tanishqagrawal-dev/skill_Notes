@@ -1,1 +1,1324 @@
-const _0x3a4f82=_0x1ffa;(function(_0x31f3e6,_0x1f6540){const _0x424ecb=_0x1ffa,_0x2557df=_0x31f3e6();while(!![]){try{const _0x1d0a0c=parseInt(_0x424ecb(0xd8))/0x1*(parseInt(_0x424ecb(0x237))/0x2)+-parseInt(_0x424ecb(0x16c))/0x3+-parseInt(_0x424ecb(0x1c4))/0x4+-parseInt(_0x424ecb(0x128))/0x5*(-parseInt(_0x424ecb(0x96))/0x6)+-parseInt(_0x424ecb(0x26d))/0x7*(-parseInt(_0x424ecb(0x1b7))/0x8)+parseInt(_0x424ecb(0x110))/0x9+-parseInt(_0x424ecb(0x12c))/0xa;if(_0x1d0a0c===_0x1f6540)break;else _0x2557df['push'](_0x2557df['shift']());}catch(_0x20f1cf){_0x2557df['push'](_0x2557df['shift']());}}}(_0x1362,0x4291d));function _0x1ffa(_0x20f518,_0x31e87a){_0x20f518=_0x20f518-0x6b;const _0x20fc74=_0x1362();let _0x320e3f=_0x20fc74[_0x20f518];if(_0x1ffa['GjytxD']===undefined){var _0x32a443=function(_0x240e8c){const _0x2df1de='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0xc50dfb='',_0x5d8b53='';for(let _0x421be5=0x0,_0x5e87f4,_0x4d852f,_0x314f85=0x0;_0x4d852f=_0x240e8c['charAt'](_0x314f85++);~_0x4d852f&&(_0x5e87f4=_0x421be5%0x4?_0x5e87f4*0x40+_0x4d852f:_0x4d852f,_0x421be5++%0x4)?_0xc50dfb+=String['fromCharCode'](0xff&_0x5e87f4>>(-0x2*_0x421be5&0x6)):0x0){_0x4d852f=_0x2df1de['indexOf'](_0x4d852f);}for(let _0xda35d3=0x0,_0x35f032=_0xc50dfb['length'];_0xda35d3<_0x35f032;_0xda35d3++){_0x5d8b53+='%'+('00'+_0xc50dfb['charCodeAt'](_0xda35d3)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x5d8b53);};_0x1ffa['exNMdf']=_0x32a443,_0x1ffa['RyNrHU']={},_0x1ffa['GjytxD']=!![];}const _0x2c0c7a=_0x20fc74[0x0],_0x136240=_0x20f518+_0x2c0c7a,_0x1ffa61=_0x1ffa['RyNrHU'][_0x136240];return!_0x1ffa61?(_0x320e3f=_0x1ffa['exNMdf'](_0x320e3f),_0x1ffa['RyNrHU'][_0x136240]=_0x320e3f):_0x320e3f=_0x1ffa61,_0x320e3f;}const _0x32a443=(function(){let _0x4d852f=!![];return function(_0x314f85,_0xda35d3){const _0x35f032=_0x4d852f?function(){if(_0xda35d3){const _0x580649=_0xda35d3['apply'](_0x314f85,arguments);return _0xda35d3=null,_0x580649;}}:function(){};return _0x4d852f=![],_0x35f032;};}()),_0x320e3f=_0x32a443(this,function(){const _0x44489c=_0x1ffa;let _0x20db03;try{const _0x18eeb9=Function(_0x44489c(0x196)+'{}.constructor(\x22return\x20this\x22)(\x20)'+');');_0x20db03=_0x18eeb9();}catch(_0xbfe160){_0x20db03=window;}const _0x194667=_0x20db03['console']=_0x20db03[_0x44489c(0x1b1)]||{},_0x49b10e=[_0x44489c(0xaa),_0x44489c(0x1ef),_0x44489c(0x1fb),_0x44489c(0xab),_0x44489c(0x219),'table',_0x44489c(0x176)];for(let _0x599014=0x0;_0x599014<_0x49b10e[_0x44489c(0x22a)];_0x599014++){const _0x2d8317=_0x32a443['constructor']['prototype']['bind'](_0x32a443),_0x5a465b=_0x49b10e[_0x599014],_0x5dfd73=_0x194667[_0x5a465b]||_0x2d8317;_0x2d8317[_0x44489c(0x1ae)]=_0x32a443[_0x44489c(0x1f3)](_0x32a443),_0x2d8317['toString']=_0x5dfd73[_0x44489c(0x182)]['bind'](_0x5dfd73),_0x194667[_0x5a465b]=_0x2d8317;}});_0x320e3f();export const CodeTantraDB={'colleges':[{'id':_0x3a4f82(0x224),'name':_0x3a4f82(0x70)}],'branches':[{'id':_0x3a4f82(0xc6),'name':'CSE'}],'semesters':[{'id':'1','name':_0x3a4f82(0xc5)},{'id':'2','name':_0x3a4f82(0xe6)},{'id':'3','name':_0x3a4f82(0xa6)},{'id':'4','name':_0x3a4f82(0x226)}],'subjects':{'1_cse':[{'id':'programming-with-c','name':_0x3a4f82(0x80),'fullName':'Programming\x20with\x20C\x20—\x20Lab\x20Solutions','icon':'C','type':'lab','questionsCount':0x2d,'weeks':[{'title':_0x3a4f82(0xb8),'isPremium':![],'topics':[{'id':_0x3a4f82(0x101),'number':_0x3a4f82(0xac),'question':_0x3a4f82(0xdf),'code':_0x3a4f82(0xae),'language':'c'},{'id':_0x3a4f82(0x29c),'number':_0x3a4f82(0x143),'question':_0x3a4f82(0x1a7),'code':_0x3a4f82(0xc4),'language':'c'},{'id':_0x3a4f82(0x185),'number':_0x3a4f82(0x141),'question':'Simple\x20Interest','code':_0x3a4f82(0x17e),'language':'c'},{'id':'c-1-4','number':_0x3a4f82(0x1dd),'question':'Swap\x20Two\x20Numbers\x20using\x20a\x20Third\x20Variable','code':_0x3a4f82(0x286),'language':'c'},{'id':_0x3a4f82(0x157),'number':_0x3a4f82(0x26a),'question':_0x3a4f82(0x25e),'code':_0x3a4f82(0xdc),'language':'c'}]},{'title':'Week\x20-\x202','isPremium':![],'topics':[{'id':'c-2-1','number':_0x3a4f82(0x1c6),'question':_0x3a4f82(0x12d),'code':'#include<stdio.h>\x0aint\x20main()\x20{\x0a\x20\x20\x20\x20float\x20weight,\x20height,\x20bmi;\x0a\x20\x20\x20\x20scanf(\x22%f\x20%f\x22,\x20&weight,\x20&height);\x0a\x20\x20\x20\x20bmi\x20=\x20weight\x20/\x20(height\x20*\x20height);\x0a\x20\x20\x20\x20printf(\x22%d\x5cn\x22,\x20(int)bmi);\x0a\x20\x20\x20\x20if\x20(bmi\x20<\x2018.5)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20printf(\x22Underweight\x5cn\x22);\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20else\x20if\x20(bmi\x20>=\x2018.5\x20&&\x20bmi\x20<\x2025)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20printf(\x22Normal\x5cn\x22);\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20else\x20if\x20(bmi\x20>=\x2025\x20&&\x20bmi\x20<\x2030)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20printf(\x22Overweight\x5cn\x22);\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20else\x20if\x20(30\x20<=\x20bmi)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20printf(\x22obese\x5cn\x22);\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20return\x200;\x0a}','language':'c'},{'id':_0x3a4f82(0x13b),'number':_0x3a4f82(0xbd),'question':_0x3a4f82(0x99),'code':_0x3a4f82(0x158),'language':'c'},{'id':'c-2-3','number':_0x3a4f82(0x1f9),'question':'Implicit\x20and\x20Explicit\x20Type\x20Conversion','code':_0x3a4f82(0x7e),'language':'c'}]},{'title':_0x3a4f82(0x87),'isPremium':![],'topics':[{'id':_0x3a4f82(0x23b),'number':_0x3a4f82(0xee),'question':'Sum\x20of\x20Digits','code':'//Write\x20your\x20code\x20\x0a#include<stdio.h>\x0aint\x20main()\x20{\x0a\x20\x20\x20\x20int\x20num,\x20sum\x20=\x200;\x0a\x20\x20\x20\x20scanf(\x22%d\x22,\x20&num);\x0a\x20\x20\x20\x20sum\x20+=\x20num\x20%\x2010;\x0a\x20\x20\x20\x20num\x20/=\x2010;\x0a\x20\x20\x20\x20sum\x20+=\x20num\x20%\x2010;\x0a\x20\x20\x20\x20num\x20/=\x2010;\x0a\x20\x20\x20\x20sum\x20+=\x20num\x20%\x2010;\x0a\x20\x20\x20\x20printf(\x22%d\x5cn\x22,\x20sum);\x0a\x20\x20\x20\x20return\x200;\x0a}','language':'c'},{'id':_0x3a4f82(0x1c1),'number':'3.1.2','question':'Reverse\x20of\x20Three-Digit\x20Number','code':_0x3a4f82(0x255),'language':'c'},{'id':_0x3a4f82(0x100),'number':_0x3a4f82(0x183),'question':_0x3a4f82(0x1a9),'code':_0x3a4f82(0x1c8),'language':'c'},{'id':_0x3a4f82(0xfe),'number':_0x3a4f82(0x27c),'question':_0x3a4f82(0x117),'code':_0x3a4f82(0x241),'language':'c'},{'id':'c-3-5','number':_0x3a4f82(0xb3),'question':_0x3a4f82(0x149),'code':_0x3a4f82(0x103),'language':'c'}]},{'title':'Week\x20-\x204','isPremium':!![],'topics':[{'id':'c-4-1','number':_0x3a4f82(0x210),'question':_0x3a4f82(0x84),'code':_0x3a4f82(0x1e6),'language':'c'},{'id':_0x3a4f82(0x78),'number':_0x3a4f82(0x247),'question':_0x3a4f82(0x153),'code':_0x3a4f82(0x1e6),'language':'c'},{'id':'c-4-3','number':_0x3a4f82(0xb7),'question':_0x3a4f82(0x8b),'code':_0x3a4f82(0x1e6),'language':'c'},{'id':_0x3a4f82(0x1e2),'number':_0x3a4f82(0x27a),'question':'Grade\x20Evaluation','code':_0x3a4f82(0x1e6),'language':'c'},{'id':'c-4-5','number':_0x3a4f82(0x8c),'question':_0x3a4f82(0x1b4),'code':_0x3a4f82(0x1e6),'language':'c'},{'id':'c-4-6','number':'4.1.6','question':'Month\x20Name\x20from\x20Number','code':'//\x20Code\x20coming\x20soon...','language':'c'},{'id':_0x3a4f82(0x81),'number':'4.1.7','question':_0x3a4f82(0xbe),'code':_0x3a4f82(0x1e6),'language':'c'}]},{'title':_0x3a4f82(0xe2),'isPremium':!![],'topics':[{'id':'c-5-1','number':_0x3a4f82(0x258),'question':_0x3a4f82(0x28c),'code':_0x3a4f82(0x1e6),'language':'c'},{'id':_0x3a4f82(0x23c),'number':_0x3a4f82(0x71),'question':_0x3a4f82(0x1fe),'code':_0x3a4f82(0x1e6),'language':'c'},{'id':_0x3a4f82(0x97),'number':_0x3a4f82(0x145),'question':_0x3a4f82(0xca),'code':_0x3a4f82(0x1e6),'language':'c'},{'id':_0x3a4f82(0x221),'number':_0x3a4f82(0x10a),'question':_0x3a4f82(0x1bd),'code':_0x3a4f82(0x1e6),'language':'c'}]},{'title':'Week\x20-\x206','isPremium':!![],'topics':[{'id':_0x3a4f82(0x148),'number':_0x3a4f82(0x1fd),'question':_0x3a4f82(0x1d9),'code':_0x3a4f82(0x1e6),'language':'c'},{'id':_0x3a4f82(0x16d),'number':_0x3a4f82(0x114),'question':_0x3a4f82(0x18a),'code':_0x3a4f82(0x1e6),'language':'c'},{'id':_0x3a4f82(0x133),'number':_0x3a4f82(0x193),'question':_0x3a4f82(0x154),'code':'//\x20Code\x20coming\x20soon...','language':'c'},{'id':_0x3a4f82(0x1b5),'number':_0x3a4f82(0xd7),'question':_0x3a4f82(0x1c3),'code':_0x3a4f82(0x1e6),'language':'c'},{'id':'c-6-5','number':_0x3a4f82(0xec),'question':_0x3a4f82(0xc9),'code':_0x3a4f82(0x1e6),'language':'c'}]},{'title':_0x3a4f82(0x177),'isPremium':!![],'topics':[{'id':'c-7-1','number':_0x3a4f82(0x9a),'question':_0x3a4f82(0xad),'code':_0x3a4f82(0x1e6),'language':'c'},{'id':_0x3a4f82(0x189),'number':_0x3a4f82(0x8f),'question':'Add\x20Two\x202x2\x20Matrices','code':_0x3a4f82(0x1e6),'language':'c'},{'id':'c-7-3','number':_0x3a4f82(0x164),'question':_0x3a4f82(0xfb),'code':_0x3a4f82(0x1e6),'language':'c'}]},{'title':'Week\x20-\x208','isPremium':!![],'topics':[{'id':_0x3a4f82(0x1d4),'number':_0x3a4f82(0x21a),'question':'Factorial\x20using\x20non\x20recursive\x20function','code':_0x3a4f82(0x1e6),'language':'c'},{'id':_0x3a4f82(0x238),'number':'8.1.2','question':_0x3a4f82(0xbf),'code':'//\x20Code\x20coming\x20soon...','language':'c'},{'id':_0x3a4f82(0xf1),'number':_0x3a4f82(0x23a),'question':_0x3a4f82(0x223),'code':_0x3a4f82(0x1e6),'language':'c'},{'id':_0x3a4f82(0x18c),'number':_0x3a4f82(0x7c),'question':_0x3a4f82(0x29a),'code':_0x3a4f82(0x1e6),'language':'c'}]},{'title':_0x3a4f82(0x7b),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x1d5),'number':_0x3a4f82(0x1c5),'question':_0x3a4f82(0x207),'code':_0x3a4f82(0x1e6),'language':'c'},{'id':'c-9-2','number':_0x3a4f82(0xce),'question':_0x3a4f82(0x1b3),'code':_0x3a4f82(0x1e6),'language':'c'},{'id':_0x3a4f82(0x1c0),'number':'9.1.3','question':_0x3a4f82(0x19d),'code':'//\x20Code\x20coming\x20soon...','language':'c'}]},{'title':_0x3a4f82(0x72),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x109),'number':_0x3a4f82(0xc1),'question':'Student\x20Details\x20using\x20Union','code':_0x3a4f82(0x1e6),'language':'c'},{'id':_0x3a4f82(0x1d1),'number':_0x3a4f82(0x257),'question':_0x3a4f82(0xd2),'code':'//\x20Code\x20coming\x20soon...','language':'c'}]},{'title':_0x3a4f82(0x1d6),'isPremium':!![],'topics':[{'id':'c-11-1','number':'11.1.1','question':_0x3a4f82(0x17d),'code':_0x3a4f82(0x1e6),'language':'c'}]},{'title':_0x3a4f82(0x17f),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x229),'number':_0x3a4f82(0x123),'question':_0x3a4f82(0x204),'code':_0x3a4f82(0x1e6),'language':'c'},{'id':'c-12-2','number':'12.1.2','question':_0x3a4f82(0x175),'code':'//\x20Code\x20coming\x20soon...','language':'c'},{'id':'c-12-3','number':_0x3a4f82(0x1fc),'question':_0x3a4f82(0x218),'code':'//\x20Code\x20coming\x20soon...','language':'c'}]}]}],'4_cse':[{'id':_0x3a4f82(0x203),'name':_0x3a4f82(0xf3),'fullName':_0x3a4f82(0x15e),'icon':_0x3a4f82(0x205),'questionsCount':0x2a,'weeks':[{'title':_0x3a4f82(0xef),'isPremium':![],'topics':[{'id':_0x3a4f82(0x24f),'number':_0x3a4f82(0xac),'question':_0x3a4f82(0x18d),'code':_0x3a4f82(0x6f),'language':_0x3a4f82(0x14b)},{'id':'dbms-2-2','number':'1.1.2','question':'Display\x20All\x20Contents\x20of\x20Employees\x20Table','code':_0x3a4f82(0xa4),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x239),'number':_0x3a4f82(0x141),'question':_0x3a4f82(0x277),'code':_0x3a4f82(0x13f),'language':'sql'},{'id':_0x3a4f82(0x295),'number':_0x3a4f82(0x1dd),'question':_0x3a4f82(0x174),'code':_0x3a4f82(0x283),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x235),'number':'1.1.5','question':_0x3a4f82(0x14a),'code':_0x3a4f82(0x105),'language':'sql'},{'id':'dbms-2-6','number':'1.1.6','question':_0x3a4f82(0x1f6),'code':_0x3a4f82(0x82),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x192),'number':_0x3a4f82(0x160),'question':_0x3a4f82(0x108),'code':_0x3a4f82(0x26b),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x1a5),'number':_0x3a4f82(0x24d),'question':_0x3a4f82(0x159),'code':'SELECT\x20*\x0aFROM\x20employees\x0aWHERE\x20salary\x20<\x2010000;','language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x1e4),'number':'1.1.9','question':'Display\x20Employees\x20with\x20Salary\x20between\x2010000\x20and\x2030000','code':_0x3a4f82(0x268),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x200),'number':_0x3a4f82(0x22b),'question':_0x3a4f82(0x9c),'code':_0x3a4f82(0x16e),'language':'sql'},{'id':_0x3a4f82(0x12e),'number':'1.1.11','question':_0x3a4f82(0x11f),'code':'SELECT\x20*\x0aFROM\x20employees\x0aWHERE\x20manager_id\x20=\x20100\x20AND\x20department_id\x20=\x2090;','language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0xf4),'number':'1.1.12','question':_0x3a4f82(0x279),'code':_0x3a4f82(0x27d),'language':_0x3a4f82(0x14b)}]},{'title':_0x3a4f82(0x161),'isPremium':![],'topics':[{'id':_0x3a4f82(0x90),'number':_0x3a4f82(0x1c6),'question':_0x3a4f82(0x104),'code':_0x3a4f82(0x298),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x83),'number':_0x3a4f82(0xbd),'question':'Filter\x20Employees\x20by\x20Department\x20ID\x20and\x20Sort\x20by\x20Last\x20Name','code':_0x3a4f82(0x280),'language':_0x3a4f82(0x14b)},{'id':'dbms-3-3','number':_0x3a4f82(0x1f9),'question':'Salary\x20Range\x20Filter\x20with\x20Department\x20Condition','code':'SELECT\x20last_name\x20AS\x20employee,\x20salary\x20AS\x20monthly_salary\x0aFROM\x20employees\x0aWHERE\x20salary\x20BETWEEN\x205000\x20AND\x2012000\x0a\x20\x20AND\x20department_id\x20IN\x20(60,\x2090);','language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x217),'number':_0x3a4f82(0x1da),'question':_0x3a4f82(0x86),'code':_0x3a4f82(0x9f),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x15a),'number':'2.1.5','question':_0x3a4f82(0xf9),'code':_0x3a4f82(0xc8),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x1a8),'number':_0x3a4f82(0x6e),'question':_0x3a4f82(0x14d),'code':_0x3a4f82(0x77),'language':'sql'},{'id':'dbms-3-7','number':_0x3a4f82(0x1b9),'question':_0x3a4f82(0x1a3),'code':_0x3a4f82(0x209),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x1e1),'number':_0x3a4f82(0x138),'question':_0x3a4f82(0xe0),'code':'SELECT\x20SUM(salary)\x20AS\x20sum\x0aFROM\x20employees\x0aWHERE\x20department_id\x20=\x2060;','language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x28e),'number':_0x3a4f82(0x21f),'question':'Difference\x20Between\x20Maximum\x20and\x20Minimum\x20Salary','code':'SELECT\x20MAX(salary)\x20AS\x20max,\x0a\x20\x20\x20\x20\x20\x20\x20MIN(salary)\x20AS\x20min,\x0a\x20\x20\x20\x20\x20\x20\x20MAX(salary)\x20-\x20MIN(salary)\x20AS\x20result\x0aFROM\x20employees;','language':'sql'},{'id':_0x3a4f82(0xa1),'number':_0x3a4f82(0x1f2),'question':_0x3a4f82(0x27e),'code':_0x3a4f82(0x22c),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0xc0),'number':_0x3a4f82(0x1bb),'question':'Display\x20Employees\x20Whose\x20First\x20Name\x20Starts\x20with\x20\x27A\x27','code':_0x3a4f82(0x102),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x122),'number':_0x3a4f82(0x1d3),'question':_0x3a4f82(0xa5),'code':_0x3a4f82(0xb2),'language':_0x3a4f82(0x14b)}]},{'title':_0x3a4f82(0x270),'isPremium':![],'topics':[{'id':_0x3a4f82(0x1eb),'number':_0x3a4f82(0xee),'question':_0x3a4f82(0x296),'code':_0x3a4f82(0x1dc),'language':'sql'},{'id':_0x3a4f82(0x20c),'number':'3.1.2','question':_0x3a4f82(0xfc),'code':_0x3a4f82(0x1b6),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x246),'number':_0x3a4f82(0x183),'question':'Update\x20Employee\x20Salary\x20by\x20Percentage','code':_0x3a4f82(0x11b),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x299),'number':_0x3a4f82(0x27c),'question':_0x3a4f82(0x26c),'code':_0x3a4f82(0x136),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x184),'number':_0x3a4f82(0xb3),'question':_0x3a4f82(0x288),'code':'ALTER\x20TABLE\x20employee\x0aADD\x20COLUMN\x20email\x20VARCHAR(50);','language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x275),'number':_0x3a4f82(0x289),'question':_0x3a4f82(0x1aa),'code':_0x3a4f82(0x19c),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0xe3),'number':'3.1.7','question':_0x3a4f82(0x1b2),'code':_0x3a4f82(0x76),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x228),'number':_0x3a4f82(0xaf),'question':_0x3a4f82(0x25c),'code':_0x3a4f82(0x21d),'language':_0x3a4f82(0x14b)},{'id':'dbms-4-9','number':_0x3a4f82(0x266),'question':_0x3a4f82(0x74),'code':_0x3a4f82(0x20f),'language':_0x3a4f82(0x14b)},{'id':'dbms-4-10','number':_0x3a4f82(0x120),'question':_0x3a4f82(0x14c),'code':_0x3a4f82(0x14f),'language':'sql'},{'id':_0x3a4f82(0x23f),'number':_0x3a4f82(0x1c9),'question':'Employees\x20with\x20Salary\x20Greater\x20than\x2055,000','code':'SELECT\x20empid,\x20empname,\x20salary,\x20deptid\x0aFROM\x20employee\x0aWHERE\x20salary\x20>\x2055000;','language':_0x3a4f82(0x14b)}]},{'title':_0x3a4f82(0x248),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x21e),'number':_0x3a4f82(0x210),'question':_0x3a4f82(0x1e3),'code':_0x3a4f82(0x1f0),'language':_0x3a4f82(0x14b)},{'id':'dbms-5-2','number':_0x3a4f82(0x247),'question':_0x3a4f82(0x245),'code':'INSERT\x20INTO\x20Product\x20(ProductID,\x20ProductName,\x20Price)\x0aVALUES\x20(101,\x20\x27Smartphone\x27,\x2015000.00);','language':_0x3a4f82(0x14b)},{'id':'dbms-5-3','number':'4.1.3','question':_0x3a4f82(0x214),'code':'INSERT\x20INTO\x20sales\x20(saleid,\x20productid,\x20quantity,\x20saledate)\x0aVALUES\x20(1,\x20101,\x202,\x20\x272025-08-22\x27);','language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x140),'number':_0x3a4f82(0x27a),'question':'Insert\x20Record\x20into\x20Product\x20Table\x20with\x20Constraint\x20Validation','code':_0x3a4f82(0x11c),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x297),'number':_0x3a4f82(0x8c),'question':_0x3a4f82(0x1e9),'code':'INSERT\x20INTO\x20Sales\x20(SaleID,\x20ProductID,\x20Quantity,\x20SaleDate)\x0aVALUES\x20(2,\x20101,\x201,\x20\x272025-08-22\x27);','language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x26e),'number':_0x3a4f82(0xb4),'question':'Deleting\x20a\x20Product\x20Referenced\x20in\x20Sales','code':'DELETE\x20FROM\x20sales\x20WHERE\x20productid\x20=\x20103;\x0aDELETE\x20FROM\x20Product\x20WHERE\x20ProductID\x20=\x20103;','language':_0x3a4f82(0x14b)}]},{'title':_0x3a4f82(0x171),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x1e0),'number':'5.1.1','question':'Find\x20Employee(s)\x20with\x20the\x20Highest\x20Salary','code':_0x3a4f82(0x129),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0xa3),'number':'5.1.2','question':'Find\x20Employee(s)\x20with\x20the\x20Lowest\x20Salary','code':_0x3a4f82(0x260),'language':'sql'},{'id':_0x3a4f82(0x259),'number':_0x3a4f82(0x145),'question':_0x3a4f82(0x13c),'code':_0x3a4f82(0x88),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x256),'number':_0x3a4f82(0x10a),'question':_0x3a4f82(0x113),'code':'SELECT\x20e.empid,\x20e.empname,\x20e.deptid\x0aFROM\x20employee\x20e\x0aWHERE\x20e.deptid\x20IN\x20(\x0a\x20\x20\x20\x20SELECT\x20d.deptid\x0a\x20\x20\x20\x20FROM\x20department\x20d\x0a\x20\x20\x20\x20WHERE\x20d.location\x20IN\x20(\x27Delhi\x27,\x20\x27Mumbai\x27)\x0a);','language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x1af),'number':_0x3a4f82(0x1d0),'question':_0x3a4f82(0x264),'code':_0x3a4f82(0x19f),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x12b),'number':_0x3a4f82(0x225),'question':_0x3a4f82(0x242),'code':_0x3a4f82(0x8e),'language':_0x3a4f82(0x14b)},{'id':'dbms-6-7','number':_0x3a4f82(0x25a),'question':_0x3a4f82(0x17a),'code':_0x3a4f82(0x79),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x151),'number':'5.1.8','question':_0x3a4f82(0x16b),'code':_0x3a4f82(0xa8),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x1d8),'number':_0x3a4f82(0x206),'question':_0x3a4f82(0x168),'code':'UPDATE\x20employee\x0aSET\x20salary\x20=\x20salary\x20*\x201.10\x0aWHERE\x20deptid\x20IN\x20(\x0a\x20\x20\x20\x20SELECT\x20deptid\x0a\x20\x20\x20\x20FROM\x20department\x0a\x20\x20\x20\x20WHERE\x20deptname\x20=\x20\x27Sales\x27\x0a);','language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x121),'number':'5.1.10','question':_0x3a4f82(0x147),'code':_0x3a4f82(0x230),'language':_0x3a4f82(0x14b)},{'id':'dbms-6-11','number':_0x3a4f82(0x231),'question':_0x3a4f82(0x1cc),'code':_0x3a4f82(0x9b),'language':'sql'},{'id':_0x3a4f82(0x1a6),'number':'5.1.12','question':_0x3a4f82(0x131),'code':_0x3a4f82(0x16a),'language':_0x3a4f82(0x14b)}]},{'title':_0x3a4f82(0x1f4),'isPremium':!![],'topics':[]},{'title':'Week\x208\x20-\x20Views','isPremium':!![],'topics':[]},{'title':_0x3a4f82(0x233),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x190),'number':_0x3a4f82(0x21a),'question':_0x3a4f82(0x29b),'code':_0x3a4f82(0x94),'language':_0x3a4f82(0x14b)},{'id':_0x3a4f82(0x292),'number':_0x3a4f82(0x152),'question':_0x3a4f82(0x139),'code':'BEGIN;\x0aINSERT\x20INTO\x20student\x20VALUES\x20(2,\x20\x27Neha\x27,\x20\x27BCA\x27,\x2090);\x0aROLLBACK;','language':'sql'},{'id':_0x3a4f82(0x156),'number':'8.1.3','question':_0x3a4f82(0x95),'code':'BEGIN;\x0aINSERT\x20INTO\x20student\x20(roll_no,\x20name,\x20course,\x20marks)\x20VALUES\x20(3,\x20\x27Rahul\x27,\x20\x27BCA\x27,\x2078);\x0aSAVEPOINT\x20sp1;\x0aINSERT\x20INTO\x20student\x20VALUES\x20(4,\x20\x27Pooja\x27,\x20\x27BCA\x27,\x2088);\x0aROLLBACK\x20TO\x20sp1;\x0aSELECT\x20*\x20FROM\x20student;','language':_0x3a4f82(0x14b)},{'id':'dbms-9-4','number':_0x3a4f82(0x7c),'question':_0x3a4f82(0x1bc),'code':_0x3a4f82(0x1bf),'language':_0x3a4f82(0x14b)}]},{'title':_0x3a4f82(0x1ee),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x27f),'number':_0x3a4f82(0x1c5),'question':_0x3a4f82(0x118),'code':_0x3a4f82(0x93),'language':_0x3a4f82(0x14b)},{'id':'dbms-10-2','number':_0x3a4f82(0xce),'question':_0x3a4f82(0x253),'code':'CREATE\x20OR\x20REPLACE\x20FUNCTION\x20add_numbers(a\x20INTEGER,\x20b\x20INTEGER)\x0aRETURNS\x20VOID\x20AS\x20$$\x0aBEGIN\x0a\x20\x20RAISE\x20NOTICE\x20\x27Sum\x20%\x27,\x20a\x20+\x20b;\x0aEND;\x0a$$\x20LANGUAGE\x20plpgsql;','language':_0x3a4f82(0x14b)},{'id':'dbms-10-3','number':_0x3a4f82(0x222),'question':'Insert\x20Data\x20into\x20emp\x20Table','code':_0x3a4f82(0x28b),'language':'sql'},{'id':_0x3a4f82(0x125),'number':_0x3a4f82(0xa2),'question':_0x3a4f82(0x14e),'code':_0x3a4f82(0x20a),'language':'sql'}]},{'title':_0x3a4f82(0x284),'isPremium':!![],'topics':[]},{'title':_0x3a4f82(0x165),'isPremium':!![],'topics':[]},{'title':'Week\x2013\x20-\x20Library\x20DB\x20Case\x20Study','isPremium':!![],'topics':[]}]},{'id':_0x3a4f82(0x285),'name':_0x3a4f82(0xb1),'fullName':_0x3a4f82(0x15e),'icon':_0x3a4f82(0x276),'type':_0x3a4f82(0x20b),'questionsCount':0x32,'units':[{'title':'Unit\x201','isPremium':![],'sections':[{'title':_0x3a4f82(0x194),'qas':[{'number':_0x3a4f82(0xac),'answer':_0x3a4f82(0xfa)},{'number':_0x3a4f82(0x143),'answer':_0x3a4f82(0x126)},{'number':'1.1.3','answer':'It\x20automatically\x20updates\x20the\x20customer\x27s\x20new\x20address\x20in\x20all\x20related\x20records\x20(orders,\x20shipping,\x20payments).'},{'number':_0x3a4f82(0x1dd),'answer':_0x3a4f82(0xe9)},{'number':_0x3a4f82(0x26a),'answer':_0x3a4f82(0xe7)},{'number':_0x3a4f82(0x271),'answer':_0x3a4f82(0x8a)},{'number':'1.1.7','answer':_0x3a4f82(0x15c)},{'number':_0x3a4f82(0x24d),'answer':_0x3a4f82(0x8a)},{'number':_0x3a4f82(0x142),'answer':_0x3a4f82(0x162)},{'number':_0x3a4f82(0x22b),'answer':_0x3a4f82(0x12a)}]},{'title':_0x3a4f82(0x10d),'qas':[{'number':'2.1.1','answer':_0x3a4f82(0x227)},{'number':_0x3a4f82(0xbd),'answer':_0x3a4f82(0x28f)},{'number':_0x3a4f82(0x1f9),'answer':_0x3a4f82(0x6b)},{'number':_0x3a4f82(0x1da),'answer':_0x3a4f82(0x127)}]},{'title':_0x3a4f82(0x1e8),'qas':[{'number':_0x3a4f82(0xee),'answer':_0x3a4f82(0x19a)},{'number':_0x3a4f82(0xeb),'answer':'E-commerce\x20platforms\x20use\x20DBMS\x20to\x20manage\x20inventory,\x20process\x20transactions,\x20and\x20analyze\x20customer\x20data\x20for\x20personalized\x20shopping\x20experiences.\x0aIn\x20human\x20resources,\x20DBMS\x20supports\x20employee\x20payroll,\x20benefits\x20administration,\x20and\x20recruitment\x20processes.\x0aReal\x20estate\x20agencies\x20use\x20DBMS\x20to\x20track\x20market\x20trends,\x20manage\x20property\x20listings,\x20and\x20handle\x20client\x20databases.\x0aRetailers\x20utilize\x20DBMS\x20for\x20inventory\x20tracking,\x20sales\x20management,\x20and\x20supply\x20chain\x20optimization.\x0aIn\x20transportation,\x20DBMS\x20is\x20critical\x20for\x20scheduling,\x20logistics,\x20and\x20shipment\x20tracking.'},{'number':_0x3a4f82(0x183),'answer':_0x3a4f82(0x18f)}]},{'title':_0x3a4f82(0x132),'qas':[{'number':'4.1.1','answer':'The\x20database,\x20client,\x20and\x20server\x20are\x20all\x20located\x20on\x20the\x20same\x20machine.'},{'number':'4.1.2','answer':_0x3a4f82(0x146)},{'number':_0x3a4f82(0xb7),'answer':_0x3a4f82(0x290)},{'number':'4.1.4','answer':_0x3a4f82(0x25b)}]},{'title':'5.\x20Data\x20Independence','qas':[{'number':_0x3a4f82(0x258),'answer':_0x3a4f82(0xd4)},{'number':'5.1.2','answer':_0x3a4f82(0x1e7)},{'number':_0x3a4f82(0x145),'answer':_0x3a4f82(0x201)}]},{'title':'6.\x20Database\x20Schema','qas':[{'number':_0x3a4f82(0x1fd),'answer':_0x3a4f82(0x1b8)},{'number':_0x3a4f82(0x114),'answer':_0x3a4f82(0x18b)},{'number':_0x3a4f82(0x193),'answer':_0x3a4f82(0x1c7)}]},{'title':_0x3a4f82(0x291),'qas':[{'number':'7.1.1','answer':_0x3a4f82(0x92)},{'number':_0x3a4f82(0x8f),'answer':_0x3a4f82(0x6c)},{'number':'7.1.3','answer':_0x3a4f82(0x10b)}]},{'title':'8.\x20Entity\x20Relationship\x20Model','qas':[{'number':_0x3a4f82(0x21a),'answer':_0x3a4f82(0x273)},{'number':_0x3a4f82(0x152),'answer':_0x3a4f82(0x232)},{'number':_0x3a4f82(0x23a),'answer':'book_id\x20is\x20the\x20Primary\x20Key\x20in\x20the\x20Books\x20table,\x20uniquely\x20identifying\x20each\x20book.\x0aisbn\x20is\x20a\x20Candidate\x20Key\x20in\x20the\x20Books\x20Table\x20because\x20it\x20can\x20uniquely\x20identify\x20a\x20book,\x20even\x20though\x20book_id\x20is\x20used\x20as\x20the\x20Primary\x20Key.\x0aloan_id\x20is\x20the\x20Primary\x20Key\x20in\x20the\x20Book\x20Loans\x20Table,\x20uniquely\x20identifying\x20each\x20book\x20loan.\x0aloan_date\x20is\x20a\x20Simple\x20Attribute\x20because\x20it\x20stores\x20a\x20single\x20piece\x20of\x20data:\x20the\x20date\x20when\x20the\x20book\x20was\x20borrowed.'},{'number':'8.1.4','answer':_0x3a4f82(0x22e)},{'number':'8.1.5','answer':_0x3a4f82(0x116)},{'number':_0x3a4f82(0x243),'answer':_0x3a4f82(0x244)},{'number':_0x3a4f82(0x274),'answer':'In\x20a\x20one-to-many\x20relationship,\x20entities\x20in\x20\x22one\x22\x20entity\x20set\x20can\x20participate\x20once,\x20but\x20entities\x20in\x20the\x20other\x20entity\x20set\x20can\x20participate\x20more\x20than\x20once\x20in\x20the\x20relationship.\x0aTotal\x20participation\x20is\x20represented\x20by\x20a\x20double\x20line\x20in\x20the\x20ER\x20diagram,\x20indicating\x20that\x20each\x20entity\x20in\x20the\x20entity\x20set\x20must\x20participate\x20in\x20the\x20relationship.'},{'number':_0x3a4f82(0x1cd),'answer':_0x3a4f82(0x106)},{'number':_0x3a4f82(0x25d),'answer':_0x3a4f82(0x13a)},{'number':_0x3a4f82(0x1ac),'answer':_0x3a4f82(0xed)}]}]},{'title':'Unit\x202','isPremium':!![],'sections':[{'title':_0x3a4f82(0x1c2),'qas':[{'number':_0x3a4f82(0x1c5),'answer':_0x3a4f82(0xe1)},{'number':_0x3a4f82(0xce),'answer':_0x3a4f82(0x1ab)},{'number':_0x3a4f82(0x222),'answer':_0x3a4f82(0x282)}]},{'title':_0x3a4f82(0x1b0),'qas':[{'number':'10.1.1','answer':_0x3a4f82(0x180)},{'number':_0x3a4f82(0x257),'answer':_0x3a4f82(0x202)},{'number':'10.1.3','answer':_0x3a4f82(0xf8)},{'number':_0x3a4f82(0x251),'answer':_0x3a4f82(0x20e)},{'number':_0x3a4f82(0xd1),'answer':_0x3a4f82(0x186)},{'number':_0x3a4f82(0x294),'answer':_0x3a4f82(0xe5)},{'number':'10.1.7','answer':_0x3a4f82(0x1a4)}]},{'title':'11.\x20Relational\x20Model','qas':[{'number':'11.1.1','answer':_0x3a4f82(0x1a2)},{'number':'11.1.2','answer':_0x3a4f82(0x262)},{'number':_0x3a4f82(0x91),'answer':_0x3a4f82(0x211)},{'number':_0x3a4f82(0x252),'answer':_0x3a4f82(0x7f)},{'number':_0x3a4f82(0x1a0),'answer':_0x3a4f82(0x20d)},{'number':_0x3a4f82(0x24a),'answer':_0x3a4f82(0x10f)},{'number':'11.2.2','answer':_0x3a4f82(0x254)}]},{'title':_0x3a4f82(0x22f),'qas':[]},{'title':_0x3a4f82(0xb9),'qas':[]},{'title':_0x3a4f82(0x1cf),'qas':[]},{'title':_0x3a4f82(0x19b),'qas':[]},{'title':'16.\x20Database\x20Keys','qas':[]},{'title':'17.\x20SQL\x20Basic\x20Operations','qas':[]},{'title':_0x3a4f82(0x112),'qas':[]},{'title':_0x3a4f82(0xbb),'qas':[]},{'title':_0x3a4f82(0x9d),'qas':[]},{'title':_0x3a4f82(0x287),'qas':[]},{'title':_0x3a4f82(0xdb),'qas':[]},{'title':_0x3a4f82(0x21c),'qas':[]}]},{'title':_0x3a4f82(0x163),'isPremium':!![],'sections':[{'title':_0x3a4f82(0xff),'qas':[]},{'title':'25.\x20Integrity\x20Constraints','qas':[]},{'title':_0x3a4f82(0x130),'qas':[]},{'title':_0x3a4f82(0x250),'qas':[]},{'title':_0x3a4f82(0x236),'qas':[]},{'title':_0x3a4f82(0x1ff),'qas':[]},{'title':'30.\x20Third\x20Normal\x20Form','qas':[]},{'title':_0x3a4f82(0x11d),'qas':[]},{'title':_0x3a4f82(0xfd),'qas':[]},{'title':_0x3a4f82(0x23d),'qas':[]},{'title':_0x3a4f82(0xd0),'qas':[]},{'title':_0x3a4f82(0x197),'qas':[]},{'title':'36.\x20Practice\x20Programs','qas':[]}]},{'title':_0x3a4f82(0x119),'isPremium':!![],'sections':[{'title':_0x3a4f82(0x269),'qas':[]},{'title':_0x3a4f82(0x24b),'qas':[]},{'title':_0x3a4f82(0x73),'qas':[]},{'title':_0x3a4f82(0x170),'qas':[]},{'title':_0x3a4f82(0x261),'qas':[]},{'title':_0x3a4f82(0xc2),'qas':[]},{'title':_0x3a4f82(0x1d7),'qas':[]},{'title':_0x3a4f82(0x137),'qas':[]}]},{'title':_0x3a4f82(0xbc),'isPremium':!![],'sections':[{'title':'45.\x20Query\x20Processing\x20-\x20Introduction\x20and\x20Layers','qas':[]},{'title':'46.\x20Query\x20Cost\x20&\x20Materialized\x20Views','qas':[]},{'title':_0x3a4f82(0x24c),'qas':[]},{'title':'48.\x20Equivalence\x20Rules\x20in\x20Query\x20Optimization','qas':[]},{'title':_0x3a4f82(0xf5),'qas':[]},{'title':_0x3a4f82(0x1cb),'qas':[]},{'title':_0x3a4f82(0x281),'qas':[]},{'title':'52.\x20Types\x20of\x20Indexing','qas':[]},{'title':_0x3a4f82(0x16f),'qas':[]},{'title':_0x3a4f82(0xcf),'qas':[]},{'title':_0x3a4f82(0x278),'qas':[]},{'title':_0x3a4f82(0xde),'qas':[]},{'title':_0x3a4f82(0x21b),'qas':[]},{'title':_0x3a4f82(0x98),'qas':[]}]}]}],'3_cse':[{'id':_0x3a4f82(0x178),'name':_0x3a4f82(0xa9),'fullName':'Java\x20Programming\x20—\x20Lab\x20Solutions','icon':'JAVA','type':_0x3a4f82(0x1ea),'questionsCount':0x17,'weeks':[{'title':_0x3a4f82(0x187),'topics':[{'id':'jp-1','number':'1','question':_0x3a4f82(0xcb),'code':_0x3a4f82(0x134),'language':_0x3a4f82(0x25f)}]},{'title':_0x3a4f82(0xd3),'topics':[{'id':_0x3a4f82(0xdd),'number':'2','question':'Write\x20a\x20Java\x20program\x20that\x20demonstrates\x20and\x20prints\x20the\x20default\x20values\x20of\x20different\x20primitive\x20data\x20types\x20and\x20String\x20using\x20static\x20variables.','code':_0x3a4f82(0x17c),'language':_0x3a4f82(0x25f)}]},{'title':_0x3a4f82(0x272),'topics':[{'id':_0x3a4f82(0x169),'number':'3','question':'Write\x20a\x20Java\x20program\x20to\x20check\x20whether\x20a\x20given\x20lowercase\x20string\x20is\x20a\x20palindrome\x20or\x20not.','code':'import\x20java.util.*;\x0a\x0aclass\x20Main\x20{\x0a\x20\x20\x20\x20public\x20static\x20void\x20main(String[]\x20args)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20Scanner\x20sc\x20=\x20new\x20Scanner(System.in);\x0a\x20\x20\x20\x20\x20\x20\x20\x20String\x20str\x20=\x20sc.nextLine();\x0a\x20\x20\x20\x20\x20\x20\x20\x20boolean\x20isPalindrome\x20=\x20true;\x0a\x20\x20\x20\x20\x20\x20\x20\x20int\x20n\x20=\x20str.length();\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20for\x20(int\x20i\x20=\x200;\x20i\x20<\x20n\x20/\x202;\x20i++)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20if\x20(str.charAt(i)\x20!=\x20str.charAt(n\x20-\x201\x20-\x20i))\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20isPalindrome\x20=\x20false;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20break;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20if\x20(isPalindrome)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20System.out.println(\x22yes\x22);\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x20else\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20System.out.println(\x22no\x22);\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20sc.close();\x0a\x20\x20\x20\x20}\x0a}','language':_0x3a4f82(0x25f)}]},{'title':_0x3a4f82(0xda),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x27b),'number':'4','question':_0x3a4f82(0x75),'code':_0x3a4f82(0x15d),'language':_0x3a4f82(0x25f)}]},{'title':_0x3a4f82(0xb5),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x208),'number':'5','question':_0x3a4f82(0x19e),'code':'import\x20java.util.Scanner;\x0a\x0aclass\x20Student\x20{\x0a\x20\x20\x20\x20int\x20id;\x0a\x20\x20\x20\x20String\x20name;\x0a\x0a\x20\x20\x20\x20void\x20display()\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20System.out.println(\x22ID:\x20\x22\x20+\x20id\x20+\x20\x22,\x20Name:\x20\x22\x20+\x20name);\x0a\x20\x20\x20\x20}\x0a}\x0a\x0apublic\x20class\x20StudentDetails\x20{\x0a\x20\x20\x20\x20public\x20static\x20void\x20main(String[]\x20args)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20Scanner\x20sc\x20=\x20new\x20Scanner(System.in);\x0a\x20\x20\x20\x20\x20\x20\x20\x20Student\x20s1\x20=\x20new\x20Student();\x0a\x20\x20\x20\x20\x20\x20\x20\x20s1.id\x20=\x20sc.nextInt();\x0a\x20\x20\x20\x20\x20\x20\x20\x20sc.nextLine();\x20//\x20Consume\x20newline\x0a\x20\x20\x20\x20\x20\x20\x20\x20s1.name\x20=\x20sc.nextLine();\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20s1.display();\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20sc.close();\x0a\x20\x20\x20\x20}\x0a}','language':'java'}]},{'title':'Experiment\x206\x20—\x20Constructor','isPremium':!![],'topics':[{'id':'jp-6','number':'6','question':'Write\x20a\x20Java\x20program\x20to\x20demonstrate\x20the\x20use\x20of\x20constructors\x20to\x20initialize\x20Student\x20attributes\x20and\x20display\x20them.','code':_0x3a4f82(0x267),'language':_0x3a4f82(0x25f)}]},{'title':_0x3a4f82(0x1de),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x111),'number':'7','question':_0x3a4f82(0x12f),'code':_0x3a4f82(0x1a1),'language':_0x3a4f82(0x25f)}]},{'title':_0x3a4f82(0x265),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x6d),'number':'8','question':_0x3a4f82(0x15f),'code':_0x3a4f82(0x7d),'language':_0x3a4f82(0x25f)}]},{'title':_0x3a4f82(0x89),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x1d2),'number':'9','question':_0x3a4f82(0x198),'code':'import\x20java.util.Scanner;\x0a\x0apublic\x20class\x20TestString\x20{\x0a\x20\x20\x20\x20public\x20static\x20void\x20main(String[]\x20args)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20Scanner\x20sc\x20=\x20new\x20Scanner(System.in);\x0a\x20\x20\x20\x20\x20\x20\x20\x20String\x20str1\x20=\x20sc.nextLine();\x0a\x20\x20\x20\x20\x20\x20\x20\x20String\x20str2\x20=\x20sc.nextLine();\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20System.out.println(str1\x20+\x20str2);\x0a\x20\x20\x20\x20\x20\x20\x20\x20System.out.println(str1.concat(str2));\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20sc.close();\x0a\x20\x20\x20\x20}\x0a}','language':_0x3a4f82(0x25f)}]},{'title':'Experiment\x2010\x20—\x20String\x20Operations','isPremium':!![],'topics':[{'id':_0x3a4f82(0x1e5),'number':'10','question':_0x3a4f82(0xa7),'code':_0x3a4f82(0xc7),'language':_0x3a4f82(0x25f)}]},{'title':'Experiment\x2011\x20—\x20Inheritance','isPremium':!![],'topics':[{'id':_0x3a4f82(0x124),'number':'11','question':_0x3a4f82(0xf6),'code':_0x3a4f82(0x191),'language':_0x3a4f82(0x25f)}]},{'title':_0x3a4f82(0x1be),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x11a),'number':'12','question':_0x3a4f82(0x23e),'code':_0x3a4f82(0x28a),'language':_0x3a4f82(0x25f)}]},{'title':_0x3a4f82(0x179),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x18e),'number':'13','question':'Demonstrate\x20interface\x20implementation\x20by\x20creating\x20an\x20interface\x20A\x20and\x20class\x20B\x20that\x20provides\x20a\x20greeting\x20display.','code':_0x3a4f82(0x195),'language':'java'}]},{'title':'Experiment\x2014\x20—\x20Exception\x20Handling','isPremium':!![],'topics':[{'id':_0x3a4f82(0xf2),'number':'14','question':_0x3a4f82(0x17b),'code':_0x3a4f82(0x155),'language':'java'}]},{'title':_0x3a4f82(0xb0),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x8d),'number':'15','question':_0x3a4f82(0x11e),'code':_0x3a4f82(0x249),'language':_0x3a4f82(0x25f)}]},{'title':'Experiment\x2016\x20—\x20Extending\x20Thread\x20Class','isPremium':!![],'topics':[{'id':_0x3a4f82(0x240),'number':'16','question':'Implement\x20multithreading\x20by\x20extending\x20the\x20Thread\x20class\x20to\x20print\x20a\x20message\x20multiple\x20times\x20based\x20on\x20user\x20input.','code':'import\x20java.util.Scanner;\x0a\x0aclass\x20MyThread\x20extends\x20Thread\x20{\x0a\x20\x20\x20\x20private\x20String\x20message;\x0a\x20\x20\x20\x20private\x20int\x20count;\x0a\x0a\x20\x20\x20\x20public\x20MyThread(String\x20message,\x20int\x20count)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20this.message\x20=\x20message;\x0a\x20\x20\x20\x20\x20\x20\x20\x20this.count\x20=\x20count;\x0a\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20public\x20void\x20run()\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20for\x20(int\x20i\x20=\x200;\x20i\x20<\x20count;\x20i++)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20System.out.println(message);\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x20\x20\x20\x20}\x0a}\x0a\x0apublic\x20class\x20ThreadImplementation\x20{\x0a\x20\x20\x20\x20public\x20static\x20void\x20main(String[]\x20args)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20Scanner\x20sc\x20=\x20new\x20Scanner(System.in);\x0a\x20\x20\x20\x20\x20\x20\x20\x20String\x20message\x20=\x20sc.nextLine();\x0a\x20\x20\x20\x20\x20\x20\x20\x20int\x20count\x20=\x20sc.nextInt();\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20MyThread\x20thread\x20=\x20new\x20MyThread(message,\x20count);\x0a\x20\x20\x20\x20\x20\x20\x20\x20thread.start();\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20sc.close();\x0a\x20\x20\x20\x20}\x0a}','language':_0x3a4f82(0x25f)}]},{'title':_0x3a4f82(0x28d),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x13d),'number':'17','question':'Write\x20a\x20Java\x20program\x20to\x20demonstrate\x20the\x20usage\x20of\x20isAlive()\x20and\x20join()\x20methods\x20in\x20multithreading\x20to\x20check\x20thread\x20execution\x20status\x20and\x20ensure\x20thread\x20completion.','code':'import\x20java.util.Scanner;\x0a\x0aclass\x20MyThread\x20extends\x20Thread\x20{\x0a\x20\x20\x20\x20public\x20void\x20run()\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20try\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20Thread.sleep(500);\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x20catch\x20(InterruptedException\x20e)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20System.out.println(e);\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x20\x20\x20\x20}\x0a}\x0a\x0apublic\x20class\x20ThreadMethods\x20{\x0a\x20\x20\x20\x20public\x20static\x20void\x20main(String[]\x20args)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20MyThread\x20t1\x20=\x20new\x20MyThread();\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20System.out.println(\x22Before\x20starting,\x20isAlive:\x20\x22\x20+\x20t1.isAlive());\x0a\x20\x20\x20\x20\x20\x20\x20\x20t1.start();\x0a\x20\x20\x20\x20\x20\x20\x20\x20System.out.println(\x22After\x20starting,\x20isAlive:\x20\x22\x20+\x20t1.isAlive());\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20try\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20t1.join();\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x20catch\x20(InterruptedException\x20e)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20System.out.println(e);\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20System.out.println(\x22After\x20join,\x20isAlive:\x20\x22\x20+\x20t1.isAlive());\x0a\x20\x20\x20\x20}\x0a}','language':_0x3a4f82(0x25f)}]},{'title':_0x3a4f82(0xf7),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x220),'number':'18','question':_0x3a4f82(0xcd),'code':_0x3a4f82(0x22d),'language':_0x3a4f82(0x25f)}]},{'title':_0x3a4f82(0x1ca),'isPremium':!![],'topics':[{'id':_0x3a4f82(0xb6),'number':'19','question':_0x3a4f82(0x172),'code':'import\x20java.util.Scanner;\x0a\x0apublic\x20class\x20CompareThreeStrings\x20{\x0a\x20\x20\x20\x20public\x20static\x20void\x20main(String[]\x20args)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20Scanner\x20sc\x20=\x20new\x20Scanner(System.in);\x0a\x20\x20\x20\x20\x20\x20\x20\x20String\x20s1\x20=\x20sc.nextLine();\x0a\x20\x20\x20\x20\x20\x20\x20\x20String\x20s2\x20=\x20sc.nextLine();\x0a\x20\x20\x20\x20\x20\x20\x20\x20String\x20s3\x20=\x20sc.nextLine();\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20System.out.println(\x22s1\x20equals\x20s2:\x20\x22\x20+\x20s1.equals(s2));\x0a\x20\x20\x20\x20\x20\x20\x20\x20System.out.println(\x22s1\x20equals\x20s3:\x20\x22\x20+\x20s1.equals(s3));\x0a\x20\x20\x20\x20\x20\x20\x20\x20System.out.println(\x22s1\x20compareTo\x20s2:\x20\x22\x20+\x20s1.compareTo(s2));\x0a\x20\x20\x20\x20\x20\x20\x20\x20System.out.println(\x22s1\x20compareTo\x20s3:\x20\x22\x20+\x20s1.compareTo(s3));\x0a\x20\x20\x20\x20\x20\x20\x20\x20System.out.println(\x22s3\x20compareTo\x20s1:\x20\x22\x20+\x20s3.compareTo(s1));\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20sc.close();\x0a\x20\x20\x20\x20}\x0a}','language':_0x3a4f82(0x25f)}]},{'title':_0x3a4f82(0x135),'isPremium':!![],'topics':[{'id':_0x3a4f82(0xd9),'number':'20','question':_0x3a4f82(0x1df),'code':'import\x20java.io.FileReader;\x0aimport\x20java.io.FileWriter;\x0aimport\x20java.io.IOException;\x0aimport\x20java.util.Scanner;\x0a\x0apublic\x20class\x20FileIODemo\x20{\x0a\x20\x20\x20\x20public\x20static\x20void\x20main(String[]\x20args)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20Scanner\x20sc\x20=\x20new\x20Scanner(System.in);\x0a\x20\x20\x20\x20\x20\x20\x20\x20String\x20text\x20=\x20sc.nextLine();\x0a\x20\x20\x20\x20\x20\x20\x20\x20String\x20fileName\x20=\x20\x22sample.txt\x22;\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20//\x20Writing\x20to\x20file\x0a\x20\x20\x20\x20\x20\x20\x20\x20try\x20(FileWriter\x20fw\x20=\x20new\x20FileWriter(fileName))\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20fw.write(text);\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x20catch\x20(IOException\x20e)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20System.out.println(\x22Error\x20writing\x20file:\x20\x22\x20+\x20e.getMessage());\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20//\x20Reading\x20from\x20file\x0a\x20\x20\x20\x20\x20\x20\x20\x20try\x20(FileReader\x20fr\x20=\x20new\x20FileReader(fileName))\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20int\x20ch;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20while\x20((ch\x20=\x20fr.read())\x20!=\x20-1)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20System.out.print((char)\x20ch);\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20System.out.println();\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x20catch\x20(IOException\x20e)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20System.out.println(\x22Error\x20reading\x20file:\x20\x22\x20+\x20e.getMessage());\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20sc.close();\x0a\x20\x20\x20\x20}\x0a}','language':_0x3a4f82(0x25f)}]},{'title':'Experiment\x2021\x20—\x20Read\x20File','isPremium':!![],'topics':[{'id':_0x3a4f82(0xf0),'number':'21','question':'Write\x20a\x20Java\x20program\x20that\x20reads\x20and\x20displays\x20the\x20content\x20of\x20a\x20text\x20file\x20line\x20by\x20line\x20using\x20the\x20Scanner\x20and\x20File\x20classes.','code':_0x3a4f82(0xea),'language':_0x3a4f82(0x25f)}]},{'title':_0x3a4f82(0x144),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x216),'number':'22','question':_0x3a4f82(0xcc),'code':_0x3a4f82(0x24e),'language':'java'}]},{'title':_0x3a4f82(0x1db),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x10c),'number':'23','question':_0x3a4f82(0x1f7),'code':_0x3a4f82(0xe8),'language':_0x3a4f82(0x25f)}]}]},{'id':_0x3a4f82(0x199),'name':_0x3a4f82(0x181),'fullName':'Data\x20Structures\x20—\x20Lab\x20Solutions','icon':'C','type':_0x3a4f82(0x1ea),'questionsCount':0xc,'weeks':[{'title':'Experiment\x201\x20—\x20Array\x20Operations','topics':[{'id':_0x3a4f82(0x212),'number':'1','question':_0x3a4f82(0x1ec),'code':_0x3a4f82(0x115),'language':'c'}]},{'title':_0x3a4f82(0x1ad),'topics':[{'id':_0x3a4f82(0x1f1),'number':'2','question':_0x3a4f82(0x215),'code':_0x3a4f82(0x1ed),'language':'c'}]},{'title':_0x3a4f82(0x7a),'topics':[{'id':'ds-3','number':'3','question':_0x3a4f82(0x166),'code':_0x3a4f82(0x263),'language':'c'}]},{'title':'Experiment\x204\x20—\x20Circular\x20Linked\x20List','isPremium':!![],'topics':[{'id':_0x3a4f82(0xe4),'number':'4','question':'Write\x20a\x20menu-driven\x20C\x20program\x20to\x20implement\x20a\x20Circular\x20Linked\x20List\x20with\x20operations\x20for\x20node\x20creation,\x20traversal,\x20and\x20insertion\x20at\x20a\x200-based\x20position.','code':_0x3a4f82(0x167),'language':'c'}]},{'title':_0x3a4f82(0x293),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x13e),'number':'5','question':'Write\x20a\x20menu-driven\x20C\x20program\x20to\x20implement\x20a\x20Stack\x20using\x20an\x20array\x20with\x20push,\x20pop\x20and\x20display\x20operations\x20(MAX\x20=\x205).','code':_0x3a4f82(0x173),'language':'c'}]},{'title':_0x3a4f82(0xba),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x213),'number':'6','question':_0x3a4f82(0xd6),'code':_0x3a4f82(0x1fa),'language':'c'}]},{'title':'Experiment\x207\x20—\x20Simple\x20Queue','isPremium':!![],'topics':[{'id':_0x3a4f82(0x85),'number':'7','question':_0x3a4f82(0x9e),'code':_0x3a4f82(0x1f5),'language':'c'}]},{'title':_0x3a4f82(0xa0),'isPremium':!![],'topics':[{'id':'ds-8','number':'8','question':_0x3a4f82(0xd5),'code':_0x3a4f82(0x26f),'language':'c'}]},{'title':_0x3a4f82(0x1ba),'isPremium':!![],'topics':[{'id':_0x3a4f82(0x1f8),'number':'9','question':_0x3a4f82(0x150),'code':_0x3a4f82(0x234),'language':'c'}]},{'title':'Experiment\x2010\x20—\x20Selection\x20Sort\x20(Descending)','isPremium':!![],'topics':[{'id':_0x3a4f82(0xc3),'number':'10','question':_0x3a4f82(0x188),'code':'#include\x20<stdio.h>\x0a\x0avoid\x20selectionSort(int\x20arr[],\x20int\x20n)\x20{\x0a\x20\x20\x20\x20int\x20i,\x20j,\x20max_idx,\x20temp;\x0a\x20\x20\x20\x20for\x20(i\x20=\x200;\x20i\x20<\x20n\x20-\x201;\x20i++)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20max_idx\x20=\x20i;\x0a\x20\x20\x20\x20\x20\x20\x20\x20for\x20(j\x20=\x20i\x20+\x201;\x20j\x20<\x20n;\x20j++)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20if\x20(arr[j]\x20>\x20arr[max_idx])\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20max_idx\x20=\x20j;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20temp\x20=\x20arr[max_idx];\x0a\x20\x20\x20\x20\x20\x20\x20\x20arr[max_idx]\x20=\x20arr[i];\x0a\x20\x20\x20\x20\x20\x20\x20\x20arr[i]\x20=\x20temp;\x0a\x20\x20\x20\x20}\x0a}\x0a\x0aint\x20main()\x20{\x0a\x20\x20\x20\x20int\x20n;\x0a\x20\x20\x20\x20scanf(\x22%d\x22,\x20&n);\x0a\x20\x20\x20\x20int\x20arr[n];\x0a\x20\x20\x20\x20for\x20(int\x20i\x20=\x200;\x20i\x20<\x20n;\x20i++)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20scanf(\x22%d\x22,\x20&arr[i]);\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20selectionSort(arr,\x20n);\x0a\x20\x20\x20\x20for\x20(int\x20i\x20=\x200;\x20i\x20<\x20n;\x20i++)\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20printf(\x22%d\x20\x22,\x20arr[i]);\x0a\x20\x20\x20\x20}\x0a\x20\x20\x20\x20printf(\x22\x5cn\x22);\x0a\x20\x20\x20\x20return\x200;\x0a}','language':'c'}]},{'title':'Experiment\x2011\x20—\x20Binary\x20Search\x20Tree','isPremium':!![],'topics':[{'id':_0x3a4f82(0x107),'number':'11','question':_0x3a4f82(0x10e),'code':_0x3a4f82(0x1ce),'language':'c'}]},{'title':'Experiment\x2012\x20—\x20Graph\x20(DFS\x20&\x20BFS)','isPremium':!![],'topics':[{'id':'ds-12','number':'12','question':'Write\x20a\x20menu-driven\x20C\x20program\x20to\x20represent\x20an\x20undirected\x20graph\x20using\x20an\x20Adjacency\x20Matrix\x20and\x20perform\x20DFS\x20and\x20BFS\x20traversals.','code':_0x3a4f82(0x15b),'language':'c'}]}]}]}};function _0x1362(){const _0x59c786=['ugH5C2LJywWGrgf0ysbjBMrLCgvUzgvUy2uG4OctievUC3vYzxmGDgHHDcbJAgfUz2vZigLUihrOzsbWAhLZAwnHBcbZDg9YywDLihn0CNvJDhvYzsbKBYbUB3qGywzMzwn0ihrOzsbSB2DPy2fSihnJAgvTys4','Z4mOChjPy2uGpIa4mcKOChjVzhvJDhmP','zgjTCW','u3vTig9MiefYCMf5ihvZAw5Nig1HBgXVyYGP','u1fm','ns4XlJK','u3DHCcbwywX1zxmGvxnPBMCGug9PBNrLCG','ANaTnq','u0vmrunuigXHC3rFBMfTzsWGBwfUywDLCL9PzaPguK9nigvTCgXVEwvLCWPxsevsrsbTyw5Hz2vYx2LKidW+ideWmZS','re8GjcqkqKvhsu4kicbvuerbveuGzw1WcIaGu0vuihnHBgfYEsa9ide1mdaWcIaGv0HfuKuGzw1Wx25HBwuGpsaNwfHyjZSkicbsquLtrsbot1rjq0uGj1nHBgfYEsbvCgrHDgvKigzVCIbywfGNoWPftKq7cIqKieXbtKDvquDfihbSCgDZCwW7','DgHLB3j5','zgjTCY00lti','v29YA3ngB3iOrw1WsuqSierLChrjrcK','B25SAw5Lx2n1C3rVBwvYCYbvihn0B3jLx2n1C3rVBwvYCWRpGcHJDxn0B21LCL9Uyw1LksHVBMXPBMvFy3vZDg9TzxjZifuGC3rVCMvFy3vZDg9TzxjZkq','vfjvtKnbveuGvefcteuGC3rHzMy7','nc4XlJe','rM9YzwLNBIblzxLZigfYzsb1C2vKihrVigXPBMSGCMvSyxrLzcbKyxrHigfJCM9ZCYbTDwX0AxbSzsb0ywjSzxmUcLnrtcbLBMfIBgvZigvMzMLJAwvUDcbPBNnLCNrPB24SihjLDhjPzxzHBcWGyw5KihvWzgf0Aw5Nig9MigrHDgeGAw4GCMvSyxrPB25HBcbKyxrHyMfZzxmUcK5VCM1HBgL6yxrPB24GCMvKDwnLCYbKyxrHihjLzhvUzgfUy3KGyw5KigLTChjVDMvZignVBNnPC3rLBMn5lG','zhmTmq','zhmTnG','rw5ZDxjPBMCGvMfSAwqGuhjVzhvJDcbszwzLCMvUy2vZigLUifnHBgvZ','v3jPDguGysbTzw51lwrYAxzLBIbdihbYB2DYyw0GDg8GAw5Zzxj0igf0igjLz2LUBMLUzYWGzw5KigfUzcbZCgvJAwzPyYbWB3nPDgLVBIbPBIbHihnPBMDSEsbSAw5RzwqGBgLZDc4GrgLZCgXHEsb0AguGBgLZDcbHBMqGAgfUzgXLigLUDMfSAwqGCg9ZAxrPB24Gyw5KigvTChr5igXPC3qGy2fZzxmU','ANaTmJi','zgjTCY0Zltq','rgLZCgXHEwLUzYb0AguGtgLZDcbVzIbgywLSzwqGu3r1zgvUDhm','zxHJzxb0Aw9U','oc4XlJe','ntCUierPC3rYAwj1DgvKierHDgfIyxnLCW','mJmUifbYywn0AwnLifbYB2DYyw1Z','quXurviGvefcteuGzw1WBg95zwukuKvoqu1fifrpihn0ywzMoW','zgjTCY01lte','mI4XlJK','ANaTmtG','yY01ltq','os4XlJm','u3vTig9MiefYCMf5ievSzw1LBNrZ','BwvKAwnHChm','ns4XlJy','u2vTzxn0zxiGna','qMfJA3vWifbVD2vYifn5C3rLBxm','zgjTCY00ltG','yY0XmI0X','BgvUz3rO','ms4XlJeW','u0vmrunuienpvu5ukerju1rjtKnuigPVyL9PzcKGqvmGy291BNqkrLjptsbLBxbSB3LLzxm7','lY8GrMLSztOGBxLqywnRl0HLBgXVlMPHDMekCgfJA2fNzsbTEvbHy2S7cGPWDwjSAwmGy2XHC3mGsgvSBg8GEWOGicaGChvIBgLJihzVAwqGC2HVDYHtDhjPBMCGBMfTzsKGEWOGicaGicaGifn5C3rLBs5VDxqUChjPBNrSBIGIsgvSBg8GiIaRig5HBwuGkYaIlcbWywnRywDLigLZigLTCg9YDgvKiIK7cIaGicb9cN0kcI8ViezPBgu6ifrLC3qUAMf2yqPPBxbVCNqGAMf2ys51DgLSlLnJyw5Uzxi7cMLTCg9YDcbTEvbHy2SUsgvSBg87cGPWDwjSAwmGy2XHC3mGvgvZDcb7cIaGicbWDwjSAwmGC3rHDgLJihzVAwqGBwfPBIHtDhjPBMDBxsbHCMDZksb7cIaGicaGicaGu2nHBM5LCIbZyYa9ig5LDYbty2fUBMvYkfn5C3rLBs5PBIK7cIaGicaGicaGu3rYAw5Nig5HBwuGpsbZyY5UzxH0tgLUzsGPoWOGicaGicaGieHLBgXVigGGpsbUzxCGsgvSBg8OktSkicaGicaGicbOlNnOB3COBMfTzsK7cIaGicaGicaGC2mUy2XVC2uOktSkicaGih0kFq','msa6iemSidiGoIbelcaZidOGqsWGnca6iei','mtiUieLUDhjVzhvJDgLVBIb0BYbereWGjIbetuW','revmrvrfiezst00Gzw1WBg95zwukv0HfuKuGzgvWDgLKieLoicGkicaGifnftevdvcbKzxb0AwqkicaGiezst00GzgvWyxj0BwvUDcbKcIaGicbxsevsrsbot1qGrvHju1rticGkicaGicaGicbtruXfq1qGmqOGicaGicaGiezst00Gzw1WBg95zwuGzqOGicaGicaGifDirvjfiguUzgvWDgLKid0Gzc5Kzxb0AwqkicaGicaGicbbtKqGzs5ZywXHCNKGpIa2mdaWmaOGicaGkqOPoW','ns4XlJeX','qsbZAw1WBguGyxr0CMLIDxrLigLZigfUigLUzgL2AxnPyMXLigf0DhjPyNv0zsbHBMqGy2fUBM90igjLigjYB2TLBIbKB3DUigz1CNrOzxiUcKeGBxvSDgKTDMfSDwvKigf0DhjPyNv0zsbHBgXVD3mGBxvSDgLWBguGDMfSDwvZigzVCIbHihnPBMDSzsbLBNrPDhKSihn1y2GGyxmGBxvSDgLWBguGCgHVBMuGBNvTyMvYCYbMB3iGB25Lign1C3rVBwvYlGPbigzVCMvPz24GA2v5ihjLzMvYCYb0BYbHBIbHDhrYAwj1DguGAw4GB25LihrHyMXLihrOyxqGBgLUA3mGDg8GDgHLihbYAw1HCNKGA2v5ig9MigfUB3rOzxiGDgfIBguSigvZDgfIBgLZAgLUzYbHihjLBgf0Aw9UC2HPCcbIzxr3zwvUihrOzw0U','v2vLAYa5ic0Gvenm','i2LUy2X1zguGphn0zgLVlMG+cGP2B2LKigLUC2vYDgLVBLnVCNqOAw50igfYCLTDlcbPBNqGBIKGEWOGicaGAw50igKSigOSigTLEtSkicaGigzVCIaOAsa9ide7igKGpcbUoYbPkYSPihSkicaGicaGicbRzxKGpsbHCNjBAv07cIaGicaGicaGAIa9igKGlsaXoWOGicaGicaGihDOAwXLicHQid49idaGjIyGyxjYw2PDid4GA2v5ksb7cIaGicaGicaGicaGigfYCLTQicSGmv0GpsbHCNjBAL07cIaGicaGicaGicaGigOGpsbQic0GmtSkicaGicaGicb9cIaGicaGicaGyxjYw2OGkYaXxsa9igTLEtSkicaGih0kFqOkAw50ig1HAw4Oksb7cIaGicbPBNqGBJSkicaGihnJyw5MkciLzciSiczUktSkicaGigLUDcbHCNjBBL07cIaGicbMB3iGkgLUDcbPid0GmdSGAsa8ig47igKRkYKGEWOGicaGicaGihnJyw5MkciLzciSiczHCNjBAv0PoWOGicaGFqOGicaGAw5Zzxj0Aw9Uu29YDcHHCNiSig4PoWOGicaGzM9YicHPBNqGAsa9ida7igKGpcbUoYbPkYSPihSkicaGicaGicbWCMLUDgyOiIvKiciSigfYCLTPxsK7cIaGicb9cIaGicbYzxr1CM4GmdSkFq','zgjTCY0Yltu','mJGUiezPCNn0ie5VCM1HBcbgB3jT','mtqYndC4z05pBNjZ','yY04lti','zgjTCY0Yltm','oc4XlJm','yY0Zlte','yY01lti','mZmUiezVDxj0AcboB3jTywWGrM9YBsaOne5gkq','rgvTB25ZDhjHDguGywjZDhjHy3qGy2XHC3nLCYbIEsbJywXJDwXHDgLUzYb0AguGyxjLysbVzIbHignPCMnSzsb1C2LUzYbHBIbHyNn0CMfJDcbtAgfWzsbJBgfZCY4','zgjTCY00lteX','ANaTmty','i2LUy2X1zguGphn0zgLVlMG+cMLUDcbTywLUkcKGEWOGicaGy2HHCIbJAdSkicaGihnJyw5MkciLyYiSiczJAcK7cIaGicaVl1DYAxrLihLVDxiGy29KzsbOzxjLcIaGicbPzIaOy2GGpt0Gj2eNihX8ignOid09icDLjYb8FcbJAca9psaNAsCGFhWGy2GGpt0Gj28NihX8ignOid09icD1jYb8FcakicaGicaGicbJAca9psaNqsCGFhWGy2GGpt0Gj0uNihX8ignOid09icDjjYb8FcbJAca9psaNtYCGFhWGy2GGpt0Gj1uNksb7cIaGicaGicaGChjPBNrMkcj2B3DLBfXUiIK7cIaGicb9cIaGicbLBhnLigLMicGOy2GGpJ0Gj2eNicyMignOidW9icD6jYKGFhWGkgnOid49icDbjYaMjIbJAca8psaNwICPksb7cIaGicaGicaGChjPBNrMkcjJB25ZB25HBNrCBIiPoWOGicaGFqOGicaGzwXZzsb7cIaGicaGicaGChjPBNrMkcjjBNzHBgLKigLUChv0lIbWBgvHC2uGzw50zxiGyw4GywXWAgfIzxqGy2HHCMfJDgvYlLXUiIK7cIaGicb9cIaGicbYzxr1CM4GmdSkFq','rMLUzcbfBxbSB3LLzxmGrwfYBMLUzYbbyM92zsbdB21Wyw55ief2zxjHz2uGu2fSyxj5','oc4XlJy','msa6ieiSidiGoIbblcaZidOGqW','sgfUzgXPBMCGtLvmtcbqCM9KDwn0suqGrhvYAw5NieLUC2vYDa','zgjTCY00ltm','nc4XlJi','v2vLAYa1ic0Gq29UC3rYywLUDhm','Aw1WB3j0igPHDMeUDxrPBc5ty2fUBMvYoWOky2XHC3mGu2HHCguGEWOGicaGDM9PzcbKCMf3kcKGEWOGicaGicaGifn5C3rLBs5VDxqUChjPBNrSBIGIrhjHD2LUzYbHihnOyxbLiIK7cIaGicb9cN0kcMnSyxnZifjLy3rHBMDSzsbLEhrLBMrZifnOyxbLihSkicaGiebpDMvYCMLKzqOGicaGDM9PzcbKCMf3kcKGEWOGicaGicaGifn5C3rLBs5VDxqUChjPBNrSBIGIrhjHD2LUzYbHihjLy3rHBMDSzsiPoWOGicaGFqP9cGPJBgfZCYbdAxjJBguGzxH0zw5KCYbtAgfWzsb7cIaGicbat3zLCNjPzgukicaGihzVAwqGzhjHDYGPihSkicaGicaGicbtExn0zw0UB3v0lNbYAw50Bg4OiKrYyxDPBMCGysbJAxjJBguIktSkicaGih0kFqOkChvIBgLJignSyxnZifj1BNrPBwvqB2X5Bw9YCgHPC21ezw1VihSkicaGihb1yMXPyYbZDgf0AwmGDM9PzcbTywLUkfn0CMLUz1TDigfYz3mPihSkicaGicaGicbty2fUBMvYihnJid0GBMv3ifnJyw5UzxiOu3LZDgvTlMLUktSkicaGicaGicakicaGicaGicbtAgfWzsbZoWOGicaGicaGihmGpsbUzxCGuMvJDgfUz2XLkcK7cIaGicaGicaGCY5KCMf3kcK7cIaGicaGicaGcIaGicaGicaGCYa9ig5LDYbdAxjJBguOktSkicaGicaGicbZlMrYyxCOktSkicaGicaGicakicaGicaGicbZyY5JBg9ZzsGPoWOGicaGFqP9','mteUmI4X','mZGUierLC2LYywjSzsbqCM9Wzxj0AwvZig9MifrYyw5Zywn0Aw9UCW','ndCUieLUDhjVzhvJDgLVBIb0BYbrDwvYEsbpChrPBwL6yxrPB24','ms4XlJG','Aw1WB3j0igPHDMeUAw8UrMLSzuLUChv0u3rYzwfToWPPBxbVCNqGAMf2ys5PBY5gAwXLt3v0Chv0u3rYzwfToWPPBxbVCNqGAMf2ys5PBY5jt0v4y2vWDgLVBJSkAw1WB3j0igPHDMeUDxrPBc5ty2fUBMvYoWOkChvIBgLJignSyxnZiej5DgvtDhjLyw1dB3b5ihSkicaGihb1yMXPyYbZDgf0AwmGDM9PzcbTywLUkfn0CMLUz1TDigfYz3mPihSkicaGicaGicbty2fUBMvYihnJid0GBMv3ifnJyw5UzxiOu3LZDgvTlMLUktSkicaGicaGicbtDhjPBMCGC291CMnLrMLSzsa9ihnJlM5LEhrmAw5LkcK7cIaGicaGicaGu3rYAw5NigrLC3rgAwXLid0GC2mUBMv4DeXPBMuOktSkcIaGicaGicaGDhj5icHgAwXLsw5WDxrtDhjLyw0GzMLZid0GBMv3iezPBgvjBNb1Dfn0CMvHBsHZB3vYy2vgAwXLktSkicaGicaGicaGicaGiezPBgvpDxrWDxrtDhjLyw0GzM9Zid0GBMv3iezPBgvpDxrWDxrtDhjLyw0OzgvZDezPBguPksb7cGOGicaGicaGicaGicbPBNqGyNL0zurHDge7cIaGicaGicaGicaGihDOAwXLicGOyNL0zurHDgeGpsbMAxmUCMvHzcGPksaHpsaTmsKGEWOGicaGicaGicaGicaGicaGzM9ZlNDYAxrLkgj5DgveyxrHktSkicaGicaGicaGicaGFqOGicaGicaGicaGicbtExn0zw0UB3v0lNbYAw50Bg4OiKzPBguGy29WAwvKihn1y2nLC3nMDwXSEs4IktSkcIaGicaGicaGFsbJyxrJAcaOsu9fEgnLChrPB24GzsKGEWOGicaGicaGicaGicbtExn0zw0UB3v0lNbYAw50Bg4OiKvYCM9YihbYB2nLC3nPBMCGzMLSztOGiIaRiguUz2v0twvZC2fNzsGPktSkicaGicaGicb9cGOGicaGicaGihnJlMnSB3nLkcK7cIaGicb9cN0','zgjTCY0Ylte','mJCUie5LzwqGB2yGtM9YBwfSAxPHDgLVBG','mtaUms40','mteUms40','uhjVz3jHBsb0BYbgAw5Kifn1BsbuD28GtNvTyMvYCYbvC2LUzYbqtc9Wz1nrta','t3b0Aw9UywWGyxr0CMLIDxrLCYbPBIb0AguGrviGBw9KzwWGDhjHBNnSyxrLigLUDg8GBNvSBgfIBguGy29SDw1UCYbPBIbqB3n0z3jLu1fmlcbHBgLNBMLUzYb3AxrOihrOzsbYDwXLigzVCIbUDwXSihzHBhvLCW','lY8Gv3jPDguGEw91CIbJB2rLigHLCMuki2LUy2X1zgu8C3rKAw8UAd4kAw50ig1HAw4Oksb7cIaGicbPBNqGBNvTlcbYzxzLCNnLid0GmcWGzgLNAxq7cIaGicbZy2fUzIGIjwqIlcaMBNvTktSkicaGigrPz2L0id0GBNvTicuGmta7cIaGicbYzxzLCNnLid0GCMv2zxjZzsaQideWicSGzgLNAxq7cIaGicbUDw0GlZ0Gmta7cIaGicbKAwDPDca9ig51BsaLideWoWOGicaGCMv2zxjZzsa9ihjLDMvYC2uGkIaXmcaRigrPz2L0oWOGicaGBNvTic89ideWoWOGicaGzgLNAxqGpsbUDw0GjsaXmdSkicaGihjLDMvYC2uGpsbYzxzLCNnLicOGmtaGkYbKAwDPDdSkicaGihbYAw50zIGIjwrCBIiSihjLDMvYC2uPoWOGicaGCMv0DxjUida7cN0','zgjTCY02ltq','mtaUms4Y','ns4XlJe','zgjTCY02ltm','ns4XlJC','qsbSyxjNzsbLlwnVBw1LCMnLihDLyNnPDguGD2L0Acb0Ag91C2fUzhmGB2yGy29Uy3vYCMvUDcb1C2vYCYbPBNrLCMfJDgLUzYb3AxrOihrOzsbHChbSAwnHDgLVBIbMB3iGChjVzhvJDcbICM93C2LUzYbHBMqGy2HLy2TVDxqU','qwX0zxiGvgfIBguGrw1WBg95zwuGtMfTzsb0BYbtDgfMzG','oc4XlJK','u3DHCcbuD28GtNvTyMvYCW','AMf2yq','u0vmrunuigvTCgLKlcbLBxbUyw1LlcbZywXHCNKkrLjptsbLBxbSB3LLzqPxsevsrsbZywXHCNKGpsaOu0vmrunuie1jtIHZywXHCNKPiezst00Gzw1WBg95zwuPoW','ndeUifjLy292zxjHyMLSAxr5igLUierctvm','rwfJAcbJDxn0B21LCIbJyw4GCgXHy2uGBxvSDgLWBguGB3jKzxjZlGPuAguGq3vZDg9TzxjFsuqGAw4GDgHLie9YzgvYCYb0ywjSzsbPCYbHiezVCMvPz24Gs2v5ihjLzMvYzw5JAw5NihrOzsbdDxn0B21LCL9jrcbPBIb0AguGq3vZDg9TzxjZihrHyMXLlGPuAguGt3jKzxjZihrHyMXLigrLBw9UC3rYyxrLCYbHie9Uzs10BY1nyw55ihjLBgf0Aw9UC2HPCcb3AxrOihrOzsbdDxn0B21LCNmGDgfIBguU','i2LUy2X1zguGphn0zgLVlMG+cInPBMnSDwrLidXZDgrSAwiUAd4kcNn0CNvJDcboB2rLihSkicaGigLUDcbKyxrHoWOGicaGC3rYDwn0ie5VzguGkNbYzxy7cIaGicbZDhj1y3qGtM9KzsaQBMv4DdSkFtSkcNn0CNvJDcboB2rLicPOzwfKid0GtLvmtdSkcNzVAwqGy3jLyxrLtM9KzsHPBNqGDIKGEWOGicaGC3rYDwn0ie5VzguGkM4GpsbTywXSB2mOC2L6zw9Mkhn0CNvJDcboB2rLksK7cIaGicbUlt5KyxrHid0GDJSkicaGig4TpM5LEhqGpsbovuXmoWOGicaGAwyGkcfOzwfKksb7cIaGicaGicaGBI0+ChjLDIa9ie5vteW7cIaGicaGicaGAgvHzca9ig47cIaGicb9igvSC2uGEWOGicaGicaGihn0CNvJDcboB2rLicP0id0GAgvHzdSkicaGicaGicb3AgLSzsaODc0+BMv4DcKkicaGicaGicaGicaGDca9ihqTpM5LEhq7cIaGicaGicaGDc0+BMv4Dca9ig47cIaGicaGicaGBI0+ChjLDIa9ihq7cIaGicb9cIaGicbWCMLUDgyOiK5VzguGD2L0Acb2ywX1zsaLzcbJCMvHDgvKxg4Ilcb2ktSkFqOkDM9Pzcb0CMf2zxjZzsGPihSkicaGigLMicGHAgvHzcKGEWOGicaGicaGihbYAw50zIGItgLZDcbPCYbLBxb0EvXUiIK7cIaGicaGicaGCMv0DxjUoWOGicaGFqOGicaGChjPBNrMkcjeB3vIBhKGtgLUA2vKieXPC3q6iciPoWOGicaGzM9YicHZDhj1y3qGtM9KzsaQDca9igHLywq7ihq7ihqGpsb0lt5UzxH0kqOGicaGicaGihbYAw50zIGIjwqGpc0+iciSihqTpMrHDgePoWOGicaGChjPBNrMkcjovuXmxg4IktSkFqOkDM9PzcbPBNnLCNroB2rLkgLUDcb2lcbPBNqGCg9Zksb7cIaGicbPzIaOCg9ZidWGmcKGEWOGicaGicaGihbYAw50zIGIsw52ywXPzcbWB3nPDgLVBLXUiIK7cIaGicaGicaGCMv0DxjUoWOGicaGFqOGicaGC3rYDwn0ie5VzguGkM4GpsbTywXSB2mOC2L6zw9Mkhn0CNvJDcboB2rLksK7cIaGicbUlt5KyxrHid0GDJSkicaGigLMicHWB3mGpt0GmcKGEWOGicaGicaGig4TpNbYzxyGpsbovuXmoWOGicaGicaGig4TpM5LEhqGpsbOzwfKoWOGicaGicaGigLMicHOzwfKkqOGicaGicaGicaGicbOzwfKlt5WCMv2id0GBJSkicaGicaGicbOzwfKid0GBJSkicaGicaGicbWCMLUDgyOiK5VzguGjwqGAw5Zzxj0zwqGyxqGCg9ZAxrPB24GjwrCBIiSihySihbVCYK7cIaGicaGicaGCMv0DxjUoWOGicaGFqOGicaGC3rYDwn0ie5VzguGkNqGpsbOzwfKoWOGicaGzM9YicHPBNqGAsa9ida7ihqGjIyGAsa8ihbVCYaTide7igKRkYKkicaGicaGicb0id0GDc0+BMv4DdSkicaGigLMicGHDcKGEWOGicaGicaGihbYAw50zIGIsw52ywXPzcbWB3nPDgLVBLXUiIK7cIaGicaGicaGzNjLzsHUktSkicaGicaGicbYzxr1CM47cIaGicb9cIaGicbUlt5UzxH0id0GDc0+BMv4DdSkicaGig4TpNbYzxyGpsb0oWOGicaGAwyGkhqTpM5LEhqPcIaGicaGicaGDc0+BMv4Dc0+ChjLDIa9ig47cIaGicb0lt5UzxH0id0GBJSkicaGihbYAw50zIGItM9KzsaLzcbPBNnLCNrLzcbHDcbWB3nPDgLVBIaLzfXUiIWGDIWGCg9ZktSkFqOkAw50ig1HAw4Oksb7cIaGicbPBNqGy2GSihySihbVCZSkicaGihDOAwXLicGXksb7cIaGicaGicaGChjPBNrMkciXlKnYzwf0zvXUmI5uCMf2zxjZzvXUmY5jBNnLCNrCBJqUrxHPDfXUy2HVAwnLoIaIktSkicaGicaGicbZy2fUzIGIjwqIlcaMy2GPoWOGicaGicaGihn3AxrJAcaOy2GPihSkicaGicaGicaGicaGy2fZzsaXoGOGicaGicaGicaGicaGicaGChjPBNrMkcj2ywX1ztOGiIK7cIaGicaGicaGicaGicaGicbZy2fUzIGIjwqIlcaMDIK7cIaGicaGicaGicaGicaGicbJCMvHDgvoB2rLkhyPoWOGicaGicaGicaGicaGicaGyNjLywS7cIaGicaGicaGicaGignHC2uGmJOkicaGicaGicaGicaGicaGihrYyxzLCNnLkcK7cIaGicaGicaGicaGicaGicbICMvHAZSkicaGicaGicaGicaGy2fZzsaZoGOGicaGicaGicaGicaGicaGChjPBNrMkcj2ywX1ztOGiIK7cIaGicaGicaGicaGicaGicbZy2fUzIGIjwqIlcaMDIK7cIaGicaGicaGicaGicaGicbWCMLUDgyOiNbVC2L0Aw9UoIaIktSkicaGicaGicaGicaGicaGihnJyw5MkciLzciSiczWB3mPoWOGicaGicaGicaGicaGicaGAw5Zzxj0tM9KzsH2lcbWB3mPoWOGicaGicaGicaGicaGicaGyNjLywS7cIaGicaGicaGicaGignHC2uGndOkicaGicaGicaGicaGicaGigv4AxqOmcK7cIaGicaGicaGicaGigrLzMf1Bhq6cIaGicaGicaGicaGicaGicbWCMLUDgyOiKLUDMfSAwqGy2HVAwnLxg4IktSkicaGicaGicb9cIaGicb9cN0','rMLUzcbfBxbSB3LLzxmGrwfYBMLUzYbbyM92zsbezxbHCNrTzw50ief2zxjHz2u','rxHWzxjPBwvUDca4iokaLcbnzxrOB2qGt3zLCMXVywrPBMC','mY4XlJK','Aw1WB3j0igPHDMeUDxrPBc5ty2fUBMvYoWOky2XHC3mGu3r1zgvUDcb7cIaGicbPBNqGAwq7cIaGicbtDhjPBMCGBMfTztSkcIaGicbtDhvKzw50kgLUDcbPzcWGu3rYAw5Nig5HBwuPihSkicaGicaGicb0AgLZlMLKid0GAwq7cIaGicaGicaGDgHPCY5Uyw1Lid0GBMfTztSkicaGih0kcIaGicb2B2LKigrPC3bSyxKOksb7cIaGicaGicaGu3LZDgvTlM91Dc5WCMLUDgXUkcjjzdOGiIaRigLKktSkicaGicaGicbtExn0zw0UB3v0lNbYAw50Bg4OiK5HBwu6iciGkYbUyw1LktSkicaGih0kFqOkChvIBgLJignSyxnZienVBNn0CNvJDg9YihSkicaGihb1yMXPyYbZDgf0AwmGDM9PzcbTywLUkfn0CMLUz1TDigfYz3mPihSkicaGicaGicbty2fUBMvYihnJyw5UzxiGpsbUzxCGu2nHBM5LCIHtExn0zw0UAw4PoWOGicaGicaGiaOGicaGicaGigLUDcbPzdeGpsbZy2fUBMvYlM5LEhrjBNqOktSkicaGicaGicbZy2fUBMvYlM5LEhrmAw5LkcK7cIaGicaGicaGu3rYAw5Nig5HBwuXid0GC2nHBM5LCI5UzxH0tgLUzsGPoWOGicaGicaGiaOGicaGicaGigLUDcbPzdiGpsbZy2fUBMvYlM5LEhrjBNqOktSkicaGicaGicbZy2fUBMvYlM5LEhrmAw5LkcK7cIaGicaGicaGu3rYAw5Nig5HBwuYid0GC2nHBM5LCI5UzxH0tgLUzsGPoWOGicaGicaGiaOGicaGicaGifn0DwrLBNqGC3r1zgvUDdeGpsbUzxCGu3r1zgvUDcHPzdeSig5HBwuXktSkicaGicaGicbtDhvKzw50ihn0DwrLBNqYid0GBMv3ifn0DwrLBNqOAwqYlcbUyw1LmIK7cIaGicaGicaGcIaGicaGicaGC3r1zgvUDdeUzgLZCgXHEsGPoWOGicaGicaGihn0DwrLBNqYlMrPC3bSyxKOktSkicaGicaGicakicaGicaGicbZy2fUBMvYlMnSB3nLkcK7cIaGicb9cN0','u0vmrunuicOkrLjptsbLBxbSB3LLzxmkv0HfuKuGC2fSyxj5iejfvfDfru4GmtaWmdaGqu5eidmWmdaWoW','mZCUifrYyw5Zywn0Aw9Uifn5C3rLBsbdB25Jzxb0CW','ms4XlJu','u0vmrunuicOkrLjptsbLBxbSB3LLzxmkv0HfuKuGBwfUywDLCL9Pzca9ideWmZS','rgvSzxrLievTCgXVEwvLCYbIEsbezxbHCNrTzw50ie5HBwu','mtrZwNriAgq','zgjTCY01lty','i2LUy2X1zguGphn0zgLVlMG+cGP2B2LKigj1yMjSzvnVCNqOAw50igfYCLTDlcbPBNqGBIKGEWOGicaGAw50igKSigOSihrLBxa7cIaGicbMB3iGkgKGpsaWoYbPidWGBIaTide7igKRkYKGEWOGicaGicaGigzVCIaOAIa9ida7igOGpcbUic0GAsaTide7igORkYKGEWOGicaGicaGicaGicbPzIaOyxjYw2PDid4GyxjYw2OGkYaXxsKGEWOGicaGicaGicaGicaGicaGDgvTCca9igfYCLTQxtSkicaGicaGicaGicaGicaGigfYCLTQxsa9igfYCLTQicSGmv07cIaGicaGicaGicaGicaGicbHCNjBAIaRidfDid0GDgvTCdSkicaGicaGicaGicaGFqOGicaGicaGih0kicaGih0kFqOkAw50ig1HAw4Oksb7cIaGicbPBNqGBJSkicaGihnJyw5MkciLzciSiczUktSkicaGigLUDcbHCNjBBL07cIaGicbMB3iGkgLUDcbPid0GmdSGAsa8ig47igKRkYKGEWOGicaGicaGihnJyw5MkciLzciSiczHCNjBAv0PoWOGicaGFqOGicaGyNvIyMXLu29YDcHHCNiSig4PoWOGicaGzM9YicHPBNqGAsa9ida7igKGpcbUoYbPkYSPihSkicaGicaGicbWCMLUDgyOiIvKiciSigfYCLTPxsK7cIaGicb9cIaGicbWCMLUDgyOiLXUiIK7cIaGicbYzxr1CM4GmdSkFq','v2vLAYa0ic0GrermicyGre1m','ms4XlJy','rxHWzxjPBwvUDcaZiokaLcbqywXPBMrYB21L','qsbSAxn0ig9MigfSBcbYzwDPC3rLCMvKign1C3rVBwvYCYbPBIb0AguGC3LZDgvTlG','oc4XlJC','zgjTCY00lty','veHft1jz','rgLZCgXHEsbeAxn0Aw5JDcbnyw5Hz2vYieLeCW','ntuUie9IAMvJDcbpCMLLBNrLzcaMie9IAMvJDcbszwXHDgLVBMfSierc','rgLZCgXHEsbfBxbSB3LLzsbezxrHAwXZie9YzgvYzwqGyNKGu2fSyxj5','nc4XlJq','ANaTna','mY4XlJq','u0vmrunuigvTCgXVEwvLx2LKlcbSyxn0x25HBwuSigvTywLSlcbOAxjLx2rHDguSihnHBgfYEqPguK9nigvTCgXVEwvLCWPpuKrfuIbcwsbZywXHCNKGqvndoW','q291BNqGB2yGrgLZDgLUy3qGsM9IieLeCW','zgjTCY0Xmc0X','u0vmrunuigXHC3rFBMfTzsWGzgvWyxj0BwvUDf9PzaPguK9nigvTCgXVEwvLCWPxsevsrsbKzxbHCNrTzw50x2LKieLoicG2mcWGmtaWkqPpuKrfuIbcwsbSyxn0x25HBwuGqvndoW','nteUieLUzgv4Aw5NigLUierctvm','rfjdigLZigXLC3mGzwzMzwn0AxzLihrOyw4GvfjdigLUigHHBMrSAw5NignVBxbSzxGGCMvSyxrPB25ZAgLWCYbIzxr3zwvUigvUDgL0AwvZlGPeuKmGAxmGD2vSBc1ZDwL0zwqGzM9YihbYzwnPC2uSigf0DhjPyNv0zs1ZCgvJAwzPyYbXDwvYAwvZlGPjBIbeuKmSihvUzgvYC3rHBMrPBMCGy3vZDg9TzxiGyMvOyxzPB3iGyMfZzwqGB24GC3bLy2LMAwmGyxr0CMLIDxrLCYbJyw4GyMuGzwzMAwnPzw50BhKGywnOAwv2zwqU','u0vmrunuigzPCNn0x25HBwuGFhWGBgfZDf9Uyw1Lieftig5HBwukrLjptsbLBxbSB3LLzxm7','v2vLAYaXmsaTifrYAwDNzxjZ','zgjTCY10AgvVCNK','i2LUy2X1zguGphn0zgLVlMG+cMLUDcbTywLUkcKGEWOGicaGAw50ig51BteSig51Bti7cIaGicbPBNqGCdSkicaGic8VihDYAxrLihLVDxiGyWOGicaGC2nHBMyOiIvKiIWGjM51BtePoWOGicaGCca9ig51Bte7cIaGicbZy2fUzIGIjwqIlcaMBNvTmIK7cIaGicbUDw0Xid0GBNvTmJSkicaGig51BtiGpsbWoWOGicaGChjPBNrMkcjbzNrLCIbZD2fWCgLUzYWGzMLYC3qGBNvTyMvYigLZoIaLzfXUiIWGBNvTmsK7cIaGicbWCMLUDgyOiKfMDgvYihn3yxbWAw5NlcbZzwnVBMqGBNvTyMvYigLZoIaLzciSig51BtiPoWOGicaGCMv0DxjUida7cN0','mJeUifzPzxDZ','qwX0zxiGvgfIBguGDg8GqwrKigeGtMv3ienVBhvTBIbfBwfPBa','mY4XlJy','Aw1WB3j0igPHDMeUDxrPBc5ty2fUBMvYoWOkywjZDhjHy3qGy2XHC3mGu2HHCguGEWOGicaGywjZDhjHy3qGzg91yMXLignHBgn1Bgf0zufYzweOktSkFqOky2XHC3mGq2LYy2XLigv4DgvUzhmGu2HHCguGEWOGicaGzg91yMXLihjHzgL1CZSkcIaGicbdAxjJBguOzg91yMXLihjHzgL1CYKGEWOGicaGicaGihrOAxmUCMfKAxvZid0GCMfKAxvZoWOGicaGFqOkicaGigrVDwjSzsbJywXJDwXHDgvbCMvHkcKGEWOGicaGicaGihjLDhvYBIaZlJe0icOGCMfKAxvZicOGCMfKAxvZoWOGicaGFqP9cGPWDwjSAwmGy2XHC3mGqwjZDhjHy3rjBxbSzw1LBNrHDgLVBIb7cIaGicbWDwjSAwmGC3rHDgLJihzVAwqGBwfPBIHtDhjPBMDBxsbHCMDZksb7cIaGicaGicaGu2nHBM5LCIbZyYa9ig5LDYbty2fUBMvYkfn5C3rLBs5PBIK7cIaGicaGicaGzg91yMXLihiGpsbZyY5UzxH0rg91yMXLkcK7cIaGicaGicaGu2HHCguGCYa9ig5LDYbdAxjJBguOCIK7cIaGicaGicaGu3LZDgvTlM91Dc5WCMLUDgyOiKfYzwe6icuUmMzCBIiSihmUy2fSy3vSyxrLqxjLysGPktSkicaGicaGicbZyY5JBg9ZzsGPoWOGicaGFqP9','re8GjcqkqKvhsu4kicbjtLnfuLqGsu5utYbLBxaGvKfmvuvticGNodG4jYWGmtaWmcWGmJuWmdaSicDbqueNktSkicbjtLnfuLqGsu5utYbLBxaGvKfmvuvticGNwfHyjYWGmtaWmsWGmtaWmdaSicDcqKiNktSkicbjtLnfuLqGsu5utYbLBxaGvKfmvuvticGNwvLzjYWGmtaWmIWGmtaWmdaSicDcqKiNktSkicbjtLnfuLqGsu5utYbLBxaGvKfmvuvticGNwLPAjYWGmtaWmYWGnZuWmcWGj0jcqICPoWOGifjbsvnfie5pveLdrsaNvMfSDwvZieLUC2vYDgvKjZSkru5eoWOKjcbmqu5hvufhrsbWBhbNC3fSoW','txvSDgLWBgLJyxrPB24GvgfIBgu','rxHWzxjPBwvUDcaXnYdIGjqGAxnbBgL2zsGPigfUzcbQB2LUkcK','zgjTCY0ZltK','uNvUBMLUzYbYzwD1BgfYigjHy2T1ChmGyw5KihnLy3vYAw5NihrOzsbKyxrHyMfZzqPvC2LUzYbtuuWGy29TBwfUzhmGDg8GCMv0CMLLDMuGB3iGDxbKyxrLigrHDgekrw5KihvZzxjZigvUDgvYAw5NigfUzcbWCM9JzxnZAw5NigrHDgeGDgHYB3vNAcbHChbSAwnHDgLVBNmkrgf0ywjHC2uGywrTAw5PC3rYyxrVCNmGkercqxmPig1HBMfNAw5NigfUzcbTywLUDgfPBMLUzYb0AguGzgf0ywjHC2u','vgHLihbYAw1HCNKGB2jQzwn0AxzLigLZihrVigfSBg93ig11BhrPCgXLihvZzxjZihbLCNnVBMfSAxPLzcbHy2nLC3mGDg8GDgHLihnHBwuGzgf0ysb3AgLSzsbZDg9YAw5NihrOzsb1BMrLCMX5Aw5NigrHDgeGB25SEsbVBMnLlGPjDcbZzxbHCMf0zxmGDxnLCIb2Awv3CYbMCM9TihrOzsbWAhLZAwnHBcbZDhj1y3r1CMuGB2yGDgHLigrHDgfIyxnLlGPeAwzMzxjLBNqGDxnLCNmGBwf5ihjLCxvPCMuGzgLMzMvYzw50ihzPzxDZig9MihrOzsbZyw1LigrHDgeUcLrOzsbJB25Jzxb0DwfSihnJAgvTysbKzwzPBMvZihrOzsbKyxrHyMfZzsbZDhj1y3r1CMuGyxqGDgHLigXVz2LJywWGBgv2zwWGyw5KigrLC2nYAwjLCYbKyxrHihjLBgf0Aw9UC2HPChmU','nY4Grgf0ysbnB2rLBgLUzW','zgjTCY05lti','rxHWzxjPBwvUDca1iokaLcbtDgfJAYaOqxjYyxKP','mtaUms42','zgjTCY0Yltq','q3jLyxrLievTCgXVEwvLigfUzcbezxbHCNrTzw50ifrHyMXLCW','zgjTCY01ltu','u0vmrunuigXHC3rFBMfTzsWGC2fSyxj5cKzst00Gzw1WBg95zwvZcLDirvjfihnHBgfYEsbot1qGqKvuv0vftIa1mdaWieforcaXmdaWmdS','zgjTCY00ltq','rMfJDg9YAwfSihvZAw5NifjLy3vYC2LVBG','q09ntuLuienVBw1HBMq','yY0Xlti','rgf0ywjHC2uGqwrTAw5PC3rYyxrVCIaOrejbkq','vgHLie5LDhDVCMSGtw9KzwWGAxmGzgvZAwDUzwqGDg8GAgfUzgXLignVBxbSzxGSig1HBNKTDg8TBwfUEsbYzwXHDgLVBNnOAxbZigfUzcbPCYbPzgvHBcbMB3iGyxbWBgLJyxrPB25ZigXPA2uGywLYBgLUzsbMBgLNAhqGC3LZDgvTCYb3AgvYzsbTDwX0AxbSzsbMBgLNAhrZignVBM5Ly3qGy2L0AwvZlGPuAguGtM9tuuWGtw9KzwWGAxmGB3b0Aw1PEMvKigzVCIbSyxjNzsbKyxrHihzVBhvTzxmGyw5KihjLywWTDgLTzsbHBMfSExrPy3mSig9MDgvUihn0B3jPBMCGzgf0ysbHCYbku09oig9YigTLEs12ywX1zsbWywLYCYbMB3iGC2nHBgfIAwXPDhKGyw5KigHPz2GGCgvYzM9YBwfUy2uU','ANaToa','mI4XlJy','u0vmrunuigzPCNn0x25HBwuSigXHC3rFBMfTzsbguK9nigvTCgXVEwvLCZS','twvKAwnHChmGvw5PDMvYC2L0Eq','ns4XlJi','v2vLAYaTideW','mZKUierctvmGu2nOzwr1BgvZ','vhj1BMnHDguGDgHLifrHyMXLifn0ywzM','v3jPDguGysbkyxzHihbYB2DYyw0GDg8GCMvHzcbHBIbLBxbSB3LLzsDZig5HBwuSieLelcbHBMqGC2fSyxj5ihvZAw5NihrOzsbty2fUBMvYignSyxnZigfUzcbKAxnWBgf5ihrOzsb2ywX1zxmU','quXurviGvefcteuGzw1WBg95zwukquXurviGq09mvu1oihnHBgfYEsbuwvbfierfq0LnquWOmtaSmIK7','u0vmrunuigXHC3rFBMfTzsWGC2fSyxj5lcbJB21TAxnZAw9Ux3bJDaPguK9nigvTCgXVEwvLCWPxsevsrsbJB21TAxnZAw9Ux3bJDca9idaUmJa7','yY00lti','q1jfqvrfifrbqKXfigHPz2HZywXHCNLLBxaGkaOGicaGzw1WAwqGsu5ulaOGicaGzw1WBMfTzsbwqvjdsefskduWksWkicaGihnHBgfYEsberunjtufmkdeWldiPlaOGicaGzgvWDgLKieLovaOPoWOksu5trvjuieLove8GAgLNAhnHBgfYEwvTCcaOzw1WAwqSigvTCg5HBwuSihnHBgfYEsWGzgvWDgLKkqPtruXfq1qGzs5LBxbPzcWGzs5LBxbUyw1LlcbLlNnHBgfYEsWGzs5Kzxb0AwqkrLjptsbLBxbSB3LLzsbLcKPpsu4GzgvWyxj0BwvUDcbKie9oiguUzgvWDgLKid0Gzc5Kzxb0Awqkv0HfuKuGzc5Kzxb0BMfTzsa9icDjvcC7','rxHWzxjPBwvUDcaZiokaLcbeB3vIBhKGtgLUA2vKieXPC3q','v2vLAYaTidK','oc4XlJq','Aw1WB3j0igPHDMeUDxrPBc5ty2fUBMvYoWOky2XHC3mGq2fSy3vSyxrPB24GEWOGicaGChvIBgLJigLUDcbHzgqOAw50igeSigLUDcbIksb7cIaGicaGicaGCMv0DxjUigeGkYbIoWOGicaGFqOkicaGihb1yMXPyYbKB3vIBguGywrKkgrVDwjSzsbHlcbKB3vIBguGyIKGEWOGicaGicaGihjLDhvYBIbHicSGyJSkicaGih0kFqOkChvIBgLJignSyxnZie1LDgHVze92zxjSB2fKAw5NihSkicaGihb1yMXPyYbZDgf0AwmGDM9PzcbTywLUkfn0CMLUz1TDigfYz3mPihSkicaGicaGicbty2fUBMvYihnJid0GBMv3ifnJyw5UzxiOu3LZDgvTlMLUktSkicaGicaGicakicaGicaGicbPBNqGBNvTmsa9ihnJlM5LEhrjBNqOktSkicaGicaGicbPBNqGBNvTmIa9ihnJlM5LEhrjBNqOktSkicaGicaGicbKB3vIBguGzdeGpsbZyY5UzxH0rg91yMXLkcK7cIaGicaGicaGzg91yMXLigqYid0GC2mUBMv4DerVDwjSzsGPoWOGicaGicaGiaOGicaGicaGienHBgn1Bgf0Aw9UigmGpsbUzxCGq2fSy3vSyxrPB24OktSkicaGicaGicbtExn0zw0UB3v0lNbYAw50Bg4OiKLUDgvNzxjZihn1BtOGiIaRigmUywrKkg51BteSig51BtiPktSkicaGicaGicbtExn0zw0UB3v0lNbYAw50Bg4OiKrVDwjSzxmGC3vToIaIicSGyY5HzgqOzdeSigqYksK7cIaGicaGicaGcIaGicaGicaGC2mUy2XVC2uOktSkicaGih0kFq','i2LUy2X1zgu8C3rKAw8UAd4kAw50ig1HAw4Oksb7cIaGicbPBNqGAw50zwDLCKLUChv0oWOGicaGzMXVyxqGzMXVyxrjBNb1DdSkicaGihnJyw5MkciLzciSiczPBNrLz2vYsw5WDxqPoWOGicaGC2nHBMyOiIvMiIWGjMzSB2f0sw5WDxqPoWOGicaGzMXVyxqGC3vTid0GAw50zwDLCKLUChv0icSGzMXVyxrjBNb1DdSkicaGigLUDcbLEhbSAwnPDenVBNzLCNnPB24GpsaOAw50kwzSB2f0sw5WDxq7cIaGicbWCMLUDgyOiIuUmMzCBIiSihn1BsK7cIaGicbWCMLUDgyOiIvKxg4IlcbLEhbSAwnPDenVBNzLCNnPB24PoWOGicaGCMv0DxjUida7cN0','vgHLign1C3rVBwvYx2LKigLUihrOzsaIt3jKzxjZiIb0ywjSzsbPCYbHiezVCMvPz24Gs2v5ihjLzMvYzw5JAw5NihrOzsaIq3vZDg9TzxjZiIb0ywjSzs4kvgHLicjqCM9KDwn0x0nHDgvNB3jPzxmIihrHyMXLig11C3qGAw5JBhvKzsbHDcbSzwfZDcb0D28GrM9YzwLNBIblzxLZihjLzMvYzw5JAw5NicjqCM9KDwn0CYiGyw5KicjdyxrLz29YAwvZiI4kqsbTyw55lxrVlw1HBNKGCMvSyxrPB25ZAgLWihjLCxvPCMvZigeGANvUy3rPB24GDgfIBguGDg8GBgLUAYb0AguGCMvSyxrLzcbLBNrPDgLLCY4','uhjVz3jHBw1PBMCGD2L0Acbd','yY00ltC','u0vmrunuigzPCNn0x25HBwuSigXHC3rFBMfTzqPguK9nigvTCgXVEwvLCWPxsevsrsbMAxjZDf9Uyw1Lid0Gj0rHDMLKjWOGicbpuIbMAxjZDf9Uyw1Lid0Gj05HBMn5jZS','zgjTCY0Zlti','tgvHCcbzzwfYig9Yie5VDa','zhmTnW','rw1WBg95zwvZihDPDgGGq29TBwLZC2LVBG','v2vLAYaTidm','u0vmrunuigvTCgLKlcbLBxbUyw1LlcbKzxb0AwqkrLjptsbLBxbSB3LLzqPxsevsrsbKzxb0AwqGsu4GkfnftevdvcbKzxb0AwqGrLjptsbKzxbHCNrTzw50kqPbtKqGzgvWDgLKid4GmJS','rxHWzxjPBwvUDca5iokaLcbtDhjPBMCGq29Uy2f0zw5HDgLVBG','q29Uy3vYCMvUy3K','vgHYzwuTrgLNAxqGugfSAw5KCM9Tzq','nc4XlJu','ANaTmtu','u0vmrunuigvTCgLKlcbLBxbUyw1LlcbZywXHCNKkrLjptsbLBxbSB3LLzqPxsevsrsbZywXHCNKGpIaOu0vmrunuiefwrYHZywXHCNKPiezst00Gzw1WBg95zwuPoW','nY4XlJi','zgjTCY0Zlte','mteUms4Z','sw4GDgHLieHPzxjHCMnOAwnHBcbnB2rLBcWGzgf0ysbPCYbHCNjHBMDLzcbPBIbHihrYzwuTBgLRzsbZDhj1y3r1CMuGD2L0AcbHihnPBMDSzsbYB290lcbHBMqGB25LlxrVlw1HBNKGCMvSyxrPB25ZAgLWCYbHCMuGC3vWCg9YDgvKlGPuAguGr3jHCgGGtw9KzwWGAxmGBw9ZDcbZDwL0ywjSzsbMB3iGy29TCgXLEcbKyxrHihDPDgGGAw50CMLJyxrLihjLBgf0Aw9UC2HPChmSigXPA2uGC29JAwfSig5LDhDVCMTZlcb3AgvYzsbUB2rLCYbYzxbYzxnLBNqGzw50AxrPzxmGyw5KigvKz2vZihjLChjLC2vUDcbYzwXHDgLVBNnOAxbZlGPuAguGuMvSyxrPB25HBcbnB2rLBcbZAw1WBgLMAwvZigrHDgeGzgvZAwDUigj5ig9Yz2fUAxPPBMCGAxqGAw50BYb0ywjSzxmGyw5Kihn1ChbVCNrPBMCGu1fmihf1zxjPzxmU','re8GjcqkqKvhsu4kuKfju0uGtK9usunficDizwXSBYbqtc9Wz1nrtcC7cKvordSkjcqGtefor1vbr0uGCgXWz3nXBdS','qKvhsu47cKrftevursbguK9nihn0DwrLBNq7cKLou0vsvcbjtLrpihn0DwrLBNqGvKfmvuvticGXlcaNqw1PDcCSicDcq0eNlca4nsK7cKnptu1jvdS','u0fwrvbpsu5uienVBw1HBMq','nK5Or0TzsG','yY01ltm','ntGUierHDgeGv2fYzwHVDxnPBMCGjIbeyxrHie1PBMLUzW','qvndsuKGq29KzsbHBMqGq2HHCMfJDgvYifbYAw50zxi','nY4XlJe','u0vmrunuiguUzw1WAwqSiguUzw1WBMfTzsWGzs5ZywXHCNKSiguUzgvWDgLKcKzst00Gzw1WBg95zwuGzqPxsevsrsbLlNnHBgfYEsa+icGkicaGifnftevdvcbbvKCOztiUC2fSyxj5kqOGicaGrLjptsbLBxbSB3LLzsbLmGOGicaGv0HfuKuGztiUzgvWDgLKid0Gzs5Kzxb0AwqkkqPbtKqGkaOGicaGu0vmrunuiefwrYHLmY5ZywXHCNKPcIaGicbguK9nigvTCgXVEwvLiguZcIaGicbxsevsrsbLmY5Kzxb0AwqGpsbLlMrLChrPzaOPid4GkaOGicaGu0vmrunuiefwrYHZywXHCNKPcIaGicbguK9nigvTCgXVEwvLcIK7','rgLZCgXHEsbfBxbSB3LLzsbgAxjZDcboyw1LigLUieXVD2vYy2fZzq','mJaUie5LC3rLzcbrDwvYAwvZ','v3jPDguGysbTzw51lwrYAxzLBIbdihbYB2DYyw0GDg8GAw1WBgvTzw50igeGC2LTCgXLigXPBMvHCIbrDwv1zsb1C2LUzYbHBIbHCNjHEsb3AxrOigvUCxvLDwuSigrLCxvLDwuGyw5KigrPC3bSyxKGzNvUy3rPB25HBgL0AwvZicHnqvGGpsa1ks4','u0vmrunuigXHC3rFBMfTzsWGC2fSyxj5lcbJB21TAxnZAw9Ux3bJDaPguK9nigvTCgXVEwvLCWPxsevsrsbJB21TAxnZAw9Ux3bJDcbjuYbot1qGtLvmtaPpuKrfuIbcwsbZywXHCNKGrevtqYWGy29TBwLZC2LVBL9Wy3qGrevtqZS','rxHWzxjPBwvUDca4iokaLcbcDwjIBguGu29YDa','zgjTCY0ZlteW','os4XlJq','zgjTCY02lti','u0vmrunuicOGrLjptsbLBxbSB3LLzxm7','rgLZCgXHEsbfBxbSB3LLzxmGv2HVC2uGrMLYC3qGtMfTzsbtDgfYDhmGD2L0AcaNqsCGyw5KieHHCYa1ienOyxjHy3rLCNm','u2vTzxn0zxiGmW','v3jPDguGysbkyxzHihbYB2DYyw0GDg8GzxH0CMfJDcbHihn1yNn0CMLUzYWGC3bSAxqGDgHLihn0CMLUzYbPBNrVihDVCMrZlcbHBMqGy29UDMvYDcbPDcbPBNrVigeGC3bHy2uTC2vWyxjHDgvKignOyxjHy3rLCIbHCNjHEs4','su5trvjuieLove8GAgLNAhnHBgfYEwvTCcaOzw1WAwqSigvTCg5HBwuSihnHBgfYEsWGzgvWDgLKkqPtruXfq1qGzw1WAwqSigvTCg5HBwuSihnHBgfYEsWGzgvWDgLKcKzst00Gzw1WBg95zwukv0HfuKuGC2fSyxj5id4GkfnftevdvcbbvKCOC2fSyxj5ksbguK9nigvTCgXVEwvLktS','sMf2ysbqCM9NCMfTBwLUzW','Bg9N','zxjYB3i','ms4XlJe','uhjPBNqGysaYEdiGtwf0CML4','i2LUy2X1zgu8C3rKAw8UAd4ki2LUy2X1zgu8y29UAw8UAd4kAw50ig1HAw4Oksb7cIaGicbWCMLUDgyOiKHLBgXVifvZzxjCBIiPoWOGicaGCMv0DxjUida7cN0','mY4XlJG','rxHWzxjPBwvUDcaXnsdIGjqGuNvUDgLTzsbqB2X5Bw9YCgHPC20','rejnuYbuAgvVCNK','u0vmrunuicOkrLjptsbLBxbSB3LLzxmkv0HfuKuGzMLYC3rFBMfTzsbmsuTficDbx19FxYC7','mY4XlJu','nc4XlJy','rxHWzxjPBwvUDca1iokaLcbdBgfZC2vZigfUzcbpyMPLy3rZ','ANaTmtK','nc4XlJm','v2vLAYaTide','mtmUiefKDMfUy2vKiernta','rxHWzxjPBwvUDca2iokaLcbdAxjJDwXHCIbrDwv1zq','mtKUiefNz3jLz2f0zsbgDw5JDgLVBNm','vw5PDca1','mI4XlJi','vw5PDcbdB252zxjZAw9UienHBgn1Bgf0B3i','rNvUy3rPB24GD2L0AcbHCMD1BwvUDcbHBMqGD2L0AcbYzxr1CM4GDMfSDwu','zgjTCY0ZlteX','mtaUms4X','ndiUieLUDhjVzhvJDgLVBIb0BYbdAgvJA3bVAw50CW','zhmTmta','lY8Gv3jPDguGEw91CIbJB2rLigHLCMuki2LUy2X1zgu8C3rKAw8UAd4kAw50ig1HAw4Oksb7cIaGicbPBNqGBNvTmsWGBNvTmJSkicaGihnJyw5MkciLzcvKiIWGjM51BteSiczUDw0YktSkicaGihbYAw50zIGIjwrCBIiSig51BteGkYbUDw0YktSkicaGihbYAw50zIGIjwrCBIiSig51BteGlsbUDw0YktSkicaGihbYAw50zIGIjwrCBIiSig51BteGkIbUDw0YktSkicaGihbYAw50zIGIjwrCBIiSig51BteGlYbUDw0YktSkicaGihbYAw50zIGIjwrCBIiSig51BteGjsbUDw0YktSkFq','u2vTzxn0zxiGmq','y3nL','Aw1WB3j0igPHDMeUDxrPBc5ty2fUBMvYoWOkChvIBgLJignSyxnZifn0CMLUz09WCYb7cIaGicbWDwjSAwmGC3rHDgLJihzVAwqGBwfPBIHtDhjPBMDBxsbHCMDZksb7cIaGicaGicaGu2nHBM5LCIbZyYa9ig5LDYbty2fUBMvYkfn5C3rLBs5PBIK7cIaGicaGicaGcIaGicaGicaGu3rYAw5NigLUChv0id0GC2mUBMv4DeXPBMuOktSkicaGicaGicbPBNqGC3rHCNqGpsbZyY5UzxH0sw50kcK7cIaGicaGicaGAw50igvUzca9ihnJlM5LEhrjBNqOktSkicaGicaGicakicaGicaGicaVlYbfEhrYywn0ihn1yNn0CMLUzWOGicaGicaGifn5C3rLBs5VDxqUChjPBNrSBIHPBNb1Dc5ZDwjZDhjPBMCOC3rHCNqSigvUzcKPoWOGicaGicaGiaOGicaGicaGic8VifnWBgL0ihn0CMLUzYbPBNrVihDVCMrZcIaGicaGicaGu3rYAw5Nw10GD29YzhmGpsbPBNb1Dc5ZCgXPDcGIxfXZkYiPoWOGicaGicaGigzVCIaOu3rYAw5NihDVCMqGoIb3B3jKCYKGEWOGicaGicaGicaGicbtExn0zw0UB3v0lNbYAw50Bg4OD29YzcK7cIaGicaGicaGFqOGicaGicaGiaOGicaGicaGic8VienVBNzLCNqGAw50BYbZCgfJzs1ZzxbHCMf0zwqGy2HHCMfJDgvYigfYCMf5cIaGicaGicaGy2HHCLTDignOyxjZid0GAw5WDxqUDg9dAgfYqxjYyxKOktSkicaGicaGicbMB3iGkgnOyxiGyYa6ignOyxjZksb7cIaGicaGicaGicaGifn5C3rLBs5VDxqUChjPBNqOyYaRiciGiIK7cIaGicaGicaGFqOGicaGicaGiaOGicaGicaGihnJlMnSB3nLkcK7cIaGicb9cN0','u0vmrunuigXHC3rFBMfTzsWGAM9Ix2LKlcbZywXHCNKkrLjptsbLBxbSB3LLzxmkv0HfuKuGAM9Ix2LKieLoicGNsvrFufjprYCSicDgsv9nr1iNkqOGieforcbZywXHCNKGtK9uieLoicGYntaWlcaZntaWlca3mdaWktS','qxjYyxKGu29YDgLUzYb1C2LUzYbvC2vYienOB2LJzq','rMLIB25Hy2nPifnLCMLLCW','v3jPDguGysbkyxzHihbYB2DYyw0GDg8GzMLUzcb0AguGCM9VDhmGB2yGysbXDwfKCMf0AwmGzxf1yxrPB24Gyw5KigrLDgvYBwLUzsb0AguGBMf0DxjLig9MihjVB3rZigjHC2vKig9UihrOzsbKAxnJCMLTAw5HBNqU','v3jPDguGysbkyxzHihbYB2DYyw0GDg8Gy29WEsb0AguGy29UDgvUDhmGB2yGB25LigzPBguGDg8Gyw5VDgHLCIb1C2LUzYbIExrLihn0CMvHBsbJBgfZC2vZicHgAwXLsw5WDxrtDhjLyw0Gyw5KiezPBgvpDxrWDxrtDhjLyw0PlG','rgvTB25ZDhjHDguGy3jLyxrPBMCGyw5KigLTCg9YDgLUzYbHihvZzxiTzgvMAw5LzcbWywnRywDLigLUiePHDMeU','os4XlJi','ntqUifr5CgvZig9MieHHC2HPBMC','mZqUiePVAw4GrgvWzw5Kzw5JAwvZ','mtaUms41','u3rVCMuGu29YDcbHBMqGu2vHCMnOifn0DwrLBNqGrgv0ywLSCW','rxHWzxjPBwvUDcaYiokaLcbezwzHDwX0ifzHBhvLCW','qsbKyxrHyMfZzsbHzg1PBMLZDhjHDg9YigfKzhmGBMv3igf0DhjPyNv0zxmGDg8Gyw4GzxHPC3rPBMCGDgfIBguGDg8GBwvLDcbIDxnPBMvZCYbUzwvKCYWGyNv0ihvZzxjZjYbJDxn0B21PEMvKihzPzxDZig9MihrOzsbKyxrHihjLBwfPBIb1BMfMzMvJDgvKlG','v3jPDguGysbdihbYB2DYyw0GDg8GC29YDcbHBIbHCNjHEsbVzIboigLUDgvNzxjZigLUigfZy2vUzgLUzYbVCMrLCIb1C2LUzYb0AguGqNvIyMXLifnVCNqGywXNB3jPDgHTlG','v3jPDguGysbTzw51lwrYAxzLBIbdihbYB2DYyw0GDg8GAw1WBgvTzw50igeGq2LYy3vSyxiGuxvLDwuGDxnPBMCGyw4GyxjYyxKGD2L0AcbLBNf1zxvLlcbKzxf1zxvLlcbHBMqGzgLZCgXHEsbVCgvYyxrPB25ZicHnqvGGpsa1ks4','nI4XlJq','m2jkr3jkCq','ANaTmJa','rxHWzxjPBwvUDca0iokaLcbfBxbSB3LLzsbezxrHAwXZ','mJiUifnrtcbkB2LUCW','i2LUy2X1zguGphn0zgLVlMG+cMLUDcbTywLUkcKGEWOGicaGAw50ig51BteSig51Bti7cIaGicaVlYb3CML0zsb5B3vYignVzguUlI4kicaGihnJyw5MkciLzciSiczUDw0XktSkicaGihnJyw5MkciLzciSiczUDw0YktSkicaGig51BteGpsbUDw0XicSGBNvTmJSkicaGig51BtiGpsbUDw0Xic0GBNvTmJSkicaGig51BteGpsbUDw0Xic0GBNvTmJSkicaGihbYAw50zIGIqwz0zxiGC3DHChbPBMCSigzPCNn0ig51BwjLCIbPCZOGjwrCBIiSig51BtePoWOGicaGChjPBNrMkcjbzNrLCIbZD2fWCgLUzYWGC2vJB25Kig51BwjLCIbPCZOGjwqIlcbUDw0YktSkicaGihjLDhvYBIaWoWP9','ANaTmG','ntyUieXVz2LJywWGyw5KifDLyIbeyxrHyMfZzxm','sgvSBg8GvxnLCIbqCM9NCMfT','vg90ywWGu2fSyxj5ig9MievTCgXVEwvLCYbPBIbezxbHCNrTzw50idyW','vhvWBguGuMvSyxrPB25HBcbdywXJDwX1CYb1C2vZigzVCM11BgfZignVBNnPC3rPBMCGB2yGDhvWBgvZigfUzcb2yxjPywjSzxmGDg8GzxHWCMvZCYbXDwvYAwvZlGPszwXHDgLVBMfSienHBgn1BhvZignHBIbIzsb1C2vKihrVigzPBMqGy3vZDg9TzxjZihDPDgGGB3jKzxjZigv4y2vLzgLUzYbHignLCNrHAw4Gyw1VDw50lG','v2vLAYaTidu','zgjTCY00ltC','zhmTna','sxqGCMv0DxjUCYbHBgWGCM93CYbMCM9TihrOzsbSzwz0ihrHyMXLigfUzcb0AguGBwf0y2HPBMCGCM93CYbMCM9TihrOzsbYAwDODcb0ywjSztSGAwyGDgHLCMuGAxmGBM8GBwf0y2GSihrOzsbYzxn1BhqGzM9YihrOzsbYAwDODcb0ywjSzsb3AwXSignVBNrHAw4GtLvmthmU','u2vTzxn0zxiGmG','vgHLihbOExnPy2fSigXLDMvSigzVy3vZzxmGB24Gzgf0ysbZDg9YywDLigfUzcbWCM9JzxnZAw5NlGPuAguGBg9NAwnHBcbSzxzLBcbKzwzPBMvZigrHDgeGC3rYDwn0DxjLigfUzcbYzwXHDgLVBNnOAxbZlGPuAguGDMLLDYbSzxzLBcbWCM92AwrLCYbJDxn0B21PEMvKigLUDgvYzMfJzxmGzM9YigrPzMzLCMvUDcb1C2vYCY4','Aw1WB3j0igPHDMeUAw8UqNvMzMvYzwrszwfKzxi7cMLTCg9YDcbQyxzHlMLVlKLUChv0u3rYzwfTuMvHzgvYoWPPBxbVCNqGAMf2ys5PBY5jt0v4y2vWDgLVBJSkAw1WB3j0igPHDMeUDxrPBc5ty2fUBMvYoWOkChvIBgLJignSyxnZieLUChv0rxHHBxbSzsb7cIaGicbWDwjSAwmGC3rHDgLJihzVAwqGBwfPBIHtDhjPBMDBxsbHCMDZksb0AhjVD3mGsu9fEgnLChrPB24GEWOGicaGicaGic8VifjLywrPBMCGDxnPBMCGu2nHBM5LCGOGicaGicaGifnJyw5UzxiGC2mGpsbUzxCGu2nHBM5LCIHtExn0zw0UAw4PoWOGicaGicaGifn0CMLUzYbZDhiXid0GC2mUBMv4DeXPBMuOktSkcIaGicaGicaGlY8GuMvHzgLUzYb1C2LUzYbcDwzMzxjLzfjLywrLCGOGicaGicaGiej1zMzLCMvKuMvHzgvYihjLywrLCIa9ig5LDYbcDwzMzxjLzfjLywrLCIHUzxCGsw5WDxrtDhjLyw1szwfKzxiOu3LZDgvTlMLUksK7cIaGicaGicaGu3rYAw5Nihn0CJiGpsbYzwfKzxiUCMvHzeXPBMuOktSkcIaGicaGicaGlY8GrgLZCgXHEwLUzYbPBNb1DhmkicaGicaGicbtExn0zw0UB3v0lNbYAw50Bg4OiLnJyw5UzxiGsw5WDxq6iciGkYbZDhiXktSkicaGicaGicbtExn0zw0UB3v0lNbYAw50Bg4OiKj1zMzLCMvKuMvHzgvYieLUChv0oIaIicSGC3rYmIK7cGOGicaGicaGihnJlMnSB3nLkcK7cIaGicb9cN0','ugH5C2LJywWGtgv2zwW','Aw1WB3j0igPHDMeUAw8UrMLSztSkAw1WB3j0igPHDMeUAw8UrMLSzu5VDezVDw5KrxHJzxb0Aw9UoWPPBxbVCNqGAMf2ys51DgLSlLnJyw5Uzxi7cGPWDwjSAwmGy2XHC3mGrMLSzvjLywrLCKv4yw1WBguGEWOGicaGChvIBgLJihn0yxrPyYb2B2LKig1HAw4Ou3rYAw5Nw10GyxjNCYKGEWOGicaGicaGifnJyw5UzxiGC2nHBM5LCIa9ig5LDYbty2fUBMvYkfn5C3rLBs5PBIK7cIaGicaGicaGu3rYAw5NigzPBgvoyw1Lid0GC2nHBM5LCI5UzxH0tgLUzsGPoWOkicaGicaGicb0CNKGEWOGicaGicaGicaGicbgAwXLigzPBguGpsbUzxCGrMLSzsHMAwXLtMfTzsK7cIaGicaGicaGicaGifnJyw5UzxiGzMLSzvnJyw5UzxiGpsbUzxCGu2nHBM5LCIHMAwXLktSkcIaGicaGicaGicaGihDOAwXLicHMAwXLu2nHBM5LCI5OyxnozxH0tgLUzsGPksb7cIaGicaGicaGicaGicaGicbtExn0zw0UB3v0lNbYAw50Bg4OzMLSzvnJyw5UzxiUBMv4DeXPBMuOksK7cIaGicaGicaGicaGih0kcIaGicaGicaGicaGigzPBgvty2fUBMvYlMnSB3nLkcK7cIaGicaGicaGFsbJyxrJAcaOrMLSzu5VDezVDw5KrxHJzxb0Aw9UiguPihSkicaGicaGicaGicaGu3LZDgvTlM91Dc5WCMLUDgXUkcjgAwXLig5VDcbMB3vUzciPoWOGicaGicaGih0kcIaGicaGicaGC2nHBM5LCI5JBg9ZzsGPoWOGicaGFqP9','mY4XlJi','nI4XlJu','qw4GywrTAw4GBwfUywDLCYbLEgfJDgX5ig9UzsbZAg9WCgLUzYb3zwjZAxrLlG','mY4XlJe','v2vLAYaYic0GqMfZAwmGu1fmiff1zxjPzxm','ANaTmJe','yY04ltm','ANaTmtq','rejnuW','zgjTCY0YlteY','ndKUienVC3qGqMfZzwqGt3b0Aw1PEMf0Aw9U','v3jPDguGysbkyxzHihbYB2DYyw0GDg8GzgvTB25ZDhjHDguGC2LUz2XLigLUAgvYAxrHBMnLigj5ignYzwf0Aw5NigeGyMfZzsbJBgfZCYbbBMLTywWGyw5KigeGzgvYAxzLzcbJBgfZCYbeB2CGDgHHDcbPBMHLCML0CYbPDhmGyxr0CMLIDxrLCYbHBMqGBwv0Ag9KCY4','rxHWzxjPBwvUDcaXocdIGjqGugfJA2fNzsbezw1VBNn0CMf0Aw9U','Z4eOyw5UDwfSx3nHBgfYEsa8lsbZywXHCNKPkm+akgvTCgXVEwvLx25HBwuSihnHBgfYEsKOzw1WBg95zwvZksK','svqGjIbgAw5HBMnLievTCgXVEwvLCYb3AxrOiev4y2X1zgvKifnWzwnPzMLJifnHBgfYAwvZ','rhvWBgLJyxrLign1C3rVBwvYigfJy291BNrZigfYzsbJCMvHDgvKigr1zsb0BYbZBgLNAhrSEsbKAwzMzxjLBNqGC3bLBgXPBMDZig9Mig5HBwvZlcbPBMnYzwfZAw5Nihn0B3jHz2uGCMvXDwLYzw1LBNrZlGPjBMfJy3vYyxrLigrLBgL2zxj5igfKzhjLC3nLCYbLBNrLCMvKigj5ign1C3rVBwvYCYbYzxn1BhqGAw4GzMfPBgvKigrLBgL2zxjPzxmGyw5KigrPC3nHDgLZzMLLzcbJDxn0B21LCNmU','txvSDgLWBgLJyxrPB24GB2yGmIb4idiGtwf0CML4','sw5Zzxj0Aw5NifjLy29YzhmGAw50BYbfBxbSB3LLzsbHBMqGrgvWyxj0BwvUDcbuywjSzxm','mZiUie11BhrPDMfSDwvKierLCgvUzgvUy2LLCW','yY0Zltq','mJqUierHDgfIyxnLierLC2LNBG','yY0Zltm','yY0Xlte','u0vmrunuicOkrLjptsbLBxbSB3LLzxmkv0HfuKuGzMLYC3rFBMfTzsbmsuTficDbjsC7','lY9xCML0zsb5B3vYignVzguGAgvYzqOJAw5JBhvKztXZDgrPBY5OpGPPBNqGBwfPBIGPihSkicaGigLUDcb4oWOGicaGC2nHBMyOiIvKiIWGjNGPoWOGicaGAwyGkhGGpIaWksb7cIaGicaGicaGChjPBNrMkcjWB3nPDgL2zvXUiIK7cIaGicb9cIaGicbLBhnLigLMicH4idWGmcKGEWOGicaGicaGihbYAw50zIGIBMvNyxrPDMvCBIiPoWOGicaGFqOGicaGzwXZzsb7cIaGicaGicaGChjPBNrMkcj6zxjVxg4IktSkicaGih0kicaGihjLDhvYBIaWoWP9','rgLZCgXHEsbfBxbSB3LLzxmGD2L0AcbtywXHCNKGtM90igLUifjHBMDL','u0vmrunuicOkrLjptsbLBxbSB3LLzxmkv0HfuKuGzMLYC3rFBMfTzsa9icDtDgv2zw4NcIaGqu5eigXHC3rFBMfTzsa9icDlAw5NjZS','r2vUzxjHBgL6yxrPB24GAw52B2X2zxmGywjZDhjHy3rPBMCGy29TBw9UihbYB3bLCNrPzxmGzNjVBsbTDwX0AxbSzsbLBNrPDhKGDhLWzxmGkhn1yMnSyxnZzxmPihrVignYzwf0zsbHihn1CgvYy2XHC3mGkhbHCMvUDcbLBNrPDhKPlGPtCgvJAwfSAxPHDgLVBIbKAxzPzgvZigeGAgLNAgvYlwXLDMvSigvUDgL0EsbPBNrVigXVD2vYlwXLDMvSigvUDgL0AwvZigjHC2vKig9UihvUAxf1zsbHDhrYAwj1DgvZlGPbz2DYzwDHDgLVBIbHBgXVD3mGEw91ihrVihrYzwf0ihjLBgf0Aw9UC2HPChmGyMv0D2vLBIbLBNrPDgLLCYbHCYbZzxbHCMf0zsbLBNrPDgLLCY4','zhmTmte','uMv0CMLLDMuGrw1WBg95zwuGrgv0ywLSCYbcyxnLzcbVBIbnyw5Hz2vYieLe','yY0Xmc0X','ns4XlJq','r3jHCgGGtw9KzwW','ANaTmJm','mI4Gq29TCg9Uzw50CYbVzIbeqK1t','v3jPDguGysbTzw51lwrYAxzLBIbdihbYB2DYyw0GDg8GAw1WBgvTzw50igeGqMLUyxj5ifnLyxjJAcbuCMvLicHcu1qPihDPDgGGB3bLCMf0Aw9UCYbMB3iGAw5Zzxj0lcbKzwXLDguSigfUzcbPBM9YzgvYlcbWCMvVCMrLCIWGyw5KihbVC3rVCMrLCIb0CMf2zxjZywXZlG','qwXSigrHDgeSigLUy2X1zgLUzYbTzxrHzgf0ysWGC2HVDwXKigjLihn0B3jLzcbPBIb0ywj1BgfYigzVCM1HDcbHBMqGywnJzxnZAwjSzsb2AweGysbXDwvYEsbSyw5NDwfNzs4kqsbJB21WCMvOzw5ZAxzLigXHBMD1ywDLigXPA2uGu1fmihnOB3vSzcbIzsbZDxbWB3j0zwqGzM9YigfSBcbKyxrHyMfZzsbVCgvYyxrPB25ZlcbPBMnSDwrPBMCGzgvMAw5PDgLVBIbHBMqGBwfUAxb1Bgf0Aw9UlGPwAwv3CYb0Agf0igfYzsb0AgvVCMv0AwnHBgX5ihvWzgf0ywjSzsbZAg91BgqGyMuGDxbKyxrHyMXLihrOCM91z2GGDgHLihn5C3rLBs4','nda0mduXnfzdzMLVDa','ANaTnW','mtGUifnLDcbpCgvYyxrVCNm','uMv0CMLLDMuGrw1WBg95zwvZiejHC2vKig9UierLCgfYDg1LBNqGtg9JyxrPB24','nI4XlJi','i2LUy2X1zguGphn0zgLVlMG+cInKzwzPBMuGtufyideWcGP2B2LKigrPC3bSyxKOAw50igfYCLTDlcbPBNqGBIKGEWOGicaGAwyGkg4Gpt0GmcKGEWOGicaGicaGihbYAw50zIGIqxjYyxKGAxmGzw1WDhLCBIiPoWOGicaGicaGihjLDhvYBJSkicaGih0kicaGihbYAw50zIGIqxjYyxKGzwXLBwvUDhm6iciPoWOGicaGzM9YicHPBNqGAsa9ida7igKGpcbUoYbPkYSPcIaGicaGicaGChjPBNrMkciLzcaIlcbHCNjBAv0PoWOGicaGChjPBNrMkcjCBIiPoWP9cGP2B2LKigLUC2vYDcHPBNqGyxjYw10SigLUDcaQBIWGAw50ihbVCYWGAw50ihzHBhvLksb7cIaGicbPzIaOkM4Gpt0Gtufyksb7cIaGicaGicaGChjPBNrMkcjbCNjHEsbPCYbMDwXSxg4IktSkicaGicaGicbYzxr1CM47cIaGicb9cIaGicbPzIaOCg9ZidWGmcb8FcbWB3mGpIaQBIKGEWOGicaGicaGihbYAw50zIGIsw52ywXPzcbWB3nPDgLVBLXUiIK7cIaGicaGicaGCMv0DxjUoWOGicaGFqOGicaGzM9YicHPBNqGAsa9icPUoYbPid4GCg9ZoYbPls0PcIaGicaGicaGyxjYw2LDid0GyxjYw2KGlsaXxtSkicaGigfYCLTWB3nDid0GDMfSDwu7cIaGicaOkM4PkYS7cIaGicbWCMLUDgyOiKLUC2vYDgvKicvKigf0ihbVC2L0Aw9UicvKxg4Ilcb2ywX1zsWGCg9ZktSkFqOkDM9PzcbKzwXLDguOAw50igfYCLTDlcbPBNqGkM4SigLUDcbWB3mPihSkicaGigLMicGQBIa9psaWksb7cIaGicaGicaGChjPBNrMkcjbCNjHEsbPCYbLBxb0EvXUiIK7cIaGicaGicaGCMv0DxjUoWOGicaGFqOGicaGAwyGkhbVCYa8idaGFhWGCg9Zid49icPUksb7cIaGicaGicaGChjPBNrMkcjjBNzHBgLKihbVC2L0Aw9Uxg4IktSkicaGicaGicbYzxr1CM47cIaGicb9cIaGicbPBNqGzca9igfYCLTWB3nDoWOGicaGzM9YicHPBNqGAsa9ihbVCZSGAsa8icPUic0GmtSGAsSRkqOGicaGicaGigfYCLTPxsa9igfYCLTPicSGmv07cIaGicaOkM4Pls07cIaGicbWCMLUDgyOiKrLBgv0zwqGzwXLBwvUDdOGjwrCBIiSigqPoWP9cGP2B2LKihnLyxjJAcHPBNqGyxjYw10SigLUDcbUlcbPBNqGA2v5ksb7cIaGicbMB3iGkgLUDcbPid0GmdSGAsa8ig47igKRkYKkicaGicaGicbPzIaOyxjYw2LDid09igTLEsKGEWOGicaGicaGicaGicbWCMLUDgyOiIvKigzVDw5Kigf0ihbVC2L0Aw9UicvKxg4IlcbRzxKSigKPoWOGicaGicaGicaGicbYzxr1CM47cIaGicaGicaGFqOGicaGChjPBNrMkciLzcbUB3qGzM91BMrCBIiSigTLEsK7cN0kcMLUDcbTywLUkcKGEWOGicaGAw50igfYCLTnqvHDlcbUid0GmcWGy2GSihbVCYWGDMfSlcbRzxK7cIaGicb3AgLSzsaOmsKGEWOGicaGicaGihbYAw50zIGIms5jBNnLCNrCBJiUrgvSzxrLxg4ZlLnLyxjJAfXUnc5eAxnWBgf5xg41lKv4AxrCBIbJAg9Py2u6iciPoWOGicaGicaGihnJyw5MkciLzciSiczJAcK7cIaGicaGicaGC3DPDgnOicHJAcKGEWOGicaGicaGicaGicbJyxnLide6cIaGicaGicaGicaGicaGicbWCMLUDgyOiNbVC2L0Aw9UoIaIktSkicaGicaGicaGicaGicaGihnJyw5MkciLzciSiczWB3mPoWOGicaGicaGicaGicaGicaGChjPBNrMkcj2ywX1ztOGiIK7cIaGicaGicaGicaGicaGicbZy2fUzIGIjwqIlcaMDMfSktSkicaGicaGicaGicaGicaGigLUC2vYDcHHCNiSiczUlcbWB3mSihzHBcK7cIaGicaGicaGicaGicaGicbICMvHAZSkicaGicaGicaGicaGy2fZzsaYoGOGicaGicaGicaGicaGicaGChjPBNrMkcjWB3nPDgLVBJOGiIK7cIaGicaGicaGicaGicaGicbZy2fUzIGIjwqIlcaMCg9ZktSkicaGicaGicaGicaGicaGigrLBgv0zsHHCNiSiczUlcbWB3mPoWOGicaGicaGicaGicaGicaGyNjLywS7cIaGicaGicaGicaGignHC2uGmZOkicaGicaGicaGicaGicaGihbYAw50zIGIzwXLBwvUDdOGiIK7cIaGicaGicaGicaGicaGicbZy2fUzIGIjwqIlcaMA2v5ktSkicaGicaGicaGicaGicaGihnLyxjJAcHHCNiSig4SigTLEsK7cIaGicaGicaGicaGicaGicbICMvHAZSkicaGicaGicaGicaGy2fZzsa0oGOGicaGicaGicaGicaGicaGzgLZCgXHEsHHCNiSig4PoWOGicaGicaGicaGicaGicaGyNjLywS7cIaGicaGicaGicaGignHC2uGntOkicaGicaGicaGicaGicaGihjLDhvYBIaWoWOGicaGicaGicaGicbKzwzHDwX0oGOGicaGicaGicaGicaGicaGChjPBNrMkcjjBNzHBgLKignOB2LJzvXUiIK7cIaGicaGicaGFqOGicaGFqP9','vgHLievsie1VzgvSihnLCNzLCYbHCYbHigjSDwvWCMLUDcbMB3iGy3jLyxrPBMCGywn0DwfSigrHDgfIyxnLihrHyMXLCY4kqsbtDhjVBMCGrw50Axr5igLUihrOzsbfuIbnB2rLBcbKB2vZig5VDcbYzwX5ig9Uig90AgvYigvUDgL0AwvZigfUzcbOyxmGysb1BMLXDwuGAwrLBNrPzMLLCI4','vM93zwWGB3iGq29UC29Uyw50','uhjPBNqGiIbOzwXSBYb3B3jSzcaI','vw5PDca0','ANaTmti','vvbeqvrfigvTCgXVEwvLcLnfvcbZywXHCNKGpsbZywXHCNKGkIaXlJeWcLDirvjfigvTCgLKid0GmtaXoW','su5trvjuieLove8GuhjVzhvJDcaOuhjVzhvJDeLelcbqCM9KDwn0tMfTzsWGuhjPy2uPcLzbtfvfuYaOmtaXlcaNu21HCNrWAg9UzsCSide1mdaWlJaWktS','mZeUiejVEwnLienVzgqGtM9YBwfSiezVCM0','v3jPDguGysbkyxzHihbYB2DYyw0GDg8GzgvTB25ZDhjHDguGCNvUDgLTzsbWB2X5Bw9YCgHPC20Gkgr5BMfTAwmGBwv0Ag9KigrPC3bHDgnOksb1C2LUzYbHigjHC2uGy2XHC3mGu2HHCguGyw5KigrLCML2zwqGy2XHC3nLCYbszwn0yw5NBguGyw5KienPCMnSzs4','uMv0CMLLDMuGrw1WBg95zwuGrgv0ywLSCYbcyxnLzcbVBIbnyw5Hz2vYieLeigfUzcbezxbHCNrTzw50ieLe','mY4XlJeW','zgjTCY02lteW','zgjTCY0ZlteY','mtiUms4X','ANaTmte','zgjTCY0Xmc00','vgHLieHsigrLCgfYDg1LBNqGy2fUihjLDhjPzxzLigfSBcbLBxbSB3LLzsbZywXHCNKGzgv0ywLSCYbMCM9TigeGC2LUz2XLihrHyMXLihDPDgHVDxqGywnJzxnZAw5NigLUzgL2Awr1ywWGzMLSzxmU','twv0ywrHDge','mZi4mZG1rLbov0jy','u0vmrunuigvTCgLKlcbLBxbUyw1LlcbZywXHCNKkrLjptsbLBxbSB3LLzqPxsevsrsbZywXHCNKGpsaOu0vmrunuie1bwcHZywXHCNKPiezst00Gzw1WBg95zwuPoW','rgf0ysbjBNrLz3jPDhK','zgjTCY02lty','nda5nJuWr2XHEvbK','qK1jienHBgn1Bgf0B3i','zgjTCY0YlteX','rgvTB25ZDhjHDguGy29UC3rYDwn0B3iGB3zLCMXVywrPBMCGDxnPBMCGysbcB3GGy2XHC3mGD2L0AcbHigrLzMf1BhqGy29UC3rYDwn0B3iGyw5KigeGCgfYyw1LDgvYAxPLzcbJB25ZDhj1y3rVCI4','mJyUiez1BMn0Aw9UywWGrgvWzw5Kzw5JEq','rw1WBg95zwvZievHCM5PBMCGqwjVDMuGtwLUAw11BsbtywXHCNKGAw4GrMLUyw5JzsbezxbHCNrTzw50','nc4GvgHYzwuGvgLLCIbeqK1tiefYy2HPDgvJDhvYzq','yY02ltm','Aw1WB3j0igPHDMeUDxrPBc5ty2fUBMvYoWOkChvIBgLJignSyxnZiff1ywrYyxrPy0vXDwf0Aw9UihSkicaGihb1yMXPyYbZDgf0AwmGDM9PzcbTywLUkfn0CMLUz1TDigfYz3mPihSkicaGicaGicbty2fUBMvYihnJyw5UzxiGpsbUzxCGu2nHBM5LCIHtExn0zw0UAw4PoWOGicaGicaGigrVDwjSzsbHid0GC2nHBM5LCI5UzxH0rg91yMXLkcK7cIaGicaGicaGzg91yMXLigiGpsbZy2fUBMvYlM5LEhreB3vIBguOktSkicaGicaGicbKB3vIBguGyYa9ihnJyw5UzxiUBMv4DerVDwjSzsGPoWOGicaGicaGigrVDwjSzsbeid0GyIaQigiGlsa0icOGysaQigm7cGOGicaGicaGigLMicHeid4GmcKGEWOGicaGicaGicaGicbtExn0zw0UB3v0lNbYAw50Bg4OiNr3BYbKAxn0Aw5JDcbYzwfSihjVB3rZiIK7cIaGicaGicaGicaGigrVDwjSzsbYB290msa9icGTyIaRie1HDgGUC3fYDcHeksKGlYaOmIaQigePoWOGicaGicaGicaGicbKB3vIBguGCM9VDdiGpsaOlwiGlsbnyxrOlNnXCNqOrcKPic8GkdiGkIbHktSkicaGicaGicaGicaGu3LZDgvTlM91Dc5WCMLUDgXUkcjsB290ide6iciGkYbYB290msK7cIaGicaGicaGicaGifn5C3rLBs5VDxqUChjPBNrSBIGIuM9VDcaYoIaIicSGCM9VDdiPoWOGicaGicaGih0GzwXZzsbPzIaOrca9psaWksb7cIaGicaGicaGicaGifn5C3rLBs5VDxqUChjPBNrSBIGIB25LihjLywWGCM9VDciPoWOGicaGicaGicaGicbKB3vIBguGCM9VDca9ic1Iic8GkdiGkIbHktSkicaGicaGicaGicaGu3LZDgvTlM91Dc5WCMLUDgXUkcjsB290oIaIicSGCM9VDcK7cIaGicaGicaGFsbLBhnLihSkicaGicaGicaGicaGu3LZDgvTlM91Dc5WCMLUDgXUkcjUBYbYzwfSihjVB3rZiIK7cIaGicaGicaGFqOGicaGicaGihnJyw5UzxiUy2XVC2uOktSkicaGih0kFq','rxHWzxjPBwvUDcaYmcdIGjqGrMLSzsbxCML0zsbHBMqGuMvHza','revmrvrfiezst00Gzw1WBg95zwukv0HfuKuGzgvWDgLKieLoicGkicaGifnftevdvcbKzxb0AwqkicaGiezst00GzgvWyxj0BwvUDaOGicaGv0HfuKuGzgvWDg5HBwuGpsaNsfiNcIK7','ndqUifbYywn0AwnLifbYB2DYyw1Z','mI4XlJG','uK9mtejbq0SGq29TBwfUza','sxqGAxmGzgvWzw5Kzw50ig9UihrOzsbmB2fUigvUDgL0EsbMB3iGAwrLBNrPzMLJyxrPB24U','yY0Ylti','uMv0CMLLDMuGrw1WBg95zwvZihDPDgGGrgvWyxj0BwvUDcbjrhmGr3jLyxrLCIbuAgfUidiGvxnPBMCGu3vICxvLCNK','ANaTmtC','zhmTnq','u0vmrunuierju1rjtKnuig1HBMfNzxjFAwqGrLjptsbLBxbSB3LLzxm7','zgjTCY01ltq','ms4XlJm','ms4XlJK','ms4XlJi','rxHWzxjPBwvUDcaYmIdIGjqGqNL0zsbtDhjLyw0Gss9p','ns4XlJm','qsaZlxrPzxiGyxjJAgL0zwn0DxjLihDVDwXKigjLig1VCMuGyxbWCM9WCMLHDguGyxmGAxqGChjVDMLKzxmGyMv0DgvYihnLy3vYAxr5igzVCIbZzw5ZAxrPDMuGBwvKAwnHBcbKyxrHihrOCM91z2GGDgHLigfWCgXPy2f0Aw9UigXHEwvYj3mGywrKAxrPB25HBcbWCM90zwn0Aw9UlGPvC2LUzYbHidiTDgLLCIbHCMnOAxrLy3r1CMuGD291BgqGBwfRzsbPDcbKAwzMAwn1BhqGDg8GC2nHBguGDgHLihn5C3rLBsbHy3jVC3mGBxvSDgLWBguGBg9JyxrPB25Zigr1zsb0BYbKAxjLy3qGy2XPzw50lxnLCNzLCIbJB25Uzwn0Aw9UCY4kvgHLidmTDgLLCIbHCMnOAxrLy3r1CMuGD291BgqGywXSB3CGzM9YigvHC2LLCIb1CgrHDgvZihrVihrOzsbZExn0zw0NCYbIDxnPBMvZCYbSB2DPyYb3AxrOB3v0igfMzMvJDgLUzYb0AguGDxnLCIbPBNrLCMzHy2uGyxqGzgLMzMvYzw50ignSAw5PyYbSB2nHDgLVBNmU','rgvSzxrLievTCgXVEwvLCYbMCM9TierLCgfYDg1LBNrZifDPDgHVDxqGsgLNAcbtywXHCNKGrw1WBg95zwvZicG+nJaWmdaP','yY02lte','ug9ZAxrPDMuGB3iGtMvNyxrPDMu','uMv0CMLLDMuGrw1WBg95zwuGrgv0ywLSCYbvC2LUzYbbtKqGq29UzgL0Aw9U','C3fS','sw5Zzxj0Aw5Nie5LDYbszwnVCMqGAw50BYbezxbHCNrTzw50ifrHyMXL','rw1WBg95zwvZihDPDgGGmJaLienVBw1PC3nPB24','vxbKyxrPBMCGrw1WBg95zwuGu2fSyxj5ifvZAw5Nifbml3bNu1fmierpiejSB2nR','su5trvjuieLove8GzgvWyxj0BwvUDcaOzgvWDgLKlcbKzxb0BMfTzsWGBg9JyxrPB24PcLzbtfvfuYaOnIWGj0zPBMfUy2uNlcaNrgvSAgKNktS','v3jPDguGysbdihbYB2DYyw0GDg8GC29YDcbHBIbHCNjHEsbVzIboigLUDgvNzxjZigLUigfZy2vUzgLUzYbVCMrLCIb1C2LUzYb0AguGsw5Zzxj0Aw9UifnVCNqGywXNB3jPDgHTlG','zgjTCY02ltG','oc4XlJi','uMfUz2uGq2HLy2S','q291BNqGrgLNAxrZig9MiefYCMf5ievSzw1LBNrZ','Aw1WB3j0igPHDMeUDxrPBc5ty2fUBMvYoWOkChvIBgLJignSyxnZifrLC3qGEWOGicaGChvIBgLJihn0yxrPyYb2B2LKig1HAw4Ou3rYAw5Nw10GyxjNCYKGEWOGicaGicaGifnJyw5UzxiGC2mGpsbUzxCGu2nHBM5LCIHtExn0zw0UAw4PoWOGicaGicaGihrYEsb7cIaGicaGicaGicaGigLUDcbUDw1LCMf0B3iGpsbZyY5UzxH0sw50kcK7cIaGicaGicaGicaGigLUDcbKzw5VBwLUyxrVCIa9ihnJlM5LEhrjBNqOktSkicaGicaGicaGicaGAw50ihjLC3vSDca9ig51BwvYyxrVCIaVigrLBM9TAw5HDg9YoWOGicaGicaGicaGicbtExn0zw0UB3v0lNbYAw50Bg4OiLjLC3vSDcbVzIbKAxzPC2LVBJOGiIaRihjLC3vSDcK7cIaGicaGicaGFsbJyxrJAcaOqxjPDgHTzxrPy0v4y2vWDgLVBIbLksb7cIaGicaGicaGicaGifn5C3rLBs5VDxqUChjPBNrSBIGIqxjPDgHTzxrPy0v4y2vWDgLVBJOGrgL2AxnPB24GyNKGEMvYBYbPCYbUB3qGywXSB3DLzciPoWOGicaGicaGih0GzMLUywXSEsb7cIaGicaGicaGicaGifn5C3rLBs5VDxqUChjPBNrSBIGIrMLUywXSEsbcBg9JAYbfEgvJDxrLzciPoWOGicaGicaGicaGicbZyY5JBg9ZzsGPoWOGicaGicaGih0kicaGih0kFq','zgjTCY05ltm','yY0Xltu','i2LUy2X1zgu8C3rKAw8UAd4kAw50ig1HAw4Oksb7cIaGicbPBNqGBJSkicaGignOyxiGy2G7cIaGicbZy2fUzIGIjwqIlcaMBIK7cIaGicbZy2fUzIGIicvJiIWGjMnOktSkicaGihbYAw50zIGIq2HHCMfJDgvYoIaLy1XUiIWGBIK7cIaGicbWCMLUDgyOiKftq0LjoIaLzfXUiIWGy2GPoWP9','rgLZCgXHEsbfBxbSB3LLzxmGD2L0AcbtywXHCNKGtgvZCYbuAgfUideWmdaW','zgjTCY0Zltu','i2LUy2X1zguGphn0zgLVlMG+cInPBMnSDwrLidXZDgrSAwiUAd4kcInKzwzPBMuGtufyidiWcGPPBNqGywrQw01bwf1BtufyxtSkAw50ihzPC2L0zwrBtufyxtSkAw50ig47cGP2B2LKignYzwf0zuDYyxbOkcKGEWOGicaGAw50igKSigOSigvKz2vZlcbVCMLNAw4SigrLC3rPBMf0Aw9UoWOGicaGChjPBNrMkcjoDw1IzxiGB2yGDMvYDgLJzxm6iciPoWOGicaGC2nHBMyOiIvKiIWGjM4PoWOGicaGAwyGkg4GpIbnqvGPihSkicaGicaGicbWCMLUDgyOiK51BwjLCIbVzIb2zxj0AwnLCYbJyw5UB3qGzxHJzwvKicvKxg4IlcbnqvGPoWOGicaGicaGihjLDhvYBJSkicaGih0kicaGigzVCIaOAsa9ida7igKGpcbUoYbPkYSPihSkicaGicaGicbMB3iGkgOGpsaWoYbQidWGBJSGAISRksb7cIaGicaGicaGicaGigfKALTPxvTQxsa9ida7cIaGicaGicaGFqOGicaGFqOGicaGChjPBNrMkcjoDw1IzxiGB2yGzwrNzxm6iciPoWOGicaGC2nHBMyOiIvKiIWGjMvKz2vZktSkicaGigzVCIaOAsa9ida7igKGpcbLzgDLCZSGAsSRksb7cIaGicaGicaGChjPBNrMkcjfzgDLoIaIktSkicaGicaGicbZy2fUzIGIjwqGjwqIlcaMB3jPz2LUlcaMzgvZDgLUyxrPB24PoWOGicaGicaGigLMicHVCMLNAw4GpcaWihX8ig9YAwDPBIa+psbUihX8igrLC3rPBMf0Aw9UidWGmcb8FcbKzxn0Aw5HDgLVBIa+psbUksb7cIaGicaGicaGicaGihbYAw50zIGIsw52ywXPzcbLzgDLxg4IktSkicaGicaGicaGicaGAs0ToWOGicaGicaGicaGicbJB250Aw51ztSkicaGicaGicb9cIaGicaGicaGywrQw29YAwDPBL1BzgvZDgLUyxrPB25Did0GmtSkicaGicaGicbHzgPBzgvZDgLUyxrPB25Dw29YAwDPBL0GpsaXoWOGicaGFqP9cGP2B2LKigrMCYHPBNqGDIKGEWOGicaGAw50igK7cIaGicbWCMLUDgyOiIvKiciSihyPoWOGicaGDMLZAxrLzfT2xsa9ide7cIaGicbMB3iGkgKGpsaWoYbPidWGBJSGAsSRksb7cIaGicaGicaGAwyGkgfKALT2xvTPxsa9psaXicyMicf2AxnPDgvKw2LDksb7cIaGicaGicaGicaGigrMCYHPktSkicaGicaGicb9cIaGicb9cN0kcNzVAwqGyMzZkgLUDcbZDgfYDcKGEWOGicaGAw50ihf1zxvLw01bwf0SigzYB250id0GmcWGCMvHCIa9idaSigKSihy7cIaGicbMB3iGkgKGpsaWoYbPidWGBJSGAsSRksb7cIaGicaGicaGDMLZAxrLzfTPxsa9ida7cIaGicb9cIaGicbXDwv1zvTYzwfYkYTDid0GC3rHCNq7cIaGicb2AxnPDgvKw3n0yxj0xsa9ide7cIaGicbWCMLUDgyOiIvKiciSihn0yxj0ktSkicaGihDOAwXLicHMCM9UDca8ihjLyxiPihSkicaGicaGicb2id0GCxvLDwvBzNjVBNqRk107cIaGicaGicaGzM9YicHPid0GmdSGAsa8ig47igKRkYKGEWOGicaGicaGicaGicbPzIaOywrQw3zDw2LDid09ideGjIyGixzPC2L0zwrBAv0PihSkicaGicaGicaGicaGicaGihf1zxvLw3jLyxiRk10GpsbPoWOGicaGicaGicaGicaGicaGDMLZAxrLzfTPxsa9ide7cIaGicaGicaGicaGicaGicbWCMLUDgyOiIvKiciSigKPoWOGicaGicaGicaGicb9cIaGicaGicaGFqOGicaGFqP9cGP2B2LKigrPC3bSyxLhCMfWAcGPihSkicaGigLUDcbPlcbQoWOGicaGAwyGkg4Gpt0GmcKGEWOGicaGicaGihbYAw50zIGIr3jHCgGGBM90ignYzwf0zwqGEwv0isbqBgvHC2uGy3jLyxrLigDYyxbOigzPCNn0lLXUiIK7cIaGicaGicaGCMv0DxjUoWOGicaGFqOGicaGChjPBNrMkcjbzgPHy2vUy3KGtwf0CML4oLXUiIK7cIaGicbMB3iGkgKGpsaWoYbPidWGBJSGAsSRksb7cIaGicaGicaGzM9YicHQid0GmdSGAIa8ig47igORkYKGEWOGicaGicaGicaGicbWCMLUDgyOiIvKiciSigfKALTPxvTQxsK7cIaGicaGicaGFqOGicaGicaGihbYAw50zIGIxg4IktSkicaGih0kFqOkAw50ig1HAw4Oksb7cIaGicbPBNqGy2HVAwnLlcbZDgfYDcWGAtSkicaGihDOAwXLicGXksb7cIaGicaGicaGChjPBNrMkciXlIbdCMvHDguGr3jHCgHCBIiPoWOGicaGicaGihbYAw50zIGImI4GrgLZCgXHEsbhCMfWAcaOqwrQywnLBMn5ie1HDhjPEcLCBIiPoWOGicaGicaGihbYAw50zIGImY4GreztifrYyxzLCNnHBfXUiIK7cIaGicaGicaGChjPBNrMkci0lIbcrLmGvhjHDMvYC2fSxg4IktSkicaGicaGicbWCMLUDgyOiJuUiev4AxrCBIiPoWOGicaGicaGihbYAw50zIGIq2HVAwnLoIaIktSkicaGicaGicbZy2fUzIGIjwqIlcaMy2HVAwnLktSkcIaGicaGicaGC3DPDgnOicHJAg9Py2uPihSkicaGicaGicaGicaGy2fZzsaXoGOGicaGicaGicaGicaGicaGy3jLyxrLr3jHCgGOktSkicaGicaGicaGicaGicaGigjYzwfRoWOGicaGicaGicaGicbJyxnLidi6cIaGicaGicaGicaGicaGicbKAxnWBgf5r3jHCgGOktSkicaGicaGicaGicaGicaGigjYzwfRoWOGicaGicaGicaGicbJyxnLidm6cIaGicaGicaGicaGicaGicbWCMLUDgyOiLn0yxj0Aw5NihzLCNrLEcbMB3iGreztoIaIktSkicaGicaGicaGicaGicaGihnJyw5MkciLzciSiczZDgfYDcK7cIaGicaGicaGicaGicaGicbMB3iGkgKGpsaWoYbPidWGBJSGAsSRksb2AxnPDgvKw2LDid0GmdSkicaGicaGicaGicaGicaGihbYAw50zIGIreztifrYyxzLCNnHBdOGiIK7cIaGicaGicaGicaGicaGicbKzNmOC3rHCNqPoWOGicaGicaGicaGicaGicaGChjPBNrMkcjCBIiPoWOGicaGicaGicaGicaGicaGyNjLywS7cIaGicaGicaGicaGignHC2uGndOkicaGicaGicaGicaGicaGihbYAw50zIGIu3rHCNrPBMCGDMvYDgv4igzVCIbcrLm6iciPoWOGicaGicaGicaGicaGicaGC2nHBMyOiIvKiIWGjNn0yxj0ktSkicaGicaGicaGicaGicaGihbYAw50zIGIqKztifrYyxzLCNnHBdOGiIK7cIaGicaGicaGicaGicaGicbIzNmOC3rHCNqPoWOGicaGicaGicaGicaGicaGChjPBNrMkcjCBIiPoWOGicaGicaGicaGicaGicaGyNjLywS7cIaGicaGicaGicaGignHC2uGntOkicaGicaGicaGicaGicaGigv4AxqOmcK7cIaGicaGicaGicaGigrLzMf1Bhq6cIaGicaGicaGicaGicaGicbWCMLUDgyOiKLUDMfSAwqGy2HVAwnLxg4IktSkicaGicaGicb9cIaGicb9cIaGicbYzxr1CM4GmdSkFq','vMLLDYbmzxzLBa','Aw1WB3j0igPHDMeUDxrPBc5ty2fUBMvYoWOkChvIBgLJignSyxnZievTCgXVEwvLrgv0ywLSCYb7cIaGicbWDwjSAwmGC3rHDgLJihzVAwqGBwfPBIHtDhjPBMDBxsbHCMDZksb7cIaGicaGicaGu2nHBM5LCIbZy2fUBMvYid0GBMv3ifnJyw5UzxiOu3LZDgvTlMLUktSkicaGicaGicbtDhjPBMCGBMfTzsa9ihnJyw5UzxiUBMv4DeXPBMuOktSkicaGicaGicbPBNqGAwqGpsbZy2fUBMvYlM5LEhrjBNqOktSkicaGicaGicbKB3vIBguGC2fSyxj5id0GC2nHBM5LCI5UzxH0rg91yMXLkcK7cIaGicaGicaGcIaGicaGicaGu3LZDgvTlM91Dc5WCMLUDgXUkg5HBwuPoWOGicaGicaGifn5C3rLBs5VDxqUChjPBNrSBIHPzcK7cIaGicaGicaGu3LZDgvTlM91Dc5WCMLUDgXUkhnHBgfYEsK7cIaGicaGicaGcIaGicaGicaGC2nHBM5LCI5JBg9ZzsGPoWOGicaGFqP9','rgf0ywjHC2uGtwfUywDLBwvUDcbtExn0zw1Z','v3jPDguGysbkyxzHihbYB2DYyw0GDg8GzgvTB25ZDhjHDguGBwv0Ag9Kig92zxjSB2fKAw5Nigj5ignYzwf0Aw5NigfKzcGPig1LDgHVzhmGzM9YigjVDgGGAw50zwDLCIbHBMqGzg91yMXLihbHCMfTzxrLCNmU','ms4XlJC','v2vLAYaZic0GrMLSDgvYCYaMifbHDhrLCM5Z','vM9SDw1L','vw5PDcaZ','nY4XlJm','v2vLAYaXmIaTieLUC3vYyw5JzsbeqIbdyxnLifn0Dwr5','v3jPDguGysbTzw51lwrYAxzLBIbdihbYB2DYyw0GDg8Gy3jLyxrLig5VzgvZlcb0CMf2zxjZzsbHBMqGAw5Zzxj0igf0igeGC3bLy2LMAwmGCg9ZAxrPB24GAw4GysbKB3vIBhKGBgLUA2vKigXPC3qUieHHBMrSzsbLBxb0EsbSAxn0igfUzcbPBNzHBgLKihbVC2L0Aw9UignHC2vZlG','i2LUy2X1zguGphn0zgLVlMG+cInPBMnSDwrLidXZDgrSAwiUAd4kcNr5CgvKzwyGC3rYDwn0ie5VzguGEWOGicaGAw50igrHDge7cIaGicbZDhj1y3qGtM9KzsaQBMv4DdSkFsboB2rLoWOktM9KzsaQAgvHzca9ie5vteW7cGP2B2LKignYzwf0zu5VzguOAw50ihzHBhvLksb7cIaGicboB2rLicPUzxDoB2rLid0Gke5VzguGkILTywXSB2mOC2L6zw9Mke5VzguPktSkicaGig5LD05VzguTpMrHDgeGpsb2ywX1ztSkicaGig5LD05VzguTpM5LEhqGpsbovuXmoWOGicaGcIaGicbPzIaOAgvHzca9psbovuXmksb7cIaGicaGicaGAgvHzca9ig5LD05Vzgu7cIaGicaGicaGBMv3tM9Kzs0+BMv4Dca9igHLywq7cIaGicb9igvSC2uGEWOGicaGicaGie5VzguGkNrLBxaGpsbOzwfKoWOGicaGicaGihDOAwXLicH0zw1Wlt5UzxH0ice9igHLywqPcIaGicaGicaGicaGihrLBxaGpsb0zw1Wlt5UzxH0oWOGicaGicaGihrLBxaTpM5LEhqGpsbUzxDoB2rLoWOGicaGicaGig5LD05VzguTpM5LEhqGpsbOzwfKoWOGicaGFqOGicaGChjPBNrMkcjoB2rLihDPDgGGDMfSDwuGjwqGy3jLyxrLzfXUiIWGDMfSDwuPoWP9cGP2B2LKihrYyxzLCNnLkcKGEWOGicaGAwyGkgHLywqGpt0GtLvmtcKGEWOGicaGicaGihbYAw50zIGItgLZDcbPCYbLBxb0EvXUiIK7cIaGicaGicaGCMv0DxjUoWOGicaGFqOGicaGtM9KzsaQDgvTCca9igHLywq7cIaGicbWCMLUDgyOiKnPCMn1BgfYieXPBMTLzcbmAxn0oIaIktSkicaGigrVihSkicaGicaGicbWCMLUDgyOiIvKic0+iciSihrLBxaTpMrHDgePoWOGicaGicaGihrLBxaGpsb0zw1Wlt5UzxH0oWOGicaGFsb3AgLSzsaODgvTCcaHpsbOzwfKktSkicaGihbYAw50zIGIkgjHy2SGDg8GAgvHzcLCBIiPoWP9cGP2B2LKigLUC2vYDe5VzguOAw50ihzHBhvLlcbPBNqGCg9Zksb7cIaGicboB2rLicPUzxDoB2rLid0Gke5VzguGkILTywXSB2mOC2L6zw9Mke5VzguPktSkicaGig5LD05VzguTpMrHDgeGpsb2ywX1ztSkicaGiaOGicaGAwyGkgHLywqGpt0GtLvmtcKGEWOGicaGicaGigLMicHWB3mGpt0GmcKGEWOGicaGicaGicaGicbOzwfKid0GBMv3tM9KztSkicaGicaGicaGicaGBMv3tM9Kzs0+BMv4Dca9igHLywq7cIaGicaGicaGicaGihbYAw50zIGItM9KzsaLzcbPBNnLCNrLzcbHDcbWB3nPDgLVBIaLzcaOBgLZDcb3yxmGzw1WDhKPxg4Ilcb2ywX1zsWGCg9ZktSkicaGicaGicb9igvSC2uGEWOGicaGicaGicaGicbWCMLUDgyOiKLUDMfSAwqGCg9ZAxrPB25CBIiPoWOGicaGicaGicaGicbMCMvLkg5LD05VzguPoWOGicaGicaGih0kicaGicaGicbYzxr1CM47cIaGicb9cIaGicakicaGigLUDcbSzw4GpsaWoWOGicaGtM9KzsaQDgvTCca9igHLywq7cIaGicbKBYb7cIaGicaGicaGBgvUkYS7cIaGicaGicaGDgvTCca9ihrLBxaTpM5LEhq7cIaGicb9ihDOAwXLicH0zw1Wice9igHLywqPoWOGicaGcIaGicbPzIaOCg9ZidWGmcb8FcbWB3mGpIbSzw4PihSkicaGicaGicbWCMLUDgyOiKLUDMfSAwqGCg9ZAxrPB25CBIiPoWOGicaGicaGigzYzwuOBMv3tM9KzsK7cIaGicaGicaGCMv0DxjUoWOGicaGFqOGicaGcIaGicbPzIaOCg9Zid09idaPihSkicaGicaGicboB2rLicPSyxn0id0GAgvHzdSkicaGicaGicb3AgLSzsaOBgfZDc0+BMv4DcaHpsbOzwfKkqOGicaGicaGicaGicbSyxn0id0GBgfZDc0+BMv4DdSkicaGicaGicbUzxDoB2rLlt5UzxH0id0GAgvHzdSkicaGicaGicbSyxn0lt5UzxH0id0GBMv3tM9KztSkicaGicaGicbOzwfKid0GBMv3tM9KztSkicaGicaGicbWCMLUDgyOiK5VzguGjwqGAw5Zzxj0zwqGyxqGCg9ZAxrPB24GjwrCBIiSihzHBhvLlcbWB3mPoWOGicaGicaGihjLDhvYBJSkicaGih0kicaGiaOGicaGtM9KzsaQChjLDIa9igHLywq7cIaGicbMB3iGkgLUDcbPid0GmdSGAsa8ihbVCYaTide7igKRkYKkicaGicaGicbWCMv2id0GChjLDI0+BMv4DdSkicaGig5LD05VzguTpM5LEhqGpsbWCMv2lt5UzxH0oWOGicaGChjLDI0+BMv4Dca9ig5LD05Vzgu7cIaGicbWCMLUDgyOiK5VzguGjwqGAw5Zzxj0zwqGyxqGCg9ZAxrPB24GjwrCBIiSihzHBhvLlcbWB3mPoWP9cGPPBNqGBwfPBIGPihSkicaGigLUDcbJAg9Py2uSihzHBhvLlcbWB3m7cIaGicb3AgLSzsaOmsKGEWOGicaGicaGihbYAw50zIGIms4Gq3jLyxrLxg4IktSkicaGicaGicbWCMLUDgyOiJiUifrYyxzLCNnLxg4IktSkicaGicaGicbWCMLUDgyOiJmUieLUC2vYDfXUiIK7cIaGicaGicaGChjPBNrMkci0lIbfEgL0xg4IktSkicaGicaGicbWCMLUDgyOiMnOB2LJztOGiIK7cIaGicaGicaGC2nHBMyOiIvKiIWGjMnOB2LJzsK7cIaGicaGicaGcIaGicaGicaGC3DPDgnOicHJAg9Py2uPihSkicaGicaGicaGicaGy2fZzsaXoGOGicaGicaGicaGicaGicaGChjPBNrMkcj2ywX1ztOGiIK7cIaGicaGicaGicaGicaGicbZy2fUzIGIjwqIlcaMDMfSDwuPoWOGicaGicaGicaGicaGicaGy3jLyxrLtM9KzsH2ywX1zsK7cIaGicaGicaGicaGicaGicbICMvHAZSkicaGicaGicaGicaGy2fZzsaYoGOGicaGicaGicaGicaGicaGDhjHDMvYC2uOktSkicaGicaGicaGicaGicaGigjYzwfRoWOGicaGicaGicaGicbJyxnLidm6cIaGicaGicaGicaGicaGicbWCMLUDgyOiNbVC2L0Aw9UoIaIktSkicaGicaGicaGicaGicaGihnJyw5MkciLzciSiczWB3mPoWOGicaGicaGicaGicaGicaGChjPBNrMkcj2ywX1ztOGiIK7cIaGicaGicaGicaGicaGicbZy2fUzIGIjwqIlcaMDMfSDwuPoWOGicaGicaGicaGicaGicaGAw5Zzxj0tM9KzsH2ywX1zsWGCg9ZktSkicaGicaGicaGicaGicaGigjYzwfRoWOGicaGicaGicaGicbJyxnLidq6cIaGicaGicaGicaGicaGicbWCMLUDgyOiKv4AxrCBIiPoWOGicaGicaGicaGicaGicaGzxHPDcGWktSkicaGicaGicaGicaGzgvMyxvSDdOkicaGicaGicaGicaGicaGihbYAw50zIGIsw52ywXPzcbJAg9Py2vCBIiPoWOGicaGicaGih0kicaGih0kicaGihjLDhvYBIaWoWP9','vxbKyxrLifnHBgfYEsbVzIbtywXLCYbezxbHCNrTzw50ievTCgXVEwvL','ANaTmW','u0vmrunuigvTCgLKlcbLBxbUyw1LlcbZywXHCNKSigrLChrPzaPguK9nigvTCgXVEwvLcLDirvjfihnHBgfYEsa+icGkicaGifnftevdvcbnsu4Ozs5ZywXHCNKPcIaGicbguK9nigvTCgXVEwvLigukicaGiePpsu4GzgvWyxj0BwvUDcbKie9oiguUzgvWDgLKid0Gzc5Kzxb0AwqkicaGifDirvjfigqUzgvWDg5HBwuGpsaNrMLUyw5JzsCkktS','sw5Zzxj0ievTCgXVEwvLCYb3AxrOifnHBgfYEsbbyM92zsbdB21Wyw55ief2zxjHz2uGAw50BYbiAwDOu2fSyxj5rw1W','otq5mZK1v2rVsgLT','yY02lti','u0vmrunuieXpv0vskgzPCNn0x25HBwuPieftigXVD2vYcKzst00Gzw1WBg95zwvZoW','ntmUieHHC2HPBMCGAw4GrejnuW','ndaUifnLCMLHBgL6ywjPBgL0EsbVzIbty2HLzhvSzxm','v2vLAYa2ic0Gu3vICxvLCMLLCW','q29TCgfYzsb0AhjLzsbZDhjPBMDZihvZAw5NihrOzsbLCxvHBhmOksbHBMqGy29TCgfYzvrVkcKGBwv0Ag9KCYb0BYbJAgvJAYbMB3iGzxf1ywXPDhKGyw5KigXLEgLJB2DYyxbOAwnHBcbVCMrLCI4','i2LUy2X1zguGphn0zgLVlMG+cInPBMnSDwrLidXZDgrSAwiUAd4ki2rLzMLUzsbnqvGGnqOkAw50ihn0ywnRw01bwf0SihrVCca9ic0XoWOkDM9PzcbKAxnWBgf5kcKGEWOGicaGAwyGkhrVCca9psaTmsKGEWOGicaGicaGihbYAw50zIGIu3rHy2SGAxmGzw1WDhLCBIiPoWOGicaGFsbLBhnLihSkicaGicaGicbWCMLUDgyOiLn0ywnRigvSzw1LBNrZoIaIktSkicaGicaGicbMB3iGkgLUDcbPid0GmdSGAsa8psb0B3a7igKRkYKGEWOGicaGicaGicaGicbWCMLUDgyOiIvKiciSihn0ywnRw2LDktSkicaGicaGicb9cIaGicaGicaGChjPBNrMkcjCBIiPoWOGicaGFqP9cGP2B2LKihb1C2GOAw50ihzHBhvLksb7cIaGicbPzIaODg9Wid09ie1bwcaTidePihSkicaGicaGicbWCMLUDgyOiLn0ywnRie92zxjMBg93xg4IktSkicaGih0GzwXZzsb7cIaGicaGicaGC3rHy2TBkYT0B3bDid0GDMfSDwu7cIaGicaGicaGChjPBNrMkciLzcbWDxnOzwqGAw50BYbZDgfJA1XUiIWGDMfSDwuPoWOGicaGFqP9cGP2B2LKihbVCcGPihSkicaGigLMicH0B3aGpt0GltePihSkicaGicaGicbWCMLUDgyOiLn0ywnRifvUzgvYzMXVD1XUiIK7cIaGicb9igvSC2uGEWOGicaGicaGihbYAw50zIGIjwqGCg9WCgvKigzYB20GC3rHy2TCBIiSihn0ywnRw3rVCc0TxsK7cIaGicb9cN0kcMLUDcbTywLUkcKGEWOGicaGAw50ignOB2LJzsWGDMfSDwu7cIaGicb3AgLSzsaOmsKGEWOGicaGicaGihbYAw50zIGIms4GufvtsfXUiIK7cIaGicaGicaGChjPBNrMkciYlIbqt1bCBIiPoWOGicaGicaGihbYAw50zIGImY4GrgLZCgXHEvXUiIK7cIaGicaGicaGChjPBNrMkci0lIbfEgL0xg4IktSkicaGicaGicbWCMLUDgyOiMnOB2LJztOGiIK7cIaGicaGicaGC2nHBMyOiIvKiIWGjMnOB2LJzsK7cIaGicaGicaGcIaGicaGicaGC3DPDgnOicHJAg9Py2uPihSkicaGicaGicaGicaGy2fZzsaXoGOGicaGicaGicaGicaGicaGChjPBNrMkcj2ywX1ztOGiIK7cIaGicaGicaGicaGicaGicbZy2fUzIGIjwqIlcaMDMfSDwuPoWOGicaGicaGicaGicaGicaGChvZAcH2ywX1zsK7cIaGicaGicaGicaGicaGicbICMvHAZSkicaGicaGicaGicaGy2fZzsaYoGOGicaGicaGicaGicaGicaGCg9WkcK7cIaGicaGicaGicaGicaGicbICMvHAZSkicaGicaGicaGicaGy2fZzsaZoGOGicaGicaGicaGicaGicaGzgLZCgXHEsGPoWOGicaGicaGicaGicaGicaGyNjLywS7cIaGicaGicaGicaGignHC2uGndOkicaGicaGicaGicaGicaGigv4AxqOmcK7cIaGicaGicaGicaGigrLzMf1Bhq6cIaGicaGicaGicaGicaGicbWCMLUDgyOiKLUDMfSAwqGy2HVAwnLxg4IktSkicaGicaGicb9cIaGicb9cIaGicbYzxr1CM4GmdSkFq','q29Uy2f0zw5HDguGrMLYC3qGtMfTzsbHBMqGtgfZDcboyw1Lig9MievTCgXVEwvLCW','uMvZAxPPBMCGyw4GqxjYyxKGDxnPBMCGCMvHBgXVyYGP','DhjHy2u','v2vLAYaTidC','AMf2ys1WCM9NCMfTBwLUzW','rxHWzxjPBwvUDcaXmYdIGjqGsw50zxjMywnL','q3jLyxrPB24Gyw5KieLUC2vYDcbjvcbezxbHCNrTzw50ievTCgXVEwvLCYbPBNrVigHPz2HZywXHCNLLBxaGvgfIBgu','ugvYzM9YBsbKAxzPC2LVBIbIzxr3zwvUihr3BYbPBNrLz2vYCYbHBMqGAgfUzgXLiefYAxrOBwv0AwnfEgnLChrPB24GDxnPBMCGDhj5lwnHDgnOigfUzcbHigzPBMfSBhKGyMXVy2SU','CgfJA2fNzsbrnJK4nte7iaOkChvIBgLJignSyxnZierLzMf1BhrwywX1zxmGEYakicaGihn0yxrPyYbIExrLigrLzMf1BhrcExrLoYakicaGihn0yxrPyYbZAg9YDcbKzwzHDwX0u2HVCNq7iaOGicaGC3rHDgLJigLUDcbKzwzHDwX0sw50oYakicaGihn0yxrPyYbSB25NigrLzMf1BhrmB25NoYakicaGihn0yxrPyYbMBg9HDcbKzwzHDwX0rMXVyxq7iaOGicaGC3rHDgLJigrVDwjSzsbKzwzHDwX0rg91yMXLoYakicaGihn0yxrPyYbJAgfYigrLzMf1BhrdAgfYoYakicaGihn0yxrPyYbIB29SzwfUigrLzMf1BhrcB29SzwfUoYakicaGihn0yxrPyYbtDhjPBMCGzgvMyxvSDfn0CMLUzZSGcGOGicaGChvIBgLJihn0yxrPyYb2B2LKig1HAw4Ou3rYAw5Nw10GyxjNCYKGEYakicaGicaGicbtExn0zw0UB3v0lNbYAw50Bg4OiMj5Dgu6iciGkYbKzwzHDwX0qNL0zsK7iaOGicaGicaGifn5C3rLBs5VDxqUChjPBNrSBIGIC2HVCNq6iciGkYbKzwzHDwX0u2HVCNqPoYakicaGicaGicbtExn0zw0UB3v0lNbYAw50Bg4OiMLUDdOGiIaRigrLzMf1BhrjBNqPoYakicaGicaGicbtExn0zw0UB3v0lNbYAw50Bg4OiMXVBMC6iciGkYbKzwzHDwX0tg9UzYK7iaOGicaGicaGifn5C3rLBs5VDxqUChjPBNrSBIGIzMXVyxq6iciGkYbKzwzHDwX0rMXVyxqPoYakicaGicaGicbtExn0zw0UB3v0lNbYAw50Bg4OiMrVDwjSztOGiIaRigrLzMf1BhreB3vIBguPoYakicaGicaGicbtExn0zw0UB3v0lNbYAw50Bg4OiMnOyxi6ifSIicSGzgvMyxvSDenOyxiGkYaIxsiPoYakicaGicaGicbtExn0zw0UB3v0lNbYAw50Bg4OiMjVB2XLyw46iciGkYbKzwzHDwX0qM9VBgvHBIK7iaOGicaGicaGifn5C3rLBs5VDxqUChjPBNrSBIGIu3rYAw5NoIaIicSGzgvMyxvSDfn0CMLUzYK7iaOGicaGFsakFq','v29YzcbdB3vUDcbHBMqGuMvWBgfJzw1LBNqGAw4GysbgAwXL','lY8Gv3jPDguGEw91CIbJB2rLigHLCMuki2LUy2X1zgu8C3rKAw8UAd4kDM9PzcbTywLUkcKGEWOGicaGzMXVyxqGysWGyIWGyZSkicaGihnJyw5MkciLzIiSiczHktSkicaGihnJyw5MkciLzIiSiczIktSkicaGihnJyw5MkciLzIiSiczJktSkicaGihbYAw50zIGIjs4YzLXUiIWGysaQigiGkIbJic8GmtaWktSkFq','v2vLAYaTideY','uMvSyxrPB25HBcbHBgDLyNjHig9WzxjHDgLVBNmGBwfUAxb1Bgf0zsbYzwXHDgLVBNmGDg8GChjVzhvJzsbUzxCGCMvSyxrPB25ZlGPszwXHDgLVBMfSigfSz2vICMeGzM9YBxmGDgHLihrOzw9YzxrPy2fSigjHC2LZigzVCIbtuuWU','rgf0ysbtDhj1y3r1CMvZ','Dg9tDhjPBMC','mY4XlJm','zgjTCY00ltu','yY0Xltm','ChjVzhvJDhmGW5CGC2HPChbPBMDFB3b0Aw9UCW','rxHWzxjPBwvUDcaXiokaLcbsB290CYbVzIbrDwfKCMf0AwmGrxf1yxrPB24','v3jPDguGysbdihbYB2DYyw0GDg8GC29YDcbHBIbHCNjHEsbVzIboigLUDgvNzxjZigLUigrLC2nLBMrPBMCGB3jKzxiGDxnPBMCGDgHLifnLBgvJDgLVBIbtB3j0igfSz29YAxrOBs4','yY03lti','q291BNqGuhjPBwuGyw5Kie5VBI1qCMLTzsboDw1IzxjZigLUigfUiefYCMf5','qsbKyxrHyMfZzsbPBNn0yw5JzsbJB250ywLUCYbHy3r1ywWGzgf0ysb0Agf0ignOyw5NzxmGB3zLCIb0Aw1LlGPbigrHDgfIyxnLigLUC3rHBMnLihjLChjLC2vUDhmGysbZBMfWC2HVDcbVzIbKyxrHigf0igeGC3bLy2LMAwmGCg9PBNqGAw4GDgLTzs4ktxvSDgLWBguGzgf0ywjHC2uGAw5ZDgfUy2vZignHBIbLEgLZDcbMB3iGDgHLihnHBwuGzgf0ywjHC2uGC2nOzw1HigfJCM9ZCYbKAwzMzxjLBNqGzw52AxjVBM1LBNrZig9YihrPBwvMCMfTzxmU','yY04ltq','rgLZCgXHEsbfBxbSB3LLzsbgAxjZDcbHBMqGtgfZDcboyw1LCW','ANaTmtm','ugvYC29UywWGrML0BMvZCYbuCMfPBMLUzW','zgjTCY05lte','Aw1WB3j0igPHDMeUDxrPBc5ty2fUBMvYoWOky2XHC3mGqw5PBwfSihSkicaGifn0CMLUzYbUyw1LoWOkicaGihzVAwqGzwf0kcKGEWOGicaGicaGifn5C3rLBs5VDxqUChjPBNrSBIHUyw1LicSGiIbPCYbLyxrPBMCUiIK7cIaGicb9cN0kcMnSyxnZierVzYbLEhrLBMrZiefUAw1HBcb7cIaGicb2B2LKigjHCMSOksb7cIaGicaGicaGu3LZDgvTlM91Dc5WCMLUDgXUkg5HBwuGkYaIigLZigjHCMTPBMCUiIK7cIaGicb9cN0kcNb1yMXPyYbJBgfZCYbtAw5NBgvjBMHLCML0yw5Jzsb7cIaGicbWDwjSAwmGC3rHDgLJihzVAwqGBwfPBIHtDhjPBMDBxsbHCMDZksb7cIaGicaGicaGu2nHBM5LCIbZyYa9ig5LDYbty2fUBMvYkfn5C3rLBs5PBIK7cIaGicaGicaGu3rYAw5NigrVz05HBwuGpsbZyY5UzxH0tgLUzsGPoWOkicaGicaGicbeB2CGzg9Nid0GBMv3ierVzYGPoWOGicaGicaGigrVzY5Uyw1Lid0Gzg9NtMfTztSkcIaGicaGicaGzg9NlMvHDcGPoWOGicaGicaGigrVzY5IyxjRkcK7cGOGicaGicaGihnJlMnSB3nLkcK7cIaGicb9cN0','zgjTCY0YltC','nI4XlJm','ms4GuhvYCg9ZzsbVzIbeyxrHyMfZzsbtExn0zw1Z','Aw1WB3j0igPHDMeUDxrPBc5ty2fUBMvYoWOkAw50zxjMywnLieeGEWOGicaGDM9PzcbKAxnWBgf5kcK7cN0kcMnSyxnZieiGAw1WBgvTzw50CYbbihSkicaGihbYAxzHDguGu3rYAw5Nig5HBwu7cGOGicaGChvIBgLJieiOu3rYAw5Nig5HBwuPihSkicaGicaGicb0AgLZlM5HBwuGpsbUyw1LoWOGicaGFqOkicaGihb1yMXPyYb2B2LKigrPC3bSyxKOksb7cIaGicaGicaGu3LZDgvTlM91Dc5WCMLUDgXUkcjizwXSBYaIicSGBMfTzsaRiciSihDLBgnVBwuHiIK7cIaGicb9cN0kcNb1yMXPyYbJBgfZCYbuzxn0ihSkicaGihb1yMXPyYbZDgf0AwmGDM9PzcbTywLUkfn0CMLUz1TDigfYz3mPihSkicaGicaGicbty2fUBMvYihnJid0GBMv3ifnJyw5UzxiOu3LZDgvTlMLUktSkicaGicaGicbtDhjPBMCGBMfTzsa9ihnJlM5LEhrmAw5LkcK7cIaGicaGicaGqsbVyMOGpsbUzxCGqIHUyw1LktSkicaGicaGicbVyMOUzgLZCgXHEsGPoWOGicaGicaGihnJlMnSB3nLkcK7cIaGicb9cN0','CMv0DxjUicHMDw5JDgLVBIGPia','mZuUiezPzNrOie5VCM1HBcbgB3jTicyGugL0zMfSBhm','v3jPDguGysbWCM9NCMfTihrVigPVAw4GDhDVihn0CMLUz3mGDxnPBMCGDgHLignVBMnHDgvUyxrPB24GB3bLCMf0B3iGkcSPigfUzcb0AguGy29Uy2f0kcKGBwv0Ag9KlG','zgf0ys1ZDhj1y3r1CMvZ','sw4GDgHLigjHBMTPBMCGC2vJDg9YlcbeqK1tigvUC3vYzxmGC2vJDxjLihrYyw5Zywn0Aw9UCYWGBwfUywDLCYbJDxn0B21LCIbKyxrHlcbHBMqGC3vWCg9YDhmGy3jLzgL0ignHCMqGCgf5BwvUDhmUcLrLBgvJB21TDw5Py2f0Aw9UignVBxbHBMLLCYbYzwX5ig9UierctvmGzM9Yig1HBMfNAw5NigjPBgXPBMCGC3LZDgvTCYWGq1jnlcbHBMqGBwfPBNrHAw5PBMCGy2fSBcbYzwnVCMrZlGPjBIbLzhvJyxrPB25HBcbPBNn0Axr1DgvZlcbeqK1tigHLBhbZigLUig1HAw50ywLUAw5Nihn0DwrLBNqGCMvJB3jKCYWGBwfUywDPBMCGy291CNnLihjLz2LZDhjHDgLVBNmSigfUzcbWCM9JzxnZAw5NihbHExjVBgWUcKrctvmGAxmGDxnLzcbPBIbOzwfSDgHJyxjLihrVihn0B3jLihbHDgLLBNqGBwvKAwnHBcbOAxn0B3j5lcbWCMvZy3jPChrPB25ZlcbHBMqGC3vWCg9YDcb0zwXLBwvKAwnPBMuGC2vYDMLJzxmU','mtuUifrYyw5Zywn0Aw9UienVBNrYB2WGtgfUz3vHz2u','quXurviGvefcteuGzw1WBg95zwukrfjpucbdt0Xvtu4Gzw1HAwW7','ug9PBNrLCIbbCML0Ag1LDgLJig9UiefYCMf5ievSzw1LBNrZ','rgvMAw5LigeGu3r1zgvUDcbJBgfZCYb3AxrOigLUC3rHBMnLihzHCMLHyMXLCYbMB3iGAwqGyw5Kig5HBwuSigfUzcbHigrPC3bSyxKOksbTzxrOB2qGDg8GChjPBNqGDgHLigrLDgfPBhmUifjLywqGDgHLigLUChv0ihzHBhvLCYb1C2LUzYb0AguGu2nHBM5LCIbJBgfZCYbHBMqGAw52B2TLihrOzsbTzxrOB2qU','u0vmrunuigvTCgLKlcbLBxbUyw1LlcbZywXHCNKSigrLChrPzaPguK9nigvTCgXVEwvLigukv0HfuKuGC2fSyxj5id4GkaOGicaGu0vmrunuiefwrYHZywXHCNKPcIaGicbguK9nigvTCgXVEwvLcIaGicbxsevsrsbKzxb0AwqGpsbLlMrLChrPzaOPoW','mteUms41','Aw1WB3j0igPHDMeUDxrPBc5ty2fUBMvYoWOky2XHC3mGqM94ihSkicaGigLUDcbSlcbIoWOkicaGiejVEcGPihSkicaGicaGicbSid0Gmta7cIaGicaGicaGyIa9idiWoWOGicaGFqOkicaGiejVEcHPBNqGBcWGAw50igiPihSkicaGicaGicb0AgLZlMWGpsbSoWOGicaGicaGihrOAxmUyIa9igi7cIaGicb9cGOGicaGAw50igfYzweOksb7cIaGicaGicaGCMv0DxjUigWGkIbIoWOGicaGFqP9cGPWDwjSAwmGy2XHC3mGq29UC3rYDwn0B3jpDMvYBg9HzgLUz0rLBw8GEWOGicaGChvIBgLJihn0yxrPyYb2B2LKig1HAw4Ou3rYAw5Nw10GyxjNCYKGEWOGicaGicaGifnJyw5UzxiGC2mGpsbUzxCGu2nHBM5LCIHtExn0zw0UAw4PoWOGicaGicaGigLUDcb4id0GC2mUBMv4DeLUDcGPoWOGicaGicaGigLUDcb5id0GC2mUBMv4DeLUDcGPoWOkicaGicaGicbcB3GGyJeGpsbUzxCGqM94kcK7cIaGicaGicaGqM94igiYid0GBMv3iejVEcH4lcb5ktSkcIaGicaGicaGu3LZDgvTlM91Dc5WCMLUDgXUkcjbCMvHmtOGiIaRigiXlMfYzweOksK7cIaGicaGicaGu3LZDgvTlM91Dc5WCMLUDgXUkcjbCMvHmJOGiIaRigiYlMfYzweOksK7cGOGicaGicaGihnJlMnSB3nLkcK7cIaGicb9cN0','sxqGzxn0ywjSAxnOzxmGysbSAw5RigjLDhDLzw4GDhDVihrHyMXLCYbIEsbYzwzLCMvUy2LUzYbHihbYAw1HCNKGA2v5igLUigfUB3rOzxiGDgfIBguU','rw1WBg95zwvZie5VDcbnyw5Hz2vKigj5ie1HBMfNzxiGsuqGmtaZ','sw5UzxiGsM9PBIbJB21IAw5LCYbYB3DZigzYB20GDhDVihrHyMXLCYbVBMX5ihDOzw4GDgHLCMuGyxjLig1HDgnOAw5NihzHBhvLCYbPBIbHignVBw1VBIbJB2X1Bw4UcKz1BgWGt3v0zxiGsM9PBIbYzxr1CM5ZigfSBcbYB3DZigzYB20GyM90Acb0ywjSzxmSihDPDgGGtLvmtcbPBIbWBgfJzxmGD2HLCMuGDgHLCMuGAxmGBM8GBwf0y2GUcLrOzxrHiePVAw4GywXSB3DZigzVCIbQB2LUAw5NihrHyMXLCYbIyxnLzcbVBIbHihnWzwnPzMLJignVBMrPDgLVBIb0Agf0igDVzxmGyMv5B25KignVBw1VBIbJB2X1Bw4GBMfTzxmU','zgjTCY0YltG','zgjTCY02lteY','qxjPDgHTzxrPyYbpCgvYyxrPB25Z','zgjTCY0Zlty','rxzLBIbVCIbpzgq','qwX0zxiGvgfIBguGDg8GrhjVCcbdB2X1Bw4Grw1HAwW','vgHLiokiPYbZEw1IB2WGAxmGDxnLzcb0BYbJB21IAw5Lig11BhrPCgXLignVBMrPDgLVBNmGDgHHDcbTDxn0igjLihrYDwuGC2LTDwX0yw5LB3vZBhKUcLrOzsdIIkGGC3LTyM9SignHBIbIzsb1C2vKihrVihnLBgvJDcb0DxbSzxmGDgHHDcbTzwv0igf0igXLyxn0ig9UzsbVzIbZzxzLCMfSignVBMrPDgLVBNmU','oc4XlJeW','rxHWzxjPBwvUDcaYiokaLcbtAw5NBhKGtgLUA2vKieXPC3q','x19WCM90B19F','zgjTCY02ltu','mtaUifjLBgf0Aw9UywWGqwXNzwjYyq','y29UC29Szq','qwX0zxiGvgfIBguGDg8Gtw9KAwz5ifnHBgfYEsbeyxrHifr5Cgu','uMv2zxjZzsbbCNjHEsbvC2LUzYbqB2LUDgvYCW','u2LTCgXLienHBgn1Bgf0B3iGDxnPBMCGu3DPDgnO','yY02ltq','su5trvjuieLove8GzgvWyxj0BwvUDcaOzgvWDgLKlcbKzxb0BMfTzsWGBg9JyxrPB24PifzbtfvfuWOOmsWGj0HsjYWGicaGicaGicDnDw1IywKNksWkkdiSicDiuICSicaGicaGicaNrgvSAgKNksWkkdmSicDtywXLCYCSicaGicaNqMfUz2fSB3jLjYKScIG0lcaNtwfYA2v0Aw5NjYWGj0nOzw5UywKNksWkkduSicDgAw5HBMnLjYWGicaNshLKzxjHyMfKjYK7cGPjtLnfuLqGsu5utYbLBxbSB3LLzsaOzw1WAwqSigvTCg5HBwuSihnHBgfYEsWGzgvWDgLKksbwquXvrvmkkdeWmsWGj1jHAhvSifnOyxjTysCSiduWmdaSidePlaOOmtaYlcaNqw5PDgeGu2LUz2GNlcaGnJaWmcWGmIKScIGXmdmSicDwAwTYyw0Gugf0zwWNlca0ntaWlcaXksWkkdeWncWGj1nUzwHHieD1ChrHjYWGidCWmdaSidmPlaOOmta1lcaNqw1HBIbwzxjTysCSicaGntuWmcWGmIK7','mtq2nZaXnMHeChP6tG','vgHLifrYyw5Zywn0Aw9UCYb0ywjSzsbHy3rZigfZigfUigLUDgvYBwvKAwfYEsb0ywjSzsbJB25Uzwn0Aw5NiejVB2TZigfUzcbcB3jYB3DLCNmU','mI4XlJC','rxHWzxjPBwvUDca5iokaLcbjBNnLCNrPB24Gu29YDa','mI4XlJeX','uK9mtejbq0SGDg8Gu0fwrvbpsu5u','ugvYzMvJDcWGuhjPBwuSigfUzcbbCM1ZDhjVBMCGq2HLy2S','rxHWzxjPBwvUDcaXmIdIGjqGqwjZDhjHy3qGq2XHC3m','qKvhsu47cKLou0vsvcbjtLrpihn0DwrLBNqGvKfmvuvticGZlcaNuMfODwWNlcaNqKnbjYWGnZGPoWPtqvzfue9jtLqGC3aXoWOksu5trvjuieLove8GC3r1zgvUDcbwquXvrvmGkdqSicDqB29QysCSicDcq0eNlca4ocK7cLjpteXcqunlifrpifnbvKvqt0LovcbZCde7cGPtruXfq1qGkIbguK9nihn0DwrLBNq7','yY05ltm','yY0Zlti','os4GuMvSyxrPB25HBcbdywXJDwX1CW','q2HLy2SGAwyGysboDw1IzxiGrxHPC3rZigLUigeGtgLZDcbHBMqGuhjPBNqGAxrZieLUzgv4','mtG1otK4mgfgr2HWvq','os4XlJe','mI4XlJe','rgf0ywjHC2uGsw5ZDgfUy2u','i2LUy2X1zgu8C3rKAw8UAd4kAw50ig1HAw4Oksb7cIaGicbPBNqGBJSkicaGihnJyw5MkciLzciSiczUktSkicaGigLMicHUicuGmIa9psaWksb7cIaGicaGicaGChjPBNrMkcjfDMvUxg4IktSkicaGih0kicaGigvSC2uGEWOGicaGicaGihbYAw50zIGIt2rKxg4IktSkicaGih0kicaGihjLDhvYBIaWoWP9','mY4XlJeX','rxHWzxjPBwvUDcaXosdIGjqGq29TCgfYzsbuAhjLzsbtDhjPBMDZ','ntaUiezPBguGt3jNywL6yxrPB25ZigfUzcbPDhmGvhLWzxmGAw4GrejnuW','rw1WBg95zwvZievHCM5PBMCGqwjVDMuGrgvWyxj0BwvUDcbbBMqGq29TCgfUEsbbDMvYywDLifnHBgfYEq','oc4XlJG','i2LUy2X1zguGphn0zgLVlMG+cInPBMnSDwrLidXZDgrSAwiUAd4kcNn0CNvJDcboB2rLihSkicaGigLUDcbKyxrHoWOGicaGC3rYDwn0ie5VzguGkMXLzNq7cIaGicbZDhj1y3qGtM9KzsaQCMLNAhq7cN07cGPZDhj1y3qGtM9KzsaQy3jLyxrLtM9KzsHPBNqGDMfSDwuPihSkicaGihn0CNvJDcboB2rLicPUzxDoB2rLid0Gkhn0CNvJDcboB2rLicOPBwfSBg9JkhnPEMvVzIHZDhj1y3qGtM9KzsKPoWOGicaGBMv3tM9Kzs0+zgf0ysa9ihzHBhvLoWOGicaGBMv3tM9Kzs0+BgvMDca9ie5vteW7cIaGicbUzxDoB2rLlt5YAwDODca9ie5vteW7cIaGicbYzxr1CM4GBMv3tM9KztSkFqOkC3rYDwn0ie5VzguGkMLUC2vYDcHZDhj1y3qGtM9KzsaQCM9VDcWGAw50ihzHBhvLksb7cIaGicbPzIaOCM9VDca9psbovuXmksb7cIaGicaGicaGCMv0DxjUignYzwf0zu5VzguODMfSDwuPoWOGicaGFqOGicaGAwyGkhzHBhvLidWGCM9VDc0+zgf0ysKGEWOGicaGicaGihjVB3qTpMXLzNqGpsbPBNnLCNqOCM9VDc0+BgvMDcWGDMfSDwuPoWOGicaGFsbLBhnLigLMicH2ywX1zsa+ihjVB3qTpMrHDgePihSkicaGicaGicbYB290lt5YAwDODca9igLUC2vYDcHYB290lt5YAwDODcWGDMfSDwuPoWOGicaGFqOGicaGCMv0DxjUihjVB3q7cN0kcNzVAwqGAw5VCMrLCIHZDhj1y3qGtM9KzsaQCM9VDcKGEWOGicaGAwyGkhjVB3qGit0GtLvmtcKGEWOGicaGicaGigLUB3jKzxiOCM9VDc0+BgvMDcK7cIaGicaGicaGChjPBNrMkciLzcaIlcbYB290lt5KyxrHktSkicaGicaGicbPBM9YzgvYkhjVB3qTpNjPz2H0ktSkicaGih0kFqOkDM9PzcbWCMvVCMrLCIHZDhj1y3qGtM9KzsaQCM9VDcKGEWOGicaGAwyGkhjVB3qGit0GtLvmtcKGEWOGicaGicaGihbYAw50zIGIjwqGiIWGCM9VDc0+zgf0ysK7cIaGicaGicaGChjLB3jKzxiOCM9VDc0+BgvMDcK7cIaGicaGicaGChjLB3jKzxiOCM9VDc0+CMLNAhqPoWOGicaGFqP9cGP2B2LKihbVC3rVCMrLCIHZDhj1y3qGtM9KzsaQCM9VDcKGEWOGicaGAwyGkhjVB3qGit0GtLvmtcKGEWOGicaGicaGihbVC3rVCMrLCIHYB290lt5Szwz0ktSkicaGicaGicbWB3n0B3jKzxiOCM9VDc0+CMLNAhqPoWOGicaGicaGihbYAw50zIGIjwqGiIWGCM9VDc0+zgf0ysK7cIaGicb9cN0kcNn0CNvJDcboB2rLicPTAw5wywX1zu5VzguOC3rYDwn0ie5VzguGkM5VzguPihSkicaGihn0CNvJDcboB2rLicPJDxjYzw50id0GBM9KztSkicaGihDOAwXLicHJDxjYzw50icyMign1CNjLBNqTpMXLzNqGit0GtLvmtcKGEWOGicaGicaGign1CNjLBNqGpsbJDxjYzw50lt5Szwz0oWOGicaGFqOGicaGCMv0DxjUign1CNjLBNq7cN0kcMLUDcbZzwfYy2GOC3rYDwn0ie5VzguGkNjVB3qSigLUDcb2ywX1zsKGEWOGicaGAwyGkhjVB3qGpt0GtLvmtcKGCMv0DxjUida7cIaGicbPzIaOCM9VDc0+zgf0ysa9psb2ywX1zsKGCMv0DxjUide7cIaGicbLBhnLigLMicH2ywX1zsa8ihjVB3qTpMrHDgePihjLDhvYBIbZzwfYy2GOCM9VDc0+BgvMDcWGDMfSDwuPoWOGicaGzwXZzsbYzxr1CM4GC2vHCMnOkhjVB3qTpNjPz2H0lcb2ywX1zsK7cN0kcNn0CNvJDcboB2rLicPKzwXLDgvoB2rLkhn0CNvJDcboB2rLicPYB290lcbPBNqGA2v5ksb7cIaGicbPzIaOCM9VDca9psbovuXmksbYzxr1CM4GCM9VDdSkicaGigLMicHRzxKGpcbYB290lt5KyxrHksb7cIaGicaGicaGCM9VDc0+BgvMDca9igrLBgv0zu5VzguOCM9VDc0+BgvMDcWGA2v5ktSkicaGih0GzwXZzsbPzIaOA2v5id4GCM9VDc0+zgf0ysKGEWOGicaGicaGihjVB3qTpNjPz2H0id0GzgvSzxrLtM9KzsHYB290lt5YAwDODcWGA2v5ktSkicaGih0GzwXZzsb7cIaGicaGicaGAwyGkhjVB3qTpMXLzNqGpt0GtLvmtcKGEWOGicaGicaGicaGicbZDhj1y3qGtM9KzsaQDgvTCca9ihjVB3qTpNjPz2H0oWOGicaGicaGicaGicbMCMvLkhjVB3qPoWOGicaGicaGicaGicbYzxr1CM4GDgvTCdSkicaGicaGicb9igvSC2uGAwyGkhjVB3qTpNjPz2H0id09ie5vteWPihSkicaGicaGicaGicaGC3rYDwn0ie5VzguGkNrLBxaGpsbYB290lt5Szwz0oWOGicaGicaGicaGicbMCMvLkhjVB3qPoWOGicaGicaGicaGicbYzxr1CM4GDgvTCdSkicaGicaGicb9cIaGicaGicaGC3rYDwn0ie5VzguGkNrLBxaGpsbTAw5wywX1zu5VzguOCM9VDc0+CMLNAhqPoWOGicaGicaGihjVB3qTpMrHDgeGpsb0zw1Wlt5KyxrHoWOGicaGicaGihjVB3qTpNjPz2H0id0GzgvSzxrLtM9KzsHYB290lt5YAwDODcWGDgvTCc0+zgf0ysK7cIaGicb9cIaGicbYzxr1CM4GCM9VDdSkFqOkAw50ig1HAw4Oksb7cIaGicbZDhj1y3qGtM9KzsaQCM9VDca9ie5vteW7cIaGicbPBNqGy2HVAwnLlcb2ywX1ztSkicaGihDOAwXLicGXksb7cIaGicaGicaGChjPBNrMkciXlIbjBNnLCNrCBIiPoWOGicaGicaGihbYAw50zIGImI4Gsw5VCMrLCIbuCMf2zxjZywXCBIiPoWOGicaGicaGihbYAw50zIGImY4GuhjLB3jKzxiGvhjHDMvYC2fSxg4IktSkicaGicaGicbWCMLUDgyOiJqUifbVC3rVCMrLCIbuCMf2zxjZywXCBIiPoWOGicaGicaGihbYAw50zIGIns4GrgvSzxrLxg4IktSkicaGicaGicbWCMLUDgyOiJyUiev4AxrCBIiPoWOGicaGicaGihbYAw50zIGIy2HVAwnLoIaIktSkicaGicaGicbZy2fUzIGIjwqIlcaMy2HVAwnLktSkicaGicaGicakicaGicaGicbZD2L0y2GGkgnOB2LJzsKGEWOGicaGicaGicaGicbJyxnLide6cIaGicaGicaGicaGicaGicbWCMLUDgyOiNzHBhvLoIaIktSkicaGicaGicaGicaGicaGihnJyw5MkciLzciSicz2ywX1zsK7cIaGicaGicaGicaGicaGicbYB290id0GAw5Zzxj0khjVB3qSihzHBhvLktSkicaGicaGicaGicaGicaGigjYzwfRoWOGicaGicaGicaGicbJyxnLidi6cIaGicaGicaGicaGicaGicbWCMLUDgyOiKLUB3jKzxiGvhjHDMvYC2fSoIaIktSkicaGicaGicaGicaGicaGigLUB3jKzxiOCM9VDcK7cIaGicaGicaGicaGicaGicbWCMLUDgyOiLXUiIK7cIaGicaGicaGicaGicaGicbICMvHAZSkicaGicaGicaGicaGy2fZzsaZoGOGicaGicaGicaGicaGicaGChjPBNrMkcjqCMvVCMrLCIbuCMf2zxjZywW6iciPoWOGicaGicaGicaGicaGicaGChjLB3jKzxiOCM9VDcK7cIaGicaGicaGicaGicaGicbWCMLUDgyOiLXUiIK7cIaGicaGicaGicaGicaGicbICMvHAZSkicaGicaGicaGicaGy2fZzsa0oGOGicaGicaGicaGicaGicaGChjPBNrMkcjqB3n0B3jKzxiGvhjHDMvYC2fSoIaIktSkicaGicaGicaGicaGicaGihbVC3rVCMrLCIHYB290ktSkicaGicaGicaGicaGicaGihbYAw50zIGIxg4IktSkicaGicaGicaGicaGicaGigjYzwfRoWOGicaGicaGicaGicbJyxnLidu6cIaGicaGicaGicaGicaGicbWCMLUDgyOiNzHBhvLoIaIktSkicaGicaGicaGicaGicaGihnJyw5MkciLzciSicz2ywX1zsK7cIaGicaGicaGicaGicaGicbPzIaOC2vHCMnOkhjVB3qSihzHBhvLksKGEWOGicaGicaGicaGicaGicaGicaGihjVB3qGpsbKzwXLDgvoB2rLkhjVB3qSihzHBhvLktSkicaGicaGicaGicaGicaGicaGicbWCMLUDgyOiIvKigrLBgv0zwqGzNjVBsbcu1rCBIiSihzHBhvLktSkicaGicaGicaGicaGicaGih0GzwXZzsb7cIaGicaGicaGicaGicaGicaGicaGChjPBNrMkciLzcbUB3qGzM91BMqGAw4GqLnuxg4Ilcb2ywX1zsK7cIaGicaGicaGicaGicaGicb9cIaGicaGicaGicaGicaGicbICMvHAZSkicaGicaGicaGicaGy2fZzsa2oGOGicaGicaGicaGicaGicaGChjPBNrMkcjfEgL0xg4IktSkicaGicaGicaGicaGicaGigv4AxqOmcK7cIaGicaGicaGicaGigrLzMf1Bhq6cIaGicaGicaGicaGicaGicbWCMLUDgyOiKLUDMfSAwqGy2HVAwnLxg4IktSkicaGicaGicb9cIaGicb9cIaGicbYzxr1CM4GmdSkFq','mtqUierHDgeGq29UDhjVBcbmyw5NDwfNzq','ns4XlJu','yY0Xmc0Y','ANaToq','mI4XlJeY','yY04lte','yY05lte','v2vLAYaTideX','ndmUienVBMn1CNjLBMn5ienVBNrYB2W','zgjTCY02ltK','twf4Aw11BsbHBMqGtwLUAw11BsbfBgvTzw50CW','mI4XlJq','rxHWzxjPBwvUDcaYmYdIGjqGu2nHBM5LCIbHBMqGqNvMzMvYzwrszwfKzxi','q1jfqvrfifrbqKXfigrLCgfYDg1LBNqGkaOGicaGzgvWDgLKicaGsu5uifbssu1buLKGs0vzlaOGicaGzgvWDg5HBwuGvKfsq0HbuIGXmdaPie5pvcbovuXmlaOGicaGBg9JyxrPB24GvKfsq0HbuIGXmdaPcIK7cGPduKvbveuGvefcteuGzw1WBg95zwuGkaOGicaGzw1WAwqGicbjtLqGufjjtufswsblrvKScIaGicbLBxbUyw1LifzbuKniqviOmtaWksbot1qGtLvmtcWkicaGihnHBgfYEsaGrevdsu1btcGXmcWYksWkicaGigrLChrPzcaGsu5ulaOGicaGrK9sruLhtIblrvKGkgrLChrPzcKGuKvgrvjftKnfuYbKzxbHCNrTzw50kgrLChrPzcKkktSkcI0Tie5VDgu6ieLMihrHyMXLigfSCMvHzhKGzxHPC3rZlcbKCM9WigzPCNn0oGOTlsbeuK9qifrbqKXfieLgievysvnuuYbLBxbSB3LLztSkls0GrfjpucbuqujmrsbjrIbfweLtvfmGzgvWyxj0BwvUDdS','ms4XlJq','rxHWzxjPBwvUDca3iokaLcbdB25ZDhj1y3rVCIbpDMvYBg9HzgLUzW','v3jPDguGysbkyxzHihbYB2DYyw0GDg8GzgvTB25ZDhjHDguGyMfZAwmGzMLSzsb3CML0zsbHBMqGCMvHzcbVCgvYyxrPB25ZihvZAw5NiezPBgvxCML0zxiGyw5KiezPBgvszwfKzxiU','zgjTCY02lte','zgjTCY0ZltG','yY00ltq','q3jLyxrLifbYB2r1y3qGyw5KifnHBgvZifrHyMXLCW','zgjTCY0YltK','ANaTmta','lY8Gq29KzsbJB21PBMCGC29VBI4UlG','qsWGqIWGqq','mY4GqxbWBgLJyxrPB25Zig9Mierctvm','sgfUzgXPBMCGrxjYB3jZifDOzw4Gsw5Zzxj0Aw5NifnHBgvZifjLy29Yzhm','BgfI','zgjTCY00lte','v3jPDguGysbTzw51lwrYAxzLBIbdihbYB2DYyw0GDg8GCgvYzM9YBsbPBNnLCNqSigrLBgv0zsWGC2vHCMnOigfUzcbKAxnWBgf5ig9UigeGmuqGyxjYyxKGke1bwca9ideWks4GsgfUzgXLig92zxjMBg93lcb1BMrLCMzSB3CGyw5KigLUDMfSAwqGCg9ZAxrPB24Gy2fZzxmU','i2LUy2X1zguGphn0zgLVlMG+cInPBMnSDwrLidXZDgrSAwiUAd4kcNn0CNvJDcboB2rLihSkicaGigLUDcbKyxrHoWOGicaGC3rYDwn0ie5VzguGkM5LEhq7cN07cGPZDhj1y3qGtM9KzsaQAgvHzca9ie5vteW7cGP2B2LKigrPC3bSyxKOksb7cIaGicbPzIaOiwHLywqPihSkicaGicaGicbWCMLUDgyOiKXPC3qGAxmGzw1WDhLCBIiPoWOGicaGicaGihjLDhvYBJSkicaGih0kicaGihbYAw50zIGItgLUA2vKieXPC3q6iciPoWOGicaGzM9YicHZDhj1y3qGtM9KzsaQDca9igHLywq7ihq7ihqGpsb0lt5UzxH0kqOGicaGicaGihbYAw50zIGIjwqGlt4GiIWGDc0+zgf0ysK7cIaGicbWCMLUDgyOiK5vteXCBIiPoWP9cGP2B2LKigLUC2vYDef0rMLYC3qOAw50ihyPihSkicaGihn0CNvJDcboB2rLicPUid0GBwfSBg9JkhnPEMvVzIHZDhj1y3qGtM9KzsKPoWOGicaGBI0+zgf0ysa9ihy7cIaGicbUlt5UzxH0id0GAgvHzdSkicaGigHLywqGpsbUoWOGicaGChjPBNrMkciLzcbPBNnLCNrLzcbHDcb0AguGyMvNAw5UAw5Nxg4Ilcb2ktSkFqOkDM9PzcbPBNnLCNrbDevUzcHPBNqGDIKGEWOGicaGC3rYDwn0ie5VzguGkM4GpsbTywXSB2mOC2L6zw9Mkhn0CNvJDcboB2rLksK7cIaGicbUlt5KyxrHid0GDJSkicaGig4TpM5LEhqGpsbovuXmoWOGicaGAwyGkcfOzwfKkqOGicaGicaGigHLywqGpsbUoWOGicaGzwXZzsb7cIaGicaGicaGC3rYDwn0ie5VzguGkNqGpsbOzwfKoWOGicaGicaGihDOAwXLicH0lt5UzxH0kqOGicaGicaGicaGicb0id0GDc0+BMv4DdSkicaGicaGicb0lt5UzxH0id0GBJSkicaGih0kicaGihbYAw50zIGIjwqGAw5Zzxj0zwqGyxqGDgHLigvUzfXUiIWGDIK7cN0kcNzVAwqGAw5Zzxj0qxrqB3nPDgLVBIHPBNqGDIWGAw50ihbVCYKGEWOGicaGAwyGkhbVCYa8idaPihSkicaGicaGicbWCMLUDgyOiKLUDMfSAwqGCg9ZAxrPB25CBIiPoWOGicaGicaGihjLDhvYBJSkicaGih0kicaGigLMicHWB3mGpt0GmcKGEWOGicaGicaGigLUC2vYDef0rMLYC3qODIK7cIaGicaGicaGCMv0DxjUoWOGicaGFqOGicaGC3rYDwn0ie5VzguGkNqGpsbOzwfKoWOGicaGzM9YicHPBNqGAsa9ida7ihqGjIyGAsa8ihbVCYaTide7igKRkYKkicaGicaGicb0id0GDc0+BMv4DdSkicaGigLMicGHDcKGEWOGicaGicaGihbYAw50zIGIsw52ywXPzcbWB3nPDgLVBLXUiIK7cIaGicaGicaGCMv0DxjUoWOGicaGFqOGicaGC3rYDwn0ie5VzguGkM4GpsbTywXSB2mOC2L6zw9Mkhn0CNvJDcboB2rLksK7cIaGicbUlt5KyxrHid0GDJSkicaGig4TpM5LEhqGpsb0lt5UzxH0oWOGicaGDc0+BMv4Dca9ig47cIaGicbWCMLUDgyOiIvKigLUC2vYDgvKigf0ihbVC2L0Aw9UicvKxg4Ilcb2lcbWB3mPoWP9cGPPBNqGBwfPBIGPihSkicaGigLUDcbJAcWGDIWGCg9ZoWOGicaGD2HPBguGkdePihSkicaGicaGicbWCMLUDgyOiJeUsw5Zzxj0igf0iezPCNn0xg4YlKLUC2vYDcbHDcbfBMrCBJmUsw5Zzxj0igf0ifnWzwnPzMLJifbVC2L0Aw9Uxg40lKrPC3bSyxLCBJuUiev4AxrCBMnOB2LJztOGiIK7cIaGicaGicaGC2nHBMyOiIvKiIWGjMnOktSkicaGicaGicbZD2L0y2GGkgnOksb7cIaGicaGicaGicaGignHC2uGmtOkicaGicaGicaGicaGicaGihbYAw50zIGIDMfSDwu6iciPoWOGicaGicaGicaGicaGicaGC2nHBMyOiIvKiIWGjNyPoWOGicaGicaGicaGicaGicaGAw5Zzxj0qxrgAxjZDcH2ktSkicaGicaGicaGicaGicaGigjYzwfRoWOGicaGicaGicaGicbJyxnLidi6cIaGicaGicaGicaGicaGicbWCMLUDgyOiNzHBhvLoIaIktSkicaGicaGicaGicaGicaGihnJyw5MkciLzciSicz2ktSkicaGicaGicaGicaGicaGigLUC2vYDef0rw5KkhyPoWOGicaGicaGicaGicaGicaGyNjLywS7cIaGicaGicaGicaGignHC2uGmZOkicaGicaGicaGicaGicaGihbYAw50zIGIDMfSDwu6iciPoWOGicaGicaGicaGicaGicaGC2nHBMyOiIvKiIWGjNyPoWOGicaGicaGicaGicaGicaGChjPBNrMkcjWB3nPDgLVBJOGiIK7cIaGicaGicaGicaGicaGicbZy2fUzIGIjwqIlcaMCg9ZktSkicaGicaGicaGicaGicaGigLUC2vYDef0ug9ZAxrPB24ODIWGCg9ZktSkicaGicaGicaGicaGicaGigjYzwfRoWOGicaGicaGicaGicbJyxnLidq6cIaGicaGicaGicaGicaGicbKAxnWBgf5kcK7cIaGicaGicaGicaGicaGicbICMvHAZSkicaGicaGicaGicaGy2fZzsa1oGOGicaGicaGicaGicaGicaGzxHPDcGWktSkicaGicaGicaGicaGzgvMyxvSDdOkicaGicaGicaGicaGicaGihbYAw50zIGIsw52ywXPzcbJAg9Py2vCBIiPoWOGicaGicaGih0kicaGih0kFq','v2vLAYaXmcaTifbml3bNu1fm','D2fYBG','q1jfqvrfifrbqKXfihbYB2r1y3qGkaOGicaGChjVzhvJDgLKieLovcbquKLnqvjzieTfwsWkicaGihbYB2r1y3rUyw1LifzbuKniqviOmtaWksbot1qGtLvmtcWkicaGihbYAwnLierfq0LnquWOmtaSmIKGq0Hfq0SGkhbYAwnLid49idaPcIK7cGPduKvbveuGvefcteuGC2fSzxmGkaOGicaGC2fSzwLKieLovcbquKLnqvjzieTfwsWkicaGihf1yw50Axr5ieLovcbdsevdsYaOCxvHBNrPDhKGpIaWksWkicaGihnHBgvKyxrLierbveuScIaGicbWCM9KDwn0AwqGsu5ulaOGicaGrK9sruLhtIblrvKGkhbYB2r1y3rPzcKGuKvgrvjftKnfuYbWCM9KDwn0khbYB2r1y3rPzcKkktS','zhmTmG','mI4XlJeW','yMLUza','v2vLAYa3ic0GsM9PBNmGjIbtzxqGt3bZ','i2LUy2X1zguGphn0zgLVlMG+cInPBMnSDwrLidXZDgrSAwiUAd4ki2rLzMLUzsbnqvGGnqOkAw50ihf1zxvLw01bwf07cMLUDcbMCM9UDca9ic0XlcbYzwfYid0Glte7cGP2B2LKigrPC3bSyxKOksb7cIaGicbPzIaOzNjVBNqGpt0GlteGFhWGzNjVBNqGpIbYzwfYksb7cIaGicaGicaGChjPBNrMkcjrDwv1zsbPCYbLBxb0EvXUiIK7cIaGicb9igvSC2uGEWOGicaGicaGihbYAw50zIGIuxvLDwuGzwXLBwvUDhm6iciPoWOGicaGicaGigzVCIaOAw50igKGpsbMCM9UDdSGAsa8psbYzwfYoYbPkYSPihSkicaGicaGicaGicaGChjPBNrMkciLzcaIlcbXDwv1zvTPxsK7cIaGicaGicaGFqOGicaGicaGihbYAw50zIGIxg4IktSkicaGih0kFqOkDM9PzcbLBNf1zxvLkgLUDcb2ywX1zsKGEWOGicaGAwyGkhjLyxiGpt0Gtufyic0GmsKGEWOGicaGicaGihbYAw50zIGIuxvLDwuGt3zLCMzSB3DCBIiPoWOGicaGFsbLBhnLihSkicaGicaGicbPzIaOzNjVBNqGpt0GltePihSkicaGicaGicaGicaGzNjVBNqGpsaWoWOGicaGicaGih0kicaGicaGicbYzwfYkYS7cIaGicaGicaGCxvLDwvBCMvHCL0Gpsb2ywX1ztSkicaGicaGicbWCMLUDgyOiIvKigLUC2vYDgvKigLUDg8GCxvLDwvCBIiSihzHBhvLktSkicaGih0kFqOkDM9PzcbKzxf1zxvLkcKGEWOGicaGAwyGkgzYB250id09ic0XihX8igzYB250id4GCMvHCIKGEWOGicaGicaGihbYAw50zIGIuxvLDwuGvw5KzxjMBg93xg4IktSkicaGih0GzwXZzsb7cIaGicaGicaGChjPBNrMkciLzcbKzwXLDgvKigzYB20GCxvLDwvCBIiSihf1zxvLw2zYB250xsK7cIaGicaGicaGzNjVBNqRkZSkicaGicaGicbPzIaOzNjVBNqGpIbYzwfYksb7cIaGicaGicaGicaGigzYB250id0GCMvHCIa9ic0XoWOGicaGicaGih0kicaGih0kFqOkAw50ig1HAw4Oksb7cIaGicbPBNqGy2HVAwnLlcb2ywX1ztSkicaGihDOAwXLicGXksb7cIaGicaGicaGChjPBNrMkciXlIbjBNnLCNrCBIiPoWOGicaGicaGihbYAw50zIGImI4GrgvSzxrLxg4IktSkicaGicaGicbWCMLUDgyOiJmUierPC3bSyxLCBIiPoWOGicaGicaGihbYAw50zIGInc4GrxHPDfXUiIK7cIaGicaGicaGChjPBNrMkcjJAg9Py2u6iciPoWOGicaGicaGihnJyw5MkciLzciSiczJAg9Py2uPoWOGicaGicaGiaOGicaGicaGihn3AxrJAcaOy2HVAwnLksb7cIaGicaGicaGicaGignHC2uGmtOkicaGicaGicaGicaGicaGihbYAw50zIGIDMfSDwu6iciPoWOGicaGicaGicaGicaGicaGC2nHBMyOiIvKiIWGjNzHBhvLktSkicaGicaGicaGicaGicaGigvUCxvLDwuODMfSDwuPoWOGicaGicaGicaGicaGicaGyNjLywS7cIaGicaGicaGicaGignHC2uGmJOkicaGicaGicaGicaGicaGigrLCxvLDwuOktSkicaGicaGicaGicaGicaGigjYzwfRoWOGicaGicaGicaGicbJyxnLidm6cIaGicaGicaGicaGicaGicbKAxnWBgf5kcK7cIaGicaGicaGicaGicaGicbICMvHAZSkicaGicaGicaGicaGy2fZzsa0oGOGicaGicaGicaGicaGicaGzxHPDcGWktSkicaGicaGicaGicaGzgvMyxvSDdOkicaGicaGicaGicaGicaGihbYAw50zIGIsw52ywXPzcbJAg9Py2vCBIiPoWOGicaGicaGih0kicaGih0kicaGihjLDhvYBIaWoWP9','uMv0CMLLDMuGrw1WBg95zwuGrgv0ywLSCYbvC2LUzYbpuIbdB25KAxrPB24','v3jPDguGysbkyxzHihbYB2DYyw0GDg8GCMvHzcb1C2vYigLUChv0ihvZAw5NigjVDgGGu2nHBM5LCIbHBMqGqNvMzMvYzwrszwfKzxiGy2XHC3nLCYbHBMqGzgLZCgXHEsb0AguGB3v0Chv0lG','zhmToq','mI4XlJm','i2LUy2X1zguGphn0zgLVlMG+cInPBMnSDwrLidXZDgrSAwiUAd4ki2rLzMLUzsbnqvGGnqOkAw50ihf1zxvLw01bwf07cMLUDcbMCM9UDca9ic0XlcbYzwfYid0Glte7cGP2B2LKigrPC3bSyxKOksb7cIaGicbPzIaOzNjVBNqGpt0GlteGjIyGCMvHCIa9psaTmsKGEWOGicaGicaGihbYAw50zIGIuxvLDwuGAxmGzw1WDhLCBIiPoWOGicaGicaGihjLDhvYBJSkicaGih0kicaGihbYAw50zIGIq2LYy3vSyxiGuxvLDwuGzwXLBwvUDhm6iciPoWOGicaGAw50igKGpsbMCM9UDdSkicaGihDOAwXLicGXksb7cIaGicaGicaGChjPBNrMkciLzcaIlcbXDwv1zvTPxsK7cIaGicaGicaGAwyGkgKGpt0GCMvHCIKGyNjLywS7cIaGicaGicaGAsa9icHPicSGmsKGjsbnqvG7cIaGicb9cIaGicbWCMLUDgyOiLXUiIK7cN0kcNzVAwqGzw5XDwv1zsHPBNqGDMfSDwuPihSkicaGigLMicGOzNjVBNqGpt0GmcaMjIbYzwfYid09ie1bwcaTidePihX8icGOCMvHCIaRidePicuGtufyid09igzYB250ksKGEWOGicaGicaGihbYAw50zIGIuxvLDwuGt3zLCMzSB3DCBIiPoWOGicaGicaGihjLDhvYBJSkicaGih0kicaGigLMicHMCM9UDca9psaTmsaMjIbYzwfYid09ic0Xksb7cIaGicaGicaGzNjVBNqGpsbYzwfYid0GmdSkicaGih0GzwXZzsb7cIaGicaGicaGCMvHCIa9icHYzwfYicSGmsKGjsbnqvG7cIaGicb9cIaGicbXDwv1zvTYzwfYxsa9ihzHBhvLoWOGicaGChjPBNrMkciLzcbPBNnLCNrLzcbPBNrVihrOzsbXDwv1zvXUiIWGDMfSDwuPoWP9cGP2B2LKigrLCxvLDwuOksb7cIaGicbPzIaOzNjVBNqGpt0GlteGjIyGCMvHCIa9psaTmsKGEWOGicaGicaGihbYAw50zIGIuxvLDwuGvw5KzxjMBg93xg4IktSkicaGicaGicbYzxr1CM47cIaGicb9cIaGicbPBNqGzgvSzxrLzca9ihf1zxvLw2zYB250xtSkicaGigLMicHMCM9UDca9psbYzwfYksb7cIaGicaGicaGzNjVBNqGpsbYzwfYid0Glte7cIaGicb9igvSC2uGEWOGicaGicaGigzYB250id0GkgzYB250icSGmsKGjsbnqvG7cIaGicb9cIaGicbWCMLUDgyOiKrLBgv0zwqGzwXLBwvUDdOGjwrCBIiSigrLBgv0zwqPoWP9cGPPBNqGBwfPBIGPihSkicaGigLUDcbJAg9Py2uSihzHBhvLoWOGicaGD2HPBguGkdePihSkicaGicaGicbWCMLUDgyOiJeUievUCxvLDwvCBIiPoWOGicaGicaGihbYAw50zIGImI4GrgvXDwv1zvXUiIK7cIaGicaGicaGChjPBNrMkciZlIbeAxnWBgf5xg4IktSkicaGicaGicbWCMLUDgyOiJqUiev4AxrCBIiPoWOGicaGicaGihbYAw50zIGIy2HVAwnLoIaIktSkicaGicaGicbZy2fUzIGIjwqIlcaMy2HVAwnLktSkicaGicaGicakicaGicaGicbZD2L0y2GGkgnOB2LJzsKGEWOGicaGicaGicaGicbJyxnLide6cIaGicaGicaGicaGicaGicbWCMLUDgyOiNzHBhvLoIaIktSkicaGicaGicaGicaGicaGihnJyw5MkciLzciSicz2ywX1zsK7cIaGicaGicaGicaGicaGicbLBNf1zxvLkhzHBhvLktSkicaGicaGicaGicaGicaGigjYzwfRoWOGicaGicaGicaGicbJyxnLidi6cIaGicaGicaGicaGicaGicbKzxf1zxvLkcK7cIaGicaGicaGicaGicaGicbICMvHAZSkicaGicaGicaGicaGy2fZzsaZoGOGicaGicaGicaGicaGicaGzgLZCgXHEsGPoWOGicaGicaGicaGicaGicaGyNjLywS7cIaGicaGicaGicaGignHC2uGndOkicaGicaGicaGicaGicaGigv4AxqOmcK7cIaGicaGicaGicaGigrLzMf1Bhq6cIaGicaGicaGicaGicaGicbWCMLUDgyOiKLUDMfSAwqGy2HVAwnLxg4IktSkicaGicaGicb9cIaGicb9cIaGicbYzxr1CM4GmdSkFq','Aw5MBW','mtiUms4Z','nI4XlJe','rMfJDg9YAwfSig9MigeGtNvTyMvY','mJKUifnLy29UzcboB3jTywWGrM9YBq','zgjTCY0YlteW'];_0x1362=function(){return _0x59c786;};return _0x1362();}
+// data/codetantra-db.js
+
+export const CodeTantraDB = {
+    colleges: [
+        { id: 'medicaps', name: 'Medicaps University' }
+    ],
+    branches: [
+        { id: 'cse', name: 'CSE' }
+    ],
+    semesters: [
+        { id: '1', name: 'Semester 1' },
+        { id: '2', name: 'Semester 2' },
+        { id: '3', name: 'Semester 3' },
+        { id: '4', name: 'Semester 4' }
+    ],
+    subjects: {
+        '1_cse': [
+            {
+                id: 'programming-with-c',
+                name: 'Programming with C',
+                fullName: 'Programming with C — Lab Solutions',
+                icon: 'C',
+                type: 'lab',
+                questionsCount: 45,
+                weeks: [
+                    {
+                        title: 'Week - 1',
+                        isPremium: false,
+                        topics: [
+                            { id: 'c-1-1', number: '1.1.1', question: 'Hello User Program', code: "#include<stdio.h>\n#include<conio.h>\nint main() {\n    printf(\"Hello User\\n\");\n    return 0;\n}", language: 'c' },
+                            { id: 'c-1-2', number: '1.1.2', question: 'Arithmetic Operations', code: "// Write your code here\n#include<stdio.h>\nint main() {\n    int num1, num2;\n    scanf(\"%d%d\", &num1, &num2);\n    printf(\"%d\\n\", num1 + num2);\n    printf(\"%d\\n\", num1 - num2);\n    printf(\"%d\\n\", num1 * num2);\n    printf(\"%d\\n\", num1 / num2);\n    printf(\"%d\\n\", num1 % num2);\n}", language: 'c' },
+                            { id: 'c-1-3', number: '1.1.3', question: 'Simple Interest', code: "// Write your code here\n#include<stdio.h>\nvoid main() {\n    float a, b, c;\n    scanf(\"%f\", &a);\n    scanf(\"%f\", &b);\n    scanf(\"%f\", &c);\n    printf(\"%.2f\\n\", a * b * c / 100);\n}", language: 'c' },
+                            { id: 'c-1-4', number: '1.1.4', question: 'Swap Two Numbers using a Third Variable', code: "#include <stdio.h>\nint main() {\n    int num1, num2;\n    int p;\n    // write your c\n    scanf(\"%d\", &num1);\n    p = num1;\n    scanf(\"%d\", &num2);\n    num1 = num2;\n    num2 = p;\n    printf(\"After swapping, first number is: %d\\n\", num1);\n    printf(\"After swapping, second number is: %d\", num2);\n    return 0;\n}", language: 'c' },
+                            { id: 'c-1-5', number: '1.1.5', question: 'Swap Two Numbers', code: "#include <stdio.h>\nint main() {\n    int num1, num2;\n    // write your code...\n    scanf(\"%d\", &num1);\n    scanf(\"%d\", &num2);\n    num1 = num1 + num2;\n    num2 = num1 - num2;\n    num1 = num1 - num2;\n    printf(\"After swapping, first number is: %d\\n\", num1);\n    printf(\"After swapping, second number is: %d\", num2);\n    return 0;\n}", language: 'c' }
+                        ]
+                    },
+                    {
+                        title: 'Week - 2',
+                        isPremium: false,
+                        topics: [
+                            { id: 'c-2-1', number: '2.1.1', question: 'BMI Calculator', code: "#include<stdio.h>\nint main() {\n    float weight, height, bmi;\n    scanf(\"%f %f\", &weight, &height);\n    bmi = weight / (height * height);\n    printf(\"%d\\n\", (int)bmi);\n    if (bmi < 18.5) {\n        printf(\"Underweight\\n\");\n    }\n    else if (bmi >= 18.5 && bmi < 25) {\n        printf(\"Normal\\n\");\n    }\n    else if (bmi >= 25 && bmi < 30) {\n        printf(\"Overweight\\n\");\n    }\n    else if (30 <= bmi) {\n        printf(\"obese\\n\");\n    }\n    return 0;\n}", language: 'c' },
+                            { id: 'c-2-2', number: '2.1.2', question: 'ASCII Code and Character Printer', code: "#include<stdio.h>\nint main() {\n    int n;\n    char ch;\n    scanf(\"%d\", &n);\n    scanf(\" %c\", &ch);\n    printf(\"Character: %c\\n\", n);\n    printf(\"ASCII: %d\\n\", ch);\n}", language: 'c' },
+                            { id: 'c-2-3', number: '2.1.3', question: 'Implicit and Explicit Type Conversion', code: "#include<stdio.h>\nint main() {\n    int integerInput;\n    float floatInput;\n    scanf(\"%d\", &integerInput);\n    scanf(\"%f\", &floatInput);\n    float sum = integerInput + floatInput;\n    int explicitConversion = (int)floatInput;\n    printf(\"%.2f\\n\", sum);\n    printf(\"%d\\n\", explicitConversion);\n    return 0;\n}", language: 'c' }
+                        ]
+                    },
+                    {
+                        title: 'Week - 3',
+                        isPremium: false,
+                        topics: [
+                            { id: 'c-3-1', number: '3.1.1', question: 'Sum of Digits', code: "//Write your code \n#include<stdio.h>\nint main() {\n    int num, sum = 0;\n    scanf(\"%d\", &num);\n    sum += num % 10;\n    num /= 10;\n    sum += num % 10;\n    num /= 10;\n    sum += num % 10;\n    printf(\"%d\\n\", sum);\n    return 0;\n}", language: 'c' },
+                            { id: 'c-3-2', number: '3.1.2', question: 'Reverse of Three-Digit Number', code: "// Write your code here\n#include<stdio.h>\nint main() {\n    int num, reverse = 0, digit;\n    scanf(\"%d\", &num);\n    digit = num % 10;\n    reverse = reverse * 10 + digit;\n    num /= 10;\n    digit = num % 10;\n    reverse = reverse * 10 + digit;\n    num /= 10;\n    digit = num % 10;\n    reverse = reverse * 10 + digit;\n    printf(\"%d\\n\", reverse);\n    return 0;\n}", language: 'c' },
+                            { id: 'c-3-3', number: '3.1.3', question: 'Even or Odd', code: "#include<stdio.h>\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    if (n % 2 == 0) {\n        printf(\"Even\\n\");\n    }\n    else {\n        printf(\"Odd\\n\");\n    }\n    return 0;\n}", language: 'c' },
+                            { id: 'c-3-4', number: '3.1.4', question: 'Vowel or Consonant', code: "#include <stdio.h>\nint main() {\n    char ch;\n    scanf(\"%c\", &ch);\n    //Write your code here\n    if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u' || \n        ch == 'A' || ch == 'E' || ch == 'I' || ch == 'O' || ch == 'U') {\n        printf(\"vowel\\n\");\n    }\n    else if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) {\n        printf(\"consonant\\n\");\n    }\n    else {\n        printf(\"Invalid input. please enter an alphabet character.\\n\");\n    }\n    return 0;\n}", language: 'c' },
+                            { id: 'c-3-5', number: '3.1.5', question: 'Positive or Negative', code: "//Write your code here\n#include<stdio.h>\nint main() {\n    int x;\n    scanf(\"%d\", &x);\n    if (x > 0) {\n        printf(\"positive\\n\");\n    }\n    else if (x < 0) {\n        printf(\"negative\\n\");\n    }\n    else {\n        printf(\"zero\\n\");\n    }\n    return 0;\n}", language: 'c' }
+                        ]
+                    },
+                    {
+                        title: 'Week - 4',
+                        isPremium: true,
+                        topics: [
+                            { id: 'c-4-1', number: '4.1.1', question: 'Leap Year or Not', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-4-2', number: '4.1.2', question: 'Range Check', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-4-3', number: '4.1.3', question: 'Three-Digit Palindrome', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-4-4', number: '4.1.4', question: 'Grade Evaluation', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-4-5', number: '4.1.5', question: 'Simple Calculator using Switch', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-4-6', number: '4.1.6', question: 'Month Name from Number', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-4-7', number: '4.1.7', question: 'Unit Conversion Calculator', code: '// Code coming soon...', language: 'c' }
+                        ]
+                    },
+                    {
+                        title: 'Week - 5',
+                        isPremium: true,
+                        topics: [
+                            { id: 'c-5-1', number: '5.1.1', question: 'Multiplication Table', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-5-2', number: '5.1.2', question: 'Factorial of a Number', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-5-3', number: '5.1.3', question: 'Fibonacci Series', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-5-4', number: '5.1.4', question: 'Perfect, Prime, and Armstrong Check', code: '// Code coming soon...', language: 'c' }
+                        ]
+                    },
+                    {
+                        title: 'Week - 6',
+                        isPremium: true,
+                        topics: [
+                            { id: 'c-6-1', number: '6.1.1', question: 'Maximum and Minimum Elements', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-6-2', number: '6.1.2', question: 'Count Prime and Non-Prime Numbers in an Array', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-6-3', number: '6.1.3', question: 'Count Digits of Array Elements', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-6-4', number: '6.1.4', question: 'Check if a Number Exists in a List and Print its Index', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-6-5', number: '6.1.5', question: 'Array Sorting using User Choice', code: '// Code coming soon...', language: 'c' }
+                        ]
+                    },
+                    {
+                        title: 'Week - 7',
+                        isPremium: true,
+                        topics: [
+                            { id: 'c-7-1', number: '7.1.1', question: 'Print a 2x2 Matrix', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-7-2', number: '7.1.2', question: 'Add Two 2x2 Matrices', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-7-3', number: '7.1.3', question: 'Multiplication of 2 x 2 Matrix', code: '// Code coming soon...', language: 'c' }
+                        ]
+                    },
+                    {
+                        title: 'Week - 8',
+                        isPremium: true,
+                        topics: [
+                            { id: 'c-8-1', number: '8.1.1', question: 'Factorial using non recursive function', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-8-2', number: '8.1.2', question: 'Function with argument and with return value', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-8-3', number: '8.1.3', question: 'Sum of Array Elements', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-8-4', number: '8.1.4', question: 'Factorial using Recursion', code: '// Code coming soon...', language: 'c' }
+                        ]
+                    },
+                    {
+                        title: 'Week - 9',
+                        isPremium: true,
+                        topics: [
+                            { id: 'c-9-1', number: '9.1.1', question: 'Swap Values Using Pointer', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-9-2', number: '9.1.2', question: 'Reverse Array Using Pointers', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-9-3', number: '9.1.3', question: 'Pointer Arithmetic on Array Elements', code: '// Code coming soon...', language: 'c' }
+                        ]
+                    },
+                    {
+                        title: 'Week - 10',
+                        isPremium: true,
+                        topics: [
+                            { id: 'c-10-1', number: '10.1.1', question: 'Student Details using Union', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-10-2', number: '10.1.2', question: 'Store Sort and Search Student Details', code: '// Code coming soon...', language: 'c' }
+                        ]
+                    },
+                    {
+                        title: 'Week - 11',
+                        isPremium: true,
+                        topics: [
+                            { id: 'c-11-1', number: '11.1.1', question: 'Word Count and Replacement in a File', code: '// Code coming soon...', language: 'c' }
+                        ]
+                    },
+                    {
+                        title: 'Week - 12',
+                        isPremium: true,
+                        topics: [
+                            { id: 'c-12-1', number: '12.1.1', question: 'Sum of Array using malloc()', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-12-2', number: '12.1.2', question: 'Resizing an Array using realloc()', code: '// Code coming soon...', language: 'c' },
+                            { id: 'c-12-3', number: '12.1.3', question: 'Displaying the List of Failed Students', code: '// Code coming soon...', language: 'c' }
+                        ]
+                    }
+                ]
+            }
+        ],
+
+
+        '4_cse': [
+            {
+                id: 'dbms',
+                name: 'DBMS',
+                fullName: 'Database Management Systems',
+                icon: 'SQL', // used as pill
+                questionsCount: 42,
+                weeks: [
+                    {
+                        title: 'Week 2 - Basic SQL Queries',
+                        isPremium: false,
+                        topics: [
+                            {
+                                id: 'dbms-2-1',
+                                number: '1.1.1',
+                                question: 'Display Employee First and Last Names',
+                                code: 'SELECT first_name, last_name FROM employees;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-2-2',
+                                number: '1.1.2',
+                                question: 'Display All Contents of Employees Table',
+                                code: 'SELECT * FROM employees;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-2-3',
+                                number: '1.1.3',
+                                question: 'Display Distinct Manager IDs',
+                                code: 'SELECT DISTINCT manager_id FROM employees;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-2-4',
+                                number: '1.1.4',
+                                question: 'Concatenate First Name and Last Name of Employees',
+                                code: 'SELECT first_name || last_name AS name\nFROM employees;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-2-5',
+                                number: '1.1.5',
+                                question: 'Retrieve Employee Details Using AND Condition',
+                                code: 'SELECT *\nFROM employees\nWHERE first_name = \'Steven\'\n  AND last_name = \'King\';',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-2-6',
+                                number: '1.1.6',
+                                question: 'Retrieve Employee Details Using OR Condition',
+                                code: 'SELECT first_name, last_name\nFROM employees\nWHERE first_name = \'David\'\n   OR first_name = \'Nancy\';',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-2-7',
+                                number: '1.1.7',
+                                question: 'Retrieve Employee Details Based on Manager ID',
+                                code: 'SELECT *\nFROM employees\nWHERE manager_id = 103;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-2-8',
+                                number: '1.1.8',
+                                question: 'Display Employees with Salary Less Than 10000',
+                                code: 'SELECT *\nFROM employees\nWHERE salary < 10000;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-2-9',
+                                number: '1.1.9',
+                                question: 'Display Employees with Salary between 10000 and 30000',
+                                code: 'SELECT *\nFROM employees\nWHERE salary BETWEEN 10000 AND 30000;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-2-10',
+                                number: '1.1.10',
+                                question: 'Display Employee First Name in Lowercase',
+                                code: 'SELECT LOWER(first_name) AS lower\nFROM employees;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-2-11',
+                                number: '1.1.11',
+                                question: 'Retrieve Employee Details Based on Manager ID and Department ID',
+                                code: 'SELECT *\nFROM employees\nWHERE manager_id = 100 AND department_id = 90;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-2-12',
+                                number: '1.1.12',
+                                question: 'Display Employee Details Ordered by Salary',
+                                code: 'SELECT employee_id, last_name, email, hire_date, salary\nFROM employees\nORDER BY salary ASC;',
+                                language: 'sql'
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Week 3 - Filters & Patterns',
+                        isPremium: false,
+                        topics: [
+                            {
+                                id: 'dbms-3-1',
+                                number: '2.1.1',
+                                question: 'Display Employees with Salary Not in Range',
+                                code: 'SELECT last_name, salary\nFROM employees\nWHERE salary NOT BETWEEN 5000 AND 10000;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-3-2',
+                                number: '2.1.2',
+                                question: 'Filter Employees by Department ID and Sort by Last Name',
+                                code: 'SELECT last_name, department_id\nFROM employees\nWHERE department_id IN (60, 100)\nORDER BY last_name ASC;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-3-3',
+                                number: '2.1.3',
+                                question: 'Salary Range Filter with Department Condition',
+                                code: 'SELECT last_name AS employee, salary AS monthly_salary\nFROM employees\nWHERE salary BETWEEN 5000 AND 12000\n  AND department_id IN (60, 90);',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-3-4',
+                                number: '2.1.4',
+                                question: 'Employees with Commission',
+                                code: 'SELECT last_name, salary, commission_pct\nFROM employees\nWHERE commission_pct IS NOT NULL\nORDER BY salary DESC, commission_pct DESC;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-3-5',
+                                number: '2.1.5',
+                                question: 'IT & Finance Employees with Excluded Specific Salaries',
+                                code: "SELECT last_name, job_id, salary\nFROM employees\nWHERE job_id IN ('IT_PROG', 'FI_MGR')\n  AND salary NOT IN (2500, 3500, 7000);",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-3-6',
+                                number: '2.1.6',
+                                question: 'Employees with 20% Commission',
+                                code: 'SELECT last_name, salary, commission_pct\nFROM employees\nWHERE commission_pct = 0.20;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-3-7',
+                                number: '2.1.7',
+                                question: 'Employees Not Managed by Manager ID 103',
+                                code: 'SELECT last_name, manager_id\nFROM employees\nWHERE manager_id <> 103;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-3-8',
+                                number: '2.1.8',
+                                question: 'Total Salary of Employees in Department 60',
+                                code: 'SELECT SUM(salary) AS sum\nFROM employees\nWHERE department_id = 60;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-3-9',
+                                number: '2.1.9',
+                                question: 'Difference Between Maximum and Minimum Salary',
+                                code: 'SELECT MAX(salary) AS max,\n       MIN(salary) AS min,\n       MAX(salary) - MIN(salary) AS result\nFROM employees;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-3-10',
+                                number: '2.1.10',
+                                question: 'Count of Distinct Job IDs',
+                                code: 'SELECT COUNT(DISTINCT job_id) AS count\nFROM employees;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-3-11',
+                                number: '2.1.11',
+                                question: "Display Employees Whose First Name Starts with 'A'",
+                                code: "SELECT *\nFROM employees\nWHERE first_name LIKE 'A%';",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-3-12',
+                                number: '2.1.12',
+                                question: "Display Employees Whose First Name Starts with 'A' and Has 5 Characters",
+                                code: "SELECT *\nFROM employees\nWHERE first_name LIKE 'A____';",
+                                language: 'sql'
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Week 4 - DDL & DML',
+                        isPremium: false,
+                        topics: [
+                            {
+                                id: 'dbms-4-1',
+                                number: '3.1.1',
+                                question: 'Create Employee and Department Tables',
+                                code: 'CREATE TABLE department (\n    deptid   INT PRIMARY KEY,\n    deptname VARCHAR(100) NOT NULL,\n    location VARCHAR(100)\n);\n\nCREATE TABLE employee (\n    empid   INT PRIMARY KEY,\n    empname VARCHAR(100) NOT NULL,\n    salary  DECIMAL(10,2),\n    deptid  INT,\n    FOREIGN KEY (deptid) REFERENCES department(deptid)\n);\n\n-- Note: If table already exists, drop first:\n-- DROP TABLE IF EXISTS employee;\n-- DROP TABLE IF EXISTS department;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-4-2',
+                                number: '3.1.2',
+                                question: 'Inserting Records into Employee and Department Tables',
+                                code: "INSERT INTO department (deptid, deptname, location) VALUES\n(1, 'HR',        'Mumbai'),\n(2, 'HR',        'Delhi'),\n(3, 'Sales',     'Bangalore'),\n(4, 'Marketing', 'Chennai'),\n(5, 'Finance',   'Hyderabad');\n\nINSERT INTO employee (empid, empname, salary, deptid) VALUES\n(101, 'Rahul Sharma', 5000, 1),\n(102, 'Anita Singh',  6000, 2),\n(103, 'Vikram Patel', 4500, 1),\n(104, 'Sneha Gupta',  7000, 3),\n(105, 'Aman Verma',   5500, 2);",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-4-3',
+                                number: '3.1.3',
+                                question: 'Update Employee Salary by Percentage',
+                                code: 'UPDATE employee\nSET salary = salary * 1.10\nWHERE empid = 101;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-4-4',
+                                number: '3.1.4',
+                                question: 'Delete Employees by Department Name',
+                                code: "DELETE FROM employee\nWHERE deptid IN (\n    SELECT deptid\n    FROM department\n    WHERE deptname = 'HR'\n);",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-4-5',
+                                number: '3.1.5',
+                                question: 'Alter Table to Add a New Column Email',
+                                code: 'ALTER TABLE employee\nADD COLUMN email VARCHAR(50);',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-4-6',
+                                number: '3.1.6',
+                                question: 'Alter Table to Drop Column Email',
+                                code: 'ALTER TABLE employee\nDROP COLUMN email;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-4-7',
+                                number: '3.1.7',
+                                question: 'Alter Table to Modify Salary Data Type',
+                                code: 'ALTER TABLE employee\nALTER COLUMN salary TYPE DECIMAL(10,2);',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-4-8',
+                                number: '3.1.8',
+                                question: 'Alter Table Employee Name to Staff',
+                                code: 'ALTER TABLE employee\nRENAME TO staff;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-4-9',
+                                number: '3.1.9',
+                                question: 'Truncate the Table Staff',
+                                code: 'TRUNCATE TABLE staff;',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-4-10',
+                                number: '3.1.10',
+                                question: 'Inserting New Record into Department Table',
+                                code: "INSERT INTO department (deptid, deptname, location)\nVALUES (6, 'Finance', 'Delhi');",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-4-11',
+                                number: '3.1.11',
+                                question: 'Employees with Salary Greater than 55,000',
+                                code: 'SELECT empid, empname, salary, deptid\nFROM employee\nWHERE salary > 55000;',
+                                language: 'sql'
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Week 5 - Constraints',
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'dbms-5-1',
+                                number: '4.1.1',
+                                question: 'Create Product and Sales Tables',
+                                code: 'CREATE TABLE product (\n    productid INT PRIMARY KEY,\n    productname VARCHAR(100) NOT NULL,\n    price DECIMAL(10,2) CHECK (price >= 0)\n);\n\nCREATE TABLE sales (\n    saleid INT PRIMARY KEY,\n    quantity INT CHECK (quantity > 0),\n    saledate DATE,\n    productid INT,\n    FOREIGN KEY (productid) REFERENCES product(productid)\n);',
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-5-2',
+                                number: '4.1.2',
+                                question: 'Handling NULL ProductID During Insert',
+                                code: "INSERT INTO Product (ProductID, ProductName, Price)\nVALUES (101, 'Smartphone', 15000.00);",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-5-3',
+                                number: '4.1.3',
+                                question: 'Ensuring Valid Product References in Sales',
+                                code: "INSERT INTO sales (saleid, productid, quantity, saledate)\nVALUES (1, 101, 2, '2025-08-22');",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-5-4',
+                                number: '4.1.4',
+                                question: 'Insert Record into Product Table with Constraint Validation',
+                                code: "INSERT INTO Product (ProductID, ProductName, Price)\nVALUES (101, 'Smartphone', 15000.00);",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-5-5',
+                                number: '4.1.5',
+                                question: 'Handling Errors When Inserting Sales Records',
+                                code: "INSERT INTO Sales (SaleID, ProductID, Quantity, SaleDate)\nVALUES (2, 101, 1, '2025-08-22');",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-5-6',
+                                number: '4.1.6',
+                                question: 'Deleting a Product Referenced in Sales',
+                                code: 'DELETE FROM sales WHERE productid = 103;\nDELETE FROM Product WHERE ProductID = 103;',
+                                language: 'sql'
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Week 6 - Subqueries',
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'dbms-6-1',
+                                number: '5.1.1',
+                                question: 'Find Employee(s) with the Highest Salary',
+                                code: "SELECT empid, empname, salary\nFROM employee\nWHERE salary = (SELECT MAX(salary) FROM employee);",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-6-2',
+                                number: '5.1.2',
+                                question: 'Find Employee(s) with the Lowest Salary',
+                                code: "SELECT empid, empname, salary\nFROM employee\nWHERE salary = (SELECT MIN(salary) FROM employee);",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-6-3',
+                                number: '5.1.3',
+                                question: 'Retrieve Employees with Department IDs Greater Than 2 Using Subquery',
+                                code: "SELECT empid, empname, deptid\nFROM employee\nWHERE deptid IN (SELECT deptid FROM department)\nAND deptid > 2;",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-6-4',
+                                number: '5.1.4',
+                                question: 'Retrieve Employees Based on Department Location',
+                                code: "SELECT e.empid, e.empname, e.deptid\nFROM employee e\nWHERE e.deptid IN (\n    SELECT d.deptid\n    FROM department d\n    WHERE d.location IN ('Delhi', 'Mumbai')\n);",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-6-5',
+                                number: '5.1.5',
+                                question: 'Find Employees Earning Above Department Average',
+                                code: "SELECT empid, empname, salary, deptid\nFROM employee e\nWHERE salary > (\n    SELECT AVG(salary)\n    FROM employee\n    WHERE deptid = e.deptid\n);",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-6-6',
+                                number: '5.1.6',
+                                question: 'Find Employees Earning Above Company Average Salary',
+                                code: "SELECT empid, empname, salary\nFROM employee\nWHERE salary > (SELECT AVG(salary) FROM employee);",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-6-7',
+                                number: '5.1.7',
+                                question: 'Creation and Insert IT Department Employees into highsalaryemp Table',
+                                code: "CREATE TABLE highsalaryemp (\n    empid INT,\n    empname VARCHAR(50),\n    salary DECIMAL(10,2),\n    deptid INT\n);\n\nINSERT INTO highsalaryemp (empid, empname, salary, deptid)\nSELECT e.empid, e.empname, e.salary, e.deptid\nFROM employee e\nJOIN department d ON e.deptid = d.deptid\nWHERE d.deptname = 'IT';",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-6-8',
+                                number: '5.1.8',
+                                question: 'Insert Employees with Salary Above Company Average into HighSalaryEmp',
+                                code: "INSERT INTO highsalaryemp (empid, empname, salary, deptid)\nSELECT empid, empname, salary, deptid\nFROM employee\nWHERE salary > (SELECT AVG(salary) FROM employee);",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-6-9',
+                                number: '5.1.9',
+                                question: 'Update Salary of Sales Department Employee',
+                                code: "UPDATE employee\nSET salary = salary * 1.10\nWHERE deptid IN (\n    SELECT deptid\n    FROM department\n    WHERE deptname = 'Sales'\n);",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-6-10',
+                                number: '5.1.10',
+                                question: 'Delete Employees from Departments Without High Salary Employees (>60000)',
+                                code: "DELETE FROM employee\nWHERE deptid IN (\n    SELECT deptid\n    FROM department d\n    WHERE NOT EXISTS (\n        SELECT 1\n        FROM employee e\n        WHERE e.deptid = d.deptid\n        AND e.salary > 60000\n    )\n);",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-6-11',
+                                number: '5.1.11',
+                                question: 'Employees Earning Above Department And Company Average Salary',
+                                code: "SELECT e.empid, e.empname, e.salary, e.deptid\nFROM employee e\nWHERE e.salary > (\n    SELECT AVG(e2.salary)\n    FROM employee e2\n    WHERE e2.deptid = e.deptid\n)\nAND (\n    SELECT AVG(e3.salary)\n    FROM employee e3\n    WHERE e3.deptid = e.deptid\n) > (\n    SELECT AVG(salary)\n    FROM employee\n);",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-6-12',
+                                number: '5.1.12',
+                                question: 'Employees Earning Above Minimum Salary in Finance Department',
+                                code: "SELECT empid, empname, salary, deptid\nFROM employee\nWHERE salary > (\n    SELECT MIN(e.salary)\n    FROM employee e\n    JOIN department d ON e.deptid = d.deptid\n    WHERE d.deptname = 'Finance'\n);",
+                                language: 'sql'
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Week 7 - Joins & Set Ops',
+                        isPremium: true,
+                        topics: []
+                    },
+                    {
+                        title: 'Week 8 - Views',
+                        isPremium: true,
+                        topics: []
+                    },
+                    {
+                        title: 'Week 9 - TCL',
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'dbms-9-1',
+                                number: '8.1.1',
+                                question: 'COMMIT Command',
+                                code: "BEGIN;\nDELETE FROM student;\nINSERT INTO student VALUES (1, 'Amit', 'BCA', 85);\nCOMMIT;",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-9-2',
+                                number: '8.1.2',
+                                question: 'ROLLBACK Command',
+                                code: "BEGIN;\nINSERT INTO student VALUES (2, 'Neha', 'BCA', 90);\nROLLBACK;",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-9-3',
+                                number: '8.1.3',
+                                question: 'SAVEPOINT Command',
+                                code: "BEGIN;\nINSERT INTO student (roll_no, name, course, marks) VALUES (3, 'Rahul', 'BCA', 78);\nSAVEPOINT sp1;\nINSERT INTO student VALUES (4, 'Pooja', 'BCA', 88);\nROLLBACK TO sp1;\nSELECT * FROM student;",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-9-4',
+                                number: '8.1.4',
+                                question: 'ROLLBACK to SAVEPOINT',
+                                code: "BEGIN;\nINSERT INTO student VALUES (3, 'Rahul', 'BCA', 78);\nSAVEPOINT sp1;\n\nINSERT INTO student VALUES (4, 'Pooja', 'BCA', 88);\nROLLBACK TO SAVEPOINT sp1;\n\nSELECT * FROM student;",
+                                language: 'sql'
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Week 10 - PL/pgSQL',
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'dbms-10-1',
+                                number: '9.1.1',
+                                question: 'Print " hello world "',
+                                code: "DO $$\nBEGIN\nRAISE NOTICE 'Hello PL/pgSQL';\nEND;\n$$ LANGUAGE plpgsql;",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-10-2',
+                                number: '9.1.2',
+                                question: 'Program to Find Sum Two Numbers Using PL/pgSQL',
+                                code: "CREATE OR REPLACE FUNCTION add_numbers(a INTEGER, b INTEGER)\nRETURNS VOID AS $$\nBEGIN\n  RAISE NOTICE 'Sum %', a + b;\nEND;\n$$ LANGUAGE plpgsql;",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-10-3',
+                                number: '9.1.3',
+                                question: 'Insert Data into emp Table',
+                                code: "DO $$\nBEGIN\n  INSERT INTO emp VALUES ('888', 1000, 25000, 'AAA');\n  INSERT INTO emp VALUES ('XXX', 1001, 10000, 'BBB');\n  INSERT INTO emp VALUES ('YYY', 1002, 10000, 'BBB');\n  INSERT INTO emp VALUES ('ZZZ', 1003, 7500, 'BBB');\n  RAISE NOTICE 'Values Inserted';\nEND;\n$$ LANGUAGE plpgsql;",
+                                language: 'sql'
+                            },
+                            {
+                                id: 'dbms-10-4',
+                                number: '9.1.4',
+                                question: 'Updating Employee Salary Using PL/pgSQL DO Block',
+                                code: "DO $$\nBEGIN\n  UPDATE emp\n  SET salary = 15000\n  WHERE emp_name = 'XXX';\n  RAISE NOTICE 'Salary Updated for XXX';\nEND;\n$$ LANGUAGE plpgsql;",
+                                language: 'sql'
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Week 11 - Triggers',
+                        isPremium: true,
+                        topics: []
+                    },
+                    {
+                        title: 'Week 12 - Insurance DB Case Study',
+                        isPremium: true,
+                        topics: []
+                    },
+                    {
+                        title: 'Week 13 - Library DB Case Study',
+                        isPremium: true,
+                        topics: []
+                    }
+                ]
+            },
+            {
+                id: 'dbms-theory',
+                name: 'DBMS Theory',
+                fullName: 'Database Management Systems',
+                icon: 'THEORY',
+                type: 'theory',
+                questionsCount: 50,
+                units: [
+                    {
+                        title: 'Unit 1',
+                        isPremium: false,
+                        sections: [
+                            {
+                                title: '1. Purpose of Database Systems',
+                                qas: [
+                                    { number: '1.1.1', answer: 'Duplicate customer accounts are created due to slightly different spellings of names, increasing storage requirements.\nInaccurate delivery addresses entered by customers result in failed deliveries and dissatisfied customers.' },
+                                    { number: '1.1.2', answer: 'The HR department can retrieve all employee salary details from a single table without accessing individual files.' },
+                                    { number: '1.1.3', answer: 'It automatically updates the customer\'s new address in all related records (orders, shipping, payments).' },
+                                    { number: '1.1.4', answer: 'Physical Level' },
+                                    { number: '1.1.5', answer: 'The physical level focuses on data storage and processing.\nThe logical level defines data structure and relationships.\nThe view level provides customized interfaces for different users.' },
+                                    { number: '1.1.6', answer: 'Concurrency' },
+                                    { number: '1.1.7', answer: 'View Level' },
+                                    { number: '1.1.8', answer: 'Concurrency' },
+                                    { number: '1.1.9', answer: 'Volume' },
+                                    { number: '1.1.10', answer: 'Data Integrity' }
+                                ]
+                            },
+                            {
+                                title: '2. Components of DBMS',
+                                qas: [
+                                    { number: '2.1.1', answer: 'Backup Power Systems' },
+                                    { number: '2.1.2', answer: 'Running regular backups and securing the database\nUsing SQL commands to retrieve or update data\nEnd users entering and processing data through applications\nDatabase administrators (DBAs) managing and maintaining the database' },
+                                    { number: '2.1.3', answer: 'Database Administrator (DBA)' },
+                                    { number: '2.1.4', answer: 'Metadata' }
+                                ]
+                            },
+                            {
+                                title: '3. Applications of DBMS',
+                                qas: [
+                                    { number: '3.1.1', answer: 'In the banking sector, DBMS ensures secure transactions, manages customer data, and supports credit card payments.\nTelecommunication companies rely on DBMS for managing billing systems, CRM, and maintaining call records.\nIn educational institutes, DBMS helps in maintaining student records, managing course registrations, and processing payroll.\nDBMS is used in healthcare to store patient medical history, prescriptions, and support telemedicine services.' },
+                                    { number: '3.1.2', answer: 'E-commerce platforms use DBMS to manage inventory, process transactions, and analyze customer data for personalized shopping experiences.\nIn human resources, DBMS supports employee payroll, benefits administration, and recruitment processes.\nReal estate agencies use DBMS to track market trends, manage property listings, and handle client databases.\nRetailers utilize DBMS for inventory tracking, sales management, and supply chain optimization.\nIn transportation, DBMS is critical for scheduling, logistics, and shipment tracking.' },
+                                    { number: '3.1.3', answer: 'Personal Fitness Training' }
+                                ]
+                            },
+                            {
+                                title: '4. Three Tier DBMS Architecture',
+                                qas: [
+                                    { number: '4.1.1', answer: 'The database, client, and server are all located on the same machine.' },
+                                    { number: '4.1.2', answer: 'A 3-tier architecture would be more appropriate as it provides better security for sensitive medical data through the application layer\'s additional protection.\nUsing a 2-tier architecture would make it difficult to scale the system across multiple locations due to direct client-server connections.\nThe 3-tier architecture would allow for easier updates to the system\'s business logic without affecting the user interface at different clinic locations.' },
+                                    { number: '4.1.3', answer: 'The primary objective is to allow multiple users personalized access to the same data while storing the underlying data only once.\nIt separates user views from the physical structure of the database.\nDifferent users may require different views of the same data.\nThe conceptual schema defines the database structure at the logical level and describes data relationships.' },
+                                    { number: '4.1.4', answer: 'A large e-commerce website with thousands of concurrent users interacting with the application for product browsing and checkout.' }
+                                ]
+                            },
+                            {
+                                title: '5. Data Independence',
+                                qas: [
+                                    { number: '5.1.1', answer: 'A database administrator adds new attributes to an existing table to meet business needs, but users\' customized views of the data remain unaffected.' },
+                                    { number: '5.1.2', answer: 'A, B, A' },
+                                    { number: '5.1.3', answer: 'Physical Data Independence – Ensures that changes in the physical storage structure do not affect the logical schema.' }
+                                ]
+                            },
+                            {
+                                title: '6. Database Schema',
+                                qas: [
+                                    { number: '6.1.1', answer: 'The Transactions table acts as an intermediary table connecting Books and Borrowers.' },
+                                    { number: '6.1.2', answer: 'A database instance contains actual data that changes over time.\nA database instance represents a snapshot of data at a specific point in time.\nMultiple database instances can exist for the same database schema across different environments or timeframes.' },
+                                    { number: '6.1.3', answer: 'Database Instance' }
+                                ]
+                            },
+                            {
+                                title: '7. Data Modeling',
+                                qas: [
+                                    { number: '7.1.1', answer: 'In the Hierarchical Model, data is arranged in a tree-like structure with a single root, and one-to-many relationships are supported.\nThe Graph Model is most suitable for complex data with intricate relationships, like social networks, where nodes represent entities and edges represent relationships.\nThe Relational Model simplifies data design by organizing it into tables and supporting SQL queries.' },
+                                    { number: '7.1.2', answer: 'The Network Model is designed to handle complex, many-to-many relationships and is ideal for applications like airline flight systems where multiple flights connect cities.\nThe NoSQL Model is optimized for large data volumes and real-time analytics, often storing data as JSON or key-value pairs for scalability and high performance.' },
+                                    { number: '7.1.3', answer: 'Graph Model' }
+                                ]
+                            },
+                            {
+                                title: '8. Entity Relationship Model',
+                                qas: [
+                                    { number: '8.1.1', answer: 'A list of all registered customers in the system.' },
+                                    { number: '8.1.2', answer: 'A simple attribute is an indivisible attribute and cannot be broken down further.\nA multi-valued attribute allows multiple values for a single entity, such as multiple phone numbers for one customer.\nA foreign key refers to an attribute in one table that links to the primary key of another table, establishing a relationship between them.' },
+                                    { number: '8.1.3', answer: 'book_id is the Primary Key in the Books table, uniquely identifying each book.\nisbn is a Candidate Key in the Books Table because it can uniquely identify a book, even though book_id is used as the Primary Key.\nloan_id is the Primary Key in the Book Loans Table, uniquely identifying each book loan.\nloan_date is a Simple Attribute because it stores a single piece of data: the date when the book was borrowed.' },
+                                    { number: '8.1.4', answer: '1 : C, 2 : D, 3 : A, 4 : B' },
+                                    { number: '8.1.5', answer: 'The ER Model serves as a blueprint for creating actual database tables.\nA Strong Entity in the ER Model does not rely on other entities and has a unique identifier.' },
+                                    { number: '8.1.6', answer: '1 : B, 2 : A, 3 : C' },
+                                    { number: '8.1.7', answer: 'In a one-to-many relationship, entities in "one" entity set can participate once, but entities in the other entity set can participate more than once in the relationship.\nTotal participation is represented by a double line in the ER diagram, indicating that each entity in the entity set must participate in the relationship.' },
+                                    { number: '8.1.8', answer: 'Generalization involves abstracting common properties from multiple entity types (subclasses) to create a superclass (parent entity).\nSpecialization divides a higher-level entity into lower-level entities based on unique attributes.\nAggregation allows you to treat relationships between entities as separate entities.' },
+                                    { number: '8.1.9', answer: 'It is dependent on the Loan entity for identification.' },
+                                    { number: '8.1.10', answer: 'An admin manages exactly one shopping website.' }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Unit 2',
+                        isPremium: true,
+                        sections: [
+                            {
+                                title: '9. Relational Calculus',
+                                qas: [
+                                    { number: '9.1.1', answer: 'Tuple Relational Calculus uses formulas consisting of tuples and variables to express queries.\nRelational Calculus can be used to find customers with orders exceeding a certain amount.' },
+                                    { number: '9.1.2', answer: 'The ∧ symbol is used to combine multiple conditions that must be true simultaneously.\nThe ∨ symbol can be used to select tuples that meet at least one of several conditions.' },
+                                    { number: '9.1.3', answer: 'DRC is less effective than TRC in handling complex relationships between entities.\nDRC is well-suited for precise, attribute-specific queries.\nIn DRC, understanding customer behavior based on specific attributes can be efficiently achieved.' }
+                                ]
+                            },
+                            {
+                                title: '10. Relational Algebra',
+                                qas: [
+                                    { number: '10.1.1', answer: 'Relational algebra operations manipulate relations to produce new relations.\nRelational algebra forms the theoretical basis for SQL.' },
+                                    { number: '10.1.2', answer: 'σ(price > 80)(products)' },
+                                    { number: '10.1.3', answer: 'ρ(annual_salary <- salary)(π(employee_name, salary)(employees))' },
+                                    { number: '10.1.4', answer: 'online_customers U store_customers\nπ(customer_name)(online_customers U store_customers)' },
+                                    { number: '10.1.5', answer: 'products × shipping_options' },
+                                    { number: '10.1.6', answer: 'It returns all rows from the left table and the matching rows from the right table; if there is no match, the result for the right table will contain NULLs.' },
+                                    { number: '10.1.7', answer: 'Inner Join combines rows from two tables only when there are matching values in a common column.\nFull Outer Join returns all rows from both tables, with NULL in places where there is no match.\nTheta Join allows for joining tables based on a specific condition that goes beyond common column names.' }
+                                ]
+                            },
+                            {
+                                title: '11. Relational Model',
+                                qas: [
+                                    { number: '11.1.1', answer: 'It establishes a link between two tables by referencing a primary key in another table.' },
+                                    { number: '11.1.2', answer: 'Each customer can place multiple orders.\nThe Customer_ID in the Orders table is a Foreign Key referencing the Customer_ID in the Customers table.\nThe Orders table demonstrates a One-to-Many relationship with the Customers table.' },
+                                    { number: '11.1.3', answer: 'Foreign Keys are used to link related data across multiple tables.\nSQL enables efficient insertion, retrieval, and updating of data in relational databases.\nNormalization reduces data redundancy and improves consistency.' },
+                                    { number: '11.1.4', answer: 'The customer_id in the "Orders" table is a Foreign Key referencing the "Customers" table.\nThe "Product_Categories" table must include at least two Foreign Keys referencing "Products" and "Categories".\nA many-to-many relationship requires a junction table to link the related entities.' },
+                                    { number: '11.1.5', answer: 'WorksFor(EmpID, DeptID)' },
+                                    { number: '11.2.1', answer: 'All data, including metadata, should be stored in tabular format and accessible via a query language.\nA comprehensive language like SQL should be supported for all database operations, including definition and manipulation.\nViews that are theoretically updatable should be updatable through the system.' },
+                                    { number: '11.2.2', answer: 'Optional attributes in the ER model translate into nullable columns in PostgreSQL, aligning with the rule for null values' }
+                                ]
+                            },
+                            { title: '12. Introduction to DDL & DML', qas: [] },
+                            { title: '13. Advanced DML', qas: [] },
+                            { title: '14. Data Control Language', qas: [] },
+                            { title: '15. Transaction Control Language', qas: [] },
+                            { title: '16. Database Keys', qas: [] },
+                            { title: '17. SQL Basic Operations', qas: [] },
+                            { title: '18. Set Operators', qas: [] },
+                            { title: '19. Aggregate Functions', qas: [] },
+                            { title: '20. Nested Queries', qas: [] },
+                            { title: '21. Views', qas: [] },
+                            { title: '22. SQL Joins', qas: [] },
+                            { title: '23. Practice Programs', qas: [] }
+                        ]
+                    },
+                    {
+                        title: 'Unit 3',
+                        isPremium: true,
+                        sections: [
+                            { title: '24. Database Design', qas: [] },
+                            { title: '25. Integrity Constraints', qas: [] },
+                            { title: '26. Functional Dependency', qas: [] },
+                            { title: '27. Need of Normalization', qas: [] },
+                            { title: '28. First Normal Form', qas: [] },
+                            { title: '29. Second Normal Form', qas: [] },
+                            { title: '30. Third Normal Form', qas: [] },
+                            { title: '31. Boyce Codd Normal Form', qas: [] },
+                            { title: '32. Multivalued Dependencies', qas: [] },
+                            { title: '33. Fourth Normal Form (4NF)', qas: [] },
+                            { title: '34. Join Dependencies', qas: [] },
+                            { title: '35. Fifth Normal Form & Pitfalls', qas: [] },
+                            { title: '36. Practice Programs', qas: [] }
+                        ]
+                    },
+                    {
+                        title: 'Unit 4',
+                        isPremium: true,
+                        sections: [
+                            { title: '37. Transaction System Concepts', qas: [] },
+                            { title: '38. Desirable Properties of Transactions', qas: [] },
+                            { title: '39. DBMS Schedules', qas: [] },
+                            { title: '40. Serializability of Schedules', qas: [] },
+                            { title: '41. Recoverability in DBMS', qas: [] },
+                            { title: '42. Introduction to Checkpoints', qas: [] },
+                            { title: '43. Concurrency Control', qas: [] },
+                            { title: '44. Practice Programs', qas: [] }
+                        ]
+                    },
+                    {
+                        title: 'Unit 5',
+                        isPremium: true,
+                        sections: [
+                            { title: '45. Query Processing - Introduction and Layers', qas: [] },
+                            { title: '46. Query Cost & Materialized Views', qas: [] },
+                            { title: '47. Introduction to Query Optimization', qas: [] },
+                            { title: '48. Equivalence Rules in Query Optimization', qas: [] },
+                            { title: '49. Cost Based Optimization', qas: [] },
+                            { title: '50. File Orgaizations and its Types in DBMS', qas: [] },
+                            { title: '51. Indexing in DBMS', qas: [] },
+                            { title: '52. Types of Indexing', qas: [] },
+                            { title: '53. Hashing in DBMS', qas: [] },
+                            { title: '54. Types of Hashing', qas: [] },
+                            { title: '55. Object Oriented & Object Relational DB', qas: [] },
+                            { title: '56. Logical and Web Databases', qas: [] },
+                            { title: '57. Distributed Databases', qas: [] },
+                            { title: '58. Data Warehousing & Data Mining', qas: [] }
+                        ]
+                    }
+                ]
+            }
+        ],
+        '3_cse': [
+            {
+                id: 'java-programming',
+                name: 'Java Programming',
+                fullName: 'Java Programming — Lab Solutions',
+                icon: 'JAVA',
+                type: 'lab',
+                questionsCount: 23,
+                weeks: [
+                    { 
+                        title: 'Experiment 1 — Roots of Quadratic Equation', 
+                        topics: [
+                            {
+                                id: 'jp-1',
+                                number: '1',
+                                question: 'Write a Java program to find the roots of a quadratic equation and determine the nature of roots based on the discriminant.',
+                                code: "import java.util.Scanner;\n\npublic class QuadraticEquation {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        double a = scanner.nextDouble();\n        double b = scanner.nextDouble();\n        double c = scanner.nextDouble();\n        double D = b * b - 4 * a * c;\n\n        if (D > 0) {\n            System.out.println(\"two distinct real roots\");\n            double root1 = (-b + Math.sqrt(D)) / (2 * a);\n            double root2 = (-b - Math.sqrt(D)) / (2 * a);\n            System.out.println(\"Root 1: \" + root1);\n            System.out.println(\"Root 2: \" + root2);\n        } else if (D == 0) {\n            System.out.println(\"one real root\");\n            double root = -b / (2 * a);\n            System.out.println(\"Root: \" + root);\n        } else {\n            System.out.println(\"no real roots\");\n        }\n        scanner.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 2 — Default Values', 
+                        topics: [
+                            {
+                                id: 'jp-2',
+                                number: '2',
+                                question: 'Write a Java program that demonstrates and prints the default values of different primitive data types and String using static variables.',
+                                code: "package Q69851; \n\npublic class DefaultValues { \n    static byte defaultByte; \n    static short defaultShort; \n    static int defaultInt; \n    static long defaultLong; \n    static float defaultFloat; \n    static double defaultDouble; \n    static char defaultChar; \n    static boolean defaultBoolean; \n    static String defaultString; \n\n    public static void main(String[] args) { \n        System.out.println(\"byte: \" + defaultByte); \n        System.out.println(\"short: \" + defaultShort); \n        System.out.println(\"int: \" + defaultInt); \n        System.out.println(\"long: \" + defaultLong); \n        System.out.println(\"float: \" + defaultFloat); \n        System.out.println(\"double: \" + defaultDouble); \n        System.out.println(\"char: [\" + defaultChar + \"]\"); \n        System.out.println(\"boolean: \" + defaultBoolean); \n        System.out.println(\"String: \" + defaultString); \n    } \n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 3 — Palindrome', 
+                        topics: [
+                            {
+                                id: 'jp-3',
+                                number: '3',
+                                question: 'Write a Java program to check whether a given lowercase string is a palindrome or not.',
+                                code: "import java.util.*;\n\nclass Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String str = sc.nextLine();\n        boolean isPalindrome = true;\n        int n = str.length();\n\n        for (int i = 0; i < n / 2; i++) {\n            if (str.charAt(i) != str.charAt(n - 1 - i)) {\n                isPalindrome = false;\n                break;\n            }\n        }\n\n        if (isPalindrome) {\n            System.out.println(\"yes\");\n        } else {\n            System.out.println(\"no\");\n        }\n\n        sc.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 4 — Employee Details', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-4',
+                                number: '4',
+                                question: 'Write a Java program to read an employee\'s name, ID, and salary using the Scanner class and display the values.',
+                                code: "import java.util.Scanner;\n\npublic class EmployeeDetails {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        String name = scanner.nextLine();\n        int id = scanner.nextInt();\n        double salary = scanner.nextDouble();\n        \n        System.out.println(name);\n        System.out.println(id);\n        System.out.println(salary);\n        \n        scanner.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 5 — Classes and Objects', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-5',
+                                number: '5',
+                                question: 'Define a Student class with instance variables for id and name, and a display() method to print the details. Read the input values using the Scanner class and invoke the method.',
+                                code: "import java.util.Scanner;\n\nclass Student {\n    int id;\n    String name;\n\n    void display() {\n        System.out.println(\"ID: \" + id + \", Name: \" + name);\n    }\n}\n\npublic class StudentDetails {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        Student s1 = new Student();\n        s1.id = sc.nextInt();\n        sc.nextLine(); // Consume newline\n        s1.name = sc.nextLine();\n        \n        s1.display();\n        \n        sc.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 6 — Constructor', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-6',
+                                number: '6',
+                                question: 'Write a Java program to demonstrate the use of constructors to initialize Student attributes and display them.',
+                                code: "import java.util.Scanner;\n\nclass Student {\n    int id;\n    String name;\n\n    Student(int id, String name) {\n        this.id = id;\n        this.name = name;\n    }\n\n    void display() {\n        System.out.println(\"Id: \" + id);\n        System.out.println(\"Name: \" + name);\n    }\n}\n\npublic class Constructor {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        \n        int id1 = scanner.nextInt();\n        scanner.nextLine();\n        String name1 = scanner.nextLine();\n        \n        int id2 = scanner.nextInt();\n        scanner.nextLine();\n        String name2 = scanner.nextLine();\n        \n        Student student1 = new Student(id1, name1);\n        Student student2 = new Student(id2, name2);\n        \n        student1.display();\n        student2.display();\n        \n        scanner.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 7 — Constructor Overloading', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-7',
+                                number: '7',
+                                question: 'Demonstrate constructor overloading using a Box class with a default constructor and a parameterized constructor.',
+                                code: "import java.util.Scanner;\n\nclass Box {\n    int l, b;\n\n    Box() {\n        l = 10;\n        b = 20;\n    }\n\n    Box(int l, int b) {\n        this.l = l;\n        this.b = b;\n    }\n\n    int area() {\n        return l * b;\n    }\n}\n\npublic class ConstructorOverloadingDemo {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int x = sc.nextInt();\n        int y = sc.nextInt();\n\n        Box b1 = new Box();\n        Box b2 = new Box(x, y);\n\n        System.out.println(\"Area1: \" + b1.area());\n        System.out.println(\"Area2: \" + b2.area());\n\n        sc.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 8 — Method Overloading', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-8',
+                                number: '8',
+                                question: 'Write a Java program to demonstrate method overloading by creating add() methods for both integer and double parameters.',
+                                code: "import java.util.Scanner;\n\nclass Calculation {\n    public int add(int a, int b) {\n        return a + b;\n    }\n\n    public double add(double a, double b) {\n        return a + b;\n    }\n}\n\npublic class MethodOverloading {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        \n        int num1 = sc.nextInt();\n        int num2 = sc.nextInt();\n        double d1 = sc.nextDouble();\n        double d2 = sc.nextDouble();\n        \n        Calculation c = new Calculation();\n        System.out.println(\"Integers sum: \" + c.add(num1, num2));\n        System.out.println(\"Doubles sum: \" + c.add(d1, d2));\n        \n        sc.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 9 — String Concatenation', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-9',
+                                number: '9',
+                                question: 'Write a program to join two strings using the concatenation operator (+) and the concat() method.',
+                                code: "import java.util.Scanner;\n\npublic class TestString {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String str1 = sc.nextLine();\n        String str2 = sc.nextLine();\n        \n        System.out.println(str1 + str2);\n        System.out.println(str1.concat(str2));\n        \n        sc.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 10 — String Operations', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-10',
+                                number: '10',
+                                question: 'Write a Java program to extract a substring, split the string into words, and convert it into a space-separated character array.',
+                                code: "import java.util.Scanner;\n\npublic class StringOps {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        \n        String input = sc.nextLine();\n        int start = sc.nextInt();\n        int end = sc.nextInt();\n        \n        // Extract substring\n        System.out.println(input.substring(start, end));\n        \n        // Split string into words\n        String[] words = input.split(\"\\\\s+\");\n        for (String word : words) {\n            System.out.println(word);\n        }\n        \n        // Convert into space-separated character array\n        char[] chars = input.toCharArray();\n        for (char c : chars) {\n            System.out.print(c + \" \");\n        }\n        \n        sc.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 11 — Inheritance', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-11',
+                                number: '11',
+                                question: 'Write a Java program to demonstrate single inheritance by creating a base class Animal and a derived class Dog that inherits its attributes and methods.',
+                                code: "import java.util.Scanner;\n\nclass Animal {\n    String name;\n\n    void eat() {\n        System.out.println(name + \" is eating.\");\n    }\n}\n\nclass Dog extends Animal {\n    void bark() {\n        System.out.println(name + \" is barking.\");\n    }\n}\n\npublic class SingleInheritance {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String dogName = sc.nextLine();\n\n        Dog dog = new Dog();\n        dog.name = dogName;\n\n        dog.eat();\n        dog.bark();\n\n        sc.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 12 — Abstract Class', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-12',
+                                number: '12',
+                                question: 'Demonstrate abstract classes by calculating the area of a circle using an abstract Shape class.',
+                                code: "import java.util.Scanner;\n\nabstract class Shape {\n    abstract double calculateArea();\n}\n\nclass Circle extends Shape {\n    double radius;\n\n    Circle(double radius) {\n        this.radius = radius;\n    }\n\n    double calculateArea() {\n        return 3.14 * radius * radius;\n    }\n}\n\npublic class AbstractImplementation {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        double r = sc.nextDouble();\n        Shape s = new Circle(r);\n        System.out.printf(\"Area: %.2f\\n\", s.calculateArea());\n        sc.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 13 — Interface', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-13',
+                                number: '13',
+                                question: 'Demonstrate interface implementation by creating an interface A and class B that provides a greeting display.',
+                                code: "import java.util.Scanner;\n\ninterface A {\n    void display();\n}\n\nclass B implements A {\n    private String name;\n\n    public B(String name) {\n        this.name = name;\n    }\n\n    public void display() {\n        System.out.println(\"Hello \" + name + \", welcome!\");\n    }\n}\n\npublic class Test {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String name = sc.nextLine();\n        A obj = new B(name);\n        obj.display();\n        sc.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 14 — Exception Handling', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-14',
+                                number: '14',
+                                question: 'Perform division between two integers and handle ArithmeticException using try-catch and a finally block.',
+                                code: "import java.util.Scanner;\n\npublic class Test {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        try {\n            int numerator = sc.nextInt();\n            int denominator = sc.nextInt();\n            int result = numerator / denominator;\n            System.out.println(\"Result of division: \" + result);\n        } catch (ArithmeticException e) {\n            System.out.println(\"ArithmeticException: Division by zero is not allowed\");\n        } finally {\n            System.out.println(\"Finally Block Executed\");\n            sc.close();\n        }\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 15 — Runtime Polymorphism', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-15',
+                                number: '15',
+                                question: 'Write a Java program to demonstrate runtime polymorphism (dynamic method dispatch) using a base class Shape and derived classes Rectangle and Circle.',
+                                code: "import java.util.Scanner;\n\nclass Shape {\n    void draw() {\n        System.out.println(\"Drawing a shape\");\n    }\n}\n\nclass Rectangle extends Shape {\n    @Override\n    void draw() {\n        System.out.println(\"Drawing a rectangle\");\n    }\n}\n\nclass Circle extends Shape {\n    @Override\n    void draw() {\n        System.out.println(\"Drawing a circle\");\n    }\n}\n\npublic class RuntimePolymorphismDemo {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        \n        Shape s;\n        s = new Rectangle();\n        s.draw();\n        \n        s = new Circle();\n        s.draw();\n        \n        sc.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 16 — Extending Thread Class', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-16',
+                                number: '16',
+                                question: 'Implement multithreading by extending the Thread class to print a message multiple times based on user input.',
+                                code: "import java.util.Scanner;\n\nclass MyThread extends Thread {\n    private String message;\n    private int count;\n\n    public MyThread(String message, int count) {\n        this.message = message;\n        this.count = count;\n    }\n\n    public void run() {\n        for (int i = 0; i < count; i++) {\n            System.out.println(message);\n        }\n    }\n}\n\npublic class ThreadImplementation {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String message = sc.nextLine();\n        int count = sc.nextInt();\n\n        MyThread thread = new MyThread(message, count);\n        thread.start();\n\n        sc.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 17 — isAlive() and join()', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-17',
+                                number: '17',
+                                question: 'Write a Java program to demonstrate the usage of isAlive() and join() methods in multithreading to check thread execution status and ensure thread completion.',
+                                code: "import java.util.Scanner;\n\nclass MyThread extends Thread {\n    public void run() {\n        try {\n            Thread.sleep(500);\n        } catch (InterruptedException e) {\n            System.out.println(e);\n        }\n    }\n}\n\npublic class ThreadMethods {\n    public static void main(String[] args) {\n        MyThread t1 = new MyThread();\n        \n        System.out.println(\"Before starting, isAlive: \" + t1.isAlive());\n        t1.start();\n        System.out.println(\"After starting, isAlive: \" + t1.isAlive());\n        \n        try {\n            t1.join();\n        } catch (InterruptedException e) {\n            System.out.println(e);\n        }\n        \n        System.out.println(\"After join, isAlive: \" + t1.isAlive());\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 18 — Package Demonstration', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-18',
+                                number: '18',
+                                question: 'Demonstrate creating and importing a user-defined package in Java.',
+                                code: "// File: myPack/Hello.java\npackage myPack;\n\npublic class Hello {\n    public void show(String name) {\n        System.out.println(\"Hello \" + name + \", package is imported\");\n    }\n}\n\n// File: Test.java\nimport java.util.Scanner;\nimport myPack.Hello;\n\npublic class Test {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String name = sc.nextLine();\n        Hello h = new Hello();\n        h.show(name);\n        sc.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 19 — Compare Three Strings', 
+                        isPremium: true,
+                        topics: [
+                            { 
+                                id: 'jp-19', 
+                                number: '19', 
+                                question: 'Compare three strings using the equals() and compareTo() methods to check for equality and lexicographical order.', 
+                                code: "import java.util.Scanner;\n\npublic class CompareThreeStrings {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s1 = sc.nextLine();\n        String s2 = sc.nextLine();\n        String s3 = sc.nextLine();\n\n        System.out.println(\"s1 equals s2: \" + s1.equals(s2));\n        System.out.println(\"s1 equals s3: \" + s1.equals(s3));\n        System.out.println(\"s1 compareTo s2: \" + s1.compareTo(s2));\n        System.out.println(\"s1 compareTo s3: \" + s1.compareTo(s3));\n        System.out.println(\"s3 compareTo s1: \" + s3.compareTo(s1));\n\n        sc.close();\n    }\n}", 
+                                language: 'java' 
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 20 — File Write and Read', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-20',
+                                number: '20',
+                                question: 'Write a Java program to demonstrate basic file write and read operations using FileWriter and FileReader.',
+                                code: "import java.io.FileReader;\nimport java.io.FileWriter;\nimport java.io.IOException;\nimport java.util.Scanner;\n\npublic class FileIODemo {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String text = sc.nextLine();\n        String fileName = \"sample.txt\";\n\n        // Writing to file\n        try (FileWriter fw = new FileWriter(fileName)) {\n            fw.write(text);\n        } catch (IOException e) {\n            System.out.println(\"Error writing file: \" + e.getMessage());\n        }\n\n        // Reading from file\n        try (FileReader fr = new FileReader(fileName)) {\n            int ch;\n            while ((ch = fr.read()) != -1) {\n                System.out.print((char) ch);\n            }\n            System.out.println();\n        } catch (IOException e) {\n            System.out.println(\"Error reading file: \" + e.getMessage());\n        }\n\n        sc.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 21 — Read File', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-21',
+                                number: '21',
+                                question: 'Write a Java program that reads and displays the content of a text file line by line using the Scanner and File classes.',
+                                code: "import java.io.File;\nimport java.io.FileNotFoundException;\nimport java.util.Scanner;\n\npublic class FileReaderExample {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        String fileName = scanner.nextLine();\n\n        try {\n            File file = new File(fileName);\n            Scanner fileScanner = new Scanner(file);\n\n            while (fileScanner.hasNextLine()) {\n                System.out.println(fileScanner.nextLine());\n            }\n\n            fileScanner.close();\n        } catch (FileNotFoundException e) {\n            System.out.println(\"File not found\");\n        }\n\n        scanner.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 22 — Byte Stream I/O', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-22',
+                                number: '22',
+                                question: 'Write a Java program to copy the contents of one file to another using byte stream classes (FileInputStream and FileOutputStream).',
+                                code: "import java.io.FileInputStream;\nimport java.io.FileOutputStream;\nimport java.io.IOException;\nimport java.util.Scanner;\n\npublic class ByteStreamCopy {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String sourceFile = sc.nextLine();\n        String destFile = sc.nextLine();\n\n        try (FileInputStream fis = new FileInputStream(sourceFile);\n             FileOutputStream fos = new FileOutputStream(destFile)) {\n\n            int byteData;\n            while ((byteData = fis.read()) != -1) {\n                fos.write(byteData);\n            }\n            System.out.println(\"File copied successfully.\");\n\n        } catch (IOException e) {\n            System.out.println(\"Error processing file: \" + e.getMessage());\n        }\n\n        sc.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 23 — Scanner and BufferedReader', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'jp-23',
+                                number: '23',
+                                question: 'Write a Java program to read user input using both Scanner and BufferedReader classes and display the output.',
+                                code: "import java.io.BufferedReader;\nimport java.io.InputStreamReader;\nimport java.io.IOException;\nimport java.util.Scanner;\n\npublic class InputExample {\n    public static void main(String[] args) throws IOException {\n        // Reading using Scanner\n        Scanner sc = new Scanner(System.in);\n        String str1 = sc.nextLine();\n\n        // Reading using BufferedReader\n        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));\n        String str2 = reader.readLine();\n\n        // Displaying inputs\n        System.out.println(\"Scanner Input: \" + str1);\n        System.out.println(\"BufferedReader Input: \" + str2);\n\n        sc.close();\n    }\n}",
+                                language: 'java'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'data-structures',
+                name: 'Data Structures',
+                fullName: 'Data Structures — Lab Solutions',
+                icon: 'C',
+                type: 'lab',
+                questionsCount: 12,
+                weeks: [
+                    { 
+                        title: 'Experiment 1 — Array Operations', 
+                        topics: [
+                            {
+                                id: 'ds-1',
+                                number: '1',
+                                question: 'Write a menu-driven C program to perform insert, delete, search and display on a 1D array (MAX = 10). Handle overflow, underflow and invalid position cases.',
+                                code: "#include <stdio.h>\n#define MAX 10\n\nvoid display(int arr[], int n) {\n    if (n == 0) {\n        printf(\"Array is empty\\n\");\n        return;\n    }\n    printf(\"Array elements: \");\n    for (int i = 0; i < n; i++)\n        printf(\"%d \", arr[i]);\n    printf(\"\\n\");\n}\n\nvoid insert(int arr[], int *n, int pos, int value) {\n    if (*n == MAX) {\n        printf(\"Array is full\\n\");\n        return;\n    }\n    if (pos < 0 || pos > *n) {\n        printf(\"Invalid position\\n\");\n        return;\n    }\n    for (int i = *n; i > pos; i--)\n        arr[i] = arr[i - 1];\n    arr[pos] = value;\n    (*n)++;\n    printf(\"Inserted %d at position %d\\n\", value, pos);\n}\n\nvoid delete(int arr[], int *n, int pos) {\n    if (*n == 0) {\n        printf(\"Array is empty\\n\");\n        return;\n    }\n    if (pos < 0 || pos >= *n) {\n        printf(\"Invalid position\\n\");\n        return;\n    }\n    int d = arr[pos];\n    for (int i = pos; i < *n - 1; i++)\n        arr[i] = arr[i + 1];\n    (*n)--;\n    printf(\"Deleted element: %d\\n\", d);\n}\n\nvoid search(int arr[], int n, int key) {\n    for (int i = 0; i < n; i++)\n        if (arr[i] == key) {\n            printf(\"%d found at position %d\\n\", key, i);\n            return;\n        }\n    printf(\"%d not found\\n\", key);\n}\n\nint main() {\n    int arr[MAX], n = 0, ch, pos, val, key;\n    while (1) {\n        printf(\"1.Insert\\n2.Delete\\n3.Search\\n4.Display\\n5.Exit\\n choice: \");\n        scanf(\"%d\", &ch);\n        switch (ch) {\n            case 1:\n                printf(\"position: \");\n                scanf(\"%d\", &pos);\n                printf(\"value: \");\n                scanf(\"%d\", &val);\n                insert(arr, &n, pos, val);\n                break;\n            case 2:\n                printf(\"position: \");\n                scanf(\"%d\", &pos);\n                delete(arr, &n, pos);\n                break;\n            case 3:\n                printf(\"element: \");\n                scanf(\"%d\", &key);\n                search(arr, n, key);\n                break;\n            case 4:\n                display(arr, n);\n                break;\n            case 5:\n                return 0;\n            default:\n                printf(\"Invalid choice\\n\");\n        }\n    }\n}",
+                                language: 'c'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 2 — Singly Linked List', 
+                        topics: [
+                            {
+                                id: 'ds-2',
+                                number: '2',
+                                question: 'Write a menu-driven C program to insert at beginning, end and specific position in a singly linked list. Display the list and handle invalid position and empty list cases.',
+                                code: "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n    int data;\n    struct Node *next;\n};\n\nstruct Node *head = NULL;\n\nvoid display() {\n    if (!head) {\n        printf(\"List is empty\\n\");\n        return;\n    }\n    printf(\"Linked List: \");\n    for (struct Node *t = head; t; t = t->next)\n        printf(\"%d -> \", t->data);\n    printf(\"NULL\\n\");\n}\n\nvoid insertAtFirst(int v) {\n    struct Node *n = malloc(sizeof(struct Node));\n    n->data = v;\n    n->next = head;\n    head = n;\n    printf(\"%d inserted at the beginning\\n\", v);\n}\n\nvoid insertAtEnd(int v) {\n    struct Node *n = malloc(sizeof(struct Node));\n    n->data = v;\n    n->next = NULL;\n    if (!head)\n        head = n;\n    else {\n        struct Node *t = head;\n        while (t->next)\n            t = t->next;\n        t->next = n;\n    }\n    printf(\"%d inserted at the end\\n\", v);\n}\n\nvoid insertAtPosition(int v, int pos) {\n    if (pos < 0) {\n        printf(\"Invalid position\\n\");\n        return;\n    }\n    if (pos == 0) {\n        insertAtFirst(v);\n        return;\n    }\n    struct Node *t = head;\n    for (int i = 0; t && i < pos - 1; i++)\n        t = t->next;\n    if (!t) {\n        printf(\"Invalid position\\n\");\n        return;\n    }\n    struct Node *n = malloc(sizeof(struct Node));\n    n->data = v;\n    n->next = t->next;\n    t->next = n;\n    printf(\"%d inserted at position %d\\n\", v, pos);\n}\n\nint main() {\n    int ch, v, pos;\n    while (1) {\n        printf(\"1.Insert at First\\n2.Insert at End\\n3.Insert at Specific Position\\n4.Display\\n5. Exit\\nchoice: \");\n        scanf(\"%d\", &ch);\n        switch (ch) {\n            case 1:\n                printf(\"value: \");\n                scanf(\"%d\", &v);\n                insertAtFirst(v);\n                break;\n            case 2:\n                printf(\"value: \");\n                scanf(\"%d\", &v);\n                insertAtEnd(v);\n                break;\n            case 3:\n                printf(\"value: \");\n                scanf(\"%d\", &v);\n                printf(\"position: \");\n                scanf(\"%d\", &pos);\n                insertAtPosition(v, pos);\n                break;\n            case 4:\n                display();\n                break;\n            case 5:\n                exit(0);\n            default:\n                printf(\"Invalid choice\\n\");\n        }\n    }\n}",
+                                language: 'c'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 3 — Doubly Linked List', 
+                        topics: [
+                            {
+                                id: 'ds-3',
+                                number: '3',
+                                question: 'Write a menu-driven C program to create nodes, traverse and insert at a specific position in a doubly linked list. Handle empty list and invalid position cases.',
+                                code: "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n    int data;\n    struct Node *prev;\n    struct Node *next;\n};\n\nstruct Node *head = NULL;\n\nvoid createNode(int v) {\n    struct Node *n = malloc(sizeof(struct Node));\n    n->data = v;\n    n->next = NULL;\n    if (!head) {\n        n->prev = NULL;\n        head = n;\n    } else {\n        struct Node *t = head;\n        while (t->next)\n            t = t->next;\n        t->next = n;\n        n->prev = t;\n    }\n    printf(\"Node with value %d created\\n\", v);\n}\n\nvoid traverse() {\n    if (!head) {\n        printf(\"List is empty\\n\");\n        return;\n    }\n    printf(\"Doubly Linked List: \");\n    for (struct Node *t = head; t; t = t->next)\n        printf(\"%d <-> \", t->data);\n    printf(\"NULL\\n\");\n}\n\nvoid insertNode(int v, int pos) {\n    if (pos < 0) {\n        printf(\"Invalid position\\n\");\n        return;\n    }\n    struct Node *n = malloc(sizeof(struct Node));\n    n->data = v;\n    if (pos == 0) {\n        n->prev = NULL;\n        n->next = head;\n        if (head)\n            head->prev = n;\n        head = n;\n        printf(\"Node %d inserted at position %d\\n\", v, pos);\n        return;\n    }\n    struct Node *t = head;\n    for (int i = 0; t && i < pos - 1; i++)\n        t = t->next;\n    if (!t) {\n        printf(\"Invalid position\\n\");\n        free(n);\n        return;\n    }\n    n->next = t->next;\n    n->prev = t;\n    if (t->next)\n        t->next->prev = n;\n    t->next = n;\n    printf(\"Node %d inserted at position %d\\n\", v, pos);\n}\n\nint main() {\n    int ch, v, pos;\n    while (1) {\n        printf(\"1.Create\\n2.Traverse\\n3.Insert\\n4.Exit\\nchoice: \");\n        scanf(\"%d\", &ch);\n        switch (ch) {\n            case 1:\n                printf(\"value: \");\n                scanf(\"%d\", &v);\n                createNode(v);\n                break;\n            case 2:\n                traverse();\n                break;\n            case 3:\n                printf(\"value: \");\n                scanf(\"%d\", &v);\n                printf(\"position: \");\n                scanf(\"%d\", &pos);\n                insertNode(v, pos);\n                break;\n            case 4:\n                exit(0);\n            default:\n                printf(\"Invalid choice\\n\");\n        }\n    }\n}",
+                                language: 'c'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 4 — Circular Linked List', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'ds-4',
+                                number: '4',
+                                question: 'Write a menu-driven C program to implement a Circular Linked List with operations for node creation, traversal, and insertion at a 0-based position.',
+                                code: "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nNode *head = NULL;\n\nvoid createNode(int value) {\n    Node *newNode = (Node *)malloc(sizeof(Node));\n    newNode->data = value;\n    newNode->next = NULL;\n    \n    if (head == NULL) {\n        head = newNode;\n        newNode->next = head;\n    } else {\n        Node *temp = head;\n        while (temp->next != head)\n            temp = temp->next;\n        temp->next = newNode;\n        newNode->next = head;\n    }\n    printf(\"Node with value %d created\\n\", value);\n}\n\nvoid traverse() {\n    if (head == NULL) {\n        printf(\"List is empty\\n\");\n        return;\n    }\n    Node *temp = head;\n    printf(\"Circular Linked List: \");\n    do {\n        printf(\"%d -> \", temp->data);\n        temp = temp->next;\n    } while (temp != head);\n    printf(\"(back to head)\\n\");\n}\n\nvoid insertNode(int value, int pos) {\n    Node *newNode = (Node *)malloc(sizeof(Node));\n    newNode->data = value;\n    \n    if (head == NULL) {\n        if (pos == 0) {\n            head = newNode;\n            newNode->next = head;\n            printf(\"Node %d inserted at position %d (list was empty)\\n\", value, pos);\n        } else {\n            printf(\"Invalid position\\n\");\n            free(newNode);\n        }\n        return;\n    }\n    \n    int len = 0;\n    Node *temp = head;\n    do {\n        len++;\n        temp = temp->next;\n    } while (temp != head);\n    \n    if (pos < 0 || pos > len) {\n        printf(\"Invalid position\\n\");\n        free(newNode);\n        return;\n    }\n    \n    if (pos == 0) {\n        Node *last = head;\n        while (last->next != head)\n            last = last->next;\n        newNode->next = head;\n        last->next = newNode;\n        head = newNode;\n        printf(\"Node %d inserted at position %d\\n\", value, pos);\n        return;\n    }\n    \n    Node *prev = head;\n    for (int i = 0; i < pos - 1; i++)\n        prev = prev->next;\n    newNode->next = prev->next;\n    prev->next = newNode;\n    printf(\"Node %d inserted at position %d\\n\", value, pos);\n}\n\nint main() {\n    int choice, value, pos;\n    while (1) {\n        printf(\"1. Create\\n\");\n        printf(\"2. Traverse\\n\");\n        printf(\"3. Insert\\n\");\n        printf(\"4. Exit\\n\");\n        printf(\"choice: \");\n        scanf(\"%d\", &choice);\n        \n        switch (choice) {\n            case 1:\n                printf(\"value: \");\n                scanf(\"%d\", &value);\n                createNode(value);\n                break;\n            case 2:\n                traverse();\n                break;\n            case 3:\n                printf(\"position: \");\n                scanf(\"%d\", &pos);\n                printf(\"value: \");\n                scanf(\"%d\", &value);\n                insertNode(value, pos);\n                break;\n            case 4:\n                printf(\"Exit\\n\");\n                exit(0);\n            default:\n                printf(\"Invalid choice\\n\");\n        }\n    }\n    return 0;\n}",
+                                language: 'c'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 5 — Stack (Array)', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'ds-5',
+                                number: '5',
+                                question: 'Write a menu-driven C program to implement a Stack using an array with push, pop and display operations (MAX = 5).',
+                                code: "#include <stdio.h>\n#include <stdlib.h>\n#define MAX 5\n\nint stack[MAX], top = -1;\n\nvoid display() {\n    if (top == -1) {\n        printf(\"Stack is empty\\n\");\n    } else {\n        printf(\"Stack elements: \");\n        for (int i = 0; i <= top; i++) {\n            printf(\"%d \", stack[i]);\n        }\n        printf(\"\\n\");\n    }\n}\n\nvoid push(int value) {\n    if (top == MAX - 1) {\n        printf(\"Stack Overflow\\n\");\n    } else {\n        stack[++top] = value;\n        printf(\"%d pushed into stack\\n\", value);\n    }\n}\n\nvoid pop() {\n    if (top == -1) {\n        printf(\"Stack Underflow\\n\");\n    } else {\n        printf(\"%d popped from stack\\n\", stack[top--]);\n    }\n}\n\nint main() {\n    int choice, value;\n    while (1) {\n        printf(\"1. PUSH\\n\");\n        printf(\"2. POP\\n\");\n        printf(\"3. Display\\n\");\n        printf(\"4. Exit\\n\");\n        printf(\"choice: \");\n        scanf(\"%d\", &choice);\n        \n        switch (choice) {\n            case 1:\n                printf(\"value: \");\n                scanf(\"%d\", &value);\n                push(value);\n                break;\n            case 2:\n                pop();\n                break;\n            case 3:\n                display();\n                break;\n            case 4:\n                exit(0);\n            default:\n                printf(\"Invalid choice\\n\");\n        }\n    }\n    return 0;\n}",
+                                language: 'c'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 6 — Circular Queue', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'ds-6',
+                                number: '6',
+                                question: 'Write a menu-driven C program to implement a Circular Queue using an array with enqueue, dequeue, and display operations (MAX = 5).',
+                                code: "#include <stdio.h>\n#include <stdlib.h>\n#define MAX 5\n\nint queue[MAX];\nint front = -1, rear = -1;\n\nvoid display() {\n    if (front == -1 && rear == -1) {\n        printf(\"Queue is empty\\n\");\n        return;\n    }\n    printf(\"Circular Queue elements: \");\n    int i = front;\n    while (1) {\n        printf(\"%d \", queue[i]);\n        if (i == rear) break;\n        i = (i + 1) % MAX;\n    }\n    printf(\"\\n\");\n}\n\nvoid enqueue(int value) {\n    if ((front == 0 && rear == MAX - 1) || ((rear + 1) % MAX == front)) {\n        printf(\"Queue Overflow\\n\");\n        return;\n    }\n    if (front == -1 && rear == -1) {\n        front = rear = 0;\n    } else {\n        rear = (rear + 1) % MAX;\n    }\n    queue[rear] = value;\n    printf(\"%d inserted into the queue\\n\", value);\n}\n\nvoid dequeue() {\n    if (front == -1 && rear == -1) {\n        printf(\"Queue Underflow\\n\");\n        return;\n    }\n    int deleted = queue[front];\n    if (front == rear) {\n        front = rear = -1;\n    } else {\n        front = (front + 1) % MAX;\n    }\n    printf(\"Deleted element: %d\\n\", deleted);\n}\n\nint main() {\n    int choice, value;\n    while (1) {\n        printf(\"1. Enqueue\\n\");\n        printf(\"2. Dequeue\\n\");\n        printf(\"3. Display\\n\");\n        printf(\"4. Exit\\n\");\n        printf(\"choice: \");\n        scanf(\"%d\", &choice);\n        \n        switch (choice) {\n            case 1:\n                printf(\"value: \");\n                scanf(\"%d\", &value);\n                enqueue(value);\n                break;\n            case 2:\n                dequeue();\n                break;\n            case 3:\n                display();\n                break;\n            case 4:\n                exit(0);\n            default:\n                printf(\"Invalid choice\\n\");\n        }\n    }\n    return 0;\n}",
+                                language: 'c'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 7 — Simple Queue', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'ds-7',
+                                number: '7',
+                                question: 'Write a menu-driven C program to implement a simple linear Queue using an array with enqueue, dequeue and display functionalities (MAX = 5).',
+                                code: "#include <stdio.h>\n#include <stdlib.h>\n#define MAX 5\n\nint queue[MAX];\nint front = -1, rear = -1;\n\nvoid display() {\n    if (front == -1 || front > rear) {\n        printf(\"Queue is empty\\n\");\n    } else {\n        printf(\"Queue elements: \");\n        for (int i = front; i <= rear; i++) {\n            printf(\"%d \", queue[i]);\n        }\n        printf(\"\\n\");\n    }\n}\n\nvoid enqueue(int value) {\n    if (rear == MAX - 1) {\n        printf(\"Queue Overflow\\n\");\n    } else {\n        if (front == -1) {\n            front = 0;\n        }\n        rear++;\n        queue[rear] = value;\n        printf(\"%d inserted into queue\\n\", value);\n    }\n}\n\nvoid dequeue() {\n    if (front == -1 || front > rear) {\n        printf(\"Queue Underflow\\n\");\n    } else {\n        printf(\"%d deleted from queue\\n\", queue[front]);\n        front++;\n        if (front > rear) {\n            front = rear = -1;\n        }\n    }\n}\n\nint main() {\n    int choice, value;\n    while (1) {\n        printf(\"1. Insert\\n\");\n        printf(\"2. Delete\\n\");\n        printf(\"3. Display\\n\");\n        printf(\"4. Exit\\n\");\n        printf(\"choice: \");\n        scanf(\"%d\", &choice);\n        \n        switch (choice) {\n            case 1:\n                printf(\"value: \");\n                scanf(\"%d\", &value);\n                enqueue(value);\n                break;\n            case 2:\n                dequeue();\n                break;\n            case 3:\n                display();\n                break;\n            case 4:\n                exit(0);\n            default:\n                printf(\"Invalid choice\\n\");\n        }\n    }\n    return 0;\n}",
+                                language: 'c'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 8 — Bubble Sort', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'ds-8',
+                                number: '8',
+                                question: 'Write a C program to sort an array of N integers in ascending order using the Bubble Sort algorithm.',
+                                code: "#include <stdio.h>\n\nvoid bubbleSort(int arr[], int n) {\n    int i, j, temp;\n    for (i = 0; i < n - 1; i++) {\n        for (j = 0; j < n - i - 1; j++) {\n            if (arr[j] > arr[j + 1]) {\n                temp = arr[j];\n                arr[j] = arr[j + 1];\n                arr[j + 1] = temp;\n            }\n        }\n    }\n}\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    int arr[n];\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    bubbleSort(arr, n);\n    for (int i = 0; i < n; i++) {\n        printf(\"%d \", arr[i]);\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+                                language: 'c'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 9 — Insertion Sort', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'ds-9',
+                                number: '9',
+                                question: 'Write a C program to sort an array of N integers in ascending order using the Insertion Sort algorithm.',
+                                code: "#include <stdio.h>\n\nvoid insertionSort(int arr[], int n) {\n    int i, j, key;\n    for (i = 1; i < n; i++) {\n        key = arr[i];\n        j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j + 1] = arr[j];\n            j = j - 1;\n        }\n        arr[j + 1] = key;\n    }\n}\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    int arr[n];\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    insertionSort(arr, n);\n    for (int i = 0; i < n; i++) {\n        printf(\"%d \", arr[i]);\n    }\n    return 0;\n}",
+                                language: 'c'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 10 — Selection Sort (Descending)', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'ds-10',
+                                number: '10',
+                                question: 'Write a C program to sort an array of N integers in descending order using the Selection Sort algorithm.',
+                                code: "#include <stdio.h>\n\nvoid selectionSort(int arr[], int n) {\n    int i, j, max_idx, temp;\n    for (i = 0; i < n - 1; i++) {\n        max_idx = i;\n        for (j = i + 1; j < n; j++) {\n            if (arr[j] > arr[max_idx]) {\n                max_idx = j;\n            }\n        }\n        temp = arr[max_idx];\n        arr[max_idx] = arr[i];\n        arr[i] = temp;\n    }\n}\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    int arr[n];\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    selectionSort(arr, n);\n    for (int i = 0; i < n; i++) {\n        printf(\"%d \", arr[i]);\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+                                language: 'c'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 11 — Binary Search Tree', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'ds-11',
+                                number: '11',
+                                question: 'Write a menu-driven C program to implement a Binary Search Tree (BST) with operations for insert, delete, and inorder, preorder, and postorder traversals.',
+                                code: "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n    int data;\n    struct Node *left;\n    struct Node *right;\n};\n\nstruct Node *createNode(int value) {\n    struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));\n    newNode->data = value;\n    newNode->left = NULL;\n    newNode->right = NULL;\n    return newNode;\n}\n\nstruct Node *insert(struct Node *root, int value) {\n    if (root == NULL) {\n        return createNode(value);\n    }\n    if (value < root->data) {\n        root->left = insert(root->left, value);\n    } else if (value > root->data) {\n        root->right = insert(root->right, value);\n    }\n    return root;\n}\n\nvoid inorder(struct Node *root) {\n    if (root != NULL) {\n        inorder(root->left);\n        printf(\"%d \", root->data);\n        inorder(root->right);\n    }\n}\n\nvoid preorder(struct Node *root) {\n    if (root != NULL) {\n        printf(\"%d \", root->data);\n        preorder(root->left);\n        preorder(root->right);\n    }\n}\n\nvoid postorder(struct Node *root) {\n    if (root != NULL) {\n        postorder(root->left);\n        postorder(root->right);\n        printf(\"%d \", root->data);\n    }\n}\n\nstruct Node *minValueNode(struct Node *node) {\n    struct Node *current = node;\n    while (current && current->left != NULL) {\n        current = current->left;\n    }\n    return current;\n}\n\nint search(struct Node *root, int value) {\n    if (root == NULL) return 0;\n    if (root->data == value) return 1;\n    else if (value < root->data) return search(root->left, value);\n    else return search(root->right, value);\n}\n\nstruct Node *deleteNode(struct Node *root, int key) {\n    if (root == NULL) return root;\n    if (key < root->data) {\n        root->left = deleteNode(root->left, key);\n    } else if (key > root->data) {\n        root->right = deleteNode(root->right, key);\n    } else {\n        if (root->left == NULL) {\n            struct Node *temp = root->right;\n            free(root);\n            return temp;\n        } else if (root->right == NULL) {\n            struct Node *temp = root->left;\n            free(root);\n            return temp;\n        }\n        struct Node *temp = minValueNode(root->right);\n        root->data = temp->data;\n        root->right = deleteNode(root->right, temp->data);\n    }\n    return root;\n}\n\nint main() {\n    struct Node *root = NULL;\n    int choice, value;\n    while (1) {\n        printf(\"1. Insert\\n\");\n        printf(\"2. Inorder Traversal\\n\");\n        printf(\"3. Preorder Traversal\\n\");\n        printf(\"4. Postorder Traversal\\n\");\n        printf(\"5. Delete\\n\");\n        printf(\"6. Exit\\n\");\n        printf(\"choice: \");\n        scanf(\"%d\", &choice);\n        \n        switch (choice) {\n            case 1:\n                printf(\"value: \");\n                scanf(\"%d\", &value);\n                root = insert(root, value);\n                break;\n            case 2:\n                printf(\"Inorder Traversal: \");\n                inorder(root);\n                printf(\"\\n\");\n                break;\n            case 3:\n                printf(\"Preorder Traversal: \");\n                preorder(root);\n                printf(\"\\n\");\n                break;\n            case 4:\n                printf(\"Postorder Traversal: \");\n                postorder(root);\n                printf(\"\\n\");\n                break;\n            case 5:\n                printf(\"value: \");\n                scanf(\"%d\", &value);\n                if (search(root, value)) {\n                    root = deleteNode(root, value);\n                    printf(\"%d deleted from BST\\n\", value);\n                } else {\n                    printf(\"%d not found in BST\\n\", value);\n                }\n                break;\n            case 6:\n                printf(\"Exit\\n\");\n                exit(0);\n            default:\n                printf(\"Invalid choice\\n\");\n        }\n    }\n    return 0;\n}",
+                                language: 'c'
+                            }
+                        ]
+                    },
+                    { 
+                        title: 'Experiment 12 — Graph (DFS & BFS)', 
+                        isPremium: true,
+                        topics: [
+                            {
+                                id: 'ds-12',
+                                number: '12',
+                                question: 'Write a menu-driven C program to represent an undirected graph using an Adjacency Matrix and perform DFS and BFS traversals.',
+                                code: "#include <stdio.h>\n#include <stdlib.h>\n\n#define MAX 20\n\nint adj[MAX][MAX];\nint visited[MAX];\nint n;\n\nvoid createGraph() {\n    int i, j, edges, origin, destination;\n    printf(\"Number of vertices: \");\n    scanf(\"%d\", &n);\n    if (n > MAX) {\n        printf(\"Number of vertices cannot exceed %d\\n\", MAX);\n        return;\n    }\n    for (i = 0; i < n; i++) {\n        for (j = 0; j < n; j++) {\n            adj[i][j] = 0;\n        }\n    }\n    printf(\"Number of edges: \");\n    scanf(\"%d\", &edges);\n    for (i = 0; i < edges; i++) {\n        printf(\"Edge: \");\n        scanf(\"%d %d\", &origin, &destination);\n        if (origin < 0 || origin >= n || destination < 0 || destination >= n) {\n            printf(\"Invalid edge\\n\");\n            i--;\n            continue;\n        }\n        adj[origin][destination] = 1;\n        adj[destination][origin] = 1;\n    }\n}\n\nvoid dfs(int v) {\n    int i;\n    printf(\"%d \", v);\n    visited[v] = 1;\n    for (i = 0; i < n; i++) {\n        if (adj[v][i] == 1 && !visited[i]) {\n            dfs(i);\n        }\n    }\n}\n\nvoid bfs(int start) {\n    int queue[MAX], front = 0, rear = 0, i, v;\n    for (i = 0; i < n; i++) {\n        visited[i] = 0;\n    }\n    queue[rear++] = start;\n    visited[start] = 1;\n    printf(\"%d \", start);\n    while (front < rear) {\n        v = queue[front++];\n        for (i = 0; i < n; i++) {\n            if (adj[v][i] == 1 && !visited[i]) {\n                queue[rear++] = i;\n                visited[i] = 1;\n                printf(\"%d \", i);\n            }\n        }\n    }\n}\n\nvoid displayGraph() {\n    int i, j;\n    if (n == 0) {\n        printf(\"Graph not created yet! Please create graph first.\\n\");\n        return;\n    }\n    printf(\"Adjacency Matrix:\\n\");\n    for (i = 0; i < n; i++) {\n        for (j = 0; j < n; j++) {\n            printf(\"%d \", adj[i][j]);\n        }\n        printf(\"\\n\");\n    }\n}\n\nint main() {\n    int choice, start, i;\n    while (1) {\n        printf(\"1. Create Graph\\n\");\n        printf(\"2. Display Graph (Adjacency Matrix)\\n\");\n        printf(\"3. DFS Traversal\\n\");\n        printf(\"4. BFS Traversal\\n\");\n        printf(\"5. Exit\\n\");\n        printf(\"Choice: \");\n        scanf(\"%d\", &choice);\n\n        switch (choice) {\n            case 1:\n                createGraph();\n                break;\n            case 2:\n                displayGraph();\n                break;\n            case 3:\n                printf(\"Starting vertex for DFS: \");\n                scanf(\"%d\", &start);\n                for (i = 0; i < n; i++) visited[i] = 0;\n                printf(\"DFS Traversal: \");\n                dfs(start);\n                printf(\"\\n\");\n                break;\n            case 4:\n                printf(\"Starting vertex for BFS: \");\n                scanf(\"%d\", &start);\n                printf(\"BFS Traversal: \");\n                bfs(start);\n                printf(\"\\n\");\n                break;\n            case 5:\n                exit(0);\n            default:\n                printf(\"Invalid choice\\n\");\n        }\n    }\n    return 0;\n}",
+                                language: 'c'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+};
