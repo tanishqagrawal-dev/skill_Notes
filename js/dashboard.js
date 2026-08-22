@@ -6444,16 +6444,16 @@ window.showAIModal = function (type, subject) {
     `;
 
         modal.innerHTML = `
-        <div style="background: #050505; border: 1.5px solid rgba(123, 97, 255, 0.3); border-radius: 30px; width: 92%; max-width: 400px; padding: 1.5rem; position: relative; box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9); animation: modalFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1), premium-glow-border 4s ease-in-out infinite; overflow: hidden;">
+        <div style="background: #050505; border: 1.5px solid rgba(123, 97, 255, 0.3); border-radius: 30px; width: 92%; max-width: 360px; padding: 1.25rem; position: relative; box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9); animation: modalFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1), premium-glow-border 4s ease-in-out infinite; overflow: hidden;">
                 <!-- Subtle Decorative Glows -->
                 <div style="position: absolute; top: -80px; right: -80px; width: 160px; height: 160px; background: radial-gradient(circle, rgba(123, 97, 255, 0.12) 0%, transparent 70%); pointer-events: none;"></div>
                 <div style="position: absolute; bottom: -80px; left: -80px; width: 160px; height: 160px; background: radial-gradient(circle, rgba(0, 242, 255, 0.08) 0%, transparent 70%); pointer-events: none;"></div>
 
-                <button class="ai-modal-close" onclick="document.getElementById('dynamic-ai-modal').style.display='none'" style="position: absolute; top: 1.25rem; right: 1.25rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; transition: 0.3s; font-size: 1rem;">&times;</button>
+                <button class="ai-modal-close" onclick="document.getElementById('dynamic-ai-modal').style.display='none'" style="position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; transition: 0.3s; font-size: 1rem;">&times;</button>
                 
-                <div style="margin-bottom: 1.5rem; text-align: center; position: relative; z-index: 1;">
-                    <h2 id="dynamic-ai-modal-title" style="font-size: 1.3rem; font-weight: 800; color: white; letter-spacing: -0.5px; opacity: 0; animation: fadeSlideUp 0.6s ease-out forwards; animation-delay: 0.1s;"></h2>
-                    <div style="width: 40px; height: 3px; background: linear-gradient(90deg, var(--primary), var(--secondary)); margin: 12px auto; border-radius: 10px; opacity: 0; animation: fadeSlideUp 0.6s ease-out forwards; animation-delay: 0.15s;"></div>
+                <div style="margin-bottom: 1.25rem; text-align: center; position: relative; z-index: 1;">
+                    <h2 id="dynamic-ai-modal-title" style="font-size: 1.2rem; font-weight: 800; color: white; letter-spacing: -0.5px; opacity: 0; animation: fadeSlideUp 0.6s ease-out forwards; animation-delay: 0.1s;"></h2>
+                    <div style="width: 40px; height: 3px; background: linear-gradient(90deg, var(--primary), var(--secondary)); margin: 10px auto; border-radius: 10px; opacity: 0; animation: fadeSlideUp 0.6s ease-out forwards; animation-delay: 0.15s;"></div>
                 </div>
                 <div id="dynamic-ai-modal-content" style="position: relative; z-index: 1;"></div>
             </div>
@@ -8398,18 +8398,15 @@ window.handleAIGeneration = async function (subject) {
         const modalBody = btn.closest('.modal-content-pro') || btn.parentElement;
         if (modalBody) {
             modalBody.innerHTML = `
-                <div style="text-align: center; padding: 1rem 0.5rem; animation: fadeIn 0.5s ease-out;">
-                    <div style="margin-bottom: 1.5rem;">
-                        <h3 style="color: white; font-size: 1.4rem; margin-bottom: 0.5rem;">${window.selectedExamType} Paper Ready</h3>
-                        <p style="color: var(--text-dim); font-size: 0.9rem; line-height: 1.5;">A professional academic model paper with marking scheme has been generated.</p>
+                <div style="text-align: center; padding: 0.5rem 0.25rem; animation: fadeIn 0.5s ease-out;">
+                    <div style="margin-bottom: 1.25rem;">
+                        <h3 style="color: white; font-size: 1.3rem; margin-bottom: 0.5rem;">${window.selectedExamType} Paper Ready</h3>
+                        <p style="color: var(--text-dim); font-size: 0.85rem; line-height: 1.4;">A professional academic model paper with marking scheme has been generated.</p>
                     </div>
                     
-                    <div style="display: flex; flex-direction: column; gap: 12px; max-width: 320px; margin: 0 auto;">
-                        <button id="final-download-btn" class="btn btn-primary" style="width: 100%; border-radius: 14px; padding: 0.85rem; font-weight: 800; background: linear-gradient(135deg, #2ed573, #1dd1a1); border: none; color: #050505; cursor: pointer; box-shadow: 0 10px 20px rgba(46, 213, 115, 0.2); transition: 0.3s;">
+                    <div style="display: flex; flex-direction: column; gap: 8px; max-width: 280px; margin: 0 auto;">
+                        <button id="final-download-btn" class="btn btn-primary" style="width: 100%; border-radius: 14px; padding: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #2ed573, #1dd1a1); border: none; color: #050505; cursor: pointer; box-shadow: 0 10px 20px rgba(46, 213, 115, 0.2); transition: 0.3s;">
                             📥 Download PDF
-                        </button>
-                        <button class="btn" style="width: 100%; border-radius: 14px; padding: 0.85rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; cursor: pointer; font-weight: 600;" onclick="document.getElementById('dynamic-ai-modal').style.display='none'">
-                            Close
                         </button>
                     </div>
                 </div>

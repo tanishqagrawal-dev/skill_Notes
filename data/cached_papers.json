@@ -5881,5 +5881,712 @@
       ]
     },
     "createdAt": "2026-05-05T07:00:38.170Z"
+  },
+  {
+    "id": 1787387816842,
+    "subjectId": "Artificial Intelligence",
+    "subjectName": "Artificial Intelligence",
+    "examType": "End Sem",
+    "content": {
+      "university": "SKiL MATRiX",
+      "examTitle": "End Sem 2026",
+      "subjectCode": "SKL-MOD",
+      "subjectName": "Artificial Intelligence",
+      "sections": [
+        {
+          "title": "Section A",
+          "questions": [
+            {
+              "id": "1",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Define the Turing Test in Artificial Intelligence. What are its major limitations in evaluation of true human-level intelligence?",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "01",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "2",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Differentiate between Breadth-First Search (BFS) and Depth-First Search (DFS) algorithms in terms of completeness, time complexity, space complexity, and optimality.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "01",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "3",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Formulate the 8-puzzle problem as a state-space search problem. Clearly specify the representations for state space, initial state, goal state, transitions/operators, and path cost calculation.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "01",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Describe the core architecture of a Production System. Differentiate clearly between monotonic and non-monotonic production systems with suitable real-world examples.",
+                "marks": "6",
+                "bl": "02",
+                "co": "01",
+                "po": "2",
+                "pso": "1"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section B",
+          "questions": [
+            {
+              "id": "4",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "State the conditions of admissibility and consistency under which the A* Search algorithm is guaranteed to find an optimal path.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "02",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "5",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Explain the working of the Hill Climbing search algorithm. Discuss its three major local heuristic weaknesses (Local Maxima, Plateaus, and Ridges) along with potential solutions.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "02",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "6",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Apply the A* search algorithm to trace the path from node S to node G for a graph where edge costs and heuristic values h(n) are given. State step-by-step contents of the OPEN and CLOSED lists during the search execution.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "02",
+                  "po": "2",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Explain the Simulated Annealing heuristic search technique. Analyze how the probability function P = exp(-dE / T) and the cooling schedule parameter T help the algorithm avoid getting trapped in local maxima.",
+                "marks": "6",
+                "bl": "02",
+                "co": "02",
+                "po": "1",
+                "pso": "1"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section C",
+          "questions": [
+            {
+              "id": "7",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Represent the following sentence in First-Order Predicate Logic (FOPL): 'Every student who passes the Artificial Intelligence course loves machine learning.'",
+                  "marks": "2",
+                  "bl": "02",
+                  "co": "03",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "8",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Explain the Resolution Principle in propositional logic. Outline the algorithmic steps for converting a given set of logical statements into Conjunctive Normal Form (CNF).",
+                  "marks": "4",
+                  "bl": "03",
+                  "co": "03",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "9",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Explain the structure of Semantic Networks and Conceptual Dependency (CD). Construct a detailed CD representation mapping for the statement: 'John gave a box of chocolates to Mary yesterday in the classroom.'",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "03",
+                  "po": "2",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Compare Frames and Scripts as structural knowledge representations. Create a complete, structured script template representing the system behavior and sequences for a 'Bank ATM Withdrawal' scenario.",
+                "marks": "6",
+                "bl": "03",
+                "co": "03",
+                "po": "2",
+                "pso": "2"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section D",
+          "questions": [
+            {
+              "id": "10",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Define the 'Horizon Effect' observed in adversarial game trees. How does quiescent search mitigate this problem?",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "04",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "11",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Explain the Minimax search algorithm. Under what conditions (move ordering) does Alpha-Beta pruning yield its optimal (best-case) and pessimistic (worst-case) computational time complexities?",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "04",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "12",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Trace the Alpha-Beta pruning procedure step-by-step for a minimax game tree of depth 3 and branching factor 2 with terminal values [3, 5, 6, 9, 1, 2, 0, -1] from left to right. Identify pruned branches.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "04",
+                  "po": "2",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Define the Blocks World Planning Problem. Demonstrate how Goal Stack Planning (GSP) operates, and explain how the 'Sussman Anomaly' exposes the limitations of linear GSP systems.",
+                "marks": "6",
+                "bl": "03",
+                "co": "04",
+                "po": "2",
+                "pso": "2"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section E",
+          "questions": [
+            {
+              "id": "13",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "State Bayes' Theorem and describe how prior and posterior probabilities help manage uncertainty in diagnostic reasoning systems.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "05",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "14",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Describe the conceptual architecture of an expert system. Differentiate clearly between forward chaining and backward chaining inference mechanisms used in rule-based systems.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "05",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ]
+            },
+            {
+              "id": "15",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Explain the Dempster-Shafer Theory for reasoning under uncertainty. Discuss how belief functions and plausibility intervals differ from classical probabilistic approaches in representing ignorance.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "05",
+                  "po": "2",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Detail the processing steps in Natural Language Processing (NLP), focusing on the goals and challenges of Lexical, Syntactic, Semantic, and Pragmatic levels of analysis.",
+                "marks": "6",
+                "bl": "02",
+                "co": "05",
+                "po": "1",
+                "pso": "1"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "createdAt": "2026-08-22T08:36:56.842Z"
+  },
+  {
+    "id": 1787387860830,
+    "subjectId": "Artificial Intelligence",
+    "subjectName": "Artificial Intelligence",
+    "examType": "MST 1",
+    "content": {
+      "university": "SKiL MATRiX",
+      "examTitle": "MST 1 2026",
+      "subjectCode": "SKL-MOD",
+      "subjectName": "Artificial Intelligence",
+      "sections": [
+        {
+          "title": "Section A",
+          "questions": [
+            {
+              "id": "1",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Define an intelligent agent. Formulate the PEAS description for an automated medical diagnosis system.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "01",
+                  "po": "1",
+                  "pso": "1"
+                },
+                {
+                  "id": "ii",
+                  "text": "Compare Breadth-First Search (BFS) and Depth-First Search (DFS) algorithms in terms of time complexity, space complexity, and completeness.",
+                  "marks": "3",
+                  "bl": "02",
+                  "co": "01",
+                  "po": "2",
+                  "pso": "1"
+                },
+                {
+                  "id": "iii",
+                  "text": "Formulate the 8-puzzle problem as a state-space search problem. Clearly specify the states, initial state, actions, transition model, and goal test.",
+                  "marks": "5",
+                  "bl": "03",
+                  "co": "01",
+                  "po": "3",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "iv",
+                "text": "Explain the Turing Test as a definition of intelligence. Discuss its limitations and explain how cognitive modeling differs from this behavioral approach.",
+                "marks": "5",
+                "bl": "02",
+                "co": "01",
+                "po": "1",
+                "pso": "1"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section B",
+          "questions": [
+            {
+              "id": "2",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Define admissibility and consistency conditions for a heuristic function used in A* search.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "02",
+                  "po": "1",
+                  "pso": "1"
+                },
+                {
+                  "id": "ii",
+                  "text": "Explain the role of Alpha-Beta pruning in adversarial search. How does it optimize the minimax algorithm without affecting the final move selection?",
+                  "marks": "3",
+                  "bl": "02",
+                  "co": "02",
+                  "po": "2",
+                  "pso": "1"
+                },
+                {
+                  "id": "iii",
+                  "text": "Trace the step-by-step execution of A* search to find the shortest route from a source node 'S' to goal node 'G' using a given heuristic function h(n) and step cost g(n). Design a hypothetical graph with 5 nodes to demonstrate your answer.",
+                  "marks": "5",
+                  "bl": "03",
+                  "co": "02",
+                  "po": "3",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "iv",
+                "text": "Define Constraint Satisfaction Problems (CSP). Illustrate how backtracking search works on CSPs by taking the map coloring problem (using 3 colors and 4 adjacent regions) as an illustrative example.",
+                "marks": "5",
+                "bl": "03",
+                "co": "02",
+                "po": "3",
+                "pso": "2"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "createdAt": "2026-08-22T08:37:40.830Z"
+  },
+  {
+    "id": 1787387984708,
+    "subjectId": "Fundamentals of Management, Economics & Accountancy",
+    "subjectName": "Fundamentals of Management, Economics & Accountancy",
+    "examType": "End Sem",
+    "content": {
+      "university": "SKiL MATRiX",
+      "examTitle": "End Sem 2026",
+      "subjectCode": "SKL-MOD",
+      "subjectName": "Fundamentals of Management, Economics & Accountancy",
+      "sections": [
+        {
+          "title": "Section A",
+          "questions": [
+            {
+              "id": "1",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Define 'Management' and outline its core operational functions.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "01",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ],
+              "orQuestion": null
+            },
+            {
+              "id": "2",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Explain the hierarchical levels of management and detail the primary skills required at each level.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "01",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ],
+              "orQuestion": null
+            },
+            {
+              "id": "3",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Discuss Henri Fayol’s 14 principles of management and evaluate their relevance in contemporary tech-driven organizations.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "01",
+                  "po": "5",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Critically analyze F.W. Taylor's Scientific Management theory. Contrast its operational methodologies with the Administrative Management theory.",
+                "marks": "6",
+                "bl": "03",
+                "co": "01",
+                "po": "5",
+                "pso": "2"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section B",
+          "questions": [
+            {
+              "id": "4",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "What is meant by 'Span of Control'? State the factors influencing it.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "02",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ],
+              "orQuestion": null
+            },
+            {
+              "id": "5",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Explain the steps involved in a systematic Planning Process within a modern enterprise.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "02",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ],
+              "orQuestion": null
+            },
+            {
+              "id": "6",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Differentiate between Functional and Divisional organizational structures. Illustrate their framework designs with appropriate diagrams.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "02",
+                  "po": "5",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Define 'Delegation of Authority'. Elaborate on the core elements of delegation and analyze the common barriers to effective delegation.",
+                "marks": "6",
+                "bl": "03",
+                "co": "02",
+                "po": "5",
+                "pso": "2"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section C",
+          "questions": [
+            {
+              "id": "7",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "State the 'Law of Demand' and list its primary exceptions.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "03",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ],
+              "orQuestion": null
+            },
+            {
+              "id": "8",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Define 'Price Elasticity of Demand'. Discuss its various degrees with the help of graphical representations.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "03",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ],
+              "orQuestion": null
+            },
+            {
+              "id": "9",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Examine the salient features of a 'Perfect Competition' market structure. Explain how price and output are determined under this market structure in the short run.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "03",
+                  "po": "5",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Explain the phases of a 'Business Cycle' using an illustrative diagram. Suggest appropriate fiscal and monetary policies to control inflation during a boom period.",
+                "marks": "6",
+                "bl": "03",
+                "co": "03",
+                "po": "5",
+                "pso": "2"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section D",
+          "questions": [
+            {
+              "id": "10",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Explain the concept of 'Double Entry System' and state its two main advantages.",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "04",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ],
+              "orQuestion": null
+            },
+            {
+              "id": "11",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Explain the following GAAP principles: (a) Business Entity Concept, (b) Going Concern Concept, and (c) Accrual Concept.",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "04",
+                  "po": "2",
+                  "pso": "1"
+                }
+              ],
+              "orQuestion": null
+            },
+            {
+              "id": "12",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "Journalize the following transactions in the books of Alpha Traders: (1) Commenced business with Cash Rs. 2,00,000, (2) Purchased machinery for Cash Rs. 50,000, (3) Purchased goods on credit from Shyam Rs. 30,000, (4) Sold goods to Vijay for Cash Rs. 20,000, (5) Paid Shyam Rs. 29,000 in full settlement, (6) Paid office rent Rs. 5,000.",
+                  "marks": "6",
+                  "bl": "03",
+                  "co": "04",
+                  "po": "5",
+                  "pso": "3"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "What is a 'Trial Balance'? Explain its utility in financial accounting and discuss the classification of accounting errors that are not disclosed by a Trial Balance.",
+                "marks": "6",
+                "bl": "03",
+                "co": "04",
+                "po": "5",
+                "pso": "3"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section E",
+          "questions": [
+            {
+              "id": "13",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Differentiate between Capital Expenditure and Revenue Expenditure with suitable examples.",
+                  "marks": "2",
+                  "bl": "02",
+                  "co": "05",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ],
+              "orQuestion": null
+            },
+            {
+              "id": "14",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Explain the structure and components of a Balance Sheet. How does it depict the financial position of a business entity?",
+                  "marks": "4",
+                  "bl": "02",
+                  "co": "05",
+                  "po": "2",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": null
+            },
+            {
+              "id": "15",
+              "subQuestions": [
+                {
+                  "id": "a",
+                  "text": "From the following trail balances details, prepare Trading and Profit & Loss Account for the year ended 31st March, 2025: Opening Stock: Rs. 15,000; Purchases: Rs. 80,000; Sales: Rs. 1,50,000; Direct Wages: Rs. 10,000; Office Salaries: Rs. 12,000; Carriage Inwards: Rs. 3,000; Rent & Rates: Rs. 5,000. Note: Closing stock was valued at Rs. 22,000.",
+                  "marks": "6",
+                  "bl": "04",
+                  "co": "05",
+                  "po": "5",
+                  "pso": "3"
+                }
+              ],
+              "orQuestion": {
+                "id": "b",
+                "text": "Define 'Cost Accounting'. Explain the distinct elements of cost (Material, Labor, and Overheads) and present a structured layout of a standard Cost Sheet.",
+                "marks": "6",
+                "bl": "03",
+                "co": "05",
+                "po": "5",
+                "pso": "3"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "createdAt": "2026-08-22T08:39:44.708Z"
   }
 ]

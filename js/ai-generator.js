@@ -228,21 +228,26 @@ window.AIGenerator = {
         let geminiKeys = [geminiKey];
         let groqKeys = [groqKey];
 
-        // If running locally without build, attempt to fetch the local .env file securely
+        // If running locally without build, attempt to fetch keys from the backend API or reuse window keys
         if (geminiKey.includes("INJECT")) {
-            try {
-                const envRes = await fetch('/.env');
-                if (envRes.ok) {
-                    const envText = await envRes.text();
-                    
-                    const matchGemini = [...envText.matchAll(/GEMINI_API_KEY\d*=(.*)/g)];
-                    if (matchGemini.length > 0) geminiKeys = matchGemini.map(m => m[1].trim());
-                    
-                    const matchGroq = [...envText.matchAll(/GROQ_API_KEY\d*=(.*)/g)];
-                    if (matchGroq.length > 0) groqKeys = matchGroq.map(m => m[1].trim());
+            if (window.GEMINI_KEYS && window.GEMINI_KEYS.length > 0) {
+                geminiKeys = window.GEMINI_KEYS;
+            }
+            if (window.GROQ_KEYS && window.GROQ_KEYS.length > 0) {
+                groqKeys = window.GROQ_KEYS;
+            }
+
+            if (geminiKeys.some(k => k.includes("INJECT")) || geminiKeys.length === 0 || geminiKeys[0] === "INJECT_GEMINI_API_KEY") {
+                try {
+                    const apiKeysRes = await fetch('/api/get-ai-keys');
+                    if (apiKeysRes.ok) {
+                        const keysData = await apiKeysRes.json();
+                        if (keysData.gemini && keysData.gemini.length > 0) geminiKeys = keysData.gemini;
+                        if (keysData.groq && keysData.groq.length > 0) groqKeys = keysData.groq;
+                    }
+                } catch (e) {
+                    console.warn("Local API keys fetch failed.");
                 }
-            } catch (e) {
-                console.warn("Local .env fetch failed. Relying on build-injected keys.");
             }
         }
 
@@ -253,7 +258,7 @@ window.AIGenerator = {
             
             try {
                 console.log(`✨ [Tier 1] Attempting Gemini API Generation (Key index: ${i})...`);
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${key}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })

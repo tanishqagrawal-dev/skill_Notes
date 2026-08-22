@@ -146,7 +146,7 @@ async function generateAIContent(prompt, isJson = false) {
         try {
             console.log(`✨ [Tier 1] Attempting Gemini API Generation (Key index: ${i})...`);
             const localGenAI = new GoogleGenerativeAI(key);
-            const model = localGenAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const model = localGenAI.getGenerativeModel({ model: "gemini-3.5-flash" });
             const result = await model.generateContent(prompt);
             const response = await result.response;
             return response.text();
