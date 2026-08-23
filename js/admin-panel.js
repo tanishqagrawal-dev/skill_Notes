@@ -207,12 +207,8 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             .ap-item { grid-template-columns:1fr; }
             .ap-stats { grid-template-columns:repeat(2,1fr); }
             .ca-form { grid-template-columns:1fr; }
-            .ca-row { grid-template-columns:1fr; }
+            .ca-row { grid-template-columns:1fr auto; }
             .cm-row-grid { grid-template-columns:1fr; }
-            .cm-row { grid-template-columns:1fr !important; gap:0.5rem; }
-            .cm-actions { flex-direction: row; flex-wrap: wrap; margin-top: 0.25rem; }
-            .cm-actions button { flex:1; justify-content: center; }
-            .cm-tab { padding: .5rem .75rem; font-size: .75rem; }
         }
         `;
         document.head.appendChild(s);
@@ -245,7 +241,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                     // Wait for import since we might need it.
                     const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
                     clients = configs.databases.map(dbConfig => 
-                        createClient(dbConfig.url, dbConfig.anonKey || dbConfig.key)
+                        createClient(dbConfig.url, dbConfig.key)
                     );
                 }
             }
@@ -484,9 +480,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                   <button class="cm-tab active" onclick="window._cmTab('subjects',this)">📚 Subjects</button>
                   <button class="cm-tab" onclick="window._cmTab('syllabus',this)">📋 Syllabus</button>
                   <button class="cm-tab" onclick="window._cmTab('notes-titles',this)">✏️ Edit Note Titles</button>
-                  ${superAdmin ? `<button class="cm-tab" onclick="window._cmTab('colleges',this)">🏫 Colleges</button>
-                  <button class="cm-tab" onclick="window._cmTab('streams',this)">🗂️ Streams</button>
-                  <button class="cm-tab" onclick="window._cmTab('branches',this)">🌿 Branches</button>` : ''}
+                  ${superAdmin ? `<button class="cm-tab" onclick="window._cmTab('colleges',this)">🏫 Colleges</button>` : ''}
                 </div>
 
                 <!-- Subjects Panel -->
@@ -594,55 +588,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                   </div>
                   <div style="font-size:.82rem;color:rgba(255,255,255,.4);margin-top:1rem;margin-bottom:.5rem">Existing Colleges</div>
                   <div id="cm-colleges-list" style="display:flex;flex-direction:column;gap:.5rem;max-height:400px;overflow-y:auto;padding-right:.25rem">
-                  </div>
-                </div>
-                
-                <!-- Streams Panel -->
-                <div class="cm-panel" id="cm-streams">
-                  <div class="cm-add-form">
-                    <div style="font-size:.8rem;font-weight:700;color:#a78bfa;margin-bottom:.25rem">➕ Add New Stream</div>
-                    <div class="cm-row-grid">
-                      <input type="text" id="cm-new-stream-id" placeholder="Stream ID (e.g. bca, no spaces)" />
-                      <input type="text" id="cm-new-stream-name" placeholder="Stream Name (e.g. BCA)" />
-                    </div>
-                    <input type="text" id="cm-new-stream-icon" placeholder="Stream Icon (e.g. 🎓)" style="background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); color:#fff; border-radius:9px; padding:.5rem .9rem; font-size:.83rem; outline:none; width:100%; box-sizing:border-box; margin-top:.6rem" />
-                    <div style="font-size:.75rem;color:rgba(255,255,255,.5);margin-top:.6rem;margin-bottom:.3rem">Select Branches (Comma separated Branch IDs or manage later)</div>
-                    <input type="text" id="cm-new-stream-branches" placeholder="Branch IDs (e.g. cse, ee, me)" style="background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); color:#fff; border-radius:9px; padding:.5rem .9rem; font-size:.83rem; outline:none; width:100%; box-sizing:border-box;" />
-                    <div style="font-size:.75rem;color:rgba(255,255,255,.5);margin-top:.6rem;margin-bottom:.3rem">Select Colleges (Comma separated College IDs, leave blank for all)</div>
-                    <input type="text" id="cm-new-stream-colleges" placeholder="College IDs (e.g. medicaps, lnct)" style="background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); color:#fff; border-radius:9px; padding:.5rem .9rem; font-size:.83rem; outline:none; width:100%; box-sizing:border-box;" />
-                    <button id="cm-add-stream-btn" class="btn-action" style="margin-top:.75rem;width:100%" onclick="window._cmAddStream()">
-                      <i class="fas fa-plus"></i> Add Stream
-                    </button>
-                  </div>
-                  <div style="font-size:.82rem;color:rgba(255,255,255,.4);margin-top:1rem;margin-bottom:.5rem">Existing Streams</div>
-                  <div id="cm-streams-list" style="display:flex;flex-direction:column;gap:.5rem;max-height:400px;overflow-y:auto;padding-right:.25rem">
-                    <div class="ap-loader"><div class="ap-spin"></div><p>Loading streams…</p></div>
-                  </div>
-                </div>
-
-                <!-- Branches Panel -->
-                <div class="cm-panel" id="cm-branches">
-                  <div class="cm-add-form">
-                    <div style="font-size:.8rem;font-weight:700;color:#a78bfa;margin-bottom:.25rem">➕ Add New Branch</div>
-                    <div class="cm-row-grid">
-                      <input type="text" id="cm-new-branch-id" placeholder="Branch ID (e.g. it, no spaces)" />
-                      <input type="text" id="cm-new-branch-name" placeholder="Branch Name (e.g. Information Tech)" />
-                    </div>
-                    <input type="text" id="cm-new-branch-icon" placeholder="Branch Icon (e.g. 💻)" style="background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); color:#fff; border-radius:9px; padding:.5rem .9rem; font-size:.83rem; outline:none; width:100%; box-sizing:border-box; margin-top:.6rem" />
-                    
-                    <div style="font-size:.75rem;color:rgba(255,255,255,.5);margin-top:.6rem;margin-bottom:.3rem">Select Streams (Comma separated Stream IDs, leave blank for all)</div>
-                    <input type="text" id="cm-new-branch-streams" placeholder="Stream IDs (e.g. btech, mca)" style="background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); color:#fff; border-radius:9px; padding:.5rem .9rem; font-size:.83rem; outline:none; width:100%; box-sizing:border-box;" />
-                    
-                    <div style="font-size:.75rem;color:rgba(255,255,255,.5);margin-top:.6rem;margin-bottom:.3rem">Select Colleges (Comma separated College IDs, leave blank for all)</div>
-                    <input type="text" id="cm-new-branch-colleges" placeholder="College IDs (e.g. medicaps, lnct)" style="background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); color:#fff; border-radius:9px; padding:.5rem .9rem; font-size:.83rem; outline:none; width:100%; box-sizing:border-box;" />
-
-                    <button id="cm-add-branch-btn" class="btn-action" style="margin-top:.75rem;width:100%" onclick="window._cmAddBranch()">
-                      <i class="fas fa-plus"></i> Add Branch
-                    </button>
-                  </div>
-                  <div style="font-size:.82rem;color:rgba(255,255,255,.4);margin-top:1rem;margin-bottom:.5rem">Existing Branches</div>
-                  <div id="cm-branches-list" style="display:flex;flex-direction:column;gap:.5rem;max-height:400px;overflow-y:auto;padding-right:.25rem">
-                    <div class="ap-loader"><div class="ap-spin"></div><p>Loading branches…</p></div>
+                    <div class="ap-loader"><div class="ap-spin"></div><p>Loading colleges…</p></div>
                   </div>
                 </div>
                 ` : ''}
@@ -1555,9 +1501,9 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
         const el = document.getElementById(`cm-${panel}`);
         if (el) el.classList.add('active');
         
-        if (panel === 'colleges' && window._cmLoadColleges) window._cmLoadColleges();
-        if (panel === 'streams' && window._cmLoadStreams) window._cmLoadStreams();
-        if (panel === 'branches' && window._cmLoadBranches) window._cmLoadBranches();
+        if (panel === 'colleges' && window._cmLoadColleges) {
+            window._cmLoadColleges();
+        }
     };
 
     // ── Subjects ─────────────────────────────────────────────────────────────
@@ -1591,7 +1537,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                   <div class="cm-meta">${colObj.name} · ${s.branch_id || 'All Branches'} · ${s.semester || 'All Sems'}</div>
                 </div>
                 <div class="cm-actions">
-                  ${isSuper ? `<button class="apb apb-ok" style="padding:.35rem .7rem;font-size:.75rem;margin-right:6px;" onclick="window._cmEditSubject('${s.id}', '${encodeURIComponent(s.subject_name)}', '${encodeURIComponent(s.subject_code || '')}')">✏️ Edit</button> <button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._cmDeleteSubject('${s.id}')">🗑</button>` : ''}
+                  ${isSuper ? `<button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._cmDeleteSubject('${s.id}')">🗑</button>` : ''}
                 </div>
               </div>`;
         }).join('');
@@ -1626,7 +1572,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                       ${s.description ? `<div class="cm-meta" style="margin-top:.2rem">${s.description}</div>` : ''}
                     </div>
                     <div class="cm-actions">
-                      ${isSuper ? `<button class="apb apb-ok" style="padding:.35rem .7rem;font-size:.75rem;margin-right:6px;" onclick="window._cmEditSubject('${s.id}', '${encodeURIComponent(s.subject_name)}', '${encodeURIComponent(s.subject_code || '')}')">✏️ Edit</button> <button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._cmDeleteSubject('${s.id}')">🗑 Delete</button>` : ''}
+                      ${isSuper ? `<button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._cmDeleteSubject('${s.id}')">🗑 Delete</button>` : ''}
                     </div>
                   </div>`;
             }).join('');
@@ -1742,30 +1688,19 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
 
         try {
             if (!window.firebaseServices) throw new Error("Firebase services not loaded.");
-            const sb = await getSB();
-            if (!sb) throw new Error("Supabase client not initialized in Admin Panel");
+            const { db, doc, setDoc, storage, ref, uploadBytes, getDownloadURL } = window.firebaseServices;
             
-            // Upload local file to Supabase if provided
-            if (pendingLogoFile && sb) {
-                const fileName = `${id}_${Date.now()}_${pendingLogoFile.name.replace(/[^a-zA-Z0-9.\-]/g, '_')}`;
-                const { data: uploadData, error: uploadError } = await sb.storage
-                    .from('college_logos')
-                    .upload(fileName, pendingLogoFile, { cacheControl: '3600', upsert: false });
-                    
-                if (uploadError) {
-                    console.warn("Supabase image upload failed:", uploadError);
-                    if (window.showToast) window.showToast('⚠️ Image upload failed (create the "college_logos" public bucket in Supabase). Saving college without logo...', 'warning');
-                } else {
-                    const { data: urlData } = sb.storage.from('college_logos').getPublicUrl(fileName);
-                    logo = urlData.publicUrl;
-                }
+            // Upload local file if provided
+            if (pendingLogoFile && storage) {
+                const logoRef = ref(storage, `college_logos/${id}_${Date.now()}_${pendingLogoFile.name.replace(/[^a-zA-Z0-9.\-]/g, '_')}`);
+                await uploadBytes(logoRef, pendingLogoFile);
+                logo = await getDownloadURL(logoRef);
             }
             
-            const dataToSave = { id, name };
+            const dataToSave = { name };
             if (logo) dataToSave.logo = logo;
             
-            const { error } = await sb.from('colleges').upsert(dataToSave);
-            if (error) throw error;
+            await setDoc(doc(db, 'colleges', id), dataToSave);
             if (window.showToast) window.showToast('✅ College added successfully!', 'success');
             
             if (idInput) idInput.value = '';
@@ -1793,462 +1728,6 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
     window.addEventListener('collegesUpdated', () => {
         if (document.getElementById('cm-colleges')?.classList.contains('active')) {
             if (window._cmLoadColleges) window._cmLoadColleges();
-        }
-    });
-
-    // ── Streams (Super Admin Only) ────────────────────────────────────────────
-    window._cmLoadStreams = function() {
-        const list = document.getElementById('cm-streams-list');
-        if (!list) return;
-        const streams = window.GlobalData?.streams || [];
-        if (streams.length === 0) {
-            list.innerHTML = `<div style="color:rgba(255,255,255,.4);padding:1.5rem;text-align:center">No streams found.</div>`;
-            return;
-        }
-        list.innerHTML = streams.map(s => {
-            const branchesArr = Array.isArray(s.branches) ? s.branches : [];
-            const branchNames = branchesArr.map(bId => {
-                const bObj = window.GlobalData?.branches?.find(b => b.id === bId);
-                return bObj ? bObj.name : bId;
-            }).join(', ');
-
-            const colsArr = Array.isArray(s.colleges) ? s.colleges : [];
-            const colNames = (colsArr.length > 0) ? colsArr.map(cId => {
-                const cObj = window.GlobalData?.colleges?.find(c => c.id === cId);
-                return cObj ? cObj.name : cId;
-            }).join(', ') : 'All';
-
-            return `
-            <div class="cm-row" id="cm-str-${s.id}">
-                <div style="display: flex; align-items: center; flex:1; min-width:0;">
-                  <span style="font-size: 1.5rem; margin-right: 12px;">${s.icon || '🗂️'}</span>
-                  <div style="min-width:0;">
-                    <div class="cm-name">${s.name}</div>
-                    <div class="cm-meta">ID: ${s.id} · Branches: ${branchNames || 'None'}<br>Colleges: ${colNames}</div>
-                  </div>
-                </div>
-                <div class="cm-actions" style="display:flex;gap:6px;">
-                  <button class="apb" style="padding:.5rem .85rem;font-size:.8rem;font-weight:600;background:linear-gradient(135deg,#6c63ff,#8b5cf6);border:none;border-radius:8px;color:#fff;cursor:pointer;box-shadow:0 2px 10px rgba(108,99,255,.4);" onclick="window._cmManageStream('${s.id}')">&#9881;&#65039; Manage</button>
-                  <button class="apb apb-no" style="padding:.5rem .85rem;font-size:.8rem;font-weight:600;" onclick="window._cmDeleteStream('${s.id}')">🗑 Delete</button>
-                </div>
-            </div>
-            `;
-        }).join('');
-    };
-
-    window._cmAddStream = async function() {
-        const idInput = document.getElementById('cm-new-stream-id');
-        const nameInput = document.getElementById('cm-new-stream-name');
-        const iconInput = document.getElementById('cm-new-stream-icon');
-        const branchesInput = document.getElementById('cm-new-stream-branches');
-        const collegesInput = document.getElementById('cm-new-stream-colleges');
-        const btn = document.getElementById('cm-add-stream-btn');
-        
-        const id = idInput?.value?.trim().toLowerCase().replace(/[^a-z0-9\-]/g, '-');
-        const name = nameInput?.value?.trim();
-        const icon = iconInput?.value?.trim() || '🗂️';
-        const branchesStr = branchesInput?.value?.trim() || '';
-        const collegesStr = collegesInput?.value?.trim() || '';
-        
-        if (!id || !name) {
-            if (window.showToast) window.showToast('❌ Both ID and Name are required.', 'error');
-            return;
-        }
-        
-        const branches = branchesStr ? branchesStr.split(',').map(b => b.trim().toLowerCase()).filter(b => b) : [];
-        const colleges = collegesStr ? collegesStr.split(',').map(c => c.trim().toLowerCase()).filter(c => c) : [];
-        
-        if (btn) {
-            btn.disabled = true;
-            btn.innerHTML = `<span class="ap-spin" style="width:16px;height:16px;margin:0;display:inline-block;"></span> Adding...`;
-        }
-
-        try {
-            if (!window.supabase) throw new Error("Supabase services not loaded.");
-            await window.supabase.from('streams').insert([{ id, name, icon, branches, colleges }]);
-            
-            if (window.showToast) window.showToast('✅ Stream added successfully!', 'success');
-            
-            if (idInput) idInput.value = '';
-            if (nameInput) nameInput.value = '';
-            if (iconInput) iconInput.value = '';
-            if (branchesInput) branchesInput.value = '';
-            if (collegesInput) collegesInput.value = '';
-            
-            setTimeout(() => { if (window._cmLoadStreams) window._cmLoadStreams(); }, 800);
-        } catch (e) {
-            console.error(e);
-            if (window.showToast) window.showToast('❌ Failed: ' + e.message, 'error');
-        } finally {
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = `<i class="fas fa-plus"></i> Add Stream`;
-            }
-        }
-    };
-
-    window._cmDeleteStream = async function(id) {
-        if (!confirm(`⚠️ This will PERMANENTLY DELETE the stream '${id}' from everywhere.\n\nTo only change which colleges or branches it contains, use ⚙️ Manage instead.\n\nContinue?`)) return;
-        try {
-            const { error } = await window.supabase.from('streams').delete().eq('id', id);
-            if (error) throw error;
-            if (window.showToast) window.showToast('✅ Stream permanently deleted.', 'success');
-            setTimeout(() => { if (window._cmLoadStreams) window._cmLoadStreams(); }, 800);
-        } catch (e) {
-            console.error(e);
-            if (window.showToast) window.showToast('❌ Failed: ' + e.message, 'error');
-        }
-    };
-
-    // ── Manage Stream Modal ──────────────────────────────────────────────
-    window._cmManageStream = function(streamId) {
-        const stream = window.GlobalData?.streams?.find(s => s.id === streamId);
-        if (!stream) return;
-
-        const assignedBranches = Array.isArray(stream.branches) ? stream.branches : [];
-        const assignedColleges = Array.isArray(stream.colleges) ? stream.colleges : [];
-
-        const allBranches = window.GlobalData?.branches || [];
-        const allColleges = window.GlobalData?.colleges || [];
-
-        const branchCheckboxes = allBranches.map(b => `
-            <label style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer">
-                <input type="checkbox" value="${b.id}" ${assignedBranches.includes(b.id) ? 'checked' : ''}
-                    style="width:16px;height:16px;accent-color:var(--primary)" id="sm-branch-${b.id}">
-                <span>${b.icon || ''} ${b.name}</span>
-            </label>
-        `).join('');
-
-        const collegeCheckboxes = allColleges.map(c => `
-            <label style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer">
-                <input type="checkbox" value="${c.id}" ${(assignedColleges.length === 0 || assignedColleges.includes(c.id)) ? 'checked' : ''}
-                    style="width:16px;height:16px;accent-color:var(--primary)" id="sm-college-${c.id}">
-                <span>${c.name}</span>
-            </label>
-        `).join('');
-
-        const existing = document.getElementById('cm-stream-manage-modal');
-        if (existing) existing.remove();
-
-        const modal = document.createElement('div');
-        modal.id = 'cm-stream-manage-modal';
-        modal.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;`;
-        modal.innerHTML = `
-            <div style="background:#1a1a2e;border:1px solid rgba(108,99,255,.5);border-radius:16px;padding:2rem;width:min(500px,92vw);max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.6)">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
-                    <h3 style="margin:0;color:#fff">⚙️ Manage Stream: <span style="color:var(--primary)">${stream.icon || ''} ${stream.name}</span></h3>
-                    <button onclick="document.getElementById('cm-stream-manage-modal').remove()"
-                        style="background:none;border:none;color:rgba(255,255,255,.5);font-size:1.5rem;cursor:pointer;line-height:1">×</button>
-                </div>
-
-                <p style="color:rgba(255,255,255,.6);font-size:.85rem;margin-bottom:1.5rem;line-height:1.6">
-                    Control which <strong style="color:#fff">Branches</strong> belong to this stream and which <strong style="color:#fff">Colleges</strong> offer it.
-                    Unchecking removes the association — students at that college or in that context won't see this stream.
-                </p>
-
-                <div style="margin-bottom:1.2rem">
-                    <div style="color:rgba(255,255,255,.85);font-size:.85rem;font-weight:700;margin-bottom:.6rem;display:flex;align-items:center;gap:6px">
-                        🌿 Branches in this Stream
-                    </div>
-                    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:.75rem 1rem;max-height:200px;overflow-y:auto">
-                        ${branchCheckboxes || '<span style="color:rgba(255,255,255,.4)">No branches found</span>'}
-                    </div>
-                </div>
-
-                <div style="margin-bottom:1.8rem">
-                    <div style="color:rgba(255,255,255,.85);font-size:.85rem;font-weight:700;margin-bottom:.6rem;display:flex;align-items:center;gap:6px">
-                        🏛️ Colleges that offer this Stream
-                        <span style="color:rgba(255,255,255,.35);font-weight:400;font-size:.8rem">(all checked = available everywhere)</span>
-                    </div>
-                    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:.75rem 1rem">
-                        ${collegeCheckboxes || '<span style="color:rgba(255,255,255,.4)">No colleges found</span>'}
-                    </div>
-                </div>
-
-                <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.5rem;">
-                    <button id="cm-stream-save-btn" onclick="window._cmSaveStreamLinks('${streamId}', this)"
-                        style="flex:1;min-width:140px;padding:.8rem;background:linear-gradient(135deg,#6c63ff,#8b5cf6);border:none;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;font-size:.95rem;box-shadow:0 4px 15px rgba(108,99,255,.4);transition:all .2s;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:.5rem;">
-                        💾 Save Changes
-                    </button>
-                    <button onclick="document.getElementById('cm-stream-manage-modal').remove()"
-                        style="flex:1;min-width:100px;padding:.8rem 1rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:rgba(255,255,255,.7);cursor:pointer;font-size:.95rem;white-space:nowrap;">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
-        modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
-    };
-
-    window._cmSaveStreamLinks = async function(streamId, btn) {
-        const stream = window.GlobalData?.streams?.find(s => s.id === streamId);
-        if (!stream) return;
-
-        const allBranches = window.GlobalData?.branches || [];
-        const allColleges = window.GlobalData?.colleges || [];
-
-        const selectedBranches = allBranches.filter(b => document.getElementById(`sm-branch-${b.id}`)?.checked).map(b => b.id);
-        const selectedColleges = allColleges.filter(c => document.getElementById(`sm-college-${c.id}`)?.checked).map(c => c.id);
-        const collegeVal = selectedColleges.length === allColleges.length ? [] : selectedColleges;
-
-        // btn is the actual button element passed via onclick
-        if (btn) { btn.disabled = true; }
-
-        try {
-            // Close modal immediately (Optimistic UI)
-            const modal = document.getElementById('cm-stream-manage-modal');
-            if (modal) modal.remove();
-            if (window.showToast) window.showToast(`✅ Stream "${stream.name}" updated!`, 'success');
-            if (window._cmLoadStreams) window._cmLoadStreams();
-
-            // Run update in background
-            window.supabase.from('streams').update({ branches: selectedBranches, colleges: collegeVal }).eq('id', streamId)
-                .then(({error}) => {
-                    if (error) throw error;
-                })
-                .catch(e => {
-                    console.error('Stream background save error:', e);
-                    if (window.showToast) window.showToast('❌ Sync failed: ' + e.message, 'error');
-                });
-
-        } catch(e) {
-            console.error('Stream save error:', e);
-            if (btn) { btn.disabled = false; }
-            if (window.showToast) window.showToast('❌ Failed: ' + e.message, 'error');
-        }
-    };
-
-    window.addEventListener('streamsUpdated', () => {
-        if (document.getElementById('cm-streams')?.classList.contains('active')) {
-            if (window._cmLoadStreams) window._cmLoadStreams();
-        }
-    });
-
-    // ── Branches (Super Admin Only) ───────────────────────────────────────────
-    window._cmLoadBranches = function() {
-        const list = document.getElementById('cm-branches-list');
-        if (!list) return;
-        const branches = window.GlobalData?.branches || [];
-        if (branches.length === 0) {
-            list.innerHTML = `<div style="color:rgba(255,255,255,.4);padding:1.5rem;text-align:center">No branches found.</div>`;
-            return;
-        }
-        list.innerHTML = branches.map(b => {
-            const streamsArr = Array.isArray(b.streams) ? b.streams : [];
-            const streamNames = (streamsArr.length > 0) ? streamsArr.map(sId => {
-                const sObj = window.GlobalData?.streams?.find(s => s.id === sId);
-                return sObj ? sObj.name : sId;
-            }).join(', ') : 'All';
-
-            const colsArr = Array.isArray(b.colleges) ? b.colleges : [];
-            const colNames = (colsArr.length > 0) ? colsArr.map(cId => {
-                const cObj = window.GlobalData?.colleges?.find(c => c.id === cId);
-                return cObj ? cObj.name : cId;
-            }).join(', ') : 'All';
-
-            return `
-            <div class="cm-row" id="cm-br-${b.id}">
-                <div style="display: flex; align-items: center;">
-                  <span style="font-size: 1.5rem; margin-right: 12px;">${b.icon || '🌿'}</span>
-                  <div>
-                    <div class="cm-name">${b.name}</div>
-                    <div class="cm-meta">ID: ${b.id}<br>Streams: ${streamNames} · Colleges: ${colNames}</div>
-                  </div>
-                </div>
-                <div class="cm-actions" style="display:flex;gap:6px;flex-shrink:0">
-                  <button class="apb" style="padding:.4rem .85rem;font-size:.8rem;font-weight:600;background:linear-gradient(135deg,#6c63ff,#8b5cf6);border:none;border-radius:8px;color:#fff;cursor:pointer;box-shadow:0 2px 10px rgba(108,99,255,.4);" onclick="window._cmManageBranch('${b.id}')">⚙️ Manage</button>
-                  <button class="apb apb-no" style="padding:.4rem .85rem;font-size:.8rem;font-weight:600;" onclick="window._cmDeleteBranch('${b.id}')">🗑 Delete All</button>
-                </div>
-            </div>
-            `;
-        }).join('');
-    };
-
-    window._cmAddBranch = async function() {
-        const idInput = document.getElementById('cm-new-branch-id');
-        const nameInput = document.getElementById('cm-new-branch-name');
-        const iconInput = document.getElementById('cm-new-branch-icon');
-        const streamsInput = document.getElementById('cm-new-branch-streams');
-        const collegesInput = document.getElementById('cm-new-branch-colleges');
-        const btn = document.getElementById('cm-add-branch-btn');
-        
-        const id = idInput?.value?.trim().toLowerCase().replace(/[^a-z0-9\-]/g, '-');
-        const name = nameInput?.value?.trim();
-        const icon = iconInput?.value?.trim() || '🌿';
-        const streamsStr = streamsInput?.value?.trim() || '';
-        const collegesStr = collegesInput?.value?.trim() || '';
-        
-        if (!id || !name) {
-            if (window.showToast) window.showToast('❌ Both ID and Name are required.', 'error');
-            return;
-        }
-        
-        const streams = streamsStr ? streamsStr.split(',').map(s => s.trim().toLowerCase()).filter(s => s) : [];
-        const colleges = collegesStr ? collegesStr.split(',').map(c => c.trim().toLowerCase()).filter(c => c) : [];
-
-        if (btn) {
-            btn.disabled = true;
-            btn.innerHTML = `<span class="ap-spin" style="width:16px;height:16px;margin:0;display:inline-block;"></span> Adding...`;
-        }
-
-        try {
-            if (!window.supabase) throw new Error("Supabase services not loaded.");
-            await window.supabase.from('branches').insert([{ id, name, icon, streams, colleges }]);
-            
-            if (window.showToast) window.showToast('✅ Branch added successfully!', 'success');
-            
-            if (idInput) idInput.value = '';
-            if (nameInput) nameInput.value = '';
-            if (iconInput) iconInput.value = '';
-            if (streamsInput) streamsInput.value = '';
-            if (collegesInput) collegesInput.value = '';
-            
-            setTimeout(() => { if (window._cmLoadBranches) window._cmLoadBranches(); }, 800);
-        } catch (e) {
-            console.error(e);
-            if (window.showToast) window.showToast('❌ Failed: ' + e.message, 'error');
-        } finally {
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = `<i class="fas fa-plus"></i> Add Branch`;
-            }
-        }
-    };
-
-    // ── Manage Branch Modal ─────────────────────────────────────────────────
-    window._cmManageBranch = function(branchId) {
-        const branch = window.GlobalData?.branches?.find(b => b.id === branchId);
-        if (!branch) return;
-
-        // Build existing streams/colleges assignments
-        const assignedStreams = Array.isArray(branch.streams) ? branch.streams : [];
-        const assignedColleges = Array.isArray(branch.colleges) ? branch.colleges : [];
-
-        const allStreams = window.GlobalData?.streams || [];
-        const allColleges = window.GlobalData?.colleges || [];
-
-        const streamsCheckboxes = allStreams.map(s => `
-            <label style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer">
-                <input type="checkbox" value="${s.id}" ${assignedStreams.includes(s.id) ? 'checked' : ''}
-                    style="width:16px;height:16px;accent-color:var(--primary)" id="bm-stream-${s.id}">
-                <span>${s.icon || ''} ${s.name}</span>
-            </label>
-        `).join('');
-
-        const collegesCheckboxes = allColleges.map(c => `
-            <label style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer">
-                <input type="checkbox" value="${c.id}" ${(assignedColleges.length === 0 || assignedColleges.includes(c.id)) ? 'checked' : ''}
-                    style="width:16px;height:16px;accent-color:var(--primary)" id="bm-college-${c.id}">
-                <span>${c.name}</span>
-            </label>
-        `).join('');
-
-        // Inject modal HTML
-        const existing = document.getElementById('cm-branch-manage-modal');
-        if (existing) existing.remove();
-
-        const modal = document.createElement('div');
-        modal.id = 'cm-branch-manage-modal';
-        modal.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;`;
-        modal.innerHTML = `
-            <div style="background:#1a1a2e;border:1px solid rgba(108,99,255,.4);border-radius:16px;padding:2rem;width:min(480px,92vw);max-height:85vh;overflow-y:auto">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
-                    <h3 style="margin:0;color:#fff">⚙️ Manage: <span style="color:var(--primary)">${branch.name}</span></h3>
-                    <button onclick="document.getElementById('cm-branch-manage-modal').remove()" 
-                        style="background:none;border:none;color:rgba(255,255,255,.5);font-size:1.5rem;cursor:pointer">×</button>
-                </div>
-
-                <p style="color:rgba(255,255,255,.6);font-size:.85rem;margin-bottom:1.5rem">
-                    Choose which <strong style="color:#fff">Streams</strong> and <strong style="color:#fff">Colleges</strong> this branch belongs to.
-                    Unchecking a stream or college will <em>remove this branch from that context</em> — students there won't see it.
-                </p>
-
-                <div style="margin-bottom:1.2rem">
-                    <div style="color:rgba(255,255,255,.8);font-size:.85rem;font-weight:600;margin-bottom:.5rem;">📚 Streams</div>
-                    <div style="background:rgba(255,255,255,.04);border-radius:10px;padding:.75rem 1rem">
-                        ${streamsCheckboxes || '<span style="color:rgba(255,255,255,.4)">No streams found</span>'}
-                    </div>
-                </div>
-
-                <div style="margin-bottom:1.5rem">
-                    <div style="color:rgba(255,255,255,.8);font-size:.85rem;font-weight:600;margin-bottom:.5rem;">🏛️ Colleges <span style="color:rgba(255,255,255,.4);font-weight:400">(all checked = available everywhere)</span></div>
-                    <div style="background:rgba(255,255,255,.04);border-radius:10px;padding:.75rem 1rem">
-                        ${collegesCheckboxes || '<span style="color:rgba(255,255,255,.4)">No colleges found</span>'}
-                    </div>
-                </div>
-
-                <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.5rem;">
-                    <button id="cm-branch-save-btn" onclick="window._cmSaveBranchLinks('${branchId}', this)"
-                        style="flex:1;min-width:140px;padding:.8rem;background:linear-gradient(135deg,#6c63ff,#8b5cf6);border:none;border-radius:10px;color:#fff;font-weight:600;cursor:pointer;font-size:.95rem;box-shadow:0 4px 15px rgba(108,99,255,.4);transition:all .2s;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:.5rem;">
-                        💾 Save Changes
-                    </button>
-                    <button onclick="document.getElementById('cm-branch-manage-modal').remove()"
-                        style="flex:1;min-width:100px;padding:.8rem 1rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:rgba(255,255,255,.7);cursor:pointer;white-space:nowrap;">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
-        modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
-    };
-
-    window._cmSaveBranchLinks = async function(branchId, btn) {
-        const branch = window.GlobalData?.branches?.find(b => b.id === branchId);
-        if (!branch) return;
-
-        const allStreams = window.GlobalData?.streams || [];
-        const allColleges = window.GlobalData?.colleges || [];
-
-        const selectedStreams = allStreams.filter(s => document.getElementById(`bm-stream-${s.id}`)?.checked).map(s => s.id);
-        const selectedColleges = allColleges.filter(c => document.getElementById(`bm-college-${c.id}`)?.checked).map(c => c.id);
-        const collegeVal = selectedColleges.length === allColleges.length ? [] : selectedColleges;
-
-        // btn is the actual button element passed via onclick
-        if (btn) { btn.disabled = true; }
-
-        try {
-            // Close modal immediately (Optimistic UI)
-            const modal = document.getElementById('cm-branch-manage-modal');
-            if (modal) modal.remove();
-            if (window.showToast) window.showToast(`✅ "${branch.name}" updated!`, 'success');
-            if (window._cmLoadBranches) window._cmLoadBranches();
-
-            // Run update in background
-            window.supabase.from('branches').update({ streams: selectedStreams, colleges: collegeVal }).eq('id', branchId)
-                .then(({error}) => {
-                    if (error) throw error;
-                })
-                .catch(e => {
-                    console.error('Branch background save error:', e);
-                    if (window.showToast) window.showToast('❌ Sync failed: ' + e.message, 'error');
-                });
-
-        } catch(e) {
-            console.error('Branch save error:', e);
-            if (btn) { btn.disabled = false; }
-            if (window.showToast) window.showToast('❌ Failed: ' + e.message, 'error');
-        }
-    };
-
-    window._cmDeleteBranch = async function(id) {
-        if (!confirm(`⚠️ This will PERMANENTLY DELETE the branch '${id}' from everywhere.\n\nTo only remove it from a specific stream/college, use ⚙️ Manage instead.\n\nContinue?`)) return;
-        try {
-            if (!window.firebaseServices) throw new Error("Firebase services not loaded.");
-            const { db, doc, deleteDoc } = window.firebaseServices;
-            await deleteDoc(doc(db, 'branches', id));
-            if (window.showToast) window.showToast('✅ Branch permanently deleted.', 'success');
-            setTimeout(() => { if (window._cmLoadBranches) window._cmLoadBranches(); }, 800);
-        } catch (e) {
-            console.error(e);
-            if (window.showToast) window.showToast('❌ Failed: ' + e.message, 'error');
-        }
-    };
-
-    window.addEventListener('branchesUpdated', () => {
-        if (document.getElementById('cm-branches')?.classList.contains('active')) {
-            if (window._cmLoadBranches) window._cmLoadBranches();
         }
     });
 
@@ -2313,95 +1792,6 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
         } catch (e) {
             if (window.showToast) window.showToast('❌ Failed: ' + e.message, 'error');
         }
-    };
-
-    window._cmEditSubject = async function (id, encName, encCode) {
-        if (!window._apIsSuperAdmin) {
-            if (window.showToast) window.showToast('❌ Only Super Admins can edit subjects.', 'error');
-            return;
-        }
-        
-        const oldName = decodeURIComponent(encName);
-        const oldCode = decodeURIComponent(encCode);
-        
-        // Custom Modal UI
-        const modalHtml = `
-        <div id="cm-edit-subj-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,11,20,0.8);backdrop-filter:blur(10px);z-index:99999;display:flex;align-items:center;justify-content:center;animation: fadeIn 0.2s ease;">
-            <div style="background:var(--card-bg);border:1px solid rgba(255,255,255,0.05);border-radius:16px;padding:2rem;width:90%;max-width:400px;box-shadow:0 15px 35px rgba(0,0,0,0.4);animation: slideUp 0.3s ease;">
-                <h3 style="margin-top:0;margin-bottom:1.5rem;font-family:'Outfit',sans-serif;color:var(--text-light);font-size:1.3rem;">✏️ Edit Subject</h3>
-                
-                <label style="display:block;margin-bottom:.5rem;font-size:.85rem;color:var(--text-dim);">Subject Name</label>
-                <input type="text" id="edit-subj-name" class="ap-input" value="${oldName.replace(/"/g, '&quot;')}" style="width:100%;margin-bottom:1.5rem;">
-                
-                <label style="display:block;margin-bottom:.5rem;font-size:.85rem;color:var(--text-dim);">Subject Code (Optional)</label>
-                <input type="text" id="edit-subj-code" class="ap-input" value="${oldCode.replace(/"/g, '&quot;')}" style="width:100%;margin-bottom:2rem;">
-                
-                <div style="display:flex;gap:1rem;justify-content:flex-end;">
-                    <button class="apb apb-no" id="edit-subj-cancel" style="padding:.6rem 1.2rem;border-radius:8px;">Cancel</button>
-                    <button class="apb apb-ok" id="edit-subj-save" style="padding:.6rem 1.2rem;border-radius:8px;background:linear-gradient(135deg, #6c63ff, #8b5cf6);color:white;border:none;">Save Changes</button>
-                </div>
-            </div>
-        </div>`;
-
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
-        const modal = document.getElementById('cm-edit-subj-modal');
-        const nameInput = document.getElementById('edit-subj-name');
-        const codeInput = document.getElementById('edit-subj-code');
-        
-        nameInput.focus();
-
-        const closeModal = () => modal.remove();
-
-        document.getElementById('edit-subj-cancel').onclick = closeModal;
-
-        document.getElementById('edit-subj-save').onclick = async () => {
-            const finalName = nameInput.value.trim();
-            const finalCode = codeInput.value.trim();
-            
-            if (!finalName) {
-                if (window.showToast) window.showToast('❌ Subject name cannot be empty.', 'error');
-                return;
-            }
-            
-            closeModal();
-
-            if (finalName === oldName && finalCode === oldCode) return; // No changes made
-
-            try {
-                const sb = await getSB();
-                
-                const { data: subj, error: fetchErr } = await sb.from('college_subjects').select('*').eq('id', id).single();
-                if (fetchErr) throw fetchErr;
-
-                const { error: updateErr } = await sb.from('college_subjects')
-                    .update({ subject_name: finalName, subject_code: finalCode })
-                    .eq('id', id);
-                
-                if (updateErr) throw updateErr;
-
-                if (finalName !== oldName) {
-                    let qApp = sb.from('approved_notes').update({ subject: finalName }).eq('subject', oldName);
-                    if (subj.college_id) qApp = qApp.eq('college', subj.college_id);
-                    if (subj.branch_id) qApp = qApp.eq('branch', subj.branch_id);
-                    await qApp;
-
-                    let qPen = sb.from('pending_notes').update({ subject: finalName }).eq('subject', oldName);
-                    if (subj.college_id) qPen = qPen.eq('college', subj.college_id);
-                    if (subj.branch_id) qPen = qPen.eq('branch', subj.branch_id);
-                    await qPen;
-                }
-
-                if (window.showToast) window.showToast(`✅ Subject updated to "${finalName}"`, 'success');
-                
-                if (window._cmLoadSubjects) window._cmLoadSubjects();
-                if (typeof window.refreshCustomSubjectsForSearch === 'function') {
-                    await window.refreshCustomSubjectsForSearch();
-                }
-            } catch (e) {
-                console.error(e);
-                if (window.showToast) window.showToast('❌ Failed to update subject: ' + e.message, 'error');
-            }
-        };
     };
 
     // ── Syllabus ─────────────────────────────────────────────────────────────

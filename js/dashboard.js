@@ -1,4 +1,4 @@
-window.getViewerUrl = function (url, title, id) { if (id) return '../pages/view?id=' + id; if (!url) return '#'; try { return '../pages/view?u=' + btoa(encodeURIComponent(url)) + '&t=' + btoa(encodeURIComponent(title || 'Document')); } catch (e) { return url; } };
+window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?id=' + id; if (!url) return '#'; try { return '../pages/view?u=' + btoa(encodeURIComponent(url)) + '&t=' + btoa(encodeURIComponent(title || 'Document')); } catch(e) { return url; } };
 import { globalNotes } from "../data/globalNotes.js?v=6.0";
 import { renderCodingArena } from './coding-arena.js?v=1.3';
 import { RoutingSystem } from "./routing.js?v=6.0";
@@ -7,7 +7,7 @@ import { initGlobalAnalytics } from './analytics.js?v=6.0';
 // Initialize analytics (Supabase & Firebase) so dashboard stats are populated globally
 initGlobalAnalytics();
 
-window.openCodingArena = function () {
+window.openCodingArena = function() {
     const mainContent = document.getElementById('tab-content');
     if (mainContent) {
         renderCodingArena(mainContent);
@@ -189,8 +189,6 @@ let notificationsUnsubscribe = null;
 // Initialization Guards (Prevent duplicate boot on refresh/auth sync)
 let isNotesSyncInit = false;
 let isCollegesInit = false;
-let isBranchesInit = false;
-let isStreamsInit = false;
 let isStatsInit = false;
 let isNotificationsInit = false;
 let isLeaderboardInit = false;
@@ -374,8 +372,6 @@ function handleAuthReady(data) {
                     if (typeof trackStudent === 'function') initPromises.push(trackStudent());
                     if (window.statServices?.initRealtimeStats && !isStatsInit) initPromises.push(window.statServices.initRealtimeStats());
                     if (!isCollegesInit && typeof initDynamicColleges === 'function') initPromises.push(initDynamicColleges());
-                    if (!isBranchesInit && typeof initDynamicBranches === 'function') initPromises.push(initDynamicBranches());
-                    if (!isStreamsInit && typeof initDynamicStreams === 'function') initPromises.push(initDynamicStreams());
                     if (!isNotesSyncInit && typeof initNotesSync === 'function') initPromises.push(initNotesSync());
                     if (typeof initWeeklyPlanSync === 'function') initPromises.push(initWeeklyPlanSync());
 
@@ -419,11 +415,7 @@ function handleAuthReady(data) {
 
                 // Deep Link Restoration
                 if (tabParam === 'notes' && (window.location.hash.includes('#/notes/') || window.location.pathname.includes('/notes/'))) {
-                    Promise.all([
-                        initDynamicColleges(),
-                        initDynamicBranches(),
-                        initDynamicStreams()
-                    ]).then(() => {
+                    initDynamicColleges().then(() => {
                         const nextStep = RoutingSystem.applyFiltersToUI(GlobalData, (k, v) => { selState[k] = v; });
                         if (nextStep === "SHOW_NOTES") showNotes();
                         else if (nextStep === "SUBJECT_STEP") renderSubjectStep();
@@ -516,121 +508,24 @@ window.downloadNote = function (id) { if (window.updateNoteStat) window.updateNo
 window.viewNote = function (id) { if (window.updateNoteStat) window.updateNoteStat(id, 'view'); };
 window.incrementNoteView = window.viewNote;
 
-async function initDynamicColleges() {
+function initDynamicColleges() {
     if (isCollegesInit) return Promise.resolve();
+    const { db, collection, onSnapshot } = getFirebase();
+    if (!db) return;
+
     isCollegesInit = true; // Mark as started/pending
-
-    try {
-        let sb = window.supabase;
-        if (!sb) {
-            const module = await import('./supabase-config.js?v=1.0');
-            sb = module.supabase;
-            window.supabase = sb;
-        }
-
-        const fetchColleges = async () => {
-            const { data, error } = await sb.from('colleges').select('*');
-            if (error) throw error;
-            if (data && data.length > 0) {
-                GlobalData.colleges = data;
-                console.log("🏫 Dynamic Colleges Synced (Supabase):", GlobalData.colleges.length);
+    return new Promise((resolve) => {
+        onSnapshot(collection(db, 'colleges'), (snap) => {
+            if (!snap.empty) {
+                GlobalData.colleges = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                console.log("🏫 Dynamic Colleges Synced:", GlobalData.colleges.length);
             } else {
-                console.log("⚠️ Colleges table empty.");
-                GlobalData.colleges = [];
+                console.log("⚠️ Colleges collection empty, using defaults.");
             }
             window.dispatchEvent(new CustomEvent('collegesUpdated', { detail: GlobalData.colleges }));
-        };
-
-        await fetchColleges();
-
-        // Subscribe to real-time changes
-        sb.channel('colleges_changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'colleges' }, payload => {
-                fetchColleges();
-            })
-            .subscribe();
-
-    } catch (e) {
-        console.error("Supabase colleges sync error:", e);
-    }
-}
-
-async function initDynamicBranches() {
-    if (isBranchesInit) return Promise.resolve();
-    isBranchesInit = true; // Mark as started/pending
-
-    try {
-        let sb = window.supabase;
-        if (!sb) {
-            const module = await import('./supabase-config.js?v=1.0');
-            sb = module.supabase;
-            window.supabase = sb;
-        }
-
-        const fetchBranches = async () => {
-            const { data, error } = await sb.from('branches').select('*');
-            if (error) throw error;
-            if (data && data.length > 0) {
-                GlobalData.branches = data;
-                console.log("🌿 Dynamic Branches Synced (Supabase):", GlobalData.branches.length);
-            } else {
-                console.log("⚠️ Branches table empty.");
-                GlobalData.branches = [];
-            }
-            window.dispatchEvent(new CustomEvent('branchesUpdated', { detail: GlobalData.branches }));
-        };
-
-        await fetchBranches();
-
-        // Subscribe to real-time changes
-        sb.channel('branches_changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'branches' }, payload => {
-                fetchBranches();
-            })
-            .subscribe();
-
-    } catch (e) {
-        console.error("Supabase branches sync error:", e);
-    }
-}
-
-async function initDynamicStreams() {
-    if (isStreamsInit) return Promise.resolve();
-    isStreamsInit = true; // Mark as started/pending
-
-    try {
-        let sb = window.supabase;
-        if (!sb) {
-            const module = await import('./supabase-config.js?v=1.0');
-            sb = module.supabase;
-            window.supabase = sb;
-        }
-
-        const fetchStreams = async () => {
-            const { data, error } = await sb.from('streams').select('*');
-            if (error) throw error;
-            if (data && data.length > 0) {
-                GlobalData.streams = data;
-                console.log("🗂️ Dynamic Streams Synced (Supabase):", GlobalData.streams.length);
-            } else {
-                console.log("⚠️ Streams table empty.");
-                GlobalData.streams = [];
-            }
-            window.dispatchEvent(new CustomEvent('streamsUpdated', { detail: GlobalData.streams }));
-        };
-
-        await fetchStreams();
-
-        // Subscribe to real-time changes
-        sb.channel('streams_changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'streams' }, payload => {
-                fetchStreams();
-            })
-            .subscribe();
-
-    } catch (e) {
-        console.error("Supabase streams sync error:", e);
-    }
+            resolve();
+        });
+    });
 }
 
 import { supabase } from './supabase-config.js?v=1.0';
@@ -654,22 +549,22 @@ async function initNotesSync() {
         if (configResponse.ok) {
             const configs = await configResponse.json();
             if (configs.databases && configs.databases.length > 0) {
-                federatedClients = configs.databases.map(dbConfig =>
+                federatedClients = configs.databases.map(dbConfig => 
                     window.supabase.createClient(dbConfig.url, dbConfig.key)
                 );
             }
         }
-    } catch (e) {
+    } catch(e) {
         console.error("Failed to fetch storage configs for dashboard:", e);
     }
 
     const fetchApprovedNotes = async () => {
         try {
-            const promises = federatedClients.map(client =>
+            const promises = federatedClients.map(client => 
                 client.from('approved_notes')
                     .select('*')
                     .order('created_at', { ascending: false })
-                    .limit(50)
+                    .limit(500)
             );
             const results = await Promise.all(promises);
             let allData = [];
@@ -681,8 +576,8 @@ async function initNotesSync() {
             // Sort combined results
             allData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             // Limit overall
-            const data = allData.slice(0, 50);
-
+            const data = allData.slice(0, 500);
+            
             if (JSON.stringify(NotesDB) !== JSON.stringify(data)) {
                 NotesDB = data.map(d => ({
                     ...d,
@@ -694,7 +589,7 @@ async function initNotesSync() {
                 }));
                 window.NotesDB = NotesDB;
                 console.log(`📦 Notes Hub Updated: ${NotesDB.length} records in cache from ${federatedClients.length} databases.`);
-
+                
                 // Note: The UI updates based on NotesDB in the notes tab
                 if (window.selState && window.selState.subject && document.getElementById('final-notes-view')?.style.display === 'block') {
                     if (typeof window.showNotes === 'function') {
@@ -717,7 +612,7 @@ async function initNotesSync() {
 
     fetchApprovedNotes();
 
-    unsubscribeNotes = federatedClients.map(client =>
+    unsubscribeNotes = federatedClients.map(client => 
         client.channel('public:approved_notes')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'approved_notes' }, fetchApprovedNotes)
             .subscribe()
@@ -799,9 +694,9 @@ document.addEventListener('DOMContentLoaded', () => {
             list.forEach(s => {
                 if (s.name.toLowerCase().includes(lowQuery) || (s.code && s.code.toLowerCase().includes(lowQuery))) {
                     if (!matches.find(m => m.id === s.id)) {
-                        matches.push({
-                            ...s,
-                            type: 'subject',
+                        matches.push({ 
+                            ...s, 
+                            type: 'subject', 
                             key: keyParts.length > 2 ? `${keyParts[1]}-${keyParts[2]}` : key,
                             collegeId: collegeId,
                             collegeName: colObj.name
@@ -814,11 +709,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. Search Dynamic Custom Subjects
         dbCustomSubjects.forEach(cs => {
             if (cs.subject_name.toLowerCase().includes(lowQuery) || (cs.subject_code && cs.subject_code.toLowerCase().includes(lowQuery))) {
-                const hasDuplicate = matches.some(m =>
-                    m.id === cs.id ||
-                    (m.name.toLowerCase() === cs.subject_name.toLowerCase() &&
-                        m.collegeId === cs.college_id &&
-                        m.key === `${cs.branch_id}-${cs.semester}`)
+                const hasDuplicate = matches.some(m => 
+                    m.id === cs.id || 
+                    (m.name.toLowerCase() === cs.subject_name.toLowerCase() && 
+                     m.collegeId === cs.college_id &&
+                     m.key === `${cs.branch_id}-${cs.semester}`)
                 );
                 if (!hasDuplicate) {
                     const colObj = GlobalData.colleges.find(c => c.id === cs.college_id) || { name: cs.college_id.toUpperCase() };
@@ -1003,7 +898,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- DEEP LINKING SUPPORT ---
     const urlParams = new URLSearchParams(window.location.search);
     let tabParam = urlParams.get('tab');
-
+    
     // Support clean URL /subscription
     if (!tabParam && window.location.pathname.replace(/\/$/, '').endsWith('/subscription')) {
         tabParam = 'subscription';
@@ -1528,8 +1423,8 @@ window.updateUploadSubjects = async function () {
     subjectSelect.innerHTML = `<option value="">Loading...</option>`;
 
     const key = `${branch}-${semester}`;
-    const gdSubjects = (college === 'medicaps' || (college && college.includes('medicaps')))
-        ? (GlobalData.subjects[key] || [])
+    const gdSubjects = (college === 'medicaps' || (college && college.includes('medicaps'))) 
+        ? (GlobalData.subjects[key] || []) 
         : [];
 
     let customSubjects = [];
@@ -1540,7 +1435,7 @@ window.updateUploadSubjects = async function () {
             sb = module.supabase;
             window.supabase = sb;
         }
-
+        
         // Fetch subjects added by admin for this specific college/branch/sem
         if (college && college !== 'new_college') {
             const { data } = await sb.from('college_subjects')
@@ -1548,19 +1443,19 @@ window.updateUploadSubjects = async function () {
                 .eq('college_id', college)
                 .eq('branch_id', branch)
                 .eq('semester', semester);
-
+                
             if (data) customSubjects = data;
         }
-    } catch (e) {
-        console.error('Error fetching custom subjects for upload:', e);
+    } catch(e) { 
+        console.error('Error fetching custom subjects for upload:', e); 
     }
 
     const combined = [...gdSubjects];
     customSubjects.forEach(cs => {
         if (!combined.find(s => s.name.toLowerCase() === cs.subject_name.toLowerCase())) {
-            combined.push({
-                id: cs.id,
-                name: cs.subject_name
+            combined.push({ 
+                id: cs.id, 
+                name: cs.subject_name 
             });
         }
     });
@@ -1598,14 +1493,14 @@ function initTabs() {
     // Re-bind listeners and set initial active state
     const urlParams = new URLSearchParams(window.location.search);
     let initialTab = urlParams.get('tab') || window.pendingTab;
-
+    
     if (!initialTab && window.location.hash.startsWith('#/')) {
         const hashParts = window.location.hash.split('/');
         if (hashParts[1]) {
             initialTab = hashParts[1];
         }
     }
-
+    
     initialTab = initialTab || 'overview';
 
     document.querySelectorAll('.nav-item').forEach(item => {
@@ -1617,7 +1512,7 @@ function initTabs() {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             item.classList.add('active');
             renderTabContent(item.dataset.tab);
-
+            
             // Clean URL for subscription tab
             if (item.dataset.tab === 'subscription') {
                 history.pushState(null, '', '/subscription');
@@ -1755,10 +1650,10 @@ function renderTabContent(tabId) {
             desc: 'Upgrade your SKiL MATRiX experience with premium access to lab solutions and unlimited AI features.'
         }
     };
-
+    
     const currentTabData = tabData[tabId] || tabData['overview'];
     document.title = currentTabData.title;
-
+    
     const metaDesc = document.getElementById('meta-description');
     if (metaDesc) metaDesc.setAttribute('content', currentTabData.desc);
 
@@ -1795,7 +1690,7 @@ function renderTabContent(tabId) {
         if (tabId === 'overview') {
             console.log("➡️ Rendering Overview...");
             contentArea.innerHTML = renderOverview();
-
+            
             // Live fetch true Coding Streak from Supabase
             if (window.currentUser && window.currentUser.id && window.supabase) {
                 window.supabase.from('users').select('coding_streak').eq('id', window.currentUser.id).single()
@@ -2369,20 +2264,20 @@ function renderTabContent(tabId) {
                 try {
                     const raw = localStorage.getItem('auth_user_full');
                     const fbUser = window.firebaseServices && window.firebaseServices.auth && window.firebaseServices.auth.currentUser;
-                    const u = fbUser || (raw ? (() => { try { return JSON.parse(raw); } catch (e) { return null; } })() : null);
+                    const u = fbUser || (raw ? (() => { try { return JSON.parse(raw); } catch(e) { return null; } })() : null);
                     if (!u) return;
                     const uid = u.uid || u.id;
-
+                    
                     const resPlan = await fetch(`${_apiUrlSub}/api/user-plan?uid=${uid}&_t=${Date.now()}`);
                     let dataPlan = await resPlan.json();
-
+                    
                     // Admin override for premium
                     const email = (u.email || '').toLowerCase();
                     const adminEmails = ['tanishqagrawal1103@gmail.com', 'skilmatrix3@gmail.com'];
                     if (adminEmails.includes(email)) {
                         dataPlan = { success: true, plan: 'pro', expiry: '2099-12-31T23:59:59Z' };
                     }
-
+                    
                     if (dataPlan.plan && dataPlan.plan !== 'free') {
                         window._activeUserPlan = dataPlan.plan;
                         window._activeUserExpiry = dataPlan.expiry;
@@ -2423,7 +2318,7 @@ function renderTabContent(tabId) {
                                 </div>
                                 `;
                             }
-                        } catch (e) { console.warn("Failed to fetch payments", e); }
+                        } catch(e) { console.warn("Failed to fetch payments", e); }
 
                         const container = document.querySelector('.sub-container');
                         if (container) {
@@ -2431,7 +2326,7 @@ function renderTabContent(tabId) {
                             const planName = isPro ? 'Premium Scholar' : 'Lab Solutions';
                             const daysLeft = Math.ceil((new Date(dataPlan.expiry) - new Date()) / (1000 * 60 * 60 * 24));
                             const expiryStr = new Date(dataPlan.expiry).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-
+                            
                             container.style.display = 'block'; // Override the default grid layout to allow centering
                             container.innerHTML = `
                             <div style="width: 100%; display: flex; justify-content: center;">
@@ -2469,18 +2364,18 @@ function renderTabContent(tabId) {
                             `;
                         }
                     }
-                } catch (e) { console.warn("Check sub error", e); }
+                } catch(e) { console.warn("Check sub error", e); }
             };
             checkActiveSub();
 
             const SUB_P = {
                 codetantra: {
-                    '1mo': { amount: 19, planId: 'codetantra_1mo' },
-                    '6mo': { amount: 89, planId: 'codetantra_6mo' }
+                    '1mo': { amount:19, planId:'codetantra_1mo' },
+                    '6mo': { amount:89, planId:'codetantra_6mo' }
                 },
                 pro: {
-                    '1mo': { amount: 49, planId: 'pro_1mo' },
-                    '6mo': { amount: 149, planId: 'pro_6mo' }
+                    '1mo': { amount:49, planId:'pro_1mo' },
+                    '6mo': { amount:149, planId:'pro_6mo' }
                 }
             };
             const PLAN_DATA = {
@@ -2543,16 +2438,16 @@ function renderTabContent(tabId) {
                     const { data, error } = await supabase.from('pricing_config').select('*').eq('id', 1).single();
                     if (data && data.plans) {
                         const p = data.plans;
-                        if (p.codetantra_1mo) SUB_P.codetantra['1mo'].amount = p.codetantra_1mo.amount / 100;
-                        if (p.codetantra_6mo) SUB_P.codetantra['6mo'].amount = p.codetantra_6mo.amount / 100;
-                        if (p.pro_1mo) SUB_P.pro['1mo'].amount = p.pro_1mo.amount / 100;
-                        if (p.pro_6mo) SUB_P.pro['6mo'].amount = p.pro_6mo.amount / 100;
+                        if (p.codetantra_1mo) SUB_P.codetantra['1mo'].amount = p.codetantra_1mo.amount/100;
+                        if (p.codetantra_6mo) SUB_P.codetantra['6mo'].amount = p.codetantra_6mo.amount/100;
+                        if (p.pro_1mo)        SUB_P.pro['1mo'].amount        = p.pro_1mo.amount/100;
+                        if (p.pro_6mo)        SUB_P.pro['6mo'].amount        = p.pro_6mo.amount/100;
                         _subRefreshUI();
                     }
-                } catch (e) { console.warn('Pricing realtime error:', e); }
+                } catch(e) { console.warn('Pricing realtime error:', e); }
             };
             _loadPricingFromSupabase();
-
+            
             // Subscribe to pricing changes
             (async () => {
                 try {
@@ -2561,7 +2456,7 @@ function renderTabContent(tabId) {
                         .on('postgres_changes', { event: '*', schema: 'public', table: 'pricing_config' }, payload => {
                             _loadPricingFromSupabase();
                         }).subscribe();
-                } catch (e) { }
+                } catch(e){}
             })();
 
             function _subRefreshUI() {
@@ -2570,27 +2465,27 @@ function renderTabContent(tabId) {
                 const root = document.documentElement;
 
                 // Apply theme CSS variables
-                root.style.setProperty('--sub-accent-color', t.accentColor);
-                root.style.setProperty('--sub-accent-grad', t.accentGrad);
-                root.style.setProperty('--sub-accent-glow', t.accentGlow);
-                root.style.setProperty('--sub-card-border', t.cardBorder);
-                root.style.setProperty('--sub-top-line', t.topLine);
+                root.style.setProperty('--sub-accent-color',  t.accentColor);
+                root.style.setProperty('--sub-accent-grad',   t.accentGrad);
+                root.style.setProperty('--sub-accent-glow',   t.accentGlow);
+                root.style.setProperty('--sub-card-border',   t.cardBorder);
+                root.style.setProperty('--sub-top-line',      t.topLine);
                 root.style.setProperty('--sub-dur-active-bg', t.durActiveBg);
-                root.style.setProperty('--sub-icon-bg', t.iconBg);
-                root.style.setProperty('--sub-icon-color', t.iconColor);
+                root.style.setProperty('--sub-icon-bg',       t.iconBg);
+                root.style.setProperty('--sub-icon-color',    t.iconColor);
 
                 // Update card title
-                document.getElementById('sub-card-tag').textContent = data.tag;
+                document.getElementById('sub-card-tag').textContent  = data.tag;
                 document.getElementById('sub-card-name').textContent = data.name;
-                document.getElementById('sub-card-sub').textContent = data.sub;
+                document.getElementById('sub-card-sub').textContent  = data.sub;
                 const iconEl = document.getElementById('sub-card-icon');
                 if (iconEl) iconEl.innerHTML = data.icon;
 
                 // Update left heading per plan
                 const titleEl = document.getElementById('sub-left-title');
-                const descEl = document.getElementById('sub-left-desc');
+                const descEl  = document.getElementById('sub-left-desc');
                 if (titleEl) titleEl.innerHTML = data.titleHtml;
-                if (descEl) descEl.innerHTML = data.descHtml || data.desc;
+                if (descEl)  descEl.innerHTML = data.descHtml || data.desc;
 
                 // Update contact section accent color
                 const cfhdr = document.querySelector('.sub-contact-hdr i');
@@ -2614,16 +2509,16 @@ function renderTabContent(tabId) {
                 const base1mo = SUB_P[_subPlan]['1mo'].amount;
                 document.getElementById('sub-price-val').textContent = p.amount;
 
-                const note = document.getElementById('sub-billed-note');
+                const note   = document.getElementById('sub-billed-note');
                 const period = document.getElementById('sub-price-period');
-
+                
                 if (_subDur === '6mo') {
                     period.textContent = '/6 months';
                     const totalNormal = base1mo * 6;
                     const savedRs = totalNormal - p.amount;
                     const savedPct = Math.round((savedRs / totalNormal) * 100);
                     const perMo = (p.amount / 6).toFixed(2).replace(/\.00$/, '');
-
+                    
                     note.style.display = 'block';
                     note.innerHTML = `
                         <span class="sub-price-strikethrough" style="display:inline-block; margin-right:10px; font-size:1rem; opacity:0.6;">₹${totalNormal}</span>
@@ -2636,7 +2531,7 @@ function renderTabContent(tabId) {
                 }
 
                 document.getElementById('sub-os-plan').textContent = data.name;
-                document.getElementById('sub-os-dur').textContent = _subDur === '1mo' ? '1 Month' : '6 Months';
+                document.getElementById('sub-os-dur').textContent  = _subDur === '1mo' ? '1 Month' : '6 Months';
 
                 let final = p.amount;
                 if (_subCoupon && _subDisc > 0) {
@@ -2661,25 +2556,25 @@ function renderTabContent(tabId) {
                     const osTotalRow = document.getElementById('sub-os-total')?.parentElement;
                     const osPlan = document.getElementById('sub-os-plan');
                     const osDur = document.getElementById('sub-os-dur');
-
+                    
                     // Logic 1: PRO Plan - Everything is locked
                     if (window._activeUserPlan === 'pro') {
                         btn.innerHTML = `<i class="fas fa-check-circle"></i> Premium Scholar Active`;
                         btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
                         btn.style.boxShadow = '0 6px 28px rgba(16,185,129,0.4)';
                         btn.disabled = true;
-
+                        
                         if (durOptions) durOptions.style.display = 'none';
                         if (couponBox) couponBox.style.display = 'none';
                         if (osTotalRow) osTotalRow.style.display = 'none';
-
+                        
                         if (expiryText && window._activeUserExpiry) {
                             const daysLeft = Math.ceil((new Date(window._activeUserExpiry) - new Date()) / (1000 * 60 * 60 * 24));
                             if (osPlan) osPlan.innerHTML = `Premium Scholar <span style="background:#10b981;color:#000;padding:2px 8px;border-radius:12px;font-size:0.6rem;font-weight:800;margin-left:6px;vertical-align:middle;">ACTIVE</span>`;
                             if (osDur) osDur.parentElement.innerHTML = `<span>Time Remaining</span><span class="val" style="color:#10b981;font-size:1.05rem;display:flex;align-items:center;gap:4px;">${Math.max(0, daysLeft)} Days <i class="fas fa-clock"></i></span>`;
                             expiryText.innerHTML = `Your plan is active and will expire on ${new Date(window._activeUserExpiry).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`;
                         }
-                    }
+                    } 
                     // Logic 2: CodeTantra Plan - Can upgrade to PRO
                     else if (window._activeUserPlan === 'codetantra') {
                         if (_subPlan === 'codetantra') {
@@ -2687,11 +2582,11 @@ function renderTabContent(tabId) {
                             btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
                             btn.style.boxShadow = '0 6px 28px rgba(16,185,129,0.4)';
                             btn.disabled = true;
-
+                            
                             if (durOptions) durOptions.style.display = 'none';
                             if (couponBox) couponBox.style.display = 'none';
                             if (osTotalRow) osTotalRow.style.display = 'none';
-
+                            
                             if (expiryText && window._activeUserExpiry) {
                                 const daysLeft = Math.ceil((new Date(window._activeUserExpiry) - new Date()) / (1000 * 60 * 60 * 24));
                                 if (osPlan) osPlan.innerHTML = `Lab Solutions <span style="background:#10b981;color:#000;padding:2px 8px;border-radius:12px;font-size:0.6rem;font-weight:800;margin-left:6px;vertical-align:middle;">ACTIVE</span>`;
@@ -2718,57 +2613,57 @@ function renderTabContent(tabId) {
                 }
             }
 
-            window.subPickPlan = function (plan) {
+            window.subPickPlan = function(plan) {
                 _subPlan = plan;
                 document.querySelectorAll('.sub-plan-btn').forEach(b => b.classList.remove('active'));
                 document.getElementById(`sp-btn-${plan}`).classList.add('active');
                 _subCoupon = null; _subDisc = 0;
-                const ci = document.getElementById('sub-coupon-inp'); if (ci) ci.value = '';
-                const cf = document.getElementById('sub-coupon-fb'); if (cf) { cf.textContent = ''; cf.className = ''; }
+                const ci = document.getElementById('sub-coupon-inp'); if(ci) ci.value='';
+                const cf = document.getElementById('sub-coupon-fb'); if(cf){cf.textContent='';cf.className='';}
                 _subRefreshUI();
             };
 
-            window.subSetDuration = function (dur) {
+            window.subSetDuration = function(dur) {
                 _subDur = dur;
                 document.querySelectorAll('.sub-dur-opt').forEach(b => b.classList.remove('active'));
                 document.getElementById(`sub-dur-${dur}`).classList.add('active');
                 _subCoupon = null; _subDisc = 0;
-                const ci = document.getElementById('sub-coupon-inp'); if (ci) ci.value = '';
-                const cf = document.getElementById('sub-coupon-fb'); if (cf) { cf.textContent = ''; cf.className = ''; }
+                const ci = document.getElementById('sub-coupon-inp'); if(ci) ci.value='';
+                const cf = document.getElementById('sub-coupon-fb'); if(cf){cf.textContent='';cf.className='';}
                 _subRefreshUI();
             };
 
-            window.subApplyCoupon = async function () {
+            window.subApplyCoupon = async function() {
                 const inp = document.getElementById('sub-coupon-inp');
-                const fb = document.getElementById('sub-coupon-fb');
+                const fb  = document.getElementById('sub-coupon-fb');
                 const code = inp.value.trim().toUpperCase();
-                if (!code) { fb.textContent = 'Enter a coupon code.'; fb.className = 'err'; return; }
-                const btn = document.getElementById('sub-coupon-apply'); btn.disabled = true; btn.textContent = '...';
+                if (!code) { fb.textContent='Enter a coupon code.'; fb.className='err'; return; }
+                const btn = document.getElementById('sub-coupon-apply'); btn.disabled=true; btn.textContent='...';
                 try {
                     const { supabase } = window.supabase ? window : await import('./supabase-config.js');
                     const { data, error } = await supabase.from('pricing_config').select('coupons').eq('id', 1).single();
                     if (data && data.coupons && data.coupons[code] !== undefined) {
                         const couponVal = data.coupons[code];
                         const isObject = typeof couponVal === 'object';
-
+                        
                         if (isObject && couponVal.maxUses && (couponVal.uses || 0) >= couponVal.maxUses) {
-                            _subCoupon = null; _subDisc = 0;
-                            fb.textContent = '❌ Coupon usage limit reached.'; fb.className = 'err';
+                            _subCoupon=null; _subDisc=0;
+                            fb.textContent='❌ Coupon usage limit reached.'; fb.className='err';
                             _subRefreshUI();
                         } else {
                             _subDisc = isObject ? couponVal.discount : couponVal;
                             _subCoupon = code;
-                            fb.textContent = `✅ "${code}" — ${_subDisc}% off applied!`; fb.className = 'ok';
+                            fb.textContent = `✅ "${code}" — ${_subDisc}% off applied!`; fb.className='ok';
                             _subRefreshUI();
                             _subFireConfetti();
                         }
                     } else {
-                        _subCoupon = null; _subDisc = 0;
-                        fb.textContent = '❌ Invalid or expired coupon code.'; fb.className = 'err';
+                        _subCoupon=null; _subDisc=0;
+                        fb.textContent='❌ Invalid or expired coupon code.'; fb.className='err';
                         _subRefreshUI();
                     }
-                } catch (e) { fb.textContent = 'Could not verify. Try again.'; fb.className = 'err'; }
-                btn.disabled = false; btn.textContent = 'Apply';
+                } catch(e) { fb.textContent='Could not verify. Try again.'; fb.className='err'; }
+                btn.disabled=false; btn.textContent='Apply';
             };
 
             // ── Premium Confetti (Party Popper) — fires around coupon box ──
@@ -2791,14 +2686,14 @@ function renderTabContent(tabId) {
                     originX = (rect.left + rect.width / 2) / window.innerWidth;
                     originY = (rect.top + rect.height / 2) / window.innerHeight;
                 }
-                const colors = ['#a78bfa', '#7b61ff', '#60a5fa', '#34d399', '#fbbf24', '#f472b6', '#fff'];
+                const colors = ['#a78bfa','#7b61ff','#60a5fa','#34d399','#fbbf24','#f472b6','#fff'];
                 const base = { colors, zIndex: 9999, disableForReducedMotion: true };
                 // Left burst
-                confetti({ ...base, particleCount: 80, startVelocity: 40, spread: 55, angle: 60, origin: { x: originX - 0.12, y: originY } });
+                confetti({ ...base, particleCount:80, startVelocity:40, spread:55, angle:60,  origin:{x: originX - 0.12, y: originY} });
                 // Right burst
-                confetti({ ...base, particleCount: 80, startVelocity: 40, spread: 55, angle: 120, origin: { x: originX + 0.12, y: originY } });
+                confetti({ ...base, particleCount:80, startVelocity:40, spread:55, angle:120, origin:{x: originX + 0.12, y: originY} });
                 // Up burst
-                confetti({ ...base, particleCount: 40, startVelocity: 30, spread: 80, angle: 90, origin: { x: originX, y: originY + 0.04 } });
+                confetti({ ...base, particleCount:40, startVelocity:30, spread:80, angle:90,  origin:{x: originX, y: originY + 0.04} });
             }
             function _triggerDualConfetti() {
                 // For payment success: full screen dual cannons from edges
@@ -2811,13 +2706,13 @@ function renderTabContent(tabId) {
             }
             function _doFullConfetti() {
                 const count = 250;
-                const colors = ['#a78bfa', '#7b61ff', '#60a5fa', '#34d399', '#fbbf24', '#f472b6', '#fff'];
-                const fire = (ratio, opts) => confetti({ particleCount: Math.floor(count * ratio), colors, zIndex: 9999, ...opts });
-                fire(0.3, { spread: 26, startVelocity: 65, angle: 60, origin: { x: 0, y: 0.9 } });
-                fire(0.25, { spread: 70, startVelocity: 45, angle: 60, origin: { x: 0, y: 0.9 } });
-                fire(0.3, { spread: 26, startVelocity: 65, angle: 120, origin: { x: 1, y: 0.9 } });
-                fire(0.25, { spread: 70, startVelocity: 45, angle: 120, origin: { x: 1, y: 0.9 } });
-                fire(0.15, { spread: 90, startVelocity: 30, angle: 90, origin: { x: 0.5, y: 1 } });
+                const colors = ['#a78bfa','#7b61ff','#60a5fa','#34d399','#fbbf24','#f472b6','#fff'];
+                const fire = (ratio, opts) => confetti({ particleCount: Math.floor(count * ratio), colors, zIndex:9999, ...opts });
+                fire(0.3,  { spread: 26, startVelocity: 65, angle: 60,  origin: { x: 0,   y: 0.9 } });
+                fire(0.25, { spread: 70, startVelocity: 45, angle: 60,  origin: { x: 0,   y: 0.9 } });
+                fire(0.3,  { spread: 26, startVelocity: 65, angle: 120, origin: { x: 1,   y: 0.9 } });
+                fire(0.25, { spread: 70, startVelocity: 45, angle: 120, origin: { x: 1,   y: 0.9 } });
+                fire(0.15, { spread: 90, startVelocity: 30, angle: 90,  origin: { x: 0.5, y: 1   } });
             }
 
             // ── Premium Popup ──
@@ -2843,11 +2738,11 @@ function renderTabContent(tabId) {
                 if (success) setTimeout(_triggerDualConfetti, 100);
             }
 
-            window.subProceedToPay = async function () {
+            window.subProceedToPay = async function() {
                 if (!_subPlan) return;
                 const raw = localStorage.getItem('auth_user_full');
                 const fbUser = window.firebaseServices && window.firebaseServices.auth && window.firebaseServices.auth.currentUser;
-                const u = fbUser || (raw ? (() => { try { return JSON.parse(raw); } catch (e) { return null; } })() : null);
+                const u = fbUser || (raw ? (() => { try { return JSON.parse(raw); } catch(e) { return null; } })() : null);
                 if (!u) { alert('Please login to purchase.'); return; }
                 const uid = u.uid || u.id, email = u.email || '';
 
@@ -2860,12 +2755,12 @@ function renderTabContent(tabId) {
 
                 try {
                     const res = await fetch(`${_apiUrlSub}/api/create-order`, {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        method:'POST', headers:{'Content-Type':'application/json'},
                         body: JSON.stringify({ planId: p.planId, uid, couponCode: _subCoupon || null })
                     });
                     const data = await res.json();
                     if (!data.success) throw new Error(data.error || 'Failed to create order');
-
+                    
                     if (data.zeroAmount) {
                         // 100% discount applied and plan activated successfully on backend!
                         _subShowPopup(true, planName);
@@ -2879,12 +2774,12 @@ function renderTabContent(tabId) {
                         amount: data.order.amount,
                         currency: 'INR',
                         name: 'SKiL MATRiX Notes',
-                        description: `${planName} — ${_subDur === '1mo' ? '1 Month' : '6 Months'}${_subCoupon ? ` (${_subCoupon})` : ''}`,
+                        description: `${planName} — ${_subDur === '1mo'?'1 Month':'6 Months'}${_subCoupon ? ` (${_subCoupon})` : ''}`,
                         order_id: data.order.id,
-                        handler: async function (r) {
+                        handler: async function(r) {
                             try {
                                 const vr = await fetch(`${_apiUrlSub}/api/verify-payment`, {
-                                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                    method:'POST', headers:{'Content-Type':'application/json'},
                                     body: JSON.stringify({
                                         razorpay_order_id: r.razorpay_order_id,
                                         razorpay_payment_id: r.razorpay_payment_id,
@@ -2899,24 +2794,24 @@ function renderTabContent(tabId) {
                                 } else {
                                     _subShowPopup(false);
                                 }
-                            } catch (err) { _subShowPopup(false); }
+                            } catch(err) { _subShowPopup(false); }
                         },
                         prefill: { email },
                         theme: { color: '#7b61ff' },
                         modal: {
-                            ondismiss: function () {
+                            ondismiss: function() {
                                 btn.disabled = false;
                                 btn.textContent = originalText;
                             }
                         }
                     });
-                    rzp.on('payment.failed', function () {
+                    rzp.on('payment.failed', function() {
                         _subShowPopup(false);
                         btn.disabled = false;
                         btn.textContent = originalText;
                     });
                     rzp.open();
-                } catch (e) {
+                } catch(e) {
                     alert(e.message || 'Something went wrong.');
                     btn.disabled = false;
                     btn.textContent = originalText;
@@ -2927,7 +2822,7 @@ function renderTabContent(tabId) {
             _subRefreshUI();
 
             // Enter key on coupon
-            document.getElementById('sub-coupon-inp')?.addEventListener('keydown', e => { if (e.key === 'Enter') subApplyCoupon(); });
+            document.getElementById('sub-coupon-inp')?.addEventListener('keydown', e => { if(e.key==='Enter') subApplyCoupon(); });
 
 
         } else {
@@ -2947,7 +2842,7 @@ function renderTabContent(tabId) {
 }
 
 
-window.addCustomTopic = function () {
+window.addCustomTopic = function() {
     const input = document.getElementById('p-custom-topic');
     const val = input.value.trim();
     if (!val) return;
@@ -2956,16 +2851,16 @@ window.addCustomTopic = function () {
     chip.className = 'chip active';
     chip.dataset.val = val;
     chip.style.cssText = "padding: 0.5rem 1rem; border: 1px solid var(--primary); background: var(--primary); color: #fff; border-radius: 20px; cursor: pointer; font-size: 0.8rem; transition: all 0.3s ease;";
-    chip.onclick = function () {
+    chip.onclick = function() {
         this.classList.toggle('active');
-        if (this.classList.contains('active')) {
-            this.style.background = 'var(--primary)';
-            this.style.color = '#fff';
-            this.style.borderColor = 'var(--primary)';
+        if(this.classList.contains('active')) {
+            this.style.background='var(--primary)';
+            this.style.color='#fff';
+            this.style.borderColor='var(--primary)';
         } else {
-            this.style.background = 'transparent';
-            this.style.color = 'var(--text-bright)';
-            this.style.borderColor = 'var(--border-glass)';
+            this.style.background='transparent';
+            this.style.color='var(--text-bright)';
+            this.style.borderColor='var(--border-glass)';
         }
     };
     chip.innerText = val;
@@ -3060,7 +2955,7 @@ window.handleGeneratePlan = async function () {
     // Premium Loading UI
     btn.disabled = true;
     btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Initializing Engine...`;
-
+    
     // Step 1: Initializing
     container.innerHTML = `
         <div style="text-align: center; padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
@@ -3077,11 +2972,11 @@ window.handleGeneratePlan = async function () {
     try {
         // Fake AI Processing Delays
         await new Promise(r => setTimeout(r, 1200));
-        if (document.getElementById('ai-loading-text')) document.getElementById('ai-loading-text').innerText = "Analyzing Weak Topics...";
+        if(document.getElementById('ai-loading-text')) document.getElementById('ai-loading-text').innerText = "Analyzing Weak Topics...";
         await new Promise(r => setTimeout(r, 1500));
-        if (document.getElementById('ai-loading-text')) document.getElementById('ai-loading-text').innerText = "Optimizing Cognitive Load...";
+        if(document.getElementById('ai-loading-text')) document.getElementById('ai-loading-text').innerText = "Optimizing Cognitive Load...";
         await new Promise(r => setTimeout(r, 1200));
-        if (document.getElementById('ai-loading-text')) document.getElementById('ai-loading-text').innerText = "Generating Final Blueprint...";
+        if(document.getElementById('ai-loading-text')) document.getElementById('ai-loading-text').innerText = "Generating Final Blueprint...";
         await new Promise(r => setTimeout(r, 800));
 
         // Generate Advanced Pomodoro Plan
@@ -3099,9 +2994,9 @@ window.handleGeneratePlan = async function () {
 
         let topicsPool = [...weakTopics];
         if (topicsPool.length === 0) topicsPool = ["Core Syllabus", "Previous Year Papers", "Formula Revision"];
-
+        
         let topicIdx = 0;
-
+        
         // Block 0: Setup
         plan.push({
             type: 'Revise',
@@ -3112,14 +3007,14 @@ window.handleGeneratePlan = async function () {
         });
         currentHour += 0.5;
         rem -= 0.5;
-
+        
         let sessionCount = 1;
         while (rem >= 1.5) {
             let currentTopic = topicsPool[topicIdx % topicsPool.length];
-
+            
             const studyMethods = ['Feynman Technique', 'Spaced Repetition', 'Deep Concept Mapping', 'Core Principle Breakdown'];
             const method = studyMethods[topicIdx % studyMethods.length];
-
+            
             plan.push({
                 type: 'Learn',
                 time: `${formatTime(currentHour)} - ${formatTime(currentHour + 1)}`,
@@ -3129,7 +3024,7 @@ window.handleGeneratePlan = async function () {
             });
             currentHour += 1;
             rem -= 1;
-
+            
             plan.push({
                 type: 'Practice',
                 time: `${formatTime(currentHour)} - ${formatTime(currentHour + 0.5)}`,
@@ -3139,10 +3034,10 @@ window.handleGeneratePlan = async function () {
             });
             currentHour += 0.5;
             rem -= 0.5;
-
+            
             topicIdx++;
             sessionCount++;
-
+            
             // Add a 30 min break
             if (rem > 0) {
                 plan.push({
@@ -3155,7 +3050,7 @@ window.handleGeneratePlan = async function () {
                 currentHour += 0.5;
             }
         }
-
+        
         if (rem > 0) {
             plan.push({
                 type: 'Revise',
@@ -3363,7 +3258,7 @@ function renderTimetable() {
                     <label style="font-size: 0.7rem; color: #64748b; font-weight: 700; margin-bottom: 0.5rem; display: block; text-transform: uppercase; letter-spacing: 0.1em;">Current Semester</label>
                     <select id="user-tt-sem" class="tt-select-pro" onchange="window.initTimetable()">
                         <option value="">-- Select Semester --</option>
-                        ${[1, 2, 3, 4, 5, 6, 7, 8].map(s => `<option value="Semester ${s}">Semester ${s}</option>`).join('')}
+                        ${[1,2,3,4,5,6,7,8].map(s => `<option value="Semester ${s}">Semester ${s}</option>`).join('')}
                     </select>
                 </div>
             </div>
@@ -3380,32 +3275,32 @@ function renderTimetable() {
 }
 
 // Global Helper Scripts for Timetable Integrations
-window.goToPlannerForExam = function (subject, dateStr) {
+window.goToPlannerForExam = function(subject, dateStr) {
     localStorage.setItem('tt_planner_subject', subject);
     localStorage.setItem('tt_planner_date', dateStr);
-
+    
     const sidebarLinks = document.querySelectorAll('.nav-item');
     sidebarLinks.forEach(l => l.classList.remove('active'));
     const plannerLink = Array.from(sidebarLinks).find(l => l.getAttribute('onclick')?.includes('planner'));
-    if (plannerLink) plannerLink.classList.add('active');
-
-    if (window.renderTabContent) window.renderTabContent('planner');
+    if(plannerLink) plannerLink.classList.add('active');
+    
+    if(window.renderTabContent) window.renderTabContent('planner');
 };
 
-window.goToNotesForExam = function (subject, college, branch, semester) {
+window.goToNotesForExam = function(subject, college, branch, semester) {
     let cleanSubject = subject.split(' (')[0].trim().toLowerCase();
     let foundSubjectObj = null;
 
     if (college && branch && semester && window.GlobalData && window.GlobalData.subjects) {
         const key = `${branch}-${semester}`;
         if (window.GlobalData.subjects[key]) {
-            foundSubjectObj = window.GlobalData.subjects[key].find(s =>
-                s.name.toLowerCase() === cleanSubject ||
+            foundSubjectObj = window.GlobalData.subjects[key].find(s => 
+                s.name.toLowerCase() === cleanSubject || 
                 (s.code && s.code.toLowerCase() === cleanSubject)
             );
         }
     }
-
+    
     // If it's a custom subject, create a dynamic object for it!
     if (!foundSubjectObj && college && branch && semester) {
         foundSubjectObj = {
@@ -3413,11 +3308,11 @@ window.goToNotesForExam = function (subject, college, branch, semester) {
             name: subject.split(' (')[0].trim()
         };
     }
-
+    
     if (foundSubjectObj && college && branch && semester) {
-        const collegeObj = (window.GlobalData?.colleges || []).find(c => c.id === college) || { id: college, name: college };
-        const branchObj = (window.GlobalData?.branches || []).find(b => b.id === branch) || { id: branch, name: branch };
-
+        const collegeObj = (window.GlobalData?.colleges || []).find(c => c.id === college) || {id: college, name: college};
+        const branchObj = (window.GlobalData?.branches || []).find(b => b.id === branch) || {id: branch, name: branch};
+        
         window.selState = {
             college: collegeObj,
             branch: branchObj,
@@ -3425,14 +3320,14 @@ window.goToNotesForExam = function (subject, college, branch, semester) {
             year: null,
             subject: foundSubjectObj
         };
-
+        
         const sidebarLinks = document.querySelectorAll('.nav-item');
         sidebarLinks.forEach(l => l.classList.remove('active'));
         const notesLink = Array.from(sidebarLinks).find(l => l.getAttribute('onclick')?.includes('notes'));
-        if (notesLink) notesLink.classList.add('active');
-
-        if (window.renderTabContent) window.renderTabContent('notes');
-
+        if(notesLink) notesLink.classList.add('active');
+        
+        if(window.renderTabContent) window.renderTabContent('notes');
+        
         // Visually update the URL hash
         const semFormatted = semester.toLowerCase().replace(/\s+/g, '-');
         window.history.replaceState(null, '', `#/notes/${college}/${branch}/year/${semFormatted}/${foundSubjectObj.id}`);
@@ -3441,33 +3336,33 @@ window.goToNotesForExam = function (subject, college, branch, semester) {
 
     // Fallback to global search
     localStorage.setItem('searchQuery', subject);
-
+    
     const sidebarLinks = document.querySelectorAll('.nav-item');
     sidebarLinks.forEach(l => l.classList.remove('active'));
     const homeLink = Array.from(sidebarLinks).find(l => l.getAttribute('onclick')?.includes('home'));
-    if (homeLink) homeLink.classList.add('active');
-
-    if (window.renderTabContent) window.renderTabContent('home');
-
+    if(homeLink) homeLink.classList.add('active');
+    
+    if(window.renderTabContent) window.renderTabContent('home');
+    
     setTimeout(() => {
         const searchBox = document.getElementById('global-search');
-        if (searchBox) {
+        if(searchBox) {
             searchBox.value = subject;
-            if (window.filterGlobalSearch) window.filterGlobalSearch();
+            if(window.filterGlobalSearch) window.filterGlobalSearch();
         }
     }, 300);
 };
 
-window.downloadICS = function (subject, dateStr) {
+window.downloadICS = function(subject, dateStr) {
     const d = new Date(dateStr);
-    const endD = new Date(d.getTime() + 2 * 60 * 60 * 1000);
-
+    const endD = new Date(d.getTime() + 2 * 60 * 60 * 1000); 
+    
     const fmt = date => {
         return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     };
-
-    const icsContent =
-        `BEGIN:VCALENDAR
+    
+    const icsContent = 
+`BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//SkillNotes//ExamTimetable//EN
 CALSCALE:GREGORIAN
@@ -3495,14 +3390,14 @@ END:VCALENDAR`;
     document.body.removeChild(link);
 };
 
-window.initTimetable = async function () {
+window.initTimetable = async function() {
     const col = document.getElementById('user-tt-college').value;
     const br = document.getElementById('user-tt-branch').value;
     const sem = document.getElementById('user-tt-sem').value;
     const list = document.getElementById('tt-user-list');
-
-    if (!col || !br || !sem) return;
-
+    
+    if(!col || !br || !sem) return;
+    
     list.innerHTML = `
         <style>
         @keyframes spin-glow { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -3519,10 +3414,10 @@ window.initTimetable = async function () {
                 <p style="margin: 0; color: var(--text-dim); font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; opacity: 0.8; animation: pulse 1.5s infinite alternate;">Connecting to secure cloud nodes...</p>
             </div>
         </div>`;
-
+    
     // Stop any existing intervals
-    if (window._ttInterval) clearInterval(window._ttInterval);
-
+    if(window._ttInterval) clearInterval(window._ttInterval);
+    
     try {
         const { supabase } = await import('./supabase-config.js?v=1.0');
         const { data, error } = await supabase.from('exam_timetable')
@@ -3531,10 +3426,10 @@ window.initTimetable = async function () {
             .eq('branch', br)
             .eq('semester', sem)
             .order('exam_date', { ascending: true });
-
-        if (error) throw error;
-
-        if (!data || data.length === 0) {
+            
+        if(error) throw error;
+        
+        if(!data || data.length === 0) {
             list.innerHTML = `<div style="text-align: center; padding: 4rem; opacity: 0.6;">
                 <div style="font-size: 3rem; margin-bottom: 1rem; text-shadow: 0 0 20px rgba(52, 211, 153, 0.3);">🎉</div>
                 <h3 style="margin-bottom: 0.5rem; color: var(--text-main); font-size: 1.1rem;">No exams scheduled!</h3>
@@ -3542,35 +3437,35 @@ window.initTimetable = async function () {
             </div>`;
             return;
         }
-
+        
         window._ttCurrentExams = data;
         renderTimetableCards();
         window._ttInterval = setInterval(renderTimetableCards, 60000); // Update every minute
-
-    } catch (e) {
+        
+    } catch(e) {
         list.innerHTML = `<div style="text-align:center; color:#ff4757; padding:3rem;">Error: ${e.message}</div>`;
     }
 };
 
 function renderTimetableCards() {
     const list = document.getElementById('tt-user-list');
-    if (!list || !window._ttCurrentExams) return;
-
+    if(!list || !window._ttCurrentExams) return;
+    
     const now = new Date();
-
+    
     list.innerHTML = window._ttCurrentExams.map((ex, index) => {
         const examDate = new Date(ex.exam_date);
         const diffMs = examDate - now;
-
+        
         // Consistent Pseudo-random number for live studying based on subject hash
-        const hash = ex.subject.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0);
-        const liveCount = Math.abs(hash % 45) + 12;
-
+        const hash = ex.subject.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+        const liveCount = Math.abs(hash % 45) + 12; 
+        
         let statusHtml = '';
         let cardStyle = '';
         let iconHtml = '';
-
-        if (diffMs < 0) {
+        
+        if(diffMs < 0) {
             statusHtml = `<span style="background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; color: rgba(255,255,255,0.5); font-weight: 600; border: 1px solid rgba(255,255,255,0.1); letter-spacing: 0.5px;">✓ COMPLETED</span>`;
             cardStyle = 'background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-left: 1px solid rgba(255, 255, 255, 0.05); opacity: 0.65;';
             iconHtml = `<div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 1px solid rgba(255,255,255,0.05); filter: grayscale(1);">✓</div>`;
@@ -3578,11 +3473,11 @@ function renderTimetableCards() {
             const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
             const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
             const mins = Math.floor((diffMs / 1000 / 60) % 60);
-
+            
             // Single premium style for all upcoming exams
             cardStyle = 'background: #000000; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 40px rgba(0,0,0,0.6);';
             iconHtml = `<div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(255, 255, 255, 0.04); color: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 1px solid rgba(255, 255, 255, 0.08);">📘</div>`;
-
+            
             statusHtml = `
                 <div style="display: flex; gap: 0.6rem; margin-top: 0;">
                     <div class="tt-countdown-box">
@@ -3600,9 +3495,9 @@ function renderTimetableCards() {
                 </div>
             `;
         }
-
+        
         const animDelay = index * 0.1;
-
+        
         return `
             <div class="tt-premium-card tt-exam-card" style="padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 0.8rem; ${cardStyle} animation: slideUp 0.3s ease ${animDelay}s both; position: relative; border-radius: 16px;">
                 
@@ -3646,13 +3541,13 @@ function renderAITools() {
         try {
             const raw = localStorage.getItem('auth_user_full');
             const fbUser = window.firebaseServices && window.firebaseServices.auth && window.firebaseServices.auth.currentUser;
-            const u = fbUser || (raw ? (() => { try { return JSON.parse(raw); } catch (e) { return null; } })() : null);
+            const u = fbUser || (raw ? (() => { try { return JSON.parse(raw); } catch(e) { return null; } })() : null);
             if (!u) return;
             const uid = u.uid || u.id;
             const apiUrl = location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
             const res = await fetch(`${apiUrl}/api/user-plan?uid=${uid}&_t=${Date.now()}`);
             let data = await res.json();
-
+            
             // Admin override for premium AI coach
             try {
                 const u = JSON.parse(localStorage.getItem('auth_user_full') || '{}');
@@ -3661,7 +3556,7 @@ function renderAITools() {
                 if (adminEmails.includes(email)) {
                     data = { success: true, plan: 'pro', expiry: '2099-12-31T23:59:59Z' };
                 }
-            } catch (e) { }
+            } catch(e) {}
             if (!data.plan || data.plan === 'free') {
                 if (localStorage.getItem('is_premium_' + uid) === 'true') {
                     if (window.revertToFreeAI) window.revertToFreeAI();
@@ -3671,12 +3566,12 @@ function renderAITools() {
                     if (window.unlockPremiumAI) window.unlockPremiumAI();
                 }
             }
-        } catch (e) { console.warn("AI Coach Backend Sync Error:", e); }
+        } catch(e) { console.warn("AI Coach Backend Sync Error:", e); }
     }, 50);
 
     const rawUser = localStorage.getItem('auth_user_full');
     let aiUid = 'guest';
-    if (rawUser) { try { const u = JSON.parse(rawUser); aiUid = u.uid || u.id || 'guest'; } catch (e) { } }
+    if (rawUser) { try { const u = JSON.parse(rawUser); aiUid = u.uid || u.id || 'guest'; } catch(e) {} }
 
     let todayDate = new Date().toDateString();
     let storedDate = localStorage.getItem('ai_usage_date_' + aiUid);
@@ -4268,47 +4163,47 @@ function renderAITools() {
     `;
 }
 
-window.unlockPremiumAI = function () {
+window.unlockPremiumAI = function() {
     const rawUser = localStorage.getItem('auth_user_full');
     let aiUid = 'guest';
-    if (rawUser) { try { const u = JSON.parse(rawUser); aiUid = u.uid || u.id || 'guest'; } catch (e) { } }
+    if (rawUser) { try { const u = JSON.parse(rawUser); aiUid = u.uid || u.id || 'guest'; } catch(e) {} }
     localStorage.setItem('is_premium_' + aiUid, 'true');
-
+    
     // Remove overlay
     const overlay = document.getElementById('premium-lock-overlay');
     if (overlay) overlay.remove();
-
+    
     // Upgrade header instantly
     const icon = document.getElementById('ai-header-icon');
     const title = document.getElementById('ai-header-title');
     const badge = document.getElementById('ai-pro-badge');
-
+    
     if (icon) { icon.classList.remove('free-tier'); icon.classList.add('premium-tier'); }
     if (title) { title.classList.remove('free-tier'); title.classList.add('premium-tier'); }
-    if (badge) {
-        badge.classList.remove('free-tier');
-        badge.classList.add('premium-tier');
-        badge.textContent = 'PRO';
+    if (badge) { 
+        badge.classList.remove('free-tier'); 
+        badge.classList.add('premium-tier'); 
+        badge.textContent = 'PRO'; 
     }
 };
 
-window.revertToFreeAI = function () {
+window.revertToFreeAI = function() {
     const rawUser = localStorage.getItem('auth_user_full');
     let aiUid = 'guest';
-    if (rawUser) { try { const u = JSON.parse(rawUser); aiUid = u.uid || u.id || 'guest'; } catch (e) { } }
+    if (rawUser) { try { const u = JSON.parse(rawUser); aiUid = u.uid || u.id || 'guest'; } catch(e) {} }
     localStorage.setItem('is_premium_' + aiUid, 'false');
-
+    
     // Downgrade header instantly
     const icon = document.getElementById('ai-header-icon');
     const title = document.getElementById('ai-header-title');
     const badge = document.getElementById('ai-pro-badge');
-
+    
     if (icon) { icon.classList.remove('premium-tier'); icon.classList.add('free-tier'); }
     if (title) { title.classList.remove('premium-tier'); title.classList.add('free-tier'); }
-    if (badge) {
-        badge.classList.remove('premium-tier');
-        badge.classList.add('free-tier');
-        badge.textContent = 'FREE';
+    if (badge) { 
+        badge.classList.remove('premium-tier'); 
+        badge.classList.add('free-tier'); 
+        badge.textContent = 'FREE'; 
     }
 
     // Immediately show lock if usage is already >= MAX_FREE_USAGE
@@ -4318,7 +4213,7 @@ window.revertToFreeAI = function () {
     }
 };
 
-window.showPremiumLockOverlay = function () {
+window.showPremiumLockOverlay = function() {
     const container = document.querySelector('.ai-premium-container');
     if (container && !document.getElementById('premium-lock-overlay')) {
         const overlay = document.createElement('div');
@@ -4336,7 +4231,7 @@ window.showPremiumLockOverlay = function () {
     }
 };
 
-window.useQuickPrompt = function (promptText) {
+window.useQuickPrompt = function(promptText) {
     const input = document.getElementById('ai-chat-input');
     if (input) {
         input.value = promptText;
@@ -4344,37 +4239,37 @@ window.useQuickPrompt = function (promptText) {
     }
 };
 
-window.startAIVoiceInput = function () {
+window.startAIVoiceInput = function() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
         alert("Your browser does not support Voice Input. Please use Chrome or Edge.");
         return;
     }
-
+    
     const micBtn = document.getElementById('ai-mic-btn');
     if (micBtn) {
         micBtn.style.color = '#ff4757';
         micBtn.style.background = 'rgba(255,71,87,0.1)';
         micBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     }
-
+    
     const recognition = new SpeechRecognition();
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
-
-    recognition.onresult = async function (event) {
+    
+    recognition.onresult = async function(event) {
         const text = event.results[0][0].transcript;
-
+        
         try {
             const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=${encodeURIComponent(text)}`);
             const data = await res.json();
             const translatedText = data[0][0][0];
-
+            
             const input = document.getElementById('ai-chat-input');
             if (input) {
                 input.value = input.value + (input.value ? ' ' : '') + translatedText;
             }
-        } catch (e) {
+        } catch(e) {
             console.error("Translation failed, using original text", e);
             const input = document.getElementById('ai-chat-input');
             if (input) {
@@ -4383,8 +4278,8 @@ window.startAIVoiceInput = function () {
         }
         resetMicBtn();
     };
-
-    recognition.onerror = function (event) {
+    
+    recognition.onerror = function(event) {
         console.error('Speech recognition error:', event.error);
         if (event.error === 'not-allowed') {
             alert("Microphone access was denied. Please allow microphone permissions in your browser settings.");
@@ -4393,11 +4288,11 @@ window.startAIVoiceInput = function () {
         }
         resetMicBtn();
     };
-
-    recognition.onend = function () {
+    
+    recognition.onend = function() {
         resetMicBtn();
     };
-
+    
     function resetMicBtn() {
         if (micBtn) {
             micBtn.style.color = '#71717a';
@@ -4405,7 +4300,7 @@ window.startAIVoiceInput = function () {
             micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
         }
     }
-
+    
     try {
         recognition.start();
     } catch (e) {
@@ -4414,12 +4309,12 @@ window.startAIVoiceInput = function () {
     }
 };
 
-window.handleAIChatSubmit = async function (e) {
+window.handleAIChatSubmit = async function(e) {
     e.preventDefault();
 
     const rawUser = localStorage.getItem('auth_user_full');
     let aiUid = 'guest';
-    if (rawUser) { try { const u = JSON.parse(rawUser); aiUid = u.uid || u.id || 'guest'; } catch (e) { } }
+    if (rawUser) { try { const u = JSON.parse(rawUser); aiUid = u.uid || u.id || 'guest'; } catch(e) {} }
 
     let todayDate = new Date().toDateString();
     let storedDate = localStorage.getItem('ai_usage_date_' + aiUid);
@@ -4431,7 +4326,7 @@ window.handleAIChatSubmit = async function (e) {
     let isPremium = localStorage.getItem('is_premium_' + aiUid) === 'true';
     let aiUsage = parseInt(localStorage.getItem('ai_usage_count_' + aiUid) || '0');
     const MAX_FREE_USAGE = 5;
-
+    
     if (!isPremium && aiUsage >= MAX_FREE_USAGE) {
         window.showPremiumLockOverlay();
         return;
@@ -4444,7 +4339,7 @@ window.handleAIChatSubmit = async function (e) {
     if (!isPremium) {
         aiUsage++;
         localStorage.setItem('ai_usage_count_' + aiUid, aiUsage);
-
+        
         if (aiUsage >= MAX_FREE_USAGE) {
             setTimeout(() => {
                 window.showPremiumLockOverlay();
@@ -4453,7 +4348,7 @@ window.handleAIChatSubmit = async function (e) {
     }
 
     input.value = '';
-    input.style.height = '';
+    input.style.height = ''; 
     const historyBox = document.getElementById('ai-chat-history');
 
     const quickPrompts = document.getElementById('ai-quick-prompts');
@@ -4490,10 +4385,10 @@ window.handleAIChatSubmit = async function (e) {
         }
 
         document.getElementById(loaderId).remove();
-
+        
         let mathBlocks = [];
         let processedAnswer = answer;
-
+        
         processedAnswer = processedAnswer.replace(/\$\$[\s\S]*?\$\$/g, match => {
             mathBlocks.push(match); return `@@@MATH_${mathBlocks.length - 1}@@@`;
         });
@@ -4508,7 +4403,7 @@ window.handleAIChatSubmit = async function (e) {
         });
 
         let finalHtml = window.marked && window.marked.parse ? marked.parse(processedAnswer) : processedAnswer.replace(/\n/g, '<br>');
-
+        
         mathBlocks.forEach((block, index) => {
             finalHtml = finalHtml.replace(`@@@MATH_${index}@@@`, () => block);
         });
@@ -4522,19 +4417,19 @@ window.handleAIChatSubmit = async function (e) {
                 </div>
             </div>
         `);
-
+        
         if (window.renderMathInElement) {
             try {
                 renderMathInElement(document.getElementById(msgId), {
                     delimiters: [
-                        { left: '$$', right: '$$', display: true },
-                        { left: '$', right: '$', display: false },
-                        { left: '\\(', right: '\\)', display: false },
-                        { left: '\\[', right: '\\]', display: true }
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
                     ],
                     throwOnError: false
                 });
-            } catch (e) { }
+            } catch(e) {}
         }
     } catch (err) {
         document.getElementById(loaderId).remove();
@@ -4550,7 +4445,7 @@ window.handleAIChatSubmit = async function (e) {
     historyBox.scrollTop = historyBox.scrollHeight;
 }
 
-window.copyAIBubbleText = function (btn) {
+window.copyAIBubbleText = function(btn) {
     try {
         const bubble = btn.closest('.chat-message').querySelector('.msg-bubble');
         if (bubble) {
@@ -4745,7 +4640,7 @@ function renderOverview() {
                 </div>
                 <div class="qa-card-wrapper" style="border-color: rgba(0,229,255,0.2);">
                     <div style="flex: 1; text-align: center;">
-                        <div id="total-views-count" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">${window.globalAnalyticsData?.adminTotalViews ? window.globalAnalyticsData.adminTotalViews : (totalViews >= 1000 ? (totalViews / 1000).toFixed(1) + 'k+' : (totalViews > 0 ? totalViews : 0))}</div>
+                        <div id="total-views-count" style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">${window.globalAnalyticsData?.adminTotalViews ? window.globalAnalyticsData.adminTotalViews : (totalViews >= 1000 ? (totalViews/1000).toFixed(1) + 'k+' : (totalViews > 0 ? totalViews : 0))}</div>
                         <div style="font-size: 0.75rem; color: #00e5ff; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                             <img src="https://img.icons8.com/fluency/48/visible.png" style="width: 18px; height: 18px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));" alt="Views"> TOTAL VIEWS
                         </div>
@@ -5319,31 +5214,17 @@ window.processNote = async function (noteId, newStatus) {
 window.updateUpBranches = function () {
     const stream = document.getElementById('up-stream').value;
     const branchSelect = document.getElementById('up-branch');
-    const collegeId = document.getElementById('up-college') ? document.getElementById('up-college').value : null;
 
-    let flowBranches = GlobalData.branches;
-
+    // Find branches for this stream from GlobalData
     const streamObj = GlobalData.streams.find(s => s.id === stream);
-    if (streamObj && streamObj.branches && streamObj.branches.length > 0) {
-        flowBranches = flowBranches.filter(b => streamObj.branches.includes(b.id));
+    let branches = [];
+    if (streamObj) {
+        branches = GlobalData.branches.filter(b => streamObj.branches.includes(b.id));
+    } else {
+        branches = GlobalData.branches;
     }
 
-    flowBranches = flowBranches.filter(b => {
-        const allowedStream = !b.streams || b.streams.length === 0 || b.streams.includes(stream);
-        const allowedCollege = !b.colleges || b.colleges.length === 0 || b.colleges.includes(collegeId);
-        return allowedStream && allowedCollege;
-    });
-
-    if (flowBranches.length === 0) {
-        flowBranches = GlobalData.branches.filter(b => {
-             const allowedStream = !b.streams || b.streams.length === 0 || b.streams.includes(stream);
-             const allowedCollege = !b.colleges || b.colleges.length === 0 || b.colleges.includes(collegeId);
-             return allowedStream && allowedCollege;
-        }); 
-        if (flowBranches.length === 0) flowBranches = GlobalData.branches; // Ultimate fallback
-    }
-
-    branchSelect.innerHTML = flowBranches.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+    branchSelect.innerHTML = branches.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
 };
 
 
@@ -5552,14 +5433,8 @@ function renderStreamStep() {
     document.getElementById('explorer-sub-title').innerText = `Which program are you enrolled in at ${selState.college.name}?`;
 
     const container = document.getElementById('explorer-content');
-    
-    const currentCollegeId = selState.college ? selState.college.id : null;
-    let flowStreams = GlobalData.streams;
-    if (currentCollegeId) {
-        flowStreams = GlobalData.streams.filter(s => !s.colleges || s.colleges.length === 0 || s.colleges.includes(currentCollegeId));
-    }
-
-    container.innerHTML = flowStreams.map(s => `
+    // For now, showing all streams. In future, can filter by college if needed.
+    container.innerHTML = GlobalData.streams.map(s => `
         <div class="selection-card glass-card fade-in" onclick="selectStream('${s.id}', '${s.name}')">
             <div class="card-icon" style="background: rgba(108, 99, 255, 0.1); color: var(--primary); width: 60px; height: 60px; display: flex; align-items:center; justify-content:center; border-radius: 12px; margin: 0 auto; font-size: 1.5rem;">${s.icon}</div>
             <h3 class="font-heading" style="margin-top: 1.5rem;">${s.name}</h3>
@@ -5589,31 +5464,20 @@ function renderBranchStep() {
 
     const container = document.getElementById('explorer-content');
 
+    // Filter branches based on selected stream logic
     let flowBranches = GlobalData.branches;
-    const currentStreamId = selState.stream ? selState.stream.id : null;
-    const currentCollegeId = selState.college ? selState.college.id : null;
 
+    // If a stream is selected and we have a definition for it, filter
+    const currentStreamId = selState.stream ? selState.stream.id : null;
     const streamDef = GlobalData.streams.find(s => s.id === currentStreamId);
 
-    if (streamDef && streamDef.branches && streamDef.branches.length > 0) {
-        flowBranches = flowBranches.filter(b => streamDef.branches.includes(b.id));
+    if (streamDef && streamDef.branches) {
+        flowBranches = GlobalData.branches.filter(b => streamDef.branches.includes(b.id));
     }
 
-    // Apply relational mapping checks
-    flowBranches = flowBranches.filter(b => {
-        const allowedStream = !b.streams || b.streams.length === 0 || b.streams.includes(currentStreamId);
-        const allowedCollege = !b.colleges || b.colleges.length === 0 || b.colleges.includes(currentCollegeId);
-        return allowedStream && allowedCollege;
-    });
-
+    // Default fallback if no branches match (e.g. MBA might not have matched branches in 'branches' array yet)
     if (flowBranches.length === 0) {
-        // Fallback to relational mapping checks alone (ignore streamDef.branches array if it missed)
-        flowBranches = GlobalData.branches.filter(b => {
-             const allowedStream = !b.streams || b.streams.length === 0 || b.streams.includes(currentStreamId);
-             const allowedCollege = !b.colleges || b.colleges.length === 0 || b.colleges.includes(currentCollegeId);
-             return allowedStream && allowedCollege;
-        }); 
-        if (flowBranches.length === 0) flowBranches = GlobalData.branches; // Ultimate fallback
+        flowBranches = GlobalData.branches; // Fallback or show empty message
     }
 
     container.innerHTML = flowBranches.map(b => `
@@ -5693,6 +5557,15 @@ async function renderSubjectStep() {
     const container = document.getElementById('explorer-content');
     container.innerHTML = `<div class="ap-loader" style="grid-column: 1/-1; margin: 4rem auto;"><div class="ap-spin"></div><p style="color:var(--text-dim); margin-top:1rem;">Loading subjects...</p></div>`;
 
+    // Try College-Specific Key first, then fallback to Common Key
+    const collegeKey = `${selState.college.id}-${selState.branch.id}-${selState.semester}`;
+    const commonKey = `${selState.branch.id}-${selState.semester}`;
+    
+    // Only use the global/common fallback if the college is Medicaps
+    const globalSubjects = selState.college.id === 'medicaps' || selState.college.id.includes('medicaps')
+        ? (GlobalData.subjects[collegeKey] || GlobalData.subjects[commonKey] || [])
+        : (GlobalData.subjects[collegeKey] || []);
+
     let customSubjects = [];
     try {
         let sb = window.supabase;
@@ -5701,20 +5574,33 @@ async function renderSubjectStep() {
             sb = module.supabase;
             window.supabase = sb;
         }
-
+        
         // Fetch subjects added by admin for this specific college/branch/sem
         const { data } = await sb.from('college_subjects')
-            .select('id, subject_name, subject_code, icon')
+            .select('id, subject_name, subject_code')
             .eq('college_id', selState.college.id)
             .eq('branch_id', selState.branch.id)
             .eq('semester', selState.semester);
-
+            
         if (data) customSubjects = data;
-    } catch (e) {
-        console.error('Error fetching custom subjects:', e);
+    } catch(e) { 
+        console.error('Error fetching custom subjects:', e); 
     }
 
-    if (customSubjects.length === 0) {
+    // Combine global subjects with custom subjects, avoiding duplicates by name
+    const combined = [...globalSubjects];
+    customSubjects.forEach(cs => {
+        if (!combined.find(s => s.name.toLowerCase() === cs.subject_name.toLowerCase())) {
+            combined.push({ 
+                id: cs.id, 
+                name: cs.subject_name, 
+                code: cs.subject_code || 'SUB',
+                icon: '📚'
+            });
+        }
+    });
+
+    if (combined.length === 0) {
         container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 4rem;">
             <p style="color: var(--text-dim);">No subjects registered for this branch/year combo yet.</p>
             <button class="btn btn-primary btn-sm" style="margin-top: 1rem;" onclick="renderCollegeStep()">Start Over</button>
@@ -5722,11 +5608,11 @@ async function renderSubjectStep() {
         return;
     }
 
-    container.innerHTML = customSubjects.map(s => `
-        <div class="selection-card glass-card fade-in" onclick="selectSubject('${s.id}', '${s.subject_name.replace(/'/g, "\\'")}', '${s.subject_code || ''}')">
+    container.innerHTML = combined.map(s => `
+        <div class="selection-card glass-card fade-in" onclick="selectSubject('${s.id}', '${s.name.replace(/'/g, "\\'")}', '${s.code || ''}')">
             <div class="card-icon" style="font-size: 2.5rem; margin-bottom: 0.5rem;">${s.icon || '📚'}</div>
-            <div style="font-size: 0.7rem; color: var(--primary); font-weight: 700; margin-bottom: 0.5rem; background: rgba(108, 99, 255, 0.1); padding: 2px 8px; border-radius: 4px; display: inline-block;">${s.subject_code || 'SUB'}</div>
-            <h3 class="font-heading">${s.subject_name}</h3>
+            <div style="font-size: 0.7rem; color: var(--primary); font-weight: 700; margin-bottom: 0.5rem; background: rgba(108, 99, 255, 0.1); padding: 2px 8px; border-radius: 4px; display: inline-block;">${s.code || 'SUB'}</div>
+            <h3 class="font-heading">${s.name}</h3>
             <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.5rem; font-weight: 500;">${selState.college?.name || 'Academic'}</div>
         </div>
     `).join('');
@@ -5964,7 +5850,7 @@ window.renderMyUploads = function () {
 
     // --- FETCH FROM SUPABASE ---
     const cacheKey = `my_uploads_${currentUser.id}`;
-
+    
     // Quick load from cache
     try {
         const cached = localStorage.getItem(cacheKey);
@@ -5990,12 +5876,12 @@ window.renderMyUploads = function () {
                 if (configResponse.ok) {
                     const configs = await configResponse.json();
                     if (configs.databases && configs.databases.length > 0) {
-                        clients = configs.databases.map(dbConfig =>
+                        clients = configs.databases.map(dbConfig => 
                             window.supabase.createClient(dbConfig.url, dbConfig.key)
                         );
                     }
                 }
-            } catch (e) { console.error("Failed to fetch storage configs:", e); }
+            } catch(e) { console.error("Failed to fetch storage configs:", e); }
 
             const promises = [];
             clients.forEach(client => {
@@ -6008,23 +5894,23 @@ window.renderMyUploads = function () {
 
             for (let i = 0; i < results.length; i += 2) {
                 const pendingRes = results[i];
-                const approvedRes = results[i + 1];
+                const approvedRes = results[i+1];
                 if (pendingRes.data) {
-                    allUploads.push(...pendingRes.data.map(d => ({ ...d, status: 'pending' })));
+                    allUploads.push(...pendingRes.data.map(d => ({...d, status: 'pending'})));
                 }
                 if (approvedRes.data) {
-                    allUploads.push(...approvedRes.data.map(d => ({ ...d, status: 'approved' })));
+                    allUploads.push(...approvedRes.data.map(d => ({...d, status: 'approved'})));
                 }
             }
-
+            
             // Sort by creation date descending
-            allUploads.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-
+            allUploads.sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+            
             // Cache it
-            try { localStorage.setItem(cacheKey, JSON.stringify(allUploads)); } catch (e) { }
-
+            try { localStorage.setItem(cacheKey, JSON.stringify(allUploads)); } catch(e) {}
+            
             render(allUploads);
-
+            
         } catch (err) {
             console.error("Supabase My Uploads Error:", err);
             const hasCachedContent = container.querySelector('.glass-card');
@@ -6055,7 +5941,7 @@ window.deleteUploadedNote = async function (noteId) {
         try {
             // Only attempt to delete from pending_notes. Users cannot delete approved notes.
             const { error } = await supabase.from('pending_notes').delete().eq('id', noteId);
-
+            
             if (error) {
                 console.error("Delete failed:", error);
                 if (window.showToast) window.showToast("Failed to delete note.", "error");
@@ -6066,7 +5952,7 @@ window.deleteUploadedNote = async function (noteId) {
                 }
                 return;
             }
-
+            
             if (window.showToast) window.showToast("Note deleted successfully!", "success");
 
             // Remove from DOM immediately
@@ -6102,7 +5988,7 @@ window.deleteUploadedNote = async function (noteId) {
 };
 
 window._avatarCache = {};
-window.loadUserAvatar = async function (uid, imgElement, fallbackName) {
+window.loadUserAvatar = async function(uid, imgElement, fallbackName) {
     if (!uid) return;
     if (window._avatarCache[uid]) {
         if (window._avatarCache[uid] !== 'none') imgElement.src = window._avatarCache[uid];
@@ -6278,7 +6164,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
 
                 const colId = selState.college?.id;
                 const branchId = selState.branch?.id;
-                const semName = selState.semester;
+                const semName = selState.semester; 
 
                 let { data, error } = await sb.from('college_subjects')
                     .select('syllabus, description')
@@ -6292,7 +6178,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                 if (data && (data.syllabus || data.description)) {
                     syllabusText = data.syllabus || data.description;
                 }
-
+                
                 // Fallback to global syllabus if custom one is not found
                 if (!syllabusText) {
                     const { data: globalData, error: globalErr } = await sb.from('college_subjects')
@@ -6300,7 +6186,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                         .eq('college_id', 'global')
                         .eq('subject_name', subjectName)
                         .single();
-
+                        
                     if (globalData && (globalData.syllabus || globalData.description)) {
                         syllabusText = globalData.syllabus || globalData.description;
                     }
@@ -6311,13 +6197,13 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                     const unitRegex = /(Unit\s*[-–: ]*\s*[0-9IVX]+[\s\S]*?(?=(?:Unit\s*[-–: ]*\s*[0-9IVX]+)|$))/gi;
                     let units = [];
                     let match;
-
+                    
                     while ((match = unitRegex.exec(cleanText)) !== null) {
                         let block = match[1].trim();
                         // Extract Unit number + up to the first comma or period as the descriptive title
                         let titleMatch = block.match(/^(Unit\s*[-–: ]*\s*[0-9IVX]+(?:[^,.\n]+)?)/i);
                         let title = titleMatch ? titleMatch[1].trim().toUpperCase() : 'UNIT';
-
+                        
                         // Fallback if title gets absurdly long
                         if (title.length > 80) {
                             let fallback = block.match(/^(Unit\s*[-–: ]*\s*[0-9IVX]+)/i);
@@ -6325,7 +6211,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                         }
 
                         let desc = block.substring(titleMatch ? titleMatch[0].length : 0).replace(/^[,.\-–:\s]+/, '').trim();
-
+                        
                         units.push({ title: title, desc: desc });
                     }
 
@@ -6391,24 +6277,24 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
     const filtered = deduplicatedNotes.filter(n => {
         const noteSem = n.semester || n.semesterId;
         const semMatch = !noteSem || noteSem === querySem || (altSem && noteSem === altSem) || noteSem === 'Unknown';
-
+        
         const isCorrectSubject = (
-            (n.subjectId === subjectId) ||
-            (n.subject === subjectId) ||
-            (n.subject === selState.subject.name) ||
+            (n.subjectId === subjectId) || 
+            (n.subject === subjectId) || 
+            (n.subject === selState.subject.name) || 
             (n.subjectName === selState.subject.name) ||
             (n.name === selState.subject.name)
         ) && (
-                n.collegeId === selState.college.id ||
-                n.college === selState.college.id ||
-                n.collegeId === 'global' ||
-                n.college === 'global' ||
-                n.college === 'Unknown'
-            ) && (
-                n.type === tabType ||
-                !n.type ||
-                (tabType === 'notes' && n.type === undefined)
-            );
+            n.collegeId === selState.college.id || 
+            n.college === selState.college.id || 
+            n.collegeId === 'global' || 
+            n.college === 'global' ||
+            n.college === 'Unknown'
+        ) && (
+            n.type === tabType || 
+            !n.type || 
+            (tabType === 'notes' && n.type === undefined)
+        );
 
         if (!semMatch || !isCorrectSubject) return false;
 
@@ -6471,11 +6357,11 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                         <h3 class="item-title" style="font-size: 1.2rem; font-weight: 700; color: white; margin: 0 0 0.4rem 0;">${n.title}</h3>
                         <div class="item-meta-row" style="display: flex; align-items: center; gap: 1.2rem; font-size: 0.85rem; color: var(--text-dim);">
                             <div class="uploader-mini" style="display: flex; align-items: center; gap: 0.5rem; white-space: nowrap; color: var(--secondary); font-weight: 700;">
-                                ${((n.uploaderName || n.uploader || '').toLowerCase().includes('skil matrix') || (!n.uploaderName && !n.uploader)) ?
-                '<img src="../assets/logo_transparent.png" style="width:18px;height:18px;border-radius:50%;object-fit:contain;background:rgba(0,242,255,0.1);padding:2px;">' :
-                (n.uploaderAvatar || n.avatar) ? `<img src="${n.uploaderAvatar || n.avatar}" style="width:18px;height:18px;border-radius:50%;object-fit:cover;">` :
-                    `<img src="${fallbackUri}" style="width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.05);" onload="if(!this.dataset.loaded){ this.dataset.loaded=true; window.loadUserAvatar('${n.uploadedBy}', this, '${fallbackName.replace(/'/g, "\\'")}'); }">`
-            }
+                                ${((n.uploaderName || n.uploader || '').toLowerCase().includes('skil matrix') || (!n.uploaderName && !n.uploader)) ? 
+                                    '<img src="../assets/logo_transparent.png" style="width:18px;height:18px;border-radius:50%;object-fit:contain;background:rgba(0,242,255,0.1);padding:2px;">' :
+                                    (n.uploaderAvatar || n.avatar) ? `<img src="${n.uploaderAvatar || n.avatar}" style="width:18px;height:18px;border-radius:50%;object-fit:cover;">` :
+                                    `<img src="${fallbackUri}" style="width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.05);" onload="if(!this.dataset.loaded){ this.dataset.loaded=true; window.loadUserAvatar('${n.uploadedBy}', this, '${fallbackName.replace(/'/g, "\\'")}'); }">`
+                                }
                                 <span>${n.uploaderName || n.uploader || 'SKiL MATRiX'}</span>
                             </div>
                             <div class="date-mini" style="display: flex; align-items: center; gap: 0.3rem; white-space: nowrap; background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(39, 174, 96, 0.1)); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.2); padding: 2px 6px; border-radius: 4px; font-weight: 800; font-size: 0.7rem; letter-spacing: 0.5px; box-shadow: 0 0 8px rgba(46, 204, 113, 0.15);">
@@ -6836,7 +6722,7 @@ window.uploadNote = async function (formData) {
             try {
                 const incXp = increment ? increment(50) : (window.firebaseServices.increment ? window.firebaseServices.increment(50) : null);
                 const incUploads = increment ? increment(1) : (window.firebaseServices.increment ? window.firebaseServices.increment(1) : null);
-
+                
                 if (incXp && incUploads) {
                     const userRef = doc(db, 'users', currentUser.id);
                     await updateDoc(userRef, {
@@ -7248,7 +7134,7 @@ function generateUnifiedLeaderboard(data) {
     let myRank = '-';
     let myIndex = -1;
     let myItem = null;
-
+    
     if (u) {
         const uid = u.id || u.uid;
         myIndex = data.findIndex(x => x.id === uid || x.uid === uid);
@@ -7256,20 +7142,20 @@ function generateUnifiedLeaderboard(data) {
         const myScore = myIndex !== -1 ? (data[myIndex].xp || 0) : (u.xp || 0);
         myRank = myIndex !== -1 ? (myIndex + 1) : '-';
         const myPrize = myScore * 10;
-
+        
         // We no longer display the userStatsBanner box, but we keep the variable empty.
-
+        
         // --- REAL-TIME SIDEBAR CROWN SYNC ---
         const isRank1 = (myRank === 1);
         try {
             const cache = JSON.parse(localStorage.getItem('auth_user_full')) || {};
             cache.isRank1 = isRank1;
             localStorage.setItem('auth_user_full', JSON.stringify(cache));
-        } catch (e) { }
-
+        } catch(e) {}
+        
         const wrapperEl = document.getElementById('sidebar-avatar-wrapper');
         const avEl = document.getElementById('instant-avatar');
-
+        
         if (isRank1) {
             if (wrapperEl && !wrapperEl.querySelector('.sidebar-crown')) {
                 const crownEl = document.createElement('div');
@@ -7302,13 +7188,13 @@ function generateUnifiedLeaderboard(data) {
     if (spotlightData[2]) visualSpotlight.push({ ...spotlightData[2], rank: 3 });
 
     let spotlightHtml = '<div id="podium-container"><div class="lb-spotlight-3d">';
-
+    
     visualSpotlight.forEach(item => {
         const scoreVal = item.xp || 0;
         const prizeVal = scoreVal * 10;
         const avatar = item.logo || item.avatar || '';
         const crown = item.rank === 1 ? '<div class="spotlight-crown-3d">👑</div>' : '';
-
+        
         let resolvedAvatar = avatar;
         if (resolvedAvatar && resolvedAvatar.startsWith('assets/')) resolvedAvatar = '../' + resolvedAvatar;
 
@@ -7339,7 +7225,7 @@ function generateUnifiedLeaderboard(data) {
     // Ranks 1 to 10
     const listData = data.slice(0, 10);
     let listHtml = '';
-
+    
     // Always render table if there's someone to show OR if current user needs a row
     if (listData.length > 0 || (myIndex >= 10)) {
         listHtml += `
@@ -7375,7 +7261,7 @@ function generateUnifiedLeaderboard(data) {
             const codingXp = item.coding_xp || 0;
             const college = item.college || '';
             const avatar = item.logo || item.avatar;
-
+            
             let resolvedAvatar = avatar;
             if (resolvedAvatar && resolvedAvatar.startsWith('assets/')) resolvedAvatar = '../' + resolvedAvatar;
 
@@ -7386,7 +7272,7 @@ function generateUnifiedLeaderboard(data) {
             const isMe = currUid && (item.id === currUid || item.uid === currUid);
             const highlightStyle = isMe ? 'border: 1px solid rgba(251, 191, 36, 0.5); background: rgba(251, 191, 36, 0.15);' : '';
             const youBadge = isMe ? '<span style="font-size:0.7rem; background:#fbbf24; color:#000; padding:2px 6px; border-radius:10px; margin-left:8px; font-weight:bold;">YOU</span>' : '';
-
+            
             const collegeHtml = college ? `<div style="font-size: 0.7rem; color: #a1a1aa; margin-top: 2px;">${college}</div>` : '';
 
             // For top 3, use a different color trophy icon
@@ -7418,7 +7304,7 @@ function generateUnifiedLeaderboard(data) {
                 </div>
             `;
         });
-
+        
         listHtml += `</div>`; // close table body
 
         // If current user is not in top 10, append them at the bottom OUTSIDE the main box visually
@@ -7429,7 +7315,7 @@ function generateUnifiedLeaderboard(data) {
             const codingXp = myItem.coding_xp || 0;
             const college = myItem.college || '';
             const avatar = myItem.logo || myItem.avatar;
-
+            
             let resolvedAvatar = avatar;
             if (resolvedAvatar && resolvedAvatar.startsWith('assets/')) resolvedAvatar = '../' + resolvedAvatar;
 
@@ -7464,7 +7350,7 @@ function generateUnifiedLeaderboard(data) {
                 </div>
             `;
         }
-
+        
         listHtml += `</div></div>`;
     }
 
@@ -7477,24 +7363,24 @@ function generateUnifiedLeaderboard(data) {
     `;
 }
 
-window.updateMobilePodium = function (statType, el) {
+window.updateMobilePodium = function(statType, el) {
     if (!window.currentLeaderboardData) return;
-
+    
     // update tabs active state
     if (el) {
         document.querySelectorAll('#mobile-podium-tabs .stat-pill').forEach(pill => pill.classList.remove('active'));
         el.classList.add('active');
     }
-
+    
     // Sort data by statType
     const sortedData = [...window.currentLeaderboardData].sort((a, b) => (b[statType] || 0) - (a[statType] || 0));
+    
 
-
-
+    
     // Also regenerate the list HTML to sort and show the correct column
     const listData = sortedData.slice(0, 10);
     let listHtml = '';
-
+    
     let mobileHeaderLabel = 'Total XP';
     if (statType === 'uploads') mobileHeaderLabel = 'Uploads';
     if (statType === 'referral_count') mobileHeaderLabel = 'Referrals';
@@ -7516,7 +7402,7 @@ window.updateMobilePodium = function (statType, el) {
                 </div>
                 <div class="mentions-table-body">
         `;
-
+        
         const currU = window.currentUser;
         const currUid = currU ? (currU.id || currU.uid) : null;
 
@@ -7529,7 +7415,7 @@ window.updateMobilePodium = function (statType, el) {
             const codingXp = item.coding_xp || 0;
             const college = item.college || '';
             const avatar = item.logo || item.avatar;
-
+            
             let resolvedAvatar = avatar;
             if (resolvedAvatar && resolvedAvatar.startsWith('assets/')) resolvedAvatar = '../' + resolvedAvatar;
 
@@ -7540,7 +7426,7 @@ window.updateMobilePodium = function (statType, el) {
             const isMe = currUid && (item.id === currUid || item.uid === currUid);
             const highlightStyle = isMe ? 'border: 1px solid rgba(251, 191, 36, 0.5); background: rgba(251, 191, 36, 0.15);' : '';
             const youBadge = isMe ? '<span style="font-size:0.7rem; background:#fbbf24; color:#000; padding:2px 6px; border-radius:10px; margin-left:8px; font-weight:bold;">YOU</span>' : '';
-
+            
             const collegeHtml = college ? `<div style="font-size: 0.7rem; color: #a1a1aa; margin-top: 2px;">${college}</div>` : '';
 
             let rankIconColor = '#6b7280';
@@ -7571,7 +7457,7 @@ window.updateMobilePodium = function (statType, el) {
                 </div>
             `;
         });
-
+        
         listHtml += `</div></div>`;
     }
 
@@ -7579,11 +7465,11 @@ window.updateMobilePodium = function (statType, el) {
     if (listContainer) {
         listContainer.innerHTML = listHtml;
     }
-
+    
     // Retrigger animations for both podium and list
     setTimeout(() => {
         const fullWrapper = document.getElementById('premium-leaderboard-wrapper');
-        if (fullWrapper) {
+        if(fullWrapper) {
             fullWrapper.querySelectorAll('.count-up').forEach(counterEl => {
                 const target = parseInt(counterEl.dataset.value);
                 if (isNaN(target)) return;
@@ -7591,7 +7477,7 @@ window.updateMobilePodium = function (statType, el) {
             });
             // Re-animate the podium specifically
             const podiumContainer = document.getElementById('podium-container');
-            if (podiumContainer) {
+            if(podiumContainer) {
                 podiumContainer.querySelectorAll('.count-up').forEach(counterEl => {
                     const target = parseInt(counterEl.dataset.value);
                     if (isNaN(target)) return;
@@ -7716,7 +7602,7 @@ window.renderBookmarks = function () {
 
                 // Try to find in global cache for stats
                 let cached = (window.NotesDB || []).find(n => n.id === noteId);
-
+                
                 // Fallback: Search in globalNotes (static notes)
                 if (!cached && window.globalNotes) {
                     const gn = window.globalNotes;
@@ -8634,14 +8520,14 @@ window.selectExamType = function (el, type) {
     });
     el.classList.add('active');
     window.selectedExamType = type;
-
+    
     const btn = document.getElementById('ai-generate-btn');
     btn.disabled = false;
     btn.style.setProperty('background', '#ffffff', 'important');
     btn.style.setProperty('color', '#050505', 'important');
     btn.style.setProperty('cursor', 'pointer', 'important');
     btn.style.setProperty('border-color', '#ffffff', 'important');
-
+    
     btn.onmouseenter = () => {
         if (!btn.disabled) {
             btn.style.setProperty('background', 'rgba(255,255,255,0.9)', 'important');
@@ -8656,7 +8542,7 @@ window.selectExamType = function (el, type) {
             btn.style.setProperty('box-shadow', 'none', 'important');
         }
     };
-
+    
     document.getElementById('ai-credits-left').innerText = `Ready to generate ${type} paper.`;
 };
 
@@ -8673,7 +8559,7 @@ window.handleAIGeneration = async function (subject) {
         btn.style.setProperty('border-color', 'rgba(255,255,255,0.08)', 'important');
         btn.style.setProperty('cursor', 'not-allowed', 'important');
         btn.innerHTML = `<span class="loader-pro" style="width: 14px; height: 14px; border-width: 2px; border-color: rgba(255,255,255,0.4) transparent transparent transparent;"></span> Processing...`;
-
+        
         statusMsg.innerText = "Processing High-Quality Model Paper...";
         statusMsg.style.color = "var(--secondary)";
 
@@ -8730,10 +8616,10 @@ window.selectSummaryType = function (el, type) {
     });
     el.classList.add('active');
     window.selectedSummaryType = type;
-
+    
     const unitContainer = document.getElementById('unit-pills-container');
     const btn = document.getElementById('ai-summary-generate-btn');
-
+    
     if (type === 'single-unit') {
         unitContainer.style.display = 'flex';
         window.selectedUnitNumber = null;
@@ -8742,7 +8628,7 @@ window.selectSummaryType = function (el, type) {
             p.style.color = 'rgba(255,255,255,0.7)';
             p.style.borderColor = 'rgba(255,255,255,0.08)';
         });
-
+        
         btn.disabled = true;
         btn.style.setProperty('background', 'rgba(255,255,255,0.02)', 'important');
         btn.style.setProperty('color', 'rgba(255,255,255,0.2)', 'important');
@@ -8752,7 +8638,7 @@ window.selectSummaryType = function (el, type) {
     } else {
         unitContainer.style.display = 'none';
         window.selectedUnitNumber = null;
-
+        
         btn.disabled = false;
         btn.style.setProperty('background', '#ffffff', 'important');
         btn.style.setProperty('color', '#050505', 'important');
@@ -8760,7 +8646,7 @@ window.selectSummaryType = function (el, type) {
         btn.style.setProperty('border-color', '#ffffff', 'important');
         document.getElementById('ai-summary-credits-left').innerText = "Ready to summarize using Full Unit-wise Summary mode.";
     }
-
+    
     btn.onmouseenter = () => {
         if (!btn.disabled) {
             btn.style.setProperty('background', 'rgba(255,255,255,0.9)', 'important');
@@ -8789,7 +8675,7 @@ window.selectUnitNumber = function (el, unitNum) {
         el.style.color = '#a18eff';
         el.style.borderColor = '#a18eff';
     }
-
+    
     const btn = document.getElementById('ai-summary-generate-btn');
     btn.disabled = false;
     btn.style.setProperty('background', '#ffffff', 'important');
@@ -8799,7 +8685,7 @@ window.selectUnitNumber = function (el, unitNum) {
     document.getElementById('ai-summary-credits-left').innerText = `Ready to summarize Unit ${unitNum} only.`;
 };
 
-window.fetchSubjectSyllabusText = async function (subjectName) {
+window.fetchSubjectSyllabusText = async function(subjectName) {
     try {
         let sb = window.supabase;
         if (!sb) {
@@ -8812,7 +8698,7 @@ window.fetchSubjectSyllabusText = async function (subjectName) {
         const colId = selState?.college?.id;
         const branchId = selState?.branch?.id;
         const semName = selState?.semester;
-
+        
         let { data, error } = await sb.from('college_subjects')
             .select('syllabus, description')
             .eq('college_id', colId)
@@ -8825,19 +8711,19 @@ window.fetchSubjectSyllabusText = async function (subjectName) {
         if (data && (data.syllabus || data.description)) {
             syllabusText = data.syllabus || data.description;
         }
-
+        
         if (!syllabusText) {
             const { data: globalData } = await sb.from('college_subjects')
                 .select('syllabus, description')
                 .eq('college_id', 'global')
                 .eq('subject_name', subjectName)
                 .single();
-
+                
             if (globalData && (globalData.syllabus || globalData.description)) {
                 syllabusText = globalData.syllabus || globalData.description;
             }
         }
-
+        
         return syllabusText || "";
     } catch (err) {
         console.error('[Dashboard] Error fetching syllabus text:', err);
@@ -8858,7 +8744,7 @@ window.handleAISummaryGeneration = async function (subject) {
         btn.style.setProperty('border-color', 'rgba(255,255,255,0.08)', 'important');
         btn.style.setProperty('cursor', 'not-allowed', 'important');
         btn.innerHTML = `<span class="loader-pro" style="width: 14px; height: 14px; border-width: 2px; border-color: rgba(255,255,255,0.4) transparent transparent transparent;"></span> Processing...`;
-
+        
         statusMsg.innerText = "Checking usage limits...";
         statusMsg.style.color = "var(--secondary)";
 
@@ -8903,18 +8789,18 @@ window.handleAISummaryGeneration = async function (subject) {
         // 3. Simple elegant local Markdown parser
         const parseMarkdownToHTML = (md) => {
             if (!md) return "";
-
+            
             const lines = md.split(/\r?\n/);
             const parsedLines = [];
             let inTable = false;
             let tableRows = [];
             let inCodeBlock = false;
             let codeContent = [];
-
+            
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
                 const trimmed = line.trim();
-
+                
                 // 1. Handle Fenced Code Blocks (ASCII diagrams / code)
                 if (trimmed.startsWith('```')) {
                     if (inCodeBlock) {
@@ -8926,7 +8812,7 @@ window.handleAISummaryGeneration = async function (subject) {
                     }
                     continue;
                 }
-
+                
                 if (inCodeBlock) {
                     const escapedLine = line
                         .replace(/&/g, '&amp;')
@@ -8935,7 +8821,7 @@ window.handleAISummaryGeneration = async function (subject) {
                     codeContent.push(escapedLine);
                     continue;
                 }
-
+                
                 // 2. Handle Markdown Tables
                 if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
                     inTable = true;
@@ -8948,31 +8834,31 @@ window.handleAISummaryGeneration = async function (subject) {
                         tableRows = [];
                     }
                 }
-
+                
                 // 3. Horizontal Rules
                 if (trimmed === '---') {
                     parsedLines.push('<hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.08); margin: 1.5rem 0;">');
                     continue;
                 }
-
+                
                 parsedLines.push(line);
             }
-
+            
             if (inTable && tableRows.length > 0) {
                 parsedLines.push(renderHTMLTable(tableRows));
             }
-
+            
             // Helper to render HTML table inside the parser scope
             function renderHTMLTable(rows) {
                 if (rows.length < 2) return rows.join('\n');
                 let tableHtml = '<div style="overflow-x: auto; margin: 1.5rem 0; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;"><table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">';
                 let isFirstRow = true;
-
+                
                 rows.forEach(row => {
                     if (row.includes('---')) return; // skip divider
                     const cells = row.split('|').map(c => c.trim()).filter((c, idx, arr) => idx > 0 && idx < arr.length - 1);
                     if (cells.length === 0) return;
-
+                    
                     tableHtml += '<tr style="' + (isFirstRow ? 'background: rgba(255,255,255,0.04); border-bottom: 1.5px solid rgba(255,255,255,0.12);' : 'border-bottom: 1px solid rgba(255,255,255,0.06);') + '">';
                     cells.forEach(cell => {
                         const cellTag = isFirstRow ? 'th' : 'td';
@@ -8980,19 +8866,19 @@ window.handleAISummaryGeneration = async function (subject) {
                             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                             .replace(/\*(.*?)\*/g, '<em>$1</em>')
                             .replace(/`([^`]+)`/g, '<code>$1</code>');
-                        const cellStyle = isFirstRow
-                            ? 'padding: 0.8rem 1rem; font-weight: 700; color: white;'
+                        const cellStyle = isFirstRow 
+                            ? 'padding: 0.8rem 1rem; font-weight: 700; color: white;' 
                             : 'padding: 0.8rem 1rem; color: rgba(255,255,255,0.75);';
                         tableHtml += `<${cellTag} style="${cellStyle}">${parsedCell}</${cellTag}>`;
                     });
                     tableHtml += '</tr>';
                     isFirstRow = false;
                 });
-
+                
                 tableHtml += '</table></div>';
                 return tableHtml;
             }
-
+            
             // 4. Do inline regex replaces
             let htmlContent = parsedLines.join('\n');
             htmlContent = htmlContent
@@ -9004,9 +8890,9 @@ window.handleAISummaryGeneration = async function (subject) {
                 .replace(/`([^`]+)`/g, '<code>$1</code>')
                 .replace(/> (.*?)(\n|$)/g, '<blockquote>$1</blockquote>')
                 .replace(/^\s*-\s+(.*?)(\n|$)/gm, '<li>$1</li>');
-
+                
             htmlContent = htmlContent.replace(/(<li.*?>.*?<\/li>)+/g, '<ul>$&</ul>');
-
+            
             const finalLines = htmlContent.split('\n');
             const finalParsed = finalLines.map(line => {
                 const trimmed = line.trim();
@@ -9016,7 +8902,7 @@ window.handleAISummaryGeneration = async function (subject) {
                 }
                 return `<p>${line}</p>`;
             });
-
+            
             return finalParsed.join('\n');
         };
 
@@ -9390,7 +9276,7 @@ window.handleAISummaryGeneration = async function (subject) {
         statusMsg.innerText = "Error: " + e.message;
         btn.disabled = false;
         btn.innerHTML = `Generate AI Summary`;
-
+        
         // Restore button styling
         btn.style.setProperty('background', '#ffffff', 'important');
         btn.style.setProperty('color', '#050505', 'important');
