@@ -19,86 +19,7 @@ const LocalData = {
         { id: 'aiml', name: 'AI & Machine Learning', icon: '🧠' },
         { id: 'advanced-ai-ibm', name: 'ADVANCED AI-IBM', icon: '🤖' }
     ],
-    years: ['1st Year', '2nd Year', '3rd Year', '4th Year'],
-    subjects: {
-        'cse-Semester 1': [
-            { id: 'applied-chemistry', name: 'Applied Chemistry (CH3001T)', icon: '🧪', code: 'CH3001T', description: `<b>Unit I: Water analysis and its Treatment</b><br>Sources of water, impurities, hard & soft water, industrial & municipal water characteristics, water analysis.<br><b>Unit II: Lubricants</b><br>Classification, mechanisms of lubrication, properties and testing of lubricating oils, numerical problems based on viscosity index.<br><b>Unit III: New Engineering Materials</b><br>Nanomaterials, Fullerenes (C60), Carbon nanotubes (CNTs), Graphene properties and applications.<br><b>Unit IV: Instrumental Techniques in Chemical Analysis</b><br>Electromagnetic radiation, Lambert's and Beer's Law, UV-Visible spectroscopy, Infrared (IR) spectroscopy.<br><b>Unit V: Heritage of Indian Chemistry</b><br>Early foundations, metallurgical techniques, rasas, minerals of Indian alchemy, Ayurveda contributions.` },
-            { id: 'math-1', name: 'Engineering Mathematics-I', icon: '📐', code: 'MA3001T', description: `<b>Unit I: Matrices and Linear Systems</b><br>Rank, Echelon form, Simultaneous equations, Consistency, Eigen Values and Eigen Vectors.<br><b>Unit II: Differential Calculus</b><br>Taylors and Maclaurin’s series, Partial differentiation, Euler’s Theorem, Total Derivative, Maxima and Minima.<br><b>Unit III: Integral Calculus</b><br>Beta and Gamma functions, Double and Triple Integrals, Area and Volume applications.<br><b>Unit IV: Ordinary Differential Equations</b><br>Exact, Linear, and Homogeneous linear differential equations with constant coefficients.<br><b>Unit V: Complex Analysis</b><br>Analytic functions, Harmonic Conjugate, Cauchy-Riemann Equations, Complex Line Integral, Cauchy’s Theorem/Formula.` },
-            { id: 'basic-mech', name: 'Basic Mechanical Engineering (ME3001T)', icon: '⚙️', code: 'ME3001T', description: `<b>Unit I: Materials & properties</b><br>Classification, Composition of iron/steels, Stress-strain diagram, Hooks law.<br><b>Unit II: Thermodynamics</b><br>Thermodynamic Systems/Properties, First/Second law, heat engine, heat pump, refrigerator.<br><b>Unit III: Internal Combustion Engines</b><br>Basic components, 4-stroke & 2-stroke engines, Otto and Diesel cycle efficiency.<br><b>Unit IV: Steam generators</b><br>Classification, Cochran/Lancashire boilers, Boiler mountings, Steam properties, Draught.<br><b>Unit V: Centroid & Moment of Inertia</b><br>Centroid, Centre of gravity, Parallel & Perpendicular Axis theorems.` },
-            { id: 'graphics', name: 'Engineering Graphics (ME3003T)', icon: '📐', code: 'ME3003T', description: `<b>Unit I: AutoCAD Basics</b><br>UI, coordinate systems, basic tools (Line, Circle, Arc, Hatch).<br><b>Unit II: Orthographic Projection</b><br>Reference planes, Projection of Points and Straight lines.<br><b>Unit III: Projection of Planes & Solids</b><br>Orthographic projections of planes and regular solids.<br><b>Unit IV: Advanced AutoCAD</b><br>Annotations, Dimensions, TEXT, LAYERS.<br><b>Unit V: Section & Development</b><br>Sections of solids, Development of Surfaces (Prism, Pyramid, Cone, Cylinder).` },
-            { id: 'workshop', name: 'Engineering Workshop (ME3002P)', icon: '🛠️', code: 'ME3002P', description: `<b>Unit I: Carpentry Shop</b><br>Tools & operations, Joints, Types of woods.<br><b>Unit II: Fitting Shop</b><br>Marking & fitting tools, chipping, filing, scraping, drilling.<br><b>Unit III: Foundry & Black Smithy</b><br>Pattern making, Molding, Forging operations (Upsetting, drawing down).<br><b>Unit IV: Welding Shop</b><br>Brazing, Soldering, Gas & Arc welding, TIG & MIG processes.<br><b>Unit V: Machine Shop</b><br>Lathe machine operations, drilling machine, CNC machine demonstration.` },
-            { id: 'c-prog', name: 'Programming with C (CS3001T)', icon: '💻', code: 'CS3001T', description: `<b>Unit 1: Basics</b><br>Structure, Data Types, Operators, Input/Output.<br><b>Unit 2: Control Flow & Arrays</b><br>Conditionals, Loops (while, for), 1D/2D array operations.<br><b>Unit 3: Functions & Recursion</b><br>Declaration, Call by value/reference, Recursion, Storage classes.<br><b>Unit 4: Pointers & Structures</b><br>Pointer arithmetic, pointers & arrays, nested structures, unions.<br><b>Unit 5: File Handling & Memory Allocation</b><br>Text/binary files, malloc, calloc, realloc, free, linked lists overview.` },
-            { id: 'comm-skills', name: 'Communication Skills (LN3001T)', icon: '🗣️', code: 'LN3001T', description: `<b>Unit I: Effective Communication</b><br>Seven C’s, verbal/non-verbal, barriers.<br><b>Unit II: Listening & Reading</b><br>SQ3R, Scanning, Skimming, note-making.<br><b>Unit III: Speaking Skills</b><br>Phonetics, Presentations, Debates, Group Discussion.<br><b>Unit IV: Professional Writing</b><br>Business Letters, Resume, E-mail Writing, Reports.<br><b>Unit V: Appreciating Literature</b><br>Poetry (Wordsworth, Tagore), Prose, Fiction (Premchand).` }
-        ],
-        'cse-Semester 2': [
-            { id: 'applied-physics', name: 'Applied Physics (PH3001T)', icon: '⚛️', code: 'PH3001T', description: `<b>Unit I: Laser and Fiber Optics</b><br>Lasers: Quantum processes, Einstein’s coefficients, Population inversion. Fiber Optics: Acceptance angle, numerical aperture.<br><b>Unit II: Wave Optics</b><br>Interference of light (Newton’s ring, Michelson’s Interferometer), Diffraction of light (Fraunhofer, Grating).<br><b>Unit III: Quantum mechanics</b><br>de-Broglie hypothesis, Heisenberg’s uncertainty, Compton effect, Schrodinger’s wave equation, Particle in a 1D well.<br><b>Unit IV: Nuclear Physics</b><br>Nuclear Radiations (α, β, γ), Interaction with matter. Radiation Technology: LINAC, Cyclotron, Betatron, GM counter.<br><b>Unit V: Solid State Physics</b><br>Crystal Physics: SC, FCC, BCC, Miller indices, Bragg’s law. Semiconductor: Fermi level, Hall effect. Superconductivity: Meissner effect, Type-I/II.` },
-            { id: 'math-2', name: 'Engineering Mathematics -II', icon: '📉', code: 'MA3002T', description: `<b>Unit I: Laplace Transform</b><br>Laplace Transform of elementary functions, Inverse transform, Convolution theorem, Application to ODEs, Impulse function.<br><b>Unit II: Fourier Series and Fourier Transform</b><br>Fourier series for Discontinuous/Even/Odd functions, Half range series, Fourier Transform.<br><b>Unit III: Partial Differential Equations</b><br>Linear PDEs (Lagrange’s Method), Non-Linear PDEs (Charpit’s method), PDEs with Constant Coefficients, Separation of Variables.<br><b>Unit IV: Vector Calculus</b><br>Vector Differentiation, Gradient, Divergence & Curl, Line & surface integrals, Green’s, Gauss & Stroke’s theorem.<br><b>Unit V: Numerical Analysis</b><br>Errors & Approximations, Regula Falsi, Newton-Raphson, Gauss Elimination & Gauss-Siedel Iterative methods.` },
-            { id: 'civil-mech', name: 'Basic Civil Engineering & Mechanics', icon: '🏗️', code: 'CE3001T', description: `<b>Unit I: Building Materials & Construction</b><br>Stones, bricks, cement, timber, concrete workability/strength. Foundations (spread footings, RCC), floors, staircases.<br><b>Unit II: Surveying & Levelling</b><br>Surveying principles, Chain survey, Compass survey and levelling.<br><b>Unit III: Mapping & Sensing</b><br>Mapping details, contouring, Profile Cross sectioning, areas/volumes, Survey stations.<br><b>Unit IV: Forces & its applications</b><br>Graphical/Analytical Concurrent & nonconcurrent forces, Free Body Diagram. Trusses: Method of joints/Sections. Frictional force.<br><b>Unit V: Shear force and Bending moment</b><br>SFD & BMD for simply supported, overhang and cantilever beams with point/UDL loads.` },
-            { id: 'bee', name: 'Basic Electrical & Electronics Engineering (EE3001T)', icon: '🔌', code: 'EE3001T', description: `<b>Unit I: DC Circuit Analysis</b><br>Electric circuits, Ideal/practical sources, Kirchhoff’s laws, Voltage/current division, Mesh/Nodal analysis, Thevenin/Superposition.<br><b>Unit II: AC Circuit Analysis</b><br>1/3-phase AC, RMS values, Series R-L, R-C & R-L-C circuits, Power factor, Series resonance, Star/delta connections.<br><b>Unit III: Electrical Machines</b><br>Magnetic circuits concept. Single Phase Transformer: E.M.F equation. Rotating Machines: DC motor and 3-phase induction motor.<br><b>Unit IV: Diodes and Transistors</b><br>PN junction diode, Zener diode, BJT construction/operation, Transistor biasing, CB/CE/CC Configurations, BJT as amplifier/switch.<br><b>Unit V: Digital System</b><br>Number systems, Boolean algebra, De-Morgan’s, 1’s/2’s complement, logic/universal gates, half/full adder.` },
-            { id: 'python', name: 'Python Programming (CS3002T)', icon: '🐍', code: 'CS3002T', description: `<b>Unit 1: Introduction to Python</b><br>Syntax, Structure, REPL, Scripts, Variables, Data Types (int, str, List, Set, Tuples, Dict), Operators, input/print.<br><b>Unit 2: Control Flow and Loops</b><br>Conditionals (if, elif, else), Switch-case logic, While loops, For loops, Loop control (break, continue), Functions.<br><b>Unit 3: Object-Oriented Programming & Exceptions</b><br>Classes/Objects, Inheritance, Polymorphism, Encapsulation, Method Overloading/Overriding. Exception Handling, File Handling (I/O).<br><b>Unit 4: Advanced Python & GUI/Web</b><br>Regular Expressions, Standard Library (math, os), Third-party (requests). GUI Development (Widgets, Events). Web with CGI.<br><b>Unit 5: Numpy, Pandas and Python Applications</b><br>Networking Basics, Data Manipulation with NumPy, Data Analysis with Pandas, Database Applications in Python.` }
-        ],
-        'cse-Semester 3': [
-            { id: 'dm', name: 'Discrete Mathematics', icon: '🧩', code: 'CS3BS04', description: 'Logic, sets, graph theory and combinatorics.' },
-            { id: 'dc', name: 'Data Communication', icon: '📡', code: 'CS3CO28', description: 'Network models, transmission media, and data link control.' },
-            { id: 'oop', name: 'Object Oriented Programming', icon: '☕', code: 'CS3CO30', description: 'Core principles: Encapsulation, Inheritance, Polymorphism.' },
-            { id: 'dsa', name: 'Data Structures', icon: '🌳', code: 'CS3CO31', description: 'Arrays, stacks, queues, trees and sorting.' },
-            { id: 'java', name: 'Java Programming', icon: '☕', code: 'CS3CO32', description: 'Core Java fundamentals and application development.' },
-            { id: 'de', name: 'Digital Electronics', icon: '💡', code: 'CS3CO33', description: 'Boolean algebra and combinational circuits.' },
-            { id: 'csa', name: 'Computer System Architecture', icon: '🖥️', code: 'CS3CO34', description: 'ALU, control unit and memory hierarchy.' },
-            { id: 'soft-skills-1', name: 'Soft Skills-I', icon: '🗣️', code: 'EN3NG03', description: 'Communication, presentation, and interpersonal skills.' }
-        ],
-        'cse-Semester 4': [
-            { id: 'micro', name: 'Microprocessor and Interfacing', icon: '📟', code: 'CS3CO35', description: `<b>UNIT-1: Introduction to 8-bit microprocessor</b><br>Microcomputers and microprocessors, 8/16/32/64-bit families; Intel 8085 architecture: Registers, Bus Organization, Control signals, Multiplexing. Intel 8086, x86 and Pentium Block diagrams.<br><b>UNIT-2: Assembly Language Programming</b><br>8085 instructions set: Classifications, Addressing modes, Stack and Subroutines, Delay routines, Counters.<br><b>UNIT-3: Interfacing concepts and devices</b><br>Memory interface, I/O mapped I/O vs memory mapped I/O. Programmable devices: 8255 (PPI), 8253/54 (Timer), 8279 (Keyboard/Display), 8251 (Serial communication).<br><b>UNIT- 4: Instruction Timing and Interrupts</b><br>Timing Diagrams: T-state, Machine cycle. Interrupts: h/w and s/w, Maskable / Non maskable.<br><b>UNIT-5: Introduction to Intel Architecture</b><br>Core 2 Duo Processor: CPU, Memory Controller, I/O Controller; Intel Core i7 Architecture, QuickPath Interconnect. Texas Instruments Multi-Core SoC architecture.` },
-            { id: 'adv-java', name: 'Advanced Java Programming', icon: '☕', code: 'CS3CO37', description: 'Servlets, JSP, JDBC and enterprise application components.' },
-            { id: 'dbms', name: 'Database Management Systems', icon: '🗄️', code: 'CS3CO39', description: 'Relational databases, SQL, normalization and transaction management.' },
-            { id: 'toc', name: 'Theory of Computation', icon: '🧠', code: 'CS3CO46', description: 'Finite automata, context-free grammars and Turing machines.' },
-            { id: 'os', name: 'Operating Systems', icon: '💾', code: 'CS3CO47', description: 'Process management, synchronization and file systems.' },
-            { id: 'iwt', name: 'Internet and Web Technology', icon: '🌐', code: 'CS3EW04', description: `<b>Unit – I: Introduction</b><br>Concept of WWW, HTTP Protocol, web browser architecture, Web 2.0, TCP/IP, DNS, SMTP, POP3.<br><b>Unit – II: Web Design</b><br>Web architecture, HTML: lists, tables, frames, forms. DTD, DOM. CSS and Javascript (forms, functions, objects).<br><b>Unit – III: XML</b><br>Introduction to XML, XML vs HTML, DTD and schemas. Embedding XML, Transforming XML using CSS, XSL, and XSLT.<br><b>Unit – IV: PHP</b><br>Variables, program flow, functions, arrays, files. Working with forms and databases. Servlet lifecycle and API.<br><b>Unit – V: JSP & Frameworks</b><br>Java Server Pages (JSP), application design, session data. Database programming using JDBC. MVC framework, Bootstrap, AngularJS.` },
-            { id: 'stat-analysis', name: 'Statistical Analysis', icon: '📊', code: 'CS3EL11', description: `<b>Unit I: Summarizing Data using Statistical Measures</b><br>Descriptive Statistics –Measure of dispersion – standard deviation, Variance, Covariance, Coefficient of variation, Quartiles, Quartile deviation and Mean deviation.<br><b>Unit II: Theory of Random variables and Probability</b><br>Random variables- Discrete and Continuous random variables, Mass and Density function (pmf, pdf), CDF, Expectation.<br><b>Unit III: Probability Distribution</b><br>Binomial, Poisson, Normal and Exponential Distribution, MGF (without proof).<br><b>Unit IV: Curve fitting, Correlation, Regression</b><br>Least Square Method (Straight line and Parabola), Correlation, Rank Correlation, Linear Regression.<br><b>Unit V: Testing of Hypothesis and ANOVA</b><br>Level of significance, Type I/II Error, Chi-Square, t-test, F-test, ANOVA.` },
-            { id: 'soft-skills-2', name: 'Soft Skills-II', icon: '🗣️', code: 'EN3NG10', description: 'Advanced communication and professional etiquette.' }
-        ],
-        'cse-Semester 5': [
-            { id: 'se', name: 'Software Engineering', icon: '💻', code: 'CS3CO40', description: 'Software lifecycles, methodologies and project management.' },
-            { id: 'cn', name: 'Computer Networks', icon: '🌐', code: 'CS3CO43', description: 'Network architectures, protocols and data routing.' },
-            { id: 'data-science', name: 'Data Science', icon: '📈', code: 'CS3EL13', description: 'Data analysis, statistics, and machine learning.' },
-            { id: 'expert-systems', name: 'Expert Systems', icon: '🧠', code: 'CS3EA16', description: 'Rule-based systems and knowledge representation.' },
-            { id: 'iot', name: 'Internet of Things', icon: '📟', code: 'CS3EL14', description: 'IoT architecture, sensors, and embedded networks.' },
-            { id: 'ai', name: 'Artificial Intelligence', icon: '🤖', code: 'CS3EA10', description: 'AI algorithms, search techniques, and reasoning.' },
-            { id: 'cloud', name: 'Cloud Computing', icon: '☁️', code: 'CS3EL12', description: 'Cloud models, virtualization, and distributed data.' },
-            { id: 'nosql', name: 'NoSQL Database', icon: '🗄️', code: 'CS3EL17', description: 'Non-relational databases and distributed ledgers.' },
-            { id: 'mgmt-eco', name: 'Fundamentals of Management, Economics & Accountancy', icon: '💼', code: 'EN3HS04', description: 'Basic management principles and economic theory.' },
-            { id: 'soft-skills-3', name: 'Soft Skills-III', icon: '🗣️', code: 'EN3NG09', description: 'Leadership, teamwork, and corporate communication.' },
-            { id: 'blockchain', name: 'Block Chain Architecture', icon: '⛓️', code: 'OE00016', description: 'Decentralized architectures and smart contracts.' },
-            { id: 'python-essential', name: 'Python Essential', icon: '🐍', code: 'OE00018', description: 'Programming with Python for general applications.' }
-        ],
-        'cse-Semester 6': [
-            { id: 'cd', name: 'Compiler Design', icon: '⚙️', code: 'CS3CO44', description: 'Lexical analysis, parsing, and code generation.' },
-            { id: 'daa', name: 'Design and Analysis of Algorithms', icon: '⏳', code: 'CS3CO45', description: 'Algorithm optimization, complexity, and dynamic programming.' },
-            { id: 'ml', name: 'Machine Learning', icon: '🤖', code: 'CS3EL15', description: 'Supervised, unsupervised, and deep learning algorithms.' },
-            { id: 'xml', name: 'Programming with XML', icon: '📄', code: 'CS3EL16', description: 'XML data representation and web services.' },
-            { id: 'research', name: 'Research Methodology', icon: '🔬', code: 'CS3ES15', description: 'Research techniques, data collection, and ethics.' },
-            { id: 'agile', name: 'Agile Development', icon: '🏃', code: 'OE00015', description: 'Agile methodologies, Scrum, and Kanban.' },
-            { id: 'mini-project', name: 'Mini Project', icon: '🧪', code: 'CS3PC04', description: 'Practical application of learned concepts in a small project.' },
-            { id: 'soft-skills-4', name: 'Soft Skills-IV', icon: '🗣️', code: 'EN3NG08', description: 'Interview preparation and career readiness.' },
-            { id: 'cyber', name: 'Cyber Security Fundamentals', icon: '🛡️', code: 'OE00073', description: 'Security principles, cryptography, and network defense.' },
-            { id: 'r-prog', name: 'R Programming', icon: '📉', code: 'OE00051', description: 'Statistical computing and graphics with R.' }
-        ],
-        'cse-Semester 7': [
-            { id: 'ad-hoc', name: 'Ad-Hoc Networks', icon: '📡', code: 'CS3EL05', description: 'Wireless sensor and ad-hoc networking protocols.' },
-            { id: 'data-viz', name: 'Data Visualization', icon: '📊', code: 'CS3ED03', description: 'Visual representations of complex data spaces.' },
-            { id: 'nlp', name: 'Natural Language Processing', icon: '🗣️', code: 'CS3EA06', description: 'Text processing, linguistics, and language models.' },
-            { id: 'dist-sys', name: 'Distributed Systems', icon: '🌍', code: 'CS3EL04', description: 'Distributed computing, clock synchronization, and IPC.' },
-            { id: 'gen-ai', name: 'Generative AI', icon: '✨', code: 'CS3ED13', description: 'LLMs, diffusion models, and AI synthesis.' },
-            { id: 'swarm', name: 'Swarm Intelligence', icon: '🐝', code: 'CS3EA17', description: 'Bio-inspired algorithms and optimization techniques.' },
-            { id: 'proj-1', name: 'Project-I', icon: '🚀', code: 'CS3PC05', description: 'Major project phase I: conception and design.' },
-            { id: 'cloud-sec', name: 'Cloud Security', icon: '🔒', code: 'OE00056', description: 'Security challenges and solutions in cloud environments.' },
-            { id: 'eda', name: 'Exploratory Data Analysis', icon: '🔎', code: 'OE00075', description: 'Statistical techniques for data investigation.' },
-            { id: 'open-learn', name: 'Open Learning Courses', icon: '📚', code: 'EN3NG06', description: 'Self-directed learning and online certifications.' }
-        ],
-        'cse-Semester 8': [
-            { id: 'proj-2', name: 'Project-II', icon: '🚀', code: 'CS3PC08', description: 'Major project phase II: implementation and testing.' }
-        ]
-    }
+    years: ['1st Year', '2nd Year', '3rd Year', '4th Year']
 };
 
 const GlobalData = window.GlobalData || LocalData;
@@ -342,7 +263,7 @@ window.filterNotes = function (query) {
 };
 
 // STEP 5: Subject
-window.renderSubjectStep = function () {
+window.renderSubjectStep = async function () {
     selState.subject = null;
     RoutingSystem.updateURL(selState);
     ensureWizardVisible();
@@ -350,24 +271,44 @@ window.renderSubjectStep = function () {
     document.getElementById('explorer-main-title').innerHTML = `Select your <span class="gradient-text">Subject</span>`;
 
     const container = document.getElementById('explorer-content');
-    const key = `${selState.branch.id}-${selState.semester}`;
-    const subjects = GlobalData.subjects[key] || [];
+    container.innerHTML = `<div class="ap-loader" style="grid-column: 1/-1; margin: 4rem auto;"><div class="ap-spin"></div><p style="color:var(--text-dim); margin-top:1rem;">Loading subjects...</p></div>`;
 
-    if (subjects.length === 0) {
+    try {
+        let sb = window.supabase;
+        if (!sb) {
+            const module = await import('./supabase-config.js?v=1.0');
+            sb = module.supabase;
+            window.supabase = sb;
+        }
+
+        const { data: subjects, error } = await sb.from('college_subjects')
+            .select('id, subject_name, subject_code, icon')
+            .eq('college_id', selState.college.id)
+            .eq('branch_id', selState.branch.id)
+            .eq('semester', selState.semester);
+
+        if (error) throw error;
+
+        if (!subjects || subjects.length === 0) {
+            container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 4rem;">
+                <p style="color: var(--text-dim);">No subjects registered for this branch/year combo yet.</p>
+                <button class="btn btn-primary btn-sm" style="margin-top: 1rem;" onclick="renderCollegeStep()">Start Over</button>
+            </div>`;
+            return;
+        }
+
+        container.innerHTML = subjects.map(s => `
+            <div class="selection-card glass-card" onclick="selectSubject('${s.id}', '${s.subject_name.replace(/'/g, "\\'")}')">
+                <div class="card-icon" style="font-size: 2.5rem;">${s.icon || '📚'}</div>
+                <h3 class="font-heading" style="margin-top: 1rem;">${s.subject_name}</h3>
+                <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.5rem; font-weight: 500;">${selState.college?.name || 'Academic'}</div>
+            </div>
+        `).join('');
+    } catch (e) {
         container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 4rem;">
-            <p style="color: var(--text-dim);">No subjects registered for this branch/year combo yet.</p>
-            <button class="btn btn-primary btn-sm" style="margin-top: 1rem;" onclick="renderCollegeStep()">Start Over</button>
+            <p style="color: #ef4444;">Error loading subjects: ${e.message}</p>
         </div>`;
-        return;
     }
-
-    container.innerHTML = subjects.map(s => `
-        <div class="selection-card glass-card" onclick="selectSubject('${s.id}', '${s.name}')">
-            <div class="card-icon" style="font-size: 2.5rem;">${s.icon}</div>
-            <h3 class="font-heading" style="margin-top: 1rem;">${s.name}</h3>
-            <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.5rem; font-weight: 500;">${selState.college?.name || 'Academic'}</div>
-        </div>
-    `).join('');
 };
 
 window.selectSubject = function (id, name) {
@@ -471,12 +412,9 @@ window.showNotes = async function (activeTab = 'notes', loadMore = false) {
         return;
     }
 
-    const key = `${selState.branch.id}-${selState.semester}`;
-    const subjectData = (GlobalData.subjects[key] || []).find(s => s.id === selState.subject.id) || {
-        name: selState.subject.name,
-        code: 'GEN101',
-        description: 'Comprehensive study materials and verified academic resources.'
-    };
+    // No longer using GlobalData.subjects for subject details; this static check was for the MVP anyway.
+    // We just rely on selState.subject.name for the title.
+    const subjectData = { name: selState.subject.name, description: '' };
 
     const subjectId = selState.subject.id;
     const collegeId = selState.college.id;
