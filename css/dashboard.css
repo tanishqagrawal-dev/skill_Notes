@@ -1473,6 +1473,8 @@
         align-items: center !important;
         text-align: center !important;
         gap: 1.5rem !important;
+        margin-top: 0.2rem !important;
+        position: static !important; /* buttons must anchor to .subject-page-hero, not here */
     }
 
     .breadcrumb-pro {
@@ -1500,10 +1502,27 @@
         gap: 0.8rem !important;
     }
 
+    /* Reduce the large top gap on subject page (mobile only) */
+    #final-notes-view {
+        padding-top: 0 !important;
+        margin-top: -1.5rem !important;
+    }
+
+    .subject-page-container {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
+
+    .breadcrumb-pro {
+        margin-top: 0 !important;
+        margin-bottom: 0.75rem !important;
+    }
+
     .subject-page-hero {
-        padding: 1rem !important; /* Smaller padding */
-        margin-bottom: 1rem !important; /* Smaller margin */
-        border-radius: 16px !important; /* Slightly smaller radius */
+        padding: 2rem 1.2rem 1.2rem 1.2rem !important;
+        margin-bottom: 1rem !important;
+        border-radius: 16px !important;
+        overflow: hidden !important; /* keep glow blobs inside card */
     }
 
     .subject-title-pro {
@@ -1517,10 +1536,11 @@
 
     .stagger-1 {
         display: flex !important;
+        flex-direction: column !important;
         justify-content: center !important;
         align-items: center !important;
-        flex-wrap: wrap !important;
         gap: 0.4rem !important;
+        margin-top: 0.5rem !important; /* badges sit below the top-padding reserved for buttons */
         margin-bottom: 0.5rem !important;
         width: 100% !important;
     }
@@ -1528,6 +1548,7 @@
     .sub-badges {
         display: flex !important;
         gap: 0.4rem !important;
+        justify-content: center !important;
     }
 
     .subject-code-badge,
@@ -1550,36 +1571,83 @@
     }
 
     .ai-btns-row .btn-premium {
-        display: none !important; /* Hide AI Summary on mobile as requested */
-    }
-    
-    .btn-premium-outline {
+        display: flex !important;
+        grid-column: span 2 !important;
         width: 100% !important;
         max-width: 100% !important;
         padding: 0.6rem !important;
         font-size: 0.75rem !important;
         border-radius: 10px !important;
         justify-content: center !important;
+        align-items: center !important;
+        gap: 10px !important;
+        white-space: nowrap !important;
+    }
+    
+    .btn-premium-outline {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.6rem !important;
+        font-size: 0.7rem !important;
+        border-radius: 10px !important;
+        justify-content: center !important;
+        white-space: nowrap !important;
     }
 
     .subject-actions-top {
-        width: 100% !important;
-        display: flex !important;
-        flex-direction: row !important;
-        justify-content: center !important;
-        align-items: center !important;
-        gap: 0.5rem !important;
-        margin-top: 0.5rem !important;
+        position: static !important;
+        margin: 0 !important;
+        width: 0 !important;
+        height: 0 !important;
+        overflow: visible !important;
     }
 
-    .btn-action-pro {
-        flex: 1 !important;
-        padding: 0.6rem 0.5rem !important;
-        font-size: 0.7rem !important;
-        white-space: nowrap !important;
+    /* Share button — top RIGHT corner, inside card */
+    .subject-actions-top .btn-action-pro:first-child {
+        position: absolute !important;
+        top: 0.8rem !important;
+        right: 0.8rem !important;
+        left: auto !important;
+        width: 84px !important;
+        height: 30px !important;
+        padding: 0 0.6rem !important;
+        font-size: 0.68rem !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.2px !important;
+        border-radius: 20px !important;
+        margin: 0 !important;
+        z-index: 20 !important;
+        flex: none !important;
+        display: inline-flex !important;
         justify-content: center !important;
-        border-radius: 10px !important;
-        gap: 4px !important;
+        align-items: center !important;
+        gap: 5px !important;
+        white-space: nowrap !important;
+        box-shadow: 0 2px 10px rgba(0, 242, 255, 0.2) !important;
+    }
+
+    /* Back button — top LEFT corner, inside card */
+    .subject-actions-top .btn-action-pro:last-child {
+        position: absolute !important;
+        top: 0.8rem !important;
+        left: 0.8rem !important;
+        right: auto !important;
+        width: 84px !important;
+        height: 30px !important;
+        padding: 0 0.6rem !important;
+        font-size: 0.68rem !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.2px !important;
+        border-radius: 20px !important;
+        margin: 0 !important;
+        z-index: 20 !important;
+        flex: none !important;
+        display: inline-flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 5px !important;
+        white-space: nowrap !important;
+        box-shadow: 0 2px 10px rgba(255, 255, 255, 0.05) !important;
     }
 
     .subject-tabs-nav {
@@ -6155,4 +6223,4 @@
     background: linear-gradient(90deg, transparent, #7B61FF, #00F2FF, #7B61FF, transparent);
     animation: scan-animation 2.5s infinite linear;
     pointer-events: none;
-}
+}

@@ -5764,7 +5764,7 @@ window.showNotes = function (activeTab = 'notes') {
                 <span style="opacity:0.3; font-size: 0.7rem;">/</span>
                 <span class="breadcrumb-item active" style="color: var(--secondary); font-weight: 600;">${selState.subject.name}</span>
             </div>
-             <div class="subject-page-hero" style="margin-bottom: 2.5rem; padding: 2.5rem; background: linear-gradient(135deg, rgba(123, 97, 255, 0.08) 0%, rgba(0, 242, 255, 0.05) 100%); border-radius: 28px; border: 1px solid rgba(255, 255, 255, 0.08); position: relative; overflow: hidden; animation: heroEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;">
+             <div class="subject-page-hero" style="margin-bottom: 2.5rem; padding: 2.5rem; background: linear-gradient(135deg, rgba(123, 97, 255, 0.08) 0%, rgba(0, 242, 255, 0.05) 100%); border-radius: 28px; border: 1px solid rgba(255, 255, 255, 0.08); position: relative; overflow: hidden; animation: heroEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;" id="subject-page-hero-card">
                 <!-- Premium Animated Background Blobs -->
                 <div class="hero-glow-blob" style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(0, 242, 255, 0.1) 0%, transparent 70%); pointer-events: none; filter: blur(40px);"></div>
                 <div class="hero-glow-blob" style="position: absolute; bottom: -150px; left: -100px; width: 350px; height: 350px; background: radial-gradient(circle, rgba(123, 97, 255, 0.08) 0%, transparent 70%); pointer-events: none; filter: blur(50px); animation-delay: -5s;"></div>
@@ -5772,6 +5772,11 @@ window.showNotes = function (activeTab = 'notes') {
                 <div class="hero-layout-pro" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem; position: relative; z-index: 2;">
                     <div style="flex: 1;">
                         <div class="stagger-1" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem;">
+                             <div class="sub-badges" style="display: flex; gap: 0.6rem;">
+                                <span class="meta-badge" style="background: rgba(123, 97, 255, 0.12); padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; color: var(--secondary); border: 1px solid rgba(123, 97, 255, 0.25); font-weight: 600; letter-spacing: 0.5px;">${selState.college.name}</span>
+                                <span class="meta-badge" style="background: rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); font-weight: 600; letter-spacing: 0.5px;">${selState.branch.id.toUpperCase()}</span>
+                                <span class="meta-badge" style="background: rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); font-weight: 600; letter-spacing: 0.5px;">${selState.year.toUpperCase()}</span>
+                            </div>
                              <span class="subject-code-badge" style="background: linear-gradient(135deg, var(--primary), #6366f1); color: white; padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; letter-spacing: 1.5px; box-shadow: 0 4px 12px rgba(123, 97, 255, 0.3); border: 1px solid rgba(255,255,255,0.2); text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                                 ${(() => {
             // Robust lookup for official code
@@ -5780,11 +5785,6 @@ window.showNotes = function (activeTab = 'notes') {
             return match?.code || selState.subject.code || selState.subject.id.toUpperCase();
         })()}
                              </span>
-                             <div class="sub-badges" style="display: flex; gap: 0.6rem;">
-                                <span class="meta-badge" style="background: rgba(123, 97, 255, 0.12); padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; color: var(--secondary); border: 1px solid rgba(123, 97, 255, 0.25); font-weight: 600; letter-spacing: 0.5px;">${selState.college.name}</span>
-                                <span class="meta-badge" style="background: rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); font-weight: 600; letter-spacing: 0.5px;">${selState.branch.id.toUpperCase()}</span>
-                                <span class="meta-badge" style="background: rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); font-weight: 600; letter-spacing: 0.5px;">${selState.year.toUpperCase()}</span>
-                            </div>
                         </div>
                         <h1 class="font-heading subject-title-pro stagger-2" style="margin: 0; font-size: 2.8rem; font-weight: 900; background: linear-gradient(to right, #fff 20%, #00f2ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.1; letter-spacing: -0.5px;">${selState.subject.name}</h1>
                         
@@ -5792,17 +5792,17 @@ window.showNotes = function (activeTab = 'notes') {
                             <button class="btn-premium" onclick="window.showAIModal('summary', '${selState.subject.name}')" style="background: linear-gradient(135deg, var(--primary), #00f2ff); color: white; border: none; padding: 0.9rem 1.8rem; border-radius: 14px; font-weight: 700; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden;">
                                 <span style="font-size: 1.1rem;">✨</span> AI Summary
                             </button>
-                            <button class="btn-premium-outline" onclick="window.showAIModal('questions', '${selState.subject.name}')" style="background: rgba(255,255,255,0.03); color: white; border: 1px solid rgba(123, 97, 255, 0.5); padding: 0.9rem 1.8rem; border-radius: 14px; font-weight: 700; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.3s; backdrop-filter: blur(5px);">📝 Model Questions</button>
-                            <button class="btn-premium-outline" onclick="window.switchSubjectTab('syllabus')" style="background: rgba(255,255,255,0.03); color: white; border: 1px solid rgba(0, 242, 255, 0.4); padding: 0.9rem 1.8rem; border-radius: 14px; font-weight: 700; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.3s; backdrop-filter: blur(5px);">📖 View Syllabus</button>
+                            <button class="btn-premium-outline" onclick="window.showAIModal('questions', '${selState.subject.name}')" style="background: rgba(255,255,255,0.03); color: white; border: 1px solid rgba(123, 97, 255, 0.5); padding: 0.9rem 1.8rem; border-radius: 14px; font-weight: 700; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.3s; backdrop-filter: blur(5px);">📝 Model Qs</button>
+                            <button class="btn-premium-outline" onclick="window.switchSubjectTab('syllabus')" style="background: rgba(255,255,255,0.03); color: white; border: 1px solid rgba(0, 242, 255, 0.4); padding: 0.9rem 1.8rem; border-radius: 14px; font-weight: 700; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.3s; backdrop-filter: blur(5px);">📖 Syllabus</button>
                         </div>
                     </div>
                     
                     <div class="subject-actions-top stagger-4" style="display: flex; flex-direction: column; gap: 1rem;">
                         <button class="btn-action-pro" onclick="window.copyShareLink(this)" id="share-btn" style="background: rgba(0, 242, 255, 0.1); color: var(--secondary); border: 1px solid rgba(0, 242, 255, 0.25); padding: 0.8rem 1.8rem; border-radius: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; transition: all 0.3s ease; white-space: nowrap; backdrop-filter: blur(10px);">
-                            <span style="font-size: 1.1rem;">🔗</span> Share Subject
+                            <span style="font-size: 1.1rem;">🔗</span> Share
                         </button>
                         <button class="btn-action-pro" onclick="window.backToSubjectSelection()" style="background: rgba(255, 255, 255, 0.05); color: white; border: 1px solid rgba(255, 255, 255, 0.12); padding: 0.8rem 1.8rem; border-radius: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; transition: all 0.3s ease; backdrop-filter: blur(10px);">
-                            <span>⬅</span> Back to List
+                            <span>⬅</span> Back
                         </button>
                     </div>
                 </div>
