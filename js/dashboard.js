@@ -1478,7 +1478,16 @@ function initTabs() {
     insertAfter(myUploads, profileItem);
     // Re-bind listeners and set initial active state
     const urlParams = new URLSearchParams(window.location.search);
-    const initialTab = urlParams.get('tab') || window.pendingTab || 'overview';
+    let initialTab = urlParams.get('tab') || window.pendingTab;
+    
+    if (!initialTab && window.location.hash.startsWith('#/')) {
+        const hashParts = window.location.hash.split('/');
+        if (hashParts[1]) {
+            initialTab = hashParts[1];
+        }
+    }
+    
+    initialTab = initialTab || 'overview';
 
     document.querySelectorAll('.nav-item').forEach(item => {
         if (item.dataset.tab === initialTab) item.classList.add('active');
@@ -1559,6 +1568,13 @@ window.renderTabContent = renderTabContent;
 function renderTabContent(tabId) {
     const contentArea = document.getElementById('tab-content');
     if (!contentArea) return;
+
+    if (window.currentUser && window.currentUser.isGuest) {
+        if (tabId !== 'notes') {
+            window.location.href = 'auth.html';
+            return;
+        }
+    }
 
     // 1. Sync Sidebar Active State (Crucial for Dashboard Cards)
     document.querySelectorAll('.nav-item').forEach(item => {

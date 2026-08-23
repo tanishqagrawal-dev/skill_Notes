@@ -39,7 +39,7 @@ function dispatchAuthReady(data) {
 // 1. Instant Session Restoration (Guest or Regular)
 const lastUser = localStorage.getItem('auth_user_full') || localStorage.getItem('guest_session');
 const path = window.location.pathname;
-const isUserDashboard = path.endsWith('/dashboard') || path.includes('dashboard');
+const isUserDashboard = path.endsWith('/dashboard') || path.includes('dashboard') || path.includes('notes');
 
 if (lastUser && isUserDashboard) {
     try {
@@ -303,9 +303,17 @@ export async function initAuth() {
             if (isUserDashboard) {
                 const isBot = /bot|googlebot|crawler|spider|robot|crawling/i.test(navigator.userAgent);
                 if (!isBot) {
-                    console.log("🛑 Unauthorized access attempt. Redirecting to login...");
-                    const prefix = path.includes('/pages/') ? '' : 'pages/';
-                    window.location.href = prefix + 'auth';
+                    console.log("🎟️ Guest accessing Dashboard/Notes Hub. Auto-generating guest session...");
+                    const guestSession = {
+                        id: 'guest_' + Date.now(),
+                        name: 'Guest User',
+                        role: 'guest',
+                        isGuest: true
+                    };
+                    localStorage.setItem('guest_session', JSON.stringify(guestSession));
+                    window.currentUser = guestSession;
+                    dispatchAuthReady({ user: { uid: guestSession.id }, currentUser: guestSession });
+                    return;
                 } else {
                     console.log("🤖 Bot detected. Bypassing redirect for SEO indexing.");
                 }
