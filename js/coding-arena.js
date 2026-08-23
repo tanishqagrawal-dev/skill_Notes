@@ -1677,17 +1677,8 @@ export async function renderCodingArena() {
                                 <div class="ca-lang-opt" data-lang="java" data-ver="openjdk-jdk-22+36" data-logo="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" data-name="Java" onclick="window.selectLang(this)" style="display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">
                                     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" style="width:20px;height:20px;object-fit:contain;" /><span style="color:#e2e8f0;font-size:13px;font-weight:500;">Java</span>
                                 </div>
-                                <div class="ca-lang-opt" data-lang="javascript" data-ver="nodejs-20.17.0" data-logo="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" data-name="JavaScript" onclick="window.selectLang(this)" style="display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" style="width:20px;height:20px;object-fit:contain;" /><span style="color:#e2e8f0;font-size:13px;font-weight:500;">JavaScript</span>
-                                </div>
                                 <div class="ca-lang-opt" data-lang="python" data-ver="cpython-3.14.0" data-logo="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" data-name="Python 3" onclick="window.selectLang(this)" style="display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">
                                     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" style="width:20px;height:20px;object-fit:contain;" /><span style="color:#e2e8f0;font-size:13px;font-weight:500;">Python 3</span>
-                                </div>
-                                <div class="ca-lang-opt" data-lang="rust" data-ver="rust-1.78.0" data-logo="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/rust/rust-original.svg" data-name="Rust" onclick="window.selectLang(this)" style="display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/rust/rust-original.svg" style="width:20px;height:20px;object-fit:contain;" /><span style="color:#e2e8f0;font-size:13px;font-weight:500;">Rust</span>
-                                </div>
-                                <div class="ca-lang-opt" data-lang="go" data-ver="go-1.22.3" data-logo="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original-wordmark.svg" data-name="Go" onclick="window.selectLang(this)" style="display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">
-                                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original-wordmark.svg" style="width:20px;height:20px;object-fit:contain;" /><span style="color:#e2e8f0;font-size:13px;font-weight:500;">Go</span>
                                 </div>
                             </div>
                             <!-- hidden select for compatibility -->
@@ -1696,10 +1687,7 @@ export async function renderCodingArena() {
                                 <option value="cpp" data-ver="gcc-13.2.0">C++</option>
                                 <option value="csharp" data-ver="mono-6.12.0.122">C#</option>
                                 <option value="java" data-ver="openjdk-jdk-22+36" selected>Java</option>
-                                <option value="javascript" data-ver="nodejs-20.17.0">JavaScript</option>
                                 <option value="python" data-ver="cpython-3.14.0">Python 3</option>
-                                <option value="rust" data-ver="rust-1.78.0">Rust</option>
-                                <option value="go" data-ver="go-1.22.3">Go</option>
                             </select>
                         </div>
                         
@@ -2253,9 +2241,70 @@ window.changeCodingLanguage = function() {
     }
 }
 
+// ── Piston API Fallback (universal compiler for all languages) ────────────────
+window.executeWithPiston = async function(code, lang, stdin) {
+    // Piston language name + version mapping
+    const PISTON_MAP = {
+        'python': { language: 'python', version: '3.10.0' },
+        'python3': { language: 'python', version: '3.10.0' },
+        'javascript': { language: 'javascript', version: '18.15.0' },
+        'js': { language: 'javascript', version: '18.15.0' },
+        'java': { language: 'java', version: '15.0.2' },
+        'c': { language: 'c', version: '10.2.0' },
+        'cpp': { language: 'c++', version: '10.2.0' },
+        'c++': { language: 'c++', version: '10.2.0' },
+        'csharp': { language: 'csharp', version: '6.12.0' },
+        'rust': { language: 'rust', version: '1.50.0' },
+        'go': { language: 'go', version: '1.16.2' },
+        'swift': { language: 'swift', version: '5.3.3' },
+        'kotlin': { language: 'kotlin', version: '1.4.31-1' },
+        'ruby': { language: 'ruby', version: '3.0.1' },
+        'php': { language: 'php', version: '8.2.3' },
+        'perl': { language: 'perl', version: '5.36.0' },
+        'r': { language: 'r', version: '4.1.1' },
+        'dart': { language: 'dart', version: '2.19.6' },
+        'typescript': { language: 'typescript', version: '5.0.3' },
+        'scala': { language: 'scala', version: '3.2.2' },
+    };
+    const pistonLang = PISTON_MAP[lang.toLowerCase()] || { language: lang, version: '*' };
+    
+    try {
+        const res = await fetch('https://emkc.org/api/v2/piston/execute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                language: pistonLang.language,
+                version: pistonLang.version,
+                files: [{ name: 'main', content: code }],
+                stdin: stdin || ''
+            })
+        });
+        if (!res.ok) throw new Error(`Piston API error: ${res.status}`);
+        const data = await res.json();
+        const run = data.run || {};
+        const compile = data.compile || {};
+        return {
+            status: (run.code !== 0 || compile.code !== 0) ? '1' : '0',
+            program_output: run.stdout || '',
+            program_error: run.stderr || '',
+            compiler_error: compile.stderr || compile.output || ''
+        };
+    } catch (e) {
+        throw new Error(`Execution failed: ${e.message}`);
+    }
+};
+
 window.executeWithPaiza = async function(code, lang, stdin) {
-    let paizaLang = lang;
+    // Languages that Paiza.io doesn't support well — use Piston instead
+    const PISTON_LANGS = ['rust', 'go', 'swift', 'kotlin', 'scala', 'ruby', 'php', 'perl', 'r', 'dart'];
+    const PAIZA_LANG_MAP = { 'c++': 'cpp', 'python3': 'python3', 'python': 'python3', 'c#': 'csharp', 'csharp': 'csharp', 'javascript': 'javascript', 'js': 'javascript' };
+    let paizaLang = PAIZA_LANG_MAP[lang] || lang;
     if (lang === 'python' || lang === 'python3') paizaLang = 'python3';
+    
+    // Use Piston for unsupported Paiza languages
+    if (PISTON_LANGS.includes(lang.toLowerCase())) {
+        return await window.executeWithPiston(code, lang, stdin);
+    }
     
     let execCode = code;
     const problem = (window.caActiveProblemIndex !== null && window.caActiveProblemIndex !== -1 && typeof codingProblems !== 'undefined') ? codingProblems[window.caActiveProblemIndex] : null;
@@ -2282,11 +2331,169 @@ window.executeWithPaiza = async function(code, lang, stdin) {
             }
         } else if (lang === 'python' || lang === 'python3') {
             if (!execCode.includes('sys.stdin')) {
-                execCode = execCode + `\nimport sys, json, re\n__s = sys.stdin.read().strip()\n__pat = r"""([a-zA-Z0-9_]+)\\s*=\\s*(\\[[^\\]]*\\]|"[^"]*"|'[^']*'|-?\\d+(?:\\.\\d+)?|true|false|null)"""\n__args = [json.loads(v) for k, v in re.findall(__pat, __s)]\nif __args and '${snakeName}' in globals():\n    __res = globals()['${snakeName}'](*__args)\n    if __res is not None:\n        print(json.dumps(__res).replace(' ', ''))\n`;
+                // ── Extract real Python class name and function name dynamically ──
+                const classMatch = execCode.match(/class\s+([a-zA-Z0-9_]+)/);
+                const pyClassName = classMatch ? classMatch[1] : null;
+
+                const funcRegex = /def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g;
+                let match;
+                let pyFuncName = snakeName; // default fallback
+                const foundPyFuncs = [];
+                const excludedKeywords = new Set(['__init__', 'main']);
+                while ((match = funcRegex.exec(execCode)) !== null) {
+                    const fName = match[1];
+                    if (!excludedKeywords.has(fName)) {
+                        foundPyFuncs.push(fName);
+                    }
+                }
+                if (foundPyFuncs.length > 0) {
+                    const exactOrPartialMatch = foundPyFuncs.find(f => 
+                        f.toLowerCase() === snakeName.toLowerCase() || 
+                        f.toLowerCase() === camelName.toLowerCase()
+                    );
+                    if (exactOrPartialMatch) {
+                        pyFuncName = exactOrPartialMatch;
+                    } else {
+                        pyFuncName = foundPyFuncs[foundPyFuncs.length - 1];
+                    }
+                }
+
+                // Append the dynamic runner code
+                execCode = execCode + `
+import sys, json, re
+__s = sys.stdin.read().strip()
+__pat = r"""([a-zA-Z0-9_]+)\\s*=\\s*(\\[[^\\]]*\\]|"[^"]*"|'[^']*'|-?\\d+(?:\\.\\d+)?|true|false|null)"""
+__args = [json.loads(v.replace("'", '"')) for k, v in re.findall(__pat, __s)]
+
+if ${pyClassName ? `'${pyClassName}'` : 'None'}:
+    if '${pyClassName}' in globals():
+        __solver = globals()['${pyClassName}']()
+        if hasattr(__solver, '${pyFuncName}'):
+            __res = getattr(__solver, '${pyFuncName}')(*__args)
+            if __res is not None:
+                print(json.dumps(__res).replace(' ', ''))
+else:
+    if '${pyFuncName}' in globals():
+        __res = globals()['${pyFuncName}'](*__args)
+        if __res is not None:
+            print(json.dumps(__res).replace(' ', ''))
+`;
+            }
+        } else if (lang === 'csharp' || lang === 'c#') {
+            if (!execCode.includes('static void Main') && !execCode.includes('Main(string[]')) {
+                // ── Extract real C# class name and function name dynamically ──
+                const classMatch = execCode.match(/class\s+([a-zA-Z0-9_]+)/);
+                const csharpClassName = classMatch ? classMatch[1] : null;
+
+                let csharpFuncName = camelName;
+                const foundCsharpFuncs = [];
+                const funcRegex = /(?:[a-zA-Z0-9_<>[\]]+)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g;
+                let match;
+                const excludedKeywords = new Set(['if', 'while', 'for', 'switch', 'catch', 'return', 'class', 'struct', 'int', 'bool', 'double', 'float', 'void', 'main', 'public', 'private', 'protected', 'static', 'using', 'namespace']);
+                while ((match = funcRegex.exec(execCode)) !== null) {
+                    const fName = match[1];
+                    if (!excludedKeywords.has(fName)) {
+                        foundCsharpFuncs.push(fName);
+                    }
+                }
+                if (foundCsharpFuncs.length > 0) {
+                    const exactOrPartialMatch = foundCsharpFuncs.find(f => f.toLowerCase() === camelName.toLowerCase());
+                    if (exactOrPartialMatch) {
+                        csharpFuncName = exactOrPartialMatch;
+                    } else {
+                        csharpFuncName = foundCsharpFuncs[foundCsharpFuncs.length - 1];
+                    }
+                }
+
+                function inferCsharpLocalType(valStr) {
+                    if (!valStr) return 'int';
+                    valStr = valStr.trim();
+                    if (valStr.startsWith('[[')) return 'int[][]';
+                    if (valStr.startsWith('[')) {
+                        if (valStr.includes('"') || valStr.includes("'")) return 'string[]';
+                        return 'int[]';
+                    }
+                    if (valStr.startsWith('"') || valStr.startsWith("'")) return 'string';
+                    if (valStr === 'true' || valStr === 'false') return 'bool';
+                    if (valStr.includes('.')) return 'double';
+                    return 'int';
+                }
+
+                const varReads = varMatches.map(v => {
+                    const t = inferCsharpLocalType(v.val);
+                    if (t === 'int') return `        int ${v.name} = ToInt(ExtractVar(input, "${v.name}"));`;
+                    if (t === 'double') return `        double ${v.name} = ToDouble(ExtractVar(input, "${v.name}"));`;
+                    if (t === 'bool') return `        bool ${v.name} = ToBool(ExtractVar(input, "${v.name}"));`;
+                    if (t === 'string') return `        string ${v.name} = ExtractVar(input, "${v.name}");`;
+                    if (t === 'int[]') return `        int[] ${v.name} = ToIntArr(ExtractVar(input, "${v.name}"));`;
+                    if (t === 'string[]') return `        string[] ${v.name} = ToStrArr(ExtractVar(input, "${v.name}"));`;
+                    if (t === 'int[][]') return `        int[][] ${v.name} = ToIntArr2D(ExtractVar(input, "${v.name}"));`;
+                    return `        int ${v.name} = ToInt(ExtractVar(input, "${v.name}"));`;
+                }).join('\n');
+
+                const sampleOut = (problem.testCases && problem.testCases[0]) ? (problem.testCases[0].o || problem.testCases[0].output || "") : "";
+                let csharpRet = "int";
+                if (sampleOut.startsWith('[[')) csharpRet = "int[][]";
+                else if (sampleOut.startsWith('[')) csharpRet = (sampleOut.includes('"') || sampleOut.includes("'")) ? "string[]" : "int[]";
+                else if (sampleOut.startsWith('"') || sampleOut.startsWith("'")) csharpRet = "string";
+                else if (sampleOut === 'true' || sampleOut === 'false') csharpRet = "bool";
+                else if (sampleOut.includes('.')) csharpRet = "double";
+
+                const paramNames = varMatches.map(v => v.name).join(', ');
+
+                let solverInstantiation = "";
+                let methodCall = "";
+                if (csharpClassName) {
+                    solverInstantiation = `        ${csharpClassName} __solver = new ${csharpClassName}();\n`;
+                    methodCall = `__solver.${csharpFuncName}(${paramNames})`;
+                } else {
+                    solverInstantiation = `        Program __solver = new Program();\n`;
+                    methodCall = `__solver.${csharpFuncName}(${paramNames})`;
+                }
+
+                let callAndPrint = "";
+                if (csharpRet === "bool") {
+                    callAndPrint = `${solverInstantiation}        bool __res = ${methodCall};\n        Console.WriteLine(__res ? "true" : "false");`;
+                } else if (csharpRet === "string") {
+                    callAndPrint = `${solverInstantiation}        string __res = ${methodCall};\n        Console.WriteLine(${sampleOut.startsWith('"') ? '"\\"" + __res + "\\""' : '__res'});`;
+                } else if (csharpRet === "double") {
+                    callAndPrint = `${solverInstantiation}        double __res = ${methodCall};\n        Console.WriteLine(__res.ToString("F5"));`;
+                } else if (csharpRet === "int[]") {
+                    callAndPrint = `${solverInstantiation}        int[] __res = ${methodCall};\n        if (__res != null) { Console.Write("["); for (int i = 0; i < __res.Length; i++) Console.Write(__res[i] + (i + 1 < __res.Length ? "," : "")); Console.WriteLine("]"); }`;
+                } else if (csharpRet === "string[]") {
+                    callAndPrint = `${solverInstantiation}        string[] __res = ${methodCall};\n        if (__res != null) { Console.Write("["); for (int i = 0; i < __res.Length; i++) Console.Write("\\"" + __res[i] + "\\"" + (i + 1 < __res.Length ? "," : "")); Console.WriteLine("]"); }`;
+                } else if (csharpRet === "int[][]") {
+                    callAndPrint = `${solverInstantiation}        int[][] __res = ${methodCall};\n        if (__res != null) { Console.Write("["); for (int i = 0; i < __res.Length; i++) { Console.Write("["); for (int j = 0; j < __res[i].Length; j++) Console.Write(__res[i][j] + (j + 1 < __res[i].Length ? "," : "")); Console.Write("]" + (i + 1 < __res.Length ? "," : "")); } Console.WriteLine("]"); }`;
+                } else {
+                    callAndPrint = `${solverInstantiation}        object __res = ${methodCall};\n        Console.WriteLine(__res);`;
+                }
+
+                let csharpHelpersEnd = "";
+                let closingBrace = "";
+                if (csharpClassName) {
+                    csharpHelpersEnd = "\n}\n";
+                    closingBrace = "";
+                } else {
+                    csharpHelpersEnd = "";
+                    closingBrace = "\n}\n";
+                }
+
+                const csharpHelpers = `using System;\nusing System.IO;\nusing System.Collections.Generic;\n\npublic class Program {\n` +
+                `    public static string ExtractVar(string input, string name) {\n        int pos = input.IndexOf(name);\n        if (pos == -1) return "";\n        int eq = input.IndexOf('=', pos);\n        if (eq == -1) return "";\n        int start = eq + 1;\n        while (start < input.Length && char.IsWhiteSpace(input[start])) start++;\n        if (start >= input.Length) return "";\n        if (input[start] == '[') {\n            int depth = 0;\n            for (int i = start; i < input.Length; i++) {\n                if (input[i] == '[') depth++;\n                else if (input[i] == ']') {\n                    depth--;\n                    if (depth == 0) return input.Substring(start, i - start + 1);\n                }\n            }\n            return input.Substring(start);\n        } else {\n            int end = start;\n            while (end < input.Length && input[end] != ',' && input[end] != '\\r' && input[end] != '\\n') end++;\n            return input.Substring(start, end - start).Trim();\n        }\n    }\n` +
+                `    public static int ToInt(string s) { int.TryParse(s, out int res); return res; }\n` +
+                `    public static double ToDouble(string s) { double.TryParse(s, out double res); return res; }\n` +
+                `    public static bool ToBool(string s) { return s.Trim().ToLower() == "true" || s.Trim() == "1"; }\n` +
+                `    public static int[] ToIntArr(string s) {\n        int ob = s.IndexOf('['); int cb = s.LastIndexOf(']');\n        if (ob == -1 || cb == -1 || cb <= ob + 1) return new int[0];\n        string[] parts = s.Substring(ob + 1, cb - ob - 1).Split(',');\n        List<int> list = new List<int>();\n        foreach (var p in parts) { if (!string.IsNullOrWhiteSpace(p)) list.Add(ToInt(p)); }\n        return list.ToArray();\n    }\n` +
+                `    public static string[] ToStrArr(string s) {\n        int ob = s.IndexOf('['); int cb = s.LastIndexOf(']');\n        if (ob == -1 || cb == -1 || cb <= ob + 1) return new string[0];\n        string inner = s.Substring(ob + 1, cb - ob - 1);\n        List<string> list = new List<string>();\n        bool inQ = false; System.Text.StringBuilder cur = new System.Text.StringBuilder();\n        for (int i = 0; i < inner.Length; i++) {\n            char c = inner[i];\n            if (c == '"' || c == '\\'') inQ = !inQ;\n            else if (c == ',' && !inQ) { list.Add(cur.ToString()); cur.Clear(); }\n            else cur.Append(c);\n        }\n        if (cur.Length > 0) list.Add(cur.ToString());\n        return list.ToArray();\n    }\n` +
+                `    public static int[][] ToIntArr2D(string s) {\n        List<int[]> list = new List<int[]>(); int i = 0;\n        while (i < s.Length) {\n            int ob = s.IndexOf('[', i); if (ob == -1) break;\n            if (ob > 0 && s[ob-1] == '[') { i = ob + 1; continue; }\n            int cb = s.IndexOf(']', ob); if (cb == -1) break;\n            list.Add(ToIntArr(s.Substring(ob, cb - ob + 1))); i = cb + 1;\n        }\n        return list.ToArray();\n    }\n\n` +
+                `    public static void Main(string[] args) {\n        string input = Console.In.ReadToEnd();\n${varReads}\n${callAndPrint}\n    }\n` +
+                csharpHelpersEnd;
+
+                execCode = csharpHelpers + execCode + closingBrace;
             }
         } else if (lang === 'cpp' || lang === 'c++') {
             if (!execCode.includes('int main')) {
-                const cppHeadersAndHelpers = `#include <iostream>\n#include <vector>\n#include <string>\n#include <sstream>\n#include <algorithm>\n#include <unordered_map>\n#include <map>\n#include <set>\n#include <queue>\n#include <stack>\nusing namespace std;\n\n` +
+                const cppHeadersAndHelpers = `#include <iostream>\n#include <vector>\n#include <string>\n#include <sstream>\n#include <algorithm>\n#include <unordered_map>\n#include <map>\n#include <set>\n#include <queue>\n#include <stack>\n#include <stdlib.h>\n#include <string.h>\nusing namespace std;\n\n` +
                 `string __extractVar(const string& input, const string& name) {\n    size_t pos = input.find(name);\n    if (pos == string::npos) return "";\n    size_t eq = input.find('=', pos);\n    if (eq == string::npos) return "";\n    size_t start = input.find_first_not_of(" \\t\\r\\n", eq + 1);\n    if (start == string::npos) return "";\n    if (input[start] == '[') {\n        int depth = 0;\n        for (size_t i = start; i < input.size(); i++) {\n            if (input[i] == '[') depth++;\n            else if (input[i] == ']') {\n                depth--;\n                if (depth == 0) return input.substr(start, i - start + 1);\n            }\n        }\n        return input.substr(start);\n    } else if (input[start] == '"' || input[start] == '\\'') {\n        char quote = input[start];\n        size_t endQ = input.find(quote, start + 1);\n        if (endQ != string::npos) return input.substr(start + 1, endQ - start - 1);\n        return input.substr(start + 1);\n    } else {\n        size_t end = input.find_first_of(",\\r\\n", start);\n        if (end == string::npos) return input.substr(start);\n        return input.substr(start, end - start);\n    }\n}\n` +
                 `int __toInt(string s) { try { return stoi(s); } catch(...) { return 0; } }\n` +
                 `double __toDouble(string s) { try { return stod(s); } catch(...) { return 0.0; } }\n` +
@@ -2330,27 +2537,246 @@ window.executeWithPaiza = async function(code, lang, stdin) {
                 else if (sampleOut.includes('.')) cppRet = "double";
 
                 const paramNames = varMatches.map(v => v.name).join(', ');
+
+                // ── Extract real C++ class name and function name dynamically ──
+                const classMatch = execCode.match(/class\s+([a-zA-Z0-9_]+)/);
+                const cppClassName = classMatch ? classMatch[1] : null;
+
+                let cppFuncName = camelName;
+                const foundFuncs = [];
+                const funcRegex = /(?:vector\s*<\s*(?:vector\s*<\s*[a-zA-Z0-9_]+\s*>\s*|[a-zA-Z0-9_]+\s*)\s*>\s*\*?|[a-zA-Z_][a-zA-Z0-9_]*\s*\*?)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g;
+                let match;
+                const excludedKeywords = new Set(['if', 'while', 'for', 'switch', 'catch', 'return', 'class', 'struct', 'vector', 'string', 'int', 'bool', 'double', 'float', 'void', 'main']);
+                while ((match = funcRegex.exec(execCode)) !== null) {
+                    const fName = match[1];
+                    if (!excludedKeywords.has(fName)) {
+                        foundFuncs.push(fName);
+                    }
+                }
+                if (foundFuncs.length > 0) {
+                    const exactOrPartialMatch = foundFuncs.find(f => f.toLowerCase() === camelName.toLowerCase());
+                    if (exactOrPartialMatch) {
+                        cppFuncName = exactOrPartialMatch;
+                    } else {
+                        cppFuncName = foundFuncs[foundFuncs.length - 1];
+                    }
+                }
+
+                let solverInstantiation = "";
+                let methodCall = "";
+                if (cppClassName) {
+                    solverInstantiation = `    ${cppClassName} __solver;\n`;
+                    methodCall = `__solver.${cppFuncName}(${paramNames})`;
+                } else {
+                    methodCall = `${cppFuncName}(${paramNames})`;
+                }
+
                 let callAndPrint = "";
                 if (cppRet === "bool") {
-                    callAndPrint = `    bool __res = ${camelName}(${paramNames});\n    cout << (__res ? "true" : "false") << endl;`;
+                    callAndPrint = `${solverInstantiation}    bool __res = ${methodCall};\n    cout << (__res ? "true" : "false") << endl;`;
                 } else if (cppRet === "string") {
-                    callAndPrint = `    string __res = ${camelName}(${paramNames});\n    cout << ${sampleOut.startsWith('"') ? '"\\"" << __res << "\\""' : '__res'} << endl;`;
+                    callAndPrint = `${solverInstantiation}    string __res = ${methodCall};\n    cout << ${sampleOut.startsWith('"') ? '"\\"" << __res << "\\""' : '__res'} << endl;`;
                 } else if (cppRet === "double") {
-                    callAndPrint = `    double __res = ${camelName}(${paramNames});\n    cout << fixed; cout.precision(5); cout << __res << endl;`;
+                    callAndPrint = `${solverInstantiation}    double __res = ${methodCall};\n    cout << fixed; cout.precision(5); cout << __res << endl;`;
                 } else if (cppRet === "vector<int>") {
-                    callAndPrint = `    vector<int> __res = ${camelName}(${paramNames});\n    cout << "["; for (size_t i = 0; i < __res.size(); i++) cout << (i > 0 ? "," : "") << __res[i]; cout << "]" << endl;`;
+                    callAndPrint = `${solverInstantiation}    vector<int> __res = ${methodCall};\n    cout << "["; for (size_t i = 0; i < __res.size(); i++) cout << (i > 0 ? "," : "") << __res[i]; cout << "]" << endl;`;
                 } else if (cppRet === "vector<string>") {
-                    callAndPrint = `    vector<string> __res = ${camelName}(${paramNames});\n    cout << "["; for (size_t i = 0; i < __res.size(); i++) cout << (i > 0 ? "," : "") << "\\"" << __res[i] << "\\""; cout << "]" << endl;`;
+                    callAndPrint = `${solverInstantiation}    vector<string> __res = ${methodCall};\n    cout << "["; for (size_t i = 0; i < __res.size(); i++) cout << (i > 0 ? "," : "") << "\\"" << __res[i] << "\\""; cout << "]" << endl;`;
                 } else if (cppRet === "vector<vector<int>>") {
-                    callAndPrint = `    vector<vector<int>> __res = ${camelName}(${paramNames});\n    cout << "["; for (size_t i = 0; i < __res.size(); i++) { cout << (i > 0 ? "," : "") << "["; for (size_t j = 0; j < __res[i].size(); j++) cout << (j > 0 ? "," : "") << __res[i][j]; cout << "]"; } cout << "]" << endl;`;
+                    callAndPrint = `${solverInstantiation}    vector<vector<int>> __res = ${methodCall};\n    cout << "["; for (size_t i = 0; i < __res.size(); i++) { cout << (i > 0 ? "," : "") << "["; for (size_t j = 0; j < __res[i].size(); j++) cout << (j > 0 ? "," : "") << __res[i][j]; cout << "]"; } cout << "]" << endl;`;
                 } else {
-                    callAndPrint = `    auto __res = ${camelName}(${paramNames});\n    cout << __res << endl;`;
+                    callAndPrint = `${solverInstantiation}    auto __res = ${methodCall};\n    cout << __res << endl;`;
                 }
 
                 execCode = cppHeadersAndHelpers + execCode + `\nint main() {\n    string input((istreambuf_iterator<char>(cin)), istreambuf_iterator<char>());\n${varReads}\n${callAndPrint}\n    return 0;\n}\n`;
             }
+        } else if (lang === 'c') {
+            if (!execCode.includes('int main')) {
+                // ── Standard C headers ──────────────────────────────────────
+                const cHeaders = `#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <math.h>\n#include <limits.h>\n#include <stdbool.h>\n\n`;
+
+                // ── Extract REAL function name from source code ──────────────
+                // Matches: `int* twoSum(` or `void solve(` etc.
+                const funcDefMatch = execCode.match(
+                    /(?:^|\n)\s*(?:static\s+)?(?:(?:const|unsigned|signed)\s+)?(?:int|char|void|bool|double|float|long|short)\s*\*?\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/m
+                );
+                const cFuncName = (funcDefMatch && funcDefMatch[1] !== 'main') ? funcDefMatch[1] : camelName;
+
+                const sigMatch = execCode.match(new RegExp(cFuncName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\(([^{]+?)\\)\\s*\\{', 's'));
+                const rawParamStr = sigMatch ? sigMatch[1] : '';
+                const cParamList = rawParamStr.split(',').map(p => p.trim()).filter(Boolean);
+                const retTypeMatch = execCode.match(new RegExp('(?:^|\\n)\\s*((?:(?:const|unsigned|signed)\\s+)?(?:int|char|void|bool|double|float|long|short)\\s*\\*?)\\s*' + cFuncName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+                const retType = retTypeMatch ? retTypeMatch[1].trim() : 'int';
+                const retIsPtr = retType.includes('*');
+                const retIsVoid = retType.startsWith('void');
+                const cHelpers = `
+static char* c_extractVal(const char* src, const char* key) {
+    static char buf[8192]; buf[0]='\\0';
+    const char* p = strstr(src, key);
+    if (!p) return buf;
+    p += strlen(key);
+    while (*p==' '||*p=='\\t') p++;
+    if (*p!='=') return buf;
+    p++;
+    while (*p==' '||*p=='\\t') p++;
+    int len=0;
+    if (*p=='[') {
+        int d=0;
+        for (const char* s=p;*s;s++) {
+            if (*s=='[') d++; else if (*s==']'){d--;if(!d){len=(int)(s-p+1);break;}}
+        }
+    } else {
+        const char* s=p;
+        while(*s&&*s!=','&&*s!='\\n'&&*s!='\\r'&&*s!=' ') {s++;len++;}
+    }
+    strncpy(buf,p,len); buf[len]='\\0';
+    return buf;
+}
+static int* c_parseIntArr(const char* s, int* sz) {
+    *sz=0;
+    const char* ob=strchr(s,'['); const char* cb=strrchr(s,']');
+    if(!ob||!cb||cb<=ob){return NULL;}
+    ob++; int cap=64; int* arr=(int*)malloc(cap*sizeof(int));
+    int tmpLen=(int)(cb-ob);
+    char* tmp=(char*)malloc(tmpLen+2);
+    strncpy(tmp,ob,tmpLen); tmp[tmpLen]='\\0';
+    char* tok=strtok(tmp,",");
+    while(tok){while(*tok==' ')tok++;if(*sz>=cap){cap*=2;arr=(int*)realloc(arr,cap*sizeof(int));}arr[(*sz)++]=atoi(tok);tok=strtok(NULL,",");}
+    free(tmp); return arr;
+}
+static int** c_parseIntArr2D(const char* s, int* rows, int** colSizes) {
+    *rows=0;
+    int cap=32;
+    int** grid=(int**)malloc(cap*sizeof(int*));
+    *colSizes=(int*)malloc(cap*sizeof(int));
+    const char* p=s;
+    while(*p&&*p!='[') p++;
+    if(*p=='[') p++;
+    while(*p) {
+        while(*p&&*p!='['&&*p!=']') p++;
+        if(!*p||*p==']') break;
+        const char* rowStart=p;
+        int depth=0; const char* rowEnd=p;
+        while(*rowEnd){if(*rowEnd=='[')depth++;else if(*rowEnd==']'){depth--;if(depth==0){rowEnd++;break;}}rowEnd++;}
+        int rlen=(int)(rowEnd-rowStart);
+        char* rowStr=(char*)malloc(rlen+2);
+        strncpy(rowStr,rowStart,rlen); rowStr[rlen]='\\0';
+        int rSz=0;
+        int* row=c_parseIntArr(rowStr,&rSz);
+        free(rowStr);
+        if(*rows>=cap){cap*=2;grid=(int**)realloc(grid,cap*sizeof(int*));*colSizes=(int*)realloc(*colSizes,cap*sizeof(int));}
+        grid[(*rows)]=row;
+        (*colSizes)[(*rows)]=rSz;
+        (*rows)++;
+        p=rowEnd;
+    }
+    return grid;
+}
+`;
+                let varDecls = [];
+                let callArgs  = [];
+                const arrayParams = [];
+                const array2DParams = [];
+                for (const param of cParamList) {
+                    const ptrCount = (param.match(/\*/g) || []).length;
+                    const isDoublePtr = ptrCount >= 2;
+                    const isPtr = ptrCount >= 1;
+                    const nameM = param.match(/([a-zA-Z_][a-zA-Z0-9_]*)\s*$/);
+                    if (!nameM) continue;
+                    const pName = nameM[1];
+                    if (/[Cc]ol[Ss]ize|[Cc]olumn[Ss]ize|return[Ss]ize|[Rr]ow[Ss]ize/i.test(pName) && isPtr) {
+                        if (isDoublePtr) {
+                            varDecls.push(`    int* ${pName} = (int*)malloc(64*sizeof(int)); memset(${pName},0,64*sizeof(int));`);
+                            callArgs.push(`&${pName}`);
+                        } else {
+                            varDecls.push(`    int ${pName} = 0;`);
+                            callArgs.push(`&${pName}`);
+                        }
+                        continue;
+                    }
+                    const sizeFor2D = array2DParams.find(a => pName.toLowerCase() === a.toLowerCase() + 'size' || pName.toLowerCase() === a.toLowerCase() + 'len');
+                    if (!isPtr && sizeFor2D) {
+                        varDecls.push(`    int ${pName} = ${sizeFor2D}_rows;`);
+                        callArgs.push(pName);
+                        continue;
+                    }
+                    const sizeFor1D = arrayParams.find(a => pName.toLowerCase() === a.toLowerCase() + 'size' || pName.toLowerCase() === a.toLowerCase() + 'len' || pName.toLowerCase() === a.toLowerCase() + 'length');
+                    if (!isPtr && sizeFor1D) {
+                        varDecls.push(`    int ${pName} = ${sizeFor1D}_sz;`);
+                        callArgs.push(pName);
+                        continue;
+                    }
+                    const vm = varMatches.find(v => v.name === pName);
+                    if (isDoublePtr && vm && vm.val.startsWith('[[')) {
+                        array2DParams.push(pName);
+                        varDecls.push(`    int ${pName}_rows = 0;`);
+                        varDecls.push(`    int* ${pName}_colSizes = NULL;`);
+                        varDecls.push(`    int** ${pName} = c_parseIntArr2D(c_extractVal(input, "${pName}"), &${pName}_rows, &${pName}_colSizes);`);
+                        callArgs.push(pName);
+                        continue;
+                    }
+                    if (isPtr && vm && vm.val.startsWith('[')) {
+                        arrayParams.push(pName);
+                        varDecls.push(`    int ${pName}_sz = 0;`);
+                        varDecls.push(`    int* ${pName} = c_parseIntArr(c_extractVal(input, "${pName}"), &${pName}_sz);`);
+                        callArgs.push(pName);
+                        continue;
+                    }
+                    if (isPtr) {
+                        varDecls.push(`    int ${pName} = 0;`);
+                        callArgs.push(`&${pName}`);
+                        continue;
+                    }
+                    varDecls.push(`    int ${pName} = atoi(c_extractVal(input, "${pName}"));`);
+                    callArgs.push(pName);
+                }
+                const retSizeParam = cParamList.find(p => /return.*[Ss]ize/i.test(p));
+                const retSizeVarM  = retSizeParam && retSizeParam.match(/([a-zA-Z_][a-zA-Z0-9_]*)\s*$/);
+                const retSizeVar   = retSizeVarM ? retSizeVarM[1] : 'returnSize';
+                let resultCode = '';
+                if (retIsVoid) {
+                    resultCode = `    ${cFuncName}(${callArgs.join(', ')});\n    printf("done\\n");`;
+                } else if (retIsPtr) {
+                    resultCode = `    int* __res = ${cFuncName}(${callArgs.join(', ')});\n    if (__res) {\n        printf("[");\n        for (int __i = 0; __i < ${retSizeVar}; __i++) { if(__i>0) printf(","); printf("%d",__res[__i]); }\n        printf("]\\n");\n        free(__res);\n    }`;
+                } else {
+                    resultCode = `    int __res = (int)${cFuncName}(${callArgs.join(', ')});\n    printf("%d\\n", __res);`;
+                }
+
+                const cMain = `\nint main() {\n    char input[16384] = {0};\n    fread(input, 1, sizeof(input)-1, stdin);\n${varDecls.join('\n')}\n${resultCode}\n    return 0;\n}\n`;
+
+                execCode = cHeaders + cHelpers + execCode + cMain;
+            } else {
+                // Code already has main — ensure stdlib headers present
+                if (!execCode.includes('stdlib.h')) execCode = `#include <stdlib.h>\n` + execCode;
+                if (!execCode.includes('string.h'))  execCode = `#include <string.h>\n` + execCode;
+                if (!execCode.includes('stdio.h'))   execCode = `#include <stdio.h>\n` + execCode;
+            }
         } else if (lang === 'java') {
             if (!execCode.includes('public class Main')) {
+                // ── Extract real Java class name and function name dynamically ──
+                const classMatch = execCode.match(/class\s+([a-zA-Z0-9_]+)/);
+                const javaClassName = (classMatch && classMatch[1] !== 'Main') ? classMatch[1] : null;
+
+                let javaFuncName = camelName;
+                const foundJavaFuncs = [];
+                const funcRegex = /(?:[a-zA-Z0-9_<>[\]]+)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g;
+                let match;
+                const excludedKeywords = new Set(['if', 'while', 'for', 'switch', 'catch', 'return', 'class', 'struct', 'int', 'boolean', 'double', 'float', 'void', 'main', 'public', 'private', 'protected', 'static']);
+                while ((match = funcRegex.exec(execCode)) !== null) {
+                    const fName = match[1];
+                    if (!excludedKeywords.has(fName)) {
+                        foundJavaFuncs.push(fName);
+                    }
+                }
+                if (foundJavaFuncs.length > 0) {
+                    const exactOrPartialMatch = foundJavaFuncs.find(f => f.toLowerCase() === camelName.toLowerCase());
+                    if (exactOrPartialMatch) {
+                        javaFuncName = exactOrPartialMatch;
+                    } else {
+                        javaFuncName = foundJavaFuncs[foundJavaFuncs.length - 1];
+                    }
+                }
+
                 function inferJavaLocalType(valStr) {
                     if (!valStr) return 'int';
                     valStr = valStr.trim();
@@ -2386,21 +2812,32 @@ window.executeWithPaiza = async function(code, lang, stdin) {
                 else if (sampleOut.includes('.')) javaRet = "double";
 
                 const paramNames = varMatches.map(v => v.name).join(', ');
+
+                let solverInstantiation = "";
+                let methodCall = "";
+                if (javaClassName) {
+                    solverInstantiation = `        ${javaClassName} __solver = new ${javaClassName}();\n`;
+                    methodCall = `__solver.${javaFuncName}(${paramNames})`;
+                } else {
+                    solverInstantiation = `        Main __solver = new Main();\n`;
+                    methodCall = `__solver.${javaFuncName}(${paramNames})`;
+                }
+
                 let callAndPrint = "";
                 if (javaRet === "boolean") {
-                    callAndPrint = `        boolean __res = ${camelName}(${paramNames});\n        System.out.println(__res ? "true" : "false");`;
+                    callAndPrint = `${solverInstantiation}        boolean __res = ${methodCall};\n        System.out.println(__res ? "true" : "false");`;
                 } else if (javaRet === "String") {
-                    callAndPrint = `        String __res = ${camelName}(${paramNames});\n        System.out.println(${sampleOut.startsWith('"') ? '"\\"" + __res + "\\""' : '__res'});`;
+                    callAndPrint = `${solverInstantiation}        String __res = ${methodCall};\n        System.out.println(${sampleOut.startsWith('"') ? '"\\"" + __res + "\\""' : '__res'});`;
                 } else if (javaRet === "double") {
-                    callAndPrint = `        double __res = ${camelName}(${paramNames});\n        System.out.printf("%.5f\\n", __res);`;
+                    callAndPrint = `${solverInstantiation}        double __res = ${methodCall};\n        System.out.printf("%.5f\\n", __res);`;
                 } else if (javaRet === "int[]") {
-                    callAndPrint = `        int[] __res = ${camelName}(${paramNames});\n        if (__res != null) { System.out.print("["); for (int i = 0; i < __res.length; i++) System.out.print(__res[i] + (i + 1 < __res.length ? "," : "")); System.out.println("]"); }`;
+                    callAndPrint = `${solverInstantiation}        int[] __res = ${methodCall};\n        if (__res != null) { System.out.print("["); for (int i = 0; i < __res.length; i++) System.out.print(__res[i] + (i + 1 < __res.length ? "," : "")); System.out.println("]"); }`;
                 } else if (javaRet === "String[]") {
-                    callAndPrint = `        String[] __res = ${camelName}(${paramNames});\n        if (__res != null) { System.out.print("["); for (int i = 0; i < __res.length; i++) System.out.print("\\"" + __res[i] + "\\"" + (i + 1 < __res.length ? "," : "")); System.out.println("]"); }`;
+                    callAndPrint = `${solverInstantiation}        String[] __res = ${methodCall};\n        if (__res != null) { System.out.print("["); for (int i = 0; i < __res.length; i++) System.out.print("\\"" + __res[i] + "\\"" + (i + 1 < __res.length ? "," : "")); System.out.println("]"); }`;
                 } else if (javaRet === "int[][]") {
-                    callAndPrint = `        int[][] __res = ${camelName}(${paramNames});\n        if (__res != null) { System.out.print("["); for (int i = 0; i < __res.length; i++) { System.out.print("["); for (int j = 0; j < __res[i].length; j++) System.out.print(__res[i][j] + (j + 1 < __res[i].length ? "," : "")); System.out.print("]" + (i + 1 < __res.length ? "," : "")); } System.out.println("]"); }`;
+                    callAndPrint = `${solverInstantiation}        int[][] __res = ${methodCall};\n        if (__res != null) { System.out.print("["); for (int i = 0; i < __res.length; i++) { System.out.print("["); for (int j = 0; j < __res[i].length; j++) System.out.print(__res[i][j] + (j + 1 < __res[i].length ? "," : "")); System.out.print("]" + (i + 1 < __res.length ? "," : "")); } System.out.println("]"); }`;
                 } else {
-                    callAndPrint = `        Object __res = ${camelName}(${paramNames});\n        System.out.println(__res);`;
+                    callAndPrint = `${solverInstantiation}        Object __res = ${methodCall};\n        System.out.println(__res);`;
                 }
 
                 const varReadsForMain = varMatches.map(v => {
@@ -2415,6 +2852,16 @@ window.executeWithPaiza = async function(code, lang, stdin) {
                     return `        int ${v.name} = toInt(extractVar(_tc, "${v.name}"));`;
                 }).join('\n');
 
+                let javaHelpersEnd = "";
+                let closingBrace = "";
+                if (javaClassName) {
+                    javaHelpersEnd = "\n}\n";
+                    closingBrace = "";
+                } else {
+                    javaHelpersEnd = "";
+                    closingBrace = "\n}\n";
+                }
+
                 const javaHelpers = `import java.io.*;\nimport java.util.*;\n\npublic class Main {\n` +
                 `    public static String extractVar(String input, String name) {\n        int pos = input.indexOf(name);\n        if (pos == -1) return "";\n        int eq = input.indexOf('=', pos);\n        if (eq == -1) return "";\n        int start = eq + 1;\n        while (start < input.length() && Character.isWhitespace(input.charAt(start))) start++;\n        if (start >= input.length()) return "";\n        if (input.charAt(start) == '[') {\n            int depth = 0;\n            for (int i = start; i < input.length(); i++) {\n                if (input.charAt(i) == '[') depth++;\n                else if (input.charAt(i) == ']') {\n                    depth--;\n                    if (depth == 0) return input.substring(start, i + 1);\n                }\n            }\n            return input.substring(start);\n        } else if (input.charAt(start) == '"' || input.charAt(start) == '\\'') {\n            char quote = input.charAt(start);\n            int endQ = input.indexOf(quote, start + 1);\n            if (endQ != -1) return input.substring(start + 1, endQ);\n            return input.substring(start + 1);\n        } else {\n            int end = start;\n            while (end < input.length() && input.charAt(end) != ',' && input.charAt(end) != '\\r' && input.charAt(end) != '\\n') end++;\n            return input.substring(start, end).trim();\n        }\n    }\n` +
                 `    public static int toInt(String s) { try { return Integer.parseInt(s.trim()); } catch(Exception e) { return 0; } }\n` +
@@ -2423,14 +2870,28 @@ window.executeWithPaiza = async function(code, lang, stdin) {
                 `    public static int[] toIntArr(String s) {\n        int ob = s.indexOf('['); int cb = s.lastIndexOf(']');\n        if (ob == -1 || cb == -1 || cb <= ob + 1) return new int[0];\n        String[] parts = s.substring(ob + 1, cb).split(",");\n        List<Integer> list = new ArrayList<>();\n        for (String p : parts) { if (!p.trim().isEmpty()) list.add(toInt(p)); }\n        int[] res = new int[list.size()];\n        for (int i = 0; i < list.size(); i++) res[i] = list.get(i);\n        return res;\n    }\n` +
                 `    public static String[] toStrArr(String s) {\n        int ob = s.indexOf('['); int cb = s.lastIndexOf(']');\n        if (ob == -1 || cb == -1 || cb <= ob + 1) return new String[0];\n        String inner = s.substring(ob + 1, cb);\n        List<String> list = new ArrayList<>();\n        boolean inQ = false; StringBuilder cur = new StringBuilder();\n        for (int i = 0; i < inner.length(); i++) {\n            char c = inner.charAt(i);\n            if (c == '"' || c == '\\'') inQ = !inQ;\n            else if (c == ',' && !inQ) { list.add(cur.toString()); cur = new StringBuilder(); }\n            else cur.append(c);\n        }\n        if (cur.length() > 0) list.add(cur.toString());\n        return list.toArray(new String[0]);\n    }\n` +
                 `    public static int[][] toIntArr2D(String s) {\n        List<int[]> list = new ArrayList<>(); int i = 0;\n        while (i < s.length()) {\n            int ob = s.indexOf('[', i); if (ob == -1) break;\n            if (ob > 0 && s.charAt(ob-1) == '[') { i = ob + 1; continue; }\n            int cb = s.indexOf(']', ob); if (cb == -1) break;\n            list.add(toIntArr(s.substring(ob, cb + 1))); i = cb + 1;\n        }\n        return list.toArray(new int[0][]);\n    }\n\n` +
-                `    public static void main(String[] args) throws IOException {\n        Scanner sc = new Scanner(System.in);\n        StringBuilder sb = new StringBuilder();\n        while (sc.hasNextLine()) sb.append(sc.nextLine()).append("\\n");\n        String _tc = sb.toString();\n${varReadsForMain}\n${callAndPrint}\n    }\n\n`;
+                `    public static void main(String[] args) throws IOException {\n        Scanner sc = new Scanner(System.in);\n        StringBuilder sb = new StringBuilder();\n        while (sc.hasNextLine()) sb.append(sc.nextLine()).append("\\n");\n        String _tc = sb.toString();\n${varReadsForMain}\n${callAndPrint}\n    }\n` +
+                javaHelpersEnd;
 
-                execCode = javaHelpers + execCode + `\n}\n`;
+                execCode = javaHelpers + execCode + closingBrace;
             }
         }
     } else if (lang === 'cpp' || lang === 'c++') {
         if (!execCode.includes('#include')) {
-            execCode = `#include <iostream>\n#include <vector>\n#include <unordered_map>\n#include <string>\n#include <algorithm>\n#include <set>\n#include <map>\n#include <queue>\n#include <stack>\nusing namespace std;\n\n` + execCode;
+            execCode = `#include <iostream>\n#include <vector>\n#include <unordered_map>\n#include <string>\n#include <algorithm>\n#include <set>\n#include <map>\n#include <queue>\n#include <stack>\n#include <stdlib.h>\n#include <string.h>\nusing namespace std;\n\n` + execCode;
+        }
+    } else if (lang === 'c') {
+        // Always prepend standard C headers for C language
+        if (!execCode.includes('#include')) {
+            execCode = `#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <math.h>\n#include <limits.h>\n#include <stdbool.h>\n\n` + execCode;
+        } else {
+            // Code already has some includes — ensure stdlib.h is present for malloc etc.
+            if (!execCode.includes('stdlib.h')) {
+                execCode = `#include <stdlib.h>\n` + execCode;
+            }
+            if (!execCode.includes('string.h')) {
+                execCode = `#include <string.h>\n` + execCode;
+            }
         }
     }
     
@@ -2448,9 +2909,19 @@ window.executeWithPaiza = async function(code, lang, stdin) {
         })
     });
     
-    if (!createRes.ok) throw new Error("Compiler Proxy Error");
+    if (!createRes.ok) {
+        // Paiza returned an HTTP error — try Piston as fallback
+        console.warn('[Coding Arena] Paiza HTTP error, falling back to Piston...');
+        return await window.executeWithPiston(code, lang, stdin);
+    }
     const createData = await createRes.json();
     if (createData.error) throw new Error(createData.error);
+    
+    // No id = language not supported by Paiza — fallback to Piston
+    if (!createData.id) {
+        console.warn('[Coding Arena] Paiza returned no id (unsupported language?), falling back to Piston...');
+        return await window.executeWithPiston(code, lang, stdin);
+    }
     
     const id = createData.id;
     
