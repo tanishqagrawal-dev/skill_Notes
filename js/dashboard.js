@@ -584,7 +584,8 @@ async function initNotesSync() {
                     url: d.file_url,
                     fileUrl: d.file_url,
                     uploaderName: d.uploader_name || (d.uploader_email ? d.uploader_email.split('@')[0] : 'Scholar'),
-                    name: d.title
+                    name: d.title,
+                    status: d.status || 'approved' // Rows in approved_notes are already approved
                 }));
                 window.NotesDB = NotesDB;
                 console.log(`📦 Notes Hub Updated: ${NotesDB.length} records in cache from ${federatedClients.length} databases.`);

@@ -487,7 +487,7 @@ window.showNotes = async function (activeTab = 'notes', loadMore = false) {
         staticNotes = globalNotes['global']?.[selState.subject.name] || [];
     }
 
-    // FETCH FROM FIREBASE INSTANTLY WITH PAGINATION
+    // FETCH FROM FIREBASE WITH PAGINATION
     if (!loadMore) {
         window.lastVisibleNote = null;
     }
@@ -515,19 +515,101 @@ window.showNotes = async function (activeTab = 'notes', loadMore = false) {
         }
     }
 
-    // Merge genuine DB nodes securely with formatted static nodes
-    const combinedNotes = [...firestoreNotes, ...staticNotes];
+    // --- SUPABASE NOTES ---
+    // Pull from window.NotesDB (populated by dashboard.js initNotesSync) if available.
+    // If not yet loaded, fetch directly from Supabase approved_notes table.
+    let supabaseNotes = [];
+    const subjectName = selState.subject.name;
+    if (window.NotesDB && window.NotesDB.length > 0) {
+        // Filter the cached NotesDB for this subject
+        supabaseNotes = window.NotesDB.filter(n => {
+            const matchesSubject =
+                n.subjectId === subjectId ||
+                n.subject === subjectId ||
+                n.subject === subjectName ||
+                n.subjectName === subjectName ||
+                n.name === subjectName;
+            const matchesCollege =
+                n.collegeId === collegeId ||
+                n.college === collegeId ||
+                n.collegeId === 'global' ||
+                n.college === 'global' ||
+                !n.collegeId;
+            return matchesSubject && matchesCollege;
+        });
+        console.log(`📦 notes-hub: pulled ${supabaseNotes.length} notes from NotesDB cache for "${subjectName}"`);
+    } else {
+        // NotesDB not loaded yet — fetch directly from Supabase
+        try {
+            const sb = window.supabase || (await import('./supabase-config.js').then(m => m.supabase).catch(() => null));
+            if (sb) {
+                let query = sb.from('approved_notes')
+                    .select('*')
+                    .or(`subjectId.eq.${subjectId},subject.eq.${subjectId},subjectName.eq."${subjectName}"`)
+                    .limit(50);
+                const { data, error } = await query;
+                if (!error && data && data.length > 0) {
+                    supabaseNotes = data.map(d => ({
+                        ...d,
+                        url: d.file_url || d.url,
+                        fileUrl: d.file_url || d.url,
+                        uploaderName: d.uploader_name || (d.uploader_email ? d.uploader_email.split('@')[0] : 'Scholar'),
+                        name: d.title,
+                        status: 'approved' // rows in approved_notes are already approved
+                    }));
+                    console.log(`✅ notes-hub: fetched ${supabaseNotes.length} notes directly from Supabase for "${subjectName}"`);
+                } else if (error) {
+                    console.warn('notes-hub Supabase fetch error:', error.message);
+                    // Fallback: fetch all and filter locally
+                    const { data: allData } = await sb.from('approved_notes').select('*').limit(200);
+                    if (allData) {
+                        supabaseNotes = allData
+                            .filter(n => {
+                                const matchesSubject =
+                                    n.subjectId === subjectId ||
+                                    n.subject === subjectId ||
+                                    n.subject === subjectName ||
+                                    n.subjectName === subjectName;
+                                const matchesCollege =
+                                    n.collegeId === collegeId ||
+                                    n.college === collegeId ||
+                                    n.collegeId === 'global' ||
+                                    n.college === 'global' ||
+                                    !n.collegeId;
+                                return matchesSubject && matchesCollege;
+                            })
+                            .map(d => ({
+                                ...d,
+                                url: d.file_url || d.url,
+                                fileUrl: d.file_url || d.url,
+                                uploaderName: d.uploader_name || (d.uploader_email ? d.uploader_email.split('@')[0] : 'Scholar'),
+                                name: d.title,
+                                status: 'approved'
+                            }));
+                        console.log(`✅ notes-hub: fallback fetch got ${supabaseNotes.length} Supabase notes for "${subjectName}"`);
+                    }
+                }
+            }
+        } catch(e) {
+            console.error('notes-hub: Direct Supabase fetch failed:', e);
+        }
+    }
+
+    // Merge: Firestore + Supabase + Static notes
+    const combinedNotes = [...firestoreNotes, ...supabaseNotes, ...staticNotes];
     
-    // Filter locally to enforce the rest of the constraints without breaking indexes
+    // Deduplicate (prefer DB copies over static)
     const uniqueMap = new Map();
     combinedNotes.forEach(n => { if (n.id) uniqueMap.set(n.id, n); });
     const deduplicatedNotes = Array.from(uniqueMap.values());
 
-    const dynamicNotes = deduplicatedNotes.filter(n =>
-        n.status === 'approved' &&
-        (n.type === activeTab || !n.type) &&
-        ((n.collegeId === collegeId) || (n.college === collegeId) || !n.collegeId || n.collegeId === 'global')
-    );
+    const dynamicNotes = deduplicatedNotes.filter(n => {
+        // Notes from approved_notes (Supabase) may not have a status field — they are already approved by being in that table
+        const isApproved = !n.status || n.status === 'approved';
+        const typeMatch = (n.type === activeTab) || !n.type || (activeTab === 'notes' && n.type === undefined);
+        const collegeMatch = (n.collegeId === collegeId) || (n.college === collegeId) || !n.collegeId || n.collegeId === 'global' || n.college === 'global';
+        return isApproved && typeMatch && collegeMatch;
+    });
     
     // Accumulate if loading more
     if (loadMore) {
