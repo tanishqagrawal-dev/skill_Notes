@@ -129,11 +129,10 @@ export const RoutingSystem = {
     getShareableURL(state) {
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const origin = isLocal ? window.location.origin : 'https://skilmatrix.site';
-        const pathname = window.location.pathname;
-        const search = window.location.search;
         const canonical = this.generateCanonicalPath(state);
 
-        return origin + pathname + search + canonical;
+        // Always point to /pages/dashboard (or /dashboard based on clean URLs) so Notes Hub opens correctly
+        return origin + '/pages/dashboard' + canonical;
     },
 
     /**

@@ -2007,7 +2007,7 @@ class ProfileManager {
 
     triggerLogin() {
         // Redirect to the auth page (auth.html is located in the pages/ directory)
-        window.location.href = 'auth.html';
+        window.location.href = '/pages/auth.html';
     }
 }
 

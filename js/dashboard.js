@@ -564,7 +564,7 @@ async function initNotesSync() {
                 client.from('approved_notes')
                     .select('*')
                     .order('created_at', { ascending: false })
-                    .limit(50)
+                    .limit(500)
             );
             const results = await Promise.all(promises);
             let allData = [];
@@ -576,7 +576,7 @@ async function initNotesSync() {
             // Sort combined results
             allData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             // Limit overall
-            const data = allData.slice(0, 50);
+            const data = allData.slice(0, 500);
             
             if (JSON.stringify(NotesDB) !== JSON.stringify(data)) {
                 NotesDB = data.map(d => ({
@@ -590,6 +590,19 @@ async function initNotesSync() {
                 console.log(`📦 Notes Hub Updated: ${NotesDB.length} records in cache from ${federatedClients.length} databases.`);
                 
                 // Note: The UI updates based on NotesDB in the notes tab
+                if (window.selState && window.selState.subject && document.getElementById('final-notes-view')?.style.display === 'block') {
+                    if (typeof window.showNotes === 'function') {
+                        const activeTabEl = document.querySelector('.subject-tab.active');
+                        let tabArg = 'notes';
+                        if (activeTabEl) {
+                            const txt = activeTabEl.textContent.trim().toLowerCase();
+                            if (txt === 'pyqs') tabArg = 'pyqs';
+                            else if (txt === 'formula sheets') tabArg = 'formula';
+                            else if (txt === 'practicals') tabArg = 'practicals';
+                        }
+                        window.showNotes(tabArg);
+                    }
+                }
             }
         } catch (e) {
             console.error("Supabase federated sync error:", e);
@@ -1571,7 +1584,7 @@ function renderTabContent(tabId) {
 
     if (window.currentUser && window.currentUser.isGuest) {
         if (tabId !== 'notes') {
-            window.location.href = 'auth.html';
+            window.location.href = '/pages/auth.html';
             return;
         }
     }
