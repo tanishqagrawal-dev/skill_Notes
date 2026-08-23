@@ -6075,12 +6075,73 @@ function renderNotesList(list, tabType) {
 
     return `<div class="notes-list-container-pro">${cardsHTML}</div>`;
 }
-
-
 window.switchSubjectTab = function (tab) {
     showNotes(tab);
     trackAnalytics('switch_subject_tab', { tab });
 };
+
+function getUnitNumber(n) {
+    if (!n) return Infinity;
+    const rawUnit = n.unit || n.unit_number || n.unitTag || n.unit_tag;
+    let str = '';
+    
+    if (rawUnit !== undefined && rawUnit !== null && rawUnit !== '') {
+        str = String(rawUnit).trim().toLowerCase();
+    } else {
+        const title = n.title || n.subjectName || '';
+        str = String(title).trim().toLowerCase();
+    }
+
+    if (!str) return Infinity;
+
+    const romanMap = {
+        'i': 1, 'ii': 2, 'iii': 3, 'iv': 4, 'v': 5,
+        'vi': 6, 'vii': 7, 'viii': 8, 'ix': 9, 'x': 10
+    };
+
+    const unitDigitMatch = str.match(/unit\s*[-–: ]*\s*(\d+)/i);
+    if (unitDigitMatch) {
+        return parseInt(unitDigitMatch[1], 10);
+    }
+    
+    const digitMatch = str.match(/\b\d+\b/) || str.match(/\d+/);
+    if (digitMatch) {
+        return parseInt(digitMatch[0], 10);
+    }
+
+    const unitRomanMatch = str.match(/unit\s*[-–: ]*\s*\b(ix|iv|v?i{0,3})\b/i);
+    if (unitRomanMatch && romanMap[unitRomanMatch[1].toLowerCase()]) {
+        return romanMap[unitRomanMatch[1].toLowerCase()];
+    }
+
+    const romanMatch = str.match(/\b(ix|iv|v?i{0,3})\b/);
+    if (romanMatch && romanMap[romanMatch[1]]) {
+        return romanMap[romanMatch[1]];
+    }
+
+    for (const key in romanMap) {
+        if (str === key || str.includes('unit ' + key) || str.includes('unit-' + key) || str.includes('unit' + key)) {
+            return romanMap[key];
+        }
+    }
+
+    return Infinity;
+}
+
+function sortNotesUnitWise(notesList) {
+    return [...notesList].sort((a, b) => {
+        const unitA = getUnitNumber(a);
+        const unitB = getUnitNumber(b);
+        
+        if (unitA !== unitB) {
+            return unitA - unitB;
+        }
+        
+        const titleA = (a.title || a.subjectName || '').toLowerCase();
+        const titleB = (b.title || b.subjectName || '').toLowerCase();
+        return titleA.localeCompare(titleB);
+    });
+}
 
 function renderDetailedNotes(subjectId, tabType = 'notes') {
     const grid = document.getElementById('notes-list-grid');
@@ -6244,11 +6305,13 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
 
         if (isAdminOfCollege) return n.status !== 'rejected';
         return isVisible;
-    }).sort((a, b) => (b.likes || 0) - (a.likes || 0));
+    });
+
+    const sortedFiltered = sortNotesUnitWise(filtered);
 
     if (!grid) return;
 
-    if (filtered.length === 0) {
+    if (sortedFiltered.length === 0) {
         grid.innerHTML = `
             <div style="text-align: center; padding: 3rem 1.5rem; box-sizing: border-box; background: rgba(255,255,255,0.01); border: 2px dashed rgba(255,255,255,0.05); border-radius: 20px; width: 100%;">
                 <div style="font-size: 4rem; margin-bottom: 2rem;">📂</div>
@@ -6260,7 +6323,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
         return;
     }
 
-    const cardsHTML = filtered.map((n, idx) => {
+    const cardsHTML = sortedFiltered.map((n, idx) => {
         const sequentialId = `unit${idx + 1}`;
         const yearDate = selState?.year && selState.year.includes('2') ? 'Jan 2026' : (selState?.year && selState.year.includes('1') ? 'Feb 2026' : 'Dec 2025');
         const rawUnit6 = n.unit || n.unit_number || n.unitTag;
@@ -6337,7 +6400,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
 
     setTimeout(() => {
         if (typeof attachNoteRealtimeListeners === 'function') attachNoteRealtimeListeners('tab-content');
-        filtered.forEach(n => { if (n.id) window.incrementNoteView?.(n.id); });
+        sortedFiltered.forEach(n => { if (n.id) window.incrementNoteView?.(n.id); });
         if (typeof window.runAnalyticsSimulation === 'function') window.runAnalyticsSimulation();
     }, 150);
 

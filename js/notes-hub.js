@@ -378,6 +378,69 @@ window.selectSubject = function (id, name) {
 
 // --- FINAL VIEW: NOTES LIST ---
 
+function getUnitNumber(n) {
+    if (!n) return Infinity;
+    const rawUnit = n.unit || n.unit_number || n.unitTag || n.unit_tag;
+    let str = '';
+    
+    if (rawUnit !== undefined && rawUnit !== null && rawUnit !== '') {
+        str = String(rawUnit).trim().toLowerCase();
+    } else {
+        const title = n.title || n.subjectName || '';
+        str = String(title).trim().toLowerCase();
+    }
+
+    if (!str) return Infinity;
+
+    const romanMap = {
+        'i': 1, 'ii': 2, 'iii': 3, 'iv': 4, 'v': 5,
+        'vi': 6, 'vii': 7, 'viii': 8, 'ix': 9, 'x': 10
+    };
+
+    const unitDigitMatch = str.match(/unit\s*[-–: ]*\s*(\d+)/i);
+    if (unitDigitMatch) {
+        return parseInt(unitDigitMatch[1], 10);
+    }
+    
+    const digitMatch = str.match(/\b\d+\b/) || str.match(/\d+/);
+    if (digitMatch) {
+        return parseInt(digitMatch[0], 10);
+    }
+
+    const unitRomanMatch = str.match(/unit\s*[-–: ]*\s*\b(ix|iv|v?i{0,3})\b/i);
+    if (unitRomanMatch && romanMap[unitRomanMatch[1].toLowerCase()]) {
+        return romanMap[unitRomanMatch[1].toLowerCase()];
+    }
+
+    const romanMatch = str.match(/\b(ix|iv|v?i{0,3})\b/);
+    if (romanMatch && romanMap[romanMatch[1]]) {
+        return romanMap[romanMatch[1]];
+    }
+
+    for (const key in romanMap) {
+        if (str === key || str.includes('unit ' + key) || str.includes('unit-' + key) || str.includes('unit' + key)) {
+            return romanMap[key];
+        }
+    }
+
+    return Infinity;
+}
+
+function sortNotesUnitWise(notesList) {
+    return [...notesList].sort((a, b) => {
+        const unitA = getUnitNumber(a);
+        const unitB = getUnitNumber(b);
+        
+        if (unitA !== unitB) {
+            return unitA - unitB;
+        }
+        
+        const titleA = (a.title || a.subjectName || '').toLowerCase();
+        const titleB = (b.title || b.subjectName || '').toLowerCase();
+        return titleA.localeCompare(titleB);
+    });
+}
+
 window.lastVisibleNote = null;
 
 window.showNotes = async function (activeTab = 'notes', loadMore = false) {
@@ -473,6 +536,9 @@ window.showNotes = async function (activeTab = 'notes', loadMore = false) {
         window.currentStaticNotes = dynamicNotes;
     }
 
+    // Sort unit-wise
+    window.currentStaticNotes = sortNotesUnitWise(window.currentStaticNotes);
+
     const loadMoreBtnHtml = window.lastVisibleNote ? 
         `<div id="load-more-btn-container" style="text-align: center; margin-top: 2rem; width: 100%;">
             <button class="btn btn-ghost" onclick="showNotes('${activeTab}', true)">Load More Notes ⬇️</button>
@@ -484,8 +550,8 @@ window.showNotes = async function (activeTab = 'notes', loadMore = false) {
             const oldBtn = document.getElementById('load-more-btn-container');
             if (oldBtn) oldBtn.remove();
             
-            if (dynamicNotes.length > 0) {
-                 container.innerHTML += renderStaticNotes(dynamicNotes);
+            if (window.currentStaticNotes.length > 0) {
+                 container.innerHTML = renderStaticNotes(window.currentStaticNotes);
             }
             if (window.lastVisibleNote) {
                  container.innerHTML += loadMoreBtnHtml;
@@ -578,7 +644,7 @@ window.showNotes = async function (activeTab = 'notes', loadMore = false) {
                     Verified <span class="highlight" style="color: #00f2ff; font-weight: 800; text-transform: uppercase;">${activeTab}</span>
                 </h2>
                 <div class="notes-list-container-pro" id="resource-list-container">
-                    ${(activeTab === 'notes' && dynamicNotes.length > 0) ? renderStaticNotes(dynamicNotes) + loadMoreBtnHtml : `
+                    ${(window.currentStaticNotes.length > 0) ? renderStaticNotes(window.currentStaticNotes) + loadMoreBtnHtml : `
                         <div style="text-align: center; padding: 5rem; background: rgba(255,255,255,0.01); border: 2px dashed rgba(255,255,255,0.05); border-radius: 20px;">
                             <div style="font-size: 4rem; margin-bottom: 2rem;">📂</div>
                             <h2 class="font-heading">No ${activeTab} found for this subject yet.</h2>
@@ -647,9 +713,17 @@ function renderStaticNotes(notes) {
 
         const rawUnit = n.unit || n.unit_number || n.unitTag || n.unit_tag;
         const rawUnitStr = rawUnit ? String(rawUnit).trim().toLowerCase() : '';
-        const safeUnit = (rawUnitStr && rawUnitStr !== 'undefined' && rawUnitStr !== 'null' && rawUnitStr !== 'n/a') 
-            ? String(rawUnit).trim().toUpperCase() 
-            : `UNIT ${idx + 1}`;
+        let safeUnit = '';
+        if (rawUnitStr && rawUnitStr !== 'undefined' && rawUnitStr !== 'null' && rawUnitStr !== 'n/a') {
+            safeUnit = String(rawUnit).trim().toUpperCase();
+        } else {
+            const titleMatch = (n.title || '').match(/unit\s*[-–]?\s*(\d+)/i);
+            if (titleMatch) {
+                safeUnit = `UNIT ${titleMatch[1]}`;
+            } else {
+                safeUnit = `UNIT ${idx + 1}`;
+            }
+        }
         return createNoteCard(safeUnit, n.title || n.subjectName, n.url || n.fileUrl || n.driveLink, n.upvotes || 0, n.views || 0, n.id, n.downloads || 0, n.downvotes || 0);
     }).join('');
 
