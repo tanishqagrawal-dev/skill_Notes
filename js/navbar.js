@@ -212,9 +212,7 @@ function updateNavbarAuthButton(basePath) {
             userEmail = fbUser.email || '';
             userPhoto = fbUser.photoURL || '';
         } else if (guestUserStr) {
-            isLoggedIn = true;
-            userName = 'Guest Student';
-            userEmail = 'Guest Session';
+            isLoggedIn = false;
         }
 
         // Fallback to any standalone photo keys in localStorage
@@ -341,6 +339,11 @@ function updateNavbarAuthButton(basePath) {
             profileBtn.style.borderColor = 'rgba(123, 97, 255, 0.4)';
             profileBtn.style.boxShadow = '0 0 15px rgba(123, 97, 255, 0.15)';
 
+            let welcomeName = 'Student';
+            if (guestUserStr) {
+                welcomeName = 'Guest';
+            }
+
             const loginHtml = `
                 <div class="dropdown-profile-header guest-header" style="position: relative; padding: 0.65rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 12px; border: 1px solid transparent;">
                     <div style="width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, rgba(123,97,255,0.15), rgba(0,242,255,0.15)); border: 1px solid rgba(0,242,255,0.3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 12px rgba(0,242,255,0.15);">
@@ -348,7 +351,7 @@ function updateNavbarAuthButton(basePath) {
                     </div>
                     <div style="overflow: hidden; display: flex; flex-direction: column; gap: 2px;">
                         <div style="font-weight: 800; font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            <span style="color: #ffffff;">Welcome,</span> <span style="background: linear-gradient(135deg, #a78bfa, #00f2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Student</span>
+                            <span style="color: #ffffff;">Welcome,</span> <span style="background: linear-gradient(135deg, #a78bfa, #00f2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${welcomeName}</span>
                         </div>
                         <div style="font-size: 0.72rem; color: #8f9bb3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">Log in to access your tools</div>
                     </div>

@@ -77,6 +77,12 @@ export async function initAuth() {
 
     // --- REDIRECTION & ACCESS CONTROL ENGINE ---
     const triggerRedirect = (currentRole) => {
+        // Prevent redirecting during signup flow
+        if (window.isSigningUp) {
+            console.log("Signup in progress, skipping redirection.");
+            return false;
+        }
+
         const isInPagesDir = path.includes('/pages/');
         const prefix = isInPagesDir ? '' : 'pages/';
 
@@ -132,9 +138,13 @@ export async function initAuth() {
                 }
                 // Email-based admin check
                 const adminEmails = ['tanishqagrawal1103@gmail.com', 'skilmatrix3@gmail.com'];
+                const currentRole = userData.role;
                 if (adminEmails.includes(userData.email?.toLowerCase())) {
                     userData.role = 'admin';
                     console.log("🛡️ Admin access granted based on email");
+                } else if (currentRole === 'admin' || currentRole === 'co-admin' || currentRole === 'superadmin' || currentRole === 'super-admin') {
+                    userData.role = currentRole; // Keep database-assigned admin role
+                    console.log(`🛡️ Persisted database admin role: ${currentRole}`);
                 } else {
                     userData.role = 'user';
                 }
@@ -347,8 +357,13 @@ function initAuthForms() {
                 if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
                     try {
                         // Check if this email has Google sign-in linked
-                        const methods = await fetchSignInMethodsForEmail(auth, email);
-                        if (methods.includes('google.com') && !methods.includes('password')) {
+                        let methods = [];
+                        try {
+                            methods = await fetchSignInMethodsForEmail(auth, email);
+                        } catch (e) {
+                            console.warn("fetchSignInMethodsForEmail blocked by Firebase rules:", e);
+                        }
+                        if (methods && methods.includes('google.com') && !methods.includes('password')) {
                             // Silently sign in with Google, then link email/password
                             const result = await signInWithPopup(auth, provider);
                             const credential = EmailAuthProvider.credential(email, pass);
@@ -385,6 +400,7 @@ function initAuthForms() {
             const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
             if (submitBtn) submitBtn.innerHTML = 'Creating Account...';
             try {
+                window.isSigningUp = true; // Set flag
                 const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
                 // ✅ Save 'just signed up' flag so referral fires on the next login
                 const pendingRef = window.getPendingRefCode ? window.getPendingRefCode() : '';
@@ -393,6 +409,7 @@ function initAuthForms() {
                 try { localStorage.setItem('skilmatrix_new_signup', newUserMeta); } catch (_) {}
                 // Also sign out so user logs in fresh (original behaviour)
                 await signOut(auth);
+                window.isSigningUp = false; // Reset flag
                 if (window.statServices?.trackSignUp) window.statServices.trackSignUp('email');
                 if (typeof gtag === 'function') gtag('event', 'sign_up', { method: 'Email' });
 
@@ -430,6 +447,7 @@ function initAuthForms() {
                 }, 1500);
 
             } catch (err) {
+                window.isSigningUp = false; // Reset flag on error
                 if (submitBtn) submitBtn.innerHTML = originalBtnHtml;
                 if (err.code === 'auth/email-already-in-use') {
                     // Account already exists — switch to login
@@ -491,8 +509,25 @@ function initAuthForms() {
                 googleBtn.style.border = "1px solid rgba(251,191,36,0.5)";
                 googleBtn.style.boxShadow = "0 0 20px rgba(251,191,36,0.2)";
                 
-                await signInWithPopup(auth, provider);
-                // The page will redirect via onAuthStateChanged, so we leave the premium animation running!
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                
+                // Save profile instantly to avoid delays
+                const userData = {
+                    id: user.uid,
+                    email: user.email.toLowerCase(),
+                    role: "user",
+                    college: "",
+                    collegeId: "",
+                    collegeName: "",
+                    name: user.displayName || user.email.split('@')[0],
+                    photo: user.photoURL
+                };
+                window.currentUser = userData;
+                localStorage.setItem('auth_user_full', JSON.stringify(userData));
+                
+                const isInPagesDir = path.includes('/pages/');
+                window.location.href = (isInPagesDir ? '../' : '') + 'welcome.html';
             } catch (err) {
                 console.error("❌ Google Login Error:", err);
                 googleBtn.innerHTML = originalHtml;
