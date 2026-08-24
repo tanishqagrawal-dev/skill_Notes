@@ -74,6 +74,11 @@ async function uploadToR2(filename, file) {
 window.uploadNoteToFirebase = async function (file, metadata) {
     if (!file) return;
 
+    const maxAllowedSize = 25 * 1024 * 1024; // 25MB
+    if (file.size > maxAllowedSize) {
+        throw new Error("File size exceeds the 25MB limit. Please upload a smaller file.");
+    }
+
     try {
         const statusEl = document.getElementById('upload-status-text');
         const progressBar = document.getElementById('upload-progress');

@@ -1106,7 +1106,7 @@ window.openUploadModal = async function () {
                         />
                         <label id="drop-zone-label" for="file" style="cursor: pointer; display: block; border: 1.5px dashed rgba(102, 255, 227, 0.3); background: rgba(255, 255, 255, 0.02); border-radius: 12px; padding: 22px 16px; text-align: center; transition: all 0.25s ease;">
                             ☁️ <b style="color: #fff;">Click here</b> or drag & drop file<br>
-                            <span style="font-size: 11px; color: #7e8ba8; font-weight: normal; margin-top: 4px; display: inline-block;">Supports PDF, PPT, DOC (Max 50MB)</span>
+                            <span style="font-size: 11px; color: #7e8ba8; font-weight: normal; margin-top: 4px; display: inline-block;">Supports PDF, PPT, DOC (Max 25MB)</span>
                         </label>
                         <div id="file-attached-card" style="display: none; background: rgba(0, 0, 0, 0.5); border: 1px solid #00ff87; padding: 14px 16px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 255, 135, 0.15); transition: all 0.25s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
@@ -1182,6 +1182,14 @@ window.openUploadModal = async function () {
         const updateFileDisplay = () => {
             const file = fileInput.files[0];
             if (file) {
+                const maxAllowedSize = 25 * 1024 * 1024; // 25MB
+                if (file.size > maxAllowedSize) {
+                    alert("File size exceeds the 25MB limit. Please upload a smaller file.");
+                    fileInput.value = '';
+                    dropZoneLabel.style.display = 'block';
+                    fileAttachedCard.style.display = 'none';
+                    return;
+                }
                 attachedIcon.innerHTML = getFileBadge(file.name);
                 attachedName.innerText = file.name;
                 attachedSize.innerText = formatFileSize(file.size);
@@ -1241,6 +1249,47 @@ window.openUploadModal = async function () {
     document.getElementById('dash-upload-form')?.reset();
     document.getElementById('upload-status-area').style.display = 'none';
 
+    // Pre-populate selections from last upload if available
+    if (window.lastUploadSelection) {
+        const lastSel = window.lastUploadSelection;
+        if (lastSel.college) {
+            const collegeSel = document.getElementById('college');
+            if (collegeSel) {
+                collegeSel.value = lastSel.college;
+                if (lastSel.college === 'new_college' && lastSel.collegeNewName) {
+                    const nc = document.getElementById('college-new-wrapper');
+                    if (nc) nc.style.display = 'block';
+                    const ncn = document.getElementById('college-new-name');
+                    if (ncn) ncn.value = lastSel.collegeNewName;
+                }
+            }
+        }
+        if (lastSel.stream) {
+            const streamSel = document.getElementById('stream');
+            if (streamSel) streamSel.value = lastSel.stream;
+        }
+        if (lastSel.branch) {
+            const branchSel = document.getElementById('branch');
+            if (branchSel) branchSel.value = lastSel.branch;
+        }
+        if (lastSel.semester) {
+            const semSel = document.getElementById('semester');
+            if (semSel) semSel.value = lastSel.semester;
+        }
+        if (lastSel.branch && lastSel.semester) {
+            // Populate subject options dynamically
+            await window.updateUploadSubjects();
+            if (lastSel.subject) {
+                const subSel = document.getElementById('subject');
+                if (subSel) subSel.value = lastSel.subject;
+            }
+        }
+        if (lastSel.noteType) {
+            const typeSel = document.getElementById('note-type');
+            if (typeSel) typeSel.value = lastSel.noteType;
+        }
+    }
+
     // Show
     requestAnimationFrame(() => {
         modal.style.opacity = '1';
@@ -1289,9 +1338,9 @@ async function handleDashboardNoteSubmit(e) {
     if (!title) return alert("Please enter a notes title.");
     if (!file) return alert("Please select a file.");
 
-    const maxAllowedSize = 50 * 1024 * 1024; // 50MB
+    const maxAllowedSize = 25 * 1024 * 1024; // 25MB
     if (file.size > maxAllowedSize) {
-        return alert("File size exceeds the 50MB limit.");
+        return alert("File size exceeds the 25MB limit. Please upload a smaller file.");
     }
 
     const btn = document.getElementById('dash-submit-btn');
@@ -1329,6 +1378,17 @@ async function handleDashboardNoteSubmit(e) {
     const isAdmin = ['admin', 'superadmin', 'super-admin', 'coadmin', 'college-admin'].includes(currentUser.role?.toLowerCase()) ||
         currentUser.email === 'skilmatrix3@gmail.com';
     console.log("👤 Current User Role/Email for Upload:", currentUser.role, currentUser.email, "isAdmin:", isAdmin);
+    // Save selections for next upload
+    window.lastUploadSelection = {
+        college: collegeId,
+        collegeNewName: collegeId === 'new_college' ? document.getElementById('college-new-name')?.value?.trim() : '',
+        stream: stream,
+        branch: branch,
+        semester: semester,
+        subject: subject,
+        noteType: noteType
+    };
+
     const metadata = {
         title: title,
         college: finalCollegeId || (currentUser.collegeId || ''),
@@ -4974,7 +5034,7 @@ function renderVerificationHub() {
                     <div id="admin-drop-zone" style="border: 2px dashed var(--border-glass); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; cursor: pointer; transition: all 0.3s ease;">
                         <input type="file" id="admin-file-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt" style="display: none;">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
-                        <p style="color: var(--text-dim);">Click or Drag PDF, DOCX, or PPT here</p>
+                        <p style="color: var(--text-dim);">Click or Drag PDF, DOCX, or PPT here (Max 25MB)</p>
                         <p id="selected-filename" style="color: var(--primary); margin-top: 0.5rem; font-weight: 600;"></p>
                     </div>
 
@@ -5084,6 +5144,11 @@ window.handleAdminFileSelect = function (file) {
         alert("Please upload supported document formats (PDF, Word, PPT, or Text).");
         return;
     }
+    const maxAllowedSize = 25 * 1024 * 1024; // 25MB
+    if (file.size > maxAllowedSize) {
+        alert("File size exceeds the 25MB limit. Please upload a smaller file.");
+        return;
+    }
     selectedAdminFile = file;
     document.getElementById('selected-filename').innerText = file.name;
     document.getElementById('admin-drop-zone').style.borderColor = 'var(--success)';
@@ -5092,6 +5157,12 @@ window.handleAdminFileSelect = function (file) {
 window.executeAdminUpload = async function () {
     if (!selectedAdminFile) {
         alert("Please select a file first.");
+        return;
+    }
+
+    const maxAllowedSize = 25 * 1024 * 1024; // 25MB
+    if (selectedAdminFile.size > maxAllowedSize) {
+        alert("File size exceeds the 25MB limit. Please upload a smaller file.");
         return;
     }
 
@@ -7774,8 +7845,8 @@ window.handlePrivateUpload = async function (file, title) {
     const { storage, ref, uploadBytesResumable, getDownloadURL, db, collection, addDoc, serverTimestamp } = window.firebaseServices;
 
     // Validation
-    const maxSize = 50 * 1024 * 1024; // 50MB
-    if (file.size > maxSize) return alert("File too large. Max 50MB.");
+    const maxSize = 25 * 1024 * 1024; // 25MB
+    if (file.size > maxSize) return alert("File too large. Max 25MB.");
 
     // UI Update
     const progressDiv = document.getElementById('private-upload-progress');
