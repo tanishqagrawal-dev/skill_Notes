@@ -358,23 +358,32 @@
         const taglineEl = document.querySelector('.tagline');
 
         function triggerSend(formData, isFirstTime = true) {
-            // --- GUEST PROTECTION ---
-            if (localStorage.getItem('guest_session')) {
-                console.log("🛡️ Guest User detected. Skipping email trigger.");
+            const realUser = localStorage.getItem('auth_user_full');
+            
+            // --- GUEST PROTECTION: Only skip if there's NO real logged-in user ---
+            if (!realUser && localStorage.getItem('guest_session')) {
+                console.log("🛡️ Guest User detected (no real account). Skipping email trigger.");
                 setTimeout(() => { window.location.href = "pages/dashboard.html"; }, 1000);
                 return;
             }
             
+            // If real user is now logged in, clear stale guest_session to avoid future conflicts
+            if (realUser && localStorage.getItem('guest_session')) {
+                localStorage.removeItem('guest_session');
+                console.log("🧹 Cleared stale guest_session for logged-in user.");
+            }
+            
             console.log("📨 Attempting to send packet:", formData);
             
-            // --- STRICT ONE-TIME ONLY LOGIC ---
+            // --- STRICT ONE-TIME ONLY LOGIC (scoped per user email) ---
             const userEmail = formData ? formData.email : 'unknown';
             const lastSentKey = `last_mail_sent_${userEmail.replace(/[^a-zA-Z0-9]/g, '_')}`;
             const lastSentTime = localStorage.getItem(lastSentKey);
-            const hasReceivedLocal = localStorage.getItem('has_received_welcome');
+            // Scope has_received_welcome per user email so different users on same device work
+            const hasReceivedLocal = localStorage.getItem(`has_received_welcome_${userEmail.replace(/[^a-zA-Z0-9]/g, '_')}`);
 
             if (lastSentTime || hasReceivedLocal) {
-                console.log("🛡️ One-Time Protection: Welcome email already sent. Skipping.");
+                console.log("🛡️ One-Time Protection: Welcome email already sent to this user. Skipping.");
                 statusDiv.innerHTML = `<span class="status-success">✅ Session Verified! Redirecting...</span>`;
                 setTimeout(() => {
                     window.location.href = "pages/dashboard.html";
@@ -398,10 +407,10 @@
                     console.log("✅ EmailJS Success:", response.status, response.text);
                     statusDiv.innerHTML = `<span class="status-success">✅ ${isFirstTime ? 'Welcome Email Sent!' : 'Welcome Back Packet Sent!'}</span>`;
                     
-                    // Update flags and timestamps
+                    // Update flags and timestamps (scoped per user email)
                     localStorage.setItem(lastSentKey, Date.now().toString());
                     if (isFirstTime) {
-                        localStorage.setItem('has_received_welcome', 'true');
+                        localStorage.setItem(`has_received_welcome_${userEmail.replace(/[^a-zA-Z0-9]/g, '_')}`, 'true');
                     }
                     
                     setTimeout(() => {
