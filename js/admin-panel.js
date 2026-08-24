@@ -1537,6 +1537,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                   <div class="cm-meta">${colObj.name} · ${s.branch_id || 'All Branches'} · ${s.semester || 'All Sems'}</div>
                 </div>
                 <div class="cm-actions">
+                  <button class="apb apb-ok" style="padding:.35rem .7rem;font-size:.75rem;margin-right:.4rem" onclick="window._cmEditSubject('${s.id}')">✏️</button>
                   ${isSuper ? `<button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._cmDeleteSubject('${s.id}')">🗑</button>` : ''}
                 </div>
               </div>`;
@@ -1572,6 +1573,7 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
                       ${s.description ? `<div class="cm-meta" style="margin-top:.2rem">${s.description}</div>` : ''}
                     </div>
                     <div class="cm-actions">
+                      <button class="apb apb-ok" style="padding:.35rem .7rem;font-size:.75rem;margin-right:.4rem" onclick="window._cmEditSubject('${s.id}')">✏️ Edit</button>
                       ${isSuper ? `<button class="apb apb-no" style="padding:.35rem .7rem;font-size:.75rem" onclick="window._cmDeleteSubject('${s.id}')">🗑 Delete</button>` : ''}
                     </div>
                   </div>`;
@@ -1791,6 +1793,147 @@ window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?i
             }
         } catch (e) {
             if (window.showToast) window.showToast('❌ Failed: ' + e.message, 'error');
+        }
+    };
+
+    window._cmEditSubject = async function (id) {
+        try {
+            const sb = await getSB();
+            const { data, error } = await sb.from('college_subjects').select('*').eq('id', id).single();
+            if (error) throw error;
+            
+            // Open the edit modal with 'data'
+            openCmEditSubjectModal(data);
+        } catch (e) {
+            if (window.showToast) window.showToast('❌ Failed to fetch subject: ' + e.message, 'error');
+        }
+    };
+
+    function openCmEditSubjectModal(s) {
+        let modal = document.getElementById('cm-edit-subject-modal');
+        if (modal) modal.remove();
+
+        modal = document.createElement('div');
+        modal.id = 'cm-edit-subject-modal';
+        modal.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            z-index: 10000; display: flex; align-items: center; justify-content: center;
+            opacity: 1; transition: opacity 0.3s ease;
+        `;
+
+        const superAdmin = window._apIsSuperAdmin;
+
+        modal.innerHTML = `
+            <div class="glass-card" style="width: 480px; padding: 2rem; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; position: relative;" onclick="event.stopPropagation()">
+                <button onclick="document.getElementById('cm-edit-subject-modal').remove()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                
+                <h3 class="font-heading" style="margin-bottom: 1.5rem; color: #a78bfa;">✏️ Edit Subject</h3>
+                
+                <div class="cm-add-form" style="display: flex; flex-direction: column; gap: 1rem; background: none; border: none; padding: 0;">
+                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                        <label style="font-size: 0.8rem; color: var(--text-dim);">Subject Name</label>
+                        <input type="text" id="cm-edit-subject-name" placeholder="Subject Name" value="${s.subject_name || ''}" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white;" />
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                        <label style="font-size: 0.8rem; color: var(--text-dim);">Subject Code</label>
+                        <input type="text" id="cm-edit-subject-code" placeholder="Code (e.g. CS301)" value="${s.subject_code || ''}" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white;" />
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dim);">College</label>
+                            <select id="cm-edit-subject-college" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white;" ${!superAdmin ? 'disabled' : ''}>
+                                <option value="global" ${s.college_id === 'global' ? 'selected' : ''}>🌐 Global</option>
+                                ${(window.GlobalData?.colleges || []).map(c => `<option value="${c.id}" ${s.college_id === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dim);">Branch</label>
+                            <select id="cm-edit-subject-branch" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white;">
+                                <option value="global" ${s.branch_id === 'global' ? 'selected' : ''}>🌐 Global / All Branches</option>
+                                ${(window.GlobalData?.branches || []).map(b => `<option value="${b.id}" ${s.branch_id === b.id ? 'selected' : ''}>${b.name}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                        <label style="font-size: 0.8rem; color: var(--text-dim);">Semester</label>
+                        <select id="cm-edit-subject-sem" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white;">
+                            <option value="global" ${s.semester === 'global' ? 'selected' : ''}>🌐 Global / All Semesters</option>
+                            ${[1,2,3,4,5,6,7,8].map(sem => `<option value="Semester ${sem}" ${s.semester === `Semester ${sem}` ? 'selected' : ''}>Semester ${sem}</option>`).join('')}
+                        </select>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                        <label style="font-size: 0.8rem; color: var(--text-dim);">Description</label>
+                        <textarea id="cm-edit-subject-desc" placeholder="Short description (optional)" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; min-height: 80px;">${s.description || ''}</textarea>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem; width: 100%;">
+                        <button class="apb apb-no" style="flex: 1; text-align: center; justify-content: center;" onclick="document.getElementById('cm-edit-subject-modal').remove()">Cancel</button>
+                        <button class="apb apb-ok" id="btn-save-edited-subject" style="flex: 1; text-align: center; justify-content: center;" onclick="window._cmSaveEditedSubject('${s.id}')">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        modal.onclick = (e) => {
+            if (e.target === modal) modal.remove();
+        };
+    }
+
+    window._cmSaveEditedSubject = async function (id) {
+        const name = document.getElementById('cm-edit-subject-name')?.value?.trim();
+        const code = document.getElementById('cm-edit-subject-code')?.value?.trim();
+        const college = document.getElementById('cm-edit-subject-college')?.value;
+        const branch = document.getElementById('cm-edit-subject-branch')?.value;
+        const sem = document.getElementById('cm-edit-subject-sem')?.value;
+        const desc = document.getElementById('cm-edit-subject-desc')?.value?.trim();
+
+        if (!name) { if (window.showToast) window.showToast('❌ Subject name is required.', 'error'); return; }
+        if (!college) { if (window.showToast) window.showToast('❌ Please select a college.', 'error'); return; }
+        if (!branch) { if (window.showToast) window.showToast('❌ Please select a branch.', 'error'); return; }
+        if (!sem) { if (window.showToast) window.showToast('❌ Please select a semester.', 'error'); return; }
+
+        const btn = document.getElementById('btn-save-edited-subject');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = 'Saving...';
+        }
+
+        try {
+            const sb = await getSB();
+            const { error } = await sb.from('college_subjects').update({
+                college_id: college,
+                branch_id: branch,
+                semester: sem,
+                subject_name: name,
+                subject_code: code || null,
+                description: desc || null
+            }).eq('id', id);
+
+            if (error) throw error;
+
+            if (window.showToast) window.showToast('✅ Subject updated successfully!');
+            document.getElementById('cm-edit-subject-modal')?.remove();
+            
+            // Reload the subjects list
+            if (window._cmLoadSubjects) await window._cmLoadSubjects();
+            else await loadCmSubjects(sb, window._apCurrentCollege || null);
+
+            if (typeof window.refreshCustomSubjectsForSearch === 'function') {
+                await window.refreshCustomSubjectsForSearch();
+            }
+        } catch (e) {
+            if (window.showToast) window.showToast('❌ Failed to update subject: ' + e.message, 'error');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = 'Save Changes';
+            }
         }
     };
 
