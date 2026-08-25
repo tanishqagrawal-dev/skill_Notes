@@ -718,18 +718,28 @@
                 let scale = targetWidth / unscaledViewport.width;
                 if (scale > 1.5) scale = 1.5; // max scale limit
 
+                const dpr = window.devicePixelRatio || 1;
                 const viewport = page.getViewport({ scale: scale });
 
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
+                
+                // Set drawing buffer size matching High-DPI screens
+                canvas.width = Math.floor(viewport.width * dpr);
+                canvas.height = Math.floor(viewport.height * dpr);
+                
+                // Set CSS display dimensions
+                canvas.style.width = viewport.width + 'px';
+                canvas.style.height = viewport.height + 'px';
                 canvas.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
                 canvas.style.borderRadius = '4px';
 
                 wrapper.style.minHeight = viewport.height + 'px';
                 wrapper.innerHTML = ''; // clear
                 wrapper.appendChild(canvas);
+
+                // Scale context by device pixel ratio to draw crisply
+                context.scale(dpr, dpr);
 
                 await page.render({
                     canvasContext: context,
