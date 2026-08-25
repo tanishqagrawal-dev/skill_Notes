@@ -74,9 +74,19 @@ async function uploadToR2(filename, file) {
 window.uploadNoteToFirebase = async function (file, metadata) {
     if (!file) return;
 
-    const maxAllowedSize = 25 * 1024 * 1024; // 25MB
-    if (file.size > maxAllowedSize) {
-        throw new Error("File size exceeds the 25MB limit. Please upload a smaller file.");
+    const fileExt = file.name.split('.').pop().toLowerCase();
+    const isPdf = fileExt === 'pdf';
+
+    if (!isPdf) {
+        const docLimit = 10 * 1024 * 1024; // 10MB
+        if (file.size > docLimit) {
+            throw new Error("Non-PDF documents (Word, PPT, etc.) are limited to 10MB. Please convert it to PDF or upload a smaller file.");
+        }
+    } else {
+        const maxAllowedSize = 25 * 1024 * 1024; // 25MB
+        if (file.size > maxAllowedSize) {
+            throw new Error("PDF file size exceeds the 25MB limit. Please upload a smaller file.");
+        }
     }
 
     try {

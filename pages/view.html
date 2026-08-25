@@ -36,6 +36,9 @@
     <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- PDF.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+
     <style>
         :root {
             --primary: #6c63ff;
@@ -220,13 +223,42 @@
         }
 
         @media (max-width: 600px) {
+            .viewer-header {
+                padding: 0.5rem 0.75rem;
+            }
+
+            .header-left {
+                gap: 0.5rem;
+            }
+
+            .brand-logo {
+                height: 28px;
+                width: 28px;
+            }
+
             .note-title {
-                max-width: 150px;
-                font-size: 0.9rem;
+                max-width: 100px;
+                font-size: 0.85rem;
             }
 
             .note-meta {
                 display: none;
+            }
+
+            #page-indicator {
+                margin-right: 8px !important;
+                padding: 0.3rem 0.5rem !important;
+                font-size: 0.8rem;
+            }
+
+            .vote-container {
+                margin-right: 8px !important;
+                padding-right: 8px !important;
+                gap: 4px !important;
+            }
+
+            .btn-action.view-count-display {
+                padding: 0.4rem 0.5rem !important;
             }
 
             .btn-action span:not(#view-count-display) {
@@ -234,7 +266,7 @@
             }
 
             .btn-action {
-                padding: 0.5rem 0.6rem;
+                padding: 0.4rem 0.5rem;
             }
 
             .hide-mobile {
@@ -318,12 +350,16 @@
         </div>
 
         <iframe id="office-frame" style="display:none; width: 100%; height: 100%; border: none; background: #fff;"></iframe>
+        <div id="pdf-container" style="display:none; width: 100%; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; box-sizing: border-box; padding: 20px 10px; background: #0f111a;"></div>
         <div id="office-blocker" title="Action disabled by administrator"></div>
     </div>
 
     <script type="module">
         import { supabase } from '../js/supabase-config.js?v=6.0';
         import { globalNotes } from '../data/globalNotes.js?v=6.0';
+
+        // Configure PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
 
         const sb = supabase;
 
@@ -470,7 +506,9 @@
                 }
 
                 const finalUrlLower = finalUrl.toLowerCase();
-                if (finalUrlLower.match(/\.(pdf|ppt|pptx|doc|docx|xls|xlsx)(\?|$)/)) {
+                if (finalUrlLower.match(/\.(pdf)(\?|$)/)) {
+                    renderPDF(finalUrl);
+                } else if (finalUrlLower.match(/\.(ppt|pptx|doc|docx|xls|xlsx)(\?|$)/)) {
                     renderOffice(finalUrl);
                 } else {
                     showError("Unsupported file format.");
@@ -574,26 +612,41 @@
             const officeBlocker = document.getElementById('office-blocker');
             const loader = document.getElementById('loader');
             
-            // Google Docs Viewer handles scrolling and touch perfectly for PPT/Docs, 
-            // and provides a unified experience across all devices.
-            officeFrame.src = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
+            const isPdf = url.toLowerCase().split(/[#?]/)[0].endsWith('.pdf');
+            if (isPdf) {
+                // PDFs are rendered natively by the browser to bypass Google's strict file size limits.
+                // We append #toolbar=0 to hide the native browser toolbar (download, print, and details).
+                officeFrame.src = url.split('#')[0] + '#toolbar=0';
+            } else {
+                // Office documents (Docx, Pptx, Xlsx) use Google Docs Viewer
+                officeFrame.src = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
+            }
             
             if (officeBlocker) {
-                // Google Docs Viewer's "Pop-out" download button is at the top right.
-                // Block this universally so users cannot download the file.
-                officeBlocker.style.bottom = 'auto';
-                officeBlocker.style.top = '0';
-                officeBlocker.style.right = '0';
-                officeBlocker.style.width = '60px';
-                officeBlocker.style.height = '60px';
+                if (isPdf) {
+                    officeBlocker.style.display = 'none';
+                } else {
+                    // Google Docs Viewer's "Pop-out" download button is at the top right.
+                    // Block this universally so users cannot download the file.
+                    officeBlocker.style.bottom = 'auto';
+                    officeBlocker.style.top = '0';
+                    officeBlocker.style.right = '0';
+                    officeBlocker.style.width = '60px';
+                    officeBlocker.style.height = '60px';
+                    officeBlocker.style.display = 'block';
+                }
             }
             
             officeFrame.onload = () => {
                 loader.style.display = 'none';
+                if (isPdf) {
+                    try {
+                        officeFrame.focus();
+                    } catch (e) {}
+                }
             };
             
             officeFrame.style.display = 'block';
-            if (officeBlocker) officeBlocker.style.display = 'block';
             
             // In case the iframe onload fails to fire or takes too long, hide loader after 3s
             setTimeout(() => {
@@ -601,6 +654,56 @@
                     loader.style.display = 'none';
                 }
             }, 3000);
+        }
+
+        async function renderPDF(url) {
+            const container = document.getElementById('pdf-container');
+            const pageIndicator = document.getElementById('page-indicator');
+            const loader = document.getElementById('loader');
+
+            container.style.display = 'block';
+            pageIndicator.style.display = 'flex';
+
+            try {
+                const loadingTask = pdfjsLib.getDocument(url);
+                const pdf = await loadingTask.promise;
+
+                document.getElementById('total-pages').innerText = pdf.numPages;
+                loader.style.display = 'none';
+
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'pdf-page-wrapper';
+                    wrapper.dataset.pageNumber = pageNum;
+                    wrapper.style.marginBottom = '20px';
+                    wrapper.style.minHeight = '800px';
+                    wrapper.style.display = 'flex';
+                    wrapper.style.justifyContent = 'center';
+
+                    container.appendChild(wrapper);
+                }
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const wrapper = entry.target;
+                            const pageNum = parseInt(wrapper.dataset.pageNumber);
+                            document.getElementById('current-page').innerText = pageNum;
+
+                            if (!wrapper.dataset.rendered) {
+                                wrapper.dataset.rendered = 'true';
+                                renderPage(pdf, pageNum, wrapper);
+                            }
+                        }
+                    });
+                }, { root: container, rootMargin: '300px 0px' });
+
+                document.querySelectorAll('.pdf-page-wrapper').forEach(w => observer.observe(w));
+
+            } catch (err) {
+                console.error("PDF.js render failed:", err);
+                showError("Could not load PDF document.");
+            }
         }
 
         async function renderPage(pdf, pageNum, wrapper) {

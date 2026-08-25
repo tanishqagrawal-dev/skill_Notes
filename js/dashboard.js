@@ -1239,9 +1239,15 @@ window.openUploadModal = async function () {
         const updateFileDisplay = () => {
             const file = fileInput.files[0];
             if (file) {
-                const maxAllowedSize = 25 * 1024 * 1024; // 25MB
-                if (file.size > maxAllowedSize) {
-                    alert("File size exceeds the 25MB limit. Please upload a smaller file.");
+                const fileExt = file.name.split('.').pop().toLowerCase();
+                const isPdf = fileExt === 'pdf';
+                const limit = isPdf ? 25 * 1024 * 1024 : 10 * 1024 * 1024;
+                if (file.size > limit) {
+                    if (isPdf) {
+                        alert("File size exceeds the 25MB limit. Please upload a smaller file.");
+                    } else {
+                        alert("Non-PDF documents (Word, PPT, etc.) are limited to 10MB. Please convert it to PDF or upload a smaller file.");
+                    }
                     fileInput.value = '';
                     dropZoneLabel.style.display = 'block';
                     fileAttachedCard.style.display = 'none';
@@ -1395,9 +1401,15 @@ async function handleDashboardNoteSubmit(e) {
     if (!title) return alert("Please enter a notes title.");
     if (!file) return alert("Please select a file.");
 
-    const maxAllowedSize = 25 * 1024 * 1024; // 25MB
-    if (file.size > maxAllowedSize) {
-        return alert("File size exceeds the 25MB limit. Please upload a smaller file.");
+    const fileExt = file.name.split('.').pop().toLowerCase();
+    const isPdf = fileExt === 'pdf';
+    const limit = isPdf ? 25 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (file.size > limit) {
+        if (isPdf) {
+            return alert("File size exceeds the 25MB limit. Please upload a smaller file.");
+        } else {
+            return alert("Non-PDF documents (Word, PPT, etc.) are limited to 10MB. Please convert it to PDF or upload a smaller file.");
+        }
     }
 
     const btn = document.getElementById('dash-submit-btn');
@@ -5237,9 +5249,15 @@ window.handleAdminFileSelect = function (file) {
         alert("Please upload supported document formats (PDF, Word, PPT, or Text).");
         return;
     }
-    const maxAllowedSize = 25 * 1024 * 1024; // 25MB
-    if (file.size > maxAllowedSize) {
-        alert("File size exceeds the 25MB limit. Please upload a smaller file.");
+    const fileExt = file.name.split('.').pop().toLowerCase();
+    const isPdf = fileExt === 'pdf';
+    const limit = isPdf ? 25 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (file.size > limit) {
+        if (isPdf) {
+            alert("File size exceeds the 25MB limit. Please upload a smaller file.");
+        } else {
+            alert("Non-PDF documents (Word, PPT, etc.) are limited to 10MB. Please convert it to PDF or upload a smaller file.");
+        }
         return;
     }
     selectedAdminFile = file;
@@ -5253,9 +5271,15 @@ window.executeAdminUpload = async function () {
         return;
     }
 
-    const maxAllowedSize = 25 * 1024 * 1024; // 25MB
-    if (selectedAdminFile.size > maxAllowedSize) {
-        alert("File size exceeds the 25MB limit. Please upload a smaller file.");
+    const fileExt = selectedAdminFile.name.split('.').pop().toLowerCase();
+    const isPdf = fileExt === 'pdf';
+    const limit = isPdf ? 25 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (selectedAdminFile.size > limit) {
+        if (isPdf) {
+            alert("File size exceeds the 25MB limit. Please upload a smaller file.");
+        } else {
+            alert("Non-PDF documents (Word, PPT, etc.) are limited to 10MB. Please convert it to PDF or upload a smaller file.");
+        }
         return;
     }
 
