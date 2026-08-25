@@ -257,8 +257,24 @@ function ensureWizardVisible() {
     if (explorer) explorer.style.display = 'flex';
 }
 
+// --- SCROLL TO TOP HELPER ---
+window.scrollToTop = function() {
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+        const original = mainContent.style.scrollBehavior;
+        mainContent.style.scrollBehavior = 'auto';
+        mainContent.scrollTop = 0;
+        setTimeout(() => { mainContent.style.scrollBehavior = original; }, 50);
+    }
+    const htmlOriginal = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = 'auto';
+    window.scrollTo(0, 0);
+    setTimeout(() => { document.documentElement.style.scrollBehavior = htmlOriginal; }, 50);
+};
+
 // STEP 1: College
 window.renderCollegeStep = function () {
+    window.scrollToTop();
     // Reset properties to maintain reference
     selState.college = null;
     selState.branch = null;
@@ -300,6 +316,7 @@ window.selectCollege = function (id, name) {
 
 // STEP 2: Branch
 window.renderBranchStep = function () {
+    window.scrollToTop();
     selState.branch = null; selState.year = null; selState.semester = null; selState.subject = null;
     RoutingSystem.updateURL(selState);
     ensureWizardVisible();
@@ -324,6 +341,7 @@ window.selectBranch = function (id, name) {
 
 // STEP 3: Year
 window.renderYearStep = function () {
+    window.scrollToTop();
     selState.year = null; selState.semester = null; selState.subject = null;
     RoutingSystem.updateURL(selState);
     ensureWizardVisible();
@@ -346,6 +364,7 @@ window.selectYear = function (year) {
 
 // STEP 4: Semester
 window.renderSemesterStep = function () {
+    window.scrollToTop();
     selState.semester = null; selState.subject = null;
     RoutingSystem.updateURL(selState);
     ensureWizardVisible();
@@ -398,6 +417,7 @@ window.filterNotes = function (query) {
 
 // STEP 5: Subject
 window.renderSubjectStep = function () {
+    window.scrollToTop();
     selState.subject = null;
     RoutingSystem.updateURL(selState);
     ensureWizardVisible();
@@ -500,6 +520,7 @@ window.lastVisibleNote = null;
 
 window.showNotes = async function (activeTab = 'notes', loadMore = false) {
     if (!loadMore) {
+        window.scrollToTop();
         // Hide explorer components
         ['explorer-steps-container', 'explorer-header', 'explorer-content', 'explorer-back-container'].forEach(id => {
             const el = document.getElementById(id);

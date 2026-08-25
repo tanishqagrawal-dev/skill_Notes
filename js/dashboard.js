@@ -5479,8 +5479,24 @@ function updateStepUI(activeIdx) {
     });
 }
 
+// --- SCROLL TO TOP HELPER ---
+window.scrollToTop = function() {
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+        const original = mainContent.style.scrollBehavior;
+        mainContent.style.scrollBehavior = 'auto';
+        mainContent.scrollTop = 0;
+        setTimeout(() => { mainContent.style.scrollBehavior = original; }, 50);
+    }
+    const htmlOriginal = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = 'auto';
+    window.scrollTo(0, 0);
+    setTimeout(() => { document.documentElement.style.scrollBehavior = htmlOriginal; }, 50);
+};
+
 // --- STEP RENDERS ---
 function renderCollegeStep() {
+    window.scrollToTop();
     updateStepUI(0);
     const backBtn = document.getElementById('explorer-back-btn');
     if (backBtn) backBtn.style.display = 'none';
@@ -5564,6 +5580,7 @@ window.selectCollege = function (id, name) {
 window.renderCollegeStep = renderCollegeStep;
 
 function renderStreamStep() {
+    window.scrollToTop();
     // Reset subsequent state
     selState.stream = null;
     selState.branch = null;
@@ -5606,6 +5623,7 @@ window.selectStream = function (id, name) {
 window.renderStreamStep = renderStreamStep;
 
 function renderBranchStep() {
+    window.scrollToTop();
     // Reset subsequent state
     selState.branch = null;
     selState.year = null;
@@ -5659,6 +5677,7 @@ window.selectBranch = function (id, name) {
 window.renderBranchStep = renderBranchStep;
 
 function renderCombinedSemesterStep() {
+    window.scrollToTop();
     // Reset subsequent state
     selState.semester = null;
     selState.year = null;
@@ -5712,6 +5731,7 @@ window.selectCombinedSemester = function (sem, year) {
 window.renderCombinedSemesterStep = renderCombinedSemesterStep;
 
 async function renderSubjectStep() {
+    window.scrollToTop();
     // Reset subsequent state
     selState.subject = null;
     if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
@@ -5801,6 +5821,7 @@ window.renderSubjectStep = renderSubjectStep;
 let notesUnsubscribe = null;
 
 window.showNotes = function (activeTab = 'notes') {
+    window.scrollToTop();
     const explorerHeader = document.getElementById('explorer-header');
     const explorerContent = document.getElementById('explorer-content');
     if (explorerHeader) explorerHeader.style.display = 'none';
