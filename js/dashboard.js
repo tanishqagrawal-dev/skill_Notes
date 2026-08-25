@@ -397,12 +397,49 @@ function handleAuthReady(data) {
 
                 // Deep Link Restoration
                 if (tabParam === 'notes' && (window.location.hash.includes('#/notes/') || window.location.pathname.includes('/notes/'))) {
-                    initDynamicColleges().then(() => {
+                    initDynamicColleges().then(async () => {
                         const nextStep = RoutingSystem.applyFiltersToUI(GlobalData, (k, v) => { selState[k] = v; });
-                        if (nextStep === "SHOW_NOTES") showNotes();
-                        else if (nextStep === "SUBJECT_STEP") renderSubjectStep();
-                        else if (nextStep === "SEMESTER_STEP" || nextStep === "YEAR_STEP") renderCombinedSemesterStep();
-                        else if (nextStep === "BRANCH_STEP") renderBranchStep();
+                        if (nextStep === "SHOW_NOTES") {
+                            showNotes();
+                        } else if (nextStep === "SUBJECT_STEP") {
+                            const route = RoutingSystem.parseURLFilters();
+                            if (route.subject) {
+                                try {
+                                    let sb = window.supabase;
+                                    if (!sb) {
+                                        const module = await import('./supabase-config.js?v=1.0');
+                                        sb = module.supabase;
+                                        window.supabase = sb;
+                                    }
+                                    if (sb) {
+                                        const { data } = await sb.from('college_subjects')
+                                            .select('id, subject_name, subject_code')
+                                            .eq('college_id', selState.college.id)
+                                            .eq('branch_id', selState.branch.id)
+                                            .eq('semester', selState.semester);
+                                        
+                                        if (data) {
+                                            const match = data.find(cs => 
+                                                cs.id === route.subject || 
+                                                cs.subject_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') === route.subject
+                                            );
+                                            if (match) {
+                                                selState.subject = { id: match.id, name: match.subject_name, code: match.subject_code || 'SUB' };
+                                                showNotes();
+                                                return;
+                                            }
+                                        }
+                                    }
+                                } catch (e) {
+                                    console.error("Error resolving custom subject on page load:", e);
+                                }
+                            }
+                            renderSubjectStep();
+                        } else if (nextStep === "SEMESTER_STEP" || nextStep === "YEAR_STEP") {
+                            renderCombinedSemesterStep();
+                        } else if (nextStep === "BRANCH_STEP") {
+                            renderBranchStep();
+                        }
                     });
                 }
             } else {
@@ -672,6 +709,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const keyParts = key.split('-');
             const collegeId = keyParts.length > 2 ? keyParts[0] : 'medicaps';
             const colObj = GlobalData.colleges.find(c => c.id === collegeId) || { name: 'Medicaps University' };
+            const branchId = keyParts.length > 2 ? keyParts[1] : keyParts[0];
+            const semester = keyParts.length > 2 ? keyParts[2] : keyParts[1];
 
             list.forEach(s => {
                 if (s.name.toLowerCase().includes(lowQuery) || (s.code && s.code.toLowerCase().includes(lowQuery))) {
@@ -679,7 +718,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         matches.push({ 
                             ...s, 
                             type: 'subject', 
-                            key: keyParts.length > 2 ? `${keyParts[1]}-${keyParts[2]}` : key,
+                            branchId: branchId,
+                            semester: semester,
                             collegeId: collegeId,
                             collegeName: colObj.name
                         });
@@ -695,7 +735,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     m.id === cs.id || 
                     (m.name.toLowerCase() === cs.subject_name.toLowerCase() && 
                      m.collegeId === cs.college_id &&
-                     m.key === `${cs.branch_id}-${cs.semester}`)
+                     m.branchId === cs.branch_id &&
+                     m.semester === cs.semester)
                 );
                 if (!hasDuplicate) {
                     const colObj = GlobalData.colleges.find(c => c.id === cs.college_id) || { name: cs.college_id.toUpperCase() };
@@ -705,7 +746,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         code: cs.subject_code || 'SUB',
                         icon: '📚',
                         type: 'subject',
-                        key: `${cs.branch_id}-${cs.semester}`,
+                        branchId: cs.branch_id,
+                        semester: cs.semester,
                         collegeId: cs.college_id,
                         collegeName: colObj.name
                     });
@@ -722,7 +764,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="result-icon-box">${m.icon || '📚'}</div>
                     <div class="result-info-content">
                         <div class="result-name-text">${m.name}</div>
-                        <div class="result-meta-text">${m.code || 'Academic'} • ${m.key.split('-')[0].toUpperCase()} • ${m.collegeName || 'Medicaps University'}</div>
+                        <div class="result-meta-text">${m.code || 'Academic'} • ${m.branchId.toUpperCase()} • ${m.collegeName || 'Medicaps University'}</div>
                     </div>
                     <span class="result-type-badge">Subject</span>
                 </div>
@@ -751,6 +793,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let foundSubject = null;
         let foundKey = null;
         let foundCollegeId = null;
+        let foundBranchId = null;
+        let foundSemester = null;
 
         // First try dynamic custom subjects
         const dbMatch = dbCustomSubjects.find(cs => cs.id === queryOrId || cs.id.toString() === queryOrId.toString());
@@ -761,7 +805,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 code: dbMatch.subject_code || 'SUB',
                 icon: '📚'
             };
-            foundKey = `${dbMatch.branch_id}-${dbMatch.semester}`;
+            foundBranchId = dbMatch.branch_id;
+            foundSemester = dbMatch.semester;
             foundCollegeId = dbMatch.college_id;
         }
 
@@ -791,15 +836,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (foundSubject) {
-            if (!foundCollegeId) {
-                const keyParts = foundKey.split('-');
-                foundCollegeId = keyParts.length > 2 ? keyParts[0] : 'medicaps';
-                if (keyParts.length > 2) {
-                    foundKey = `${keyParts[1]}-${keyParts[2]}`;
+            let branchId = foundBranchId;
+            let sem = foundSemester;
+
+            if (!branchId || !sem) {
+                if (!foundCollegeId) {
+                    const keyParts = foundKey.split('-');
+                    foundCollegeId = keyParts.length > 2 ? keyParts[0] : 'medicaps';
+                    if (keyParts.length > 2) {
+                        foundKey = keyParts.slice(1).join('-');
+                    }
+                }
+                const lastHyphenIndex = foundKey.lastIndexOf('-');
+                if (lastHyphenIndex !== -1) {
+                    branchId = foundKey.substring(0, lastHyphenIndex);
+                    sem = foundKey.substring(lastHyphenIndex + 1);
+                } else {
+                    branchId = foundKey;
+                    sem = 'Semester 1';
                 }
             }
 
-            const [branchId, sem] = foundKey.split('-');
             console.log(`✅ Subject Found: ${foundSubject.name} in ${branchId} (${sem})`);
 
             const collegeId = foundCollegeId || localStorage.getItem('user_college_id') || 'medicaps';
@@ -1778,7 +1835,43 @@ function renderTabContent(tabId) {
                     if (nextStep === "SHOW_NOTES") {
                         if (window.showNotes) window.showNotes();
                     } else if (nextStep === "SUBJECT_STEP") {
-                        renderSubjectStep();
+                        const route = window.RoutingSystem.parseURLFilters();
+                        if (route.subject) {
+                            (async () => {
+                                try {
+                                    let sb = window.supabase;
+                                    if (!sb) {
+                                        const module = await import('./supabase-config.js?v=1.0');
+                                        sb = module.supabase;
+                                        window.supabase = sb;
+                                    }
+                                    if (sb) {
+                                        const { data } = await sb.from('college_subjects')
+                                            .select('id, subject_name, subject_code')
+                                            .eq('college_id', window.selState.college.id)
+                                            .eq('branch_id', window.selState.branch.id)
+                                            .eq('semester', window.selState.semester);
+                                        
+                                        if (data) {
+                                            const match = data.find(cs => 
+                                                cs.id === route.subject || 
+                                                cs.subject_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') === route.subject
+                                            );
+                                            if (match) {
+                                                window.selState.subject = { id: match.id, name: match.subject_name, code: match.subject_code || 'SUB' };
+                                                if (window.showNotes) window.showNotes();
+                                                return;
+                                            }
+                                        }
+                                    }
+                                } catch (e) {
+                                    console.error("Error resolving custom subject on tab change:", e);
+                                }
+                                renderSubjectStep();
+                            })();
+                        } else {
+                            renderSubjectStep();
+                        }
                     } else if (nextStep === "SEMESTER_STEP" || nextStep === "YEAR_STEP") {
                         renderCombinedSemesterStep();
                     } else if (nextStep === "BRANCH_STEP") {
@@ -6306,159 +6399,218 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
 
     console.log(`🔎 Filtering Notes for Subject: ${subjectId}, Type: ${tabType} `);
 
-    const querySem = selState?.semester;
-    const semNum = querySem ? querySem.split(' ')[1] : null;
-    const altSem = semNum ? (semNum + (semNum === '1' ? 'st' : semNum === '2' ? 'nd' : semNum === '3' ? 'rd' : 'th')) : null;
-
     if (!selState?.college || !selState?.subject) {
         console.warn("⚠️ Cannot render detailed notes: College or Subject state missing.");
         return;
     }
 
-    // Combine NotesDB with Global Notes to guarantee hardcoded copies render
-    let staticNotes = globalNotes[selState.college.id]?.[selState.subject.name];
-    if (!staticNotes || staticNotes.length === 0) {
-        staticNotes = globalNotes['global']?.[selState.subject.name] || [];
-    }
-    const combinedNotes = [...(window.NotesDB || []), ...staticNotes];
+    grid.innerHTML = `<div class="ap-loader" style="margin: 4rem auto; text-align: center; grid-column: 1/-1;">
+        <div class="ap-spin" style="margin: 0 auto;"></div>
+        <p style="color: var(--text-dim); margin-top: 1rem;">Loading premium ${tabType}...</p>
+    </div>`;
 
-    // Remove duplicates natively to prioritize DB copies
-    const uniqueMap = new Map();
-    combinedNotes.forEach(n => { if (n.id) uniqueMap.set(n.id, n); });
-    const deduplicatedNotes = Array.from(uniqueMap.values());
+    (async () => {
+        let supabaseNotes = [];
+        const subjectName = selState.subject.name;
+        const collegeId = selState.college.id;
 
-    const filtered = deduplicatedNotes.filter(n => {
-        const noteSem = n.semester || n.semesterId;
-        const semMatch = !noteSem || noteSem === querySem || (altSem && noteSem === altSem) || noteSem === 'Unknown';
+        try {
+            let sb = window.supabase;
+            if (!sb) {
+                const module = await import('./supabase-config.js?v=1.0');
+                sb = module.supabase;
+                window.supabase = sb;
+            }
+            if (sb) {
+                let query = sb.from('approved_notes')
+                    .select('*')
+                    .or(`subjectId.eq.${subjectId},subject.eq.${subjectId},subjectName.eq."${subjectName}"`)
+                    .limit(100);
+                
+                const { data, error } = await query;
+                if (!error && data) {
+                    supabaseNotes = data.map(d => ({
+                        ...d,
+                        url: d.file_url || d.url,
+                        fileUrl: d.file_url || d.url,
+                        uploaderName: d.uploader_name || (d.uploader_email ? d.uploader_email.split('@')[0] : 'Scholar'),
+                        name: d.title,
+                        status: 'approved'
+                    }));
+                }
+            }
+        } catch(e) {
+            console.error('dashboard: Direct fetch failed:', e);
+        }
+
+        // Combine NotesDB with Global Notes to guarantee hardcoded copies render
+        let staticNotes = globalNotes[selState.college.id]?.[selState.subject.name];
+        if (!staticNotes || staticNotes.length === 0) {
+            staticNotes = globalNotes['global']?.[selState.subject.name] || [];
+        }
         
-        const isCorrectSubject = (
-            (n.subjectId === subjectId) || 
-            (n.subject === subjectId) || 
-            (n.subject === selState.subject.name) || 
-            (n.subjectName === selState.subject.name) ||
-            (n.name === selState.subject.name)
-        ) && (
-            n.collegeId === selState.college.id || 
-            n.college === selState.college.id || 
-            n.collegeId === 'global' || 
-            n.college === 'global' ||
-            n.college === 'Unknown'
-        ) && (
-            n.type === tabType || 
-            !n.type || 
-            (tabType === 'notes' && n.type === undefined)
-        );
+        // Merge with window.NotesDB cache
+        let cachedNotes = [];
+        if (window.NotesDB) {
+            cachedNotes = window.NotesDB.filter(n => {
+                const matchesSubject =
+                    n.subjectId === subjectId ||
+                    n.subject === subjectId ||
+                    n.subject === subjectName ||
+                    n.subjectName === subjectName ||
+                    n.name === subjectName;
+                const matchesCollege =
+                    n.collegeId === collegeId ||
+                    n.college === collegeId ||
+                    n.collegeId === 'global' ||
+                    n.college === 'global' ||
+                    !n.collegeId;
+                return matchesSubject && matchesCollege;
+            });
+        }
 
-        if (!semMatch || !isCorrectSubject) return false;
+        const combinedNotes = [...supabaseNotes, ...cachedNotes, ...staticNotes];
 
-        const isVisible = n.status !== 'rejected';
-        const isAdminOfCollege = currentUser && (
-            (currentUser.role === Roles.SUPER_ADMIN) ||
-            (currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === n.collegeId)
-        );
+        // Remove duplicates natively to prioritize DB copies
+        const uniqueMap = new Map();
+        combinedNotes.forEach(n => { if (n.id) uniqueMap.set(n.id, n); });
+        const deduplicatedNotes = Array.from(uniqueMap.values());
 
-        if (isAdminOfCollege) return n.status !== 'rejected';
-        return isVisible;
-    });
+        const querySem = selState?.semester;
+        const semNum = querySem ? querySem.split(' ')[1] : null;
+        const altSem = semNum ? (semNum + (semNum === '1' ? 'st' : semNum === '2' ? 'nd' : semNum === '3' ? 'rd' : 'th')) : null;
 
-    const sortedFiltered = sortNotesUnitWise(filtered);
+        const filtered = deduplicatedNotes.filter(n => {
+            const noteSem = n.semester || n.semesterId;
+            const semMatch = !noteSem || noteSem === querySem || (altSem && noteSem === altSem) || noteSem === 'Unknown';
+            
+            const isCorrectSubject = (
+                (n.subjectId === subjectId) || 
+                (n.subject === subjectId) || 
+                (n.subject === selState.subject.name) || 
+                (n.subjectName === selState.subject.name) ||
+                (n.name === selState.subject.name)
+            ) && (
+                n.collegeId === selState.college.id || 
+                n.college === selState.college.id || 
+                n.collegeId === 'global' || 
+                n.college === 'global' ||
+                n.college === 'Unknown'
+            ) && (
+                n.type === tabType || 
+                !n.type || 
+                (tabType === 'notes' && n.type === undefined)
+            );
 
-    if (!grid) return;
+            if (!semMatch || !isCorrectSubject) return false;
 
-    if (sortedFiltered.length === 0) {
-        grid.innerHTML = `
-            <div style="text-align: center; padding: 3rem 1.5rem; box-sizing: border-box; background: rgba(255,255,255,0.01); border: 2px dashed rgba(255,255,255,0.05); border-radius: 20px; width: 100%;">
-                <div style="font-size: 4rem; margin-bottom: 2rem;">📂</div>
-                <h2 class="font-heading">No premium ${tabType} for this subject found yet.</h2>
-                <p style="color: var(--text-dim); margin-bottom: 2.5rem;">Be the first contributor and earn academic credit!</p>
-                <button class="btn btn-primary" style="padding: 1rem 2.5rem; font-weight: 700;" onclick="openUploadModal()">+ Upload ${tabType}</button>
-            </div>
-        `;
-        return;
-    }
+            const isVisible = n.status !== 'rejected';
+            const isAdminOfCollege = currentUser && (
+                (currentUser.role === Roles.SUPER_ADMIN) ||
+                (currentUser.role === Roles.COLLEGE_ADMIN && currentUser.college === n.collegeId)
+            );
 
-    const cardsHTML = sortedFiltered.map((n, idx) => {
-        const sequentialId = `unit${idx + 1}`;
-        const yearDate = selState?.year && selState.year.includes('2') ? 'Jan 2026' : (selState?.year && selState.year.includes('1') ? 'Feb 2026' : 'Dec 2025');
-        const rawUnit6 = n.unit || n.unit_number || n.unitTag;
-        const rawUnit6Str = rawUnit6 ? String(rawUnit6).trim().toLowerCase() : '';
-        const unitTag = (rawUnit6Str && rawUnit6Str !== 'undefined' && rawUnit6Str !== 'null')
-            ? String(rawUnit6).trim().toUpperCase()
-            : (n.title?.match(/unit\s*[-–]?\s*\d+/i)?.[0]?.toUpperCase() || `UNIT ${idx + 1}`);
+            if (isAdminOfCollege) return n.status !== 'rejected';
+            return isVisible;
+        });
 
-        const displayViews = n.views || 0;
-        const displayLikes = n.upvotes || 0;
-        const displayDislikes = n.downvotes || 0;
+        const sortedFiltered = sortNotesUnitWise(filtered);
 
-        const localVote = localStorage.getItem(`vote_${n.id}`) || localStorage.getItem(`vote_${sequentialId}`);
-        const isLiked = window.likedNoteIds?.has(n.id) || localVote == 1;
-        const isDisliked = window.dislikedNoteIds?.has(n.id) || localVote == -1;
-        const isSaved = window.savedNoteIds?.has(n.id);
-        const fallbackName = n.uploaderName || n.uploader || 'U';
-        const initial = fallbackName.charAt(0).toUpperCase();
-        const fallbackSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#ff6b00"/><text x="50" y="50" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="45" font-weight="bold" text-anchor="middle" dominant-baseline="central">${initial}</text></svg>`;
-        const fallbackUri = `data:image/svg+xml;utf8,${encodeURIComponent(fallbackSvg)}`;
+        if (!grid) return;
 
-        return `
-            <div class="premium-note-item card-reveal" data-note-id="${n.id}" style="animation-delay: ${idx * 0.1}s;">
-                <div class="item-left" style="display: flex; gap: 1.25rem; align-items: flex-start; flex: 1;">
-                    <div class="file-type-icon" style="width: 45px; height: 45px; background: rgba(0, 242, 255, 0.1); color: var(--secondary); display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.2rem; flex-shrink: 0;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                    </div>
-                    <div class="item-info">
-                        <div class="unit-tag" style="font-size: 0.75rem; color: var(--secondary); font-weight: 800; letter-spacing: 1px; margin-bottom: 0.3rem; text-transform: uppercase;">${unitTag}</div>
-                        <h3 class="item-title" style="font-size: 1.2rem; font-weight: 700; color: white; margin: 0 0 0.4rem 0;">${n.title}</h3>
-                        <div class="item-meta-row" style="display: flex; align-items: center; gap: 1.2rem; font-size: 0.85rem; color: var(--text-dim);">
-                            <div class="uploader-mini" style="display: flex; align-items: center; gap: 0.5rem; white-space: nowrap; color: var(--secondary); font-weight: 700;">
-                                ${((n.uploaderName || n.uploader || '').toLowerCase().includes('skil matrix') || (!n.uploaderName && !n.uploader)) ? 
-                                    '<img src="../assets/logo_transparent.png" style="width:18px;height:18px;border-radius:50%;object-fit:contain;background:rgba(0,242,255,0.1);padding:2px;">' :
-                                    (n.uploaderAvatar || n.avatar) ? `<img src="${n.uploaderAvatar || n.avatar}" style="width:18px;height:18px;border-radius:50%;object-fit:cover;">` :
-                                    `<img src="${fallbackUri}" style="width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.05);" onload="if(!this.dataset.loaded){ this.dataset.loaded=true; window.loadUserAvatar('${n.uploadedBy}', this, '${fallbackName.replace(/'/g, "\\'")}'); }">`
-                                }
-                                <span>${n.uploaderName || n.uploader || 'SKiL MATRiX'}</span>
-                            </div>
-                            <div class="date-mini" style="display: flex; align-items: center; gap: 0.3rem; white-space: nowrap; background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(39, 174, 96, 0.1)); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.2); padding: 2px 6px; border-radius: 4px; font-weight: 800; font-size: 0.7rem; letter-spacing: 0.5px; box-shadow: 0 0 8px rgba(46, 204, 113, 0.15);">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg>
-                                <span>VERIFIED</span>
+        if (sortedFiltered.length === 0) {
+            grid.innerHTML = `
+                <div style="text-align: center; padding: 3rem 1.5rem; box-sizing: border-box; background: rgba(255,255,255,0.01); border: 2px dashed rgba(255,255,255,0.05); border-radius: 20px; width: 100%;">
+                    <div style="font-size: 4rem; margin-bottom: 2rem;">📂</div>
+                    <h2 class="font-heading">No premium ${tabType} for this subject found yet.</h2>
+                    <p style="color: var(--text-dim); margin-bottom: 2.5rem;">Be the first contributor and earn academic credit!</p>
+                    <button class="btn btn-primary" style="padding: 1rem 2.5rem; font-weight: 700;" onclick="openUploadModal()">+ Upload ${tabType}</button>
+                </div>
+            `;
+            return;
+        }
+
+        const cardsHTML = sortedFiltered.map((n, idx) => {
+            const sequentialId = `unit${idx + 1}`;
+            const yearDate = selState?.year && selState.year.includes('2') ? 'Jan 2026' : (selState?.year && selState.year.includes('1') ? 'Feb 2026' : 'Dec 2025');
+            const rawUnit6 = n.unit || n.unit_number || n.unitTag;
+            const rawUnit6Str = rawUnit6 ? String(rawUnit6).trim().toLowerCase() : '';
+            const unitTag = (rawUnit6Str && rawUnit6Str !== 'undefined' && rawUnit6Str !== 'null')
+                ? String(rawUnit6).trim().toUpperCase()
+                : (n.title?.match(/unit\s*[-–]?\s*\d+/i)?.[0]?.toUpperCase() || `UNIT ${idx + 1}`);
+
+            const displayViews = n.views || 0;
+            const displayLikes = n.upvotes || 0;
+            const displayDislikes = n.downvotes || 0;
+
+            const localVote = localStorage.getItem(`vote_${n.id}`) || localStorage.getItem(`vote_${sequentialId}`);
+            const isLiked = window.likedNoteIds?.has(n.id) || localVote == 1;
+            const isDisliked = window.dislikedNoteIds?.has(n.id) || localVote == -1;
+            const isSaved = window.savedNoteIds?.has(n.id);
+            const fallbackName = n.uploaderName || n.uploader || 'U';
+            const initial = fallbackName.charAt(0).toUpperCase();
+            const fallbackSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#ff6b00"/><text x="50" y="50" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="45" font-weight="bold" text-anchor="middle" dominant-baseline="central">${initial}</text></svg>`;
+            const fallbackUri = `data:image/svg+xml;utf8,${encodeURIComponent(fallbackSvg)}`;
+
+            return `
+                <div class="premium-note-item card-reveal" data-note-id="${n.id}" style="animation-delay: ${idx * 0.1}s;">
+                    <div class="item-left" style="display: flex; gap: 1.25rem; align-items: flex-start; flex: 1;">
+                        <div class="file-type-icon" style="width: 45px; height: 45px; background: rgba(0, 242, 255, 0.1); color: var(--secondary); display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.2rem; flex-shrink: 0;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                        </div>
+                        <div class="item-info">
+                            <div class="unit-tag" style="font-size: 0.75rem; color: var(--secondary); font-weight: 800; letter-spacing: 1px; margin-bottom: 0.3rem; text-transform: uppercase;">${unitTag}</div>
+                            <h3 class="item-title" style="font-size: 1.2rem; font-weight: 700; color: white; margin: 0 0 0.4rem 0;">${n.title}</h3>
+                            <div class="item-meta-row" style="display: flex; align-items: center; gap: 1.2rem; font-size: 0.85rem; color: var(--text-dim);">
+                                <div class="uploader-mini" style="display: flex; align-items: center; gap: 0.5rem; white-space: nowrap; color: var(--secondary); font-weight: 700;">
+                                    ${((n.uploaderName || n.uploader || '').toLowerCase().includes('skil matrix') || (!n.uploaderName && !n.uploader)) ? 
+                                        '<img src="../assets/logo_transparent.png" style="width:18px;height:18px;border-radius:50%;object-fit:contain;background:rgba(0,242,255,0.1);padding:2px;">' :
+                                        (n.uploaderAvatar || n.avatar) ? `<img src="${n.uploaderAvatar || n.avatar}" style="width:18px;height:18px;border-radius:50%;object-fit:cover;">` :
+                                        `<img src="${fallbackUri}" style="width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.05);" onload="if(!this.dataset.loaded){ this.dataset.loaded=true; window.loadUserAvatar('${n.uploadedBy}', this, '${fallbackName.replace(/'/g, "\\'")}'); }">`
+                                    }
+                                    <span>${n.uploaderName || n.uploader || 'SKiL MATRiX'}</span>
+                                </div>
+                                <div class="date-mini" style="display: flex; align-items: center; gap: 0.3rem; white-space: nowrap; background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(39, 174, 96, 0.1)); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.2); padding: 2px 6px; border-radius: 4px; font-weight: 800; font-size: 0.7rem; letter-spacing: 0.5px; box-shadow: 0 0 8px rgba(46, 204, 113, 0.15);">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg>
+                                    <span>VERIFIED</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="item-right" style="display: flex; align-items: center; gap: 1.5rem;">
-                    <div class="item-actions-inline" style="display: flex; align-items: center; gap: 0.8rem;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.8rem; border-radius: 8px; color: var(--text-dim); font-size: 0.85rem; font-weight: 700; cursor: default;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                            <span>${displayViews} Views</span>
+                    <div class="item-right" style="display: flex; align-items: center; gap: 1.5rem;">
+                        <div class="item-actions-inline" style="display: flex; align-items: center; gap: 0.8rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.8rem; border-radius: 8px; color: var(--text-dim); font-size: 0.85rem; font-weight: 700; cursor: default;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                <span>${displayViews} Views</span>
+                            </div>
+                            <button class="tool-icon-pro bookmark-btn ${isSaved ? 'active' : ''}" onclick="toggleBookmark('${n.id}')" style="border: 1px solid rgba(255,255,255,0.1); padding: 0.6rem; border-radius: 8px; transition: 0.3s; cursor: pointer;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                            </button>
+                            <button class="tool-icon-pro share-btn" onclick="shareResource('${n.id}')" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.6rem; border-radius: 8px; color: var(--text-dim); transition: 0.3s; cursor: pointer;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                            </button>
                         </div>
-                        <button class="tool-icon-pro bookmark-btn ${isSaved ? 'active' : ''}" onclick="toggleBookmark('${n.id}')" style="border: 1px solid rgba(255,255,255,0.1); padding: 0.6rem; border-radius: 8px; transition: 0.3s; cursor: pointer;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-                        </button>
-                        <button class="tool-icon-pro share-btn" onclick="shareResource('${n.id}')" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.6rem; border-radius: 8px; color: var(--text-dim); transition: 0.3s; cursor: pointer;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                        </button>
+                        <a href="${window.getViewerUrl(n.url || n.fileUrl || n.driveLink, n.title || n.name, n.id)}" target="_blank" class="btn-download-pro" onclick="downloadNote('${n.id}')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            View
+                        </a>
                     </div>
-                    <a href="${window.getViewerUrl(n.url || n.fileUrl || n.driveLink, n.title || n.name, n.id)}" target="_blank" class="btn-download-pro" onclick="downloadNote('${n.id}')">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                        View
-                    </a>
-                </div>
-            </div>`;
-    }).join('');
+                </div>`;
+        }).join('');
 
-    grid.innerHTML = cardsHTML;
-    grid.className = "notes-list-container-pro";
-    grid.style.display = "flex";
-    grid.style.flexDirection = "column";
-    grid.style.gap = "1.25rem";
+        grid.innerHTML = cardsHTML;
+        grid.className = "notes-list-container-pro";
+        grid.style.display = "flex";
+        grid.style.flexDirection = "column";
+        grid.style.gap = "1.25rem";
 
-    setTimeout(() => {
-        if (typeof attachNoteRealtimeListeners === 'function') attachNoteRealtimeListeners('tab-content');
-        sortedFiltered.forEach(n => { if (n.id) window.incrementNoteView?.(n.id); });
-        if (typeof window.runAnalyticsSimulation === 'function') window.runAnalyticsSimulation();
-    }, 150);
-
-    return grid.innerHTML;
+        setTimeout(() => {
+            if (typeof attachNoteRealtimeListeners === 'function') attachNoteRealtimeListeners('tab-content');
+            sortedFiltered.forEach(n => { if (n.id) window.incrementNoteView?.(n.id); });
+            if (typeof window.runAnalyticsSimulation === 'function') window.runAnalyticsSimulation();
+        }, 150);
+    })();
 }
 
 // --- NOTE INTERACTIONS LOGIC (Handled by js/note-actions.js) ---

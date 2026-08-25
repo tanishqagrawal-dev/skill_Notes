@@ -47,7 +47,22 @@ export const RoutingSystem = {
         if (semVal) hash += `/${semVal.replace(/\s+/g, '-').toLowerCase()}`;
 
         const subjectId = state.subject ? (state.subject.id || state.subject) : null;
-        if (subjectId) hash += `/${subjectId}`;
+        if (subjectId) {
+            const key = `${branchId}-${semVal}`;
+            const collegeKey = `${collegeId}-${key}`;
+            const isStatic = window.GlobalData && window.GlobalData.subjects && (
+                (window.GlobalData.subjects[collegeKey] || []).some(s => s.id === subjectId) ||
+                (window.GlobalData.subjects[key] || []).some(s => s.id === subjectId)
+            );
+            if (isStatic) {
+                hash += `/${subjectId}`;
+            } else {
+                const slug = state.subject && state.subject.name
+                    ? state.subject.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+                    : subjectId;
+                hash += `/${slug}`;
+            }
+        }
 
         if (window.location.hash !== hash) {
             window.history.replaceState(state, '', window.location.pathname + window.location.search + hash);
@@ -118,7 +133,22 @@ export const RoutingSystem = {
         if (semVal) hash += `/${semVal.replace(/\s+/g, '-').toLowerCase()}`;
 
         const subjectId = state.subject ? (state.subject.id || state.subject) : null;
-        if (subjectId) hash += `/${subjectId}`;
+        if (subjectId) {
+            const key = `${branchId}-${semVal}`;
+            const collegeKey = `${collegeId}-${key}`;
+            const isStatic = window.GlobalData && window.GlobalData.subjects && (
+                (window.GlobalData.subjects[collegeKey] || []).some(s => s.id === subjectId) ||
+                (window.GlobalData.subjects[key] || []).some(s => s.id === subjectId)
+            );
+            if (isStatic) {
+                hash += `/${subjectId}`;
+            } else {
+                const slug = state.subject && state.subject.name
+                    ? state.subject.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+                    : subjectId;
+                hash += `/${slug}`;
+            }
+        }
 
         return hash;
     },

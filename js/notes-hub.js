@@ -122,7 +122,43 @@ document.addEventListener('DOMContentLoaded', () => {
     if (nextStep === "SHOW_NOTES") {
         showNotes();
     } else if (nextStep === "SUBJECT_STEP") {
-        renderSubjectStep();
+        const route = RoutingSystem.parseURLFilters();
+        if (route.subject) {
+            (async () => {
+                try {
+                    let sb = window.supabase;
+                    if (!sb) {
+                        const module = await import('./supabase-config.js?v=1.0');
+                        sb = module.supabase;
+                        window.supabase = sb;
+                    }
+                    if (sb) {
+                        const { data } = await sb.from('college_subjects')
+                            .select('id, subject_name, subject_code')
+                            .eq('college_id', selState.college.id)
+                            .eq('branch_id', selState.branch.id)
+                            .eq('semester', selState.semester);
+                        
+                        if (data) {
+                            const match = data.find(cs => 
+                                cs.id === route.subject || 
+                                cs.subject_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') === route.subject
+                            );
+                            if (match) {
+                                selState.subject = { id: match.id, name: match.subject_name, code: match.subject_code || 'SUB' };
+                                showNotes();
+                                return;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error resolving custom subject on load:", e);
+                }
+                renderSubjectStep();
+            })();
+        } else {
+            renderSubjectStep();
+        }
     } else if (nextStep === "SEMESTER_STEP") {
         renderSemesterStep();
     } else if (nextStep === "YEAR_STEP") {
@@ -159,7 +195,44 @@ window.addEventListener('popstate', (event) => {
             () => { }
         );
         if (nextStep === "SHOW_NOTES") showNotes();
-        else if (nextStep === "SUBJECT_STEP") renderSubjectStep();
+        else if (nextStep === "SUBJECT_STEP") {
+            if (route.subject) {
+                (async () => {
+                    try {
+                        let sb = window.supabase;
+                        if (!sb) {
+                            const module = await import('./supabase-config.js?v=1.0');
+                            sb = module.supabase;
+                            window.supabase = sb;
+                        }
+                        if (sb) {
+                            const { data } = await sb.from('college_subjects')
+                                .select('id, subject_name, subject_code')
+                                .eq('college_id', selState.college.id)
+                                .eq('branch_id', selState.branch.id)
+                                .eq('semester', selState.semester);
+                            
+                            if (data) {
+                                const match = data.find(cs => 
+                                    cs.id === route.subject || 
+                                    cs.subject_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') === route.subject
+                                );
+                                if (match) {
+                                    selState.subject = { id: match.id, name: match.subject_name, code: match.subject_code || 'SUB' };
+                                    showNotes();
+                                    return;
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.error("Error resolving custom subject on popstate:", e);
+                    }
+                    renderSubjectStep();
+                })();
+            } else {
+                renderSubjectStep();
+            }
+        }
         else if (nextStep === "SEMESTER_STEP") renderSemesterStep();
         else if (nextStep === "YEAR_STEP") renderYearStep();
         else if (nextStep === "BRANCH_STEP") renderBranchStep();
@@ -498,13 +571,39 @@ window.showNotes = async function (activeTab = 'notes', loadMore = false) {
     }
 
     // --- SUPABASE NOTES ---
-    // Pull from window.NotesDB (populated by dashboard.js initNotesSync) if available.
-    // If not yet loaded, fetch directly from Supabase approved_notes table.
+    // Fetch directly from Supabase approved_notes table for this specific subject to guarantee ALL notes are shown
     let supabaseNotes = [];
     const subjectName = selState.subject.name;
+    
+    try {
+        const sb = window.supabase || (await import('./supabase-config.js').then(m => m.supabase).catch(() => null));
+        if (sb) {
+            let query = sb.from('approved_notes')
+                .select('*')
+                .or(`subjectId.eq.${subjectId},subject.eq.${subjectId},subjectName.eq."${subjectName}"`)
+                .limit(100);
+            const { data, error } = await query;
+            if (!error && data) {
+                supabaseNotes = data.map(d => ({
+                    ...d,
+                    url: d.file_url || d.url,
+                    fileUrl: d.file_url || d.url,
+                    uploaderName: d.uploader_name || (d.uploader_email ? d.uploader_email.split('@')[0] : 'Scholar'),
+                    name: d.title,
+                    status: 'approved'
+                }));
+                console.log(`✅ notes-hub: fetched ${supabaseNotes.length} notes directly from Supabase for "${subjectName}"`);
+            } else if (error) {
+                console.warn('notes-hub Supabase fetch error:', error.message);
+            }
+        }
+    } catch(e) {
+        console.error('notes-hub: Direct Supabase fetch failed:', e);
+    }
+
+    // Merge with window.NotesDB cache if available
     if (window.NotesDB && window.NotesDB.length > 0) {
-        // Filter the cached NotesDB for this subject
-        supabaseNotes = window.NotesDB.filter(n => {
+        const cachedNotes = window.NotesDB.filter(n => {
             const matchesSubject =
                 n.subjectId === subjectId ||
                 n.subject === subjectId ||
@@ -519,62 +618,12 @@ window.showNotes = async function (activeTab = 'notes', loadMore = false) {
                 !n.collegeId;
             return matchesSubject && matchesCollege;
         });
-        console.log(`📦 notes-hub: pulled ${supabaseNotes.length} notes from NotesDB cache for "${subjectName}"`);
-    } else {
-        // NotesDB not loaded yet — fetch directly from Supabase
-        try {
-            const sb = window.supabase || (await import('./supabase-config.js').then(m => m.supabase).catch(() => null));
-            if (sb) {
-                let query = sb.from('approved_notes')
-                    .select('*')
-                    .or(`subjectId.eq.${subjectId},subject.eq.${subjectId},subjectName.eq."${subjectName}"`)
-                    .limit(50);
-                const { data, error } = await query;
-                if (!error && data && data.length > 0) {
-                    supabaseNotes = data.map(d => ({
-                        ...d,
-                        url: d.file_url || d.url,
-                        fileUrl: d.file_url || d.url,
-                        uploaderName: d.uploader_name || (d.uploader_email ? d.uploader_email.split('@')[0] : 'Scholar'),
-                        name: d.title,
-                        status: 'approved' // rows in approved_notes are already approved
-                    }));
-                    console.log(`✅ notes-hub: fetched ${supabaseNotes.length} notes directly from Supabase for "${subjectName}"`);
-                } else if (error) {
-                    console.warn('notes-hub Supabase fetch error:', error.message);
-                    // Fallback: fetch all and filter locally
-                    const { data: allData } = await sb.from('approved_notes').select('*').limit(200);
-                    if (allData) {
-                        supabaseNotes = allData
-                            .filter(n => {
-                                const matchesSubject =
-                                    n.subjectId === subjectId ||
-                                    n.subject === subjectId ||
-                                    n.subject === subjectName ||
-                                    n.subjectName === subjectName;
-                                const matchesCollege =
-                                    n.collegeId === collegeId ||
-                                    n.college === collegeId ||
-                                    n.collegeId === 'global' ||
-                                    n.college === 'global' ||
-                                    !n.collegeId;
-                                return matchesSubject && matchesCollege;
-                            })
-                            .map(d => ({
-                                ...d,
-                                url: d.file_url || d.url,
-                                fileUrl: d.file_url || d.url,
-                                uploaderName: d.uploader_name || (d.uploader_email ? d.uploader_email.split('@')[0] : 'Scholar'),
-                                name: d.title,
-                                status: 'approved'
-                            }));
-                        console.log(`✅ notes-hub: fallback fetch got ${supabaseNotes.length} Supabase notes for "${subjectName}"`);
-                    }
-                }
+        
+        cachedNotes.forEach(cn => {
+            if (!supabaseNotes.some(sn => sn.id === cn.id)) {
+                supabaseNotes.push(cn);
             }
-        } catch(e) {
-            console.error('notes-hub: Direct Supabase fetch failed:', e);
-        }
+        });
     }
 
     // Merge: Firestore + Supabase + Static notes
