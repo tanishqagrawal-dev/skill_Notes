@@ -5564,6 +5564,14 @@ window.selectCollege = function (id, name) {
 window.renderCollegeStep = renderCollegeStep;
 
 function renderStreamStep() {
+    // Reset subsequent state
+    selState.stream = null;
+    selState.branch = null;
+    selState.year = null;
+    selState.semester = null;
+    selState.subject = null;
+    if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
+
     updateStepUI(1);
     const backBtn = document.getElementById('explorer-back-btn');
     if (backBtn) {
@@ -5598,6 +5606,13 @@ window.selectStream = function (id, name) {
 window.renderStreamStep = renderStreamStep;
 
 function renderBranchStep() {
+    // Reset subsequent state
+    selState.branch = null;
+    selState.year = null;
+    selState.semester = null;
+    selState.subject = null;
+    if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
+
     updateStepUI(2);
     const backBtn = document.getElementById('explorer-back-btn');
     if (backBtn) {
@@ -5644,6 +5659,12 @@ window.selectBranch = function (id, name) {
 window.renderBranchStep = renderBranchStep;
 
 function renderCombinedSemesterStep() {
+    // Reset subsequent state
+    selState.semester = null;
+    selState.year = null;
+    selState.subject = null;
+    if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
+
     updateStepUI(3);
     const backBtn = document.getElementById('explorer-back-btn');
     if (backBtn) {
@@ -5691,6 +5712,10 @@ window.selectCombinedSemester = function (sem, year) {
 window.renderCombinedSemesterStep = renderCombinedSemesterStep;
 
 async function renderSubjectStep() {
+    // Reset subsequent state
+    selState.subject = null;
+    if (typeof RoutingSystem !== 'undefined') RoutingSystem.updateURL(selState);
+
     updateStepUI(4);
     const backBtn = document.getElementById('explorer-back-btn');
     if (backBtn) {
