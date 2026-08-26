@@ -1802,6 +1802,11 @@ function renderTabContent(tabId) {
             console.log("➡️ Rendering Overview...");
             contentArea.innerHTML = renderOverview();
             
+            // Asynchronously fetch and populate live stats from Supabase
+            if (typeof fetchAndPopulateLiveStats === 'function') {
+                fetchAndPopulateLiveStats();
+            }
+            
             // Live fetch true Coding Streak from Supabase
             if (window.currentUser && window.currentUser.id && window.supabase) {
                 window.supabase.from('users').select('coding_streak').eq('id', window.currentUser.id).single()
@@ -4871,15 +4876,15 @@ function renderOverview() {
                     <div class="live-activity-list" style="display: flex; flex-direction: column; gap: 1.25rem;">
                         <div class="live-activity-item glow-orange">
                             <span style="font-size: 1.2rem;">🔥</span>
-                            <div style="font-weight: 700;">120 students <span style="font-weight: 400; color: var(--text-dim);">studying OOP right now</span></div>
+                            <div style="font-weight: 700;" id="live-stat-users">120 students <span style="font-weight: 400; color: var(--text-dim);">studying OOP right now</span></div>
                         </div>
                         <div class="live-activity-item glow-blue">
                             <span style="font-size: 1.2rem;">📥</span>
-                            <div style="font-weight: 700;">45 new notes <span style="font-weight: 400; color: var(--text-dim);">uploaded today</span></div>
+                            <div style="font-weight: 700;" id="live-stat-uploads">45 new notes <span style="font-weight: 400; color: var(--text-dim);">uploaded today</span></div>
                         </div>
                         <div class="live-activity-item glow-gold">
                             <span style="font-size: 1.2rem;">⭐</span>
-                            <div style="font-weight: 700;">Top note: <span style="font-weight: 400; color: var(--text-dim);">"OOP Cheatsheet"</span></div>
+                            <div style="font-weight: 700;" id="live-stat-topnote">Top note: <span style="font-weight: 400; color: var(--text-dim);">"OOP Cheatsheet"</span></div>
                         </div>
                     </div>
                 </div>
@@ -4894,16 +4899,16 @@ function renderOverview() {
                     
                     <div class="live-activity-list" style="display: flex; flex-direction: column; gap: 1.25rem;">
                         <div class="live-activity-item glow-green" style="background: rgba(46, 213, 115, 0.05); border: 1px solid rgba(46, 213, 115, 0.1);">
-                            <span style="font-size: 1.2rem;">⏱️</span>
-                            <div style="font-weight: 700;">${window.currentUser?.focusminutes || 0} mins <span style="font-weight: 400; color: var(--text-dim);">Focus Time</span></div>
+                            <span style="font-size: 1.2rem;">💻</span>
+                            <div style="font-weight: 700;" id="user-progress-focus">${window.currentUser?.coding_xp || 0} XP <span style="font-weight: 400; color: var(--text-dim);">Coding Score</span></div>
                         </div>
                         <div class="live-activity-item glow-purple" style="background: rgba(157, 80, 187, 0.05); border: 1px solid rgba(157, 80, 187, 0.1);">
                             <span style="font-size: 1.2rem;">📚</span>
-                            <div style="font-weight: 700;">${window.currentUser?.uploads || 0} <span style="font-weight: 400; color: var(--text-dim);">Notes Uploaded</span></div>
+                            <div style="font-weight: 700;" id="user-progress-uploads">${window.currentUser?.uploads || 0} <span style="font-weight: 400; color: var(--text-dim);">Notes Uploaded</span></div>
                         </div>
                         <div class="live-activity-item glow-cyan" style="background: rgba(0, 210, 255, 0.05); border: 1px solid rgba(0, 210, 255, 0.1);">
                             <span style="font-size: 1.2rem;">🎯</span>
-                            <div style="font-weight: 700;">${window.currentUser?.xp || 0} XP <span style="font-weight: 400; color: var(--text-dim);">Total Earned</span></div>
+                            <div style="font-weight: 700;" id="user-progress-xp">${window.currentUser?.xp || 0} XP <span style="font-weight: 400; color: var(--text-dim);">Total Earned</span></div>
                         </div>
                     </div>
                 </div>
@@ -4911,6 +4916,198 @@ function renderOverview() {
 
         </div>
     `;
+}
+
+// Fetch true user progress and platform activity live from Supabase without changing layout
+async function fetchAndPopulateLiveStats() {
+    try {
+        let sb = window.supabase;
+        if (!sb) {
+            const module = await import('./supabase-config.js?v=1.0');
+            sb = module.supabase;
+            window.supabase = sb;
+        }
+        if (!sb) return;
+
+        // 1. Fetch User Data to update Your Progress from Supabase (querying both users & profiles tables in parallel to get full stats)
+        const myId = window.currentUser?.uid || window.currentUser?.id;
+        if (myId && !window.currentUser?.isGuest) {
+            try {
+                const [userRes, profileRes] = await Promise.all([
+                    sb.from('users').select('xp, uploads, focusminutes, coding_xp').eq('id', myId).maybeSingle(),
+                    sb.from('profiles').select('xp, referral_count, referral_points').eq('id', myId).maybeSingle()
+                ]);
+
+                const dbUser = userRes?.data || {};
+                const dbProfile = profileRes?.data || {};
+
+                // Merge values seamlessly from both sources to guarantee absolute accuracy
+                const uploads = dbUser.uploads || 0;
+                const codingXp = dbUser.coding_xp || 0;
+                const referralCount = dbProfile.referral_count || 0;
+                const focusMinutes = dbUser.focusminutes || 0;
+
+                // Ensure overall XP matches leaderboard calculation perfectly (includes referrals)
+                const trueXp = Math.max(
+                    dbUser.xp || 0,
+                    dbProfile.xp || 0,
+                    (uploads * 50) + (referralCount * 50) + codingXp
+                );
+
+                // Update global currentUser context
+                window.currentUser.xp = trueXp;
+                window.currentUser.uploads = uploads;
+                window.currentUser.focusminutes = focusMinutes;
+                window.currentUser.coding_xp = codingXp;
+                localStorage.setItem('auth_user_full', JSON.stringify(window.currentUser));
+
+                // Update UI elements in DOM
+                const codingEl = document.getElementById('user-progress-focus');
+                const uploadsEl = document.getElementById('user-progress-uploads');
+                const xpEl = document.getElementById('user-progress-xp');
+
+                if (codingEl) codingEl.innerHTML = `${codingXp} XP <span style="font-weight: 400; color: var(--text-dim);">Coding Score</span>`;
+                if (uploadsEl) uploadsEl.innerHTML = `${uploads} <span style="font-weight: 400; color: var(--text-dim);">Notes Uploaded</span>`;
+                if (xpEl) xpEl.innerHTML = `${trueXp} XP <span style="font-weight: 400; color: var(--text-dim);">Total Earned</span>`;
+            } catch (queryErr) {
+                console.error("Error fetching parallel user/profile data:", queryErr);
+            }
+        }
+
+        // 2. Fetch platform activity from Supabase
+        // A. Top Subject Calculation (ranked by sum of views of all notes under that subject)
+        let dbNotesViews = [];
+        try {
+            const { data } = await sb.from('approved_notes').select('subject, views');
+            dbNotesViews = data || [];
+        } catch (dbErr) {
+            console.error("Error fetching notes views:", dbErr);
+        }
+
+        const allGlobalNotes = [];
+        if (typeof globalNotes !== 'undefined') {
+            for (const col in globalNotes) {
+                for (const sub in globalNotes[col]) {
+                    allGlobalNotes.push(...globalNotes[col][sub]);
+                }
+            }
+        }
+
+        const subjectStats = {};
+        
+        // Add DB notes stats
+        dbNotesViews.forEach(n => {
+            const sub = n.subject;
+            if (sub) {
+                if (!subjectStats[sub]) {
+                    subjectStats[sub] = { noteCount: 0, totalViews: 0 };
+                }
+                subjectStats[sub].noteCount += 1;
+                subjectStats[sub].totalViews += (n.views || 0);
+            }
+        });
+
+        // Add Global notes stats (fallbacks)
+        allGlobalNotes.forEach(n => {
+            const sub = n.subject || n.subject_name;
+            if (sub) {
+                if (!subjectStats[sub]) {
+                    subjectStats[sub] = { noteCount: 0, totalViews: 0 };
+                }
+                subjectStats[sub].noteCount += 1;
+                subjectStats[sub].totalViews += (n.views || 0);
+            }
+        });
+
+        let topSubject = "";
+        let maxViews = -1;
+        let maxCount = -1;
+
+        for (const sub in subjectStats) {
+            const s = subjectStats[sub];
+            if (s.totalViews > maxViews || (s.totalViews === maxViews && s.noteCount > maxCount)) {
+                maxViews = s.totalViews;
+                maxCount = s.noteCount;
+                topSubject = sub;
+            }
+        }
+
+        let topSubjectName = topSubject || "Discrete Mathematics";
+        if (topSubject && typeof GlobalData !== 'undefined' && GlobalData.subjects) {
+            for (const sem in GlobalData.subjects) {
+                const found = GlobalData.subjects[sem].find(s => s.id === topSubject || s.name === topSubject);
+                if (found) {
+                    topSubjectName = found.name;
+                    break;
+                }
+            }
+        }
+
+        const topSubStats = subjectStats[topSubject] || { noteCount: 0, totalViews: 0 };
+
+        // B. New Uploads this month (30 days)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        let monthlyUploads = 0;
+        try {
+            const { count } = await sb
+                .from('approved_notes')
+                .select('*', { count: 'exact', head: true })
+                .gte('created_at', thirtyDaysAgo.toISOString());
+            monthlyUploads = count || 0;
+        } catch (uploadsErr) {
+            console.error("Error fetching monthly uploads:", uploadsErr);
+        }
+
+        // C. Top viewed note (Select ID to generate view button)
+        const { data: topNoteData } = await sb
+            .from('approved_notes')
+            .select('id, title, views')
+            .order('views', { ascending: false })
+            .limit(1);
+
+        // Update Live Activity DOM elements
+        const liveUsersEl = document.getElementById('live-stat-users');
+        const liveUploadsEl = document.getElementById('live-stat-uploads');
+        const liveTopNoteEl = document.getElementById('live-stat-topnote');
+
+        if (liveUsersEl) {
+            liveUsersEl.innerHTML = `Top Subject: <span style="font-weight: 400; color: var(--text-dim);">${topSubjectName} (${topSubStats.noteCount} notes, ${topSubStats.totalViews} views)</span>`;
+        }
+
+        if (liveUploadsEl && monthlyUploads !== null) {
+            liveUploadsEl.innerHTML = `${monthlyUploads} new notes <span style="font-weight: 400; color: var(--text-dim);">uploaded this month</span>`;
+        }
+
+        if (liveTopNoteEl && topNoteData && topNoteData[0]) {
+            const note = topNoteData[0];
+            const truncatedTitle = note.title.length > 20 ? note.title.substring(0, 18) + '...' : note.title;
+            const noteUrl = `../pages/view?id=${note.id}`;
+            liveTopNoteEl.innerHTML = `Top note: <span style="color: var(--text-dim); font-weight: 400;">"${truncatedTitle}" (${note.views || 0} views)</span> 
+            <a href="${noteUrl}" target="_blank" class="btn-live-view" style="
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 4px 12px;
+                border-radius: 20px;
+                margin-left: 10px;
+                font-size: 0.72rem;
+                font-weight: 700;
+                text-decoration: none;
+                color: #050505;
+                background: linear-gradient(135deg, #00e5ff, #7b61ff);
+                border: 1px solid rgba(255, 255, 255, 0.25);
+                box-shadow: 0 4px 10px rgba(0, 229, 255, 0.2);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                cursor: pointer;
+            " onmouseover="this.style.transform='translateY(-1px) scale(1.03)'; this.style.boxShadow='0 6px 14px rgba(123, 97, 255, 0.35)'; this.style.filter='brightness(1.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 10px rgba(0, 229, 255, 0.2)'; this.style.filter='none';">
+                <i class="fas fa-eye" style="font-size: 0.72rem;"></i> View
+            </a>`;
+        }
+
+    } catch (e) {
+        console.error("Error populating real live stats:", e);
+    }
 }
 
 let unsubscribeLiveStat = null;
