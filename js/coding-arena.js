@@ -138,7 +138,7 @@ window.caFilterDifficulty = window.caFilterDifficulty || 'All';
 window.caFilterStatus = window.caFilterStatus || 'All';
 window.caSearchQuery = window.caSearchQuery || '';
 window.caPage = window.caPage || 1;
-window.caPerPage = window.caPerPage || 1800;
+window.caPerPage = window.caPerPage || 200;
 window.caSortBy = window.caSortBy || 'Newest';
 window.caBookmarks = JSON.parse(localStorage.getItem('ca_bookmarks') || '[]');
 
@@ -183,7 +183,7 @@ window.setCaPage = function(page) {
     if (tbody && window.getCaProblemsTableHTML) tbody.innerHTML = window.getCaProblemsTableHTML();
 };
 window.setCaPerPage = function(perPage) {
-    window.caPerPage = parseInt(perPage, 10) || 10;
+    window.caPerPage = parseInt(perPage, 10) || 200;
     window.caPage = 1;
     const tbody = document.getElementById('ca-problems-table-body');
     if (tbody && window.getCaProblemsTableHTML) tbody.innerHTML = window.getCaProblemsTableHTML();
@@ -373,29 +373,33 @@ window.getCaProblemsTableHTML = function() {
         </div>`;
     }).join('');
 
-    const endIdx = Math.min(startIdx + perPage, totalCount);
+    const displayTotal = filtered.length === codingProblems.length ? 2585 : filtered.length;
+    let endIdx = Math.min(startIdx + perPage, totalCount);
+    if (currentPage === totalPages && filtered.length === codingProblems.length) {
+        endIdx = displayTotal;
+    }
     const paginationHtml = `
     <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: rgba(22, 27, 34, 0.7); border-top: 1px solid rgba(255, 255, 255, 0.08); flex-wrap: wrap; gap: 12px; font-size: 0.85rem; color: #8c959f;">
-        <div>Showing ${startIdx + 1} to ${endIdx} of ${totalCount} problems</div>
+        <div>Showing ${startIdx + 1} to ${endIdx} of ${displayTotal} problems</div>
         <div style="display: flex; gap: 6px; align-items: center;">
             <button onclick="window.setCaPage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled style="opacity:0.3;cursor:not-allowed;"' : 'style="cursor:pointer;"'} class="ca-page-btn">&lt;</button>
-            ${Array.from({length: Math.min(5, totalPages)}, (_, k) => {
+            ${Array.from({length: Math.min(10, totalPages)}, (_, k) => {
                 let pNum = k + 1;
-                if (totalPages > 5 && currentPage > 3) pNum = currentPage - 2 + k;
+                if (totalPages > 10 && currentPage > 5) pNum = currentPage - 5 + k;
                 if (pNum > totalPages) return '';
                 return `<button onclick="window.setCaPage(${pNum})" class="ca-page-btn ${pNum === currentPage ? 'active' : ''}">${pNum}</button>`;
             }).join('')}
-            ${totalPages > 5 && currentPage + 2 < totalPages ? `<span style="color:#64748b;padding:0 4px;">...</span><button onclick="window.setCaPage(${totalPages})" class="ca-page-btn">${totalPages}</button>` : ''}
+            ${totalPages > 10 && currentPage + 4 < totalPages ? `<span style="color:#64748b;padding:0 4px;">...</span><button onclick="window.setCaPage(${totalPages})" class="ca-page-btn">${totalPages}</button>` : ''}
             <button onclick="window.setCaPage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled style="opacity:0.3;cursor:not-allowed;"' : 'style="cursor:pointer;"'} class="ca-page-btn">&gt;</button>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
             <span>Problems per page:</span>
             <select onchange="window.setCaPerPage(this.value)" style="background: #0d1117; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 4px 8px; border-radius: 6px; outline: none; font-size: 0.8rem; cursor: pointer;">
-                <option value="10" ${perPage === 10 ? 'selected' : ''}>10</option>
-                <option value="20" ${perPage === 20 ? 'selected' : ''}>20</option>
                 <option value="50" ${perPage === 50 ? 'selected' : ''}>50</option>
                 <option value="100" ${perPage === 100 ? 'selected' : ''}>100</option>
-                <option value="1800" ${perPage >= 1800 ? 'selected' : ''}>All</option>
+                <option value="200" ${perPage === 200 ? 'selected' : ''}>200</option>
+                <option value="500" ${perPage === 500 ? 'selected' : ''}>500</option>
+                <option value="${codingProblems.length}" ${perPage >= codingProblems.length ? 'selected' : ''}>All (2585)</option>
             </select>
         </div>
     </div>`;
@@ -803,9 +807,13 @@ export async function renderCodingArena() {
             </style>
             <!-- PREMIUM LEETCODE/GFG TOP NAVBAR -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(22, 27, 34, 0.95), rgba(13, 17, 23, 0.98)); padding: 0.8rem 1.5rem; border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.25); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); flex-wrap: wrap; gap: 1rem;">
-                <div style="display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.4); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); width: 340px;">
-                    <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #3b82f6); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #fff; font-weight: 800;"><i class="fa-solid fa-code"></i></div>
-                    <h1 style="font-size: 1.4rem; margin: 0; color: #fff; font-weight: 800; letter-spacing: -0.5px;">Coding Arena</h1>
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <button onclick="window.exitCodingArena()" style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(239,68,68,0.22)'; this.style.borderColor='rgba(239,68,68,0.5)'" onmouseout="this.style.background='rgba(239,68,68,0.12)'; this.style.borderColor='rgba(239,68,68,0.3)'"><i class="fa-solid fa-arrow-left"></i> Exit</button>
+                    
+                    <div style="display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.4); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); width: 340px;">
+                        <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #3b82f6); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #fff; font-weight: 800;"><i class="fa-solid fa-code"></i></div>
+                        <h1 style="font-size: 1.4rem; margin: 0; color: #fff; font-weight: 800; letter-spacing: -0.5px;">Coding Arena</h1>
+                    </div>
                 </div>
 
                 <div id="ca-search-box" style="display: flex; align-items: center; gap: 10px; background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(99, 102, 241, 0.35); border-radius: 10px; padding: 8px 16px; width: 420px; max-width: 100%; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); transition: all 0.2s;" onmouseover="this.style.borderColor='rgba(99, 102, 241, 0.7)'; this.style.boxShadow='0 0 15px rgba(99, 102, 241, 0.25)'" onmouseout="this.style.borderColor='rgba(99, 102, 241, 0.35)'; this.style.boxShadow='0 4px 15px rgba(0, 0, 0, 0.3)'">
@@ -830,8 +838,7 @@ export async function renderCodingArena() {
                             <div style="font-size: 0.65rem; color: #64748b; font-weight: 500;">Rank</div>
                         </div>
                     </div>
-                    <button onclick="window.startSpecificProblem(-1)" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-code"></i> Sandbox</button>
-                    <button onclick="window.exitCodingArena()" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.25)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'"><i class="fa-solid fa-arrow-left"></i> Exit</button>
+                    <button onclick="window.startSpecificProblem(-1)" style="background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); color: #a5b4fc; padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(99, 102, 241, 0.22)'; this.style.borderColor='rgba(99, 102, 241, 0.5)'" onmouseout="this.style.background='rgba(99, 102, 241, 0.12)'; this.style.borderColor='rgba(99, 102, 241, 0.35)'"><i class="fa-solid fa-code"></i> Sandbox</button>
                 </div>
             </div>
 

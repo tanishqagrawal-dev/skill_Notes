@@ -1,6 +1,6 @@
 window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?id=' + id; if (!url) return '#'; try { return '../pages/view?u=' + btoa(encodeURIComponent(url)) + '&t=' + btoa(encodeURIComponent(title || 'Document')); } catch(e) { return url; } };
 import { globalNotes } from "../data/globalNotes.js?v=6.0";
-import { renderCodingArena } from './coding-arena.js?v=1.3';
+import { renderCodingArena } from './coding-arena.js?v=1.4';
 import { RoutingSystem } from "./routing.js?v=6.0";
 import { initGlobalAnalytics } from './analytics.js?v=6.0';
 
