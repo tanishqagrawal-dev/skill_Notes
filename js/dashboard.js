@@ -6345,6 +6345,86 @@ function getUnitNumber(n) {
     return Infinity;
 }
 
+function getPyqPriority(title) {
+    const titleLower = title.toLowerCase();
+    
+    // Extract 4-digit year (usually starts with 20 or 19)
+    const yearMatch = titleLower.match(/\b(19\d{2}|20\d{2})\b/);
+    const year = yearMatch ? parseInt(yearMatch[1], 10) : 0;
+    
+    // Determine month/term score
+    let monthScore = 0;
+    if (titleLower.includes('dec') || titleLower.includes('winter')) {
+        monthScore = 12;
+    } else if (titleLower.includes('nov')) {
+        monthScore = 11;
+    } else if (titleLower.includes('oct')) {
+        monthScore = 10;
+    } else if (titleLower.includes('sep')) {
+        monthScore = 9;
+    } else if (titleLower.includes('aug')) {
+        monthScore = 8;
+    } else if (titleLower.includes('jul') || titleLower.includes('july')) {
+        monthScore = 7;
+    } else if (titleLower.includes('jun') || titleLower.includes('june')) {
+        monthScore = 6;
+    } else if (titleLower.includes('may')) {
+        monthScore = 5;
+    } else if (titleLower.includes('apr') || titleLower.includes('april')) {
+        monthScore = 4;
+    } else if (titleLower.includes('mar') || titleLower.includes('march')) {
+        monthScore = 3;
+    } else if (titleLower.includes('feb')) {
+        monthScore = 2;
+    } else if (titleLower.includes('jan')) {
+        monthScore = 1;
+    } else if (titleLower.includes('end sem')) {
+        monthScore = 6;
+    } else if (titleLower.includes('mid sem')) {
+        monthScore = 3;
+    }
+    
+    return { year, monthScore };
+}
+
+function sortNotesByLatest(notesList) {
+    return [...notesList].sort((a, b) => {
+        // First try to sort by year & month extracted from title
+        const priorityA = getPyqPriority(a.title || a.name || '');
+        const priorityB = getPyqPriority(b.title || b.name || '');
+        
+        if (priorityA.year !== priorityB.year) {
+            return priorityB.year - priorityA.year; // latest year first
+        }
+        if (priorityA.monthScore !== priorityB.monthScore) {
+            return priorityB.monthScore - priorityA.monthScore; // latest month first
+        }
+        
+        // If no year/month in title, or they are equal, sort by upload/creation date
+        const timeA = a.createdAt || a.created_at || 0;
+        const timeB = b.createdAt || b.created_at || 0;
+        
+        const getMs = (val) => {
+            if (!val) return 0;
+            if (typeof val.toMillis === 'function') return val.toMillis();
+            if (val.seconds) return val.seconds * 1000 + (val.nanoseconds || 0) / 1000000;
+            if (typeof val === 'number') return val;
+            const parsed = Date.parse(val);
+            return isNaN(parsed) ? 0 : parsed;
+        };
+        
+        const msA = getMs(timeA);
+        const msB = getMs(timeB);
+        
+        if (msA !== msB) {
+            return msB - msA; // latest first
+        }
+        
+        // Fallback to alphabetical title
+        return (a.title || a.name || '').localeCompare(b.title || b.name || '');
+    });
+}
+
 function sortNotesUnitWise(notesList) {
     return [...notesList].sort((a, b) => {
         const unitA = getUnitNumber(a);
@@ -6584,7 +6664,14 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
             return isVisible;
         });
 
-        const sortedFiltered = sortNotesUnitWise(filtered);
+        let sortedFiltered;
+        if (tabType === 'pyqs') {
+            sortedFiltered = sortNotesByLatest(filtered);
+        } else if (tabType === 'formula') {
+            sortedFiltered = sortNotesByLatest(filtered);
+        } else {
+            sortedFiltered = sortNotesUnitWise(filtered);
+        }
 
         if (!grid) return;
 
@@ -6605,9 +6692,24 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
             const yearDate = selState?.year && selState.year.includes('2') ? 'Jan 2026' : (selState?.year && selState.year.includes('1') ? 'Feb 2026' : 'Dec 2025');
             const rawUnit6 = n.unit || n.unit_number || n.unitTag;
             const rawUnit6Str = rawUnit6 ? String(rawUnit6).trim().toLowerCase() : '';
-            const unitTag = (rawUnit6Str && rawUnit6Str !== 'undefined' && rawUnit6Str !== 'null')
-                ? String(rawUnit6).trim().toUpperCase()
-                : (n.title?.match(/unit\s*[-–]?\s*\d+/i)?.[0]?.toUpperCase() || `UNIT ${idx + 1}`);
+            let unitTag = '';
+            if (tabType === 'pyqs') {
+                const yearMatch = (n.title || n.name || '').match(/\b(19\d{2}|20\d{2})\b/);
+                if (yearMatch) {
+                    unitTag = yearMatch[1];
+                } else if (rawUnit6Str && rawUnit6Str !== 'undefined' && rawUnit6Str !== 'null' && rawUnit6Str !== 'unknown' && rawUnit6Str !== 'n/a') {
+                    unitTag = String(rawUnit6).trim().toUpperCase();
+                }
+            } else if (tabType !== 'formula') {
+                if (rawUnit6Str && rawUnit6Str !== 'undefined' && rawUnit6Str !== 'null' && rawUnit6Str !== 'unknown' && rawUnit6Str !== 'n/a') {
+                    unitTag = String(rawUnit6).trim().toUpperCase();
+                } else {
+                    const titleMatch = (n.title || '').match(/unit\s*[-–]?\s*(\d+)/i);
+                    if (titleMatch) {
+                        unitTag = `UNIT ${titleMatch[1]}`;
+                    }
+                }
+            }
 
             const displayViews = n.views || 0;
             const displayLikes = n.upvotes || 0;
@@ -6629,7 +6731,7 @@ function renderDetailedNotes(subjectId, tabType = 'notes') {
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
                         </div>
                         <div class="item-info">
-                            <div class="unit-tag" style="font-size: 0.75rem; color: var(--secondary); font-weight: 800; letter-spacing: 1px; margin-bottom: 0.3rem; text-transform: uppercase;">${unitTag}</div>
+                            ${unitTag ? `<div class="unit-tag" style="font-size: 0.75rem; color: var(--secondary); font-weight: 800; letter-spacing: 1px; margin-bottom: 0.3rem; text-transform: uppercase;">${unitTag}</div>` : ''}
                             <h3 class="item-title" style="font-size: 1.2rem; font-weight: 700; color: white; margin: 0 0 0.4rem 0;">${n.title}</h3>
                             <div class="item-meta-row" style="display: flex; align-items: center; gap: 1.2rem; font-size: 0.85rem; color: var(--text-dim);">
                                 <div class="uploader-mini" style="display: flex; align-items: center; gap: 0.5rem; white-space: nowrap; color: var(--secondary); font-weight: 700;">
@@ -6695,9 +6797,8 @@ window.filterInternalNotes = function (query) {
     const lowQuery = query.toLowerCase();
 
     cards.forEach(card => {
-        const title = card.querySelector('.item-title, .note-title-pro')?.innerText.toLowerCase() || "";
-        const tag = card.querySelector('.unit-tag')?.innerText.toLowerCase() || "";
-        if (title.includes(lowQuery) || tag.includes(lowQuery)) {
+        const textContent = card.textContent.toLowerCase();
+        if (textContent.includes(lowQuery)) {
             card.style.display = '';
         } else {
             card.style.display = 'none';

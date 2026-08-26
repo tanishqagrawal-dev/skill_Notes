@@ -394,11 +394,19 @@ window.filterNotes = function (query) {
     if (!container) return;
 
     const term = query.toLowerCase();
-    const filtered = window.currentStaticNotes.filter(n =>
-        (n.title && n.title.toLowerCase().includes(term)) ||
-        (n.unit && n.unit.toLowerCase().includes(term)) ||
-        (n.subjectName && n.subjectName.toLowerCase().includes(term))
-    );
+    const filtered = window.currentStaticNotes.filter(n => {
+        const titleText = (n.title || n.name || '').toLowerCase();
+        const unitText = (n.unit || n.unitTag || '').toLowerCase();
+        const subjectText = (n.subjectName || n.subject || '').toLowerCase();
+        const uploaderText = (n.uploaderName || n.uploader || '').toLowerCase();
+        const descText = (n.description || '').toLowerCase();
+        
+        return titleText.includes(term) || 
+               unitText.includes(term) || 
+               subjectText.includes(term) || 
+               uploaderText.includes(term) ||
+               descText.includes(term);
+    });
 
     if (filtered.length === 0) {
         container.innerHTML = `
@@ -499,6 +507,86 @@ function getUnitNumber(n) {
     }
 
     return Infinity;
+}
+
+function getPyqPriority(title) {
+    const titleLower = title.toLowerCase();
+    
+    // Extract 4-digit year (usually starts with 20 or 19)
+    const yearMatch = titleLower.match(/\b(19\d{2}|20\d{2})\b/);
+    const year = yearMatch ? parseInt(yearMatch[1], 10) : 0;
+    
+    // Determine month/term score
+    let monthScore = 0;
+    if (titleLower.includes('dec') || titleLower.includes('winter')) {
+        monthScore = 12;
+    } else if (titleLower.includes('nov')) {
+        monthScore = 11;
+    } else if (titleLower.includes('oct')) {
+        monthScore = 10;
+    } else if (titleLower.includes('sep')) {
+        monthScore = 9;
+    } else if (titleLower.includes('aug')) {
+        monthScore = 8;
+    } else if (titleLower.includes('jul') || titleLower.includes('july')) {
+        monthScore = 7;
+    } else if (titleLower.includes('jun') || titleLower.includes('june')) {
+        monthScore = 6;
+    } else if (titleLower.includes('may')) {
+        monthScore = 5;
+    } else if (titleLower.includes('apr') || titleLower.includes('april')) {
+        monthScore = 4;
+    } else if (titleLower.includes('mar') || titleLower.includes('march')) {
+        monthScore = 3;
+    } else if (titleLower.includes('feb')) {
+        monthScore = 2;
+    } else if (titleLower.includes('jan')) {
+        monthScore = 1;
+    } else if (titleLower.includes('end sem')) {
+        monthScore = 6;
+    } else if (titleLower.includes('mid sem')) {
+        monthScore = 3;
+    }
+    
+    return { year, monthScore };
+}
+
+function sortNotesByLatest(notesList) {
+    return [...notesList].sort((a, b) => {
+        // First try to sort by year & month extracted from title
+        const priorityA = getPyqPriority(a.title || a.name || '');
+        const priorityB = getPyqPriority(b.title || b.name || '');
+        
+        if (priorityA.year !== priorityB.year) {
+            return priorityB.year - priorityA.year; // latest year first
+        }
+        if (priorityA.monthScore !== priorityB.monthScore) {
+            return priorityB.monthScore - priorityA.monthScore; // latest month first
+        }
+        
+        // If no year/month in title, or they are equal, sort by upload/creation date
+        const timeA = a.createdAt || a.created_at || 0;
+        const timeB = b.createdAt || b.created_at || 0;
+        
+        const getMs = (val) => {
+            if (!val) return 0;
+            if (typeof val.toMillis === 'function') return val.toMillis();
+            if (val.seconds) return val.seconds * 1000 + (val.nanoseconds || 0) / 1000000;
+            if (typeof val === 'number') return val;
+            const parsed = Date.parse(val);
+            return isNaN(parsed) ? 0 : parsed;
+        };
+        
+        const msA = getMs(timeA);
+        const msB = getMs(timeB);
+        
+        if (msA !== msB) {
+            return msB - msA; // latest first
+        }
+        
+        // Fallback to alphabetical title
+        return (a.title || a.name || '').localeCompare(b.title || b.name || '');
+    });
 }
 
 function sortNotesUnitWise(notesList) {
@@ -670,8 +758,14 @@ window.showNotes = async function (activeTab = 'notes', loadMore = false) {
         window.currentStaticNotes = dynamicNotes;
     }
 
-    // Sort unit-wise
-    window.currentStaticNotes = sortNotesUnitWise(window.currentStaticNotes);
+    // Sort unit-wise or latest
+    if (activeTab === 'pyqs') {
+        window.currentStaticNotes = sortNotesByLatest(window.currentStaticNotes);
+    } else if (activeTab === 'formula') {
+        window.currentStaticNotes = sortNotesByLatest(window.currentStaticNotes);
+    } else {
+        window.currentStaticNotes = sortNotesUnitWise(window.currentStaticNotes);
+    }
 
     const loadMoreBtnHtml = window.lastVisibleNote ? 
         `<div id="load-more-btn-container" style="text-align: center; margin-top: 2rem; width: 100%;">
@@ -685,7 +779,7 @@ window.showNotes = async function (activeTab = 'notes', loadMore = false) {
             if (oldBtn) oldBtn.remove();
             
             if (window.currentStaticNotes.length > 0) {
-                 container.innerHTML = renderStaticNotes(window.currentStaticNotes);
+                 container.innerHTML = renderStaticNotes(window.currentStaticNotes, activeTab);
             }
             if (window.lastVisibleNote) {
                  container.innerHTML += loadMoreBtnHtml;
@@ -778,7 +872,7 @@ window.showNotes = async function (activeTab = 'notes', loadMore = false) {
                     Verified <span class="highlight" style="color: #00f2ff; font-weight: 800; text-transform: uppercase;">${activeTab}</span>
                 </h2>
                 <div class="notes-list-container-pro" id="resource-list-container">
-                    ${(window.currentStaticNotes.length > 0) ? renderStaticNotes(window.currentStaticNotes) + loadMoreBtnHtml : `
+                    ${(window.currentStaticNotes.length > 0) ? renderStaticNotes(window.currentStaticNotes, activeTab) + loadMoreBtnHtml : `
                         <div style="text-align: center; padding: 5rem; background: rgba(255,255,255,0.01); border: 2px dashed rgba(255,255,255,0.05); border-radius: 20px;">
                             <div style="font-size: 4rem; margin-bottom: 2rem;">📂</div>
                             <h2 class="font-heading">No ${activeTab} found for this subject yet.</h2>
@@ -792,7 +886,7 @@ window.showNotes = async function (activeTab = 'notes', loadMore = false) {
     `;
 };
 
-function renderStaticNotes(notes) {
+function renderStaticNotes(notes, activeTab = 'notes') {
     const cards = notes.map((n, idx) => {
         const createNoteCard = (unit, title, url, likes = 0, views = 0, id = '', downloads = 0, dislikes = 0) => {
             const noteId = id || 'undefined';        const fallbackName = n.uploaderName || n.uploader || 'U';
@@ -807,7 +901,7 @@ function renderStaticNotes(notes) {
                 </div>
                 
                 <div class="note-info-pro">
-                    <span class="unit-tag-pro">${unit}</span>
+                    ${unit ? `<span class="unit-tag-pro">${unit}</span>` : ''}
                     <h3 class="note-title-pro">${title}</h3>
                     <div class="note-actions-pro">
                         <span class="meta-pill-pro uploader" style="color: var(--secondary); font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
@@ -848,14 +942,21 @@ function renderStaticNotes(notes) {
         const rawUnit = n.unit || n.unit_number || n.unitTag || n.unit_tag;
         const rawUnitStr = rawUnit ? String(rawUnit).trim().toLowerCase() : '';
         let safeUnit = '';
-        if (rawUnitStr && rawUnitStr !== 'undefined' && rawUnitStr !== 'null' && rawUnitStr !== 'n/a') {
-            safeUnit = String(rawUnit).trim().toUpperCase();
-        } else {
-            const titleMatch = (n.title || '').match(/unit\s*[-–]?\s*(\d+)/i);
-            if (titleMatch) {
-                safeUnit = `UNIT ${titleMatch[1]}`;
+        if (activeTab === 'pyqs') {
+            const yearMatch = (n.title || '').match(/\b(19\d{2}|20\d{2})\b/);
+            if (yearMatch) {
+                safeUnit = yearMatch[1];
+            } else if (rawUnitStr && rawUnitStr !== 'undefined' && rawUnitStr !== 'null' && rawUnitStr !== 'n/a' && rawUnitStr !== 'unknown') {
+                safeUnit = String(rawUnit).trim().toUpperCase();
+            }
+        } else if (activeTab !== 'formula') {
+            if (rawUnitStr && rawUnitStr !== 'undefined' && rawUnitStr !== 'null' && rawUnitStr !== 'n/a' && rawUnitStr !== 'unknown') {
+                safeUnit = String(rawUnit).trim().toUpperCase();
             } else {
-                safeUnit = `UNIT ${idx + 1}`;
+                const titleMatch = (n.title || '').match(/unit\s*[-–]?\s*(\d+)/i);
+                if (titleMatch) {
+                    safeUnit = `UNIT ${titleMatch[1]}`;
+                }
             }
         }
         return createNoteCard(safeUnit, n.title || n.subjectName, n.url || n.fileUrl || n.driveLink, n.upvotes || 0, n.views || 0, n.id, n.downloads || 0, n.downvotes || 0);
