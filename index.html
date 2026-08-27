@@ -93,6 +93,147 @@
     <link rel="stylesheet" href="css/main.css?v=11.0">
     <link rel="stylesheet" href="css/lockOverlay.css?v=6.0">
 
+    <!-- Trending Notes Showcase Styles -->
+    <style>
+        .premium-note-card {
+            background: rgba(13, 17, 23, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 240px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        }
+        .premium-note-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(800px circle at var(--x, 0px) var(--y, 0px), rgba(99, 102, 241, 0.15), transparent 40%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .premium-note-card:hover::before {
+            opacity: 1;
+        }
+        .premium-note-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.15);
+        }
+        .premium-rank-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .rank-gold {
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(202, 138, 4, 0.25));
+            color: #facc15;
+            border: 1px solid rgba(234, 179, 8, 0.4);
+        }
+        .rank-silver {
+            background: linear-gradient(135deg, rgba(148, 163, 184, 0.15), rgba(100, 116, 139, 0.25));
+            color: #cbd5e1;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+        }
+        .rank-bronze {
+            background: linear-gradient(135deg, rgba(180, 83, 9, 0.15), rgba(146, 64, 14, 0.25));
+            color: #fb923c;
+            border: 1px solid rgba(180, 83, 9, 0.4);
+        }
+        .rank-regular {
+            background: rgba(255, 255, 255, 0.05);
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .trending-notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .note-preview-wrapper {
+            height: 140px;
+            background: rgba(0, 0, 0, 0.45);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .premium-note-card:hover .note-preview-wrapper {
+            border-color: rgba(99, 102, 241, 0.3);
+            background: rgba(0, 0, 0, 0.6);
+            transform: scale(1.02);
+        }
+        .extra-note-card {
+            display: none !important;
+        }
+        .btn-see-more-premium {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #a5b4fc;
+            padding: 10px 24px;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.05);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 1rem;
+        }
+        .btn-see-more-premium:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.5);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px);
+        }
+        @media (max-width: 768px) {
+            .trending-notes-grid {
+                grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+                gap: 1rem;
+            }
+            .premium-note-card {
+                padding: 1rem !important;
+            }
+            .note-preview-wrapper {
+                height: 110px !important;
+            }
+            .note-preview-wrapper i {
+                font-size: 1.8rem !important;
+            }
+            .premium-note-card h3 {
+                font-size: 0.95rem !important;
+                height: 2.5rem !important;
+                margin-bottom: 0.4rem !important;
+            }
+        }
+    </style>
+
     <!-- Libraries -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js" defer></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -389,6 +530,27 @@
 
     </section>
 
+    <!-- Trending Notes Showcase Section -->
+    <section id="trending-notes" class="trending-notes container" style="margin-top: 5rem; margin-bottom: 5rem;">
+        <div class="section-header" style="text-align: center; margin-bottom: 3.5rem;" data-aos="fade-up">
+            <h2 class="section-title">Trending <span class="gradient-text">Study Resources</span></h2>
+            <p class="section-subtitle" style="color: #94a3b8; font-size: 1.05rem; margin-top: 0.5rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                Explore the top 20 most viewed lecture notes and study guides, fetched live from our database.
+            </p>
+        </div>
+        <div id="trending-notes-grid" class="trending-notes-grid" data-aos="fade-up" data-aos-delay="100">
+            <!-- Loading Indicator -->
+            <div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: #64748b;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2.2rem; color: #6366f1; margin-bottom: 1rem;"></i>
+                <p style="font-size: 0.95rem;">Retrieving trending resources live...</p>
+            </div>
+        </div>
+        <div id="see-more-container" style="text-align: center; margin-top: 3rem; display: none;">
+            <button id="btn-see-more" class="btn-see-more-premium">
+                See More <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+    </section>
 
     <!-- How It Works Section -->
     <section id="how-it-works" class="how-it-works container">
@@ -1029,6 +1191,150 @@
             </div>
         </div>
     </div>
+
+    <!-- Trending Notes Showcase Script -->
+    <script type="module">
+        import { supabase } from './js/supabase-config.js?v=6.0';
+
+        function getFileExtension(url) {
+            if (!url) return 'pdf';
+            const parts = url.split(/[#?]/)[0].split('.');
+            return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : 'pdf';
+        }
+
+        async function initLiveTrendingNotes() {
+            const grid = document.getElementById('trending-notes-grid');
+            if (!grid) return;
+
+            try {
+                const { data: notes, error } = await supabase
+                    .from('approved_notes')
+                    .select('id, title, subject, college, branch, type, views, file_url, uploader_name')
+                    .order('views', { ascending: false })
+                    .limit(20);
+
+                if (error) throw error;
+
+                if (!notes || notes.length === 0) {
+                    grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem; color:#64748b;">No documents found in database.</div>`;
+                    return;
+                }
+
+                grid.innerHTML = notes.map((note, index) => {
+                    const rank = index + 1;
+                    let rankClass = 'rank-regular';
+                    let rankText = `#${rank}`;
+                    if (rank === 1) { rankClass = 'rank-gold'; rankText = '🏆 #1 View'; }
+                    else if (rank === 2) { rankClass = 'rank-silver'; rankText = '🥈 #2 View'; }
+                    else if (rank === 3) { rankClass = 'rank-bronze'; rankText = '🥉 #3 View'; }
+
+                    // Format College: If 'medicaps' (case-insensitive), show 'Medicaps University'
+                    const rawCollege = note.college || 'General';
+                    const college = rawCollege.toLowerCase() === 'medicaps' ? 'Medicaps University' : rawCollege;
+                    const branch = note.branch ? note.branch.toUpperCase() : 'ALL';
+                    
+                    const fileExt = getFileExtension(note.file_url).toUpperCase();
+                    let formatIconHTML = '';
+                    let previewHTML = '';
+
+                    if (fileExt === 'PDF') {
+                        formatIconHTML = `<span style="font-size:0.75rem; font-weight:600; color:#f87171; display:flex; align-items:center; gap:4px;"><i class="fa-solid fa-file-pdf"></i> PDF</span>`;
+                        previewHTML = `
+                        <div class="note-preview-wrapper" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(185, 28, 28, 0.15) 100%);">
+                            <div style="text-align: center;">
+                                <div style="font-size: 2.2rem; margin-bottom: 6px;"><i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i></div>
+                                <div style="font-size: 0.68rem; color: #f87171; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">PDF Document</div>
+                            </div>
+                        </div>`;
+                    } else if (fileExt === 'PPT' || fileExt === 'PPTX') {
+                        formatIconHTML = `<span style="font-size:0.75rem; font-weight:600; color:#fb923c; display:flex; align-items:center; gap:4px;"><i class="fa-solid fa-file-powerpoint"></i> PPT</span>`;
+                        previewHTML = `
+                        <div class="note-preview-wrapper" style="background: linear-gradient(135deg, rgba(251, 146, 60, 0.08) 0%, rgba(234, 88, 12, 0.15) 100%);">
+                            <div style="text-align: center;">
+                                <div style="font-size: 2.2rem; margin-bottom: 6px;"><i class="fa-solid fa-file-powerpoint" style="color: #ea580c;"></i></div>
+                                <div style="font-size: 0.68rem; color: #fdba74; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Slide Show</div>
+                            </div>
+                        </div>`;
+                    } else if (fileExt === 'DOC' || fileExt === 'DOCX') {
+                        formatIconHTML = `<span style="font-size:0.75rem; font-weight:600; color:#60a5fa; display:flex; align-items:center; gap:4px;"><i class="fa-solid fa-file-word"></i> WORD</span>`;
+                        previewHTML = `
+                        <div class="note-preview-wrapper" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(29, 78, 216, 0.15) 100%);">
+                            <div style="text-align: center;">
+                                <div style="font-size: 2.2rem; margin-bottom: 6px;"><i class="fa-solid fa-file-word" style="color: #2563eb;"></i></div>
+                                <div style="font-size: 0.68rem; color: #93c5fd; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Word Document</div>
+                            </div>
+                        </div>`;
+                    } else {
+                        formatIconHTML = `<span style="font-size:0.75rem; font-weight:600; color:#a5b4fc; display:flex; align-items:center; gap:4px;"><i class="fa-solid fa-file-lines"></i> DOC</span>`;
+                        previewHTML = `
+                        <div class="note-preview-wrapper" style="background: linear-gradient(135deg, rgba(165, 180, 252, 0.08) 0%, rgba(99, 102, 241, 0.15) 100%);">
+                            <div style="text-align: center;">
+                                <div style="font-size: 2.2rem; margin-bottom: 6px;"><i class="fa-solid fa-file-lines" style="color: #6366f1;"></i></div>
+                                <div style="font-size: 0.68rem; color: #c7d2fe; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Study Guide</div>
+                            </div>
+                        </div>`;
+                    }
+
+                    const extraClass = rank > 8 ? 'extra-note-card' : '';
+                    const viewLink = `pages/view.html?id=${note.id}`;
+
+                    return `
+                    <div class="premium-note-card ${extraClass}" onmousemove="this.style.setProperty('--x', event.offsetX + 'px'); this.style.setProperty('--y', event.offsetY + 'px')">
+                        <span class="premium-rank-badge ${rankClass}">${rankText}</span>
+                        <div style="z-index: 2; width: 100%;">
+                            ${previewHTML}
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                                ${formatIconHTML}
+                            </div>
+                            <h3 style="font-size: 1.05rem; color: #fff; margin: 0 0 0.5rem 0; font-weight: 700; line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; height: 2.8rem;" title="${note.title}">
+                                ${note.title}
+                            </h3>
+                            <p style="font-size: 0.8rem; color: #818cf8; font-weight: 600; margin: 0 0 0.8rem 0; text-transform: uppercase; letter-spacing: 0.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                ${note.subject || 'Core Subject'}
+                            </p>
+                            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem;">
+                                <span style="font-size: 0.7rem; background: rgba(99, 102, 241, 0.1); color: #a5b4fc; padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(99, 102, 241, 0.2); font-weight: 500;">
+                                    ${branch}
+                                </span>
+                                <span style="font-size: 0.7rem; background: rgba(255,255,255,0.05); color: #cbd5e1; padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); font-weight: 500; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${college}">
+                                    ${college}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1rem; z-index: 2; width: 100%;">
+                            <span style="font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; gap: 4px;">
+                                <i class="far fa-eye" style="color: #6366f1;"></i> ${note.views || 0} views
+                            </span>
+                            <a href="${viewLink}" target="_blank" style="background: linear-gradient(135deg, #6366f1, #3b82f6); color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2); transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                                View Notes <i class="fas fa-arrow-right" style="font-size: 0.7rem;"></i>
+                            </a>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                const seeMoreContainer = document.getElementById('see-more-container');
+                if (notes.length > 8 && seeMoreContainer) {
+                    seeMoreContainer.style.display = 'block';
+                    const btn = document.getElementById('btn-see-more');
+                    let expanded = false;
+                    btn.addEventListener('click', () => {
+                        expanded = !expanded;
+                        const extraCards = document.querySelectorAll('.extra-note-card');
+                        extraCards.forEach(card => {
+                            card.style.setProperty('display', expanded ? 'flex' : 'none', 'important');
+                        });
+                        btn.innerHTML = expanded ? 'See Less <i class="fas fa-chevron-up"></i>' : 'See More <i class="fas fa-chevron-down"></i>';
+                    });
+                }
+
+            } catch (e) {
+                console.error('Trending notes fetch error:', e);
+                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem; color:#ef4444; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 12px;">Failed to load trending notes. Please try refreshing.</div>`;
+            }
+        }
+        document.addEventListener('DOMContentLoaded', initLiveTrendingNotes);
+    </script>
 
     <script type="module" src="js/firebase-config.js?v=6.0"></script>
     <script type="module">
