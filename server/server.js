@@ -67,6 +67,11 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
+// --- LIGHTWEIGHT HEARTBEAT ENDPOINT ---
+app.get('/ping', (req, res) => {
+    res.status(200).json({ status: "alive", timestamp: new Date().toISOString() });
+});
+
 // --- STORAGE CONFIG ENDPOINT ---
 app.get('/api/storage-config', (req, res) => {
     // Return sanitized config (no secret keys!) to the frontend
