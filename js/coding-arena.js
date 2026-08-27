@@ -328,15 +328,15 @@ window.getCaProblemsTableHTML = function() {
 
         // Difficulty styling
         let diffBadge = '';
-        if (p.difficulty === 'Easy') diffBadge = `<span style="color: #10b981; background: rgba(16, 185, 129, 0.12); padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.3);">Easy</span>`;
-        else if (p.difficulty === 'Medium') diffBadge = `<span style="color: #f59e0b; background: rgba(245, 158, 11, 0.12); padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(245, 158, 11, 0.3);">Medium</span>`;
-        else if (p.difficulty === 'Very Hard' || p.difficulty === 'Mega Hard') diffBadge = `<span style="color: #a855f7; background: rgba(168, 85, 247, 0.12); padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(168, 85, 247, 0.3);">Very Hard</span>`;
-        else diffBadge = `<span style="color: #ef4444; background: rgba(239, 68, 68, 0.12); padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(239, 68, 68, 0.3);">Hard</span>`;
+        if (p.difficulty === 'Easy') diffBadge = `<span style="color: #10b981; background: rgba(16, 185, 129, 0.12); padding: 2px 8px; border-radius: 5px; font-size: 0.67rem; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3);">Easy</span>`;
+        else if (p.difficulty === 'Medium') diffBadge = `<span style="color: #f59e0b; background: rgba(245, 158, 11, 0.12); padding: 2px 8px; border-radius: 5px; font-size: 0.67rem; font-weight: 700; border: 1px solid rgba(245, 158, 11, 0.3);">Medium</span>`;
+        else if (p.difficulty === 'Very Hard' || p.difficulty === 'Mega Hard') diffBadge = `<span style="color: #a855f7; background: rgba(168, 85, 247, 0.12); padding: 2px 8px; border-radius: 5px; font-size: 0.67rem; font-weight: 700; border: 1px solid rgba(168, 85, 247, 0.3);">Very Hard</span>`;
+        else diffBadge = `<span style="color: #ef4444; background: rgba(239, 68, 68, 0.12); padding: 2px 8px; border-radius: 5px; font-size: 0.67rem; font-weight: 700; border: 1px solid rgba(239, 68, 68, 0.3);">Hard</span>`;
 
         // Topics badges (up to 2)
         const topicList = (p.category ? [p.category.split('&')[0].trim()] : ['Array']);
         if (p.category && p.category.includes('&')) topicList.push(p.category.split('&')[1].trim());
-        const topicsHtml = topicList.map(t => `<span style="background: rgba(255,255,255,0.06); color: #a5b4fc; padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; margin-right: 4px; border: 1px solid rgba(255,255,255,0.08);">${t}</span>`).join('');
+        const topicsHtml = topicList.map(t => `<span style="background: rgba(255,255,255,0.06); color: #a5b4fc; padding: 2px 6px; border-radius: 4px; font-size: 0.63rem; margin-right: 4px; border: 1px solid rgba(255,255,255,0.08); font-weight: 500;">${t}</span>`).join('');
 
         // Companies cleanly aligned boxes with actual original logos
         // Companies cleanly aligned boxes with actual original logos
@@ -350,25 +350,25 @@ window.getCaProblemsTableHTML = function() {
         const acceptance = (45 + ((i * 7) % 40)).toFixed(1) + '%';
         const freqType = (i % 3 === 0) ? 'High' : ((i % 3 === 1) ? 'Medium' : 'Low');
         let freqBadge = '';
-        if (freqType === 'High') freqBadge = `<span style="color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 600;">High</span>`;
-        else if (freqType === 'Medium') freqBadge = `<span style="color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 600;">Medium</span>`;
-        else freqBadge = `<span style="color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 600;">Low</span>`;
+        if (freqType === 'High') freqBadge = `<span style="color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.35); padding: 1px 7px; border-radius: 4px; font-size: 0.64rem; font-weight: 700;">High</span>`;
+        else if (freqType === 'Medium') freqBadge = `<span style="color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.35); padding: 1px 7px; border-radius: 4px; font-size: 0.64rem; font-weight: 700;">Medium</span>`;
+        else freqBadge = `<span style="color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35); padding: 1px 7px; border-radius: 4px; font-size: 0.64rem; font-weight: 700;">Low</span>`;
 
         return `
-        <div onclick="window.startSpecificProblem(${i})" class="ca-table-row" style="display: grid; grid-template-columns: 44px minmax(200px, 2.5fr) 90px minmax(140px, 1.2fr) minmax(180px, 1.5fr) 100px 90px 40px; gap: 12px; padding: 14px 20px; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: background 0.2s; color: #e2e8f0;">
-            <div style="font-family: monospace; color: #64748b; font-weight: 600;">${probId}</div>
-            <div style="font-weight: 600; font-size: 0.95rem; color: #fff; display: flex; align-items: center; gap: 8px; overflow: hidden;">
+        <div onclick="window.startSpecificProblem(${i})" class="ca-table-row" style="display: grid; grid-template-columns: 44px minmax(200px, 2.5fr) 90px minmax(140px, 1.2fr) minmax(180px, 1.5fr) 100px 90px 40px; gap: 12px; padding: 11px 20px; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: background 0.2s; color: #e2e8f0;">
+            <div style="font-family: monospace; color: #64748b; font-weight: 600; font-size: 0.78rem;">${probId}</div>
+            <div style="font-weight: 600; font-size: 0.85rem; color: #fff; display: flex; align-items: center; gap: 8px; overflow: hidden;">
                 <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: ${isToday ? '#60a5fa' : '#f8fafc'};" title="${p.title}">${p.title}</span>
-                ${isToday ? `<span title="Today's Daily Problem">🔥</span>` : ''}
-                ${isSolved ? `<span style="color: #10b981; font-size: 0.8rem;" title="Solved"><i class="fa-solid fa-circle-check"></i></span>` : ''}
+                ${isToday ? `<span title="Today's Daily Problem" style="font-size:0.8rem;">🔥</span>` : ''}
+                ${isSolved ? `<span style="color: #10b981; font-size: 0.72rem;" title="Solved"><i class="fa-solid fa-circle-check"></i></span>` : ''}
             </div>
             <div>${diffBadge}</div>
             <div class="ca-hide-md" style="display: flex; align-items: center; overflow: hidden;">${topicsHtml}</div>
             <div class="ca-hide-md">${compHtml}</div>
-            <div class="ca-hide-md" style="color: #94a3b8; font-size: 0.85rem; font-family: monospace;">${acceptance}</div>
+            <div class="ca-hide-md" style="color: #94a3b8; font-size: 0.75rem; font-family: monospace;">${acceptance}</div>
             <div class="ca-hide-md">${freqBadge}</div>
             <div style="text-align: right;" onclick="window.caToggleBookmark(${probId}, event)">
-                <i class="${isBookmarked ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark'}" style="color: ${isBookmarked ? '#f59e0b' : '#64748b'}; font-size: 1rem; transition: 0.2s;"></i>
+                <i class="${isBookmarked ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark'}" style="color: ${isBookmarked ? '#f59e0b' : '#64748b'}; font-size: 0.88rem; transition: 0.2s;"></i>
             </div>
         </div>`;
     }).join('');
@@ -407,7 +407,7 @@ window.getCaProblemsTableHTML = function() {
     return `
     <div style="background: #0d1117; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.4); display: flex; flex-direction: column; flex: 1; min-height: 0; width: 100%;">
         <!-- TABLE HEADER -->
-        <div style="display: grid; grid-template-columns: 44px minmax(200px, 2.5fr) 90px minmax(140px, 1.2fr) minmax(180px, 1.5fr) 100px 90px 40px; gap: 12px; padding: 12px 20px; background: rgba(22, 27, 34, 0.98); color: #8c959f; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255,255,255,0.08); align-items: center; flex-shrink: 0;">
+        <div style="display: grid; grid-template-columns: 44px minmax(200px, 2.5fr) 90px minmax(140px, 1.2fr) minmax(180px, 1.5fr) 100px 90px 40px; gap: 12px; padding: 10px 20px; background: rgba(22, 27, 34, 0.98); color: #8c959f; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid rgba(255,255,255,0.08); align-items: center; flex-shrink: 0;">
             <div>#</div>
             <div>Problem</div>
             <div>Difficulty</div>
@@ -717,7 +717,7 @@ export async function renderCodingArena() {
                     padding: 7px 12px;
                     border-radius: 8px;
                     color: #94a3b8;
-                    font-size: 0.85rem;
+                    font-size: 0.78rem;
                     font-weight: 500;
                     cursor: pointer;
                     transition: all 0.2s;
@@ -741,7 +741,7 @@ export async function renderCodingArena() {
                     justify-content: space-between;
                     padding: 5px 10px;
                     color: #94a3b8;
-                    font-size: 0.8rem;
+                    font-size: 0.72rem;
                     cursor: pointer;
                     border-radius: 6px;
                     transition: 0.2s;
@@ -967,77 +967,226 @@ export async function renderCodingArena() {
                         const countdown = `${hh}h ${mm}m`;
 
                         return `
-                        <div class="fade-in" style="display: flex; justify-content: center; align-items: flex-start; padding: 1.5rem 1rem;">
-                            <div style="max-width: 520px; width: 100%; position: relative;">
-                                
-                                <!-- Animated glow ring -->
-                                <div style="position: absolute; inset: -1px; background: linear-gradient(135deg, #6366f1 0%, #3b82f6 50%, #8b5cf6 100%); border-radius: 22px; opacity: ${isDoneToday ? '0.2' : '0.4'}; z-index: 0; pointer-events: none; filter: blur(6px);"></div>
-                                
-                                <div style="position: relative; z-index: 1; background: linear-gradient(160deg, #191e2d 0%, #0e1319 100%); border: 1px solid rgba(99,102,241,0.3); border-radius: 20px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.7);">
+                        <style>
+                            @keyframes rotate-border {
+                                100% { transform: rotate(360deg); }
+                            }
+                            @keyframes pulse-fire {
+                                0% { filter: drop-shadow(0 0 1px rgba(249, 115, 22, 0.15)); }
+                                50% { filter: drop-shadow(0 0 6px rgba(249, 115, 22, 0.5)); }
+                                100% { filter: drop-shadow(0 0 1px rgba(249, 115, 22, 0.15)); }
+                            }
+                            .ca-fire-pulse {
+                                animation: pulse-fire 2s infinite ease-in-out;
+                                display: inline-block;
+                            }
+                            .ca-daily-premium-card {
+                                position: relative;
+                                z-index: 1;
+                                border-radius: 20px;
+                                overflow: hidden;
+                                padding: 1.5px;
+                                background: transparent;
+                                transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                                box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+                            }
+                            .ca-daily-premium-card::after {
+                                content: '';
+                                position: absolute;
+                                inset: 1.5px;
+                                z-index: -1;
+                                background: linear-gradient(145deg, #0d111a 0%, #07090e 100%);
+                                border-radius: 18.5px;
+                                transition: background 0.4s ease;
+                            }
+                            .ca-daily-premium-card::before {
+                                content: '';
+                                position: absolute;
+                                z-index: -2;
+                                left: -50%;
+                                top: -50%;
+                                width: 200%;
+                                height: 200%;
+                                background: conic-gradient(
+                                    from 0deg,
+                                    transparent 15%,
+                                    rgba(99, 102, 241, 0.4) 35%,
+                                    rgba(168, 85, 247, 0.5) 50%,
+                                    rgba(59, 130, 246, 0.4) 65%,
+                                    transparent 85%
+                                );
+                                animation: rotate-border 8s linear infinite;
+                                pointer-events: none;
+                                transition: background 0.4s ease;
+                            }
+                            .ca-daily-premium-card:hover {
+                                box-shadow: 0 35px 80px rgba(0, 0, 0, 0.75) !important;
+                            }
+                            .ca-daily-premium-card:hover::after {
+                                background: linear-gradient(145deg, #111624 0%, #090c13 100%);
+                            }
+                            .ca-daily-premium-card:hover::before {
+                                background: conic-gradient(
+                                    from 0deg,
+                                    transparent 10%,
+                                    rgba(99, 102, 241, 0.6) 30%,
+                                    rgba(168, 85, 247, 0.7) 50%,
+                                    rgba(59, 130, 246, 0.6) 70%,
+                                    transparent 90%
+                                );
+                                animation: rotate-border 4s linear infinite;
+                            }
+                            .ca-daily-btn-dark {
+                                position: relative;
+                                overflow: hidden;
+                                width: 100%;
+                                padding: 13px;
+                                font-size: 0.9rem;
+                                border-radius: 12px;
+                                background: linear-gradient(135deg, #161b26 0%, #0d1017 100%);
+                                color: #cbd5e1;
+                                border: 1px solid rgba(255, 255, 255, 0.08);
+                                cursor: pointer;
+                                font-weight: 700;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                gap: 8px;
+                                letter-spacing: 0.5px;
+                                transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+                            }
+                            .ca-daily-btn-dark:hover {
+                                background: linear-gradient(135deg, #1d2332 0%, #111520 100%);
+                                color: #fff;
+                                border-color: rgba(99, 102, 241, 0.35);
+                                box-shadow: 0 8px 24px rgba(99, 102, 241, 0.12);
+                            }
+                            .ca-daily-btn-dark::after {
+                                content: '';
+                                position: absolute;
+                                top: 0; left: -100%;
+                                width: 100%; height: 100%;
+                                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+                                transition: all 0.4s ease;
+                            }
+                            .ca-daily-btn-dark:hover::after {
+                                left: 100%;
+                            }
+                            @media (max-width: 768px) {
+                                .ca-daily-split-layout {
+                                    flex-direction: column !important;
+                                    gap: 1.8rem !important;
+                                }
+                                .ca-daily-right-panel {
+                                    border-left: none !important;
+                                    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+                                    padding-left: 0 !important;
+                                    padding-top: 1.8rem !important;
+                                    max-width: 100% !important;
+                                }
+                            }
+                        </style>
+
+                        <div class="fade-in" style="display: flex; justify-content: center; align-items: flex-start; padding: 2rem 1rem; width: 100%;">
+                            <div style="max-width: 820px; width: 100%; position: relative;">
+                                <div class="ca-daily-premium-card">
                                     
-                                    <!-- Top gradient accent bar -->
-                                    <div style="height: 3px; background: linear-gradient(90deg, #6366f1, #60a5fa, #a78bfa); width: 100%;"></div>
+                                    <div style="padding: 2.2rem; position: relative; z-index: 1;">
+                                        <div class="ca-daily-split-layout" style="display: flex; gap: 2.5rem; align-items: stretch; width: 100%;">
+                                            
+                                            <!-- Left Panel: Problem Info -->
+                                            <div style="flex: 1.3; display: flex; flex-direction: column; justify-content: space-between; text-align: left; min-height: 180px;">
 
-                                    <!-- Decorative blob -->
-                                    <div style="position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; background: radial-gradient(circle, rgba(99,102,241,0.22), transparent 65%); pointer-events: none;"></div>
-                                    <div style="position: absolute; bottom: -40px; left: -30px; width: 130px; height: 130px; background: radial-gradient(circle, rgba(59,130,246,0.18), transparent 65%); pointer-events: none;"></div>
-
-                                    <div style="padding: 1.5rem 1.6rem; position: relative; z-index: 1;">
-                                        
-                                        <!-- Header Row -->
-                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                            <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.3); color: #fb923c; font-size: 0.68rem; font-weight: 800; padding: 4px 12px; border-radius: 100px; text-transform: uppercase; letter-spacing: 1.5px;">
-                                                <i class="fa-solid fa-fire"></i> Daily Challenge
-                                            </div>
-                                            <div style="display: flex; align-items: center; gap: 5px; color: #f59e0b; font-size: 0.8rem; font-weight: 700; font-family: monospace; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); padding: 4px 11px; border-radius: 100px;">
-                                                <i class="fa-solid fa-star" style="font-size: 0.75rem;"></i> +${displayXp} XP
-                                            </div>
-                                        </div>
-
-                                        <!-- Problem ID -->
-                                        <div style="font-size: 0.68rem; color: #475569; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">#${tp.id || (todayIdx + 1)}</div>
-
-                                        <!-- Title -->
-                                        <h2 style="font-size: 1.4rem; margin: 0 0 0.5rem 0; color: #f1f5f9; font-family: 'Outfit', sans-serif; font-weight: 700; letter-spacing: -0.3px; line-height: 1.25;">${tp.title}</h2>
-
-                                        <!-- Description -->
-                                        <p style="color: #6b7280; font-size: 0.84rem; line-height: 1.55; margin-bottom: 1rem;">${(tp.description || '').substring(0, 110)}…</p>
-
-                                        <!-- Tags Row -->
-                                        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.2rem;">
-                                            ${tpDiffBadge}
-                                            <span style="background: rgba(255,255,255,0.04); color: #94a3b8; font-size: 0.75rem; padding: 3px 11px; border-radius: 100px; border: 1px solid rgba(255,255,255,0.08);"><i class="fa-solid fa-tag" style="margin-right:5px; color:#64748b; font-size:0.65rem;"></i>${tp.category}</span>
-                                            ${(tp.companies || []).slice(0, 2).map(c => window.getCaCompanyLogoHtml(c, 14, true)).join('')}
-                                        </div>
-
-                                        <!-- Divider -->
-                                        <div style="border-top: 1px solid rgba(255,255,255,0.05); margin-bottom: 1.2rem;"></div>
-
-                                        <!-- CTA -->
-                                        ${isDoneToday ? `
-                                        <div style="display: flex; align-items: center; gap: 10px;">
-                                            <div style="flex: 1; background: rgba(5,150,105,0.08); border: 1px solid rgba(16,185,129,0.25); border-radius: 12px; padding: 11px 14px; display: flex; align-items: center; gap: 9px;">
-                                                <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 1.2rem; flex-shrink: 0;"></i>
-                                                <div>
-                                                    <div style="color: #10b981; font-weight: 700; font-size: 0.85rem;">Completed! ✓</div>
-                                                    <div style="color: #475569; font-size: 0.72rem; margin-top: 1px;">Next in ${countdown}</div>
+                                                <!-- TOP: Badge + ID + Status -->
+                                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 0.9rem;">
+                                                    <span style="font-size: 0.58rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: #cbd5e1; padding: 4px 12px; border-radius: 6px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 6px;">
+                                                        <span style="width: 6px; height: 6px; background: #818cf8; border-radius: 50%; display: inline-block;"></span>
+                                                        Daily Problem
+                                                    </span>
+                                                    <span style="font-size: 0.6rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">#${tp.id || (todayIdx + 1)}</span>
+                                                    ${isDoneToday
+                                                        ? `<span style="display:inline-flex;align-items:center;gap:5px;font-size:0.6rem;font-weight:700;color:#10b981;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);padding:3px 10px;border-radius:100px;"><i class="fa-solid fa-circle-check" style="font-size:0.58rem;"></i> Solved</span>`
+                                                        : `<span style="display:inline-flex;align-items:center;gap:5px;font-size:0.6rem;font-weight:700;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);padding:3px 10px;border-radius:100px;"><i class="fa-regular fa-circle" style="font-size:0.58rem;"></i> Unsolved</span>`
+                                                    }
                                                 </div>
+
+                                                <!-- MID: Title -->
+                                                <h2 style="font-size: 1.35rem; background: linear-gradient(135deg, #ffffff 60%, #cbd5e1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-family: 'Outfit', sans-serif; font-weight: 800; margin: 0 0 1.1rem 0; line-height: 1.2; letter-spacing: -0.3px;">${tp.title}</h2>
+
+                                                <!-- Info Stats Strip: Time + Approach + XP -->
+                                                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.1rem;">
+                                                    ${(() => {
+                                                        const timeMap = { 'Easy': '~15 min', 'Medium': '~30 min', 'Hard': '~45 min', 'Very Hard': '~60 min', 'Mega Hard': '~60 min' };
+                                                        const estTime = timeMap[tp.difficulty] || '~30 min';
+                                                        const approachMap = { 'Arrays & Hashing': 'Hash Map', 'Two Pointers': 'Two Pointers', 'Sliding Window': 'Sliding Window', 'Stack & Queue': 'Stack', 'Binary Search': 'Binary Search', 'Linked List': 'Pointers', 'Trees & Graphs': 'DFS / BFS', 'Dynamic Programming': 'Memoization', 'Greedy & Math': 'Greedy', 'Bit Manipulation': 'Bit Ops', 'String Algorithms': 'String', 'Heaps & Priority Queue': 'Heap', 'Trie & Prefix Tree': 'Trie', 'Backtracking & Recursion': 'Backtrack', 'Advanced Graphs & Union-Find': 'Union-Find' };
+                                                        const approach = approachMap[tp.category] || 'Optimal';
+                                                        return `
+                                                        <span style="display:inline-flex;align-items:center;gap:5px;font-size:0.65rem;color:#94a3b8;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:5px 12px;border-radius:8px;font-weight:500;">
+                                                            <i class="fa-regular fa-clock" style="color:#818cf8;"></i> ${estTime}
+                                                        </span>
+                                                        <span style="display:inline-flex;align-items:center;gap:5px;font-size:0.65rem;color:#94a3b8;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:5px 12px;border-radius:8px;font-weight:500;">
+                                                            <i class="fa-solid fa-lightbulb" style="color:#fbbf24;"></i> ${approach}
+                                                        </span>
+                                                        <span style="display:inline-flex;align-items:center;gap:5px;font-size:0.65rem;color:#94a3b8;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:5px 12px;border-radius:8px;font-weight:500;">
+                                                            <i class="fa-solid fa-star" style="color:#f59e0b;"></i> +${displayXp} XP
+                                                        </span>`;
+                                                    })()}
+                                                </div>
+
+                                                <!-- BOTTOM: Tags row -->
+                                                <div style="padding-top: 0.85rem; border-top: 1px solid rgba(255,255,255,0.06);">
+                                                    <div style="display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-bottom:8px;">
+                                                        ${tpDiffBadge}
+                                                        <span style="background:rgba(255,255,255,0.03);color:#a5b4fc;font-size:0.63rem;padding:3px 10px;border-radius:100px;border:1px solid rgba(129,140,248,0.2);font-weight:500;"><i class="fa-solid fa-brain" style="margin-right:5px;color:#818cf8;font-size:0.55rem;"></i>${tp.category}</span>
+                                                    </div>
+                                                    <div style="display:flex;flex-wrap:wrap;gap:7px;align-items:center;">
+                                                        ${(tp.companies || []).slice(0, 3).map(c => window.getCaCompanyLogoHtml(c, 14, true)).join('')}
+                                                    </div>
+                                                </div>
+
                                             </div>
-                                            <button onclick="window.startSpecificProblem(${todayIdx})"
-                                                onmouseover="this.style.background='rgba(99,102,241,0.18)'; this.style.borderColor='rgba(99,102,241,0.45)';"
-                                                onmouseout="this.style.background='rgba(99,102,241,0.08)'; this.style.borderColor='rgba(99,102,241,0.25)';"
-                                                style="padding: 11px 15px; border-radius: 12px; background: rgba(99,102,241,0.08); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.25); cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;">
-                                                <i class="fa-solid fa-rotate-right"></i>
-                                            </button>
+
+                                            <!-- Right Panel: Reward & Action -->
+                                            <div class="ca-daily-right-panel" style="flex: 1; max-width: 260px; display: flex; flex-direction: column; justify-content: center; align-items: stretch; border-left: 1px solid rgba(255, 255, 255, 0.08); padding-left: 2.5rem;">
+                                                
+                                                <!-- Reward Details -->
+                                                <div style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 14px; padding: 1.2rem; margin-bottom: 1.5rem; text-align: center; backdrop-filter: blur(10px);">
+                                                    <i class="fa-solid fa-fire ca-fire-pulse" style="color: #f97316; font-size: 1.4rem; margin-bottom: 5px;"></i>
+                                                    <div style="font-size: 0.6rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">CHALLENGE REWARD</div>
+                                                    <div style="font-size: 1.15rem; color: #fbbf24; font-weight: 800; margin-top: 4px; font-family: 'JetBrains Mono', monospace; text-shadow: 0 2px 10px rgba(251, 191, 36, 0.15);">+${displayXp} XP</div>
+                                                </div>
+
+                                                <!-- Countdown Status -->
+                                                <div style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.67rem; color: #94a3b8; margin-bottom: 1.5rem; font-weight: 500;">
+                                                    <i class="fa-regular fa-clock" style="color: #64748b;"></i>
+                                                    Time Remaining: <span style="font-family: monospace; font-weight: 700; color: #cbd5e1;">${countdown}</span>
+                                                </div>
+
+                                                <!-- CTA Button -->
+                                                ${isDoneToday ? `
+                                                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                                                    <div style="flex: 1; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; text-align: left; box-shadow: inset 0 1px 4px rgba(16,185,129,0.05);">
+                                                        <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 1.25rem; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(16,185,129,0.2));"></i>
+                                                        <div>
+                                                            <div style="color: #34d399; font-weight: 700; font-size: 0.74rem; letter-spacing: 0.2px;">Completed!</div>
+                                                            <span style="color: #64748b; font-size: 0.6rem; font-weight: 500;">Challenge solved</span>
+                                                        </div>
+                                                    </div>
+                                                    <button onclick="window.startSpecificProblem(${todayIdx})"
+                                                        onmouseover="this.style.background='rgba(99,102,241,0.12)'; this.style.borderColor='rgba(99,102,241,0.3)';"
+                                                        onmouseout="this.style.background='rgba(99,102,241,0.05)'; this.style.borderColor='rgba(99,102,241,0.15)';"
+                                                        style="padding: 10px 14px; border-radius: 12px; background: rgba(99,102,241,0.05); color: #cbd5e1; border: 1px solid rgba(99,102,241,0.15); cursor: pointer; font-size: 0.72rem; font-weight: 600; transition: all 0.2s; white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; justify-content: center; height: 40px; width: 40px;">
+                                                        <i class="fa-solid fa-rotate-right"></i>
+                                                    </button>
+                                                </div>
+                                                ` : `
+                                                <button onclick="window.startSpecificProblem(${todayIdx})" class="ca-daily-btn-dark">
+                                                    <i class="fa-solid fa-bolt" style="color: #facc15; font-size: 0.8rem;"></i> Start Challenge
+                                                </button>
+                                                `}
+                                            </div>
                                         </div>
-                                        ` : `
-                                        <button onclick="window.startSpecificProblem(${todayIdx})"
-                                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 14px 35px rgba(79,70,229,0.55)';"
-                                            onmouseout="this.style.transform='none'; this.style.boxShadow='0 6px 20px rgba(79,70,229,0.35)';"
-                                            style="width: 100%; padding: 13px; font-size: 0.95rem; border-radius: 13px; background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); color: #fff; border: none; cursor: pointer; font-weight: 700; box-shadow: 0 6px 20px rgba(79,70,229,0.35); transition: all 0.25s cubic-bezier(0.4,0,0.2,1); display: flex; align-items: center; justify-content: center; gap: 9px; letter-spacing: 0.3px;">
-                                            <i class="fa-solid fa-bolt"></i> Start Today's Challenge
-                                        </button>
-                                        `}
                                     </div>
                                 </div>
                             </div>
