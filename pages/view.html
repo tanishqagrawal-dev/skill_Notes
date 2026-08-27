@@ -793,18 +793,25 @@
 
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
+                        const wrapper = entry.target;
+                        const pageNum = parseInt(wrapper.dataset.pageNumber);
+                        
                         if (entry.isIntersecting) {
-                            const wrapper = entry.target;
-                            const pageNum = parseInt(wrapper.dataset.pageNumber);
                             document.getElementById('current-page').innerText = pageNum;
 
                             if (!wrapper.dataset.rendered) {
                                 wrapper.dataset.rendered = 'true';
                                 renderPage(pdf, pageNum, wrapper);
                             }
+                        } else {
+                            // Unload page canvas when scrolled out of view to save mobile memory
+                            if (wrapper.dataset.rendered) {
+                                wrapper.removeAttribute('data-rendered');
+                                wrapper.innerHTML = '';
+                            }
                         }
                     });
-                }, { root: container, rootMargin: '300px 0px' });
+                }, { root: container, rootMargin: '400px 0px' });
 
                 document.querySelectorAll('.pdf-page-wrapper').forEach(w => observer.observe(w));
 
@@ -826,20 +833,22 @@
                 const aspectRatio = unscaledViewport.height / unscaledViewport.width;
                 wrapper.dataset.aspectRatio = aspectRatio.toString();
 
-                // Render at a high scale (2.0) to ensure crystal clear (HD) detail on mobile and zooming
-                const renderScale = 2.0;
+                // Downscale resolution slightly on mobile to save graphics memory and prevent phone hangs
+                const isMobile = window.innerWidth < 768;
+                const renderScale = isMobile ? 1.2 : 2.0;
 
-                const dpr = window.devicePixelRatio || 1;
+                const rawDpr = window.devicePixelRatio || 1;
+                const dpr = isMobile ? Math.min(rawDpr, 1.5) : rawDpr;
                 const viewport = page.getViewport({ scale: renderScale });
 
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
                 
-                // Set drawing buffer size matching High-DPI screens and high render scale
+                // Set drawing buffer size matching High-DPI screens and render scale
                 canvas.width = Math.floor(viewport.width * dpr);
                 canvas.height = Math.floor(viewport.height * dpr);
                 
-                // Set CSS display dimensions (initially matching current zoomLevel)
+                // Set CSS display dimensions
                 const baseWidth = Math.min(containerWidth, 900);
                 const zoomedWidth = baseWidth * (zoomLevel / 100);
                 canvas.style.width = `${zoomedWidth}px`;
