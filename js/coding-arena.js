@@ -36,7 +36,15 @@ window.caLoadingHTML = `
 
 // --- LEETCODE & GFG ENRICHMENT ---
 const CA_CATEGORIES = ["Arrays & Hashing", "Two Pointers", "Sliding Window", "Stack & Queue", "Binary Search", "Linked List", "Trees & Graphs", "Dynamic Programming", "Greedy & Math", "Bit Manipulation", "String Algorithms", "Heaps & Priority Queue", "Trie & Prefix Tree", "Backtracking & Recursion", "Advanced Graphs & Union-Find"];
-const CA_COMPANIES = ["Google", "Amazon", "Microsoft", "Meta", "Apple", "Uber", "Adobe", "Bloomberg", "Goldman Sachs", "ByteDance", "LinkedIn", "Palantir", "TikTok", "TCS", "Infosys", "Wipro", "Cognizant", "Accenture", "HCLTech", "Capgemini"];
+const CA_COMPANIES = [
+    "Google", "Amazon", "Microsoft", "Meta", "Bloomberg", "TikTok", "Uber", "Oracle", "Apple", "Goldman Sachs",
+    "TCS", "Zoho", "Infosys", "Salesforce", "IBM", "LinkedIn", "Adobe", "NVIDIA", "Walmart Labs", "Accenture",
+    "Visa", "Yandex", "Flipkart", "PayPal", "Phonepe", "De Shaw", "Snowflake", "Cisco", "Citadel", "Snapchat",
+    "Servicenow", "Doordash", "JPMorgan Chase", "ByteDance", "Nutanix", "eBay", "Morgan Stanley", "Qualcomm",
+    "Expedia", "Samsung", "Intuit", "Airbnb", "Wix", "Anduril", "Capital One", "Palo Alto Networks", "Epam Systems",
+    "Agoda", "Roblox", "Atlassian", "SAP", "Tesla", "Arista Networks", "Coupang", "Twitter", "Deloitte",
+    "Josh Technology", "Cognizant", "Swiggy", "Pinterest", "Wipro", "HCLTech", "Capgemini"
+];
 const CA_TOPIC_ICONS = {
     "Arrays & Hashing": "fa-layer-group",
     "Two Pointers": "fa-hand-pointer",
@@ -86,7 +94,45 @@ const COMPANY_DOMAINS = {
     "Cognizant": "cognizant.com",
     "Accenture": "accenture.com",
     "HCLTech": "hcltech.com",
-    "Capgemini": "capgemini.com"
+    "Capgemini": "capgemini.com",
+    "TikTok": "tiktok.com",
+    "Zoho": "zoho.com",
+    "IBM": "ibm.com",
+    "Ibm": "ibm.com",
+    "NVIDIA": "nvidia.com",
+    "Walmart Labs": "walmart.com",
+    "Visa": "visa.com",
+    "Yandex": "yandex.ru",
+    "Phonepe": "phonepe.com",
+    "De Shaw": "deshaw.com",
+    "Snowflake": "snowflake.com",
+    "Citadel": "citadel.com",
+    "Snapchat": "snapchat.com",
+    "Servicenow": "servicenow.com",
+    "Doordash": "doordash.com",
+    "JPMorgan Chase": "jpmorganchase.com",
+    "Nutanix": "nutanix.com",
+    "eBay": "ebay.com",
+    "Morgan Stanley": "morganstanley.com",
+    "Qualcomm": "qualcomm.com",
+    "Expedia": "expedia.com",
+    "Samsung": "samsung.com",
+    "Intuit": "intuit.com",
+    "Wix": "wix.com",
+    "Anduril": "anduril.com",
+    "Capital One": "capitalone.com",
+    "Palo Alto Networks": "paloaltonetworks.com",
+    "Epam Systems": "epam.com",
+    "Agoda": "agoda.com",
+    "Roblox": "roblox.com",
+    "SAP": "sap.com",
+    "Tesla": "tesla.com",
+    "Arista Networks": "arista.com",
+    "Coupang": "coupang.com",
+    "Twitter": "twitter.com",
+    "Deloitte": "deloitte.com",
+    "Josh Technology": "joshtechnologygroup.com",
+    "Pinterest": "pinterest.com"
 };
 
 const COMPANY_LOGOS = {
@@ -102,7 +148,7 @@ const COMPANY_LOGOS = {
     "Goldman Sachs": { icon: "fa-solid fa-vault", color: "#93C5FD", bg: "rgba(147, 197, 253, 0.15)", border: "rgba(147, 197, 253, 0.4)" },
     "Flipkart": { icon: "fa-solid fa-bag-shopping", color: "#FDE047", bg: "rgba(234, 179, 8, 0.15)", border: "rgba(234, 179, 8, 0.4)" },
     "Salesforce": { icon: "fa-brands fa-salesforce", color: "#00A1E0", bg: "rgba(0, 161, 224, 0.15)", border: "rgba(0, 161, 224, 0.4)" },
-    "ByteDance": { icon: "fa-brands fa-tiktok", color: "#00f2fe", bg: "rgba(0, 242, 254, 0.15)", border: "rgba(0, 242, 254, 0.4)" },
+    "ByteDance": { icon: "fa-solid fa-square-check", color: "#00f2fe", bg: "rgba(0, 242, 254, 0.15)", border: "rgba(0, 242, 254, 0.4)" },
     "Atlassian": { icon: "fa-brands fa-atlassian", color: "#0052CC", bg: "rgba(0, 82, 204, 0.15)", border: "rgba(0, 82, 204, 0.4)" },
     "Oracle": { icon: "fa-solid fa-database", color: "#F87171", bg: "rgba(248, 113, 113, 0.15)", border: "rgba(248, 113, 113, 0.4)" },
     "Cisco": { icon: "fa-solid fa-network-wired", color: "#38BDF8", bg: "rgba(56, 189, 248, 0.15)", border: "rgba(56, 189, 248, 0.4)" },
@@ -120,14 +166,61 @@ const COMPANY_LOGOS = {
     "Cognizant": { icon: "fa-solid fa-code-branch", color: "#0033a0", bg: "rgba(0, 51, 160, 0.15)", border: "rgba(0, 51, 160, 0.4)" },
     "Accenture": { icon: "fa-solid fa-chevron-right", color: "#a100ff", bg: "rgba(161, 0, 255, 0.15)", border: "rgba(161, 0, 255, 0.4)" },
     "HCLTech": { icon: "fa-solid fa-server", color: "#005691", bg: "rgba(0, 86, 145, 0.15)", border: "rgba(0, 86, 145, 0.4)" },
-    "Capgemini": { icon: "fa-solid fa-globe", color: "#0070ad", bg: "rgba(0, 112, 173, 0.15)", border: "rgba(0, 112, 173, 0.4)" }
+    "Capgemini": { icon: "fa-solid fa-globe", color: "#0070ad", bg: "rgba(0, 112, 173, 0.15)", border: "rgba(0, 112, 173, 0.4)" },
+    "TikTok": { icon: "fa-brands fa-tiktok", color: "#000000", bg: "rgba(255, 255, 255, 0.15)", border: "rgba(255, 255, 255, 0.3)" },
+    "Zoho": { icon: "fa-solid fa-puzzle-piece", color: "#EAB308", bg: "rgba(234, 179, 8, 0.15)", border: "rgba(234, 179, 8, 0.4)" },
+    "IBM": { icon: "fa-solid fa-server", color: "#0062ff", bg: "rgba(0, 98, 255, 0.15)", border: "rgba(0, 98, 255, 0.4)" },
+    "Ibm": { icon: "fa-solid fa-server", color: "#0062ff", bg: "rgba(0, 98, 255, 0.15)", border: "rgba(0, 98, 255, 0.4)" },
+    "NVIDIA": { icon: "fa-solid fa-microchip", color: "#76B900", bg: "rgba(118, 185, 0, 0.15)", border: "rgba(118, 185, 0, 0.4)" },
+    "Walmart Labs": { icon: "fa-solid fa-store", color: "#FFC220", bg: "rgba(255, 194, 32, 0.15)", border: "rgba(255, 194, 32, 0.4)" },
+    "Visa": { icon: "fa-solid fa-credit-card", color: "#1A1F71", bg: "rgba(26, 31, 113, 0.15)", border: "rgba(26, 31, 113, 0.4)" },
+    "Yandex": { icon: "fa-brands fa-yandex", color: "#FC3F1D", bg: "rgba(252, 63, 29, 0.15)", border: "rgba(252, 63, 29, 0.4)" },
+    "Phonepe": { icon: "fa-solid fa-mobile-screen", color: "#5f259f", bg: "rgba(95, 37, 159, 0.15)", border: "rgba(95, 37, 159, 0.4)" },
+    "De Shaw": { icon: "fa-solid fa-building-columns", color: "#0D9488", bg: "rgba(13, 148, 136, 0.15)", border: "rgba(13, 148, 136, 0.4)" },
+    "Snowflake": { icon: "fa-solid fa-snowflake", color: "#29B6F6", bg: "rgba(41, 182, 246, 0.15)", border: "rgba(41, 182, 246, 0.4)" },
+    "Citadel": { icon: "fa-solid fa-tower-observation", color: "#0284C7", bg: "rgba(2, 132, 199, 0.15)", border: "rgba(2, 132, 199, 0.4)" },
+    "Snapchat": { icon: "fa-brands fa-snapchat", color: "#FFFC00", bg: "rgba(255, 252, 0, 0.15)", border: "rgba(255, 252, 0, 0.4)" },
+    "Servicenow": { icon: "fa-solid fa-gears", color: "#293e40", bg: "rgba(41, 62, 64, 0.15)", border: "rgba(41, 62, 64, 0.4)" },
+    "Doordash": { icon: "fa-solid fa-truck-fast", color: "#FF3008", bg: "rgba(255, 48, 8, 0.15)", border: "rgba(255, 48, 8, 0.4)" },
+    "JPMorgan Chase": { icon: "fa-solid fa-building-columns", color: "#8E7247", bg: "rgba(142, 114, 71, 0.15)", border: "rgba(142, 114, 71, 0.45)" },
+    "Nutanix": { icon: "fa-solid fa-cloud-meatball", color: "#3B82F6", bg: "rgba(59, 130, 246, 0.15)", border: "rgba(59, 130, 246, 0.4)" },
+    "eBay": { icon: "fa-brands fa-ebay", color: "#e53238", bg: "rgba(229, 50, 56, 0.15)", border: "rgba(229, 50, 56, 0.4)" },
+    "Morgan Stanley": { icon: "fa-solid fa-building-columns", color: "#005a9c", bg: "rgba(0, 90, 156, 0.15)", border: "rgba(0, 90, 156, 0.4)" },
+    "Qualcomm": { icon: "fa-solid fa-microchip", color: "#3253dc", bg: "rgba(50, 83, 220, 0.15)", border: "rgba(50, 83, 220, 0.4)" },
+    "Expedia": { icon: "fa-solid fa-plane-departure", color: "#00355f", bg: "rgba(0, 53, 95, 0.15)", border: "rgba(0, 53, 95, 0.4)" },
+    "Samsung": { icon: "fa-solid fa-mobile", color: "#0c4da2", bg: "rgba(12, 77, 162, 0.15)", border: "rgba(12, 77, 162, 0.4)" },
+    "Intuit": { icon: "fa-solid fa-calculator", color: "#3D4DB7", bg: "rgba(61, 77, 183, 0.15)", border: "rgba(61, 77, 183, 0.4)" },
+    "Wix": { icon: "fa-brands fa-wix", color: "#000000", bg: "rgba(255, 255, 255, 0.15)", border: "rgba(255, 255, 255, 0.3)" },
+    "Anduril": { icon: "fa-solid fa-jet-fighter", color: "#1F2937", bg: "rgba(31, 41, 55, 0.15)", border: "rgba(31, 41, 55, 0.4)" },
+    "Capital One": { icon: "fa-solid fa-credit-card", color: "#004975", bg: "rgba(0, 73, 117, 0.15)", border: "rgba(0, 73, 117, 0.4)" },
+    "Palo Alto Networks": { icon: "fa-solid fa-shield-halved", color: "#FA5B0F", bg: "rgba(250, 91, 15, 0.15)", border: "rgba(250, 91, 15, 0.4)" },
+    "Epam Systems": { icon: "fa-solid fa-laptop-code", color: "#7FAD1E", bg: "rgba(127, 173, 30, 0.15)", border: "rgba(127, 173, 30, 0.4)" },
+    "Agoda": { icon: "fa-solid fa-hotel", color: "#4E66C3", bg: "rgba(78, 102, 195, 0.15)", border: "rgba(78, 102, 195, 0.4)" },
+    "Roblox": { icon: "fa-solid fa-gamepad", color: "#FF0000", bg: "rgba(255, 0, 0, 0.15)", border: "rgba(255, 0, 0, 0.4)" },
+    "SAP": { icon: "fa-solid fa-database", color: "#008FD3", bg: "rgba(0, 143, 211, 0.15)", border: "rgba(0, 143, 211, 0.4)" },
+    "Tesla": { icon: "fa-solid fa-car", color: "#CC0000", bg: "rgba(204, 0, 0, 0.15)", border: "rgba(204, 0, 0, 0.4)" },
+    "Arista Networks": { icon: "fa-solid fa-network-wired", color: "#004F9E", bg: "rgba(0, 79, 158, 0.15)", border: "rgba(0, 79, 158, 0.4)" },
+    "Coupang": { icon: "fa-solid fa-truck", color: "#E02020", bg: "rgba(224, 32, 32, 0.15)", border: "rgba(224, 32, 32, 0.4)" },
+    "Twitter": { icon: "fa-brands fa-twitter", color: "#1DA1F2", bg: "rgba(29, 161, 242, 0.15)", border: "rgba(29, 161, 242, 0.4)" },
+    "Deloitte": { icon: "fa-solid fa-square-check", color: "#86BC25", bg: "rgba(134, 188, 37, 0.15)", border: "rgba(134, 188, 37, 0.4)" },
+    "Josh Technology": { icon: "fa-solid fa-laptop-code", color: "#0D9488", bg: "rgba(13, 148, 136, 0.15)", border: "rgba(13, 148, 136, 0.4)" },
+    "Pinterest": { icon: "fa-brands fa-pinterest", color: "#BD081C", bg: "rgba(189, 8, 28, 0.15)", border: "rgba(189, 8, 28, 0.4)" }
+};
+
+const COMPANY_LOGO_OVERRIDES = {
+    // Inline SVG data URIs — zero-latency, never blocked, always visible
+    "TCS": `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60"><rect width="200" height="60" fill="#1a3c8f"/><text x="50%" y="55%" font-family="Arial,sans-serif" font-weight="800" font-size="28" fill="white" text-anchor="middle" dominant-baseline="middle">TCS</text></svg>`)}`,
+    "HCLTech": `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 60"><rect width="220" height="60" fill="#0060a9"/><text x="50%" y="55%" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="white" text-anchor="middle" dominant-baseline="middle">HCLTech</text></svg>`)}`
 };
 
 window.getCaCompanyLogoHtml = function(c, size = 16, isBadge = false) {
+    const overrideUrl = COMPANY_LOGO_OVERRIDES[c] || COMPANY_LOGO_OVERRIDES[c.toUpperCase()] || COMPANY_LOGO_OVERRIDES[c.toLowerCase()];
     const domain = COMPANY_DOMAINS[c] || (c.toLowerCase().replace(/[^a-z0-9]/g, '') + ".com");
     const logoMeta = COMPANY_LOGOS[c] || { icon: "fa-solid fa-building", color: "#60a5fa" };
     const fallbackIconHtml = `<i class='${logoMeta.icon}' style='color: ${logoMeta.color}; font-size: ${size}px; display: inline-flex; align-items: center; justify-content: center; width: ${size}px; height: ${size}px; flex-shrink: 0;'></i>`;
-    const imgHtml = `<img src="https://logo.clearbit.com/${domain}" onerror="this.onerror=null; this.src='https://www.google.com/s2/favicons?domain=${domain}&sz=64'; this.onerror=function(){ this.outerHTML = \`${fallbackIconHtml}\`; };" style="width: ${size}px; height: ${size}px; object-fit: contain; border-radius: 2px; flex-shrink: 0;">`;
+    
+    const imgSrc = overrideUrl ? overrideUrl : `https://logo.clearbit.com/${domain}`;
+    const imgHtml = `<img src="${imgSrc}" onerror="this.onerror=null; this.src='https://www.google.com/s2/favicons?domain=${domain}&sz=64'; this.onerror=function(){ this.outerHTML = \`${fallbackIconHtml}\`; };" style="width: ${size}px; height: ${size}px; object-fit: contain; border-radius: 2px; flex-shrink: 0;">`;
     if (isBadge) {
         return `<span style="background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 100px; font-size: 0.78rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">${imgHtml}<span>${c}</span></span>`;
     }
@@ -276,19 +369,25 @@ window.isProblemSolved = function(idx) {
 // Award XP without changing level or streak (used for contest XP)
 window.awardCodingXP = async function(amount, reason) {
     try {
+        let finalAmount = amount;
+        let finalReason = reason;
+        if (window.checkCaIsPremium()) {
+            finalAmount = amount * 2;
+            finalReason = `${reason} (2x Premium Scholar Multiplier)`;
+        }
         let sb = null;
         if (typeof supabase !== 'undefined') sb = supabase;
         else if (window.supabase) sb = window.supabase;
         if (sb && window.currentUser && window.currentUser.id) {
             const { data: u } = await sb.from('users').select('coding_xp').eq('id', window.currentUser.id).single();
             if (u) {
-                const newXp = (u.coding_xp || 0) + amount;
+                const newXp = (u.coding_xp || 0) + finalAmount;
                 await sb.from('users').update({ coding_xp: newXp }).eq('id', window.currentUser.id);
                 if (window.currentUser) window.currentUser.coding_xp = newXp;
             }
         }
-        if (window.showToast) window.showToast(`+${amount} XP — ${reason}`);
-        console.log(`[Contest XP] +${amount} — ${reason}`);
+        if (window.showToast) window.showToast(`+${finalAmount} XP — ${finalReason}`);
+        console.log(`[Contest XP] +${finalAmount} — ${finalReason}`);
     } catch(e) { console.warn('awardCodingXP error', e); }
 };
 
@@ -303,7 +402,7 @@ window.getCaProblemsTableHTML = function() {
         filtered = filtered.filter(p => p.category === window.caFilterCategory);
     }
     if (window.caFilterCompany && window.caFilterCompany !== 'All') {
-        filtered = filtered.filter(p => (p.companies || []).includes(window.caFilterCompany));
+        filtered = filtered.filter(p => (p.companies || []).some(c => c.toLowerCase() === window.caFilterCompany.toLowerCase()));
     }
     if (window.caFilterDifficulty && window.caFilterDifficulty !== 'All') {
         filtered = filtered.filter(p => p.difficulty === window.caFilterDifficulty);
@@ -383,10 +482,17 @@ window.getCaProblemsTableHTML = function() {
         let compHtml = '';
         if (isPremium) {
             const compList = p.companies || [];
-            const compIconsHtml = compList.map((c) => {
+            const displayLimit = 5;
+            const toDisplay = compList.slice(0, displayLimit);
+            const compIconsHtml = toDisplay.map((c) => {
                 return `<div title="${c}" style="width: 26px; height: 26px; border-radius: 6px; background: #ffffff; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.4); padding: 3px; flex-shrink: 0;">${window.getCaCompanyLogoHtml(c, 18)}</div>`;
             }).join('');
-            compHtml = `<div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">${compIconsHtml}</div>`;
+            
+            let extraHtml = '';
+            if (compList.length > displayLimit) {
+                extraHtml = `<span style="font-size: 0.72rem; color: #a5b4fc; font-weight: 600; background: rgba(165,180,252,0.1); border: 1px solid rgba(165,180,252,0.2); padding: 2px 6px; border-radius: 4px; flex-shrink: 0; white-space: nowrap;">+${compList.length - displayLimit} more</span>`;
+            }
+            compHtml = `<div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">${compIconsHtml}${extraHtml}</div>`;
         } else {
             compHtml = `<div onclick="event.stopPropagation(); window.caRedirectToSubscription()" style="display: inline-flex; align-items: center; gap: 6px; color: #fbbf24; font-size: 0.72rem; font-weight: 700; background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.3); padding: 3px 8px; border-radius: 6px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(251, 191, 36, 0.25)'" onmouseout="this.style.background='rgba(251, 191, 36, 0.12)'"><i class="fa-solid fa-lock" style="font-size:0.65rem;"></i> Unlock</div>`;
         }
@@ -1306,7 +1412,7 @@ export async function renderCodingArena() {
                             </div>
                             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.2rem; padding-bottom: 3rem;">
                                 ${CA_COMPANIES.map(comp => {
-                                    const count = codingProblems.filter(p => (p.companies || []).includes(comp)).length;
+                                    const count = codingProblems.filter(p => (p.companies || []).some(c => c.toLowerCase() === comp.toLowerCase())).length;
                                     const logo = COMPANY_LOGOS[comp] || { icon: "fa-solid fa-building", color: "#a855f7", bg: "rgba(168, 85, 247, 0.15)", border: "rgba(168, 85, 247, 0.3)" };
                                     return `
                                     <div class="ca-comp-card" onclick="window.setCaFilterCompany('${comp}')" style="border-top: 3px solid ${logo.color};">
@@ -1736,7 +1842,38 @@ export async function renderCodingArena() {
                         ${(() => {
                             const isPremium = window.checkCaIsPremium();
                             if (isPremium) {
-                                return (problem.companies || []).map(c => window.getCaCompanyLogoHtml(c, 16, true)).join('');
+                                const companies = problem.companies || [];
+                                if (companies.length === 0) return '';
+                                
+                                const limit = 8;
+                                const initial = companies.slice(0, limit);
+                                const extra = companies.slice(limit);
+                                
+                                const initialHtml = initial.map(c => window.getCaCompanyLogoHtml(c, 16, true)).join('');
+                                
+                                if (extra.length > 0) {
+                                    const extraHtml = extra.map(c => window.getCaCompanyLogoHtml(c, 16, true)).join('');
+                                    const uniqId = `ca-desc-extra-comps-${problem.id || 'any'}`;
+                                    const btnId = `ca-desc-toggle-comps-${problem.id || 'any'}`;
+                                    return `
+                                        ${initialHtml}
+                                        <span id="${uniqId}" style="display: none;">${extraHtml}</span>
+                                        <span id="${btnId}" onclick="
+                                            const el = document.getElementById('${uniqId}');
+                                            const btn = document.getElementById('${btnId}');
+                                            if (el.style.display === 'none') {
+                                                el.style.display = 'contents';
+                                                btn.innerHTML = 'Show Less <i class=\\'fa-solid fa-angle-up\\'></i>';
+                                            } else {
+                                                el.style.display = 'none';
+                                                btn.innerHTML = 'See More (+${extra.length}) <i class=\\'fa-solid fa-angle-down\\'></i>';
+                                            }
+                                        " style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.35); color: #a5b4fc; padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; user-select: none; transition: 0.2s;" onmouseover="this.style.background='rgba(99, 102, 241, 0.2)'" onmouseout="this.style.background='rgba(99, 102, 241, 0.1)'">
+                                            See More (+${extra.length}) <i class="fa-solid fa-angle-down"></i>
+                                        </span>
+                                    `;
+                                }
+                                return initialHtml;
                             } else {
                                 if (!problem.companies || problem.companies.length === 0) return '';
                                 return `<span onclick="window.caRedirectToSubscription()" style="background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24; padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; user-select: none;" onmouseover="this.style.background='rgba(251,191,36,0.2)'" onmouseout="this.style.background='rgba(251,191,36,0.1)'"><i class="fa-solid fa-lock" style="font-size: 10px;"></i> Unlock Companies with Scholar</span>`;
@@ -1799,11 +1936,32 @@ export async function renderCodingArena() {
 
                 <!-- Hints View -->
                 <div id="ca-view-hints" style="display: none; color: #d4d4d4; font-size: 14px; padding-top: 10px;">
-                    ${problem.hints && problem.hints.length > 0 ? problem.hints.map((h, i) => `
-                    <div style="background: rgba(255,255,255,0.03); border-left: 3px solid #ffc01e; border-radius: 4px; padding: 16px; margin-bottom: 12px; line-height: 1.6;">
-                        <strong style="color: #eff1f6;">Hint ${i + 1}:</strong><br>
-                        ${h}
-                    </div>`).join('') : `
+                    ${problem.hints && problem.hints.length > 0 ? (() => {
+                        const isPremium = window.checkCaIsPremium();
+                        return problem.hints.map((h, i) => {
+                            if (!isPremium && i > 0) {
+                                if (i === 1) {
+                                    return `
+                                    <div style="background: rgba(251, 191, 36, 0.05); border: 1px dashed rgba(251, 191, 36, 0.3); border-radius: 8px; padding: 24px; margin-bottom: 12px; text-align: center; backdrop-filter: blur(4px);">
+                                        <div style="width: 42px; height: 42px; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); color: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin: 0 auto 12px auto; box-shadow: 0 0 15px rgba(251, 191, 36, 0.15);">
+                                            <i class="fa-solid fa-lock"></i>
+                                        </div>
+                                        <h4 style="color: #fff; margin: 0 0 6px 0; font-size: 0.95rem; font-weight: 700;">Hint ${i + 1} & onwards are Locked</h4>
+                                        <p style="color: #a3a3a3; font-size: 0.8rem; margin: 0 0 16px 0; line-height: 1.4;">Unlock deep analytical breakdowns, optimal approaches, and all remaining clues.</p>
+                                        <button onclick="window.caRedirectToSubscription()" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; font-weight: 700; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 0.82rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+                                            <i class="fa-solid fa-gem"></i> Unlock with Premium
+                                        </button>
+                                    </div>`;
+                                }
+                                return '';
+                            }
+                            return `
+                            <div style="background: rgba(255,255,255,0.03); border-left: 3px solid #ffc01e; border-radius: 4px; padding: 16px; margin-bottom: 12px; line-height: 1.6;">
+                                <strong style="color: #eff1f6;">Hint ${i + 1}:</strong><br>
+                                ${h}
+                            </div>`;
+                        }).join('');
+                    })() : `
                     <div style="color: #8c8c8c; text-align: center; margin-top: 40px; font-style: italic;">
                         <i class="fa-solid fa-lightbulb" style="font-size: 24px; margin-bottom: 12px; opacity: 0.5;"></i><br>
                         No hints available for this problem.<br>
@@ -1836,19 +1994,51 @@ export async function renderCodingArena() {
                                     <div style="width: 32px; height: 32px; background: rgba(255,193,30,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-brain" style="color:#ffc01e; font-size:14px;"></i></div>
                                     <span style="font-size: 13px; font-weight: 700; color: #ffc01e; text-transform: uppercase; letter-spacing: 1px;">Optimal Approach</span>
                                 </div>
-                                ${hasApproach ? problem.hints.map((h, i) => `
-                                    <div style="display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start;">
-                                        <span style="flex-shrink: 0; width: 20px; height: 20px; background: rgba(255,193,30,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #ffc01e; margin-top: 1px;">${i+1}</span>
-                                        <p style="margin: 0; color: #cbd5e1; line-height: 1.6; font-size: 13px;">${h}</p>
-                                    </div>`).join('') : '<p style="color: #8c8c8c; font-size: 13px; margin: 0;">Think about the data structures that could optimize the brute force approach.</p>'}
+                                ${hasApproach ? (() => {
+                                    const isPremium = window.checkCaIsPremium();
+                                    return problem.hints.map((h, i) => {
+                                        if (!isPremium && i > 0) {
+                                            if (i === 1) {
+                                                return `
+                                                <div style="background: rgba(251, 191, 36, 0.03); border: 1px dashed rgba(251, 191, 36, 0.25); border-radius: 8px; padding: 16px; margin-top: 10px; text-align: center;">
+                                                    <span style="color: #fbbf24; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;" onclick="window.caRedirectToSubscription()">
+                                                        <i class="fa-solid fa-lock"></i> Upgrade to unlock remaining approach steps
+                                                    </span>
+                                                </div>`;
+                                            }
+                                            return '';
+                                        }
+                                        return `
+                                        <div style="display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start;">
+                                            <span style="flex-shrink: 0; width: 20px; height: 20px; background: rgba(255,193,30,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #ffc01e; margin-top: 1px;">${i+1}</span>
+                                            <p style="margin: 0; color: #cbd5e1; line-height: 1.6; font-size: 13px;">${h}</p>
+                                        </div>`;
+                                    }).join('');
+                                })() : '<p style="color: #8c8c8c; font-size: 13px; margin: 0;">Think about the data structures that could optimize the brute force approach.</p>'}
                             </div>
 
                             <!-- Complexity Card -->
-                            ${hasComplexity ? `
-                            <div style="background: rgba(46,213,115,0.06); border: 1px solid rgba(46,213,115,0.2); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; display: flex; gap: 24px; align-items: center;">
-                                <div style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-bolt" style="color: #2ed573;"></i><span style="color:#8c8c8c; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Time</span><code style="color: #2ed573; background: rgba(46,213,115,0.1); padding: 3px 10px; border-radius: 6px; font-size: 13px; font-weight: 700;">${problem.optimalComplexity.time}</code></div>
-                                <div style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-memory" style="color: #60a5fa;"></i><span style="color:#8c8c8c; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Space</span><code style="color: #60a5fa; background: rgba(96,165,250,0.1); padding: 3px 10px; border-radius: 6px; font-size: 13px; font-weight: 700;">${problem.optimalComplexity.space}</code></div>
-                            </div>` : ''}
+                            ${hasComplexity ? (() => {
+                                const isPremium = window.checkCaIsPremium();
+                                if (isPremium) {
+                                    return `
+                                    <div style="background: rgba(46,213,115,0.06); border: 1px solid rgba(46,213,115,0.2); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; display: flex; gap: 24px; align-items: center;">
+                                        <div style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-bolt" style="color: #2ed573;"></i><span style="color:#8c8c8c; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Time</span><code style="color: #2ed573; background: rgba(46,213,115,0.1); padding: 3px 10px; border-radius: 6px; font-size: 13px; font-weight: 700;">${problem.optimalComplexity.time}</code></div>
+                                        <div style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-memory" style="color: #60a5fa;"></i><span style="color:#8c8c8c; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Space</span><code style="color: #60a5fa; background: rgba(96,165,250,0.1); padding: 3px 10px; border-radius: 6px; font-size: 13px; font-weight: 700;">${problem.optimalComplexity.space}</code></div>
+                                    </div>`;
+                                } else {
+                                    return `
+                                    <div onclick="window.caRedirectToSubscription()" style="background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" onmouseover="this.style.borderColor='rgba(251,191,36,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">
+                                        <div style="display: flex; gap: 24px; align-items: center; filter: blur(4px); pointer-events: none; user-select: none;">
+                                            <div style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-bolt" style="color: #2ed573;"></i><span style="color:#8c8c8c; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Time</span><code style="color: #2ed573; background: rgba(46,213,115,0.1); padding: 3px 10px; border-radius: 6px; font-size: 13px; font-weight: 700;">O(N log N)</code></div>
+                                            <div style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-memory" style="color: #60a5fa;"></i><span style="color:#8c8c8c; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Space</span><code style="color: #60a5fa; background: rgba(96,165,250,0.1); padding: 3px 10px; border-radius: 6px; font-size: 13px; font-weight: 700;">O(N)</code></div>
+                                        </div>
+                                        <div style="font-size: 0.72rem; color: #fbbf24; font-weight: 700; background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.3); padding: 3px 8px; border-radius: 6px; display: flex; align-items: center; gap: 6px;">
+                                            <i class="fa-solid fa-lock" style="font-size:0.65rem;"></i> Unlock Complexity
+                                        </div>
+                                    </div>`;
+                                }
+                            })() : ''}
 
                             <!-- Load Solution Button -->
                             ${(() => {
@@ -4229,6 +4419,9 @@ window.runUserCode = async function(isSubmit) {
 
 async function handleProblemSolved(isPractice = false, awardedXp = 0) {
     try {
+        if (window.checkCaIsPremium() && awardedXp > 0) {
+            awardedXp = awardedXp * 2;
+        }
         if (window.caActiveProblemIndex !== null && window.caActiveProblemIndex !== -1) {
             window.caSolvedProblems = window.caSolvedProblems || [];
             if (!window.caSolvedProblems.includes(window.caActiveProblemIndex)) {
@@ -4370,6 +4563,7 @@ async function handleProblemSolved(isPractice = false, awardedXp = 0) {
                         <div style="background: rgba(46, 213, 115, 0.1); border: 1px solid rgba(46, 213, 115, 0.2); padding: 15px 25px; border-radius: 12px;">
                             <div style="color: #8c8c8c; font-size: 12px; font-weight: 600; text-transform: uppercase;">XP Earned</div>
                             <div style="color: #2ed573; font-size: 24px; font-weight: bold;">+${isPractice ? 0 : awardedXp}</div>
+                            ${window.checkCaIsPremium() && !isPractice ? '<span style="font-size: 0.65rem; color: #fbbf24; display: block; margin-top: 4px; font-weight:700;"><i class="fa-solid fa-gem"></i> 2x Premium</span>' : ''}
                         </div>
                         <div style="background: rgba(255, 192, 30, 0.1); border: 1px solid rgba(255, 192, 30, 0.2); padding: 15px 25px; border-radius: 12px;">
                             <div style="color: #8c8c8c; font-size: 12px; font-weight: 600; text-transform: uppercase;">Streak</div>
