@@ -134,6 +134,31 @@ window.getCaCompanyLogoHtml = function(c, size = 16, isBadge = false) {
     return imgHtml;
 };
 
+window.caRedirectToSubscription = function() {
+    if (window.renderTabContent) {
+        window.renderTabContent('subscription');
+        setTimeout(() => {
+            if (window.subSelectPlan) {
+                window.subSelectPlan('pro');
+            }
+        }, 100);
+    } else {
+        window.location.search = '?tab=subscription';
+    }
+};
+
+window.checkCaIsPremium = function() {
+    if (window._activeUserPlan === 'pro') return true;
+    try {
+        const u = JSON.parse(localStorage.getItem('auth_user_full'));
+        if (u && (u.plan === 'pro' || u.role === 'pro' || u.role === 'admin')) {
+            window._activeUserPlan = 'pro'; // Sync back
+            return true;
+        }
+    } catch(e) {}
+    return false;
+};
+
 codingProblems.forEach((p, index) => {
     if (!p.category) {
         p.category = CA_CATEGORIES[index % CA_CATEGORIES.length];
@@ -164,6 +189,11 @@ window.setCaFilterCategory = function(cat) {
     if (window.renderTabContent) window.renderTabContent('coding-arena');
 };
 window.setCaFilterCompany = function(comp) {
+    if (comp !== 'All' && !window.checkCaIsPremium()) {
+        alert("Company-wise filtering is a Premium Scholar feature. Please upgrade to unlock!");
+        window.caRedirectToSubscription();
+        return;
+    }
     window.caFilterCompany = comp;
     window.caSortBy = 'Newest';
     window.caFilterTab = 'practice';
@@ -349,11 +379,17 @@ window.getCaProblemsTableHTML = function() {
 
         // Companies cleanly aligned boxes with actual original logos
         // Companies cleanly aligned boxes with actual original logos
-        const compList = p.companies || [];
-        const compIconsHtml = compList.map((c) => {
-            return `<div title="${c}" style="width: 26px; height: 26px; border-radius: 6px; background: #ffffff; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.4); padding: 3px; flex-shrink: 0;">${window.getCaCompanyLogoHtml(c, 18)}</div>`;
-        }).join('');
-        const compHtml = `<div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">${compIconsHtml}</div>`;
+        const isPremium = window.checkCaIsPremium();
+        let compHtml = '';
+        if (isPremium) {
+            const compList = p.companies || [];
+            const compIconsHtml = compList.map((c) => {
+                return `<div title="${c}" style="width: 26px; height: 26px; border-radius: 6px; background: #ffffff; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.4); padding: 3px; flex-shrink: 0;">${window.getCaCompanyLogoHtml(c, 18)}</div>`;
+            }).join('');
+            compHtml = `<div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">${compIconsHtml}</div>`;
+        } else {
+            compHtml = `<div onclick="event.stopPropagation(); window.caRedirectToSubscription()" style="display: inline-flex; align-items: center; gap: 6px; color: #fbbf24; font-size: 0.72rem; font-weight: 700; background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.3); padding: 3px 8px; border-radius: 6px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(251, 191, 36, 0.25)'" onmouseout="this.style.background='rgba(251, 191, 36, 0.12)'"><i class="fa-solid fa-lock" style="font-size:0.65rem;"></i> Unlock</div>`;
+        }
 
         // Acceptance and Frequency
         const acceptance = (45 + ((i * 7) % 40)).toFixed(1) + '%';
@@ -929,10 +965,21 @@ export async function renderCodingArena() {
                                     <option value="All">All Topics</option>
                                     ${CA_CATEGORIES.map(c => `<option value="${c}" ${window.caFilterCategory === c ? 'selected' : ''}>${c.split('&')[0].trim()}</option>`).join('')}
                                 </select>
-                                <select onchange="window.setCaFilterCompany(this.value)" style="background: #161b22; border: 1px solid rgba(255,255,255,0.12); color: #e2e8f0; padding: 5px 10px; border-radius: 6px; font-size: 0.8rem; outline: none; cursor: pointer; max-width: 140px;">
-                                    <option value="All">All Companies</option>
-                                    ${CA_COMPANIES.map(comp => `<option value="${comp}" ${window.caFilterCompany === comp ? 'selected' : ''}>${comp}</option>`).join('')}
-                                </select>
+                                ${(() => {
+                                    const isPremium = window.checkCaIsPremium();
+                                    if (isPremium) {
+                                        return `
+                                        <select onchange="window.setCaFilterCompany(this.value)" style="background: #161b22; border: 1px solid rgba(255,255,255,0.12); color: #e2e8f0; padding: 5px 10px; border-radius: 6px; font-size: 0.8rem; outline: none; cursor: pointer; max-width: 140px;">
+                                            <option value="All">All Companies</option>
+                                            ${CA_COMPANIES.map(comp => `<option value="${comp}" ${window.caFilterCompany === comp ? 'selected' : ''}>${comp}</option>`).join('')}
+                                        </select>`;
+                                    } else {
+                                        return `
+                                        <div onclick="window.caRedirectToSubscription(); alert('Company-wise filtering is a Premium Scholar feature. Please upgrade to unlock!')" style="background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.3); color: #fbbf24; padding: 5px 10px; border-radius: 6px; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; transition: all 0.2s;" onmouseover="this.style.background='rgba(251, 191, 36, 0.25)'" onmouseout="this.style.background='rgba(251, 191, 36, 0.12)'">
+                                            <i class="fa-solid fa-lock" style="font-size:0.75rem;"></i> Companies
+                                        </div>`;
+                                    }
+                                })()}
                                 <select onchange="window.setCaSortBy(this.value)" style="background: #161b22; border: 1px solid rgba(255,255,255,0.12); color: #fff; padding: 5px 10px; border-radius: 6px; font-size: 0.8rem; outline: none; cursor: pointer;">
                                     <option value="DiffAsc" ${window.caSortBy === 'DiffAsc' ? 'selected' : ''}>Diff (Easy ➔ Hard)</option>
                                     <option value="Newest" ${window.caSortBy === 'Newest' ? 'selected' : ''}>Problem ID (Asc)</option>
@@ -1236,37 +1283,52 @@ export async function renderCodingArena() {
                     ` : ''}
 
                     <!-- TAB CONTENT: TOP COMPANIES -->
-                    ${window.caFilterTab === 'companies' ? `
-                    <div class="fade-in">
-                        <div style="margin-bottom: 1.5rem;">
-                            <h2 style="font-size: 1.4rem; margin: 0 0 0.4rem 0; color: #fff;">🏢 Top Tech Company Interview Questions</h2>
-                            <p style="color: var(--text-dim); font-size: 0.9rem; margin: 0;">Practice frequently asked coding interview problems organized by tech companies.</p>
-                        </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.2rem; padding-bottom: 3rem;">
-                            ${CA_COMPANIES.map(comp => {
-                                const count = codingProblems.filter(p => (p.companies || []).includes(comp)).length;
-                                const logo = COMPANY_LOGOS[comp] || { icon: "fa-solid fa-building", color: "#a855f7", bg: "rgba(168, 85, 247, 0.15)", border: "rgba(168, 85, 247, 0.3)" };
-                                return `
-                                <div class="ca-comp-card" onclick="window.setCaFilterCompany('${comp}')" style="border-top: 3px solid ${logo.color};">
-                                    <div>
-                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                            <div style="width: 44px; height: 44px; border-radius: 10px; background: #ffffff; border: 1.5px solid #161b22; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); padding: 4px;">
-                                                ${window.getCaCompanyLogoHtml(comp, 28)}
+                    ${window.caFilterTab === 'companies' ? (() => {
+                        const isPremium = window.checkCaIsPremium();
+                        if (!isPremium) {
+                            return `
+                            <div class="fade-in" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5rem 2rem; text-align: center; background: rgba(13, 17, 26, 0.4); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; margin-top: 1rem; box-shadow: inset 0 0 30px rgba(0,0,0,0.4);">
+                                <div style="width: 76px; height: 76px; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.35); color: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 1.8rem; box-shadow: 0 0 30px rgba(251, 191, 36, 0.2); animation: caPulse 2s infinite alternate;">
+                                    <i class="fa-solid fa-lock"></i>
+                                </div>
+                                <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; color: #fff; margin: 0 0 0.8rem 0; letter-spacing: -0.3px;">Company Interview Questions</h2>
+                                <p style="color: var(--text-dim); max-width: 520px; font-size: 0.95rem; line-height: 1.6; margin: 0 0 2.2rem 0; font-family: 'Inter', sans-serif;">Unlock verified coding questions asked in real technical rounds at TCS, Google, Infosys, Amazon, Microsoft, and 15+ top tech recruiters.</p>
+                                <button onclick="window.caRedirectToSubscription()" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; font-weight: 800; border: none; padding: 13px 32px; border-radius: 12px; cursor: pointer; font-size: 0.92rem; font-family: 'Outfit', sans-serif; transition: transform 0.2s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 8px 24px rgba(251, 191, 36, 0.25);" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+                                    <i class="fa-solid fa-gem"></i> Upgrade to Premium Scholar
+                                </button>
+                            </div>`;
+                        }
+                        return `
+                        <div class="fade-in">
+                            <div style="margin-bottom: 1.5rem;">
+                                <h2 style="font-size: 1.4rem; margin: 0 0 0.4rem 0; color: #fff;">🏢 Top Tech Company Interview Questions</h2>
+                                <p style="color: var(--text-dim); font-size: 0.9rem; margin: 0;">Practice frequently asked coding interview problems organized by tech companies.</p>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.2rem; padding-bottom: 3rem;">
+                                ${CA_COMPANIES.map(comp => {
+                                    const count = codingProblems.filter(p => (p.companies || []).includes(comp)).length;
+                                    const logo = COMPANY_LOGOS[comp] || { icon: "fa-solid fa-building", color: "#a855f7", bg: "rgba(168, 85, 247, 0.15)", border: "rgba(168, 85, 247, 0.3)" };
+                                    return `
+                                    <div class="ca-comp-card" onclick="window.setCaFilterCompany('${comp}')" style="border-top: 3px solid ${logo.color};">
+                                        <div>
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                                <div style="width: 44px; height: 44px; border-radius: 10px; background: #ffffff; border: 1.5px solid #161b22; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); padding: 4px;">
+                                                    ${window.getCaCompanyLogoHtml(comp, 28)}
+                                                </div>
+                                                <span style="background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); font-size: 0.75rem; padding: 3px 10px; border-radius: 100px; font-weight: 600;">${count} Questions</span>
                                             </div>
-                                            <span style="background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); font-size: 0.75rem; padding: 3px 10px; border-radius: 100px; font-weight: 600;">${count} Questions</span>
+                                            <h3 style="font-size: 1.15rem; color: #fff; margin: 0 0 0.3rem 0; font-weight: 700; display: flex; align-items: center; gap: 8px;">${comp}</h3>
+                                            <p style="color: var(--text-dim); font-size: 0.8rem; margin: 0;">Asked in tech rounds & coding assessments.</p>
                                         </div>
-                                        <h3 style="font-size: 1.15rem; color: #fff; margin: 0 0 0.3rem 0; font-weight: 700; display: flex; align-items: center; gap: 8px;">${comp}</h3>
-                                        <p style="color: var(--text-dim); font-size: 0.8rem; margin: 0;">Asked in tech rounds & coding assessments.</p>
-                                    </div>
-                                    <div style="margin-top: 1.2rem; pt: 1rem; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; color: ${logo.color}; font-size: 0.85rem; font-weight: 600;">
-                                        <span>Solve Questions</span>
-                                        <i class="fa-solid fa-arrow-right"></i>
-                                    </div>
-                                </div>`;
-                            }).join('')}
-                        </div>
-                    </div>
-                    ` : ''}
+                                        <div style="margin-top: 1.2rem; pt: 1rem; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; color: ${logo.color}; font-size: 0.85rem; font-weight: 600;">
+                                            <span>Solve Questions</span>
+                                            <i class="fa-solid fa-arrow-right"></i>
+                                        </div>
+                                    </div>`;
+                                }).join('')}
+                            </div>
+                        </div>`;
+                    })() : ''}
 
                     <!-- TAB CONTENT: CONTESTS -->
                     ${window.caFilterTab === 'contests' ? (() => {
@@ -1671,7 +1733,15 @@ export async function renderCodingArena() {
                     <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; align-items: center;">
                         <span style="color: ${problem.difficulty === 'Easy' ? '#00b8a3' : (problem.difficulty === 'Medium' ? '#ffc01e' : (problem.difficulty === 'Hard' ? '#ff375f' : '#b00020'))}; background: rgba(255,255,255,0.06); padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 500;">${problem.difficulty}</span>
                         ${problem.category ? `<span style="color: #00d2ff; background: rgba(0, 210, 255, 0.1); border: 1px solid rgba(0, 210, 255, 0.3); padding: 4px 12px; border-radius: 100px; font-size: 12px;"><i class="fa-solid fa-tag" style="margin-right:4px;"></i>${problem.category}</span>` : ''}
-                        ${(problem.companies || []).map(c => window.getCaCompanyLogoHtml(c, 16, true)).join('')}
+                        ${(() => {
+                            const isPremium = window.checkCaIsPremium();
+                            if (isPremium) {
+                                return (problem.companies || []).map(c => window.getCaCompanyLogoHtml(c, 16, true)).join('');
+                            } else {
+                                if (!problem.companies || problem.companies.length === 0) return '';
+                                return `<span onclick="window.caRedirectToSubscription()" style="background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24; padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; user-select: none;" onmouseover="this.style.background='rgba(251,191,36,0.2)'" onmouseout="this.style.background='rgba(251,191,36,0.1)'"><i class="fa-solid fa-lock" style="font-size: 10px;"></i> Unlock Companies with Scholar</span>`;
+                            }
+                        })()}
                         ${(problem.tags || []).map(t => `<span style="color: #a3a3a3; background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 100px; font-size: 12px; border: 1px solid rgba(255,255,255,0.1);">${t}</span>`).join('')}
                     </div>
 
@@ -1781,26 +1851,25 @@ export async function renderCodingArena() {
                             </div>` : ''}
 
                             <!-- Load Solution Button -->
-                            <div style="background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.25); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-                                    <div>
-                                        <div style="font-size: 13px; font-weight: 700; color: #a5b4fc; margin-bottom: 4px;"><i class="fa-solid fa-wand-magic-sparkles" style="margin-right:6px;"></i>Load Optimal Solution</div>
-                                        <div style="font-size: 12px; color: #64748b;">Loads the fully working, optimized solution into your editor</div>
+                            ${(() => {
+                                const isPremium = window.checkCaIsPremium();
+                                return `
+                                <div style="background: ${isPremium ? 'rgba(99,102,241,0.08)' : 'rgba(251,191,36,0.08)'}; border: 1px solid ${isPremium ? 'rgba(99,102,241,0.25)' : 'rgba(251,191,36,0.3)'}; border-radius: 12px; padding: 16px 20px; margin-bottom: 16px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                                        <div>
+                                            <div style="font-size: 13px; font-weight: 700; color: ${isPremium ? '#a5b4fc' : '#fde047'}; margin-bottom: 4px;"><i class="fa-solid fa-wand-magic-sparkles" style="margin-right:6px;"></i>Load Optimal Solution</div>
+                                            <div style="font-size: 12px; color: #64748b;">Loads the fully working, optimized solution into your editor</div>
+                                        </div>
+                                        <button onclick="window.loadSolutionTemplate()" style="background: ${isPremium ? 'linear-gradient(135deg, #4f46e5, #7c3aed)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)'}; color: ${isPremium ? '#fff' : '#000'}; border: none; padding: 10px 22px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px ${isPremium ? 'rgba(79,70,229,0.35)' : 'rgba(251,191,36,0.3)'}; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                                            ${isPremium ? '<i class="fa-solid fa-code"></i> Load in Editor' : '<i class="fa-solid fa-gem"></i> Unlock with Scholar'}
+                                        </button>
                                     </div>
-                                    <button onclick="window.loadSolutionTemplate()" style="background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; border: none; padding: 10px 22px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(79,70,229,0.35); transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-                                        <i class="fa-solid fa-code"></i> Load in Editor
-                                    </button>
-                                </div>
-                            </div>
+                                </div>`;
+                            })()}
 
                             <!-- External Reference Links -->
                             <div style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;"><i class="fa-solid fa-link" style="margin-right:6px;"></i>Reference Solutions</div>
                             <div style="display: flex; flex-direction: column; gap: 8px;">
-                                <a href="${lcUrl}" target="_blank" style="display: flex; align-items: center; gap: 12px; background: rgba(255,161,22,0.07); border: 1px solid rgba(255,161,22,0.2); border-radius: 10px; padding: 12px 16px; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,161,22,0.14)'" onmouseout="this.style.background='rgba(255,161,22,0.07)'">
-                                    <div style="width: 32px; height: 32px; background: #ffa116; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="fa-solid fa-code" style="color:#fff; font-size:14px;"></i></div>
-                                    <div><div style="color: #fff; font-weight: 600; font-size: 13px;">LeetCode Solutions</div><div style="color: #64748b; font-size: 11px;">Community editorial &amp; discussions</div></div>
-                                    <i class="fa-solid fa-arrow-up-right-from-square" style="color:#64748b; margin-left:auto; font-size:11px;"></i>
-                                </a>
                                 <a href="${youtubeUrl}" target="_blank" style="display: flex; align-items: center; gap: 12px; background: rgba(255,0,0,0.07); border: 1px solid rgba(255,0,0,0.2); border-radius: 10px; padding: 12px 16px; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,0,0,0.14)'" onmouseout="this.style.background='rgba(255,0,0,0.07)'">
                                     <div style="width: 32px; height: 32px; background: #ff0000; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="fa-brands fa-youtube" style="color:#fff; font-size:14px;"></i></div>
                                     <div><div style="color: #fff; font-weight: 600; font-size: 13px;">YouTube Explanation</div><div style="color: #64748b; font-size: 11px;">Video walkthroughs in ${langLabel}</div></div>
@@ -3023,6 +3092,11 @@ window.getCaOptimalSolution = function(problem, lang) {
 }
 
 window.loadSolutionTemplate = function() {
+    if (!window.checkCaIsPremium()) {
+        alert("Loading optimal solutions is a Premium Scholar feature. Please upgrade to unlock!");
+        window.caRedirectToSubscription();
+        return;
+    }
     if (!editorInstance) return;
     const sel = document.getElementById('ca-lang');
     const lang = sel ? sel.value : 'cpp';

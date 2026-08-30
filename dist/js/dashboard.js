@@ -1,6 +1,6 @@
 window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?id=' + id; if (!url) return '#'; try { return '../pages/view?u=' + btoa(encodeURIComponent(url)) + '&t=' + btoa(encodeURIComponent(title || 'Document')); } catch(e) { return url; } };
 import { globalNotes } from "../data/globalNotes.js?v=6.0";
-import { renderCodingArena } from './coding-arena.js?v=1.4';
+import { renderCodingArena } from './coding-arena.js?v=2.0';
 import { RoutingSystem } from "./routing.js?v=6.0";
 import { initGlobalAnalytics } from './analytics.js?v=6.0';
 
@@ -340,6 +340,53 @@ function handleAuthReady(data) {
 
         // 1. UI Refresh (Identities, Roles)
         updateUserProfileUI();
+
+        // 1.5. Dynamic Plan & Cache Sync
+        if (currentUser && !currentUser.isGuest) {
+            const uid = currentUser.uid || currentUser.id;
+            const apiUrl = location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://skil-matrix-server.onrender.com';
+            
+            // Try loading cached plan from localStorage immediately to prevent layout lock flashes
+            try {
+                const cached = JSON.parse(localStorage.getItem('auth_user_full'));
+                if (cached && cached.plan) {
+                    window._activeUserPlan = cached.plan;
+                    window._activeUserExpiry = cached.planExpiry;
+                }
+            } catch(e) {}
+
+            fetch(`${apiUrl}/api/user-plan?uid=${uid}&_t=${Date.now()}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.plan) {
+                        const previousPlan = window._activeUserPlan;
+                        window._activeUserPlan = data.plan;
+                        window._activeUserExpiry = data.expiry;
+
+                        // Persist to local storage cached user object
+                        try {
+                            const cached = JSON.parse(localStorage.getItem('auth_user_full'));
+                            if (cached) {
+                                cached.plan = data.plan;
+                                cached.planExpiry = data.expiry;
+                                localStorage.setItem('auth_user_full', JSON.stringify(cached));
+                            }
+                        } catch(e) {}
+
+                        // If plan upgraded/changed or is premium, and Coding Arena is active, refresh the view
+                        if (previousPlan !== data.plan) {
+                            const activeItem = document.querySelector('.nav-item.active');
+                            if (activeItem && activeItem.dataset.tab === 'coding-arena') {
+                                if (typeof window.openCodingArena === 'function') {
+                                    console.log("🔓 Active plan synced: Refreshing Coding Arena views...");
+                                    window.openCodingArena();
+                                }
+                            }
+                        }
+                    }
+                })
+                .catch(err => console.warn("Background Plan Fetch Error:", err));
+        }
 
         // 2. Core Service Initialization (Only Once or on Role Change)
         if (!dashboardReady || isNewSession || roleChanged) {
