@@ -55,6 +55,9 @@ async function build() {
         fs.copyFileSync(srcPath, destPath);
     }
 
+    const BUILD_VERSION = Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 6);
+    console.log(`🚀 Build Version generated: ${BUILD_VERSION}`);
+
     // 3. Process the files in the dist folder
     const distFiles = glob.sync('**/*', { cwd: DIST_DIR, nodir: true });
 
@@ -90,6 +93,9 @@ async function build() {
                 }
             }
 
+            // Cache bust ES module relative imports inside JS files (e.g. import ... from './data/coding-problems.js')
+            code = code.replace(/from\s+['"](\.{1,2}\/[^'"]+?\.js)(?:\?v=[^'"]*)?['"]/g, `from '$1?v=${BUILD_VERSION}'`);
+
             const stats = fs.statSync(absolutePath);
             if (stats.size > 500 * 1024) { // skip obfuscation for > 500KB
                 console.log(`⚠️ Skipping obfuscation for large file: ${file}`);
@@ -122,6 +128,7 @@ async function build() {
                 fs.writeFileSync(absolutePath, obfuscatedCode);
             } catch (e) {
                 console.error(`Failed to obfuscate ${file}: ${e.message}`);
+                fs.writeFileSync(absolutePath, code);
             }
 
         } else if (ext === '.html') {
@@ -129,15 +136,11 @@ async function build() {
             console.log(`Minifying & Cache-busting HTML: ${file}`);
             let code = fs.readFileSync(absolutePath, 'utf8');
             
-            // Auto cache-busting for JS and CSS files
-            const crypto = require('crypto');
-            const buildHash = crypto.createHash('md5').update(code).digest('hex').substring(0, 8);
-            
-            // Append ?v= to any JS/CSS assets lacking it (avoiding already matched files dynamically handled)
-            code = code.replace(/(\.(?:js|css))"/g, '$1?v=MISSING"');
+            // Append ?v= to any JS/CSS assets lacking it
+            code = code.replace(/(\.(?:js|css))"/g, `$1?v=${BUILD_VERSION}"`);
 
-            // Apply consistent deterministic cache-buster spanning various patterns
-            code = code.replace(/\?v=[0-9a-zA-Z.\-_]+/g, `?v=${buildHash}`);
+            // Apply global dynamic cache-buster across all ?v= occurrences
+            code = code.replace(/\?v=[0-9a-zA-Z.\-_]+/g, `?v=${BUILD_VERSION}`);
 
             try {
                 const minifiedCode = htmlMinifier.minify(code, {
@@ -149,6 +152,7 @@ async function build() {
                 fs.writeFileSync(absolutePath, minifiedCode);
             } catch (e) {
                 console.error(`Failed to minify HTML ${file}: ${e.message}`);
+                fs.writeFileSync(absolutePath, code);
             }
 
         } else if (ext === '.css') {
@@ -173,8 +177,8 @@ async function build() {
         }
     }
 
-    console.log('\\n======================================================');
-    console.log('Build completed successfully!');
+    console.log('\n======================================================');
+    console.log(`Build completed successfully! [Version: ${BUILD_VERSION}]`);
     console.log('Your code is now obfuscated and minified in the "dist" folder.');
     console.log('======================================================');
 }
