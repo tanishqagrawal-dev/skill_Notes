@@ -143,11 +143,37 @@ async function main() {
     let updatedCount = 0;
     let emptyCount = 0;
 
+    const COMPANY_PRIORITY_ORDER = [
+        "Amazon", "Google", "Microsoft", "Meta", "Apple", "Bloomberg", "Netflix", "Uber",
+        "Goldman Sachs", "Adobe", "Salesforce", "LinkedIn", "ByteDance", "TikTok", "NVIDIA",
+        "Oracle", "Cisco", "JPMorgan Chase", "Morgan Stanley", "De Shaw", "Citadel",
+        "Airbnb", "Stripe", "Spotify", "PayPal", "Walmart Labs", "Flipkart", "Swiggy",
+        "Zomato", "Paytm", "Phonepe", "Atlassian", "Snowflake", "Palantir", "Nutanix",
+        "Palo Alto Networks", "Doordash", "Databricks", "Snapchat", "Pinterest", "Twitter",
+        "Roblox", "Samsung", "Intuit", "eBay", "Expedia", "Agoda", "SAP", "Tesla",
+        "Intel", "AMD", "Zoho", "IBM", "TCS", "Infosys", "Wipro", "Cognizant",
+        "Accenture", "HCLTech", "Capgemini", "Deloitte"
+    ];
+    const COMPANY_PRIORITY_MAP = {};
+    COMPANY_PRIORITY_ORDER.forEach((c, idx) => {
+        COMPANY_PRIORITY_MAP[c.toLowerCase()] = COMPANY_PRIORITY_ORDER.length - idx;
+    });
+
+    function sortCompanies(comps) {
+        if (!comps || !Array.isArray(comps)) return [];
+        return [...comps].sort((a, b) => {
+            const pA = COMPANY_PRIORITY_MAP[a.toLowerCase()] || 0;
+            const pB = COMPANY_PRIORITY_MAP[b.toLowerCase()] || 0;
+            if (pA !== pB) return pB - pA;
+            return a.localeCompare(b);
+        });
+    }
+
     codingProblems.forEach((p) => {
         const id = p.id;
         const realCompanies = realMap[id];
         if (realCompanies && realCompanies.size > 0) {
-            p.companies = Array.from(realCompanies);
+            p.companies = sortCompanies(Array.from(realCompanies));
             updatedCount++;
         } else {
             p.companies = [];

@@ -254,6 +254,33 @@ const COMPANY_LOGO_OVERRIDES = {
     "HCLTech": `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 60"><rect width="220" height="60" fill="#0060a9"/><text x="50%" y="55%" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="white" text-anchor="middle" dominant-baseline="middle">HCLTech</text></svg>`)}`
 };
 
+const COMPANY_PRIORITY_ORDER = [
+    "Amazon", "Google", "Microsoft", "Meta", "Apple", "Bloomberg", "Netflix", "Uber",
+    "Goldman Sachs", "Adobe", "Salesforce", "LinkedIn", "ByteDance", "TikTok", "NVIDIA",
+    "Oracle", "Cisco", "JPMorgan Chase", "Morgan Stanley", "De Shaw", "Citadel",
+    "Airbnb", "Stripe", "Spotify", "PayPal", "Walmart Labs", "Flipkart", "Swiggy",
+    "Zomato", "Paytm", "Phonepe", "Atlassian", "Snowflake", "Palantir", "Nutanix",
+    "Palo Alto Networks", "Doordash", "Databricks", "Snapchat", "Pinterest", "Twitter",
+    "Roblox", "Samsung", "Intuit", "eBay", "Expedia", "Agoda", "SAP", "Tesla",
+    "Intel", "AMD", "Zoho", "IBM", "TCS", "Infosys", "Wipro", "Cognizant",
+    "Accenture", "HCLTech", "Capgemini", "Deloitte"
+];
+
+const COMPANY_PRIORITY_MAP = {};
+COMPANY_PRIORITY_ORDER.forEach((c, idx) => {
+    COMPANY_PRIORITY_MAP[c.toLowerCase()] = COMPANY_PRIORITY_ORDER.length - idx;
+});
+
+window.sortCaCompanies = function(comps) {
+    if (!comps || !Array.isArray(comps)) return [];
+    return [...comps].sort((a, b) => {
+        const pA = COMPANY_PRIORITY_MAP[a.toLowerCase()] || 0;
+        const pB = COMPANY_PRIORITY_MAP[b.toLowerCase()] || 0;
+        if (pA !== pB) return pB - pA;
+        return a.localeCompare(b);
+    });
+};
+
 window.getCaCompanyLogoHtml = function(c, size = 16, isBadge = false) {
     const overrideUrl = COMPANY_LOGO_OVERRIDES[c] || COMPANY_LOGO_OVERRIDES[c.toUpperCase()] || COMPANY_LOGO_OVERRIDES[c.toLowerCase()];
     const domain = COMPANY_DOMAINS[c] || (c.toLowerCase().replace(/[^a-z0-9]/g, '') + ".com");
@@ -518,11 +545,11 @@ window.getCaProblemsTableHTML = function() {
         const topicsHtml = topicList.map(t => `<span style="background: rgba(255,255,255,0.06); color: #a5b4fc; padding: 2px 6px; border-radius: 4px; font-size: 0.63rem; margin-right: 4px; border: 1px solid rgba(255,255,255,0.08); font-weight: 500;">${t}</span>`).join('');
 
         // Companies cleanly aligned boxes with actual original logos
-        // Companies cleanly aligned boxes with actual original logos
         const isPremium = window.checkCaIsPremium();
         let compHtml = '';
         if (isPremium) {
-            const compList = p.companies || [];
+            const rawComps = p.companies || [];
+            const compList = window.sortCaCompanies ? window.sortCaCompanies(rawComps) : rawComps;
             const displayLimit = 5;
             const toDisplay = compList.slice(0, displayLimit);
             const compIconsHtml = toDisplay.map((c) => {
@@ -1344,7 +1371,7 @@ export async function renderCodingArena() {
                                                         <span style="background:rgba(255,255,255,0.03);color:#a5b4fc;font-size:0.63rem;padding:3px 10px;border-radius:100px;border:1px solid rgba(129,140,248,0.2);font-weight:500;"><i class="fa-solid fa-brain" style="margin-right:5px;color:#818cf8;font-size:0.55rem;"></i>${tp.category}</span>
                                                     </div>
                                                     <div style="display:flex;flex-wrap:wrap;gap:7px;align-items:center;">
-                                                        ${(tp.companies || []).slice(0, 3).map(c => window.getCaCompanyLogoHtml(c, 14, true)).join('')}
+                                                        ${(window.sortCaCompanies ? window.sortCaCompanies(tp.companies || []) : (tp.companies || [])).slice(0, 3).map(c => window.getCaCompanyLogoHtml(c, 14, true)).join('')}
                                                     </div>
                                                 </div>
 
@@ -1883,7 +1910,8 @@ export async function renderCodingArena() {
                         ${(() => {
                             const isPremium = window.checkCaIsPremium();
                             if (isPremium) {
-                                const companies = problem.companies || [];
+                                const rawCompanies = problem.companies || [];
+                                const companies = window.sortCaCompanies ? window.sortCaCompanies(rawCompanies) : rawCompanies;
                                 if (companies.length === 0) return '';
                                 
                                 const limit = 8;
