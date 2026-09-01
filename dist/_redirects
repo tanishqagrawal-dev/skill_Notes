@@ -1,6 +1,14 @@
 # Domain redirect to primary domain
 https://skillnotes.netlify.app/* https://skilmatrix.site/:splat 301!
 
+# 0. Auth / Login aliases
+/login                   /pages/auth.html         200
+/auth                    /pages/auth.html         200
+/login.html              /pages/auth.html         200
+/auth.html               /pages/auth.html         200
+/pages/login             /pages/auth.html         200
+/pages/login.html        /pages/auth.html         200
+
 # 1. Support sub-path routing for JS-driven pages (200)
 /pages/dashboard/*     /pages/dashboard.html    200
 /pages/auth/*          /pages/auth.html         200

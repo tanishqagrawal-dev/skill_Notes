@@ -21,6 +21,22 @@
         ],
         "rewrites": [
             {
+                "source": "/login",
+                "destination": "/pages/auth.html"
+            },
+            {
+                "source": "/auth",
+                "destination": "/pages/auth.html"
+            },
+            {
+                "source": "/pages/login",
+                "destination": "/pages/auth.html"
+            },
+            {
+                "source": "/pages/auth/**",
+                "destination": "/pages/auth.html"
+            },
+            {
                 "source": "/pages/codetantra/**",
                 "destination": "/pages/codetantra.html"
             },

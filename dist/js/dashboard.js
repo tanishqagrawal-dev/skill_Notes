@@ -1099,7 +1099,7 @@ window.openUploadModal = async function () {
                 <p class="development-caption" style="margin-bottom: 1.5rem;">Only verified students can upload notes.</p>
                 <div style="display: flex; gap: 1rem; width: 100%;">
                     <button class="btn btn-ghost" style="flex: 1; border: 1px solid var(--border-glass);" onclick="document.getElementById('strict-login-overlay').remove()">Cancel</button>
-                    <button class="btn btn-primary" style="flex: 1;" onclick="window.location.href='auth'">Login Now</button>
+                    <button class="btn btn-primary" style="flex: 1;" onclick="window.location.href='/pages/auth'">Login Now</button>
                 </div>
             </div>
         `;
@@ -1743,7 +1743,7 @@ function renderTabContent(tabId) {
 
     if (window.currentUser && window.currentUser.isGuest) {
         if (tabId !== 'notes') {
-            window.location.href = '/pages/auth.html';
+            window.location.href = '/pages/auth';
             return;
         }
     }
@@ -6254,7 +6254,7 @@ window.renderMyUploads = function () {
                 <div style="font-size: 4.5rem; margin-bottom: 2rem; filter: drop-shadow(0 0 20px rgba(123, 97, 255, 0.4));">📤</div>
                 <h3 style="margin-bottom: 1rem; color: #fff;">Sign in to view your uploads</h3>
                 <p style="color: var(--text-dim); margin-bottom: 2.5rem; max-width: 350px; line-height: 1.6;">Track your contributed materials and monitor their approval status by logging into your account.</p>
-                <button class="btn btn-primary" onclick="window.location.href='/login.html'" style="padding: 1rem 2rem; border-radius: 12px; font-weight: 600; min-width: 200px;">Login to Account</button>
+                <button class="btn btn-primary" onclick="window.location.href='/pages/auth'" style="padding: 1rem 2rem; border-radius: 12px; font-weight: 600; min-width: 200px;">Login to Account</button>
             </div>
         `;
         return;
@@ -8200,7 +8200,7 @@ window.renderBookmarks = function () {
                 <div style="font-size: 4.5rem; margin-bottom: 2rem; filter: drop-shadow(0 0 20px rgba(123, 97, 255, 0.4));">🔒</div>
                 <h3 style="margin-bottom: 1rem; color: #fff;">Private Collection</h3>
                 <p style="color: var(--text-dim); margin-bottom: 2.5rem; max-width: 350px; line-height: 1.6;">Your bookmarked notes are private. Log in to your account to access your saved resources.</p>
-                <button class="btn btn-primary" onclick="window.location.href='/login.html'" style="padding: 1rem 2rem; border-radius: 12px; font-weight: 600; min-width: 200px;">Login to Account</button>
+                <button class="btn btn-primary" onclick="window.location.href='/pages/auth'" style="padding: 1rem 2rem; border-radius: 12px; font-weight: 600; min-width: 200px;">Login to Account</button>
             </div>
         `;
         return;
