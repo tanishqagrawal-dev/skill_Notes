@@ -7,10 +7,17 @@ import { initGlobalAnalytics } from './analytics.js?v=6.0';
 // Initialize analytics (Supabase & Firebase) so dashboard stats are populated globally
 initGlobalAnalytics();
 
-window.openCodingArena = function() {
-    const mainContent = document.getElementById('tab-content');
+window.openCodingArena = async function(container) {
+    const mainContent = container || document.getElementById('tab-content');
     if (mainContent) {
-        renderCodingArena(mainContent);
+        mainContent.innerHTML = window.caLoadingHTML;
+        // Smooth intentional delay to display the aerodynamic turbine loading animation
+        await new Promise(r => setTimeout(r, 850));
+        const html = await renderCodingArena();
+        mainContent.innerHTML = html;
+        if (typeof window.initCodingArenaListeners === 'function') {
+            window.initCodingArenaListeners();
+        }
     }
 };
 
@@ -2352,7 +2359,7 @@ function renderTabContent(tabId) {
                     <!-- Left: Features + Contact -->
                     <div class="sub-left">
                         <div class="sub-plan-switch">
-                            <button class="sub-plan-btn" id="sp-btn-codetantra" onclick="subPickPlan('codetantra')">Lab Solutions</button>
+                            <button class="sub-plan-btn" id="sp-btn-codetantra" onclick="subPickPlan('codetantra')">CodeTantra Hub</button>
                             <button class="sub-plan-btn active" id="sp-btn-pro" onclick="subPickPlan('pro')">Premium Scholar</button>
                         </div>
 
@@ -2579,10 +2586,10 @@ function renderTabContent(tabId) {
             };
             const PLAN_DATA = {
                 codetantra: {
-                    name: 'CodeTantra Hub', sub: 'Master Your Practicals', tag: 'ESSENTIAL',
+                    name: 'CodeTantra Hub', sub: 'Verified Lab Solutions', tag: 'ESSENTIAL',
                     icon: '<i class="fas fa-laptop-code"></i>',
-                    titleHtml: 'CodeTantra <span class="ct-grad">Solutions</span>',
-                    descHtml: 'Instant access to <strong>verified lab solutions</strong>, <strong>AI guidance</strong>, and model papers to easily crack exams.',
+                    titleHtml: 'CodeTantra <span class="ct-grad">Hub</span>',
+                    descHtml: 'Instant access to verified CodeTantra lab practical solutions, basic coding practice, and essential AI tools.',
                     theme: {
                         accentColor: '#ca8a04',
                         accentGrad: 'linear-gradient(135deg,#ca8a04,#a16207)',
@@ -2594,19 +2601,21 @@ function renderTabContent(tabId) {
                         iconColor: '#eab308',
                     },
                     feats: [
-                        { text: 'CodeTantra Lab Solutions', ok: true },
-                        { text: 'AI Coach (5/day)', ok: true },
-                        { text: '3 AI Model Papers / mo', ok: true },
-                        { text: '5 AI Summaries / mo', ok: true },
-                        { text: 'Verified Scholar Badge', ok: false },
-                        { text: 'Ad-free Experience', ok: false }
+                        { text: 'All CodeTantra Lab Practical Solutions', ok: true },
+                        { text: 'Standard Coding Arena Practice', ok: true },
+                        { text: 'AI Doubt Solver (5 queries / day)', ok: true },
+                        { text: '3 AI Model Question Papers / mo', ok: true },
+                        { text: '5 AI Note Summaries / mo', ok: true },
+                        { text: 'Company-Wise Practice (Google, Amazon, Meta)', ok: false },
+                        { text: 'Verified Scholar Profile Badge', ok: false },
+                        { text: '100% Ad-Free Experience', ok: false }
                     ]
                 },
                 pro: {
-                    name: 'Premium Scholar', sub: 'The Ultimate Learning Experience', tag: 'MOST POPULAR',
+                    name: 'Premium Scholar', sub: 'Complete Platform Access', tag: 'MOST POPULAR',
                     icon: '<i class="fas fa-crown"></i>',
                     titleHtml: 'Premium <span class="pro-grad">Scholar</span>',
-                    descHtml: 'Unlock <strong>unlimited AI coaching</strong>, <strong>premium model papers</strong>, and a distraction-free interface for top performers.',
+                    descHtml: 'Full access to CodeTantra practicals, company-wise interview practice (Google, Amazon, Meta, Microsoft), verified solutions, and unlimited 24/7 AI coaching.',
                     theme: {
                         accentColor: '#7c3aed',
                         accentGrad: 'linear-gradient(135deg,#7c3aed,#5b21b6)',
@@ -2618,12 +2627,14 @@ function renderTabContent(tabId) {
                         iconColor: '#a78bfa',
                     },
                     feats: [
-                        { text: 'Everything in CodeTantra', ok: true },
-                        { text: 'Unlimited AI Coach', ok: true },
-                        { text: '30 AI Model Papers / mo', ok: true },
-                        { text: '30 AI Summaries / mo', ok: true },
-                        { text: 'Verified "Scholar" Badge', ok: true },
-                        { text: '100% Ad-free Interface', ok: true }
+                        { text: 'Everything in CodeTantra Hub', ok: true },
+                        { text: 'Company-Wise Practice (Google, Amazon, Meta & 40+ Tech Giants)', ok: true },
+                        { text: 'Full Optimal Solutions & Step-by-Step Code', ok: true },
+                        { text: 'Unlimited 24/7 AI Coach & Doubt Solver', ok: true },
+                        { text: '30 AI Model Papers & Exam Predictors / mo', ok: true },
+                        { text: '30 AI Note Summaries & Cheat-Sheets / mo', ok: true },
+                        { text: 'Verified "Scholar" Badge on Leaderboard', ok: true },
+                        { text: '100% Ad-Free Distractionless Interface', ok: true }
                     ]
                 }
             };
@@ -5203,11 +5214,16 @@ window.checkServer = async () => {
 
 // Hook into renderAITools to check server
 
-window.openCodingArena = async () => {
-    const contentArea = document.getElementById('tab-content');
+window.openCodingArena = async (container) => {
+    const contentArea = container || document.getElementById('tab-content');
+    if (!contentArea) return;
     contentArea.innerHTML = window.caLoadingHTML;
+    await new Promise(r => setTimeout(r, 850));
     const html = await renderCodingArena();
     contentArea.innerHTML = html;
+    if (typeof window.initCodingArenaListeners === 'function') {
+        window.initCodingArenaListeners();
+    }
 };
 
 // Main Generation Function

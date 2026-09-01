@@ -3,43 +3,72 @@ import { codingProblems } from './data/coding-problems.js';
 window.caCodingProblems = codingProblems;
 
 window.caLoadingHTML = `
-<div class="ca-black-loader" style="padding: 6rem 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; user-select: none; animation: caFadeIn 0.25s ease-out;">
-    <!-- Centered Circular Wheel Container -->
-    <div style="position: relative; width: 64px; height: 64px; margin-bottom: 1.3rem; display: flex; align-items: center; justify-content: center;">
-        <!-- Smooth Circular Track & Animated Wheel -->
-        <svg style="width: 100%; height: 100%; transform: rotate(-90deg); position: absolute; inset: 0;" viewBox="0 0 64 64">
-            <!-- Background Circular Track -->
-            <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255, 255, 255, 0.08)" stroke-width="2.5" />
-            <!-- Animated Spinner Wheel Arc -->
-            <circle cx="32" cy="32" r="26" fill="none" stroke="url(#caWheelGrad)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="163" stroke-dashoffset="120" style="animation: caWheelSpin 1.4s cubic-bezier(0.4, 0.15, 0.2, 0.95) infinite; transform-origin: 32px 32px;" />
+<div class="ca-turbine-loader" style="padding: 4rem 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 65vh; width: 100%; user-select: none; animation: caFadeIn 0.3s ease-out;">
+    <!-- Centered Airplane Turbine Wheel (96px) -->
+    <div style="position: relative; width: 96px; height: 96px; margin-bottom: 1.8rem; display: flex; align-items: center; justify-content: center;">
+        
+        <!-- Outer Jet Engine Casing Rim -->
+        <div style="position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.12); background: radial-gradient(circle, #0e1422 0%, #05070d 100%); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), inset 0 2px 4px rgba(255, 255, 255, 0.15), inset 0 -3px 8px rgba(0, 0, 0, 0.9);"></div>
+        
+        <!-- Outer Air Flow Ring Guide -->
+        <div style="position: absolute; inset: 4px; border-radius: 50%; border: 1px dashed rgba(56, 189, 248, 0.22); animation: caReverseAirFlow 9s linear infinite;"></div>
+
+        <!-- Rotating Turbine Blades Rotor -->
+        <svg class="ca-turbine-fan" style="width: 80px; height: 80px; position: relative; z-index: 2; animation: caTurbineSpin 1.7s linear infinite;" viewBox="0 0 100 100">
             <defs>
-                <linearGradient id="caWheelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#38bdf8" />
-                    <stop offset="60%" stop-color="#6366f1" />
-                    <stop offset="100%" stop-color="#8b5cf6" />
+                <linearGradient id="caBladeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#475569" />
+                    <stop offset="50%" stop-color="#1e293b" />
+                    <stop offset="100%" stop-color="#0b0f19" />
                 </linearGradient>
             </defs>
+            
+            <!-- 12 Aerodynamic Curved Turbine Blades -->
+            <g transform="translate(50,50)">
+                <path d="M 0,-8 C 5,-20 13,-32 9,-43 C 4,-42 0,-38 -3,-30 C -6,-22 -4,-13 0,-8 Z" fill="url(#caBladeGrad)" stroke="rgba(255,255,255,0.14)" stroke-width="0.6" />
+                <path d="M 0,-8 C 5,-20 13,-32 9,-43 C 4,-42 0,-38 -3,-30 C -6,-22 -4,-13 0,-8 Z" fill="url(#caBladeGrad)" stroke="rgba(255,255,255,0.14)" stroke-width="0.6" transform="rotate(30)" />
+                <path d="M 0,-8 C 5,-20 13,-32 9,-43 C 4,-42 0,-38 -3,-30 C -6,-22 -4,-13 0,-8 Z" fill="url(#caBladeGrad)" stroke="rgba(255,255,255,0.14)" stroke-width="0.6" transform="rotate(60)" />
+                <path d="M 0,-8 C 5,-20 13,-32 9,-43 C 4,-42 0,-38 -3,-30 C -6,-22 -4,-13 0,-8 Z" fill="url(#caBladeGrad)" stroke="rgba(255,255,255,0.14)" stroke-width="0.6" transform="rotate(90)" />
+                <path d="M 0,-8 C 5,-20 13,-32 9,-43 C 4,-42 0,-38 -3,-30 C -6,-22 -4,-13 0,-8 Z" fill="url(#caBladeGrad)" stroke="rgba(255,255,255,0.14)" stroke-width="0.6" transform="rotate(120)" />
+                <path d="M 0,-8 C 5,-20 13,-32 9,-43 C 4,-42 0,-38 -3,-30 C -6,-22 -4,-13 0,-8 Z" fill="url(#caBladeGrad)" stroke="rgba(255,255,255,0.14)" stroke-width="0.6" transform="rotate(150)" />
+                <path d="M 0,-8 C 5,-20 13,-32 9,-43 C 4,-42 0,-38 -3,-30 C -6,-22 -4,-13 0,-8 Z" fill="url(#caBladeGrad)" stroke="rgba(255,255,255,0.14)" stroke-width="0.6" transform="rotate(180)" />
+                <path d="M 0,-8 C 5,-20 13,-32 9,-43 C 4,-42 0,-38 -3,-30 C -6,-22 -4,-13 0,-8 Z" fill="url(#caBladeGrad)" stroke="rgba(255,255,255,0.14)" stroke-width="0.6" transform="rotate(210)" />
+                <path d="M 0,-8 C 5,-20 13,-32 9,-43 C 4,-42 0,-38 -3,-30 C -6,-22 -4,-13 0,-8 Z" fill="url(#caBladeGrad)" stroke="rgba(255,255,255,0.14)" stroke-width="0.6" transform="rotate(240)" />
+                <path d="M 0,-8 C 5,-20 13,-32 9,-43 C 4,-42 0,-38 -3,-30 C -6,-22 -4,-13 0,-8 Z" fill="url(#caBladeGrad)" stroke="rgba(255,255,255,0.14)" stroke-width="0.6" transform="rotate(270)" />
+                <path d="M 0,-8 C 5,-20 13,-32 9,-43 C 4,-42 0,-38 -3,-30 C -6,-22 -4,-13 0,-8 Z" fill="url(#caBladeGrad)" stroke="rgba(255,255,255,0.14)" stroke-width="0.6" transform="rotate(300)" />
+                <path d="M 0,-8 C 5,-20 13,-32 9,-43 C 4,-42 0,-38 -3,-30 C -6,-22 -4,-13 0,-8 Z" fill="url(#caBladeGrad)" stroke="rgba(255,255,255,0.14)" stroke-width="0.6" transform="rotate(330)" />
+            </g>
         </svg>
-        
-        <!-- Center Black Hub with Code Icon -->
-        <div style="position: absolute; inset: 6px; border-radius: 50%; background: #080b11; border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);">
-            <i class="fa-solid fa-code" style="color: #cbd5e1; font-size: 14px;"></i>
+
+        <!-- Center Turbine Nosecone Hub (with Jet Spiral Vortex) -->
+        <div style="position: absolute; width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #334155 0%, #07090e 80%); border: 1.5px solid rgba(255, 255, 255, 0.22); z-index: 3; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.85), inset 0 1px 2px rgba(255, 255, 255, 0.4); display: flex; align-items: center; justify-content: center; pointer-events: none;">
+            <!-- Aircraft Spinner Spiral -->
+            <svg style="width: 24px; height: 24px; animation: caTurbineSpin 1.7s linear infinite;" viewBox="0 0 30 30">
+                <path d="M 15,15 Q 18,11 20,8 Q 23,4 26,10 Q 28,16 23,20 Q 18,24 13,22 Q 8,20 8,14 Q 8,8 14,8 Q 18,8 17,13" fill="none" stroke="#f1f5f9" stroke-width="1.8" stroke-linecap="round" opacity="0.95" />
+            </svg>
         </div>
     </div>
     
-    <!-- Clean Premium Typography -->
-    <div style="text-align: center;">
-        <h3 style="font-family: 'Outfit', -apple-system, sans-serif; font-size: 1.18rem; font-weight: 600; margin: 0 0 0.25rem 0; color: #f8fafc; letter-spacing: -0.2px;">Coding Arena</h3>
-        <p style="margin: 0; color: #64748b; font-size: 0.8rem; font-family: 'Inter', -apple-system, sans-serif; font-weight: 500; letter-spacing: 0.2px;">Loading workspace...</p>
+    <!-- Suited, Elegant Typography & Status -->
+    <div style="text-align: center; position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.35rem;">
+            <h3 style="font-family: 'Outfit', -apple-system, sans-serif; font-size: 1.28rem; font-weight: 700; margin: 0; color: #ffffff; letter-spacing: 0.4px;">Coding Arena</h3>
+            <span style="font-size: 0.62rem; font-weight: 700; padding: 2px 7px; border-radius: 5px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px;">IDE</span>
+        </div>
+        <p style="margin: 0; color: #94a3b8; font-size: 0.84rem; font-family: 'Inter', -apple-system, sans-serif; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 4px;">
+            <span>Calibrating workspace & challenges</span>
+            <span class="ca-load-dots">
+                <span style="animation-delay: 0s;">.</span><span style="animation-delay: 0.2s;">.</span><span style="animation-delay: 0.4s;">.</span>
+            </span>
+        </p>
     </div>
 
     <style>
-        @keyframes caFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes caWheelSpin {
-            0% { transform: rotate(0deg); stroke-dashoffset: 135; }
-            50% { stroke-dashoffset: 40; }
-            100% { transform: rotate(360deg); stroke-dashoffset: 135; }
-        }
+        @keyframes caFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes caTurbineSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes caReverseAirFlow { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
+        .ca-load-dots span { display: inline-block; animation: caDotPulse 1.3s infinite ease-in-out; }
+        @keyframes caDotPulse { 0%, 80%, 100% { opacity: 0.2; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-2px); } }
     </style>
 </div>
 `;

@@ -1,23 +1,32 @@
 import { readFileSync } from 'fs';
-import { createRequire } from 'module';
 import { resolve } from 'path';
 
-const require = createRequire(import.meta.url);
-const tempPath = resolve('./coding-problems-temp.cjs');
-const { codingProblems } = require(tempPath);
-
-const CA_COMPANIES = [
-    "Google", "Amazon", "Microsoft", "Meta", "Uber", "Oracle", "Apple", "Goldman Sachs",
-    "TCS", "Zoho", "Infosys", "Salesforce", "IBM", "LinkedIn", "Adobe", "NVIDIA",
-    "Walmart Labs", "Accenture", "Visa", "Flipkart", "PayPal", "Phonepe", "De Shaw",
-    "Snowflake", "Cisco", "Snapchat", "Servicenow", "Doordash", "JPMorgan Chase",
-    "Nutanix", "eBay", "Morgan Stanley", "Qualcomm", "Expedia", "Samsung", "Intuit",
-    "Airbnb", "Palo Alto Networks", "Agoda", "Atlassian", "SAP", "Deloitte",
-    "Cognizant", "Swiggy", "Pinterest", "Wipro", "HCLTech", "Capgemini"
-];
+const content = readFileSync(resolve('./js/data/coding-problems.js'), 'utf-8');
+const jsonStr = content.replace(/^\/\/.*?\n/, '').replace(/^export const codingProblems = /, '').replace(/;?\s*$/, '');
+const codingProblems = JSON.parse(jsonStr);
 
 console.log("Total Problems:", codingProblems.length);
-CA_COMPANIES.forEach(comp => {
-    const count = codingProblems.filter(p => (p.companies || []).some(c => c.toLowerCase() === comp.toLowerCase())).length;
-    console.log(`${comp}: ${count} Questions`);
+
+const comps = {};
+codingProblems.forEach(p => {
+    (p.companies || []).forEach(c => {
+        comps[c] = (comps[c] || 0) + 1;
+    });
 });
+
+console.log("Top 25 Companies by Question Count:");
+Object.entries(comps)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 25)
+    .forEach(([c, n], i) => {
+        console.log(`${i+1}. ${c}: ${n} problems`);
+    });
+
+const diffs = {};
+codingProblems.forEach(p => { diffs[p.difficulty] = (diffs[p.difficulty] || 0) + 1; });
+console.log("Difficulties:", diffs);
+
+const categories = {};
+codingProblems.forEach(p => { categories[p.category] = (categories[p.category] || 0) + 1; });
+console.log("Categories count:", Object.keys(categories).length);
+
