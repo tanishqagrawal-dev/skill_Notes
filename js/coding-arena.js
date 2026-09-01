@@ -3,33 +3,43 @@ import { codingProblems } from './data/coding-problems.js';
 window.caCodingProblems = codingProblems;
 
 window.caLoadingHTML = `
-<div style="padding: 6rem 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; position: relative; animation: fadeIn 0.4s ease;">
-    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at center, rgba(123, 97, 255, 0.08) 0%, transparent 60%); pointer-events: none;"></div>
-    
-    <div style="position: relative; width: 110px; height: 110px; margin-bottom: 2.5rem;">
-        <div style="position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(123, 97, 255, 0.1); border-top-color: #7b61ff; border-bottom-color: #00d2ff; animation: caSpin 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; box-shadow: 0 0 30px rgba(123, 97, 255, 0.2);"></div>
-        <div style="position: absolute; inset: 15px; border-radius: 50%; border: 2px dashed rgba(0, 210, 255, 0.3); animation: caSpin 2.5s linear infinite reverse;"></div>
-        <div style="position: absolute; inset: 32px; background: linear-gradient(135deg, #7b61ff, #00d2ff); border-radius: 50%; animation: caPulse 1.5s ease-in-out infinite alternate; box-shadow: 0 0 20px rgba(0, 210, 255, 0.4); display: flex; align-items: center; justify-content: center;">
-            <i class="fa-solid fa-code" style="color: white; font-size: 20px;"></i>
+<div class="ca-black-loader" style="padding: 6rem 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; user-select: none; animation: caFadeIn 0.25s ease-out;">
+    <!-- Centered Circular Wheel Container -->
+    <div style="position: relative; width: 64px; height: 64px; margin-bottom: 1.3rem; display: flex; align-items: center; justify-content: center;">
+        <!-- Smooth Circular Track & Animated Wheel -->
+        <svg style="width: 100%; height: 100%; transform: rotate(-90deg); position: absolute; inset: 0;" viewBox="0 0 64 64">
+            <!-- Background Circular Track -->
+            <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255, 255, 255, 0.08)" stroke-width="2.5" />
+            <!-- Animated Spinner Wheel Arc -->
+            <circle cx="32" cy="32" r="26" fill="none" stroke="url(#caWheelGrad)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="163" stroke-dashoffset="120" style="animation: caWheelSpin 1.4s cubic-bezier(0.4, 0.15, 0.2, 0.95) infinite; transform-origin: 32px 32px;" />
+            <defs>
+                <linearGradient id="caWheelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#38bdf8" />
+                    <stop offset="60%" stop-color="#6366f1" />
+                    <stop offset="100%" stop-color="#8b5cf6" />
+                </linearGradient>
+            </defs>
+        </svg>
+        
+        <!-- Center Black Hub with Code Icon -->
+        <div style="position: absolute; inset: 6px; border-radius: 50%; background: #080b11; border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);">
+            <i class="fa-solid fa-code" style="color: #cbd5e1; font-size: 14px;"></i>
         </div>
     </div>
     
-    <h2 style="font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 700; margin: 0; background: linear-gradient(135deg, #fff 30%, rgba(255,255,255,0.4)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px; text-transform: uppercase;">Initializing Arena</h2>
-    
-    <div style="display: flex; gap: 8px; margin-top: 1.5rem; align-items: center;">
-        <span style="width: 8px; height: 8px; border-radius: 50%; background: #7b61ff; animation: caBlink 1.4s infinite 0.0s;"></span>
-        <span style="width: 8px; height: 8px; border-radius: 50%; background: #00d2ff; animation: caBlink 1.4s infinite 0.2s;"></span>
-        <span style="width: 8px; height: 8px; border-radius: 50%; background: #7b61ff; animation: caBlink 1.4s infinite 0.4s;"></span>
+    <!-- Clean Premium Typography -->
+    <div style="text-align: center;">
+        <h3 style="font-family: 'Outfit', -apple-system, sans-serif; font-size: 1.18rem; font-weight: 600; margin: 0 0 0.25rem 0; color: #f8fafc; letter-spacing: -0.2px;">Coding Arena</h3>
+        <p style="margin: 0; color: #64748b; font-size: 0.8rem; font-family: 'Inter', -apple-system, sans-serif; font-weight: 500; letter-spacing: 0.2px;">Loading workspace...</p>
     </div>
-    
-    <p style="margin-top: 2rem; color: rgba(255,255,255,0.4); font-size: 0.85rem; letter-spacing: 2px; font-family: 'SFMono-Regular', Consolas, monospace;">LOADING VIRTUAL ENVIRONMENT <span class="ca-ellipsis-anim"></span></p>
 
     <style>
-        @keyframes caSpin { 100% { transform: rotate(360deg); } }
-        @keyframes caPulse { 0% { transform: scale(0.9); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 30px rgba(0,210,255,0.6); } }
-        @keyframes caBlink { 0%, 100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 10px currentColor; } }
-        .ca-ellipsis-anim::after { content: ''; animation: caEllipsis 1.5s infinite steps(4, end); }
-        @keyframes caEllipsis { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } 100% { content: '...'; } }
+        @keyframes caFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes caWheelSpin {
+            0% { transform: rotate(0deg); stroke-dashoffset: 135; }
+            50% { stroke-dashoffset: 40; }
+            100% { transform: rotate(360deg); stroke-dashoffset: 135; }
+        }
     </style>
 </div>
 `;
