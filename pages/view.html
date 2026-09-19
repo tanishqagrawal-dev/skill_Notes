@@ -184,111 +184,19 @@
             z-index: 10;
         }
 
-        /* Ultra-Smooth Premium Viewer Loader */
-        .skil-viewer-loader {
-            position: relative;
-            width: 42px;
-            height: 42px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .loader-ring {
-            position: absolute;
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 210, 255, 0.2);
+            border-top-color: var(--secondary);
             border-radius: 50%;
-            box-sizing: border-box;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
         }
 
-        .loader-ring.outer-ring {
-            width: 100%;
-            height: 100%;
-            border: 2px solid rgba(255, 255, 255, 0.07);
-            border-top-color: rgba(255, 255, 255, 0.85);
-            border-right-color: rgba(129, 140, 248, 0.6);
-            animation: skilViewerSpinOuter 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
-
-        .loader-ring.inner-ring {
-            width: 62%;
-            height: 62%;
-            border: 2px solid transparent;
-            border-bottom-color: rgba(129, 140, 248, 0.85);
-            border-left-color: rgba(255, 255, 255, 0.4);
-            animation: skilViewerSpinInner 0.9s cubic-bezier(0.4, 0, 0.2, 1) infinite reverse;
-        }
-
-        .loader-core {
-            width: 5px;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.75);
-            border-radius: 50%;
-            animation: skilViewerPulseCore 1.5s ease-in-out infinite;
-        }
-
-        @keyframes skilViewerSpinOuter {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes skilViewerSpinInner {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes skilViewerPulseCore {
-            0%, 100% { transform: scale(0.75); opacity: 0.35; }
-            50% { transform: scale(1.15); opacity: 0.9; }
-        }
-
-        /* Waving Dots Loading Text */
-        .skil-loading-text {
-            margin-top: 1.25rem;
-            color: #94a3b8;
-            font-size: 0.88rem;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .wavy-dots {
-            display: inline-flex;
-            gap: 3px;
-            margin-left: 2px;
-        }
-
-        .wavy-dots span {
-            display: inline-block;
-            color: #818cf8;
-            font-size: 1.1rem;
-            font-weight: 700;
-            line-height: 1;
-            animation: skilWaveDot 1.4s infinite cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .wavy-dots span:nth-child(1) {
-            animation-delay: 0s;
-        }
-
-        .wavy-dots span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .wavy-dots span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes skilWaveDot {
-            0%, 60%, 100% {
-                transform: translateY(0);
-                opacity: 0.35;
-            }
-            30% {
-                transform: translateY(-5px);
-                opacity: 1;
-                color: #a5b4fc;
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
             }
         }
 
@@ -368,7 +276,7 @@
 
         /* Floating Zoom Widget Styling */
         .zoom-btn:hover {
-            background: rgba(255, 255, 255, 0.15) !important;
+            background: rgba(255,255,255,0.15) !important;
             transform: scale(1.05);
         }
         .zoom-btn:active {
@@ -408,11 +316,10 @@
 
 <body>
 
-    <!-- Top Bar Navigation -->
     <header class="viewer-header">
         <div class="header-left">
             <a href="../index.html">
-                <img src="../assets/logo.jpg" alt="Logo" class="brand-logo">
+                <img src="../assets/logo.jpg?v=7.0" alt="Logo" class="brand-logo">
             </a>
             <div class="note-info">
                 <h1 class="note-title" id="ui-title">Loading...</h1>
@@ -444,14 +351,8 @@
 
     <div class="viewer-content">
         <div class="status-overlay" id="loader">
-            <div class="skil-viewer-loader">
-                <div class="loader-ring outer-ring"></div>
-                <div class="loader-ring inner-ring"></div>
-                <div class="loader-core"></div>
-            </div>
-            <div class="skil-loading-text">
-                Loading<span class="wavy-dots"><span>.</span><span>.</span><span>.</span></span>
-            </div>
+            <div class="spinner"></div>
+            <div style="color:var(--text-dim); font-size:0.9rem;">Fetching Secure Resource...</div>
         </div>
         <div class="status-overlay" id="error-overlay" style="display:none; background: transparent;">
             <div class="error-message" id="error-msg"></div>
