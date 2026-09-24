@@ -795,6 +795,8 @@
                     canvas.style.width = `${cssWidth}px`;
                     canvas.style.height = `${cssWidth * aspectRatio}px`;
                 }
+                delete wrapper.dataset.rendered;
+                delete wrapper.dataset.rendering;
             });
         }
 
@@ -830,6 +832,7 @@
                     const isVisible = (rect.bottom >= containerRect.top - 400) && (rect.top <= containerRect.bottom + 400);
                     if (isVisible) {
                         delete wrapper.dataset.rendered;
+                        delete wrapper.dataset.rendering;
                         const pageNum = parseInt(wrapper.dataset.pageNumber);
                         queueRenderPage(pdf, pageNum, wrapper);
                     }
@@ -934,6 +937,10 @@
             if (idx !== -1) {
                 renderQueue.splice(idx, 1);
             }
+            delete wrapper.dataset.rendering;
+            if (!wrapper.querySelector('canvas')) {
+                delete wrapper.dataset.rendered;
+            }
         }
 
         function unloadWrapper(wrapper) {
@@ -949,12 +956,17 @@
             if (idx !== -1) {
                 renderQueue.splice(idx, 1);
             }
+            delete wrapper.dataset.rendering;
+            if (!wrapper.querySelector('canvas')) {
+                delete wrapper.dataset.rendered;
+            }
         }
 
         function processRenderQueue() {
             while (activeRenders < MAX_CONCURRENT_RENDERS && renderQueue.length > 0) {
                 const item = renderQueue.shift();
-                if (!item.wrapper.dataset.rendered || !document.body.contains(item.wrapper)) {
+                if (!document.body.contains(item.wrapper)) {
+                    delete item.wrapper.dataset.rendering;
                     continue;
                 }
                 activeRenders++;
@@ -967,7 +979,7 @@
 
         function queueRenderPage(pdf, pageNum, wrapper) {
             cancelWrapperRender(wrapper);
-            wrapper.dataset.rendered = 'true';
+            wrapper.dataset.rendering = 'true';
 
             const existingIdx = renderQueue.findIndex(q => q.wrapper === wrapper);
             if (existingIdx !== -1) {
@@ -980,7 +992,8 @@
 
         async function executeRenderPage(pdf, pageNum, wrapper) {
             try {
-                if (!wrapper.dataset.rendered || !document.body.contains(wrapper)) {
+                if (!document.body.contains(wrapper)) {
+                    delete wrapper.dataset.rendering;
                     return;
                 }
 
@@ -1028,7 +1041,7 @@
                 await renderTask.promise;
 
                 // Only append completed canvas to DOM once render task completes cleanly
-                if (wrapper.dataset.rendered && document.body.contains(wrapper)) {
+                if (document.body.contains(wrapper)) {
                     const oldCanvas = wrapper.querySelector('canvas');
                     if (oldCanvas) {
                         oldCanvas.width = 0;
@@ -1036,14 +1049,20 @@
                     }
                     wrapper.innerHTML = '';
                     wrapper.appendChild(canvas);
+                    wrapper.dataset.rendered = 'true';
                 }
             } catch (e) {
                 if (e && (e.name === 'RenderingCancelledException' || e.message === 'Rendering cancelled')) {
-                    return;
+                    // Render was cancelled during scroll or zoom
+                } else {
+                    console.error(`Page ${pageNum} render error:`, e);
                 }
-                console.error(`Page ${pageNum} render error:`, e);
             } finally {
                 wrapper._renderTask = null;
+                delete wrapper.dataset.rendering;
+                if (!wrapper.querySelector('canvas')) {
+                    delete wrapper.dataset.rendered;
+                }
             }
         }
 
@@ -1090,7 +1109,7 @@
 
                         if (entry.isIntersecting) {
                             document.getElementById('current-page').innerText = pageNum;
-                            if (!wrapper.dataset.rendered) {
+                            if (!wrapper.dataset.rendered && !wrapper.dataset.rendering) {
                                 queueRenderPage(pdf, pageNum, wrapper);
                             }
                         } else {
