@@ -61,6 +61,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            overscroll-behavior-y: contain;
         }
 
         /* Top Bar */
@@ -453,12 +454,12 @@
                 Loading<span class="wavy-dots"><span>.</span><span>.</span><span>.</span></span>
             </div>
         </div>
-        <div class="status-overlay" id="error-overlay" style="display:none; background: transparent;">
+        <div class="status-overlay" id="error-overlay" style="display:none; background: #0f111a; z-index: 50;">
             <div class="error-message" id="error-msg"></div>
         </div>
 
-        <iframe id="office-frame" sandbox="allow-scripts allow-same-origin allow-forms" style="display:none; width: 100%; height: 100%; border: none; background: #fff;"></iframe>
-        <div id="pdf-container" style="display:none; width: 100%; height: 100%; overflow: auto; -webkit-overflow-scrolling: touch; box-sizing: border-box; padding: 20px 10px; background: #0f111a; touch-action: pan-x pan-y;"></div>
+        <iframe id="office-frame" sandbox="allow-scripts allow-same-origin allow-forms" style="display:none; width: 100%; height: 100%; border: none; background: #fff; overscroll-behavior: contain;"></iframe>
+        <div id="pdf-container" style="display:none; width: 100%; height: 100%; overflow: auto; -webkit-overflow-scrolling: touch; box-sizing: border-box; padding: 20px 10px; background: #0f111a; touch-action: pan-x pan-y; overscroll-behavior: contain; overscroll-behavior-y: contain;"></div>
         <div id="office-blocker" title="Action disabled by administrator"></div>
     </div>
 
@@ -519,10 +520,10 @@
                         showDriveLink(finalUrl);
                         return;
                     }
-                    if (finalUrl.toLowerCase().includes('.pdf')) {
-                        renderPDF(finalUrl);
+                    if (finalUrl.toLowerCase().match(/\.(ppt|pptx|doc|docx|xls|xlsx)(\?|$)/)) {
+                        renderOffice(finalUrl);
                     } else {
-                        showError("Unsupported file format.");
+                        renderPDF(finalUrl);
                     }
                     return;
                 } catch (e) {
@@ -626,18 +627,18 @@
 
                 // Load viewer content
                 let finalUrl = noteData.file_url;
-                if (finalUrl.includes('drive.google.com')) {
+                window._currentNoteFileUrl = finalUrl;
+                if (finalUrl.includes('drive.google.com') || finalUrl.includes('docs.google.com') || finalUrl.includes('drive.usercontent.google.com')) {
                     showDriveLink(finalUrl);
+                    window.location.replace(finalUrl);
                     return;
                 }
 
                 const finalUrlLower = finalUrl.toLowerCase();
-                if (finalUrlLower.match(/\.(pdf)(\?|$)/)) {
-                    renderPDF(finalUrl);
-                } else if (finalUrlLower.match(/\.(ppt|pptx|doc|docx|xls|xlsx)(\?|$)/)) {
+                if (finalUrlLower.match(/\.(ppt|pptx|doc|docx|xls|xlsx)(\?|$)/)) {
                     renderOffice(finalUrl);
                 } else {
-                    showError("Unsupported file format.");
+                    renderPDF(finalUrl);
                 }
 
                 // Track View (Increment every time as requested)
@@ -736,55 +737,45 @@
             const officeFrame = document.getElementById('office-frame');
             const officeBlocker = document.getElementById('office-blocker');
             const loader = document.getElementById('loader');
-            
+            const pdfContainer = document.getElementById('pdf-container');
+            const errOverlay = document.getElementById('error-overlay');
+
+            if (pdfContainer) pdfContainer.style.display = 'none';
+            if (errOverlay) errOverlay.style.display = 'none';
+
             const isPdf = url.toLowerCase().split(/[#?]/)[0].endsWith('.pdf');
             if (isPdf) {
-                officeFrame.src = url.split('#')[0] + '#toolbar=0';
-            } else {
-                const isLocalUrl = url.includes('localhost') || url.includes('127.0.0.1') || (!url.startsWith('http://') && !url.startsWith('https://'));
-                if (isLocalUrl) {
-                    showError(`Office document previews (Word/PowerPoint/Excel) are not available on localhost as external viewers cannot access your local server.<br/><br/>
-                    <a href="${url}" class="btn-action btn-primary" style="display:inline-flex; text-decoration:none;" download>
-                        <i class="fas fa-download"></i> Download Natively
-                    </a>`);
-                    return;
-                }
-                
-                fetch(url, { headers: { 'Range': 'bytes=0-0' }, mode: 'no-cors' })
-                    .catch(e => console.log('Cache warmup failed:', e));
-                
-                officeFrame.src = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
+                renderPDF(url);
+                return;
             }
-            
+
+            let embedUrl = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
+            if (url.includes('drive.google.com')) {
+                const match = url.match(/\/file\/d\/([^\/]+)/) || url.match(/[?&]id=([^&]+)/);
+                if (match && match[1]) {
+                    embedUrl = `https://drive.google.com/file/d/${match[1]}/preview`;
+                }
+            }
+
+            officeFrame.src = embedUrl;
+            officeFrame.style.display = 'block';
+
             if (officeBlocker) {
-                if (isPdf) {
-                    officeBlocker.style.display = 'none';
-                } else {
-                    officeBlocker.style.bottom = 'auto';
-                    officeBlocker.style.top = '0';
-                    officeBlocker.style.right = '0';
-                    officeBlocker.style.width = '60px';
-                    officeBlocker.style.height = '60px';
-                    officeBlocker.style.display = 'block';
-                }
+                officeBlocker.style.bottom = 'auto';
+                officeBlocker.style.top = '0';
+                officeBlocker.style.right = '0';
+                officeBlocker.style.width = '60px';
+                officeBlocker.style.height = '60px';
+                officeBlocker.style.display = 'block';
             }
-            
+
             officeFrame.onload = () => {
                 loader.style.display = 'none';
-                if (isPdf) {
-                    try {
-                        officeFrame.focus();
-                    } catch (e) {}
-                }
             };
-            
-            officeFrame.style.display = 'block';
-            
+
             setTimeout(() => {
-                if (loader.style.display !== 'none') {
-                    loader.style.display = 'none';
-                }
-            }, 3000);
+                loader.style.display = 'none';
+            }, 2500);
         }
 
         let zoomLevel = 100;
@@ -807,23 +798,72 @@
             });
         }
 
-        // Optimized Touch & Wheel pinch-to-zoom (doesn't block single-finger scrolling compositor thread)
+        // Touch Pinch-to-Zoom & Double-Tap Zoom with Accidental Click Guard
         (function() {
             const container = document.getElementById('pdf-container');
             let initialTouchDistance = 0;
             let initialZoom = 100;
+            let lastTapTime = 0;
+            let startY = 0;
+            let isPinchingOrScrolling = false;
+            let pinchLockTimeout = null;
+
+            // Global capturing click listener to block accidental link clicks during/after pinch zoom
+            window.addEventListener('click', (e) => {
+                if (isPinchingOrScrolling) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    return false;
+                }
+            }, true);
+
+            function reRenderVisiblePages() {
+                if (!window._currentPdfDoc) return;
+                const pdf = window._currentPdfDoc;
+                const container = document.getElementById('pdf-container');
+                if (!container) return;
+                const containerRect = container.getBoundingClientRect();
+
+                document.querySelectorAll('.pdf-page-wrapper').forEach(wrapper => {
+                    const rect = wrapper.getBoundingClientRect();
+                    const isVisible = (rect.bottom >= containerRect.top - 400) && (rect.top <= containerRect.bottom + 400);
+                    if (isVisible) {
+                        delete wrapper.dataset.rendered;
+                        const pageNum = parseInt(wrapper.dataset.pageNumber);
+                        queueRenderPage(pdf, pageNum, wrapper);
+                    }
+                });
+            }
 
             container.addEventListener('touchstart', (e) => {
                 if (e.touches.length === 2) {
+                    isPinchingOrScrolling = true;
+                    if (pinchLockTimeout) clearTimeout(pinchLockTimeout);
                     const dx = e.touches[0].clientX - e.touches[1].clientX;
                     const dy = e.touches[0].clientY - e.touches[1].clientY;
                     initialTouchDistance = Math.sqrt(dx * dx + dy * dy);
                     initialZoom = zoomLevel;
+                } else if (e.touches.length === 1) {
+                    startY = e.touches[0].clientY;
+                    const now = Date.now();
+                    if (now - lastTapTime < 280) {
+                        if (zoomLevel > 105) {
+                            zoomLevel = 100;
+                        } else {
+                            zoomLevel = 150;
+                        }
+                        applyZoom();
+                        reRenderVisiblePages();
+                    }
+                    lastTapTime = now;
                 }
             }, { passive: true });
 
             container.addEventListener('touchmove', (e) => {
                 if (e.touches.length === 2 && initialTouchDistance > 0) {
+                    isPinchingOrScrolling = true;
+                    if (pinchLockTimeout) clearTimeout(pinchLockTimeout);
                     if (e.cancelable) e.preventDefault();
                     const dx = e.touches[0].clientX - e.touches[1].clientX;
                     const dy = e.touches[0].clientY - e.touches[1].clientY;
@@ -837,6 +877,13 @@
                         zoomLevel = targetZoom;
                         applyZoom();
                     }
+                } else if (e.touches.length === 1) {
+                    const currentY = e.touches[0].clientY;
+                    const deltaY = currentY - startY;
+                    // Prevent browser pull-to-refresh reload when swiping down at top of page
+                    if (container.scrollTop <= 0 && deltaY > 0) {
+                        if (e.cancelable) e.preventDefault();
+                    }
                 }
             }, { passive: false });
 
@@ -844,13 +891,13 @@
                 if (e.touches.length < 2) {
                     if (initialTouchDistance > 0) {
                         initialTouchDistance = 0;
-                        // Refresh visible pages at new zoom level for ultra-sharp HD rendering
-                        document.querySelectorAll('.pdf-page-wrapper').forEach(w => {
-                            if (w.dataset.rendered) {
-                                delete w.dataset.rendered;
-                            }
-                        });
-                        window.dispatchEvent(new Event('scroll'));
+                        if (pinchLockTimeout) clearTimeout(pinchLockTimeout);
+                        // Hold click guard active for 350ms after fingers release to absorb accidental touch taps
+                        pinchLockTimeout = setTimeout(() => {
+                            isPinchingOrScrolling = false;
+                        }, 350);
+
+                        reRenderVisiblePages();
                     }
                 }
             }, { passive: true });
@@ -862,11 +909,13 @@
                         if (zoomLevel < 300) {
                             zoomLevel = Math.min(300, zoomLevel + 10);
                             applyZoom();
+                            reRenderVisiblePages();
                         }
                     } else {
                         if (zoomLevel > 50) {
                             zoomLevel = Math.max(50, zoomLevel - 10);
                             applyZoom();
+                            reRenderVisiblePages();
                         }
                     }
                 }
@@ -888,14 +937,18 @@
         }
 
         function unloadWrapper(wrapper) {
-            cancelWrapperRender(wrapper);
-            wrapper.removeAttribute('data-rendered');
-            const canvas = wrapper.querySelector('canvas');
-            if (canvas) {
-                canvas.width = 0;
-                canvas.height = 0;
+            // Keep rendered pages intact during scroll to avoid flickering/reloading
+            // Only cancel active pending render if wrapper scrolls out before drawing completes
+            if (wrapper._renderTask) {
+                try {
+                    wrapper._renderTask.cancel();
+                } catch (e) {}
+                wrapper._renderTask = null;
             }
-            wrapper.innerHTML = '';
+            const idx = renderQueue.findIndex(q => q.wrapper === wrapper);
+            if (idx !== -1) {
+                renderQueue.splice(idx, 1);
+            }
         }
 
         function processRenderQueue() {
@@ -943,7 +996,7 @@
                 wrapper.dataset.aspectRatio = aspectRatio.toString();
 
                 const rawDpr = window.devicePixelRatio || 1;
-                const dpr = isMobile ? Math.min(rawDpr, 1.5) : Math.min(rawDpr, 2.0);
+                const dpr = isMobile ? Math.min(rawDpr, 2.0) : Math.min(rawDpr, 2.0);
 
                 const renderScale = (cssWidth / unscaledViewport.width) * dpr;
                 const viewport = page.getViewport({ scale: renderScale });
@@ -963,18 +1016,8 @@
 
                 wrapper.style.minHeight = `${cssWidth * aspectRatio}px`;
 
-                const oldCanvas = wrapper.querySelector('canvas');
-                if (oldCanvas) {
-                    oldCanvas.width = 0;
-                    oldCanvas.height = 0;
-                }
-                wrapper.innerHTML = '';
-                
-                // Pre-fill white background for crisp rendering with alpha: false
                 context.fillStyle = '#ffffff';
                 context.fillRect(0, 0, canvas.width, canvas.height);
-
-                wrapper.appendChild(canvas);
 
                 const renderTask = page.render({
                     canvasContext: context,
@@ -983,6 +1026,17 @@
                 wrapper._renderTask = renderTask;
 
                 await renderTask.promise;
+
+                // Only append completed canvas to DOM once render task completes cleanly
+                if (wrapper.dataset.rendered && document.body.contains(wrapper)) {
+                    const oldCanvas = wrapper.querySelector('canvas');
+                    if (oldCanvas) {
+                        oldCanvas.width = 0;
+                        oldCanvas.height = 0;
+                    }
+                    wrapper.innerHTML = '';
+                    wrapper.appendChild(canvas);
+                }
             } catch (e) {
                 if (e && (e.name === 'RenderingCancelledException' || e.message === 'Rendering cancelled')) {
                     return;
@@ -995,15 +1049,18 @@
 
         async function renderPDF(url) {
             const container = document.getElementById('pdf-container');
+            const officeFrame = document.getElementById('office-frame');
             const pageIndicator = document.getElementById('page-indicator');
             const loader = document.getElementById('loader');
 
+            if (officeFrame) officeFrame.style.display = 'none';
             container.style.display = 'block';
             pageIndicator.style.display = 'flex';
 
             try {
                 const loadingTask = pdfjsLib.getDocument(url);
                 const pdf = await loadingTask.promise;
+                window._currentPdfDoc = pdf;
 
                 document.getElementById('total-pages').innerText = pdf.numPages;
                 loader.style.display = 'none';
@@ -1046,7 +1103,12 @@
 
             } catch (err) {
                 console.error("PDF.js render failed:", err);
-                showError("Could not load PDF document.");
+                if (url.includes('drive.google.com') || url.includes('docs.google.com') || url.includes('drive.usercontent.google.com')) {
+                    showDriveLink(url);
+                    window.location.replace(url);
+                } else {
+                    renderOffice(url);
+                }
             }
         }
 
