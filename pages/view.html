@@ -471,6 +471,12 @@
 
         const sb = supabase;
 
+        // Mobile performance optimization variables
+        const isMobile = (window.innerWidth < 768) || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const MAX_CONCURRENT_RENDERS = isMobile ? 1 : 2;
+        let activeRenders = 0;
+        const renderQueue = [];
+
         function findStaticNote(id) {
             for (const college in globalNotes) {
                 for (const subject in globalNotes[college]) {
@@ -502,7 +508,7 @@
                     btnDownload.style.display = 'inline-flex';
                     btnDownload.onclick = function (e) {
                         e.preventDefault();
-                        forceDownload(decodedUrl, `${decodedTitle}.pdf`);
+                        window.forceDownload(decodedUrl, `${decodedTitle}.pdf`);
                     };
 
                     const btnShare = document.getElementById('btn-share');
@@ -543,29 +549,42 @@
                         file_url: staticNote.url || staticNote.fileUrl || staticNote.driveLink
                     };
                 } else {
-                    // 2. Fetch from all databases (Federated)
+                    // 2. Fetch directly from primary Supabase first for instant load
                     try {
-                        const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-                            ? ''
-                            : 'https://skil-matrix-server.onrender.com';
-                        const configRes = await fetch(`${API_BASE}/api/storage-config`);
-                        const configData = await configRes.json();
-
-                        // Import dynamically to create multiple clients
-                        const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-
-                        for (const db of configData.databases) {
-                            const client = createClient(db.url, db.anonKey);
-                            const { data, error } = await client.from('approved_notes').select('*').eq('id', noteId).single();
-                            if (!error && data) {
-                                noteData = data;
-                                noteData.views = (noteData.views || 0) + 1; // optimistically update local UI
-                                window._currentNoteClient = client; // Save the client to track views later
-                                break;
-                            }
+                        const { data, error } = await sb.from('approved_notes').select('*').eq('id', noteId).single();
+                        if (!error && data) {
+                            noteData = data;
+                            noteData.views = (noteData.views || 0) + 1; // optimistically update local UI
+                            window._currentNoteClient = sb;
                         }
                     } catch (e) {
-                        console.error("Federated DB search failed:", e);
+                        console.warn("Primary DB lookup failed:", e);
+                    }
+
+                    // 3. Fallback to federated databases if not found in primary
+                    if (!noteData) {
+                        try {
+                            const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                                ? ''
+                                : 'https://skil-matrix-server.onrender.com';
+                            const configRes = await fetch(`${API_BASE}/api/storage-config`);
+                            const configData = await configRes.json();
+
+                            const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+
+                            for (const db of configData.databases) {
+                                const client = createClient(db.url, db.anonKey);
+                                const { data, error } = await client.from('approved_notes').select('*').eq('id', noteId).single();
+                                if (!error && data) {
+                                    noteData = data;
+                                    noteData.views = (noteData.views || 0) + 1;
+                                    window._currentNoteClient = client;
+                                    break;
+                                }
+                            }
+                        } catch (e) {
+                            console.error("Federated DB search failed:", e);
+                        }
                     }
                 }
 
@@ -597,7 +616,6 @@
                 const viewCountEl = document.getElementById('view-count-display');
                 if (viewCountEl) viewCountEl.innerText = noteData.views || 0;
 
-                // Remove .html from share link dynamically
                 const btnShare = document.getElementById('btn-share');
                 btnShare.style.display = 'inline-flex';
 
@@ -606,7 +624,7 @@
                     document.querySelector('meta[property="og:title"]').setAttribute("content", `${noteData.title} | SKiL MATRiX`);
                 } catch (e) { }
 
-                // Load iframe securely
+                // Load viewer content
                 let finalUrl = noteData.file_url;
                 if (finalUrl.includes('drive.google.com')) {
                     showDriveLink(finalUrl);
@@ -714,7 +732,6 @@
             }
         };
 
-
         function renderOffice(url) {
             const officeFrame = document.getElementById('office-frame');
             const officeBlocker = document.getElementById('office-blocker');
@@ -722,11 +739,8 @@
             
             const isPdf = url.toLowerCase().split(/[#?]/)[0].endsWith('.pdf');
             if (isPdf) {
-                // PDFs are rendered natively by the browser to bypass Google's strict file size limits.
-                // We append #toolbar=0 to hide the native browser toolbar (download, print, and details).
                 officeFrame.src = url.split('#')[0] + '#toolbar=0';
             } else {
-                // Check if the URL itself is local (external doc viewers cannot access localhost at all)
                 const isLocalUrl = url.includes('localhost') || url.includes('127.0.0.1') || (!url.startsWith('http://') && !url.startsWith('https://'));
                 if (isLocalUrl) {
                     showError(`Office document previews (Word/PowerPoint/Excel) are not available on localhost as external viewers cannot access your local server.<br/><br/>
@@ -736,12 +750,9 @@
                     return;
                 }
                 
-                // Warm up the CDN/Storage cache using a quick 1-byte range request.
-                // This ensures Google's servers receive a fast response on the first try and don't timeout.
                 fetch(url, { headers: { 'Range': 'bytes=0-0' }, mode: 'no-cors' })
                     .catch(e => console.log('Cache warmup failed:', e));
                 
-                // Office documents (Docx, Pptx, Xlsx) use Google Docs Viewer (as requested)
                 officeFrame.src = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
             }
             
@@ -749,8 +760,6 @@
                 if (isPdf) {
                     officeBlocker.style.display = 'none';
                 } else {
-                    // Google Docs Viewer's "Pop-out" download button is at the top right.
-                    // Block this universally so users cannot download the file.
                     officeBlocker.style.bottom = 'auto';
                     officeBlocker.style.top = '0';
                     officeBlocker.style.right = '0';
@@ -771,7 +780,6 @@
             
             officeFrame.style.display = 'block';
             
-            // In case the iframe onload fails to fire or takes too long, hide loader after 3s
             setTimeout(() => {
                 if (loader.style.display !== 'none') {
                     loader.style.display = 'none';
@@ -784,23 +792,22 @@
         function applyZoom() {
             const wrappers = document.querySelectorAll('.pdf-page-wrapper');
             const container = document.getElementById('pdf-container');
-            const containerWidth = container.clientWidth - 40;
-            
+            const containerWidth = Math.max(200, (container.clientWidth || window.innerWidth) - 30);
+            const baseWidth = Math.min(containerWidth, 900);
+            const cssWidth = baseWidth * (zoomLevel / 100);
+
             wrappers.forEach(wrapper => {
-                const canvas = wrapper.querySelector('canvas');
-                if (!canvas) return;
-                
-                const baseWidth = Math.min(containerWidth, 900);
-                const zoomedWidth = baseWidth * (zoomLevel / 100);
-                
-                canvas.style.width = `${zoomedWidth}px`;
-                
                 const aspectRatio = parseFloat(wrapper.dataset.aspectRatio) || 1.414;
-                wrapper.style.minHeight = `${zoomedWidth * aspectRatio}px`;
+                wrapper.style.minHeight = `${cssWidth * aspectRatio}px`;
+                const canvas = wrapper.querySelector('canvas');
+                if (canvas) {
+                    canvas.style.width = `${cssWidth}px`;
+                    canvas.style.height = `${cssWidth * aspectRatio}px`;
+                }
             });
         }
 
-        // Touch pinch-to-zoom and trackpad/Ctrl-scroll zooming listeners
+        // Optimized Touch & Wheel pinch-to-zoom (doesn't block single-finger scrolling compositor thread)
         (function() {
             const container = document.getElementById('pdf-container');
             let initialTouchDistance = 0;
@@ -808,26 +815,22 @@
 
             container.addEventListener('touchstart', (e) => {
                 if (e.touches.length === 2) {
-                    e.preventDefault(); // Prevent native browser pinch session
                     const dx = e.touches[0].clientX - e.touches[1].clientX;
                     const dy = e.touches[0].clientY - e.touches[1].clientY;
                     initialTouchDistance = Math.sqrt(dx * dx + dy * dy);
                     initialZoom = zoomLevel;
                 }
-            }, { passive: false });
+            }, { passive: true });
 
             container.addEventListener('touchmove', (e) => {
                 if (e.touches.length === 2 && initialTouchDistance > 0) {
-                    e.preventDefault(); // Prevent native viewport zoom
+                    if (e.cancelable) e.preventDefault();
                     const dx = e.touches[0].clientX - e.touches[1].clientX;
                     const dy = e.touches[0].clientY - e.touches[1].clientY;
                     const currentDistance = Math.sqrt(dx * dx + dy * dy);
                     
                     const ratio = currentDistance / initialTouchDistance;
-                    let targetZoom = initialZoom * ratio;
-                    
-                    // Snap to nearest 5% and clamp between 50% and 300%
-                    targetZoom = Math.round(targetZoom / 5) * 5;
+                    let targetZoom = Math.round((initialZoom * ratio) / 5) * 5;
                     targetZoom = Math.max(50, Math.min(300, targetZoom));
                     
                     if (targetZoom !== zoomLevel) {
@@ -839,11 +842,19 @@
 
             container.addEventListener('touchend', (e) => {
                 if (e.touches.length < 2) {
-                    initialTouchDistance = 0;
+                    if (initialTouchDistance > 0) {
+                        initialTouchDistance = 0;
+                        // Refresh visible pages at new zoom level for ultra-sharp HD rendering
+                        document.querySelectorAll('.pdf-page-wrapper').forEach(w => {
+                            if (w.dataset.rendered) {
+                                delete w.dataset.rendered;
+                            }
+                        });
+                        window.dispatchEvent(new Event('scroll'));
+                    }
                 }
-            });
+            }, { passive: true });
 
-            // Desktop trackpad pinch-to-zoom & Ctrl + Mousewheel zoom
             container.addEventListener('wheel', (e) => {
                 if (e.ctrlKey) {
                     e.preventDefault();
@@ -862,6 +873,126 @@
             }, { passive: false });
         })();
 
+        // --- HIGH PERFORMANCE MOBILE PDF RENDERER ---
+        function cancelWrapperRender(wrapper) {
+            if (wrapper._renderTask) {
+                try {
+                    wrapper._renderTask.cancel();
+                } catch (e) {}
+                wrapper._renderTask = null;
+            }
+            const idx = renderQueue.findIndex(q => q.wrapper === wrapper);
+            if (idx !== -1) {
+                renderQueue.splice(idx, 1);
+            }
+        }
+
+        function unloadWrapper(wrapper) {
+            cancelWrapperRender(wrapper);
+            wrapper.removeAttribute('data-rendered');
+            const canvas = wrapper.querySelector('canvas');
+            if (canvas) {
+                canvas.width = 0;
+                canvas.height = 0;
+            }
+            wrapper.innerHTML = '';
+        }
+
+        function processRenderQueue() {
+            while (activeRenders < MAX_CONCURRENT_RENDERS && renderQueue.length > 0) {
+                const item = renderQueue.shift();
+                if (!item.wrapper.dataset.rendered || !document.body.contains(item.wrapper)) {
+                    continue;
+                }
+                activeRenders++;
+                executeRenderPage(item.pdf, item.pageNum, item.wrapper).finally(() => {
+                    activeRenders--;
+                    processRenderQueue();
+                });
+            }
+        }
+
+        function queueRenderPage(pdf, pageNum, wrapper) {
+            cancelWrapperRender(wrapper);
+            wrapper.dataset.rendered = 'true';
+
+            const existingIdx = renderQueue.findIndex(q => q.wrapper === wrapper);
+            if (existingIdx !== -1) {
+                renderQueue.splice(existingIdx, 1);
+            }
+
+            renderQueue.push({ pdf, pageNum, wrapper });
+            processRenderQueue();
+        }
+
+        async function executeRenderPage(pdf, pageNum, wrapper) {
+            try {
+                if (!wrapper.dataset.rendered || !document.body.contains(wrapper)) {
+                    return;
+                }
+
+                const page = await pdf.getPage(pageNum);
+
+                const container = document.getElementById('pdf-container');
+                const containerWidth = Math.max(200, (container.clientWidth || window.innerWidth) - 30);
+                const baseWidth = Math.min(containerWidth, 900);
+                const cssWidth = baseWidth * (zoomLevel / 100);
+
+                const unscaledViewport = page.getViewport({ scale: 1.0 });
+                const aspectRatio = unscaledViewport.height / unscaledViewport.width;
+                wrapper.dataset.aspectRatio = aspectRatio.toString();
+
+                const rawDpr = window.devicePixelRatio || 1;
+                const dpr = isMobile ? Math.min(rawDpr, 1.5) : Math.min(rawDpr, 2.0);
+
+                const renderScale = (cssWidth / unscaledViewport.width) * dpr;
+                const viewport = page.getViewport({ scale: renderScale });
+
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d', { alpha: false });
+
+                canvas.width = Math.floor(viewport.width);
+                canvas.height = Math.floor(viewport.height);
+
+                canvas.style.width = `${cssWidth}px`;
+                canvas.style.height = `${cssWidth * aspectRatio}px`;
+                canvas.style.display = 'inline-block';
+                canvas.style.margin = '0 auto';
+                canvas.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
+                canvas.style.borderRadius = '4px';
+
+                wrapper.style.minHeight = `${cssWidth * aspectRatio}px`;
+
+                const oldCanvas = wrapper.querySelector('canvas');
+                if (oldCanvas) {
+                    oldCanvas.width = 0;
+                    oldCanvas.height = 0;
+                }
+                wrapper.innerHTML = '';
+                
+                // Pre-fill white background for crisp rendering with alpha: false
+                context.fillStyle = '#ffffff';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+
+                wrapper.appendChild(canvas);
+
+                const renderTask = page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                });
+                wrapper._renderTask = renderTask;
+
+                await renderTask.promise;
+            } catch (e) {
+                if (e && (e.name === 'RenderingCancelledException' || e.message === 'Rendering cancelled')) {
+                    return;
+                }
+                console.error(`Page ${pageNum} render error:`, e);
+            } finally {
+                wrapper._renderTask = null;
+            }
+        }
+
         async function renderPDF(url) {
             const container = document.getElementById('pdf-container');
             const pageIndicator = document.getElementById('page-indicator');
@@ -877,12 +1008,16 @@
                 document.getElementById('total-pages').innerText = pdf.numPages;
                 loader.style.display = 'none';
 
+                const containerWidth = Math.max(200, (container.clientWidth || window.innerWidth) - 30);
+                const baseWidth = Math.min(containerWidth, 900);
+                const cssWidth = baseWidth * (zoomLevel / 100);
+
                 for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                     const wrapper = document.createElement('div');
                     wrapper.className = 'pdf-page-wrapper';
                     wrapper.dataset.pageNumber = pageNum;
                     wrapper.style.marginBottom = '20px';
-                    wrapper.style.minHeight = '800px';
+                    wrapper.style.minHeight = `${cssWidth * 1.414}px`;
                     wrapper.style.display = 'block';
                     wrapper.style.textAlign = 'center';
                     wrapper.style.width = '100%';
@@ -890,86 +1025,28 @@
                     container.appendChild(wrapper);
                 }
 
+                const rootMargin = isMobile ? '250px 0px' : '400px 0px';
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
                         const wrapper = entry.target;
                         const pageNum = parseInt(wrapper.dataset.pageNumber);
-                        
+
                         if (entry.isIntersecting) {
                             document.getElementById('current-page').innerText = pageNum;
-
                             if (!wrapper.dataset.rendered) {
-                                wrapper.dataset.rendered = 'true';
-                                renderPage(pdf, pageNum, wrapper);
+                                queueRenderPage(pdf, pageNum, wrapper);
                             }
                         } else {
-                            // Unload page canvas when scrolled out of view to save mobile memory
-                            if (wrapper.dataset.rendered) {
-                                wrapper.removeAttribute('data-rendered');
-                                wrapper.innerHTML = '';
-                            }
+                            unloadWrapper(wrapper);
                         }
                     });
-                }, { root: container, rootMargin: '400px 0px' });
+                }, { root: container, rootMargin: rootMargin });
 
                 document.querySelectorAll('.pdf-page-wrapper').forEach(w => observer.observe(w));
 
             } catch (err) {
                 console.error("PDF.js render failed:", err);
                 showError("Could not load PDF document.");
-            }
-        }
-
-        async function renderPage(pdf, pageNum, wrapper) {
-            try {
-                const page = await pdf.getPage(pageNum);
-
-                const container = document.getElementById('pdf-container');
-                const containerWidth = container.clientWidth - 40;
-                const targetWidth = Math.min(containerWidth, 900);
-
-                const unscaledViewport = page.getViewport({ scale: 1.0 });
-                const aspectRatio = unscaledViewport.height / unscaledViewport.width;
-                wrapper.dataset.aspectRatio = aspectRatio.toString();
-
-                // Downscale resolution slightly on mobile to save graphics memory and prevent phone hangs
-                const isMobile = window.innerWidth < 768;
-                const renderScale = isMobile ? 1.2 : 2.0;
-
-                const rawDpr = window.devicePixelRatio || 1;
-                const dpr = isMobile ? Math.min(rawDpr, 1.5) : rawDpr;
-                const viewport = page.getViewport({ scale: renderScale });
-
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                
-                // Set drawing buffer size matching High-DPI screens and render scale
-                canvas.width = Math.floor(viewport.width * dpr);
-                canvas.height = Math.floor(viewport.height * dpr);
-                
-                // Set CSS display dimensions
-                const baseWidth = Math.min(containerWidth, 900);
-                const zoomedWidth = baseWidth * (zoomLevel / 100);
-                canvas.style.width = `${zoomedWidth}px`;
-                canvas.style.height = 'auto';
-                canvas.style.display = 'inline-block';
-                canvas.style.margin = '0 auto';
-                canvas.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
-                canvas.style.borderRadius = '4px';
-
-                wrapper.style.minHeight = `${zoomedWidth * aspectRatio}px`;
-                wrapper.innerHTML = ''; // clear
-                wrapper.appendChild(canvas);
-
-                // Scale context by device pixel ratio to draw crisply
-                context.scale(dpr, dpr);
-
-                await page.render({
-                    canvasContext: context,
-                    viewport: viewport
-                }).promise;
-            } catch (e) {
-                console.error(`Page ${pageNum} render error:`, e);
             }
         }
 
