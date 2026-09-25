@@ -18,52 +18,121 @@ window.renderFocusFlow = function() {
             <div class="timer-hub">
                 <!-- SETUP VIEW (Selection) -->
                 <div id="timer-setup-view" class="timer-setup-container">
-                    <h2 class="setup-title">Ready for a Deep Study?</h2>
-                    <p class="setup-subtitle">Select your focus goal to begin</p>
+                    <div class="setup-badge"><i class="fa-solid fa-bolt" style="color: #00f2ff; font-size: 0.75rem;"></i> NEUROSPRINT ENGINE</div>
+                    <h2 class="setup-title">Ready for a <span class="gradient-text-cyber">Deep Study?</span></h2>
+                    <p class="setup-subtitle">Select your focus target or enter custom duration</p>
+
                     <div class="duration-presets">
                         <button class="preset-chip" onclick="selectStudyTime(30)">
-                            <span class="preset-label">Smart Sprint</span>
-                            <span class="preset-val">30m</span>
+                            <div class="preset-icon-box"><i class="fa-solid fa-bolt preset-icon"></i></div>
+                            <div class="preset-info">
+                                <span class="preset-label">SMART SPRINT</span>
+                                <div class="preset-val-group">
+                                    <span class="preset-val-num">30</span>
+                                    <span class="preset-val-unit">m</span>
+                                </div>
+                            </div>
                         </button>
                         <button class="preset-chip secondary" onclick="selectStudyTime(60)">
-                            <span class="preset-label">Power Hour</span>
-                            <span class="preset-val">1h</span>
+                            <div class="preset-icon-box"><i class="fa-solid fa-rocket preset-icon"></i></div>
+                            <div class="preset-info">
+                                <span class="preset-label">POWER HOUR</span>
+                                <div class="preset-val-group">
+                                    <span class="preset-val-num">1</span>
+                                    <span class="preset-val-unit">h</span>
+                                </div>
+                            </div>
                         </button>
                         <button class="preset-chip premium" onclick="selectStudyTime(120)">
-                            <span class="preset-label">Deep Dive</span>
-                            <span class="preset-val">2h</span>
+                            <div class="preset-icon-box"><i class="fa-solid fa-bullseye preset-icon"></i></div>
+                            <div class="preset-info">
+                                <span class="preset-label">DEEP DIVE</span>
+                                <div class="preset-val-group">
+                                    <span class="preset-val-num">2</span>
+                                    <span class="preset-val-unit">h</span>
+                                </div>
+                            </div>
                         </button>
                         <button class="preset-chip pulse" onclick="selectStudyTime(240)">
-                            <span class="preset-label">Marathon</span>
-                            <span class="preset-val">4h</span>
+                            <div class="preset-icon-box"><i class="fa-solid fa-fire preset-icon"></i></div>
+                            <div class="preset-info">
+                                <span class="preset-label">MARATHON</span>
+                                <div class="preset-val-group">
+                                    <span class="preset-val-num">4</span>
+                                    <span class="preset-val-unit">h</span>
+                                </div>
+                            </div>
                         </button>
                     </div>
-                    <div class="custom-time-input">
-                        <input type="number" id="custom-min-input" placeholder="Custom mins..." min="1" max="180">
-                        <button onclick="selectStudyTime(document.getElementById('custom-min-input').value)">Go</button>
+
+                    <div class="custom-time-input-card">
+                        <div class="custom-input-wrapper">
+                            <i class="fa-solid fa-stopwatch custom-input-icon"></i>
+                            <input type="number" id="custom-min-input" placeholder="Custom mins..." min="1" max="360">
+                        </div>
+                        <button class="btn-custom-go" onclick="selectStudyTime(document.getElementById('custom-min-input').value)">
+                            <span class="btn-custom-text">Start Session</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
                     </div>
                 </div>
 
                 <!-- ACTIVE VIEW (Timer) -->
                 <div id="timer-active-view" class="timer-active-container" style="display: none;">
-                    <div class="timer-ring-container">
-                        <svg class="timer-svg" viewBox="0 0 100 100">
-                            <circle class="timer-bg-circle" cx="50" cy="50" r="45"></circle>
-                            <circle id="timer-progress" class="timer-progress-circle" cx="50" cy="50" r="45" 
-                                stroke-dasharray="283" stroke-dashoffset="0"></circle>
-                        </svg>
-                        <div class="timer-display">
-                            <div id="timer-clock" class="timer-time">00:00</div>
-                            <div id="timer-status-text" class="timer-status">STAYING FOCUSED</div>
+                    <div class="timer-ring-wrapper">
+                        <!-- Ambient Outer Glow Effect -->
+                        <div class="timer-ambient-glow"></div>
+                        
+                        <div class="timer-ring-container">
+                            <svg class="timer-svg" viewBox="0 0 200 200">
+                                <defs>
+                                    <linearGradient id="timerRingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#00F2FF" />
+                                        <stop offset="50%" stop-color="#7B61FF" />
+                                        <stop offset="100%" stop-color="#FF2D95" />
+                                    </linearGradient>
+                                    <filter id="ringGlowFilter" x="-20%" y="-20%" width="140%" height="140%">
+                                        <feGaussianBlur stdDeviation="3" result="blur" />
+                                        <feMerge>
+                                            <feMergeNode in="blur" />
+                                            <feMergeNode in="SourceGraphic" />
+                                        </feMerge>
+                                    </filter>
+                                </defs>
+
+                                <!-- Rotating Outer Orbit -->
+                                <circle class="timer-orbit-circle" cx="100" cy="100" r="92"></circle>
+
+                                <!-- Background Inner Track -->
+                                <circle class="timer-bg-circle" cx="100" cy="100" r="80"></circle>
+
+                                <!-- Active Progress Arc -->
+                                <circle id="timer-progress" class="timer-progress-circle" cx="100" cy="100" r="80" 
+                                    stroke="url(#timerRingGradient)" stroke-dasharray="502.65" stroke-dashoffset="0"
+                                    filter="url(#ringGlowFilter)"></circle>
+                            </svg>
+                            
+                            <div class="timer-display">
+                                <div class="timer-status-pill">
+                                    <span class="status-pulse-dot"></span>
+                                    <span id="timer-status-text" class="timer-status">STAYING FOCUSED</span>
+                                </div>
+                                <div id="timer-clock" class="timer-time">00:00</div>
+                                <div class="timer-subtext">NEUROSPRINT PRO</div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="timer-controls">
-                        <button class="btn-ctrl" title="Reset" onclick="resetToSetup()"><i class="fa-solid fa-rotate-left"></i></button>
+                        <button class="btn-ctrl" title="Reset & Back" onclick="resetToSetup()">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
                         <button id="main-play-btn" class="btn-ctrl btn-main-ctrl" title="Start/Pause" onclick="toggleTimer()">
                             <i class="fa-solid fa-play"></i>
                         </button>
-                        <button class="btn-ctrl" title="Settings" onclick="toggleFocusSettings()"><i class="fa-solid fa-gear"></i></button>
+                        <button class="btn-ctrl" title="Settings" onclick="toggleFocusSettings()">
+                            <i class="fa-solid fa-sliders"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -101,27 +170,38 @@ window.renderFocusFlow = function() {
 
             <div class="focus-dashboard">
                 <div class="focus-card">
-                    <h3>🎯 Tasks <span id="task-progress-badge" style="font-size: 0.75rem; background: var(--focus-primary); padding: 2px 8px; border-radius: 10px;">0/0</span></h3>
+                    <h3>
+                        <span class="focus-card-title"><i class="fa-solid fa-list-check card-title-icon"></i> Tasks</span>
+                        <span id="task-progress-badge" class="task-badge-pro">0/0</span>
+                    </h3>
                     <div class="task-input-group">
-                        <input type="text" id="task-name-input" class="task-input" placeholder="New goal...">
-                        <button class="btn btn-primary" onclick="addFocusTask()">Add</button>
+                        <input type="text" id="task-name-input" class="task-input" placeholder="New goal..." onkeydown="if(event.key==='Enter') addFocusTask()">
+                        <button class="btn-task-add" onclick="addFocusTask()">Add Goal</button>
                     </div>
                     <div id="focus-tasks-list" class="task-list"></div>
                 </div>
 
                 <div class="focus-card">
-                    <h3>📈 Analytics</h3>
-                    <div class="stats-mini-grid" style="margin-bottom: 1.5rem;">
+                    <h3><span class="focus-card-title"><i class="fa-solid fa-chart-line card-title-icon"></i> Analytics</span></h3>
+                    <div class="stats-mini-grid">
                         <div class="stat-box">
-                            <span id="stat-sessions" class="stat-val">0</span>
-                            <span class="stat-label">Sessions</span>
+                            <div class="stat-icon-wrapper"><i class="fa-solid fa-stopwatch"></i></div>
+                            <div class="stat-info">
+                                <span id="stat-sessions" class="stat-val">0</span>
+                                <span class="stat-label">SESSIONS</span>
+                            </div>
                         </div>
                         <div class="stat-box">
-                            <span id="stat-focus-time" class="stat-val">0h</span>
-                            <span class="stat-label">Hours</span>
+                            <div class="stat-icon-wrapper"><i class="fa-solid fa-clock"></i></div>
+                            <div class="stat-info">
+                                <span id="stat-focus-time" class="stat-val">0.0h</span>
+                                <span class="stat-label">TOTAL HOURS</span>
+                            </div>
                         </div>
                     </div>
-                    <canvas id="focus-analytics-chart" style="max-height: 200px; width: 100%;"></canvas>
+                    <div class="chart-container-wrapper">
+                        <canvas id="focus-analytics-chart" style="max-height: 180px; width: 100%;"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -284,12 +364,14 @@ function updateDisplay() {
     
     const total = timerState.totalTime;
     const current = timerState.timeLeft;
-    const percentage = current / total;
+    const percentage = total > 0 ? (current / total) : 0;
     
     const progressCircle = document.getElementById('timer-progress');
     
     if (progressCircle) {
-        const offset = 283 - (percentage * 283);
+        const circum = 502.65;
+        const offset = circum - (percentage * circum);
+        progressCircle.style.strokeDasharray = `${circum}`;
         progressCircle.style.strokeDashoffset = offset;
     }
     
@@ -424,18 +506,27 @@ function renderFocusTasks() {
     const list = document.getElementById('focus-tasks-list');
     if (!list) return;
     
+    const emptyStateHTML = `
+        <div class="empty-tasks-state">
+            <div class="empty-task-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+            <div class="empty-task-title">No Active Targets</div>
+            <div class="empty-task-sub">Add your focus goals above to track progress</div>
+        </div>
+    `;
+    
     list.innerHTML = timerState.tasks.map(task => `
         <div class="task-item ${task.done ? 'done' : ''}">
             <div class="task-checkbox" onclick="toggleFocusTask(${task.id})">
                 ${task.done ? '<i class="fas fa-check" style="font-size: 10px;"></i>' : ''}
             </div>
             <span class="task-text">${task.name}</span>
-            <i class="fas fa-trash task-delete" onclick="deleteFocusTask(${task.id})"></i>
+            <i class="fas fa-trash task-delete" onclick="deleteFocusTask(${task.id})" title="Delete target"></i>
         </div>
-    `).join('') || '<p style="text-align: center; opacity: 0.3; padding: 1rem;">No active targets.</p>';
+    `).join('') || emptyStateHTML;
     
     const done = timerState.tasks.filter(t => t.done).length;
-    document.getElementById('task-progress-badge').innerText = `${done}/${timerState.tasks.length}`;
+    const badge = document.getElementById('task-progress-badge');
+    if (badge) badge.innerText = `${done}/${timerState.tasks.length}`;
 }
 
 // --- SETTINGS CONTROLS ---
@@ -597,6 +688,10 @@ function initFocusChart() {
         focusChartInstance.destroy();
     }
     
+    const chartGradient = ctx.createLinearGradient(0, 0, 0, 160);
+    chartGradient.addColorStop(0, 'rgba(0, 242, 255, 0.25)');
+    chartGradient.addColorStop(1, 'rgba(123, 97, 255, 0.0)');
+    
     focusChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
@@ -604,14 +699,18 @@ function initFocusChart() {
             datasets: [{
                 label: 'Focus Hours',
                 data: timerState.weeklyHistory,
-                borderColor: '#7B61FF',
-                backgroundColor: 'rgba(123, 97, 255, 0.1)',
+                borderColor: '#00F2FF',
+                borderWidth: 2.5,
+                backgroundColor: chartGradient,
                 tension: 0.4,
                 fill: true,
                 pointRadius: 4,
-                pointBackgroundColor: '#7B61FF',
-                pointBorderColor: 'rgba(255,255,255,0.2)',
-                pointHoverRadius: 6
+                pointBackgroundColor: '#00F2FF',
+                pointBorderColor: '#05070A',
+                pointBorderWidth: 2,
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: '#FFFFFF',
+                pointHoverBorderColor: '#00F2FF'
             }]
         },
         options: {
@@ -620,11 +719,11 @@ function initFocusChart() {
             plugins: { 
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: 'rgba(5, 7, 10, 0.9)',
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
                     titleColor: '#fff',
-                    bodyColor: '#7B61FF',
+                    bodyColor: '#00F2FF',
                     padding: 10,
-                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderColor: 'rgba(0, 242, 255, 0.3)',
                     borderWidth: 1,
                     displayColors: false,
                     callbacks: {
@@ -641,7 +740,7 @@ function initFocusChart() {
                 x: {
                     grid: { display: false },
                     border: { display: false },
-                    ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 10 } }
+                    ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 11, family: 'Inter' } }
                 }
             }
         }

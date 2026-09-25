@@ -112,7 +112,7 @@ window.renderCGPAAnalyzer = function() {
 
                     <!-- TARGET PLANNER -->
                     <div class="glass-card-premium module-card">
-                        <h3 class="font-heading subtitle-glow" style="margin-bottom: 1.5rem;">
+                        <h3 class="font-heading subtitle-glow" style="margin-bottom: 1.25rem;">
                             <span class="premium-emoji">🎯</span> 
                             <span class="gradient-text-glow">CGPA Goal Planner</span>
                         </h3>
@@ -120,11 +120,11 @@ window.renderCGPAAnalyzer = function() {
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                                 <div class="form-group">
                                     <label>Semesters Done</label>
-                                    <input type="number" id="plan-sem-done" class="input-minimal" placeholder="4">
+                                    <input type="number" id="plan-sem-done" class="input-minimal" placeholder="4" oninput="onSemDoneChange()">
                                 </div>
                                 <div class="form-group">
-                                    <label>Target CGPA</label>
-                                    <input type="number" step="0.01" id="target-cgpa-input" class="input-minimal" placeholder="8.50">
+                                    <label>Semesters Remaining</label>
+                                    <input type="number" id="plan-sem-rem" class="input-minimal" placeholder="4" oninput="onSemRemChange()">
                                 </div>
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -133,13 +133,19 @@ window.renderCGPAAnalyzer = function() {
                                     <input type="number" step="0.01" id="plan-current-cgpa" class="input-minimal" placeholder="8.00">
                                 </div>
                                 <div class="form-group">
+                                    <label>Target CGPA</label>
+                                    <input type="number" step="0.01" id="target-cgpa-input" class="input-minimal" placeholder="8.50">
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <div class="form-group">
                                     <label>Current Credits</label>
                                     <input type="number" id="plan-current-credits" class="input-minimal" placeholder="80">
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Remaining Credits (Total)</label>
-                                <input type="number" id="plan-rem-credits" class="input-minimal" placeholder="80">
+                                <div class="form-group">
+                                    <label>Remaining Credits (Total)</label>
+                                    <input type="number" id="plan-rem-credits" class="input-minimal" placeholder="80">
+                                </div>
                             </div>
                             <div style="display: flex; gap: 10px; margin-top: 5px;">
                                 <button class="btn btn-primary" style="flex: 2;" onclick="runPrediction()">✨ Predict Path</button>
@@ -150,17 +156,6 @@ window.renderCGPAAnalyzer = function() {
                         <div id="planner-result" class="plan-result">
                             <h4 id="plan-difficulty" style="margin-top: 0;">--</h4>
                             <p id="plan-msg" style="font-size: 0.9rem; margin-bottom: 0;">--</p>
-                        </div>
-                    </div>
-
-                    <!-- AI INSIGHTS -->
-                    <div class="glass-card-premium module-card">
-                        <h3 class="font-heading subtitle-glow" style="margin-bottom: 1rem;">
-                            <span class="premium-emoji">🧠</span> 
-                            <span class="gradient-text-glow">AI Smart Insights</span>
-                        </h3>
-                        <div id="ai-insights-list">
-                            <div class="insight-chip"><i class="fas fa-info-circle"></i> Add your marks to see academic suggestions.</div>
                         </div>
                     </div>
 
@@ -296,6 +291,7 @@ function updateCalculations() {
 
 function updateAIInsights(cgpa, sgpa) {
     const container = document.getElementById('ai-insights-list');
+    if (!container) return;
     const insights = [];
 
     if (sgpa > 0) {
@@ -373,51 +369,90 @@ function updateCharts(currentVal) {
     }
 }
 
+window.onSemRemChange = function() {
+    const semDone = parseInt(document.getElementById('plan-sem-done').value) || 0;
+    const remSems = parseInt(document.getElementById('plan-sem-rem').value);
+    const currentCredits = parseFloat(document.getElementById('plan-current-credits').value) || 0;
+    const remCreditsElem = document.getElementById('plan-rem-credits');
+
+    if (remCreditsElem && !isNaN(remSems) && remSems >= 0) {
+        const avgCreditsPerSem = (semDone > 0 && currentCredits > 0) ? (currentCredits / semDone) : 20;
+        remCreditsElem.value = Math.round(remSems * avgCreditsPerSem);
+    }
+};
+
+window.onSemDoneChange = function() {
+    const semDone = parseInt(document.getElementById('plan-sem-done').value) || 0;
+    const remInput = document.getElementById('plan-sem-rem');
+    if (remInput) {
+        const remaining = Math.max(0, 8 - semDone);
+        remInput.value = remaining;
+        window.onSemRemChange();
+    }
+};
+
 window.runPrediction = function() {
     const semDone = parseInt(document.getElementById('plan-sem-done').value) || 0;
+    let remSemesters = parseInt(document.getElementById('plan-sem-rem').value);
     const target = parseFloat(document.getElementById('target-cgpa-input').value);
     const currentCGPA = parseFloat(document.getElementById('plan-current-cgpa').value) || 0;
     const currentCredits = parseFloat(document.getElementById('plan-current-credits').value) || 0;
-    const remCredits = parseFloat(document.getElementById('plan-rem-credits').value) || 0;
+    let remCredits = parseFloat(document.getElementById('plan-rem-credits').value);
 
     const resultDiv = document.getElementById('planner-result');
     const title = document.getElementById('plan-difficulty');
     const msg = document.getElementById('plan-msg');
 
-    if (isNaN(target) || remCredits <= 0) {
-        alert("Please enter a Target CGPA and Remaining Credits.");
+    if (isNaN(target)) {
+        alert("Please enter a Target CGPA.");
         return;
     }
 
-    const remSemesters = 8 - semDone;
-    
-    if (remSemesters <= 0) {
+    if (isNaN(remSemesters) || remSemesters < 0) {
+        remSemesters = Math.max(0, 8 - semDone);
+        const remInput = document.getElementById('plan-sem-rem');
+        if (remInput) remInput.value = remSemesters;
+    }
+
+    if (isNaN(remCredits) || remCredits <= 0) {
+        const avgCreditsPerSem = (semDone > 0 && currentCredits > 0) ? (currentCredits / semDone) : 20;
+        remCredits = Math.round(remSemesters * avgCreditsPerSem);
+        const remCreditsElem = document.getElementById('plan-rem-credits');
+        if (remCreditsElem) remCreditsElem.value = remCredits;
+    }
+
+    if (remSemesters === 0 || remCredits === 0) {
         title.innerHTML = "🎓 Course Completed";
         title.style.color = "#00f2ff";
-        msg.innerText = "Calculations show you have finished your 8-semester course.";
+        msg.innerText = "Calculations show no remaining semesters or credits left to complete.";
         resultDiv.classList.add('active');
         return;
     }
 
-    // Math: ReqSGPA = (Target * (C + R) - (Current * C)) / R
+    // Math: ReqSGPA = (Target * (CurrentCredits + RemCredits) - (CurrentCGPA * CurrentCredits)) / RemCredits
     const totalCredits = currentCredits + remCredits;
     const reqSGPA = (target * totalCredits - (currentCGPA * currentCredits)) / remCredits;
 
     resultDiv.classList.add('active');
-    
+    const semText = remSemesters === 1 ? 'semester' : 'semesters';
+
     if (reqSGPA > 10) {
         title.innerHTML = "❌ Impossible Goal";
         title.style.color = "#ff4757";
-        msg.innerText = `You need a ${reqSGPA.toFixed(2)} SGPA for the remaining ${remSemesters} semesters. This is mathematically impossible.`;
+        msg.innerText = `To hit ${target}, you need an average SGPA of ${reqSGPA.toFixed(2)} over the remaining ${remSemesters} ${semText} (${remCredits} credits). This is mathematically impossible (max SGPA is 10.00).`;
+    } else if (reqSGPA <= 0) {
+        title.innerHTML = "🎉 Goal Secured";
+        title.style.color = "#2ecc71";
+        msg.innerText = `Your current CGPA (${currentCGPA.toFixed(2)}) is high enough that you will comfortably achieve your ${target} CGPA goal.`;
     } else if (reqSGPA < 4) {
         title.innerHTML = "✅ Easy Goal";
         title.style.color = "#2ecc71";
-        msg.innerText = `You only need a ${Math.max(reqSGPA, 4).toFixed(2)} SGPA across the remaining ${remSemesters} semesters to reach your ${target} CGPA goal.`;
+        msg.innerText = `You only need a minimum passing average SGPA of ${Math.max(reqSGPA, 4.0).toFixed(2)} across the remaining ${remSemesters} ${semText} (${remCredits} credits) to reach your ${target} CGPA goal.`;
     } else {
         const difficulty = reqSGPA > 8.5 ? 'Hard' : (reqSGPA > 7.5 ? 'Moderate' : 'Easy');
-        title.innerHTML = `💎 ${difficulty} Path`;
-        title.style.color = difficulty === 'Hard' ? '#ff9f43' : '#00f2ff';
-        msg.innerText = `To hit ${target}, you need an average SGPA of ${reqSGPA.toFixed(2)} over the next ${remSemesters} semesters.`;
+        title.innerHTML = difficulty === 'Hard' ? "🔥 Hard Path" : (difficulty === 'Moderate' ? "⚡ Moderate Path" : "✨ Easy Path");
+        title.style.color = difficulty === 'Hard' ? '#ff9f43' : (difficulty === 'Moderate' ? '#00f2ff' : '#2ecc71');
+        msg.innerText = `To hit ${target}, you need an average SGPA of ${reqSGPA.toFixed(2)} over the next ${remSemesters} ${semText} (${remCredits} total credits).`;
     }
 };
 
@@ -431,12 +466,14 @@ window.syncPlannerData = function() {
         if (row.querySelector('.sem-sgpa').value || row.querySelector('.sem-credits').value) done++;
     });
 
+    const remSems = Math.max(0, 8 - done);
     document.getElementById('plan-sem-done').value = done;
+    const remInput = document.getElementById('plan-sem-rem');
+    if (remInput) remInput.value = remSems;
     document.getElementById('plan-current-cgpa').value = currentCGPA.toFixed(2);
     document.getElementById('plan-current-credits').value = currentCredits;
     
     // Auto-calculate remaining credits assuming 20 credits/sem
-    const remSems = 8 - done;
     document.getElementById('plan-rem-credits').value = Math.max(0, remSems * 20);
     
     window.showToast("Planner synced with calculations!");

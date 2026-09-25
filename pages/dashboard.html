@@ -131,7 +131,7 @@
 
         .search-bar-expand {
             flex: 1;
-            max-width: 500px;
+            max-width: 430px;
         }
 
         .skeleton-title {
@@ -678,14 +678,15 @@
                         <span></span>
                     </div>
                     <div class="search-bar search-bar-expand">
+                        <i class="fas fa-search search-icon"></i>
                         <input type="text" id="global-search-input" name="q"
-                            placeholder="Search any subject (e.g. Physics)..." autocomplete="off">
-                        <span class="search-icon">🔍</span>
+                            placeholder="Search any subject or note (e.g. AI, Physics)..." autocomplete="off">
+                        <span class="search-kbd">Ctrl K</span>
                     </div>
                 </div>
                 <div class="top-actions">
-                    <button class="btn btn-ghost" id="top-watch-demo-btn" title="Watch the interactive demo tour" onclick="if(window.SKiLMatrixTour) window.SKiLMatrixTour.start();" style="display: flex; align-items: center; gap: 8px; font-weight: 600; color: #fff; background: linear-gradient(135deg, rgba(123, 97, 255, 0.1), rgba(0, 255, 136, 0.1)); border: 1px solid rgba(123, 97, 255, 0.3); padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.background='linear-gradient(135deg, rgba(123, 97, 255, 0.2), rgba(0, 255, 136, 0.2))'; this.style.boxShadow='0 0 15px rgba(123, 97, 255, 0.3)';" onmouseout="this.style.background='linear-gradient(135deg, rgba(123, 97, 255, 0.1), rgba(0, 255, 136, 0.1))'; this.style.boxShadow='none';">
-                        <i class="fas fa-play-circle" style="color: var(--secondary); font-size: 1.1rem; filter: drop-shadow(0 0 5px rgba(0,255,136,0.5));"></i> Watch Demo
+                    <button class="btn btn-ghost" id="top-watch-demo-btn" title="Watch the interactive demo tour" onclick="if(window.SKiLMatrixTour) window.SKiLMatrixTour.start();">
+                        <i class="fas fa-play-circle"></i> Watch Demo
                     </button>
                     <button class="btn btn-ghost notification-btn">🔔</button>
                     <button class="primary-btn upload-btn" onclick="openUploadModal()">+ Upload Note</button>

@@ -1,1 +1,748 @@
-const _0x59c340=_0x6acd;(function(_0x5dcdb8,_0x539592){const _0x265b18=_0x6acd,_0x420a6a=_0x5dcdb8();while(!![]){try{const _0x1a662b=parseInt(_0x265b18(0x1db))/0x1+parseInt(_0x265b18(0x1b8))/0x2*(-parseInt(_0x265b18(0x17e))/0x3)+-parseInt(_0x265b18(0x1a7))/0x4*(parseInt(_0x265b18(0x1d5))/0x5)+parseInt(_0x265b18(0x189))/0x6*(-parseInt(_0x265b18(0x198))/0x7)+-parseInt(_0x265b18(0x150))/0x8*(-parseInt(_0x265b18(0x140))/0x9)+-parseInt(_0x265b18(0x1c3))/0xa+-parseInt(_0x265b18(0x1b6))/0xb*(-parseInt(_0x265b18(0x1dd))/0xc);if(_0x1a662b===_0x539592)break;else _0x420a6a['push'](_0x420a6a['shift']());}catch(_0x388a94){_0x420a6a['push'](_0x420a6a['shift']());}}}(_0x5860,0x5e2a3));const _0x12e7fb=(function(){let _0x274d24=!![];return function(_0x28dcfd,_0x865337){const _0x1032d2=_0x274d24?function(){const _0x1500a4=_0x6acd;if(_0x865337){const _0x47ad53=_0x865337[_0x1500a4(0x1bd)](_0x28dcfd,arguments);return _0x865337=null,_0x47ad53;}}:function(){};return _0x274d24=![],_0x1032d2;};}()),_0x9b308a=_0x12e7fb(this,function(){const _0x366fa8=_0x6acd,_0x5ef09c=function(){const _0x1964fb=_0x6acd;let _0x225482;try{_0x225482=Function(_0x1964fb(0x1aa)+_0x1964fb(0x1bc)+');')();}catch(_0x41e379){_0x225482=window;}return _0x225482;},_0x2db246=_0x5ef09c(),_0x2cdc9a=_0x2db246[_0x366fa8(0x1ae)]=_0x2db246[_0x366fa8(0x1ae)]||{},_0x883e79=[_0x366fa8(0x1a2),_0x366fa8(0x173),'info',_0x366fa8(0x1ad),'exception','table',_0x366fa8(0x1b0)];for(let _0x5c3e44=0x0;_0x5c3e44<_0x883e79[_0x366fa8(0x1df)];_0x5c3e44++){const _0x4602b1=_0x12e7fb['constructor'][_0x366fa8(0x1a8)]['bind'](_0x12e7fb),_0x580f64=_0x883e79[_0x5c3e44],_0x2d3fc1=_0x2cdc9a[_0x580f64]||_0x4602b1;_0x4602b1[_0x366fa8(0x182)]=_0x12e7fb['bind'](_0x12e7fb),_0x4602b1[_0x366fa8(0x181)]=_0x2d3fc1[_0x366fa8(0x181)][_0x366fa8(0x1cd)](_0x2d3fc1),_0x2cdc9a[_0x580f64]=_0x4602b1;}});_0x9b308a(),window[_0x59c340(0x19c)]=function(){const _0x99f452=_0x59c340;return _0x99f452(0x152);};let timerState={'mode':_0x59c340(0x1cc),'timeLeft':0x19*0x3c,'totalTime':0x19*0x3c,'isRunning':![],'timer':null,'sessionsToday':0x0,'totalFocusSeconds':0x0,'tasks':[],'activeAlarm':null,'settings':{'focus':0x19,'short':0x5,'long':0xf,'sound':_0x59c340(0x1c1),'mute':![]}};window['selectStudyTime']=function(_0x3a134b){const _0x1faf19=_0x59c340;_0x3a134b=parseInt(_0x3a134b);if(!_0x3a134b||_0x3a134b<0x1)return;clearInterval(timerState['timer']),timerState['isRunning']=![],timerState[_0x1faf19(0x1ca)]=_0x3a134b*0x3c,timerState[_0x1faf19(0x184)]=_0x3a134b*0x3c,timerState[_0x1faf19(0x19a)]=_0x1faf19(0x1cc);const _0x3fa1b7=document['getElementById']('timer-setup-view'),_0x21f794=document[_0x1faf19(0x18d)](_0x1faf19(0x149));_0x3fa1b7[_0x1faf19(0x167)][_0x1faf19(0x193)]='0',setTimeout(()=>{const _0x378023=_0x1faf19;_0x3fa1b7['style']['display']=_0x378023(0x148),_0x21f794[_0x378023(0x167)]['display']=_0x378023(0x1b9),setTimeout(()=>_0x21f794[_0x378023(0x167)][_0x378023(0x193)]='1',0x32),updateDisplay(),startTimer();},0x190);},window[_0x59c340(0x1b4)]=function(){const _0x67fd28=_0x59c340;clearInterval(timerState[_0x67fd28(0x1b1)]),timerState[_0x67fd28(0x15f)]=![];const _0x29cfce=document['getElementById'](_0x67fd28(0x1c7)),_0xe4aec7=document[_0x67fd28(0x18d)](_0x67fd28(0x149));_0xe4aec7[_0x67fd28(0x167)]['opacity']='0',setTimeout(()=>{const _0x35e983=_0x67fd28;_0xe4aec7[_0x35e983(0x167)][_0x35e983(0x1d0)]=_0x35e983(0x148),_0x29cfce[_0x35e983(0x167)][_0x35e983(0x1d0)]=_0x35e983(0x1b9),setTimeout(()=>_0x29cfce[_0x35e983(0x167)][_0x35e983(0x193)]='1',0x32),updatePlayIcon();},0x190);},window[_0x59c340(0x186)]=function(){const _0x31f469=_0x59c340;console[_0x31f469(0x1a2)](_0x31f469(0x166)),loadFocusData(),renderFocusTasks(),initFocusChart(),preloadFocusSounds(),Notification[_0x31f469(0x14c)]===_0x31f469(0x171)&&Notification[_0x31f469(0x1b2)]();};function switchMode(_0x53e6b3){const _0x1ba152=_0x59c340;if(timerState['isRunning']&&!confirm(_0x1ba152(0x174)))return;clearInterval(timerState[_0x1ba152(0x1b1)]),timerState[_0x1ba152(0x15f)]=![],timerState[_0x1ba152(0x19a)]=_0x53e6b3;const _0x3fc9cc=timerState[_0x1ba152(0x15c)][_0x53e6b3]||0x19;timerState['timeLeft']=_0x3fc9cc*0x3c,timerState[_0x1ba152(0x184)]=_0x3fc9cc*0x3c,document[_0x1ba152(0x1a0)](_0x1ba152(0x14e))['forEach'](_0x29a1da=>_0x29a1da[_0x1ba152(0x146)][_0x1ba152(0x179)](_0x1ba152(0x133))),document[_0x1ba152(0x17b)]('.mode-btn[onclick=\x22switchMode(\x27'+_0x53e6b3+_0x1ba152(0x1b5))?.[_0x1ba152(0x146)][_0x1ba152(0x136)]('active');const _0x3c0587={'focus':'#7B61FF','short':'#00F2FF','long':_0x1ba152(0x14d)};document[_0x1ba152(0x155)]['style'][_0x1ba152(0x18b)](_0x1ba152(0x175),_0x3c0587[_0x53e6b3]),document[_0x1ba152(0x18d)]('timer-status-text')[_0x1ba152(0x13d)]=_0x53e6b3==='focus'?_0x1ba152(0x18e):_0x1ba152(0x177),updateDisplay(),updatePlayIcon();}function toggleTimer(){timerState['isRunning']?pauseTimer():startTimer();}function startTimer(){const _0x48d0bd=_0x59c340;timerState[_0x48d0bd(0x15f)]=!![],updatePlayIcon(),timerState[_0x48d0bd(0x1b1)]=setInterval(()=>{const _0x9f7d7d=_0x48d0bd;timerState[_0x9f7d7d(0x1ca)]--;if(timerState[_0x9f7d7d(0x19a)]===_0x9f7d7d(0x1cc))timerState['totalFocusSeconds']++;timerState[_0x9f7d7d(0x1ca)]<=0x0?handleSessionEnd():updateDisplay();if(timerState[_0x9f7d7d(0x1ca)]%0x1e===0x0)saveFocusData();},0x3e8);}function pauseTimer(){const _0x34b634=_0x59c340;clearInterval(timerState[_0x34b634(0x1b1)]),timerState[_0x34b634(0x15f)]=![],updatePlayIcon(),saveFocusData();}function resetTimer(){const _0x52235c=_0x59c340;pauseTimer();const _0x1397de=timerState['settings'][timerState[_0x52235c(0x19a)]]||0x19;timerState['timeLeft']=_0x1397de*0x3c,updateDisplay();}function skipSession(){const _0x3218ff=_0x59c340;timerState[_0x3218ff(0x19a)]==='focus'?switchMode(_0x3218ff(0x178)):switchMode(_0x3218ff(0x1cc));}function updateDisplay(){const _0xf61738=_0x59c340,_0x57d019=Math[_0xf61738(0x19b)](timerState[_0xf61738(0x1ca)]/0x3c),_0x9f0594=timerState[_0xf61738(0x1ca)]%0x3c,_0x24988c=document[_0xf61738(0x18d)](_0xf61738(0x1ce));if(_0x24988c)_0x24988c['innerText']=_0x57d019+':'+_0x9f0594[_0xf61738(0x181)]()[_0xf61738(0x18a)](0x2,'0');const _0x1804bb=timerState[_0xf61738(0x184)],_0x2cdbb6=timerState['timeLeft'],_0x4b14db=_0x2cdbb6/_0x1804bb,_0x262bf5=document['getElementById']('timer-progress');if(_0x262bf5){const _0x5daa24=0x11b-_0x4b14db*0x11b;_0x262bf5[_0xf61738(0x167)][_0xf61738(0x13f)]=_0x5daa24;}document[_0xf61738(0x1b3)]=_0x57d019+':'+_0x9f0594[_0xf61738(0x181)]()['padStart'](0x2,'0')+_0xf61738(0x17f);}function updatePlayIcon(){const _0x313bc4=_0x59c340,_0x45a386=document[_0x313bc4(0x18d)](_0x313bc4(0x1bf));if(!_0x45a386)return;_0x45a386[_0x313bc4(0x1d2)]=timerState['isRunning']?_0x313bc4(0x137):_0x313bc4(0x185);}async function awardStudyXP(_0x2c7e62){const _0x138b12=_0x59c340;if(!window['currentUser']||window[_0x138b12(0x19d)][_0x138b12(0x17d)])return;const _0x55ef5b=Math[_0x138b12(0x1b7)](0x1,Math['floor'](_0x2c7e62/0x3)),_0x455696=window[_0x138b12(0x19d)][_0x138b12(0x18c)];try{const {supabase:_0x10c8c0}=await import(_0x138b12(0x162)),{data:_0x26d363}=await _0x10c8c0[_0x138b12(0x14b)](_0x138b12(0x139))[_0x138b12(0x1c8)]('id')['eq'](_0x138b12(0x18c),_0x455696)[_0x138b12(0x1c9)]();if(!_0x26d363)await _0x10c8c0[_0x138b12(0x14b)](_0x138b12(0x139))[_0x138b12(0x15a)]([{'id':window['currentUser']['id']||window[_0x138b12(0x19d)]['uid']||Math[_0x138b12(0x147)]()['toString'](0x24)[_0x138b12(0x143)](0x2,0x9),'email':_0x455696,'name':window['currentUser'][_0x138b12(0x1c0)]||_0x455696[_0x138b12(0x196)]('@')[0x0],'avatar':window[_0x138b12(0x19d)][_0x138b12(0x1bb)]||window[_0x138b12(0x19d)][_0x138b12(0x188)]||null,'collegename':window['currentUser'][_0x138b12(0x161)]||_0x138b12(0x1cf),'xp':_0x55ef5b,'uploads':0x0,'focusminutes':_0x2c7e62}]);else{const {error:_0x505883}=await _0x10c8c0[_0x138b12(0x15e)](_0x138b12(0x16c),{'target_email':_0x455696,'xp_amount':_0x55ef5b,'uploads_amount':0x0,'focus_amount':_0x2c7e62});if(_0x505883)console[_0x138b12(0x1ad)]('Supabase\x20RPC\x20error:',_0x505883);}console[_0x138b12(0x1a2)](_0x138b12(0x1da)+_0x55ef5b+'\x20XP\x20and\x20logged\x20'+_0x2c7e62+_0x138b12(0x170));if(window[_0x138b12(0x1d3)])window['showToast']('+'+_0x55ef5b+'\x20XP\x20earned!',_0x138b12(0x17c));}catch(_0x40e9f7){console['error'](_0x138b12(0x16e),_0x40e9f7);}}function handleSessionEnd(){const _0x23b871=_0x59c340;pauseTimer(),playAlertSound();const _0x38cede=document[_0x23b871(0x18d)](_0x23b871(0x164)),_0x168649=document[_0x23b871(0x18d)](_0x23b871(0x13c)),_0x38c946=document[_0x23b871(0x18d)](_0x23b871(0x157));if(timerState[_0x23b871(0x19a)]===_0x23b871(0x1cc)){timerState['sessionsToday']++;if(_0x168649)_0x168649[_0x23b871(0x13d)]='Focus\x20Session\x20Complete!';if(_0x38c946)_0x38c946[_0x23b871(0x13d)]='Great\x20job!\x20Time\x20for\x20a\x20well-deserved\x20break.';awardStudyXP(timerState['settings'][_0x23b871(0x1cc)]||0x19),switchMode(_0x23b871(0x178));}else{if(_0x168649)_0x168649[_0x23b871(0x13d)]=_0x23b871(0x15b);if(_0x38c946)_0x38c946['innerText']=_0x23b871(0x156);switchMode(_0x23b871(0x1cc));}_0x38cede&&(_0x38cede[_0x23b871(0x167)][_0x23b871(0x1d0)]='flex',setTimeout(()=>_0x38cede[_0x23b871(0x167)][_0x23b871(0x193)]='1',0x32)),updateStatsUI(),saveFocusData();}window['stopAlarmSound']=function(){const _0x492318=_0x59c340;timerState[_0x492318(0x1ac)]&&(timerState[_0x492318(0x1ac)][_0x492318(0x168)](),timerState[_0x492318(0x1ac)]['currentTime']=0x0,timerState[_0x492318(0x1ac)]=null);const _0x5c69dd=document[_0x492318(0x18d)]('session-complete-overlay');_0x5c69dd&&(_0x5c69dd[_0x492318(0x167)]['opacity']='0',setTimeout(()=>_0x5c69dd[_0x492318(0x167)]['display']=_0x492318(0x148),0x190));},window[_0x59c340(0x199)]=function(){const _0x4a4fa2=_0x59c340,_0x150b78=document[_0x4a4fa2(0x18d)]('task-name-input'),_0x448c47=_0x150b78[_0x4a4fa2(0x1c5)]['trim']();if(!_0x448c47)return;timerState['tasks'][_0x4a4fa2(0x1d7)]({'id':Date[_0x4a4fa2(0x1d4)](),'name':_0x448c47,'done':![]}),_0x150b78['value']='',renderFocusTasks(),saveFocusData();},window['toggleFocusTask']=function(_0xeeb0e5){const _0x17bbe3=_0x59c340,_0x2edba8=timerState[_0x17bbe3(0x192)][_0x17bbe3(0x134)](_0x5a20d3=>_0x5a20d3['id']===_0xeeb0e5);_0x2edba8&&(_0x2edba8[_0x17bbe3(0x1d9)]=!_0x2edba8[_0x17bbe3(0x1d9)],renderFocusTasks(),saveFocusData());},window[_0x59c340(0x195)]=function(_0x57ef00){const _0x30ab53=_0x59c340;timerState[_0x30ab53(0x192)]=timerState[_0x30ab53(0x192)][_0x30ab53(0x154)](_0x7e178f=>_0x7e178f['id']!==_0x57ef00),renderFocusTasks(),saveFocusData();};function _0x5860(){const _0xa666e1=['DgLTzxiTywn0AxzLlxzPzxC','CgfYC2vK','zNjVBq','CgvYBwLZC2LVBG','i0zgmKq5nq','lM1VzguTyNrU','zM9JDxmTyw5HBhL0AwnZlwnOyxj0','mJu2otiWyvbLDwrn','z3jHBNrLza','cIaGicaGicaGpgrPDIbJBgfZCZ0IzM9JDxnMBg93lwnVBNrHAw5LCIiGAwq9iMzVy3vZzMXVDY1HChaIpGOGicaGicaGicaGica8is0Tiefmqvjnie9wrvjmqvKGls0+cIaGicaGicaGicaGidXKAxyGAwq9iNnLC3nPB24Ty29TCgXLDguTB3zLCMXHEsiGy2XHC3m9iNnLC3nPB24TB3zLCMXHEsiGC3r5Bgu9iMrPC3bSyxK6ig5VBMu7iJ4kicaGicaGicaGicaGicaGidXKAxyGy2XHC3m9iNnLC3nPB24TBw9KywWGz2XHC3mIpGOGicaGicaGicaGicaGicaGicaGidXKAxyGy2XHC3m9iMnLBgvICMf0Aw9UlwLJB24IpVcFJOK8l2rPDJ4kicaGicaGicaGicaGicaGicaGica8AdiGAwq9iM92zxjSyxKTDgL0BguIpLnLC3nPB24Gq29TCgXLDguHpc9OmJ4kicaGicaGicaGicaGicaGicaGica8CcbPzd0IB3zLCMXHEs1TC2CIpKDYzwf0igPVyIbVBIbZDgf5Aw5NigzVy3vZzwqUifrHA2uGysb3zwXSlwrLC2vYDMvKigjYzwfRlJWVCd4kicaGicaGicaGicaGicaGicaGica8yNv0Dg9UignSyxnZpsjIDg4GyNrUlxbYAw1HCNKGyNrUlxn0B3aTywXHCM0Iig9Uy2XPy2S9iNn0B3bbBgfYBvnVDw5KkcKIpGOGicaGicaGicaGicaGicaGicaGicaGica8AsbJBgfZCZ0IzMeTC29SAwqGzMeTyMvSBc1ZBgfZAci+pc9PpIbtDg9WiefSyxjTicyGq29UDgLUDwukicaGicaGicaGicaGicaGicaGica8l2j1DhrVBJ4kicaGicaGicaGicaGicaGidWVzgL2pGOGicaGicaGicaGica8l2rPDJ4kcIaGicaGicaGicaGidXKAxyGy2XHC3m9iNrPBwvYlwH1yIi+cIaGicaGicaGicaGicaGica8is0TifnfvfvqifzjrvCGkfnLBgvJDgLVBIKGls0+cIaGicaGicaGicaGicaGica8zgL2igLKpsj0Aw1LCI1Zzxr1Cc12Awv3iIbJBgfZCZ0IDgLTzxiTC2v0DxaTy29UDgfPBMvYiJ4kicaGicaGicaGicaGicaGicaGica8AdiGy2XHC3m9iNnLDhvWlxrPDgXLiJ5szwfKEsbMB3iGysbezwvWifn0Dwr5pZWVAdi+cIaGicaGicaGicaGicaGicaGicaGphaGy2XHC3m9iNnLDhvWlxn1yNrPDgXLiJ5tzwXLy3qGEw91CIbMB2n1CYbNB2fSihrVigjLz2LUpc9WpGOGicaGicaGicaGicaGicaGicaGidXKAxyGy2XHC3m9iMr1CMf0Aw9UlxbYzxnLDhmIpGOGicaGicaGicaGicaGicaGicaGicaGica8yNv0Dg9UignSyxnZpsjWCMvZzxqTy2HPCciGB25JBgLJAZ0IC2vSzwn0u3r1zhLuAw1LkdmWksi+cIaGicaGicaGicaGicaGicaGicaGicaGicaGica8C3bHBIbJBgfZCZ0IChjLC2v0lwXHyMvSiJ5tBwfYDcbtChjPBNq8l3nWyw4+cIaGicaGicaGicaGicaGicaGicaGicaGicaGica8C3bHBIbJBgfZCZ0IChjLC2v0lxzHBci+mZbTpc9ZCgfUpGOGicaGicaGicaGicaGicaGicaGicaGica8l2j1DhrVBJ4kicaGicaGicaGicaGicaGicaGicaGicaGpgj1DhrVBIbJBgfZCZ0IChjLC2v0lwnOAxaGC2vJB25Kyxj5iIbVBMnSAwnRpsjZzwXLy3rtDhvKEvrPBwuOnJaPiJ4kicaGicaGicaGicaGicaGicaGicaGicaGicaGidXZCgfUignSyxnZpsjWCMvZzxqTBgfIzwWIpLbVD2vYieHVDxi8l3nWyw4+cIaGicaGicaGicaGicaGicaGicaGicaGicaGica8C3bHBIbJBgfZCZ0IChjLC2v0lxzHBci+mwG8l3nWyw4+cIaGicaGicaGicaGicaGicaGicaGicaGidWVyNv0Dg9UpGOGicaGicaGicaGicaGicaGicaGicaGica8yNv0Dg9UignSyxnZpsjWCMvZzxqTy2HPCcbWCMvTAxvTiIbVBMnSAwnRpsjZzwXLy3rtDhvKEvrPBwuOmtiWksi+cIaGicaGicaGicaGicaGicaGicaGicaGicaGica8C3bHBIbJBgfZCZ0IChjLC2v0lwXHyMvSiJ5ezwvWierPDMu8l3nWyw4+cIaGicaGicaGicaGicaGicaGicaGicaGicaGica8C3bHBIbJBgfZCZ0IChjLC2v0lxzHBci+mMG8l3nWyw4+cIaGicaGicaGicaGicaGicaGicaGicaGidWVyNv0Dg9UpGOGicaGicaGicaGicaGicaGicaGicaGica8yNv0Dg9UignSyxnZpsjWCMvZzxqTy2HPCcbWDwXZzsiGB25JBgLJAZ0IC2vSzwn0u3r1zhLuAw1Lkdi0mcKIpGOGicaGicaGicaGicaGicaGicaGicaGicaGicaGphnWyw4Gy2XHC3m9iNbYzxnLDc1SywjLBci+twfYyxrOB248l3nWyw4+cIaGicaGicaGicaGicaGicaGicaGicaGicaGica8C3bHBIbJBgfZCZ0IChjLC2v0lxzHBci+ngG8l3nWyw4+cIaGicaGicaGicaGicaGicaGicaGicaGidWVyNv0Dg9UpGOGicaGicaGicaGicaGicaGicaGidWVzgL2pGOGicaGicaGicaGicaGicaGicaGidXKAxyGy2XHC3m9iMn1C3rVBs10Aw1LlwLUChv0iJ4kicaGicaGicaGicaGicaGicaGicaGicaGpgLUChv0ihr5Cgu9iM51BwjLCIiGAwq9iMn1C3rVBs1TAw4TAw5WDxqIihbSywnLAg9SzgvYpsjdDxn0B20GBwLUCY4UlIiGBwLUpsiXiIbTyxG9iJe4mci+cIaGicaGicaGicaGicaGicaGicaGicaGidXIDxr0B24GB25JBgLJAZ0IC2vSzwn0u3r1zhLuAw1LkgrVy3vTzw50lMDLDevSzw1LBNrcEuLKkcDJDxn0B20TBwLUlwLUChv0jYKUDMfSDwuPiJ5hBZWVyNv0Dg9UpGOGicaGicaGicaGicaGicaGicaGidWVzgL2pGOGicaGicaGicaGicaGicaGpc9KAxy+cGOGicaGicaGicaGicaGicaGpceTlsbbq1rjvKuGvKLfvYaOvgLTzxiPic0TpGOGicaGicaGicaGicaGicaGpgrPDIbPzd0IDgLTzxiTywn0AxzLlxzPzxCIignSyxnZpsj0Aw1LCI1Hy3rPDMuTy29UDgfPBMvYiIbZDhLSzt0IzgLZCgXHEtOGBM9UztSIpGOGicaGicaGicaGicaGicaGicaGidXKAxyGy2XHC3m9iNrPBwvYlxjPBMCTy29UDgfPBMvYiJ4kicaGicaGicaGicaGicaGicaGicaGicaGphn2zYbJBgfZCZ0IDgLTzxiTC3zNiIb2Awv3qM94psiWidaGmtaWideWmci+cIaGicaGicaGicaGicaGicaGicaGicaGicaGica8y2LYy2XLignSyxnZpsj0Aw1LCI1IzY1JAxjJBguIign4psi1mciGy3K9iJuWiIbYpsi0nsi+pc9JAxjJBgu+cIaGicaGicaGicaGicaGicaGicaGicaGicaGica8y2LYy2XLigLKpsj0Aw1LCI1WCM9NCMvZCYiGy2XHC3m9iNrPBwvYlxbYB2DYzxnZlwnPCMnSzsiGy3G9iJuWiIbJEt0IntaIihi9iJq1iIakicaGicaGicaGicaGicaGicaGicaGicaGicaGicaGicbZDhjVA2uTzgfZAgfYCMf5psiYodmIihn0CM9Rzs1KyxnOB2zMC2v0psiWiJ48l2nPCMnSzt4kicaGicaGicaGicaGicaGicaGicaGicaGpc9ZDMC+cIaGicaGicaGicaGicaGicaGicaGicaGidXKAxyGy2XHC3m9iNrPBwvYlwrPC3bSyxKIpGOGicaGicaGicaGicaGicaGicaGicaGicaGicaGpgrPDIbPzd0IDgLTzxiTy2XVy2SIignSyxnZpsj0Aw1LCI10Aw1LiJ4WmdOWmdWVzgL2pGOGicaGicaGicaGicaGicaGicaGicaGicaGicaGpgrPDIbPzd0IDgLTzxiTC3rHDhvZlxrLEhqIignSyxnZpsj0Aw1LCI1ZDgf0DxmIpLnuqvLjtKCGrK9dvvnfrdWVzgL2pGOGicaGicaGicaGicaGicaGicaGicaGica8l2rPDJ4kicaGicaGicaGicaGicaGicaGica8l2rPDJ4kcIaGicaGicaGicaGicaGicaGicaGpgrPDIbJBgfZCZ0IDgLTzxiTy29UDhjVBhmIpGOGicaGicaGicaGicaGicaGicaGicaGica8yNv0Dg9UignSyxnZpsjIDg4Ty3rYBciGDgL0Bgu9iLjLC2v0iIbVBMnSAwnRpsjYzxnLDfrVu2v0DxaOksi+pgKGy2XHC3m9iMzHlxnVBgLKigzHlxjVDgf0zs1Szwz0iJ48l2K+pc9IDxr0B24+cIaGicaGicaGicaGicaGicaGicaGicaGidXIDxr0B24GAwq9iM1HAw4TCgXHEs1IDg4IignSyxnZpsjIDg4Ty3rYBcbIDg4TBwfPBI1JDhjSiIb0AxrSzt0Iu3rHCNqVugf1C2uIig9Uy2XPy2S9iNrVz2DSzvrPBwvYkcKIpGOGicaGicaGicaGicaGicaGicaGicaGicaGicaGpgKGy2XHC3m9iMzHlxnVBgLKigzHlxbSyxKIpJWVAt4kicaGicaGicaGicaGicaGicaGicaGicaGpc9IDxr0B24+cIaGicaGicaGicaGicaGicaGicaGicaGidXIDxr0B24Gy2XHC3m9iMj0BI1JDhjSiIb0AxrSzt0Iu2v0DgLUz3mIig9Uy2XPy2S9iNrVz2DSzuzVy3vZu2v0DgLUz3mOksi+pgKGy2XHC3m9iMzHlxnVBgLKigzHlwDLyxiIpJWVAt48l2j1DhrVBJ4kicaGicaGicaGicaGicaGicaGica8l2rPDJ4kicaGicaGicaGicaGicaGidWVzgL2pGOGicaGicaGicaGica8l2rPDJ4kcIaGicaGicaGicaGidWHls0Gu2v0DgLUz3mGt3zLCMXHEsaTlt4kicaGicaGicaGicaGpgrPDIbPzd0IzM9JDxmTC2v0DgLUz3mTCgfUzwWIignSyxnZpsjMB2n1CY1Zzxr0Aw5NCY1VDMvYBgf5iIbZDhLSzt0IzgLZCgXHEtOGBM9UztSIpGOGicaGicaGicaGicaGicaGpgrPDIbJBgfZCZ0IzM9JDxmTC2v0DgLUz3mTy2fYzcbIywnRzhjVCc1IBhvYiJ4kicaGicaGicaGicaGicaGicaGica8zgL2ignSyxnZpsjZzxr0Aw5NCY1OzwfKzxiIpGOGicaGicaGicaGicaGicaGicaGicaGica8Adq+u2v0DgLUz3m8l2G0pGOGicaGicaGicaGicaGicaGicaGicaGica8yNv0Dg9UignSyxnZpsjJBg9Zzs1Zzxr0Aw5NCYiGB25JBgLJAZ0IDg9Nz2XLrM9JDxntzxr0Aw5NCYGPiJ4MDgLTzxm7pc9IDxr0B24+cIaGicaGicaGicaGicaGicaGicaGpc9KAxy+cIaGicaGicaGicaGicaGicaGicaGpgrPDIbJBgfZCZ0IC2v0DgLUz3mTz3jPzci+cIaGicaGicaGicaGicaGicaGicaGicaGidXKAxyGy2XHC3m9iNnLDhrPBMCTAxrLBsbMDwXSiJ4kicaGicaGicaGicaGicaGicaGicaGicaGicaGidXSywjLBd5ezwzHDwX0ifbYzxnLDhm8l2XHyMvSpGOGicaGicaGicaGicaGicaGicaGicaGicaGicaGpgrPDIbZDhLSzt0IzM9UDc1ZAxPLoIaWlJC1CMvToYbJB2XVCJOGDMfYkc0TDgv4Dc1KAw0PoYi+q29UzMLNDxjLihrOzxnLigLUigz1DhvYzsb1CgrHDgvZpc9KAxy+cIaGicaGicaGicaGicaGicaGicaGicaGidWVzgL2pGOGicaGicaGicaGicaGicaGicaGicaGica8zgL2ignSyxnZpsjZzxr0Aw5NlwL0zw0GzNvSBci+cIaGicaGicaGicaGicaGicaGicaGicaGicaGica8BgfIzwW+qwXLCNqGu291BMq8l2XHyMvSpGOGicaGicaGicaGicaGicaGicaGicaGicaGicaGpgrPDIbZDhLSzt0IzgLZCgXHEtOGzMXLEdSGz2fWoIaXmhb4oYi+cIaGicaGicaGicaGicaGicaGicaGicaGicaGicaGicaGphnLBgvJDcbPzd0IC2v0lwfSzxj0lxnVDw5KiIbVBMnOyw5Nzt0IDxbKyxrLu2v0DgLUz3mOksiGC3r5Bgu9iMzSzxG6ide7igjHy2TNCM91BMq6ihjNyMeOmJu1ldi1nsWYntuSmc4WnsK7igjVCMrLCJOGmxb4ihnVBgLKihzHCIGTlwzVy3vZlwjVCMrLCIK7ignVBg9YoIb3AgL0ztSGCgfKzgLUzZOGohb4oYbIB3jKzxiTCMfKAxvZoIa4ChG7iJ4kicaGicaGicaGicaGicaGicaGicaGicaGicaGicaGicaGicaGpg9WDgLVBIb2ywX1zt0ICgLHBM8IpLbPyw5ViejLBgW8l29WDgLVBJ4kicaGicaGicaGicaGicaGicaGicaGicaGicaGicaGicaGicaGpg9WDgLVBIb2ywX1zt0IEMvUiJ5Azw4Gqw1IAwvUy2u8l29WDgLVBJ4kicaGicaGicaGicaGicaGicaGicaGicaGicaGicaGicaGicaGpg9WDgLVBIb2ywX1zt0IAgfYCNKIpKHHCNj5ifbVDhrLCJWVB3b0Aw9UpGOGicaGicaGicaGicaGicaGicaGicaGicaGicaGicaGidWVC2vSzwn0pGOGicaGicaGicaGicaGicaGicaGicaGicaGicaGicaGidXIDxr0B24Gy2XHC3m9iMj0BIbIDg4TC20GyNrUlwDOB3n0iIbVBMnSAwnRpsjWBgf5qwXLCNrtB3vUzcH0CNvLksi+vgvZDdWVyNv0Dg9UpGOGicaGicaGicaGicaGicaGicaGicaGicaGicaGpc9KAxy+cIaGicaGicaGicaGicaGicaGicaGicaGidWVzgL2pGOGicaGicaGicaGicaGicaGicaGicaGica8zgL2ignSyxnZpsjZzxr0Aw5NlwL0zw0GzNvSBciGC3r5Bgu9iMzSzxGTzgLYzwn0Aw9UoIbYB3C7igP1C3rPzNKTy29UDgvUDdOGC3bHy2uTyMv0D2vLBJSGywXPz24TAxrLBxm6ignLBNrLCJSGyMfJA2DYB3vUzdOGCMDIysGYntuSmJu1ldi1nsWWlJaZktSGCgfKzgLUzZOGmtbWEdSGyM9YzgvYlxjHzgL1CZOGmtjWEdSGyM9YzgvYoIaXChGGC29SAwqGDMfYkc0TzM9JDxmTyM9YzgvYktSIpGOGicaGicaGicaGicaGicaGicaGicaGicaGicaGpgXHyMvSihn0EwXLpsjTyxjNAw4TyM90Dg9ToIaWoYi+txv0zsbbBgvYDcbtB3vUzdWVBgfIzwW+cIaGicaGicaGicaGicaGicaGicaGicaGicaGica8Aw5WDxqGDhLWzt0Iy2HLy2TIB3GIigLKpsjZzxqTyxvKAw8TBxv0zsiGB25JAgfUz2u9iNvWzgf0zvnLDhrPBMDZkcKIihn0EwXLpsj3Awr0AdOGmJbWEdSGAgvPz2H0oIaYmhb4oYbJDxjZB3i6ihbVAw50zxi7igfJy2vUDc1JB2XVCJOGDMfYkc0TzM9JDxmTChjPBwfYEsK7iJ4kicaGicaGicaGicaGicaGicaGicaGicaGpc9KAxy+cIaGicaGicaGicaGicaGicaGicaGpc9KAxy+cIaGicaGicaGicaGicaGica8l2rPDJ4kicaGicaGicaGicaGpc9KAxy+cGOGicaGicaGicaGica8zgL2ignSyxnZpsjMB2n1CY1KyxnOyM9HCMqIpGOGicaGicaGicaGicaGicaGpgrPDIbJBgfZCZ0IzM9JDxmTy2fYzci+cIaGicaGicaGicaGicaGicaGicaGpgGZpVcFJQ8GvgfZA3mGphnWyw4GAwq9iNrHC2STChjVz3jLC3mTyMfKz2uIihn0EwXLpsjMB250lxnPEMu6idaUnZvYzw07igjHy2TNCM91BMq6ihzHCIGTlwzVy3vZlxbYAw1HCNKPoYbWywrKAw5NoIaYChGGohb4oYbIB3jKzxiTCMfKAxvZoIaXmhb4oYi+mc8Wpc9ZCgfUpJWVAdm+cIaGicaGicaGicaGicaGicaGicaGpgrPDIbJBgfZCZ0IDgfZAY1PBNb1Dc1NCM91Cci+cIaGicaGicaGicaGicaGicaGicaGicaGidXPBNb1Dcb0ExbLpsj0zxH0iIbPzd0IDgfZAY1Uyw1LlwLUChv0iIbJBgfZCZ0IDgfZAY1PBNb1DciGCgXHy2vOB2XKzxi9iK5LDYbNB2fSlI4UiJ4kicaGicaGicaGicaGicaGicaGicaGicaGpgj1DhrVBIbJBgfZCZ0IyNrUigj0BI1WCMLTyxj5iIbVBMnSAwnRpsjHzgrgB2n1C1rHC2SOksi+qwrKpc9IDxr0B24+cIaGicaGicaGicaGicaGicaGicaGpc9KAxy+cIaGicaGicaGicaGicaGicaGicaGpgrPDIbPzd0IzM9JDxmTDgfZA3mTBgLZDciGy2XHC3m9iNrHC2STBgLZDci+pc9KAxy+cIaGicaGicaGicaGicaGica8l2rPDJ4kcIaGicaGicaGicaGicaGica8zgL2ignSyxnZpsjMB2n1CY1JyxjKiJ4kicaGicaGicaGicaGicaGicaGica8Adm+8j+tIcbbBMfSExrPy3m8l2GZpGOGicaGicaGicaGicaGicaGicaGidXKAxyGy2XHC3m9iNn0yxrZlw1PBMKTz3jPzciGC3r5Bgu9iM1HCMDPBI1IB3r0B206ideUnxjLBtSIpGOGicaGicaGicaGicaGicaGicaGicaGica8zgL2ignSyxnZpsjZDgf0lwjVEci+cIaGicaGicaGicaGicaGicaGicaGicaGicaGica8C3bHBIbPzd0IC3rHDc1ZzxnZAw9UCYiGy2XHC3m9iNn0yxqTDMfSiJ4Wpc9ZCgfUpGOGicaGicaGicaGicaGicaGicaGicaGicaGicaGphnWyw4Gy2XHC3m9iNn0yxqTBgfIzwWIpLnLC3nPB25Zpc9ZCgfUpGOGicaGicaGicaGicaGicaGicaGicaGica8l2rPDJ4kicaGicaGicaGicaGicaGicaGicaGicaGpgrPDIbJBgfZCZ0IC3rHDc1IB3GIpGOGicaGicaGicaGicaGicaGicaGicaGicaGicaGphnWyw4GAwq9iNn0yxqTzM9JDxmTDgLTzsiGy2XHC3m9iNn0yxqTDMfSiJ4WAdWVC3bHBJ4kicaGicaGicaGicaGicaGicaGicaGicaGicaGidXZCgfUignSyxnZpsjZDgf0lwXHyMvSiJ5iB3vYCZWVC3bHBJ4kicaGicaGicaGicaGicaGicaGicaGicaGpc9KAxy+cIaGicaGicaGicaGicaGicaGicaGpc9KAxy+cIaGicaGicaGicaGicaGicaGicaGpgnHBNzHCYbPzd0IzM9JDxmTyw5HBhL0AwnZlwnOyxj0iIbZDhLSzt0IBwf4lwHLAwDODdOGmJaWChG7ihDPzhrOoIaXmdaLoYi+pc9Jyw52yxm+cIaGicaGicaGicaGicaGica8l2rPDJ4kicaGicaGicaGicaGpc9KAxy+cGOGicaGicaGidWVzgL2pGOGicaG','ieHVDxjZ','zMLSDgvY','zg9JDw1LBNrfBgvTzw50','uMvHzhKGDg8GzgL2zsbIywnRigLUDg8GzgvLCcb3B3jRpW','B3zLCMXHEs1TC2C','CMDIysGYntuSmJu1ldi1nsWWlJeP','phaGC3r5Bgu9iNrLEhqTywXPz246ignLBNrLCJSGB3bHy2L0EtOGmc4ZoYbWywrKAw5NoIaXCMvToYi+tM8Gywn0AxzLihrHCMDLDhmUpc9WpG','Aw5Zzxj0','qNjLywSGt3zLCIe','C2v0DgLUz3m','zM9JDxmTDgfZA3mTBgLZDa','CNbJ','AxnsDw5UAw5N','Dg9gAxHLza','y29SBgvNzu5HBwu','lI9ZDxbHyMfZzs1JB25MAwCUANm/DJ0XlJa','zMXLEa','C2vZC2LVBI1JB21WBgv0zs1VDMvYBgf5','C2v0lwf1zgLVlw11Dgu','4OYAie5LDxjVu3bYAw50ifbYBYbjBML0AwfSAxPPBMCUlI4','C3r5Bgu','Cgf1C2u','D2vLA2X5sgLZDg9YEq','q2XPy2SGDg8GAgvHCIb5B3vYigfSyxjTlG','lI4VChvIBgLJl3nVDw5KCY9SDwLZx2H1BwfUB2LKzs1Zy2HVB2WTB2yTBwfNAwmTAw5ZCgLYzwqTyNKTAgfYCNKTCg90DgvYlti4otyXnY5TCdm','Aw5JCMvTzw50x3vZzxjFC3rHDhm','Bxv0zq','rxjYB3iGyxDHCMrPBMCGC3r1zhKGwfaGDMLHifn1CgfIyxnLoG','lI4VChvIBgLJl3nVDw5KCY9MCMvLC291BMrFy29TBxvUAxr5lxbPyw5VlwjLBgWTC291BMqTms0YnZe0nc5TCdm','igzVy3vZig1PBNv0zxmH','zgvMyxvSDa','DgfZAY1WCM9NCMvZCY1IywrNzq','D2fYBG','u3DPDgnOAw5Nig1VzguGD2LSBcbYzxnLDcb0AguGy3vYCMvUDcb0Aw1LCI4GuhjVy2vLzd8','ls1MB2n1CY1WCMLTyxj5','u3vU','veflsu5hieeGqLjfquS','C2HVCNq','CMvTB3zL','u2f0','CxvLCNLtzwXLy3rVCG','C3vJy2vZCW','AxnhDwvZDa','mJaXoxbHtxL0uG','ic0GtMv1CM9tChjPBNq','BgfZDerHDgu','Dg9tDhjPBMC','x19WCM90B19F','ksi+pc9PpGOGicaGicaGidWVzgL2pGOGicaG','Dg90ywXuAw1L','pgKGy2XHC3m9iMzHlxnVBgLKigzHlxbSyxKIpJWVAt4','Aw5PDezVy3vZrMXVDW','vgH1','yxzHDgfY','mZKWrxbiu0HV','CgfKu3rHCNq','C2v0uhjVCgvYDhK','zw1HAwW','z2v0rwXLBwvUDej5swq','u1rbwuLorYbgt0nvu0ve','z2v0q29UDgv4Da','C2v0lwfSzxj0lxnVDw5K','C2v0sxrLBq','DgfZA3m','B3bHy2L0Eq','A2v5CW','zgvSzxrLrM9JDxnuyxnR','C3bSAxq','y2HLy2TLza','mtu3mJjVsNDLENm','ywrKrM9JDxnuyxnR','Bw9Kzq','zMXVB3i','CMvUzgvYrM9JDxngBg93','y3vYCMvUDfvZzxi','DM9SDw1L','BgLUzq','CxvLCNLtzwXLy3rVCKfSBa','zM9JDxnMBg93x3bYB19KyxrH','Bg9N','lI4VChvIBgLJl3nVDw5KCY9SDwnHzgLHBgvZC2fUzhjVlxvUzgvYlxrOzs1YywLUlti1nJe4nI5TCdm','iZDcnJfgrG','C3rHDc1ZzxnZAw9UCW','CMDIysGYntuSmJu1ldi1nsWWlJqP','mta3otq4rujcq2Dm','ChjVDg90ExbL','zM9YrwfJAa','CMv0DxjUicHMDw5JDgLVBIGPia','iJ4kicaGicaGicaGicaGpgrPDIbJBgfZCZ0IDgfZAY1JAgvJA2jVEciGB25JBgLJAZ0IDg9Nz2XLrM9JDxnuyxnRka','ywn0AxzLqwXHCM0','zxjYB3i','y29UC29Szq','C2vZC2LVBNnuB2rHEq','DhjHy2u','DgLTzxi','CMvXDwvZDfbLCM1PC3nPB24','DgL0Bgu','CMvZzxruB1nLDhvW','jYKIxq','mtyXmtvPu1rtyLK','Bwf4','ntb3zxDYB3C','yMXVy2S','CgXHEufSzxj0u291BMq','CgHVDg8','E30Uy29UC3rYDwn0B3iOiNjLDhvYBIb0AgLZiIKOicK','yxbWBhK','Dg90ywXgB2n1C1nLy29Uzhm','BwfPBI1WBgf5lwj0BG','BMfTzq','CgLHBM8','CMDIysG1lca3lcaXmcWGmc45kq','mJe1nJuWEKP2DxPO','Dg9eyxrLu3rYAw5N','DMfSDwu','C291BMq','DgLTzxiTC2v0DxaTDMLLDW','C2vSzwn0','C2LUz2XL','DgLTzuXLzNq','lI4VyxnZzxrZl2XVz28UANbNp3y9nY4W','zM9JDxm','yMLUza','DgLTzxiTy2XVy2S','vw5RBM93BG','zgLZCgXHEq','ksi+cIaGicaGicaGicaGicaGica','Aw5Uzxjive1m','C2HVD1rVyxn0','BM93','mtb4DLvovhu','pc9ZCgfUpGOGicaGicaGicaGica8AsbJBgfZCZ0IzMfZigzHlxrYyxnOihrHC2STzgvSzxrLiIbVBMnSAwnRpsjKzwXLDgvgB2n1C1rHC2SO','ChvZAa','rM9JDxmGsg91CNm','zg9Uzq','8j+mNYbbD2fYzgvKia','mZu5mZq4s2jWDeDz','y2f0y2G','mteXnKv2B3LZvG','Bg9VCa','BgvUz3rO','ywn0AxzL','zMLUza','v2vK','ywrK','pgKGy2XHC3m9iMzHlxnVBgLKigzHlxbHDxnLiJ48l2K+','cIaGicaGicaGicaGidWVzgL2pGOGicaGicaGicaGica8C3bHBIbJBgfZCZ0IDgfZAY10zxH0iJ4','DxnLCNm','y3vYCMvUDfrPBwu','CMDIysGYntuSmJu1ldi1nsWWlJiP','B3zLCMXHEs10AxrSzq','Aw5UzxjuzxH0','zgvZDhjVEq','C3rYB2TLrgfZAg9MzNnLDa','mZzSCLPJBNi','i2zMzG','tw9U','C3vIC3rY','pgKGy2XHC3m9iMzHCYbMys1JAgvJAYiGC3r5Bgu9iMzVBNqTC2L6ztOGmtbWEdSIpJWVAt4','CgfYC2u','y2XHC3nmAxn0','CMfUzg9T','BM9Uzq'];_0x5860=function(){return _0xa666e1;};return _0x5860();}function renderFocusTasks(){const _0x1a1b40=_0x59c340,_0x32d318=document[_0x1a1b40(0x18d)](_0x1a1b40(0x15d));if(!_0x32d318)return;_0x32d318['innerHTML']=timerState[_0x1a1b40(0x192)]['map'](_0x3f738b=>'\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22task-item\x20'+(_0x3f738b[_0x1a1b40(0x1d9)]?_0x1a1b40(0x1d9):'')+_0x1a1b40(0x1ab)+_0x3f738b['id']+_0x1a1b40(0x1d1)+(_0x3f738b['done']?_0x1a1b40(0x144):'')+_0x1a1b40(0x138)+_0x3f738b[_0x1a1b40(0x1c0)]+_0x1a1b40(0x1d6)+_0x3f738b['id']+_0x1a1b40(0x183))['join']('')||_0x1a1b40(0x159);const _0x1b9060=timerState[_0x1a1b40(0x192)]['filter'](_0x1d62a3=>_0x1d62a3[_0x1a1b40(0x1d9)])[_0x1a1b40(0x1df)];document[_0x1a1b40(0x18d)](_0x1a1b40(0x172))['innerText']=_0x1b9060+'/'+timerState[_0x1a1b40(0x192)][_0x1a1b40(0x1df)];}window['toggleFocusSettings']=function(){const _0x2eec1d=_0x59c340,_0x1cf0c4=document[_0x2eec1d(0x18d)]('focus-settings-panel');if(!_0x1cf0c4)return;_0x1cf0c4[_0x2eec1d(0x167)][_0x2eec1d(0x1d0)]=_0x1cf0c4[_0x2eec1d(0x167)][_0x2eec1d(0x1d0)]===_0x2eec1d(0x148)?'flex':_0x2eec1d(0x148),_0x1cf0c4[_0x2eec1d(0x167)][_0x2eec1d(0x1d0)]===_0x2eec1d(0x163)?(document[_0x2eec1d(0x18d)](_0x2eec1d(0x190))[_0x2eec1d(0x1c5)]=timerState[_0x2eec1d(0x15c)][_0x2eec1d(0x1c6)]||_0x2eec1d(0x1c1),document[_0x2eec1d(0x18d)](_0x2eec1d(0x165))[_0x2eec1d(0x197)]=timerState['settings'][_0x2eec1d(0x16d)]||![]):timerState[_0x2eec1d(0x1ac)]&&(timerState[_0x2eec1d(0x1ac)][_0x2eec1d(0x168)](),timerState[_0x2eec1d(0x1ac)][_0x2eec1d(0x13a)]=0x0,timerState[_0x2eec1d(0x1ac)]=null);},window['updateSettings']=function(){const _0x53a840=_0x59c340;timerState['settings'][_0x53a840(0x1c6)]=document[_0x53a840(0x18d)](_0x53a840(0x190))[_0x53a840(0x1c5)],timerState[_0x53a840(0x15c)][_0x53a840(0x16d)]=document['getElementById'](_0x53a840(0x165))[_0x53a840(0x197)],saveFocusData();};function _0x6acd(_0x43bb50,_0x240e6e){_0x43bb50=_0x43bb50-0x133;const _0x20ee53=_0x5860();let _0x9b308a=_0x20ee53[_0x43bb50];if(_0x6acd['zgZKkI']===undefined){var _0x12e7fb=function(_0x58b35d){const _0x3adcc7='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x4887c7='',_0x249de1='';for(let _0x15322d=0x0,_0x38281e,_0x274d24,_0x28dcfd=0x0;_0x274d24=_0x58b35d['charAt'](_0x28dcfd++);~_0x274d24&&(_0x38281e=_0x15322d%0x4?_0x38281e*0x40+_0x274d24:_0x274d24,_0x15322d++%0x4)?_0x4887c7+=String['fromCharCode'](0xff&_0x38281e>>(-0x2*_0x15322d&0x6)):0x0){_0x274d24=_0x3adcc7['indexOf'](_0x274d24);}for(let _0x865337=0x0,_0x1032d2=_0x4887c7['length'];_0x865337<_0x1032d2;_0x865337++){_0x249de1+='%'+('00'+_0x4887c7['charCodeAt'](_0x865337)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x249de1);};_0x6acd['vvmorl']=_0x12e7fb,_0x6acd['wYGuMx']={},_0x6acd['zgZKkI']=!![];}const _0x4ad3e2=_0x20ee53[0x0],_0x586044=_0x43bb50+_0x4ad3e2,_0x6acd44=_0x6acd['wYGuMx'][_0x586044];return!_0x6acd44?(_0x9b308a=_0x6acd['vvmorl'](_0x9b308a),_0x6acd['wYGuMx'][_0x586044]=_0x9b308a):_0x9b308a=_0x6acd44,_0x9b308a;}const SOUND_BANK={'piano':_0x59c340(0x16f),'zen':_0x59c340(0x1a3),'harry':_0x59c340(0x16b)};let preloadedSounds={};function preloadFocusSounds(){const _0x40369c=_0x59c340;Object[_0x40369c(0x194)](SOUND_BANK)[_0x40369c(0x1a9)](_0x1eb9b2=>{const _0xe1d8dd=new Audio(SOUND_BANK[_0x1eb9b2]);_0xe1d8dd['preload']='auto',_0xe1d8dd['load'](),preloadedSounds[_0x1eb9b2]=_0xe1d8dd;});}window[_0x59c340(0x1ba)]=function(_0x1dd4f7=![]){const _0x49d299=_0x59c340;console[_0x49d299(0x1a2)]('🔊\x20playAlertSound\x20triggered\x20(test:',_0x1dd4f7,')');if(!_0x1dd4f7&&timerState[_0x49d299(0x15c)][_0x49d299(0x16d)])return;const _0x249f3d=_0x1dd4f7?document[_0x49d299(0x18d)]('set-alert-sound')[_0x49d299(0x1c5)]:timerState[_0x49d299(0x15c)]['sound'],_0x3dba94=SOUND_BANK[_0x249f3d]||SOUND_BANK[_0x49d299(0x1c1)];timerState[_0x49d299(0x1ac)]&&(timerState[_0x49d299(0x1ac)][_0x49d299(0x168)](),timerState[_0x49d299(0x1ac)]['currentTime']=0x0,timerState[_0x49d299(0x1ac)]=null);const _0x8bef7e=new Audio(_0x3dba94);_0x8bef7e[_0x49d299(0x19e)]=0x1;!_0x1dd4f7&&(_0x8bef7e[_0x49d299(0x1de)]=!![]);timerState['activeAlarm']=_0x8bef7e;const _0x1a54b9=_0x8bef7e['play']();_0x1a54b9!==undefined&&_0x1a54b9[_0x49d299(0x1dc)](_0x56a1b6=>{const _0x3b2012=_0x49d299;console[_0x3b2012(0x1ad)]('❌\x20Audio\x20Blocked:',_0x56a1b6);if(!_0x1dd4f7)showFocusNotification('⏰\x20Session\x20Complete!',_0x3b2012(0x16a));});};function showFocusNotification(_0x90063,_0x264176){const _0x43eeef=_0x59c340;Notification[_0x43eeef(0x14c)]===_0x43eeef(0x151)&&new Notification(_0x90063,{'body':_0x264176,'icon':_0x43eeef(0x1cb)});}function saveFocusData(){const _0x41ca66=_0x59c340,_0x25e6d8=(new Date()['getDay']()+0x6)%0x7,_0x48a682=timerState['weeklyHistory']||[0x0,0x0,0x0,0x0,0x0,0x0,0x0];_0x48a682[_0x25e6d8]=parseFloat((timerState[_0x41ca66(0x1be)]/0xe10)[_0x41ca66(0x160)](0x2));const _0x3007a7={'sessionsToday':timerState[_0x41ca66(0x1af)],'totalFocusSeconds':timerState['totalFocusSeconds'],'tasks':timerState[_0x41ca66(0x192)],'settings':timerState[_0x41ca66(0x15c)],'lastDate':new Date()[_0x41ca66(0x1c4)](),'weeklyHistory':_0x48a682};localStorage[_0x41ca66(0x191)]('focusflow_pro_data',JSON['stringify'](_0x3007a7));}function loadFocusData(){const _0x3b5bc1=_0x59c340,_0xd0ef38=localStorage['getItem'](_0x3b5bc1(0x1a1)),_0x310d2b=new Date()[_0x3b5bc1(0x1c4)]();timerState[_0x3b5bc1(0x169)]=[0x0,0x0,0x0,0x0,0x0,0x0,0x0];if(!_0xd0ef38)return;const _0x4bc07a=JSON[_0x3b5bc1(0x145)](_0xd0ef38);_0x4bc07a[_0x3b5bc1(0x180)]===_0x310d2b?(timerState['sessionsToday']=_0x4bc07a[_0x3b5bc1(0x1af)]||0x0,timerState['totalFocusSeconds']=_0x4bc07a[_0x3b5bc1(0x1be)]||0x0):(timerState[_0x3b5bc1(0x1af)]=0x0,timerState['totalFocusSeconds']=0x0);timerState[_0x3b5bc1(0x192)]=_0x4bc07a[_0x3b5bc1(0x192)]||[];if(_0x4bc07a['settings'])timerState[_0x3b5bc1(0x15c)]=_0x4bc07a[_0x3b5bc1(0x15c)];if(_0x4bc07a['weeklyHistory'])timerState[_0x3b5bc1(0x169)]=_0x4bc07a[_0x3b5bc1(0x169)];updateStatsUI();}function updateStatsUI(){const _0x49c271=_0x59c340,_0x3c24b6=document[_0x49c271(0x18d)](_0x49c271(0x1a5)),_0x264cf5=document['getElementById']('stat-focus-time');if(_0x3c24b6)_0x3c24b6[_0x49c271(0x13d)]=timerState[_0x49c271(0x1af)];if(_0x264cf5){const _0x4308a0=(timerState[_0x49c271(0x1be)]/0xe10)['toFixed'](0x1);_0x264cf5[_0x49c271(0x13d)]=_0x4308a0+'h';}initFocusChart();}let focusChartInstance=null;function initFocusChart(){const _0x569511=_0x59c340,_0x210c82=document[_0x569511(0x18d)](_0x569511(0x14f)),_0x181ed2=_0x210c82?.[_0x569511(0x18f)]('2d');if(!_0x181ed2)return;focusChartInstance&&focusChartInstance[_0x569511(0x13e)](),focusChartInstance=new Chart(_0x181ed2,{'type':_0x569511(0x19f),'data':{'labels':[_0x569511(0x142),'Tue',_0x569511(0x135),_0x569511(0x187),'Fri',_0x569511(0x17a),_0x569511(0x176)],'datasets':[{'label':_0x569511(0x1d8),'data':timerState[_0x569511(0x169)],'borderColor':'#7B61FF','backgroundColor':'rgba(123,\x2097,\x20255,\x200.1)','tension':0.4,'fill':!![],'pointRadius':0x4,'pointBackgroundColor':_0x569511(0x1a4),'pointBorderColor':_0x569511(0x13b),'pointHoverRadius':0x6}]},'options':{'responsive':!![],'maintainAspectRatio':![],'plugins':{'legend':{'display':![]},'tooltip':{'backgroundColor':_0x569511(0x1c2),'titleColor':_0x569511(0x141),'bodyColor':_0x569511(0x1a4),'padding':0xa,'borderColor':_0x569511(0x158),'borderWidth':0x1,'displayColors':![],'callbacks':{'label':_0x25ed24=>'\x20'+_0x25ed24[_0x569511(0x14a)]['y']+_0x569511(0x153)}}},'scales':{'y':{'display':![],'beginAtZero':!![],'suggestedMax':Math[_0x569511(0x1b7)](...timerState[_0x569511(0x169)],0x1)+0x1},'x':{'grid':{'display':![]},'border':{'display':![]},'ticks':{'color':_0x569511(0x1a6),'font':{'size':0xa}}}}}});}
+/* NeuroSprint Pro - Advanced Productivity Engine */
+
+window.renderFocusFlow = function() {
+    return `
+        <div class="focusflow-container" id="focusflow-app">
+            <!-- ALARM OVERLAY -->
+            <div id="session-complete-overlay" class="session-overlay" style="display: none;">
+                <div class="session-modal glass">
+                    <div class="celebration-icon">🎉</div>
+                    <h2 id="overlay-title">Session Complete!</h2>
+                    <p id="overlay-msg">Great job on staying focused. Take a well-deserved break.</p>
+                    <button class="btn btn-primary btn-stop-alarm" onclick="stopAlarmSound()">
+                        <i class="fa-solid fa-bell-slash"></i> Stop Alarm & Continue
+                    </button>
+                </div>
+            </div>
+
+            <div class="timer-hub">
+                <!-- SETUP VIEW (Selection) -->
+                <div id="timer-setup-view" class="timer-setup-container">
+                    <div class="setup-badge"><i class="fa-solid fa-bolt" style="color: #00f2ff; font-size: 0.75rem;"></i> NEUROSPRINT ENGINE</div>
+                    <h2 class="setup-title">Ready for a <span class="gradient-text-cyber">Deep Study?</span></h2>
+                    <p class="setup-subtitle">Select your focus target or enter custom duration</p>
+
+                    <div class="duration-presets">
+                        <button class="preset-chip" onclick="selectStudyTime(30)">
+                            <div class="preset-icon-box"><i class="fa-solid fa-bolt preset-icon"></i></div>
+                            <div class="preset-info">
+                                <span class="preset-label">SMART SPRINT</span>
+                                <div class="preset-val-group">
+                                    <span class="preset-val-num">30</span>
+                                    <span class="preset-val-unit">m</span>
+                                </div>
+                            </div>
+                        </button>
+                        <button class="preset-chip secondary" onclick="selectStudyTime(60)">
+                            <div class="preset-icon-box"><i class="fa-solid fa-rocket preset-icon"></i></div>
+                            <div class="preset-info">
+                                <span class="preset-label">POWER HOUR</span>
+                                <div class="preset-val-group">
+                                    <span class="preset-val-num">1</span>
+                                    <span class="preset-val-unit">h</span>
+                                </div>
+                            </div>
+                        </button>
+                        <button class="preset-chip premium" onclick="selectStudyTime(120)">
+                            <div class="preset-icon-box"><i class="fa-solid fa-bullseye preset-icon"></i></div>
+                            <div class="preset-info">
+                                <span class="preset-label">DEEP DIVE</span>
+                                <div class="preset-val-group">
+                                    <span class="preset-val-num">2</span>
+                                    <span class="preset-val-unit">h</span>
+                                </div>
+                            </div>
+                        </button>
+                        <button class="preset-chip pulse" onclick="selectStudyTime(240)">
+                            <div class="preset-icon-box"><i class="fa-solid fa-fire preset-icon"></i></div>
+                            <div class="preset-info">
+                                <span class="preset-label">MARATHON</span>
+                                <div class="preset-val-group">
+                                    <span class="preset-val-num">4</span>
+                                    <span class="preset-val-unit">h</span>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="custom-time-input-card">
+                        <div class="custom-input-wrapper">
+                            <i class="fa-solid fa-stopwatch custom-input-icon"></i>
+                            <input type="number" id="custom-min-input" placeholder="Custom mins..." min="1" max="360">
+                        </div>
+                        <button class="btn-custom-go" onclick="selectStudyTime(document.getElementById('custom-min-input').value)">
+                            <span class="btn-custom-text">Start Session</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ACTIVE VIEW (Timer) -->
+                <div id="timer-active-view" class="timer-active-container" style="display: none;">
+                    <div class="timer-ring-wrapper">
+                        <!-- Ambient Outer Glow Effect -->
+                        <div class="timer-ambient-glow"></div>
+                        
+                        <div class="timer-ring-container">
+                            <svg class="timer-svg" viewBox="0 0 200 200">
+                                <defs>
+                                    <linearGradient id="timerRingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#00F2FF" />
+                                        <stop offset="50%" stop-color="#7B61FF" />
+                                        <stop offset="100%" stop-color="#FF2D95" />
+                                    </linearGradient>
+                                    <filter id="ringGlowFilter" x="-20%" y="-20%" width="140%" height="140%">
+                                        <feGaussianBlur stdDeviation="3" result="blur" />
+                                        <feMerge>
+                                            <feMergeNode in="blur" />
+                                            <feMergeNode in="SourceGraphic" />
+                                        </feMerge>
+                                    </filter>
+                                </defs>
+
+                                <!-- Rotating Outer Orbit -->
+                                <circle class="timer-orbit-circle" cx="100" cy="100" r="92"></circle>
+
+                                <!-- Background Inner Track -->
+                                <circle class="timer-bg-circle" cx="100" cy="100" r="80"></circle>
+
+                                <!-- Active Progress Arc -->
+                                <circle id="timer-progress" class="timer-progress-circle" cx="100" cy="100" r="80" 
+                                    stroke="url(#timerRingGradient)" stroke-dasharray="502.65" stroke-dashoffset="0"
+                                    filter="url(#ringGlowFilter)"></circle>
+                            </svg>
+                            
+                            <div class="timer-display">
+                                <div class="timer-status-pill">
+                                    <span class="status-pulse-dot"></span>
+                                    <span id="timer-status-text" class="timer-status">STAYING FOCUSED</span>
+                                </div>
+                                <div id="timer-clock" class="timer-time">00:00</div>
+                                <div class="timer-subtext">NEUROSPRINT PRO</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timer-controls">
+                        <button class="btn-ctrl" title="Reset & Back" onclick="resetToSetup()">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                        <button id="main-play-btn" class="btn-ctrl btn-main-ctrl" title="Start/Pause" onclick="toggleTimer()">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                        <button class="btn-ctrl" title="Settings" onclick="toggleFocusSettings()">
+                            <i class="fa-solid fa-sliders"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Overlay -->
+            <div id="focus-settings-panel" class="focus-settings-overlay" style="display: none;">
+                <div class="focus-settings-card backdrop-blur">
+                    <div class="settings-header">
+                        <h4>Settings</h4>
+                        <button class="close-settings" onclick="toggleFocusSettings()">&times;</button>
+                    </div>
+                    <div class="settings-grid">
+                        <div class="setting-item full">
+                            <label>Default Presets</label>
+                            <div style="font-size: 0.75rem; color: var(--text-dim);">Configure these in future updates</div>
+                        </div>
+                        <div class="setting-item full">
+                            <label>Alert Sound</label>
+                            <div style="display: flex; gap: 10px;">
+                                <select id="set-alert-sound" onchange="updateSettings()" style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--focus-border); color: white; padding: 8px; border-radius: 8px;">
+                                    <option value="piano">Piano Bell</option>
+                                    <option value="zen">Zen Ambience</option>
+                                    <option value="harry">Harry Potter</option>
+                                </select>
+                                <button class="btn btn-sm btn-ghost" onclick="playAlertSound(true)">Test</button>
+                            </div>
+                        </div>
+                        <div class="setting-item full" style="flex-direction: row; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px; border: 1px solid var(--focus-border);">
+                            <label style="margin-bottom: 0;">Mute Alert Sound</label>
+                            <input type="checkbox" id="set-audio-mute" onchange="updateSettings()" style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--focus-primary);">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="focus-dashboard">
+                <div class="focus-card">
+                    <h3>
+                        <span class="focus-card-title"><i class="fa-solid fa-list-check card-title-icon"></i> Tasks</span>
+                        <span id="task-progress-badge" class="task-badge-pro">0/0</span>
+                    </h3>
+                    <div class="task-input-group">
+                        <input type="text" id="task-name-input" class="task-input" placeholder="New goal..." onkeydown="if(event.key==='Enter') addFocusTask()">
+                        <button class="btn-task-add" onclick="addFocusTask()">Add Goal</button>
+                    </div>
+                    <div id="focus-tasks-list" class="task-list"></div>
+                </div>
+
+                <div class="focus-card">
+                    <h3><span class="focus-card-title"><i class="fa-solid fa-chart-line card-title-icon"></i> Analytics</span></h3>
+                    <div class="stats-mini-grid">
+                        <div class="stat-box">
+                            <div class="stat-icon-wrapper"><i class="fa-solid fa-stopwatch"></i></div>
+                            <div class="stat-info">
+                                <span id="stat-sessions" class="stat-val">0</span>
+                                <span class="stat-label">SESSIONS</span>
+                            </div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-icon-wrapper"><i class="fa-solid fa-clock"></i></div>
+                            <div class="stat-info">
+                                <span id="stat-focus-time" class="stat-val">0.0h</span>
+                                <span class="stat-label">TOTAL HOURS</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-container-wrapper">
+                        <canvas id="focus-analytics-chart" style="max-height: 180px; width: 100%;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    `;
+};
+
+// --- CORE ENGINE ---
+let timerState = {
+    mode: 'focus', 
+    timeLeft: 25 * 60,
+    totalTime: 25 * 60,
+    isRunning: false,
+    timer: null,
+    sessionsToday: 0,
+    totalFocusSeconds: 0,
+    tasks: [],
+    activeAlarm: null,
+    settings: {
+        focus: 25,
+        short: 5,
+        long: 15,
+        sound: 'piano',
+        mute: false
+    }
+};
+
+window.selectStudyTime = function(mins) {
+    mins = parseInt(mins);
+    if (!mins || mins < 1) return;
+    
+    // Stop any current timer
+    clearInterval(timerState.timer);
+    timerState.isRunning = false;
+    
+    // Set time
+    timerState.timeLeft = mins * 60;
+    timerState.totalTime = mins * 60;
+    timerState.mode = 'focus';
+    
+    // Transition UI
+    const setupView = document.getElementById('timer-setup-view');
+    const activeView = document.getElementById('timer-active-view');
+    
+    setupView.style.opacity = '0';
+    setTimeout(() => {
+        setupView.style.display = 'none';
+        activeView.style.display = 'block';
+        setTimeout(() => activeView.style.opacity = '1', 50);
+        updateDisplay();
+        startTimer();
+    }, 400);
+};
+
+window.resetToSetup = function() {
+    clearInterval(timerState.timer);
+    timerState.isRunning = false;
+    
+    const setupView = document.getElementById('timer-setup-view');
+    const activeView = document.getElementById('timer-active-view');
+    
+    activeView.style.opacity = '0';
+    setTimeout(() => {
+        activeView.style.display = 'none';
+        setupView.style.display = 'block';
+        setTimeout(() => setupView.style.opacity = '1', 50);
+        updatePlayIcon();
+    }, 400);
+};
+
+window.initFocusFlow = function() {
+    console.log("⌚ NeuroSprint Pro Initializing...");
+    loadFocusData();
+    renderFocusTasks();
+    initFocusChart();
+    preloadFocusSounds();
+    
+    // Auth-sync check for notifications
+    if (Notification.permission === 'default') {
+        Notification.requestPermission();
+    }
+};
+
+function switchMode(mode) {
+    if (timerState.isRunning && !confirm("Switching mode will reset the current timer. Proceed?")) return;
+    
+    clearInterval(timerState.timer);
+    timerState.isRunning = false;
+    timerState.mode = mode;
+    
+    const durationMins = timerState.settings[mode] || 25;
+    timerState.timeLeft = durationMins * 60;
+    timerState.totalTime = durationMins * 60;
+    
+    // UI Update
+    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`.mode-btn[onclick="switchMode('${mode}')"]`)?.classList.add('active');
+    
+    const colors = { focus: '#7B61FF', short: '#00F2FF', long: '#FF2D95' };
+    document.documentElement.style.setProperty('--focus-primary', colors[mode]);
+    document.getElementById('timer-status-text').innerText = mode === 'focus' ? 'STAYING FOCUSED' : 'TAKING A BREAK';
+    
+    updateDisplay();
+    updatePlayIcon();
+}
+
+function toggleTimer() {
+    if (timerState.isRunning) {
+        pauseTimer();
+    } else {
+        startTimer();
+    }
+}
+
+function startTimer() {
+    timerState.isRunning = true;
+    updatePlayIcon();
+    
+    timerState.timer = setInterval(() => {
+        timerState.timeLeft--;
+        if (timerState.mode === 'focus') timerState.totalFocusSeconds++;
+        
+        if (timerState.timeLeft <= 0) {
+            handleSessionEnd();
+        } else {
+            updateDisplay();
+        }
+        
+        if (timerState.timeLeft % 30 === 0) saveFocusData(); // Save every 30s
+    }, 1000);
+}
+
+function pauseTimer() {
+    clearInterval(timerState.timer);
+    timerState.isRunning = false;
+    updatePlayIcon();
+    saveFocusData();
+}
+
+function resetTimer() {
+    pauseTimer();
+    const durationMins = timerState.settings[timerState.mode] || 25;
+    timerState.timeLeft = durationMins * 60;
+    updateDisplay();
+}
+
+function skipSession() {
+    if (timerState.mode === 'focus') {
+        switchMode('short');
+    } else {
+        switchMode('focus');
+    }
+}
+
+function updateDisplay() {
+    const mins = Math.floor(timerState.timeLeft / 60);
+    const secs = timerState.timeLeft % 60;
+    const clock = document.getElementById('timer-clock');
+    if (clock) clock.innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
+    
+    const total = timerState.totalTime;
+    const current = timerState.timeLeft;
+    const percentage = total > 0 ? (current / total) : 0;
+    
+    const progressCircle = document.getElementById('timer-progress');
+    
+    if (progressCircle) {
+        const circum = 502.65;
+        const offset = circum - (percentage * circum);
+        progressCircle.style.strokeDasharray = `${circum}`;
+        progressCircle.style.strokeDashoffset = offset;
+    }
+    
+    // Update Browser Tab Title
+    document.title = `${mins}:${secs.toString().padStart(2, '0')} - NeuroSprint`;
+}
+
+function updatePlayIcon() {
+    const btn = document.getElementById('main-play-btn');
+    if (!btn) return;
+    btn.innerHTML = timerState.isRunning ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+}
+
+async function awardStudyXP(minutes) {
+    if (!window.currentUser || window.currentUser.isGuest) return;
+    
+    // Award roughly 1 XP per 3 minutes (e.g., 10 XP for 30 minutes)
+    const xpEarned = Math.max(1, Math.floor(minutes / 3));
+    const userEmail = window.currentUser.email;
+
+    try {
+        const { supabase } = await import('./supabase-config.js?v=1.0');
+        
+        // Ensure user exists
+        const { data: userCheck } = await supabase.from('users').select('id').eq('email', userEmail).single();
+        if (!userCheck) {
+            await supabase.from('users').insert([{
+                id: window.currentUser.id || window.currentUser.uid || Math.random().toString(36).substr(2, 9),
+                email: userEmail,
+                name: window.currentUser.name || userEmail.split('@')[0],
+                avatar: window.currentUser.photo || window.currentUser.avatar || null,
+                collegename: window.currentUser.collegeName || 'Unknown',
+                xp: xpEarned,
+                uploads: 0,
+                focusminutes: minutes
+            }]);
+        } else {
+            const { error: rpcError } = await supabase.rpc('increment_user_stats', {
+                target_email: userEmail,
+                xp_amount: xpEarned,
+                uploads_amount: 0,
+                focus_amount: minutes
+            });
+            if (rpcError) console.error("Supabase RPC error:", rpcError);
+        }
+        console.log(`🌟 Awarded ${xpEarned} XP and logged ${minutes} focus minutes!`);
+        if (window.showToast) window.showToast(`+${xpEarned} XP earned!`, "success");
+    } catch(e) {
+        console.error("Error awarding study XP via Supabase:", e);
+    }
+}
+
+function handleSessionEnd() {
+    pauseTimer();
+    playAlertSound();
+    
+    const overlay = document.getElementById('session-complete-overlay');
+    const title = document.getElementById('overlay-title');
+    const msg = document.getElementById('overlay-msg');
+    
+    if (timerState.mode === 'focus') {
+        timerState.sessionsToday++;
+        if (title) title.innerText = "Focus Session Complete!";
+        if (msg) msg.innerText = "Great job! Time for a well-deserved break.";
+        
+        // Award XP
+        awardStudyXP(timerState.settings.focus || 25);
+        
+        switchMode('short');
+    } else {
+        if (title) title.innerText = "Break Over!";
+        if (msg) msg.innerText = "Ready to dive back into deep work?";
+        switchMode('focus');
+    }
+    
+    if (overlay) {
+        overlay.style.display = 'flex';
+        setTimeout(() => overlay.style.opacity = '1', 50);
+    }
+    
+    updateStatsUI();
+    saveFocusData();
+}
+
+window.stopAlarmSound = function() {
+    if (timerState.activeAlarm) {
+        timerState.activeAlarm.pause();
+        timerState.activeAlarm.currentTime = 0;
+        timerState.activeAlarm = null;
+    }
+    
+    const overlay = document.getElementById('session-complete-overlay');
+    if (overlay) {
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.style.display = 'none', 400);
+    }
+};
+
+// --- TASK MANAGEMENT ---
+window.addFocusTask = function() {
+    const input = document.getElementById('task-name-input');
+    const name = input.value.trim();
+    if (!name) return;
+    
+    timerState.tasks.push({
+        id: Date.now(),
+        name,
+        done: false
+    });
+    
+    input.value = '';
+    renderFocusTasks();
+    saveFocusData();
+};
+
+window.toggleFocusTask = function(id) {
+    const task = timerState.tasks.find(t => t.id === id);
+    if (task) {
+        task.done = !task.done;
+        renderFocusTasks();
+        saveFocusData();
+    }
+};
+
+window.deleteFocusTask = function(id) {
+    timerState.tasks = timerState.tasks.filter(t => t.id !== id);
+    renderFocusTasks();
+    saveFocusData();
+};
+
+function renderFocusTasks() {
+    const list = document.getElementById('focus-tasks-list');
+    if (!list) return;
+    
+    const emptyStateHTML = `
+        <div class="empty-tasks-state">
+            <div class="empty-task-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+            <div class="empty-task-title">No Active Targets</div>
+            <div class="empty-task-sub">Add your focus goals above to track progress</div>
+        </div>
+    `;
+    
+    list.innerHTML = timerState.tasks.map(task => `
+        <div class="task-item ${task.done ? 'done' : ''}">
+            <div class="task-checkbox" onclick="toggleFocusTask(${task.id})">
+                ${task.done ? '<i class="fas fa-check" style="font-size: 10px;"></i>' : ''}
+            </div>
+            <span class="task-text">${task.name}</span>
+            <i class="fas fa-trash task-delete" onclick="deleteFocusTask(${task.id})" title="Delete target"></i>
+        </div>
+    `).join('') || emptyStateHTML;
+    
+    const done = timerState.tasks.filter(t => t.done).length;
+    const badge = document.getElementById('task-progress-badge');
+    if (badge) badge.innerText = `${done}/${timerState.tasks.length}`;
+}
+
+// --- SETTINGS CONTROLS ---
+window.toggleFocusSettings = function() {
+    const panel = document.getElementById('focus-settings-panel');
+    if (!panel) return;
+    panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+    
+    if (panel.style.display === 'flex') {
+        document.getElementById('set-alert-sound').value = timerState.settings.sound || 'piano';
+        document.getElementById('set-audio-mute').checked = timerState.settings.mute || false;
+    } else {
+        // Stop any test sound when settings are closed
+        if (timerState.activeAlarm) {
+            timerState.activeAlarm.pause();
+            timerState.activeAlarm.currentTime = 0;
+            timerState.activeAlarm = null;
+        }
+    }
+};
+
+window.updateSettings = function() {
+    timerState.settings.sound = document.getElementById('set-alert-sound').value;
+    timerState.settings.mute = document.getElementById('set-audio-mute').checked;
+    
+    saveFocusData();
+};
+
+const SOUND_BANK = {
+    piano: '../public/sounds/freesound_community-piano-bell-sound-1-27144.mp3',
+    zen: '../public/sounds/lucadialessandro-under-the-rain-256186.mp3',
+    harry: '../public/sounds/luis_humanoide-school-of-magic-inspired-by-harry-potter-289617.mp3'
+};
+
+// Pre-load audio to prevent "slow" start
+let preloadedSounds = {};
+function preloadFocusSounds() {
+    Object.keys(SOUND_BANK).forEach(key => {
+        const audio = new Audio(SOUND_BANK[key]);
+        audio.preload = 'auto';
+        audio.load();
+        preloadedSounds[key] = audio;
+    });
+}
+
+window.playAlertSound = function(isTest = false) {
+    console.log("🔊 playAlertSound triggered (test:", isTest, ")");
+    if (!isTest && timerState.settings.mute) return; 
+    
+    const soundKey = isTest ? document.getElementById('set-alert-sound').value : timerState.settings.sound;
+    const url = SOUND_BANK[soundKey] || SOUND_BANK.piano;
+    
+    // Stop any currently playing audio (prevents overlapping test sounds)
+    if (timerState.activeAlarm) {
+        timerState.activeAlarm.pause();
+        timerState.activeAlarm.currentTime = 0;
+        timerState.activeAlarm = null;
+    }
+
+    // Use preloaded or new
+    const audio = new Audio(url); 
+    audio.volume = 1.0; 
+    
+    if (!isTest) {
+        audio.loop = true; 
+    }
+    
+    // Keep reference so we can stop it if they click Test again or close settings
+    timerState.activeAlarm = audio;
+    
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+        playPromise.catch(e => {
+            console.error("❌ Audio Blocked:", e);
+            if (!isTest) showFocusNotification("⏰ Session Complete!", "Click to hear your alarm.");
+        });
+    }
+};
+
+function showFocusNotification(title, body) {
+    if (Notification.permission === 'granted') {
+        new Notification(title, { body, icon: '../assets/logo.jpg?v=7.0' });
+    }
+}
+
+
+// --- STORAGE & ANALYTICS ---
+function saveFocusData() {
+    // Map current day (0=Sun, 1=Mon...) to index in ['Mon','Tue',...,'Sun']
+    const dayIndex = (new Date().getDay() + 6) % 7;
+    
+    // Update weekly history
+    const history = timerState.weeklyHistory || [0, 0, 0, 0, 0, 0, 0];
+    history[dayIndex] = parseFloat((timerState.totalFocusSeconds / 3600).toFixed(2));
+
+    const snapshot = {
+        sessionsToday: timerState.sessionsToday,
+        totalFocusSeconds: timerState.totalFocusSeconds,
+        tasks: timerState.tasks,
+        settings: timerState.settings,
+        lastDate: new Date().toDateString(),
+        weeklyHistory: history
+    };
+    localStorage.setItem('focusflow_pro_data', JSON.stringify(snapshot));
+}
+
+function loadFocusData() {
+    const raw = localStorage.getItem('focusflow_pro_data');
+    const today = new Date().toDateString();
+    
+    // Initialize default history
+    timerState.weeklyHistory = [0, 0, 0, 0, 0, 0, 0];
+    
+    if (!raw) return;
+    
+    const data = JSON.parse(raw);
+    
+    // Handle daily reset logic
+    if (data.lastDate === today) {
+        timerState.sessionsToday = data.sessionsToday || 0;
+        timerState.totalFocusSeconds = data.totalFocusSeconds || 0;
+    } else {
+        // It's a new day! Daily counters reset, but history stays.
+        timerState.sessionsToday = 0;
+        timerState.totalFocusSeconds = 0;
+    }
+    
+    // Restore persistent items
+    timerState.tasks = data.tasks || [];
+    if (data.settings) timerState.settings = data.settings;
+    if (data.weeklyHistory) timerState.weeklyHistory = data.weeklyHistory;
+    
+    updateStatsUI();
+}
+
+function updateStatsUI() {
+    const sessEl = document.getElementById('stat-sessions');
+    const timeEl = document.getElementById('stat-focus-time');
+    
+    if (sessEl) sessEl.innerText = timerState.sessionsToday;
+    if (timeEl) {
+        const hours = (timerState.totalFocusSeconds / 3600).toFixed(1);
+        timeEl.innerText = `${hours}h`;
+    }
+    
+    // Refresh chart if it exists
+    initFocusChart();
+}
+
+let focusChartInstance = null;
+
+function initFocusChart() {
+    const canvas = document.getElementById('focus-analytics-chart');
+    const ctx = canvas?.getContext('2d');
+    if (!ctx) return;
+    
+    // Destroy previous instance to prevent overlaps
+    if (focusChartInstance) {
+        focusChartInstance.destroy();
+    }
+    
+    const chartGradient = ctx.createLinearGradient(0, 0, 0, 160);
+    chartGradient.addColorStop(0, 'rgba(0, 242, 255, 0.25)');
+    chartGradient.addColorStop(1, 'rgba(123, 97, 255, 0.0)');
+    
+    focusChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Focus Hours',
+                data: timerState.weeklyHistory,
+                borderColor: '#00F2FF',
+                borderWidth: 2.5,
+                backgroundColor: chartGradient,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 4,
+                pointBackgroundColor: '#00F2FF',
+                pointBorderColor: '#05070A',
+                pointBorderWidth: 2,
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: '#FFFFFF',
+                pointHoverBorderColor: '#00F2FF'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    titleColor: '#fff',
+                    bodyColor: '#00F2FF',
+                    padding: 10,
+                    borderColor: 'rgba(0, 242, 255, 0.3)',
+                    borderWidth: 1,
+                    displayColors: false,
+                    callbacks: {
+                        label: (context) => ` ${context.parsed.y} Hours`
+                    }
+                }
+            },
+            scales: {
+                y: { 
+                    display: false, 
+                    beginAtZero: true,
+                    suggestedMax: Math.max(...timerState.weeklyHistory, 1) + 1
+                },
+                x: {
+                    grid: { display: false },
+                    border: { display: false },
+                    ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 11, family: 'Inter' } }
+                }
+            }
+        }
+    });
+}

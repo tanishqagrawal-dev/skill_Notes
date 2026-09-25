@@ -1,1 +1,416 @@
-const _0x40b731=_0x5b21;(function(_0x86d504,_0x514a9f){const _0x3375ad=_0x5b21,_0x47a5e2=_0x86d504();while(!![]){try{const _0x3824e2=-parseInt(_0x3375ad(0x1ac))/0x1+-parseInt(_0x3375ad(0x113))/0x2+parseInt(_0x3375ad(0x16d))/0x3+-parseInt(_0x3375ad(0x131))/0x4*(parseInt(_0x3375ad(0x175))/0x5)+-parseInt(_0x3375ad(0x170))/0x6+parseInt(_0x3375ad(0x199))/0x7+parseInt(_0x3375ad(0x135))/0x8*(parseInt(_0x3375ad(0x10c))/0x9);if(_0x3824e2===_0x514a9f)break;else _0x47a5e2['push'](_0x47a5e2['shift']());}catch(_0x5ec269){_0x47a5e2['push'](_0x47a5e2['shift']());}}}(_0x321f,0x7499b));const _0x5af2e0=(function(){let _0x699f68=!![];return function(_0x1495cb,_0x1d5dca){const _0x1518ac=_0x699f68?function(){const _0x496cec=_0x5b21;if(_0x1d5dca){const _0x3846e9=_0x1d5dca[_0x496cec(0x1a5)](_0x1495cb,arguments);return _0x1d5dca=null,_0x3846e9;}}:function(){};return _0x699f68=![],_0x1518ac;};}()),_0x220a56=_0x5af2e0(this,function(){const _0x46aa95=_0x5b21,_0x4db0a8=function(){let _0xef6c6;try{_0xef6c6=Function('return\x20(function()\x20'+'{}.constructor(\x22return\x20this\x22)(\x20)'+');')();}catch(_0x2def03){_0xef6c6=window;}return _0xef6c6;},_0x38696f=_0x4db0a8(),_0x46f471=_0x38696f['console']=_0x38696f[_0x46aa95(0x158)]||{},_0x692093=[_0x46aa95(0x195),'warn',_0x46aa95(0x116),'error',_0x46aa95(0x19c),_0x46aa95(0x147),_0x46aa95(0x125)];for(let _0x4e15fb=0x0;_0x4e15fb<_0x692093[_0x46aa95(0x13c)];_0x4e15fb++){const _0x5de2e1=_0x5af2e0[_0x46aa95(0x114)][_0x46aa95(0x17b)]['bind'](_0x5af2e0),_0x11c544=_0x692093[_0x4e15fb],_0x3445a7=_0x46f471[_0x11c544]||_0x5de2e1;_0x5de2e1[_0x46aa95(0x15f)]=_0x5af2e0['bind'](_0x5af2e0),_0x5de2e1[_0x46aa95(0x11d)]=_0x3445a7['toString']['bind'](_0x3445a7),_0x46f471[_0x11c544]=_0x5de2e1;}});_0x220a56();const LeaderboardData={'user':[{'id':'l1','name':'Tanishq','views':0x358,'score':0x960,'rank':0x1,'avatar':_0x40b731(0x194)},{'id':'l2','name':_0x40b731(0x184),'views':0x2d0,'score':0x834,'rank':0x2,'avatar':null},{'id':'l3','name':'Riya\x20Patel','views':0x2b2,'score':0x79e,'rank':0x3,'avatar':null},{'id':'l4','name':'Sneha\x20Gupta','views':0x21c,'score':0x578,'rank':0x4,'avatar':null},{'id':'l5','name':_0x40b731(0x1ab),'views':0x1ae,'score':0x44c,'rank':0x5,'avatar':null}],'contributor':[{'id':'c1','name':_0x40b731(0x184),'uploads':0xc,'downloads':0x20d0,'score':0x15e0,'rank':0x1,'avatar':null},{'id':'c2','name':_0x40b731(0x190),'uploads':0x8,'downloads':0x17d4,'score':0x1068,'rank':0x2,'avatar':null},{'id':'c3','name':_0x40b731(0x1ab),'uploads':0x5,'downloads':0xc80,'score':0xaf0,'rank':0x3,'avatar':null}],'college':[{'id':'u1','name':_0x40b731(0x15c),'views':0xa410,'students':0xd48,'score':0x2648,'rank':0x1,'logo':_0x40b731(0x15e)},{'id':'u2','name':_0x40b731(0x14f),'views':0x7918,'students':0x834,'score':0x2134,'rank':0x2,'logo':'🎓'},{'id':'u3','name':_0x40b731(0x1a7),'views':0x4650,'students':0x5dc,'score':0x1838,'rank':0x3,'logo':'📚'}]};document[_0x40b731(0x14b)](_0x40b731(0x19b),()=>{renderLeaderboard();});function renderLeaderboard(){const _0x8924f7=_0x40b731,_0x275aba=document[_0x8924f7(0x10e)]('tab-content');if(!_0x275aba)return;_0x275aba[_0x8924f7(0x109)]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22tab-pane\x20active\x20fade-in\x20leaderboard-pane\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<!--\x20Header\x20-->\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22leaderboard-header-section\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:\x20flex;\x20align-items:\x20center;\x20gap:\x2015px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h1\x20class=\x22font-heading\x20lb-main-title\x22\x20style=\x22margin:\x200;\x20line-height:\x201.1;\x20letter-spacing:\x20-1.5px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22lb-title-emoji\x22\x20style=\x22font-size:\x202.5rem;\x20filter:\x20drop-shadow(0\x200\x2015px\x20rgba(255,\x20215,\x200,\x200.4));\x20animation:\x20float\x203s\x20ease-in-out\x20infinite;\x22>🏆</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22lb-glow-text\x22\x20style=\x22font-size:\x202.5rem;\x20background:\x20linear-gradient(135deg,\x20#7B61FF\x200%,\x20#00F2FF\x20100%);\x20-webkit-background-clip:\x20text;\x20-webkit-text-fill-color:\x20transparent;\x20font-weight:\x20900;\x20text-shadow:\x200\x2010px\x2020px\x20rgba(123,\x2097,\x20255,\x200.2);\x22>Leaderboard</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</h1>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20style=\x22color:\x20rgba(255,\x20255,\x20255,\x200.5);\x20font-size:\x201.1rem;\x20max-width:\x20500px;\x20margin-left:\x205px;\x22>Compete,\x20contribute,\x20and\x20track\x20your\x20academic\x20standing\x20in\x20real-time\x20across\x20the\x20network.</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<!--\x20Controls\x20-->\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22lb-tabs-container\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22lb-tabs\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22lb-tab\x20active\x20lb-3d-tab\x22\x20data-type=\x22contributor\x22>📤\x20Top\x20Uploaders</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22lb-tab\x20lb-3d-tab\x22\x20data-type=\x22college\x22>🏫\x20Power\x20Colleges</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22lb-tab\x20lb-3d-tab\x22\x20data-type=\x22referral\x22>🔗\x20Referrals</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22lb-tab\x20lb-3d-tab\x22\x20data-type=\x22coders\x22>💻\x20Elite\x20Coders</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22leaderboard-container\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<!--\x20Main\x20Leaderboard\x20List\x20-->\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22leaderboard-main\x20glass-card\x22\x20style=\x22padding:\x202rem;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:\x20flex;\x20justify-content:\x20space-between;\x20margin-bottom:\x201.5rem;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22time-filters\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22time-filter\x20active\x22\x20data-time=\x22today\x22>Today</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22time-filter\x22\x20data-time=\x22week\x22>Week</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22time-filter\x22\x20data-time=\x22month\x22>Month</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22time-filter\x22\x20data-time=\x22all\x22>All\x20Time</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-size:\x200.8rem;\x20color:\x20var(--text-dim);\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20Auto-updates\x20every\x2010s\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22lb-list-container\x22\x20class=\x22leaderboard-list\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<!--\x20Populated\x20via\x20JS\x20-->\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<!--\x20Sidebar\x20/\x20Widget\x20Area\x20-->\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22lb-sidebar\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<!--\x201.\x20Personal\x20Rank\x20Tracker\x20-->\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22personal-rank-card\x22\x20style=\x22background:\x20linear-gradient(135deg,\x20rgba(123,\x2097,\x20255,\x200.12),\x20rgba(0,\x20242,\x20255,\x200.05));\x20border:\x201.5px\x20solid\x20rgba(123,\x2097,\x20255,\x200.2);\x20box-shadow:\x200\x2015px\x2035px\x20rgba(0,\x200,\x200,\x200.4);\x20border-radius:\x2024px;\x20padding:\x201.8rem;\x20position:\x20relative;\x20overflow:\x20hidden;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22position:\x20absolute;\x20top:\x20-50px;\x20right:\x20-50px;\x20width:\x20120px;\x20height:\x20120px;\x20background:\x20radial-gradient(circle,\x20rgba(0,\x20242,\x20255,\x200.15)\x200%,\x20transparent\x2070%);\x20pointer-events:\x20none;\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22position:\x20relative;\x20z-index:\x202;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h4\x20style=\x22margin-bottom:\x201.25rem;\x20color:\x20white;\x20font-weight:\x20800;\x20letter-spacing:\x200.5px;\x20text-transform:\x20uppercase;\x20font-size:\x200.85rem;\x20opacity:\x200.8;\x22>Your\x20Standing</h4>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22rank-stat\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22label\x22>Student\x20Rank</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20align-items:center;\x20gap:\x208px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22value\x22>#1</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22rank-change\x20rank-up\x22>↑\x202</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22rank-stat\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22label\x22>Contributor\x20Rank</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20align-items:center;\x20gap:\x208px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22value\x22>#12</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22rank-change\x20rank-down\x22>↓\x201</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22margin-top:\x201rem;\x20padding-top:\x200.5rem;\x20border-top:\x201px\x20solid\x20rgba(255,255,255,0.1);\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22label\x22>Score</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22value\x22\x20style=\x22float:\x20right;\x20color:\x20var(--secondary);\x22>2,450\x20XP</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<!--\x202.\x20Live\x20Activity\x20Feed\x20-->\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22glass-card\x22\x20style=\x22padding:\x201.5rem;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h4\x20style=\x22margin-bottom:\x201rem;\x20font-size:\x201rem;\x22>🔴\x20Live\x20Activity</h4>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22activity-feed\x22\x20class=\x22activity-feed\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<!--\x20Populated\x20via\x20JS\x20-->\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<!--\x203.\x20Badges\x20-->\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22glass-card\x22\x20style=\x22padding:\x201.5rem;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h4\x20style=\x22margin-bottom:\x201rem;\x20font-size:\x201rem;\x22>🎖️\x20Your\x20Badges</h4>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20gap:\x200.5rem;\x20flex-wrap:\x20wrap;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20title=\x22Early\x20Adopter\x22\x20style=\x22font-size:\x201.5rem;\x20cursor:\x20help;\x22>🚀</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20title=\x22Top\x20Viewer\x22\x20style=\x22font-size:\x201.5rem;\x20cursor:\x20help;\x22>👁️</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20title=\x22First\x20Upload\x22\x20style=\x22font-size:\x201.5rem;\x20cursor:\x20help;\x20opacity:\x200.3;\x22>📤</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20title=\x22Scholar\x22\x20style=\x22font-size:\x201.5rem;\x20cursor:\x20help;\x20opacity:\x200.3;\x22>🎓</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20',initLeaderboardListeners();}function _0x5b21(_0x345c47,_0x8a6177){_0x345c47=_0x345c47-0x105;const _0x10067d=_0x321f();let _0x220a56=_0x10067d[_0x345c47];if(_0x5b21['VtOPir']===undefined){var _0x5af2e0=function(_0x4b172c){const _0x511851='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x7e6d72='',_0x5cdb87='';for(let _0x1173fe=0x0,_0x12303e,_0x699f68,_0x1495cb=0x0;_0x699f68=_0x4b172c['charAt'](_0x1495cb++);~_0x699f68&&(_0x12303e=_0x1173fe%0x4?_0x12303e*0x40+_0x699f68:_0x699f68,_0x1173fe++%0x4)?_0x7e6d72+=String['fromCharCode'](0xff&_0x12303e>>(-0x2*_0x1173fe&0x6)):0x0){_0x699f68=_0x511851['indexOf'](_0x699f68);}for(let _0x1d5dca=0x0,_0x1518ac=_0x7e6d72['length'];_0x1d5dca<_0x1518ac;_0x1d5dca++){_0x5cdb87+='%'+('00'+_0x7e6d72['charCodeAt'](_0x1d5dca)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x5cdb87);};_0x5b21['CLwuBS']=_0x5af2e0,_0x5b21['YfQZCX']={},_0x5b21['VtOPir']=!![];}const _0x4945c8=_0x10067d[0x0],_0x321f02=_0x345c47+_0x4945c8,_0x5b2175=_0x5b21['YfQZCX'][_0x321f02];return!_0x5b2175?(_0x220a56=_0x5b21['CLwuBS'](_0x220a56),_0x5b21['YfQZCX'][_0x321f02]=_0x220a56):_0x220a56=_0x5b2175,_0x220a56;}function initLeaderboardListeners(){const _0x4cc0ff=_0x40b731,_0x3e1ef8=document[_0x4cc0ff(0x18b)](_0x4cc0ff(0x1ad));_0x3e1ef8[_0x4cc0ff(0x18d)](_0x3760f6=>{const _0x5def9b=_0x4cc0ff;_0x3760f6[_0x5def9b(0x166)]=()=>{const _0x295670=_0x5def9b;document[_0x295670(0x18b)]('.lb-tab')[_0x295670(0x18d)](_0x1f6f88=>_0x1f6f88[_0x295670(0x160)][_0x295670(0x11f)](_0x295670(0x162))),_0x3760f6[_0x295670(0x160)][_0x295670(0x157)](_0x295670(0x162)),updateLeaderboardUI(_0x3760f6[_0x295670(0x17d)][_0x295670(0x183)],_0x295670(0x108));};});const _0x29ba65=document[_0x4cc0ff(0x18b)](_0x4cc0ff(0x156));_0x29ba65[_0x4cc0ff(0x18d)](_0x576c44=>{const _0x35dde3=_0x4cc0ff;_0x576c44[_0x35dde3(0x166)]=()=>{const _0x3fe799=_0x35dde3;document['querySelectorAll'](_0x3fe799(0x156))[_0x3fe799(0x18d)](_0x4415c1=>_0x4415c1['classList']['remove'](_0x3fe799(0x162))),_0x576c44[_0x3fe799(0x160)][_0x3fe799(0x157)](_0x3fe799(0x162));const _0x51c045=document[_0x3fe799(0x192)](_0x3fe799(0x178))['dataset']['type'];updateLeaderboardUI(_0x51c045,_0x576c44[_0x3fe799(0x17d)][_0x3fe799(0x153)]);};}),updateLeaderboardUI(_0x4cc0ff(0x106),_0x4cc0ff(0x16a)),startActivityFeed();};function updateLeaderboardUI(_0x153c23,_0x405710){const _0x217243=_0x40b731,_0x34fadb=document[_0x217243(0x10e)](_0x217243(0x151));if(!_0x34fadb)return;const {db:_0x2d002b,collection:_0xf5babf,query:_0x5dd71d,orderBy:_0x528520,limit:_0x35f1bb,onSnapshot:_0x428865}=window[_0x217243(0x12b)]||{};if(!_0x2d002b){_0x34fadb['innerHTML']=_0x217243(0x15a);return;}let _0x3bcac2='xp';const _0x442a4c=(_0x52b55f,_0x4e3602,_0x4a056a)=>{const _0x5c218d=_0x217243;if(_0x52b55f[_0x5c218d(0x13c)]===0x0){_0x34fadb[_0x5c218d(0x109)]=_0x5c218d(0x16e);return;}if(window[_0x5c218d(0x1b3)]){const _0x335e24=_0x52b55f[_0x5c218d(0x15d)](_0x112419=>_0x112419['id']===window['currentUser']['id'])+0x1,_0x43d3f0=_0x52b55f[_0x5c218d(0x169)](_0x3c8e1a=>_0x3c8e1a['id']===window[_0x5c218d(0x1b3)]['id'])?.[_0x4a056a]||0x0,_0x2262b3=document[_0x5c218d(0x18b)](_0x5c218d(0x16b));if(_0x2262b3&&_0x2262b3[_0x5c218d(0x13c)]>=0x3){if(_0x4e3602===_0x5c218d(0x19e)){const _0x137775=document[_0x5c218d(0x18b)](_0x5c218d(0x1af));if(_0x137775[0x0])_0x137775[0x0][_0x5c218d(0x159)]=_0x335e24>0x0?'#'+_0x335e24:_0x5c218d(0x17e);}else{if(_0x4e3602===_0x5c218d(0x106)){const _0x3b1a91=document[_0x5c218d(0x18b)](_0x5c218d(0x1af));if(_0x3b1a91[0x1])_0x3b1a91[0x1][_0x5c218d(0x159)]=_0x335e24>0x0?'#'+_0x335e24:_0x5c218d(0x17e);}}_0x2262b3[0x2][_0x5c218d(0x159)]=_0x43d3f0[_0x5c218d(0x1b4)]()+'\x20'+(_0x4e3602==='student'?'XP':'pts');}}_0x34fadb['innerHTML']=_0x52b55f[_0x5c218d(0x11a)]((_0x43a832,_0x5328e5)=>{const _0x45fa24=_0x5c218d,_0x1c4e92=_0x5328e5<0x3?_0x45fa24(0x176)+(_0x5328e5+0x1):'',_0x3fea67=_0x5328e5<0x3?['🥇','🥈','🥉'][_0x5328e5]:'#'+(_0x5328e5+0x1),_0x227fc9=_0x5328e5===0x0?_0x45fa24(0x1b0):_0x5328e5===0x1?_0x45fa24(0x185):_0x5328e5===0x2?'#cd7f32':_0x45fa24(0x180),_0x2ea299=_0x5328e5<0x3?_0x45fa24(0x181)+_0x227fc9+_0x45fa24(0x18c)+_0x227fc9+'40;':'',_0x1b0561=_0x43a832[_0x45fa24(0x115)]||_0x43a832[_0x45fa24(0x128)];let _0xc8aa2c='';if(_0x1b0561){let _0x40698e=_0x1b0561;_0x40698e[_0x45fa24(0x1b9)](_0x45fa24(0x10b))&&(_0x40698e=_0x45fa24(0x155)+_0x40698e),_0xc8aa2c=_0x45fa24(0x136)+_0x40698e+_0x45fa24(0x193)+(_0x43a832[_0x45fa24(0x17a)]?_0x43a832['name'][0x0]:'?')+_0x45fa24(0x167);}else _0xc8aa2c=_0x45fa24(0x163)+(_0x43a832[_0x45fa24(0x17a)]?_0x43a832['name'][0x0]:'?')+_0x45fa24(0x167);let _0x4faeed='';if(_0x4e3602==='student')_0x4faeed='<span\x20class=\x22score-val\x22>'+(_0x43a832['xp']||0x0)+_0x45fa24(0x122);else{if(_0x4e3602===_0x45fa24(0x106))_0x4faeed=_0x45fa24(0x121)+(_0x43a832['uploads']||0x0)+'</span><span\x20class=\x22score-label\x22>Uploads</span>';else{if(_0x4e3602===_0x45fa24(0x179))_0x4faeed=_0x45fa24(0x121)+(window['formatFocusTime']?window[_0x45fa24(0x139)](_0x43a832[_0x45fa24(0x188)]||0x0):(_0x43a832[_0x45fa24(0x188)]||0x0)+'m')+_0x45fa24(0x11e);else{if(_0x4e3602===_0x45fa24(0x198))_0x4faeed='<span\x20class=\x22score-val\x22>'+(_0x43a832[_0x45fa24(0x14a)]||0x0)+_0x45fa24(0x182);else{if(_0x4e3602===_0x45fa24(0x1ae))_0x4faeed=_0x45fa24(0x121)+(_0x43a832[_0x45fa24(0x143)]||0x0)+_0x45fa24(0x132);else _0x4e3602==='coders'&&(_0x4faeed=_0x45fa24(0x118)+(_0x43a832[_0x45fa24(0x19a)]||0x0)+_0x45fa24(0x119)+(_0x43a832[_0x45fa24(0x18f)]||0x0)+_0x45fa24(0x197));}}}}return _0x45fa24(0x110)+_0x1c4e92+'\x22\x20style=\x22'+_0x2ea299+_0x45fa24(0x1b6)+(_0x5328e5+0x1)+'\x22>'+_0x3fea67+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22lb-user-content\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22lb-avatar-container\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0xc8aa2c+_0x45fa24(0x120)+(_0x5328e5===0x0?_0x45fa24(0x168):'')+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22lb-info\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h4>'+(_0x43a832[_0x45fa24(0x17a)]||_0x45fa24(0x148))+_0x45fa24(0x145)+(_0x4e3602===_0x45fa24(0x198)?_0x43a832['city']||_0x45fa24(0x1a3):_0x43a832['collegename']||_0x45fa24(0x141))+_0x45fa24(0x14d)+_0x4faeed+_0x45fa24(0x17f);})[_0x5c218d(0x13a)]('');};window[_0x217243(0x1ba)]&&(window[_0x217243(0x1ba)](),window['leaderboardUnsubscribe']=null);_0x3bcac2='xp';if(_0x153c23===_0x217243(0x19e))_0x3bcac2='xp';else{if(_0x153c23===_0x217243(0x106))_0x3bcac2=_0x217243(0x14a);else{if(_0x153c23===_0x217243(0x179))_0x3bcac2=_0x217243(0x188);else{if(_0x153c23===_0x217243(0x1ae))_0x3bcac2=_0x217243(0x143);else{if(_0x153c23===_0x217243(0x191))_0x3bcac2=_0x217243(0x19a);else{if(_0x153c23==='college')_0x3bcac2='uploads';}}}}}import(_0x217243(0x13e))[_0x217243(0x12e)](async({supabase:_0x2f46c3})=>{const _0x48276d=_0x217243,_0x84f1d2=async()=>{const _0x4c731f=_0x5b21;if(_0x153c23===_0x4c731f(0x198)){const {data:_0x4b2330,error:_0x37d6d6}=await _0x2f46c3[_0x4c731f(0x105)](_0x4c731f(0x1b2))[_0x4c731f(0x107)](_0x4c731f(0x10f));if(!_0x37d6d6&&_0x4b2330){const _0xb18f17=_0x3b6dae=>{const _0x451a61=_0x4c731f;if(!_0x3b6dae||_0x3b6dae===_0x451a61(0x164))return _0x451a61(0x19d);const _0x252a2e=_0x3b6dae[_0x451a61(0x1aa)]()['replace'](/[^a-z0-9]/g,'');if(_0x252a2e[_0x451a61(0x15b)]('medicaps')||_0x252a2e==='mu')return _0x451a61(0x137);if(_0x252a2e['includes'](_0x451a61(0x11c))||_0x252a2e['includes'](_0x451a61(0x1a0)))return _0x451a61(0x138);if(_0x252a2e[_0x451a61(0x15b)](_0x451a61(0x13d)))return'IPS\x20Academy';if(_0x252a2e[_0x451a61(0x15b)](_0x451a61(0x1a6)))return _0x451a61(0x14f);if(_0x252a2e[_0x451a61(0x15b)](_0x451a61(0x126))||_0x252a2e['includes'](_0x451a61(0x161))||_0x252a2e['includes'](_0x451a61(0x129)))return _0x451a61(0x165);if(_0x252a2e[_0x451a61(0x15b)]('vit')||_0x252a2e[_0x451a61(0x15b)](_0x451a61(0x1a4)))return _0x451a61(0x12a);if(_0x252a2e[_0x451a61(0x15b)]('srm'))return'SRM\x20University';if(_0x252a2e[_0x451a61(0x15b)](_0x451a61(0x19f))||_0x252a2e[_0x451a61(0x15b)](_0x451a61(0x172)))return _0x451a61(0x150);if(_0x252a2e['includes'](_0x451a61(0x14c))||_0x252a2e['includes'](_0x451a61(0x144)))return'LPU\x20Punjab';if(_0x252a2e[_0x451a61(0x15b)]('manipal'))return _0x451a61(0x152);if(_0x252a2e['includes'](_0x451a61(0x186)))return'LNCT\x20Bhopal';if(_0x252a2e['includes'](_0x451a61(0x13b))||_0x252a2e[_0x451a61(0x15b)](_0x451a61(0x17c)))return'CDGI\x20Indore';return _0x3b6dae['trim']()[_0x451a61(0x1b5)]('\x20')['map'](_0x480d46=>_0x480d46['charAt'](0x0)[_0x451a61(0x1a8)]()+_0x480d46[_0x451a61(0x124)](0x1)[_0x451a61(0x1aa)]())['join']('\x20');},_0x28500d=_0x978aad=>{const _0x4087d9=_0x4c731f,_0x3d2841={'Medicaps\x20University':_0x4087d9(0x12d),'SVVV\x20Indore':_0x4087d9(0x11b),'IPS\x20Academy':_0x4087d9(0x133),'SGSITS\x20Indore':_0x4087d9(0x171),'DAVV\x20Indore':_0x4087d9(0x1b1),'VIT\x20Vellore':_0x4087d9(0x127),'SRM\x20University':_0x4087d9(0x177),'IIT\x20Delhi':'assets/logos/iitd.png','LPU\x20Punjab':_0x4087d9(0x14e),'Manipal\x20University':_0x4087d9(0x154),'LNCT\x20Bhopal':_0x4087d9(0x1b8),'CDGI\x20Indore':'assets/logos/cdgi.png'};return _0x3d2841[_0x978aad]||null;},_0x3898ca={};_0x4b2330[_0x4c731f(0x18d)](_0x219cc4=>{const _0x18108e=_0x4c731f,_0x531128=_0xb18f17(_0x219cc4[_0x18108e(0x10d)]);if(!_0x3898ca[_0x531128])_0x3898ca[_0x531128]={'id':_0x531128,'name':_0x531128,'logo':_0x28500d(_0x531128),'uploads':0x0,'xp':0x0,'views':0x0};_0x3898ca[_0x531128][_0x18108e(0x14a)]+=_0x219cc4['uploads']||0x0,_0x3898ca[_0x531128]['xp']+=_0x219cc4['xp']||0x0,_0x3898ca[_0x531128]['views']=_0x3898ca[_0x531128][_0x18108e(0x14a)]*0xf+_0x3898ca[_0x531128]['xp'];});const _0x494485=Object[_0x4c731f(0x13f)](_0x3898ca)['sort']((_0x3c841a,_0x3e74a5)=>_0x3e74a5[_0x4c731f(0x14a)]-_0x3c841a[_0x4c731f(0x14a)])[_0x4c731f(0x124)](0x0,0x14);_0x442a4c(_0x494485,_0x153c23,_0x4c731f(0x14a));}}else{if(_0x153c23===_0x4c731f(0x1ae)){const {data:_0x7e9978,error:_0x24a8dd}=await _0x2f46c3[_0x4c731f(0x105)](_0x4c731f(0x123))[_0x4c731f(0x107)](_0x4c731f(0x16c))[_0x4c731f(0x1a1)](_0x4c731f(0x143),{'ascending':![]})['gt'](_0x4c731f(0x143),0x0)[_0x4c731f(0x140)](0x14);if(!_0x24a8dd&&_0x7e9978){const _0x51f067=_0x7e9978[_0x4c731f(0x11a)](_0x1b2a3d=>({'id':_0x1b2a3d['id'],'name':_0x1b2a3d[_0x4c731f(0x17a)]||_0x1b2a3d[_0x4c731f(0x18e)]?.[_0x4c731f(0x1b5)]('@')[0x0]||_0x4c731f(0x12c),'avatar':_0x1b2a3d[_0x4c731f(0x128)]||null,'collegename':_0x1b2a3d[_0x4c731f(0x198)]||'Scholar','referral_count':_0x1b2a3d[_0x4c731f(0x143)]||0x0,'referral_points':_0x1b2a3d[_0x4c731f(0x146)]||0x0,'xp':_0x1b2a3d['xp']||0x0}));_0x51f067[_0x4c731f(0x13c)]===0x0?_0x34fadb[_0x4c731f(0x109)]='<p\x20style=\x22text-align:center;\x20padding:\x202rem;\x20color:\x20var(--text-dim);\x22>No\x20referrals\x20yet.\x20Be\x20the\x20first\x20to\x20invite\x20friends!\x20🔗</p>':_0x442a4c(_0x51f067,_0x153c23,_0x4c731f(0x143));}}else{const {data:_0x4875c8,error:_0x532011}=await _0x2f46c3['from'](_0x4c731f(0x1b2))[_0x4c731f(0x107)]('*');if(!_0x532011&&_0x4875c8){_0x3bcac2==='xp'&&_0x4875c8[_0x4c731f(0x18d)](_0x19c508=>{const _0x149166=_0x4c731f;_0x19c508['xp']=(_0x19c508[_0x149166(0x14a)]||0x0)*0x32+(_0x19c508['referral_count']||0x0)*0x32+(_0x19c508['coding_xp']||0x0);});const _0x1a6345=_0x4875c8['sort']((_0x1dfd02,_0x148ec6)=>(_0x148ec6[_0x3bcac2]||0x0)-(_0x1dfd02[_0x3bcac2]||0x0))[_0x4c731f(0x124)](0x0,0x14);_0x442a4c(_0x1a6345,_0x153c23,_0x3bcac2);}}}};_0x84f1d2();if(window[_0x48276d(0x112)])_0x2f46c3[_0x48276d(0x117)](window[_0x48276d(0x112)]);window[_0x48276d(0x112)]=_0x2f46c3['channel']('public:users')['on'](_0x48276d(0x12f),{'event':'*','schema':_0x48276d(0x142),'table':_0x48276d(0x1b2)},_0x34ea32=>{_0x84f1d2();})['subscribe']();});}function startActivityFeed(){const _0x36b95b=_0x40b731,_0x539ef5=document[_0x36b95b(0x10e)](_0x36b95b(0x1a2));if(!_0x539ef5)return;const {db:_0x42ac99,collection:_0x17e695,query:_0x2fa61f,orderBy:_0x102401,limit:_0xda3f10,onSnapshot:_0x2286f8}=window[_0x36b95b(0x12b)]||{};if(!_0x42ac99)return;const _0x39509a=_0x2fa61f(_0x17e695(_0x42ac99,'notes'),_0x102401(_0x36b95b(0x16f),'desc'),_0xda3f10(0x5));_0x2286f8(_0x39509a,_0x3aca68=>{const _0x4be173=_0x36b95b;_0x539ef5[_0x4be173(0x109)]=_0x3aca68[_0x4be173(0x10a)][_0x4be173(0x11a)](_0x4bb1e8=>{const _0x2c62b5=_0x4be173,_0x37382b=_0x4bb1e8[_0x2c62b5(0x111)]();return'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22activity-item\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22activity-icon\x22>📤</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22activity-text\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<strong>'+(_0x37382b[_0x2c62b5(0x174)]||_0x2c62b5(0x12c))+_0x2c62b5(0x196)+_0x37382b[_0x2c62b5(0x187)]+_0x2c62b5(0x1b7);})[_0x4be173(0x13a)]('');});}function createActivityHTML(_0x243484){const _0x19dffe=_0x40b731;return _0x19dffe(0x130)+_0x243484[_0x19dffe(0x189)]+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22activity-text\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x243484[_0x19dffe(0x149)]+_0x19dffe(0x173)+_0x243484['time']+_0x19dffe(0x134);}function formatNumber(_0x49f881){const _0x12fb7a=_0x40b731;if(_0x49f881>=0x3e8)return(_0x49f881/0x3e8)[_0x12fb7a(0x18a)](0x1)+'k';return _0x49f881;}!window[_0x40b731(0x139)]&&(window[_0x40b731(0x139)]=_0x39d8b1=>{const _0x23f05e=_0x40b731;if(!_0x39d8b1)return'0m';if(_0x39d8b1<0x3c)return _0x39d8b1+'m';const _0x13fdfa=Math[_0x23f05e(0x1a9)](_0x39d8b1/0x3c),_0x390c96=_0x39d8b1%0x3c;return _0x390c96>0x0?_0x13fdfa+'h\x20'+_0x390c96+'m':_0x13fdfa+'h';});function _0x321f(){const _0xc67b41=['C2LSDMvY','Bg5JDa','DgL0Bgu','zM9JDxnTAw51DgvZ','AwnVBG','Dg9gAxHLza','CxvLCNLtzwXLy3rVCKfSBa','oYbIB3GTC2HHzg93oIaWidaGmtvWEca','zM9YrwfJAa','zw1HAwW','y29KAw5Nx3n0CMvHAW','uhjVzI4GtwvODge','y29KzxjZ','CxvLCNLtzwXLy3rVCG','iIbZDhLSzt0ID2LKDgG6mtaWjtSGAgvPz2H0oJeWmcu7igjVCMrLCI1YywrPDxm6ntaLoYbVyMPLy3qTzML0oMnVDMvYoYiGB25LCNjVCJ0IDgHPCY5ZDhLSzs5KAxnWBgf5psDUB25LjZSGDgHPCY5UzxH0rwXLBwvUDfnPyMXPBMCUC3r5BguUzgLZCgXHEt0NzMXLEcCIpGOGicaGicaGicaGicaGicaGicaGicaGicaGicaGica8C3bHBIbJBgfZCZ0IBgiTyxzHDgfYlwXLDhrLCIiGC3r5Bgu9iMrPC3bSyxK6BM9Uzsi+','yxnZzxrZl2f2yxrHCNmVms5WBMC/DJ02lJa','Bg9N','pc9ZDhjVBMC+ihvWBg9HzgvKia','ifn0CMvHAZWVC3bHBJ48l2rPDJ4','y29SBgvNzq','mJuYmZC4meL2sfnLwa','y29KAw5Nx3HW','re9nq29UDgvUDeXVywrLza','zxHJzxb0Aw9U','sw5KzxbLBMrLBNqGu2nOB2XHCNm','C3r1zgvUDa','AwL0za','DMfPC2HUyxy','B3jKzxi','ywn0AxzPDhKTzMvLza','vw5PDMvYC2L0Eq','DMvSBg9Yzq','yxbWBhK','C2DZAxrZ','suLquYbeqvzw','Dg9vChbLCKnHC2u','zMXVB3i','Dg9mB3DLCKnHC2u','uMfODwWGvMvYBwe','nZuWntmYvezytgTn','lMXIlxrHyG','CMvMzxjYywW','lNbLCNnVBMfSlxjHBMSTy2fYzcaUCMfUAY1ZDgf0ic52ywX1zq','z29Sza','yxnZzxrZl2XVz29Zl2rHDNyUCg5N','DxnLCNm','y3vYCMvUDfvZzxi','Dg9mB2nHBgvtDhjPBMC','C3bSAxq','igjVCMrLCI1YywrPDxm6ideYChG7ig1HCMDPBI1IB3r0B206idHWEdSIpGOGicaGicaGicaGicaGicaGicaGidXKAxyGy2XHC3m9iMXIlxjHBMSGCMfUAY0','cIaGicaGicaGicaGicaGicaGicaGicaGidXZCgfUignSyxnZpsjHy3rPDML0Es1TzxrHiJ5kDxn0ig5VDZWVC3bHBJ4kicaGicaGicaGicaGicaGicaGica8l2rPDJ4kicaGicaGicaGicaGicaGidWVzgL2pGOGicaGicaGicaGica','yxnZzxrZl2XVz29Zl2XUy3qUANbN','C3rHCNrZv2L0Aa','BgvHzgvYyM9HCMrvBNn1yNnJCMLIzq','zNjVBq','y29UDhjPyNv0B3i','C2vSzwn0','D2vLAW','Aw5Uzxjive1m','zg9JCW','yxnZzxrZlW','odm1mJa1nfPABwPvBa','y29SBgvNzw5HBwu','z2v0rwXLBwvUDej5swq','y29SBgvNzw5HBwuSihvWBg9HzhmSihHW','cIaGicaGicaGicaGicaGica8zgL2ignSyxnZpsjSyI1LBNrYEsa','zgf0yq','BgvHzgvYyM9HCMrtDwjZy3jPChrPB24','odGZotiWvuD3r3vc','y29UC3rYDwn0B3i','Bg9NBW','Aw5MBW','CMvTB3zLq2HHBM5LBa','pgrPDIbZDhLSzt0IzgLZCgXHEtPMBgv4oYbMBgv4lwrPCMvJDgLVBJPJB2X1Bw47igfSAwDUlwL0zw1ZoMzSzxGTzw5KoYbNyxa6mNb4oYi+phnWyw4Gy2XHC3m9iNnJB3jLlxzHBciGC3r5Bgu9iMnVBg9YoImWmgqYzMyIpG','ifHqpc9ZCgfUpJXZCgfUignSyxnZpsjZy29Yzs1SywjLBciGC3r5Bgu9iMnVBg9YoInMzJq3ntC7igzVBNqTD2vPz2H0oMjVBgq7igzVBNqTC2L6ztOWlJHYzw07ihrLEhqTDhjHBNnMB3jToNvWCgvYy2fZztSIpVcFLkuG','BwfW','yxnZzxrZl2XVz29Zl3n2DNyUCg5N','C3z2DG','Dg9tDhjPBMC','pc9ZCgfUpJXZCgfUignSyxnZpsjZy29Yzs1SywjLBci+vg90ywWGvgLTztWVC3bHBJ4','CMvTB3zL','cIaGicaGicaGicaGicaGicaGicaGicaGicaGica','phnWyw4Gy2XHC3m9iNnJB3jLlxzHBci+','ifHqpc9ZCgfUpJXZCgfUignSyxnZpsjZy29Yzs1SywjLBci+ug9PBNrZpc9ZCgfUpG','ChjVzMLSzxm','C2XPy2u','DhjHy2u','zgf2DG','yxnZzxrZl2XVz29Zl3zPDc5WBMC','yxzHDgfY','ywHPBhLH','vKLuifzLBgXVCMu','zMLYzwjHC2vtzxj2AwnLCW','u2nOB2XHCG','yxnZzxrZl2XVz29Zl21LzgLJyxbZlNbUzW','DgHLBG','Cg9ZDgDYzxnFy2HHBMDLCW','cIaGicaGicaGpgrPDIbJBgfZCZ0Iywn0AxzPDhKTAxrLBsi+cIaGicaGicaGicaGidXKAxyGy2XHC3m9iMfJDgL2Axr5lwLJB24IpG','odq0ntG4rvzhCvLM','pc9ZCgfUpJXZCgfUignSyxnZpsjZy29Yzs1SywjLBci+uMvMzxjYywXZpc9ZCgfUpG','yxnZzxrZl2XVz29Zl2LWCY5WBMC','pc9ZCgfUpGOGicaGicaGicaGica8l2rPDJ4kicaGicaGica8l2rPDJ4kicaGia','og1Yvg1LCq','pgLTzYbZCMm9iG','twvKAwnHChmGvw5PDMvYC2L0Eq','u1zwvIbjBMrVCMu','zM9YBwf0rM9JDxnuAw1L','AM9PBG','y2rNAq','BgvUz3rO','AxbZ','lI9ZDxbHyMfZzs1JB25MAwCUANm/DJ0XlJa','DMfSDwvZ','BgLTAxq','u3r1zgvUDa','ChvIBgLJ','CMvMzxjYywXFy291BNq','Bg92zwX5','pc9Ond4kicaGicaGicaGicaGicaGicaGicaGicaGicaGidXWpG','CMvMzxjYywXFCg9PBNrZ','DgfIBgu','qw5VBNLTB3vZ','Dgv4Da','DxbSB2fKCW','ywrKrxzLBNrmAxn0zw5LCG','Bhb1','pc9WpGOGicaGicaGicaGicaGicaGicaGicaGica8l2rPDJ4kicaGicaGicaGicaGicaGicaGica8l2rPDJ4kcIaGicaGicaGicaGicaGicaGicaGpgrPDIbJBgfZCZ0IBgiTC2nVCMuIpGOGicaGicaGicaGicaGicaGicaGicaGica','yxnZzxrZl2XVz29Zl2XWDs5WBMC','u0DtsvrtieLUzg9Yzq','suLuierLBgHP','BgiTBgLZDc1JB250ywLUzxi','twfUAxbHBcbvBML2zxjZAxr5','DgLTzq','yxnZzxrZl2XVz29Zl21HBMLWywWUCg5N','lI4V','lNrPBwuTzMLSDgvY','ywrK','y29UC29Szq','Aw5UzxjuzxH0','phaGC3r5Bgu9iNrLEhqTywXPz246y2vUDgvYoYbWywrKAw5NoIaYCMvToYbJB2XVCJOGDMfYkc0TDgv4Dc1KAw0PoYi+u3LUy2LUzYb3AxrOienSB3vKieH1yI4UlJWVCd4','Aw5JBhvKzxm','twvKAs1dyxbZifvUAxzLCNnPDhK','zMLUzeLUzgv4','8j+pM++4JW','x19WCM90B19F','y2XHC3nmAxn0','zgv2Aq','ywn0AxzL','phnWyw4Gy2XHC3m9iMXIlwf2yxrHCI1Szxr0zxiIpG','vw5RBM93BG','refwvIbjBMrVCMu','B25JBgLJAW','pc9ZCgfUpG','pgrPDIbJBgfZCZ0IBgiTyMfKz2uIpVcFKze8l2rPDJ4','zMLUza','Dg9KyxK','lNbLCNnVBMfSlxjHBMSTy2fYzcaUDMfSDwu','AwqSig5HBwuSigvTywLSlcbHDMf0yxiSignVBgXLz2uSihjLzMvYCMfSx2nVDw50lcbYzwzLCNjHBf9WB2LUDhmSihHW','mJm3mJe5ou1Lr01zAW','phaGC3r5Bgu9iNrLEhqTywXPz246y2vUDgvYoYbWywrKAw5NoIaYCMvToYbJB2XVCJOGDMfYkc0TDgv4Dc1KAw0PoYi+tM8GCMfUA2LUz3mGzM91BMqGEwv0lIbczsb0AguGzMLYC3qHpc9WpG','y3jLyxrLzef0','mte4odi3mfjtsNjkEq','yxnZzxrZl2XVz29Zl3nNC2L0CY5WBMC','zgvSAgK','cIaGicaGicaGicaGicaGica8C3bHBIbJBgfZCZ0Iywn0AxzPDhKTBwv0ysi+','DxbSB2fKzxjoyw1L','nxfyzLPnta','Dg9WltmGCMfUAY0','yxnZzxrZl2XVz29Zl3nYBs5WBMC','lMXIlxrHyI5Hy3rPDMu','BMv1CM9ZChjPBNq','BMfTzq','ChjVDg90ExbL','y2HHBwvSAq','zgf0yxnLDa','tI9b','cIaGicaGicaGicaGicaGicaGicaGpc9KAxy+cIaGicaGicaGicaGicaGica8l2rPDJ4kicaGicaGicaGicaG','DhjHBNnWyxjLBNq','yM9YzgvYoIaYChGGC29SAwqG','pc9ZCgfUpJXZCgfUignSyxnZpsjZy29Yzs1SywjLBci+tM90zxmGvxbSB2fKzwq8l3nWyw4+','DhLWzq','qw5RAxqGu2HHCM1H'];_0x321f=function(){return _0xc67b41;};return _0x321f();}
+// Standalone Leaderboard Script
+// Derived from dashboard.js logic
+
+const LeaderboardData = {
+    user: [
+        { id: 'l1', name: 'Tanishq', views: 856, score: 2400, rank: 1, avatar: 'assets/avatars/1.png?v=6.0' },
+        { id: 'l2', name: 'Ankit Sharma', views: 720, score: 2100, rank: 2, avatar: null },
+        { id: 'l3', name: 'Riya Patel', views: 690, score: 1950, rank: 3, avatar: null },
+        { id: 'l4', name: 'Sneha Gupta', views: 540, score: 1400, rank: 4, avatar: null },
+        { id: 'l5', name: 'Rahul Verma', views: 430, score: 1100, rank: 5, avatar: null },
+    ],
+    contributor: [
+        { id: 'c1', name: 'Ankit Sharma', uploads: 12, downloads: 8400, score: 5600, rank: 1, avatar: null },
+        { id: 'c2', name: 'Prof. Mehta', uploads: 8, downloads: 6100, score: 4200, rank: 2, avatar: null },
+        { id: 'c3', name: 'Rahul Verma', uploads: 5, downloads: 3200, score: 2800, rank: 3, avatar: null },
+    ],
+    college: [
+        { id: 'u1', name: 'Medi-Caps University', views: 42000, students: 3400, score: 9800, rank: 1, logo: '🏛️' },
+        { id: 'u2', name: 'SGSITS Indore', views: 31000, students: 2100, score: 8500, rank: 2, logo: '🎓' },
+        { id: 'u3', name: 'IIPS DAVV', views: 18000, students: 1500, score: 6200, rank: 3, logo: '📚' },
+    ]
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    renderLeaderboard();
+});
+
+function renderLeaderboard() {
+    const contentArea = document.getElementById('tab-content');
+    if (!contentArea) return;
+
+    contentArea.innerHTML = `
+        <div class="tab-pane active fade-in leaderboard-pane">
+            <!-- Header -->
+            <div class="leaderboard-header-section">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <h1 class="font-heading lb-main-title" style="margin: 0; line-height: 1.1; letter-spacing: -1px;">
+                        <span class="lb-title-emoji" style="font-size: 1.8rem; filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.4)); animation: float 3s ease-in-out infinite;">🏆</span>
+                        <span class="lb-glow-text" style="font-size: 1.8rem; background: linear-gradient(135deg, #7B61FF 0%, #00F2FF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;">Leaderboard</span>
+                    </h1>
+                </div>
+                <p style="color: rgba(255, 255, 255, 0.5); font-size: 0.88rem; max-width: 600px; margin-left: 2px; margin-bottom: 0.75rem;">Compete, contribute, and track your academic standing in real-time across the network.</p>
+            </div>
+            <!-- Controls -->
+            <div class="lb-tabs-container" style="margin-bottom: 1.25rem;">
+                <div class="lb-tabs">
+                    <div class="lb-tab active lb-3d-tab" data-type="contributor">📤 Top Uploaders</div>
+                    <div class="lb-tab lb-3d-tab" data-type="college">🏫 Power Colleges</div>
+                    <div class="lb-tab lb-3d-tab" data-type="referral">🔗 Referrals</div>
+                    <div class="lb-tab lb-3d-tab" data-type="coders">💻 Elite Coders</div>
+                </div>
+            </div>
+
+            <div class="leaderboard-container">
+                <!-- Main Leaderboard List -->
+                <div class="leaderboard-main glass-card" style="padding: 1.25rem; border-radius: 20px;">
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div class="time-filters">
+                            <div class="time-filter active" data-time="today">Today</div>
+                            <div class="time-filter" data-time="week">Week</div>
+                            <div class="time-filter" data-time="month">Month</div>
+                            <div class="time-filter" data-time="all">All Time</div>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-dim);">
+                            Auto-updates every 10s
+                        </div>
+                    </div>
+
+                    <div id="lb-list-container" class="leaderboard-list">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Sidebar / Widget Area -->
+                <div class="lb-sidebar">
+                    
+                    <!-- 1. Personal Rank Tracker -->
+                    <div class="personal-rank-card" style="background: linear-gradient(135deg, rgba(123, 97, 255, 0.12), rgba(0, 242, 255, 0.05)); border: 1.5px solid rgba(123, 97, 255, 0.2); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35); border-radius: 18px; padding: 1.1rem; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: -50px; right: -50px; width: 120px; height: 120px; background: radial-gradient(circle, rgba(0, 242, 255, 0.15) 0%, transparent 70%); pointer-events: none;"></div>
+                        <div style="position: relative; z-index: 2;">
+                            <h4 style="margin-bottom: 0.85rem; color: white; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; font-size: 0.78rem; opacity: 0.8;">Your Standing</h4>
+                            <div class="rank-stat">
+                                <span class="label" style="font-size: 0.75rem;">Student Rank</span>
+                                <div style="display:flex; align-items:center; gap: 8px;">
+                                    <span class="value" style="font-size: 1.25rem; font-weight: 800;">#1</span>
+                                    <span class="rank-change rank-up" style="font-size: 0.75rem;">↑ 2</span>
+                                </div>
+                            </div>
+                            <div class="rank-stat" style="margin-top: 0.4rem;">
+                                <span class="label" style="font-size: 0.75rem;">Contributor Rank</span>
+                                <div style="display:flex; align-items:center; gap: 8px;">
+                                    <span class="value" style="font-size: 1.25rem; font-weight: 800;">#12</span>
+                                    <span class="rank-change rank-down" style="font-size: 0.75rem;">↓ 1</span>
+                                </div>
+                            </div>
+                            <div style="margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                                <span class="label" style="font-size: 0.75rem;">Score</span>
+                                <span class="value" style="float: right; color: var(--secondary); font-size: 0.95rem; font-weight: 800;">2,450 XP</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Live Activity Feed -->
+                    <div class="glass-card" style="padding: 1.1rem; border-radius: 18px; margin-top: 1rem;">
+                        <h4 style="margin-bottom: 0.75rem; font-size: 0.88rem; font-weight: 800;">🔴 Live Activity</h4>
+                        <div id="activity-feed" class="activity-feed">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+
+                    <!-- 3. Badges -->
+                    <div class="glass-card" style="padding: 1.1rem; border-radius: 18px; margin-top: 1rem;">
+                        <h4 style="margin-bottom: 0.75rem; font-size: 0.88rem; font-weight: 800;">🎖️ Your Badges</h4>
+                        <div style="display:flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <span title="Early Adopter" style="font-size: 1.25rem; cursor: help;">🚀</span>
+                            <span title="Top Viewer" style="font-size: 1.25rem; cursor: help;">👁️</span>
+                            <span title="First Upload" style="font-size: 1.25rem; cursor: help; opacity: 0.3;">📤</span>
+                            <span title="Scholar" style="font-size: 1.25rem; cursor: help; opacity: 0.3;">🎓</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    initLeaderboardListeners();
+}
+
+function initLeaderboardListeners() {
+    // Type Switching
+    const typeTabs = document.querySelectorAll('.lb-tab');
+    typeTabs.forEach(tab => {
+        tab.onclick = () => {
+            document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            updateLeaderboardUI(tab.dataset.type, 'week'); // Default to week
+        };
+    });
+
+    // Time Switching
+    const timeFilters = document.querySelectorAll('.time-filter');
+    timeFilters.forEach(filter => {
+        filter.onclick = () => {
+            document.querySelectorAll('.time-filter').forEach(t => t.classList.remove('active'));
+            filter.classList.add('active');
+            // In a real app, this would fetch filtered data. Here we simulated.
+            const activeType = document.querySelector('.lb-tab.active').dataset.type;
+            updateLeaderboardUI(activeType, filter.dataset.time);
+        };
+    });
+
+    // Initial Render
+    updateLeaderboardUI('contributor', 'today');
+    startActivityFeed();
+};
+
+function updateLeaderboardUI(type, timeframe) {
+    const list = document.getElementById('lb-list-container');
+    if (!list) return;
+
+    const { db, collection, query, orderBy, limit, onSnapshot } = window.firebaseServices || {};
+    if (!db) {
+        list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">Syncing with Cloud Hub...</p>';
+        return;
+    }
+
+    // Determine collection and ordering based on type
+    let orderField = 'xp';
+
+    const renderLeaderboardData = (data, type, orderField) => {
+        if (data.length === 0) {
+            list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">No rankings found yet. Be the first!</p>';
+            return;
+        }
+
+        // --- NEW: Update "Your Standing" Widget ---
+        if (window.currentUser) {
+            const myRank = data.findIndex(item => item.id === window.currentUser.id) + 1;
+            const myScore = data.find(item => item.id === window.currentUser.id)?.[orderField] || 0;
+
+            const valueEls = document.querySelectorAll('.personal-rank-card .value');
+            if (valueEls && valueEls.length >= 3) {
+                if (type === 'student') {
+                    const rankEls = document.querySelectorAll('.personal-rank-card .rank-stat .value');
+                    if (rankEls[0]) rankEls[0].innerText = myRank > 0 ? `#${myRank}` : 'N/A';
+                } else if (type === 'contributor') {
+                    const rankEls = document.querySelectorAll('.personal-rank-card .rank-stat .value');
+                    if (rankEls[1]) rankEls[1].innerText = myRank > 0 ? `#${myRank}` : 'N/A';
+                }
+                valueEls[2].innerText = `${myScore.toLocaleString()} ${type === 'student' ? 'XP' : 'pts'}`;
+            }
+        }
+
+        list.innerHTML = data.map((item, index) => {
+            const rankClass = index < 3 ? `top-3 rank-${index + 1}` : '';
+            const rankIcon = index < 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`;
+            
+            // Premium Borders for standalone UI
+            const borderColor = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? '#cd7f32' : 'transparent';
+            const borderStyle = index < 3 ? `border: 2px solid ${borderColor}; box-shadow: 0 0 15px ${borderColor}40;` : '';
+
+            // Systematic logo/avatar rendering
+            const imgPath = item.logo || item.avatar; // Prefer logo for institutions
+            let avatarHtml = '';
+
+            if (imgPath) {
+                let resolvedPath = imgPath;
+                if (resolvedPath.startsWith('assets/')) {
+                    resolvedPath = '../' + resolvedPath;
+                }
+                avatarHtml = `<img src="${resolvedPath}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                              <span class="lb-avatar-letter" style="display:none">${item.name ? item.name[0] : '?'}</span>`;
+            } else {
+                avatarHtml = `<span class="lb-avatar-letter">${item.name ? item.name[0] : '?'}</span>`;
+            }
+
+            let metaHtml = '';
+            if (type === 'student') {
+                metaHtml = `<span class="score-val">${item.xp || 0} XP</span><span class="score-label">Points</span>`;
+            } else if (type === 'contributor') {
+                metaHtml = `<span class="score-val">${item.uploads || 0}</span><span class="score-label">Uploads</span>`;
+            } else if (type === 'neurosprint') {
+                metaHtml = `<span class="score-val">${window.formatFocusTime ? window.formatFocusTime(item.focusminutes || 0) : (item.focusminutes || 0) + 'm'}</span><span class="score-label">Total Time</span>`;
+            } else if (type === 'college') {
+                metaHtml = `<span class="score-val">${item.uploads || 0}</span><span class="score-label">Notes Uploaded</span>`;
+            } else if (type === 'referral') {
+                metaHtml = `<span class="score-val">${item.referral_count || 0}</span><span class="score-label">Referrals</span>`;
+            } else if (type === 'coders') {
+                metaHtml = `<div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;"><span class="score-val" style="color:#00d2ff">${item.coding_xp || 0} XP</span><span class="score-label" style="color:#ff4757; font-weight:bold; font-size:0.8rem; text-transform:uppercase;">🔥 ${(item.coding_streak || 0)} Streak</span></div>`;
+            }
+
+            return `
+                <div class="lb-entry ${rankClass}" style="${borderStyle} border-radius: 12px; margin-bottom: 8px;">
+                    <div class="lb-rank rank-${index + 1}">${rankIcon}</div>
+                    
+                    <div class="lb-user-content">
+                        <div class="lb-avatar-container">
+                            ${avatarHtml}
+                            ${index === 0 ? '<div class="lb-badge">👑</div>' : ''}
+                        </div>
+                        <div class="lb-info">
+                            <h4>${item.name || "Anonymous"}</h4>
+                            <p>${type === 'college' ? (item.city || 'University') : (item.collegename || "Student")}</p>
+                        </div>
+                    </div>
+
+                    <div class="lb-score">
+                        ${metaHtml}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    };
+
+    if (window.leaderboardUnsubscribe) { window.leaderboardUnsubscribe(); window.leaderboardUnsubscribe = null; }
+
+    orderField = 'xp';
+    if (type === 'student') orderField = 'xp';
+    else if (type === 'contributor') orderField = 'uploads';
+    else if (type === 'neurosprint') orderField = 'focusminutes';
+    else if (type === 'referral') orderField = 'referral_count';
+    else if (type === 'coders') orderField = 'coding_xp';
+    else if (type === 'college') orderField = 'uploads'; // We will aggregate and sort by uploads
+
+    import('./supabase-config.js?v=1.0').then(async ({ supabase }) => {
+        const fetchAndRender = async () => {
+            if (type === 'college') {
+                const { data, error } = await supabase.from('users').select('collegename, uploads, xp');
+                if (!error && data) {
+                    const normalizeCollegeName = (name) => {
+                        if (!name || name === 'Unknown') return 'Independent Scholars';
+                        const lower = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+                        if (lower.includes('medicaps') || lower === 'mu') return 'Medicaps University';
+                        if (lower.includes('svvv') || lower.includes('vaishnav')) return 'SVVV Indore';
+                        if (lower.includes('ips')) return 'IPS Academy';
+                        if (lower.includes('sgsits')) return 'SGSITS Indore';
+                        if (lower.includes('davv') || lower.includes('devi') || lower.includes('ahilya')) return 'DAVV Indore';
+                        if (lower.includes('vit') || lower.includes('vellore')) return 'VIT Vellore';
+                        if (lower.includes('srm')) return 'SRM University';
+                        if (lower.includes('iitd') || lower.includes('delhi')) return 'IIT Delhi';
+                        if (lower.includes('lpu') || lower.includes('lovely')) return 'LPU Punjab';
+                        if (lower.includes('manipal')) return 'Manipal University';
+                        if (lower.includes('lnct')) return 'LNCT Bhopal';
+                        if (lower.includes('cdgi') || lower.includes('chameli')) return 'CDGI Indore';
+                        return name.trim().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+                    };
+                    
+                    const getCollegeLogo = (normalizedName) => {
+                        const logos = {
+                            'Medicaps University': 'assets/logos/medicaps.png',
+                            'SVVV Indore': 'assets/logos/svvv.png', // Assuming we have it or it'll gracefully fallback
+                            'IPS Academy': 'assets/logos/ips.png',
+                            'SGSITS Indore': 'assets/logos/sgsits.png',
+                            'DAVV Indore': 'assets/logos/davv.png',
+                            'VIT Vellore': 'assets/logos/vit.png',
+                            'SRM University': 'assets/logos/srm.png',
+                            'IIT Delhi': 'assets/logos/iitd.png',
+                            'LPU Punjab': 'assets/logos/lpu.png',
+                            'Manipal University': 'assets/logos/manipal.png',
+                            'LNCT Bhopal': 'assets/logos/lnct.jpg',
+                            'CDGI Indore': 'assets/logos/cdgi.png'
+                        };
+                        return logos[normalizedName] || null;
+                    };
+
+                    const collMap = {};
+                    data.forEach(u => {
+                        const cname = normalizeCollegeName(u.collegename);
+                        if (!collMap[cname]) collMap[cname] = { id: cname, name: cname, logo: getCollegeLogo(cname), uploads: 0, xp: 0, views: 0 };
+                        collMap[cname].uploads += (u.uploads || 0);
+                        collMap[cname].xp += (u.xp || 0);
+                        collMap[cname].views = collMap[cname].uploads * 15 + collMap[cname].xp; // Faux views based on real activity
+                    });
+                    const aggregated = Object.values(collMap).sort((a, b) => b.uploads - a.uploads).slice(0, 20);
+                    renderLeaderboardData(aggregated, type, 'uploads');
+                }
+            } else if (type === 'referral') {
+                // Query profiles table for referral stats
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('id, name, email, avatar, college, referral_count, referral_points, xp')
+                    .order('referral_count', { ascending: false })
+                    .gt('referral_count', 0)
+                    .limit(20);
+                if (!error && data) {
+                    // Adapt to leaderboard format
+                    const adapted = data.map(p => ({
+                        id: p.id,
+                        name: p.name || p.email?.split('@')[0] || 'Scholar',
+                        avatar: p.avatar || null,
+                        collegename: p.college || 'Scholar',
+                        referral_count: p.referral_count || 0,
+                        referral_points: p.referral_points || 0,
+                        xp: p.xp || 0
+                    }));
+                    if (adapted.length === 0) {
+                        list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-dim);">No referrals yet. Be the first to invite friends! 🔗</p>';
+                    } else {
+                        renderLeaderboardData(adapted, type, 'referral_count');
+                    }
+                }
+            } else {
+                const { data, error } = await supabase.from('users').select('*');
+                if (!error && data) {
+                    if (orderField === 'xp') {
+                        data.forEach(u => {
+                            u.xp = ((u.uploads || 0) * 50) + ((u.referral_count || 0) * 50) + (u.coding_xp || 0);
+                        });
+                    }
+                    const sortedData = data.sort((a, b) => (b[orderField] || 0) - (a[orderField] || 0)).slice(0, 20);
+                    renderLeaderboardData(sortedData, type, orderField);
+                }
+            }
+        };
+        fetchAndRender();
+
+        if (window.leaderboardSubscription) supabase.removeChannel(window.leaderboardSubscription);
+        window.leaderboardSubscription = supabase.channel('public:users')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, payload => {
+                fetchAndRender();
+            }).subscribe();
+    });
+}
+
+function startActivityFeed() {
+    const feed = document.getElementById('activity-feed');
+    if (!feed) return;
+
+    const { db, collection, query, orderBy, limit, onSnapshot } = window.firebaseServices || {};
+    if (!db) return;
+
+    // Fetch latest notes (approved or not, just for activity feed)
+    const q = query(collection(db, "notes"), orderBy("createdAt", "desc"), limit(5));
+    onSnapshot(q, (snapshot) => {
+        feed.innerHTML = snapshot.docs.map(doc => {
+            const n = doc.data();
+            return `
+                <div class="activity-item">
+                    <div class="activity-icon">📤</div>
+                    <div class="activity-text">
+                        <strong>${n.uploaderName || 'Scholar'}</strong> uploaded ${n.title}
+                        <span class="activity-meta">Just now</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    });
+}
+
+function createActivityHTML(act) {
+    return `
+        <div class="activity-item">
+            <div class="activity-icon">${act.icon}</div>
+            <div class="activity-text">
+                ${act.text}
+                <span class="activity-meta">${act.time}</span>
+            </div>
+        </div>
+    `;
+}
+
+function formatNumber(num) {
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+    return num;
+}
+
+if (!window.formatFocusTime) {
+    window.formatFocusTime = (mins) => {
+        if (!mins) return "0m";
+        if (mins < 60) return `${mins}m`;
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        return m > 0 ? `${h}h ${m}m` : `${h}h`;
+    };
+}

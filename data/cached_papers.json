@@ -7768,5 +7768,112 @@
       ]
     },
     "createdAt": "2026-08-22T09:50:55.003Z"
+  },
+  {
+    "id": 1790281925743,
+    "subjectId": "Computer Networks",
+    "subjectName": "Computer Networks",
+    "examType": "MST 1",
+    "content": {
+      "university": "SKiL MATRiX",
+      "examTitle": "MST 1 2026",
+      "subjectCode": "SKL-MOD",
+      "subjectName": "Computer Networks",
+      "sections": [
+        {
+          "title": "Section A",
+          "questions": [
+            {
+              "id": "1",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Define the term 'Transmission Impairment' and briefly explain its three key causes (Attenuation, Distortion, and Noise).",
+                  "marks": "2",
+                  "bl": "01",
+                  "co": "01",
+                  "po": "1",
+                  "pso": "1"
+                },
+                {
+                  "id": "ii",
+                  "text": "Differentiate between Circuit Switching and Packet Switching networks based on parameters such as resource allocation, setup delay, and bandwidth utilization efficiency.",
+                  "marks": "3",
+                  "bl": "02",
+                  "co": "01",
+                  "po": "2",
+                  "pso": "1"
+                },
+                {
+                  "id": "iii",
+                  "text": "Explain the TCP/IP reference model layer-by-layer. Support your answer with a neat diagram mapping the protocols commonly associated with each layer.",
+                  "marks": "5",
+                  "bl": "02",
+                  "co": "01",
+                  "po": "1",
+                  "pso": "1"
+                }
+              ],
+              "orQuestion": {
+                "id": "iv",
+                "text": "A communication channel has a bandwidth of 4 kHz and a Signal-to-Noise Ratio (SNR) of 30 dB. Calculate: (a) The maximum theoretical channel capacity using Shannon's capacity formula, and (b) The minimum number of signal levels required to achieve this capacity according to Nyquist's bit rate theorem.",
+                "marks": "5",
+                "bl": "03",
+                "co": "01",
+                "po": "2",
+                "pso": "1"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Section B",
+          "questions": [
+            {
+              "id": "2",
+              "subQuestions": [
+                {
+                  "id": "i",
+                  "text": "Describe the mechanism of 'Piggybacking' as utilized in bidirectional flow control and explain its impact on network performance.",
+                  "marks": "2",
+                  "bl": "02",
+                  "co": "02",
+                  "po": "1",
+                  "pso": "2"
+                },
+                {
+                  "id": "ii",
+                  "text": "Compare Pure ALOHA and Slotted ALOHA random access MAC protocols with respect to frame collision vulnerable time, synchronization requirements, and peak throughput efficiency.",
+                  "marks": "3",
+                  "bl": "02",
+                  "co": "02",
+                  "po": "2",
+                  "pso": "2"
+                },
+                {
+                  "id": "iii",
+                  "text": "A sender wants to transmit the binary data stream 1101011011. Using the standard Cyclic Redundancy Check (CRC) generator polynomial G(x) = x^4 + x + 1 (binary divisor 10011), compute the frame check sequence (FCS) bits and write down the final codeword to be transmitted.",
+                  "marks": "5",
+                  "bl": "03",
+                  "co": "02",
+                  "po": "2",
+                  "pso": "2"
+                }
+              ],
+              "orQuestion": {
+                "id": "iv",
+                "text": "Analyze the operational behavior of the Selective Repeat ARQ sliding window protocol. Clearly explain how it manages lost frames and out-of-order delivery. Detail the relationship constraints between window size and sequence number space, illustrating your explanation with a sequence/timing diagram.",
+                "marks": "5",
+                "bl": "04",
+                "co": "02",
+                "po": "3",
+                "pso": "2"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "createdAt": "2026-09-24T20:32:05.743Z"
   }
 ]

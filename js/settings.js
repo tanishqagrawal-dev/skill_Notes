@@ -7,11 +7,12 @@ window.SettingsModule = {
         activeTab: 'account',
         user: {},
         settings: {
-            notifications: { email: true, push: true, exam_alerts: true, ai_suggestions: true },
-            appearance: { theme: 'dark', compact: false, reduceMotion: false },
+            notifications: { email: true, push: true, exam_alerts: true, ai_suggestions: true, weekly_attendance: true },
+            appearance: { theme: 'dark', compact: false, reduceMotion: false, auto_reload_blank: true, instant_quality: true },
             privacy: { leaderboard: true },
             study: { target_hours: 4, show_verified_only: true, auto_save_activity: true },
-            ai: { model: 'flash-2.0', auto_summarize: true, explain_concepts: true, smart_search: false }
+            ai: { model: 'flash-2.0', auto_summarize: true, explain_concepts: true, smart_search: false },
+            attendance: { target: 75, auto_sync: true }
         }
     },
     isInitialized: false,
@@ -145,7 +146,8 @@ window.SettingsModule = {
         const tabs = [
             { id: 'account', icon: '🔐', label: 'Account & Security' },
             { id: 'notifications', icon: '🔔', label: 'Notifications' },
-            { id: 'appearance', icon: '🎨', label: 'Appearance' },
+            { id: 'attendance', icon: '📊', label: 'Attendance Pro & Data' },
+            { id: 'appearance', icon: '🎨', label: 'Appearance & Viewer' },
             { id: 'study', icon: '📚', label: 'Study Preferences' },
             { id: 'privacy', icon: '🛡️', label: 'Privacy & Data' },
             { id: 'ai', icon: '🤖', label: 'AI Features' },
@@ -251,12 +253,58 @@ window.SettingsModule = {
                     </div>
                 `;
 
+            case 'attendance':
+                const atTarget = (window.AttendancePro && window.AttendancePro.state) ? window.AttendancePro.state.target : 75;
+                return `
+                    <div class="settings-section-title">📊 Attendance Pro & Data Options</div>
+                    <p class="settings-section-desc">Manage client-side attendance backups, CSV data imports, and attendance rules.</p>
+
+                    <div class="settings-group">
+                        <h3>Data Import & Export</h3>
+                        <div class="settings-row">
+                            <div class="settings-label">
+                                <strong>Import Attendance Records</strong>
+                                <span>Upload CSV files (records.csv, subjects.csv, timetable.csv), ZIP packages, or JSON backup files.</span>
+                            </div>
+                            <button class="btn-sm-ghost" style="border-color: #7B61FF; color: #7B61FF;" onclick="if(window.AttendancePro){ window.AttendancePro.openImportModal(); } else { alert('Attendance Pro module loading...'); }">
+                                📥 Import Files
+                            </button>
+                        </div>
+                        <div class="settings-row">
+                            <div class="settings-label">
+                                <strong>Export Attendance Backup</strong>
+                                <span>Download Excel/CSV ZIP package or complete JSON client snapshot.</span>
+                            </div>
+                            <button class="btn-sm-ghost" style="border-color: #00FF94; color: #00FF94;" onclick="if(window.AttendancePro){ window.AttendancePro.openExportModal(); } else { alert('Attendance Pro module loading...'); }">
+                                📤 Export Package
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>Attendance Goals & Notifications</h3>
+                        <div class="settings-row">
+                            <div class="settings-label">
+                                <strong>Target Criteria Goal</strong>
+                                <span>Required percentage for attendance threshold calculations</span>
+                            </div>
+                            <select class="settings-input" style="width: auto;" onchange="if(window.AttendancePro){ window.AttendancePro.state.target = parseInt(this.value); window.AttendancePro.saveData(); window.showToast('Attendance target updated to ' + this.value + '%', 'success'); }">
+                                <option value="75" ${atTarget == 75 ? 'selected' : ''}>75% (Standard)</option>
+                                <option value="80" ${atTarget == 80 ? 'selected' : ''}>80% (High)</option>
+                                <option value="85" ${atTarget == 85 ? 'selected' : ''}>85% (Strict)</option>
+                                <option value="90" ${atTarget == 90 ? 'selected' : ''}>90% (Excellence)</option>
+                            </select>
+                        </div>
+                        ${this.toggleRow('notifications', 'weekly_attendance', 'Weekly Attendance Email Summary Report', s.notifications.weekly_attendance === true)}
+                    </div>
+                `;
+
             case 'appearance':
                 const theme = s.appearance && s.appearance.theme ? s.appearance.theme : (localStorage.getItem('theme') || 'dark');
 
                 return `
-                    <div class="settings-section-title">🎨 Appearance</div>
-                    <p class="settings-section-desc">Customize your visual experience and performance.</p>
+                    <div class="settings-section-title">🎨 Appearance & Viewer Options</div>
+                    <p class="settings-section-desc">Customize your visual experience, rendering quality, and performance.</p>
 
                     <div class="settings-group">
                          <h3>Theme</h3>
@@ -274,6 +322,12 @@ window.SettingsModule = {
                          <h3>Interface</h3>
                          ${this.toggleRow('appearance', 'reduceMotion', 'Reduce Motion (Accessibility)', s.appearance.reduceMotion)}
                          ${this.toggleRow('appearance', 'compact', 'Compact Mode', s.appearance.compact)}
+                    </div>
+
+                    <div class="settings-group">
+                         <h3>Note & Document Viewer</h3>
+                         ${this.toggleRow('appearance', 'auto_reload_blank', 'Auto-Recover Blank Pages on Zoom', s.appearance.auto_reload_blank !== false)}
+                         ${this.toggleRow('appearance', 'instant_quality', 'Instant High DPI Page Quality', s.appearance.instant_quality !== false)}
                     </div>
                 `;
 
@@ -390,10 +444,17 @@ window.SettingsModule = {
                     </div>
 
                     <div class="settings-group">
-                        <h3>Your Data</h3>
+                        <h3>Your Data & Attendance Backups</h3>
                         <div class="settings-row">
-                            <div class="settings-label"><strong>Download My Activity</strong><span>JSON format of all your uploads and downloads</span></div>
-                            <button class="btn-sm-ghost" onclick="SettingsModule.exportData()">Export JSON</button>
+                            <div class="settings-label"><strong>Download User Activity Snapshot</strong><span>JSON format of all your uploads and activity history</span></div>
+                            <button class="btn-sm-ghost" onclick="SettingsModule.exportData()">Export Activity JSON</button>
+                        </div>
+                        <div class="settings-row">
+                            <div class="settings-label"><strong>Attendance CSV/ZIP Data Backup</strong><span>Download or Restore attendance records, subjects, & timetable</span></div>
+                            <div style="display:flex; gap:0.5rem;">
+                                <button class="btn-sm-ghost" style="border-color:#7B61FF; color:#7B61FF;" onclick="if(window.AttendancePro){ window.AttendancePro.openImportModal(); }">Import</button>
+                                <button class="btn-sm-ghost" style="border-color:#00FF94; color:#00FF94;" onclick="if(window.AttendancePro){ window.AttendancePro.openExportModal(); }">Export</button>
+                            </div>
                         </div>
                     </div>
                 `;

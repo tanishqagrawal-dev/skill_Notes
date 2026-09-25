@@ -1,8 +1,8 @@
 window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?id=' + id; if (!url) return '#'; try { return '../pages/view?u=' + btoa(encodeURIComponent(url)) + '&t=' + btoa(encodeURIComponent(title || 'Document')); } catch(e) { return url; } };
-import { globalNotes } from '../data/globalNotes.js?v=mufz9i0e-xloz';
-import { renderCodingArena } from './coding-arena.js?v=mufz9i0e-xloz';
-import { RoutingSystem } from './routing.js?v=mufz9i0e-xloz';
-import { initGlobalAnalytics } from './analytics.js?v=mufz9i0e-xloz';
+import { globalNotes } from "../data/globalNotes.js?v=6.0";
+import { renderCodingArena } from './coding-arena.js?v=2.0';
+import { RoutingSystem } from "./routing.js?v=6.0";
+import { initGlobalAnalytics } from './analytics.js?v=6.0';
 
 // Initialize analytics (Supabase & Firebase) so dashboard stats are populated globally
 initGlobalAnalytics();
@@ -601,7 +601,7 @@ function initDynamicColleges() {
     });
 }
 
-import { supabase } from './supabase-config.js?v=mufz9i0e-xloz';
+import { supabase } from './supabase-config.js?v=1.0';
 
 async function initNotesSync() {
     if (isNotesSyncInit) return;
@@ -809,8 +809,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Limit results to 6 for performance/UX
-        const displayMatches = matches.slice(0, 6);
+        // Limit results to 4 for clean fit without scrolling
+        const displayMatches = matches.slice(0, 4);
 
         if (displayMatches.length > 0) {
             searchResults.innerHTML = displayMatches.map(m => `
@@ -822,16 +822,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <span class="result-type-badge">Subject</span>
                 </div>
-            `).join('') + `
-                <div class="search-result-footer-link" onclick="performGlobalSearch('${query}')">
-                    🔍 Deep search all notes for "${query}"
-                </div>
-            `;
+            `).join('');
             searchResults.style.display = 'flex';
         } else {
             searchResults.innerHTML = `
-                <div class="search-result-footer-link" onclick="performGlobalSearch('${query}')">
-                             🔍 No direct subject match. Search all notes for "${query}"?
+                <div class="no-search-results">
+                    🔍 No matching subjects found
                 </div>
             `;
             searchResults.style.display = 'flex';
@@ -973,6 +969,15 @@ document.addEventListener('DOMContentLoaded', () => {
         globalSearchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 performGlobalSearch(e.target.value);
+            }
+        });
+
+        // Global Ctrl+K / Cmd+K shortcut listener
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                globalSearchInput.focus();
+                globalSearchInput.select();
             }
         });
 
@@ -8950,7 +8955,7 @@ function updateNotificationBadge() {
 
     const unread = userNotifications.filter(n => !n.read).length;
     if (unread > 0) {
-        btn.innerHTML = `🔔 <span style="position:absolute; top:2px; right:2px; background:var(--secondary); color:white; font-size:10px; min-width:18px; height:18px; display:flex; align-items:center; justify-content:center; border-radius:10px; border: 2px solid #111;">${unread}</span>`;
+        btn.innerHTML = `🔔 <span style="position:absolute; top:2px; right:2px; background:var(--secondary); color:#000; font-size:10px; font-weight:800; min-width:18px; height:18px; display:flex; align-items:center; justify-content:center; border-radius:10px; border: 2px solid #111; box-shadow: none;">${unread}</span>`;
     } else {
         btn.innerHTML = `🔔`;
     }
@@ -8979,7 +8984,7 @@ function toggleNotificationPanel(e) {
         max-height: 80vh; display: flex; flex-direction: column; z-index: 99999;
         background: rgba(10, 10, 15, 0.98); backdrop-filter: blur(30px); 
         border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; 
-        box-shadow: 0 25px 60px rgba(0,0,0,0.9), 0 0 20px rgba(123, 97, 255, 0.1); 
+        box-shadow: 0 20px 50px rgba(0,0,0,0.85); 
         transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         transform-origin: top right;
     `;
@@ -8990,7 +8995,7 @@ function toggleNotificationPanel(e) {
                 <h3 class="font-heading" style="margin:0; font-size: 1.2rem; letter-spacing: -0.5px;">Notifications</h3>
                 <p style="margin:0; font-size:0.7rem; color:var(--text-dim)">Your recent activity and alerts</p>
             </div>
-            <button onclick="window.markAllNotificationsRead()" class="btn-ghost" style="font-size: 0.7rem; color: var(--secondary); cursor: pointer; font-weight: 700; background: rgba(0, 242, 255, 0.05); padding: 6px 12px; border-radius: 8px; border: none;">
+            <button onclick="window.markAllNotificationsRead()" class="btn-ghost" style="font-size: 0.7rem; color: rgba(255,255,255,0.8); cursor: pointer; font-weight: 700; background: rgba(255, 255, 255, 0.05); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); box-shadow: none;">
                 Mark Read
             </button>
         </div>
@@ -9002,10 +9007,10 @@ function toggleNotificationPanel(e) {
                 </div>
             ` :
             userNotifications.map((n, idx) => `
-                <div class="glass-card notif-item" style="padding: 1.25rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); animation: fadeInUp 0.4s ease backwards; animation-delay: ${idx * 0.05}s; ${n.read ? 'opacity: 0.6;' : 'background: rgba(123, 97, 255, 0.03); border-left: 3px solid var(--primary);'}">
+                <div class="glass-card notif-item" style="padding: 1.25rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); animation: fadeInUp 0.4s ease backwards; animation-delay: ${idx * 0.05}s; ${n.read ? 'opacity: 0.6;' : 'background: rgba(123, 97, 255, 0.03); border-left: 3px solid rgba(123, 97, 255, 0.7);'}">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 0.5rem">
                         <div style="font-weight: 800; font-size: 0.95rem; color: #fff;">${n.title}</div>
-                        ${!n.read ? '<div style="width:8px; height:8px; background:var(--secondary); border-radius:50%; box-shadow: 0 0 10px var(--secondary)"></div>' : ''}
+                        ${!n.read ? '<div style="width:8px; height:8px; background:var(--secondary); border-radius:50%;"></div>' : ''}
                     </div>
                     <p style="font-size: 0.85rem; line-height: 1.5; color: #bbb; margin: 0;">${n.message}</p>
                     <div style="font-size: 0.65rem; color: var(--text-dim); margin-top: 1rem; display:flex; align-items:center; gap:5px">
