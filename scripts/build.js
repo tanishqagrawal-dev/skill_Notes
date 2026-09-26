@@ -136,8 +136,8 @@ async function build() {
             console.log(`Minifying & Cache-busting HTML: ${file}`);
             let code = fs.readFileSync(absolutePath, 'utf8');
             
-            // Append ?v= to any JS/CSS assets lacking it
-            code = code.replace(/(\.(?:js|css))"/g, `$1?v=${BUILD_VERSION}"`);
+            // Append ?v= to any JS/CSS assets lacking it (supports both " and ')
+            code = code.replace(/(\.(?:js|css))(?:\?v=[^'"]*)?(['"])/g, `$1?v=${BUILD_VERSION}$2`);
 
             // Apply global dynamic cache-buster across all ?v= occurrences
             code = code.replace(/\?v=[0-9a-zA-Z.\-_]+/g, `?v=${BUILD_VERSION}`);

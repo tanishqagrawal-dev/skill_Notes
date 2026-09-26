@@ -924,7 +924,9 @@ const serveDynamicView = async (req, res, next) => {
 
         let finalHtml = '';
         try {
-            const templatePath = path.join(__dirname, '../pages/view.html');
+            const distViewPath = path.join(__dirname, '../dist/pages/view.html');
+            const srcViewPath = path.join(__dirname, '../pages/view.html');
+            const templatePath = fs.existsSync(distViewPath) ? distViewPath : srcViewPath;
             const template = fs.readFileSync(templatePath, 'utf8');
             
             let cleaned = template.replace(/<!-- ═══ Open Graph[\s\S]*?<!-- Fonts & Icons -->/, '<!-- Fonts & Icons -->');
@@ -960,6 +962,9 @@ const serveDynamicView = async (req, res, next) => {
             finalHtml = `<html><body>Redirecting... <script>window.location.replace("https://skilmatrix.site/pages/view?id=${noteId}");</script></body></html>`;
         }
 
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
         res.send(finalHtml);
     } catch (e) {
         console.error("Share endpoint error:", e);
