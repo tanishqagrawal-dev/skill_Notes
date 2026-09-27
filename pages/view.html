@@ -623,9 +623,14 @@
                 const btnShare = document.getElementById('btn-share');
                 btnShare.style.display = 'inline-flex';
 
-                // Dynamically update OG tags via JS
+                // Dynamically update OG & Twitter tags via JS
                 try {
-                    document.querySelector('meta[property="og:title"]').setAttribute("content", `${noteData.title} | SKiL MATRiX`);
+                    const fullTitle = `${noteData.title} | SKiL MATRiX Notes`;
+                    const fullDesc = `Study notes for ${noteData.subject || 'your subject'} on SKiL MATRiX.`;
+                    document.querySelector('meta[property="og:title"]')?.setAttribute("content", fullTitle);
+                    document.querySelector('meta[name="twitter:title"]')?.setAttribute("content", fullTitle);
+                    document.querySelector('meta[property="og:description"]')?.setAttribute("content", fullDesc);
+                    document.querySelector('meta[name="twitter:description"]')?.setAttribute("content", fullDesc);
                 } catch (e) { }
 
                 // Load viewer content
@@ -723,15 +728,21 @@
             const noteId = urlParams.get('id');
             const url = noteId ? (baseUrl + '/share/' + noteId) : (baseUrl + window.location.pathname + window.location.search);
 
+            const uiTitle = document.getElementById('ui-title')?.innerText;
+            const rawTitle = (uiTitle && uiTitle !== 'Loading...') ? uiTitle : document.title.replace(/\s*\|.*$/, '');
+            const shareTitle = `${rawTitle} | SKiL MATRiX Notes`;
+            const shareText = `Check out "${rawTitle}" on SKiL MATRiX!`;
+
             if (navigator.share) {
                 navigator.share({
-                    title: document.title,
-                    text: 'Check out this study resource on SKiL MATRiX!',
+                    title: shareTitle,
+                    text: shareText,
                     url: url
                 }).catch(console.error);
             } else {
                 navigator.clipboard.writeText(url).then(() => {
-                    alert("Link copied to clipboard!");
+                    if (typeof showToast === 'function') showToast("Link copied to clipboard!", "success");
+                    else alert("Link copied to clipboard!");
                 });
             }
         };

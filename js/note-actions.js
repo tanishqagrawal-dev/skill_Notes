@@ -154,15 +154,49 @@ window.shareResource = function (id) {
     const baseUrl = isLocal ? window.location.origin : 'https://skilmatrix.site';
     const url = baseUrl + '/share/' + id;
     
+    let noteTitle = '';
+    
+    // 1. Try finding from DOM card
+    const card = document.querySelector(`[data-note-id="${id}"]`);
+    if (card) {
+        const titleEl = card.querySelector('.note-title, .note-card-title, .title, h3, h4');
+        if (titleEl) noteTitle = titleEl.innerText.trim();
+    }
+    
+    // 2. Try finding from window.NotesDB
+    if (!noteTitle && window.NotesDB) {
+        const found = window.NotesDB.find(n => n.id === id);
+        if (found) noteTitle = found.title || found.name;
+    }
+    
+    // 3. Fallback: Search in globalNotes
+    if (!noteTitle && window.globalNotes) {
+        for (const college in window.globalNotes) {
+            for (const subject in window.globalNotes[college]) {
+                const found = window.globalNotes[college][subject].find(n => n.id === id);
+                if (found) {
+                    noteTitle = `${found.unit ? found.unit + ' - ' : ''}${found.title || found.subjectName}`;
+                    break;
+                }
+            }
+            if (noteTitle) break;
+        }
+    }
+    
+    const displayTitle = noteTitle || 'Study Resource';
+    const shareTitle = `${displayTitle} | SKiL MATRiX Notes`;
+    const shareText = `Check out "${displayTitle}" on SKiL MATRiX!`;
+
     if (navigator.share) {
         navigator.share({
-            title: 'Study Resource | SKiL MATRiX',
-            text: 'Check out this study resource on SKiL MATRiX!',
+            title: shareTitle,
+            text: shareText,
             url: url
         }).catch(console.error);
     } else {
         navigator.clipboard.writeText(url).then(() => {
-            alert("Link copied to clipboard!");
+            if (typeof showToast === 'function') showToast("Link copied to clipboard!", "success");
+            else alert("Link copied to clipboard!");
         });
     }
 };

@@ -47,6 +47,10 @@
             {
                 "source": "/pages/dashboard/**",
                 "destination": "/pages/dashboard.html"
+            },
+            {
+                "source": "/share/**",
+                "destination": "/pages/view.html"
             }
         ],
         "headers": [

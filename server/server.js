@@ -919,29 +919,50 @@ const serveDynamicView = async (req, res, next) => {
             }
         }
 
-        const cleanTitle = title.replace(/"/g, '&quot;');
-        const cleanDesc = description.replace(/"/g, '&quot;');
+        // 3. Check Firebase Firestore if firebaseAdminInitialized & not found yet
+        if (!found && firebaseAdminInitialized) {
+            try {
+                const firestore = getFirestore();
+                const docSnap = await firestore.collection('notes').doc(noteId).get();
+                if (docSnap.exists) {
+                    const data = docSnap.data();
+                    title = `${data.unit ? data.unit + ' - ' : (data.unit_number ? data.unit_number + ' - ' : '')}${data.title || data.name || noteId}`;
+                    description = `Study notes for ${data.subject || 'your subject'} on SKiL MATRiX.`;
+                    found = true;
+                }
+            } catch(e) {
+                console.error("Failed to query Firestore for note share:", e);
+            }
+        }
+
+        const cleanTitle = title.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const cleanDesc = description.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
         let finalHtml = '';
         try {
             const distViewPath = path.join(__dirname, '../dist/pages/view.html');
             const srcViewPath = path.join(__dirname, '../pages/view.html');
             const templatePath = fs.existsSync(distViewPath) ? distViewPath : srcViewPath;
-            const template = fs.readFileSync(templatePath, 'utf8');
+            let template = fs.readFileSync(templatePath, 'utf8');
             
-            let cleaned = template.replace(/<!-- ═══ Open Graph[\s\S]*?<!-- Fonts & Icons -->/, '<!-- Fonts & Icons -->');
-            
+            // Cleanly remove any pre-existing Open Graph or Twitter meta tags (supports both minified and unminified code)
+            template = template.replace(/<meta\s+(property|name)=["'](og:|twitter:)[^"']*["']\s+content=["'][^"']*["']\s*\/?>/gi, '');
+            template = template.replace(/<meta\s+content=["'][^"']*["']\s+(property|name)=["'](og:|twitter:)[^"']*["']\s*\/?>/gi, '');
+
+            // Replace page title
+            template = template.replace(/<title>.*?<\/title>/gi, `<title>${cleanTitle} | SKiL MATRiX Notes</title>`);
+
             const injection = `
-    <!-- Dynamic OG -->
+    <!-- Dynamic OG & Twitter Meta Tags -->
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="SKiL MATRiX Notes" />
-    <meta property="og:title" content="${cleanTitle}" />
+    <meta property="og:title" content="${cleanTitle} | SKiL MATRiX Notes" />
     <meta property="og:description" content="${cleanDesc}" />
     <meta property="og:image" content="${image}" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="${cleanTitle}" />
+    <meta name="twitter:title" content="${cleanTitle} | SKiL MATRiX Notes" />
     <meta name="twitter:description" content="${cleanDesc}" />
     <meta name="twitter:image" content="${image}" />
     <base href="/">
@@ -956,10 +977,10 @@ const serveDynamicView = async (req, res, next) => {
         };
     </script>
 `;
-            finalHtml = cleaned.replace('<title>View Resource | SKiL MATRiX Notes</title>', `<title>${cleanTitle} | SKiL MATRiX Notes</title>\n${injection}`);
+            finalHtml = template.replace('</head>', `${injection}\n</head>`);
         } catch(e) {
             console.error(e);
-            finalHtml = `<html><body>Redirecting... <script>window.location.replace("https://skilmatrix.site/pages/view?id=${noteId}");</script></body></html>`;
+            finalHtml = `<html><body>Redirecting... <script>window.location.replace("https://skilmatrix.site/pages/view.html?id=${noteId}");</script></body></html>`;
         }
 
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
