@@ -5,6 +5,22 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <script>
+        // Smooth mobile viewer cache handler (Zero hang, zero loop, no interruptions while reading)
+        window.addEventListener('pageshow', function(e) {
+            if (e.persisted) {
+                var lastActive = sessionStorage.getItem('viewer_last_active');
+                var now = Date.now();
+                if (lastActive && (now - parseInt(lastActive, 10)) < 15 * 60 * 1000) {
+                    return;
+                }
+                sessionStorage.setItem('viewer_last_active', now);
+                window.location.reload();
+            } else {
+                sessionStorage.setItem('viewer_last_active', Date.now());
+            }
+        });
+    </script>
     <link rel="shortcut icon" href="../assets/logo_transparent.png" type="image/png">
 
     <meta charset="UTF-8">
