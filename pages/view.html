@@ -8,7 +8,7 @@
     <link rel="shortcut icon" href="../assets/logo_transparent.png" type="image/png">
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>View Resource | SKiL MATRiX Notes</title>
 
     <!-- ═══ Open Graph (WhatsApp / Telegram / LinkedIn / Facebook) ═══ -->
@@ -64,7 +64,6 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            overscroll-behavior-y: contain;
         }
 
         /* Top Bar */
@@ -559,8 +558,8 @@
             <div class="error-message" id="error-msg"></div>
         </div>
 
-        <iframe id="office-frame" sandbox="allow-scripts allow-same-origin allow-forms" style="display:none; width: 100%; height: 100%; border: none; background: #fff; overscroll-behavior: contain;"></iframe>
-        <div id="pdf-container" style="display:none; width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; box-sizing: border-box; padding: 24px 12px; background: #0f111a; touch-action: pan-y; overscroll-behavior-y: contain;"></div>
+        <iframe id="office-frame" sandbox="allow-scripts allow-same-origin allow-forms" style="display:none; width: 100%; height: 100%; border: none; background: #fff;"></iframe>
+        <div id="pdf-container" style="display:none; width: 100%; height: 100%; overflow: auto; -webkit-overflow-scrolling: touch; box-sizing: border-box; padding: 24px 12px; background: #0f111a; touch-action: pan-x pan-y pinch-zoom;"></div>
         <div id="office-blocker" title="Action disabled by administrator"></div>
     </div>
 

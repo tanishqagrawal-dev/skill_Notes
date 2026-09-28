@@ -1,8 +1,8 @@
 window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?id=' + id; if (!url) return '#'; try { return '../pages/view?u=' + btoa(encodeURIComponent(url)) + '&t=' + btoa(encodeURIComponent(title || 'Document')); } catch(e) { return url; } };
-import { globalNotes } from '../data/globalNotes.js?v=mulb5te0-7moh';
-import { renderCodingArena } from './coding-arena.js?v=mulb5te0-7moh';
-import { RoutingSystem } from './routing.js?v=mulb5te0-7moh';
-import { initGlobalAnalytics } from './analytics.js?v=mulb5te0-7moh';
+import { globalNotes } from '../data/globalNotes.js?v=mulbp5me-ms4o';
+import { renderCodingArena } from './coding-arena.js?v=mulbp5me-ms4o';
+import { RoutingSystem } from './routing.js?v=mulbp5me-ms4o';
+import { initGlobalAnalytics } from './analytics.js?v=mulbp5me-ms4o';
 
 // Initialize analytics (Supabase & Firebase) so dashboard stats are populated globally
 initGlobalAnalytics();
@@ -601,7 +601,7 @@ function initDynamicColleges() {
     });
 }
 
-import { supabase } from './supabase-config.js?v=mulb5te0-7moh';
+import { supabase } from './supabase-config.js?v=mulbp5me-ms4o';
 
 async function initNotesSync() {
     if (isNotesSyncInit) return;
