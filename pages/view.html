@@ -318,6 +318,86 @@
             background: transparent;
         }
 
+        /* Ultra-Premium Glassmorphism Page Indicator */
+        #page-indicator {
+            display: none;
+            align-items: center;
+            gap: 7px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%), rgba(15, 17, 26, 0.85);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-top: 1px solid rgba(255, 255, 255, 0.22);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            padding: 0.32rem 0.65rem 0.32rem 0.42rem;
+            border-radius: 12px;
+            margin-right: 14px;
+            font-family: 'JetBrains Mono', 'Inter', monospace;
+            user-select: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #page-indicator:hover {
+            border-color: rgba(56, 189, 248, 0.45);
+            border-top-color: rgba(255, 255, 255, 0.35);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5), 0 0 16px rgba(56, 189, 248, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .page-badge-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.28), rgba(56, 189, 248, 0.18));
+            border: 1px solid rgba(129, 140, 248, 0.35);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #38bdf8;
+            font-size: 0.72rem;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            flex-shrink: 0;
+        }
+
+        .page-counter-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .current-page-badge {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(99, 102, 241, 0.15));
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 6px;
+            padding: 1px 6px;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #current-page {
+            color: #38bdf8;
+            font-weight: 700;
+            font-size: 0.88rem;
+            letter-spacing: 0.3px;
+            text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+        }
+
+        .page-separator {
+            color: rgba(255, 255, 255, 0.25);
+            font-weight: 300;
+            font-size: 0.8rem;
+            margin: 0 1px;
+        }
+
+        .total-page-count {
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.86rem;
+            letter-spacing: 0.2px;
+        }
+
         @media (max-width: 600px) {
             .viewer-header {
                 padding: 0.5rem 0.75rem;
@@ -342,9 +422,29 @@
             }
 
             #page-indicator {
-                margin-right: 8px !important;
-                padding: 0.3rem 0.5rem !important;
-                font-size: 0.8rem;
+                margin-right: 6px !important;
+                padding: 0.25rem 0.45rem 0.25rem 0.35rem !important;
+                border-radius: 10px !important;
+                gap: 5px !important;
+            }
+
+            .page-badge-icon {
+                width: 20px !important;
+                height: 20px !important;
+                font-size: 0.65rem !important;
+                border-radius: 6px !important;
+            }
+
+            .current-page-badge {
+                padding: 1px 4px !important;
+            }
+
+            #current-page {
+                font-size: 0.8rem !important;
+            }
+
+            .total-page-count {
+                font-size: 0.78rem !important;
             }
 
             .vote-container {
@@ -424,10 +524,15 @@
             </div>
         </div>
         <div class="header-right" style="display: flex; align-items: center;">
-            <div id="page-indicator"
-                style="display:none; align-items: center; background: rgba(0,0,0,0.5); padding: 0.4rem 0.8rem; border-radius: 8px; margin-right: 15px; font-weight: 600; font-family: 'JetBrains Mono', monospace; border: 1px solid rgba(255,255,255,0.1);">
-                <span id="current-page" style="color: var(--secondary); margin-right: 4px;">1</span> / <span
-                    id="total-pages" style="margin-left: 4px; color: var(--text-dim);">--</span>
+            <div id="page-indicator">
+                <div class="page-badge-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="page-counter-group">
+                    <span class="current-page-badge"><span id="current-page">1</span></span>
+                    <span class="page-separator">/</span>
+                    <span id="total-pages" class="total-page-count">--</span>
+                </div>
             </div>
             <div class="vote-container" id="vote-container"
                 style="display:none; align-items: center; gap: 8px; margin-right: 15px; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 15px;">
@@ -792,6 +897,81 @@
             }, 2500);
         }
 
+        // --- ACCURATE REAL-TIME ACTIVE PAGE COUNTER (Zero-Lag Mobile Optimized) ---
+        function updateActivePageIndicator() {
+            const container = document.getElementById('pdf-container');
+            const currentPageEl = document.getElementById('current-page');
+            if (!container || !currentPageEl) return;
+
+            const wrappers = container.children;
+            const total = wrappers.length;
+            if (total === 0) return;
+
+            const containerRect = container.getBoundingClientRect();
+            // Natural reading eye-level focal line at 35% from the top of the viewer container
+            const focalY = containerRect.top + (containerRect.height * 0.35);
+
+            let activePage = 1;
+            
+            // Ultra-fast O(1) local window estimate based on scroll position
+            const scrollRange = Math.max(1, container.scrollHeight - container.clientHeight);
+            const scrollRatio = Math.max(0, Math.min(1, container.scrollTop / scrollRange));
+            const estimatedIndex = Math.min(total - 1, Math.max(0, Math.floor(scrollRatio * total)));
+            
+            // Search locally within a small window first (0.01ms execution)
+            const searchRadius = 5;
+            const startIdx = Math.max(0, estimatedIndex - searchRadius);
+            const endIdx = Math.min(total - 1, estimatedIndex + searchRadius);
+            
+            let found = false;
+            for (let i = startIdx; i <= endIdx; i++) {
+                const wrapper = wrappers[i];
+                if (!wrapper.dataset || !wrapper.dataset.pageNumber) continue;
+                const rect = wrapper.getBoundingClientRect();
+                if (rect.top <= focalY && rect.bottom >= focalY) {
+                    activePage = parseInt(wrapper.dataset.pageNumber, 10) || (i + 1);
+                    found = true;
+                    break;
+                }
+            }
+
+            // Fallback: full scan only if outside local radius (e.g. during rapid fling jump)
+            if (!found) {
+                let maxVisibleHeight = -1;
+                let closestDist = Infinity;
+                for (let i = 0; i < total; i++) {
+                    const wrapper = wrappers[i];
+                    if (!wrapper.dataset || !wrapper.dataset.pageNumber) continue;
+                    const pageNum = parseInt(wrapper.dataset.pageNumber, 10) || (i + 1);
+                    const rect = wrapper.getBoundingClientRect();
+
+                    if (rect.top <= focalY && rect.bottom >= focalY) {
+                        activePage = pageNum;
+                        break;
+                    }
+
+                    const visibleTop = Math.max(containerRect.top, rect.top);
+                    const visibleBottom = Math.min(containerRect.bottom, rect.bottom);
+                    const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+
+                    if (visibleHeight > maxVisibleHeight) {
+                        maxVisibleHeight = visibleHeight;
+                        activePage = pageNum;
+                    } else if (maxVisibleHeight <= 0) {
+                        const dist = Math.min(Math.abs(rect.top - focalY), Math.abs(rect.bottom - focalY));
+                        if (dist < closestDist) {
+                            closestDist = dist;
+                            activePage = pageNum;
+                        }
+                    }
+                }
+            }
+
+            if (currentPageEl.textContent !== String(activePage)) {
+                currentPageEl.textContent = activePage;
+            }
+        }
+
         let zoomLevel = 100;
 
         function applyZoom() {
@@ -812,6 +992,8 @@
                 delete wrapper.dataset.rendered;
                 delete wrapper.dataset.rendering;
             });
+
+            updateActivePageIndicator();
         }
 
         // Touch Pinch-to-Zoom & Double-Tap Zoom with Accidental Click Guard
@@ -851,6 +1033,7 @@
                         queueRenderPage(pdf, pageNum, wrapper);
                     }
                 });
+                updateActivePageIndicator();
             }
 
             container.addEventListener('touchstart', (e) => {
@@ -1088,7 +1271,8 @@
 
             if (officeFrame) officeFrame.style.display = 'none';
             container.style.display = 'block';
-            pageIndicator.style.display = 'flex';
+            container.innerHTML = ''; // Clean slate for new document
+            pageIndicator.style.display = 'inline-flex';
 
             try {
                 const loadingTask = pdfjsLib.getDocument(url);
@@ -1096,6 +1280,7 @@
                 window._currentPdfDoc = pdf;
 
                 document.getElementById('total-pages').innerText = pdf.numPages;
+                document.getElementById('current-page').innerText = '1';
                 loader.style.display = 'none';
 
                 const containerWidth = Math.max(200, (container.clientWidth || window.innerWidth) - 30);
@@ -1115,14 +1300,43 @@
                     container.appendChild(wrapper);
                 }
 
+                // High-precision scroll event listener for accurate page count during forward/backward scroll
+                if (!container._hasPageScrollListener) {
+                    let isScrollTicking = false;
+                    container.addEventListener('scroll', () => {
+                        if (!isScrollTicking) {
+                            requestAnimationFrame(() => {
+                                updateActivePageIndicator();
+                                isScrollTicking = false;
+                            });
+                            isScrollTicking = true;
+                        }
+                    }, { passive: true });
+                    container._hasPageScrollListener = true;
+                }
+
+                // Window resize listener
+                if (!window._hasViewerResizeListener) {
+                    let resizeTicking = false;
+                    window.addEventListener('resize', () => {
+                        if (!resizeTicking) {
+                            requestAnimationFrame(() => {
+                                updateActivePageIndicator();
+                                resizeTicking = false;
+                            });
+                            resizeTicking = true;
+                        }
+                    }, { passive: true });
+                    window._hasViewerResizeListener = true;
+                }
+
                 const rootMargin = isMobile ? '250px 0px' : '400px 0px';
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
                         const wrapper = entry.target;
-                        const pageNum = parseInt(wrapper.dataset.pageNumber);
+                        const pageNum = parseInt(wrapper.dataset.pageNumber, 10);
 
                         if (entry.isIntersecting) {
-                            document.getElementById('current-page').innerText = pageNum;
                             if (!wrapper.dataset.rendered && !wrapper.dataset.rendering) {
                                 queueRenderPage(pdf, pageNum, wrapper);
                             }
@@ -1133,6 +1347,9 @@
                 }, { root: container, rootMargin: rootMargin });
 
                 document.querySelectorAll('.pdf-page-wrapper').forEach(w => observer.observe(w));
+
+                // Initial active page detection
+                updateActivePageIndicator();
 
             } catch (err) {
                 console.error("PDF.js render failed:", err);
