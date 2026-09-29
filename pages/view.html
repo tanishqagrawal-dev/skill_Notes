@@ -403,6 +403,14 @@
         }
 
         @media (max-width: 600px) {
+            #pdf-container {
+                padding: 16px 6px !important;
+            }
+
+            .pdf-page-wrapper {
+                margin-bottom: 16px !important;
+            }
+
             .viewer-header {
                 padding: 0.5rem 0.75rem;
             }
@@ -485,6 +493,8 @@
             margin: 0 auto;
             border-radius: 6px;
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 1px 4px rgba(0, 0, 0, 0.4);
+            transform: translateZ(0);
+            -webkit-font-smoothing: antialiased;
         }
     </style>
 
@@ -985,8 +995,8 @@
             const container = document.getElementById('pdf-container');
             const availableWidth = container ? container.clientWidth : window.innerWidth;
             if (availableWidth <= 640) {
-                // Mobile: edge-to-edge with 16px breathing room
-                return Math.max(280, availableWidth - 20);
+                // Mobile: maximize legible width (minimal padding)
+                return Math.max(280, availableWidth - 4);
             } else if (availableWidth <= 1024) {
                 // Tablets
                 return Math.max(480, Math.min(860, availableWidth - 40));
@@ -1074,26 +1084,37 @@
                 wrapper.dataset.aspectRatio = aspectRatio.toString();
 
                 const rawDpr = window.devicePixelRatio || 1;
-                const dpr = isMobile ? Math.min(rawDpr, 2.0) : Math.min(rawDpr, 2.0);
+                // Scale cleanly up to 2.75x on Retina/HiDPI phone screens for sharp, non-blurry text
+                const dpr = isMobile ? Math.min(Math.max(rawDpr, 2.0), 2.75) : Math.min(Math.max(rawDpr, 1.5), 2.5);
 
                 const renderScale = (cssWidth / unscaledViewport.width) * dpr;
                 const viewport = page.getViewport({ scale: renderScale });
 
+                const roundedCssWidth = Math.round(cssWidth);
+                const roundedCssHeight = Math.round(cssWidth * aspectRatio);
+
                 const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d', { alpha: false });
+                const context = canvas.getContext('2d', {
+                    alpha: false,
+                    willReadFrequently: false
+                });
 
-                canvas.width = Math.floor(viewport.width);
-                canvas.height = Math.floor(viewport.height);
+                // High quality image interpolation for downsampled scans and graphics
+                context.imageSmoothingEnabled = true;
+                context.imageSmoothingQuality = 'high';
 
-                canvas.style.width = `${cssWidth}px`;
-                canvas.style.height = `${cssWidth * aspectRatio}px`;
+                canvas.width = Math.round(viewport.width);
+                canvas.height = Math.round(viewport.height);
+
+                canvas.style.width = `${roundedCssWidth}px`;
+                canvas.style.height = `${roundedCssHeight}px`;
                 canvas.style.display = 'block';
                 canvas.style.margin = '0 auto';
                 canvas.style.boxShadow = '0 8px 30px rgba(0,0,0,0.5), 0 1px 4px rgba(0,0,0,0.4)';
                 canvas.style.borderRadius = '6px';
 
-                wrapper.style.minHeight = `${cssWidth * aspectRatio}px`;
-                wrapper.style.maxWidth = `${cssWidth}px`;
+                wrapper.style.minHeight = `${roundedCssHeight}px`;
+                wrapper.style.maxWidth = `${roundedCssWidth}px`;
                 wrapper.style.width = '100%';
 
                 context.fillStyle = '#ffffff';
@@ -1101,7 +1122,8 @@
 
                 const renderTask = page.render({
                     canvasContext: context,
-                    viewport: viewport
+                    viewport: viewport,
+                    intent: 'display'
                 });
                 wrapper._renderTask = renderTask;
 
