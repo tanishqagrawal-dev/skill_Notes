@@ -49,6 +49,26 @@
                 "destination": "/pages/dashboard.html"
             },
             {
+                "source": "/contact",
+                "destination": "/pages/contact.html"
+            },
+            {
+                "source": "/contact/**",
+                "destination": "/pages/contact.html"
+            },
+            {
+                "source": "/about",
+                "destination": "/pages/about.html"
+            },
+            {
+                "source": "/privacy",
+                "destination": "/pages/privacy.html"
+            },
+            {
+                "source": "/terms",
+                "destination": "/pages/terms.html"
+            },
+            {
                 "source": "/share/**",
                 "destination": "/pages/view.html"
             }

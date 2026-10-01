@@ -1023,8 +1023,18 @@ const serveSubscriptionSeo = (req, res) => {
     }
 };
 
-app.get('/api/subscription-seo', serveSubscriptionSeo);
-app.get('/subscription', serveSubscriptionSeo);
+app.get(['/contact', '/pages/contact'], (req, res) => {
+    res.sendFile(path.join(__dirname, '../pages/contact.html'));
+});
+app.get(['/about', '/pages/about'], (req, res) => {
+    res.sendFile(path.join(__dirname, '../pages/about.html'));
+});
+app.get(['/privacy', '/pages/privacy'], (req, res) => {
+    res.sendFile(path.join(__dirname, '../pages/privacy.html'));
+});
+app.get(['/terms', '/pages/terms'], (req, res) => {
+    res.sendFile(path.join(__dirname, '../pages/terms.html'));
+});
 
 // Serve Static Files (The Frontend)
 app.use(express.static(path.join(__dirname, '../'), { extensions: ['html'] }));
