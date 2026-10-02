@@ -58,6 +58,11 @@ window.renderCodeTantraApp = renderApp;
 // Global hook for dashboard tab
 window.showCodeTantraSubject = function (subjectId) {
     AppState.currentSubjectId = subjectId;
+    if (typeof gtag === 'function') {
+        gtag('event', 'codetantra_view_subject', {
+            subject_id: subjectId
+        });
+    }
     renderApp();
 };
 
@@ -320,6 +325,11 @@ window.resetProfile = function () {
 
 window.copyCode = function (btn, code) {
     navigator.clipboard.writeText(code).then(() => {
+        if (typeof gtag === 'function') {
+            gtag('event', 'codetantra_copy_code', {
+                subject_id: AppState.currentSubjectId || 'unknown'
+            });
+        }
         const originalHtml = btn.innerHTML;
         btn.innerHTML = '<i class="fa-solid fa-check"></i>';
         btn.style.color = '#00f2ff';
@@ -360,6 +370,12 @@ window.downloadPDF = async function () {
             alert('Please purchase a premium plan to download CodeTantra solutions.');
         }
         return;
+    }
+
+    if (typeof gtag === 'function') {
+        gtag('event', 'codetantra_download_pdf', {
+            subject_id: AppState.currentSubjectId || 'unknown'
+        });
     }
 
     if (typeof html2pdf === 'undefined') {

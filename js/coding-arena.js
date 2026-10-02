@@ -2461,6 +2461,19 @@ window.startSpecificProblem = async function(index, isContest, contestQi) {
     window.caActiveProblemIndex = index;
     window.caIsContestProblem = !!isContest;
     window.caContestQi = (isContest && contestQi !== undefined) ? contestQi : null;
+
+    if (typeof gtag === 'function') {
+        const prob = (typeof codingProblems !== 'undefined' && codingProblems[index]) ? codingProblems[index] : null;
+        if (prob) {
+            gtag('event', 'coding_view_problem', {
+                problem_id: prob.id || (index + 1),
+                problem_title: prob.title,
+                category: prob.category || '',
+                difficulty: prob.difficulty || ''
+            });
+        }
+    }
+
     if (window.openCodingArena) {
         window.openCodingArena();
     } else {
@@ -4279,6 +4292,15 @@ window.runUserCode = async function(isSubmit) {
     // Automatically switch to Console Output tab
     if (window.switchConsoleTab) window.switchConsoleTab('console');
     
+    if (typeof gtag === 'function') {
+        const currentProb = (typeof codingProblems !== 'undefined' && window.caActiveProblemIndex !== null && window.caActiveProblemIndex !== -1) ? codingProblems[window.caActiveProblemIndex] : null;
+        gtag('event', isSubmit ? 'coding_submit_code' : 'coding_run_code', {
+            problem_id: currentProb ? (currentProb.id || (window.caActiveProblemIndex + 1)) : 'sandbox',
+            problem_title: currentProb ? currentProb.title : 'Sandbox',
+            language: langName
+        });
+    }
+
     consoleOut.innerHTML = "<span style='color:#00d2ff'>Sending code to Compiler Engine...</span><br>";
 
     if (isSandbox) {
@@ -4612,6 +4634,16 @@ async function handleProblemSolved(isPractice = false, awardedXp = 0) {
                 window.currentUser.current_coding_level = newLevel;
                 window.currentUser.coding_xp = newXP;
             }
+        }
+
+        if (typeof gtag === 'function') {
+            const solvedProb = (typeof codingProblems !== 'undefined' && window.caActiveProblemIndex !== null && window.caActiveProblemIndex !== -1) ? codingProblems[window.caActiveProblemIndex] : null;
+            gtag('event', 'coding_problem_solved', {
+                problem_id: solvedProb ? (solvedProb.id || (window.caActiveProblemIndex + 1)) : window.caActiveProblemIndex,
+                problem_title: solvedProb ? solvedProb.title : 'Problem',
+                awarded_xp: awardedXp,
+                streak: newStreak
+            });
         }
 
         // Party Popper using Canvas Confetti

@@ -484,6 +484,9 @@ function initAuthForms() {
         window.triggerPasswordReset = async (email) => {
             try {
                 await sendPasswordResetEmail(auth, email);
+                if (typeof gtag === 'function') {
+                    gtag('event', 'reset_password');
+                }
                 alert(`Password reset link sent to ${email}. Please check your inbox.`);
             } catch (error) {
                 console.error("Password Reset Error:", error);
@@ -526,6 +529,10 @@ function initAuthForms() {
                 window.currentUser = userData;
                 localStorage.setItem('auth_user_full', JSON.stringify(userData));
                 
+                if (typeof gtag === 'function') {
+                    gtag('event', 'login', { method: 'Google' });
+                }
+
                 const isInPagesDir = path.includes('/pages/');
                 window.location.href = (isInPagesDir ? '../' : '') + 'welcome.html';
             } catch (err) {
@@ -556,6 +563,9 @@ function initAuthForms() {
                 githubBtn.style.boxShadow = "0 0 20px rgba(251,191,36,0.2)";
                 
                 await signInWithPopup(auth, githubProvider);
+                if (typeof gtag === 'function') {
+                    gtag('event', 'login', { method: 'GitHub' });
+                }
                 // The page will redirect via onAuthStateChanged, leaving the premium animation running!
             } catch (err) {
                 console.error("❌ GitHub Login Error:", err);
@@ -586,6 +596,9 @@ window.handleLogout = async function () {
     // 2. Actually sign out from Firebase
     try {
         await signOut(auth);
+        if (typeof gtag === 'function') {
+            gtag('event', 'logout');
+        }
     } catch (e) {
         console.warn("Signout error:", e);
     }

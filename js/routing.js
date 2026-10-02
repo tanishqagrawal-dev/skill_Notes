@@ -66,6 +66,10 @@ export const RoutingSystem = {
 
         if (window.location.hash !== hash) {
             window.history.replaceState(state, '', window.location.pathname + window.location.search + hash);
+            if (typeof window.trackSPAView === 'function') {
+                const title = (state.subject && state.subject.name) ? `${state.subject.name} Notes | SKiL MATRiX` : 'Notes Hub';
+                window.trackSPAView(window.location.pathname + window.location.search + hash, title);
+            }
         }
     },
 

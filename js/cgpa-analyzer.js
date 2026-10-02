@@ -276,6 +276,14 @@ function updateCalculations() {
     document.getElementById('display-cgpa').innerText = finalCGPA.toFixed(2);
     document.getElementById('display-credits').innerText = grandCi;
 
+    if (typeof gtag === 'function' && (currentSGPA > 0 || finalCGPA > 0)) {
+        gtag('event', 'cgpa_calculated', {
+            sgpa: parseFloat(currentSGPA.toFixed(2)),
+            cgpa: parseFloat(finalCGPA.toFixed(2)),
+            total_credits: grandCi
+        });
+    }
+
     // Division
     const divLabel = document.getElementById('division-label');
     const div = CGPA_CONFIG.divisions.find(d => finalCGPA >= d.min);
@@ -435,6 +443,13 @@ window.runPrediction = function() {
 
     resultDiv.classList.add('active');
     const semText = remSemesters === 1 ? 'semester' : 'semesters';
+
+    if (typeof gtag === 'function') {
+        gtag('event', 'cgpa_target_calculated', {
+            target_cgpa: target,
+            required_sgpa: parseFloat(reqSGPA.toFixed(2))
+        });
+    }
 
     if (reqSGPA > 10) {
         title.innerHTML = "❌ Impossible Goal";

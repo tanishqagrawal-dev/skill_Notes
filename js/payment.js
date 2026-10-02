@@ -152,6 +152,19 @@ window.handlePayment = async function(planId) {
 
         const discountNote = couponCode ? ` (Coupon: ${couponCode})` : '';
 
+        // GA4: Track Checkout Start
+        if (typeof gtag === 'function') {
+            gtag('event', 'begin_checkout', {
+                currency: 'INR',
+                value: (data.order.amount || 0) / 100,
+                coupon: couponCode || undefined,
+                items: [{
+                    item_id: planId,
+                    item_name: PLAN_LABELS[planId] || planId
+                }]
+            });
+        }
+
         // 2. Open Razorpay Checkout
         const options = {
             key: data.keyId,
@@ -179,6 +192,19 @@ window.handlePayment = async function(planId) {
                     const verifyData = await verifyRes.json();
                     
                     if (verifyData.success) {
+                        // GA4: Track Successful Purchase
+                        if (typeof gtag === 'function') {
+                            gtag('event', 'purchase', {
+                                transaction_id: response.razorpay_payment_id,
+                                value: (data.order.amount || 0) / 100,
+                                currency: 'INR',
+                                coupon: couponCode || undefined,
+                                items: [{
+                                    item_id: planId,
+                                    item_name: PLAN_LABELS[planId] || planId
+                                }]
+                            });
+                        }
                         alert(`✅ Payment successful! Welcome to ${PLAN_LABELS[planId] || verifyData.plan} plan.`);
                         window.location.reload();
                     } else {
@@ -204,6 +230,12 @@ window.handlePayment = async function(planId) {
         const rzp = new Razorpay(options);
         rzp.on('payment.failed', function (response){
             console.error(response.error);
+            if (typeof gtag === 'function') {
+                gtag('event', 'payment_failed', {
+                    item_id: planId,
+                    error_description: response.error?.description || 'Payment Failed'
+                });
+            }
             alert("Payment failed: " + response.error.description);
             if (loadingBtn && loadingBtn.tagName === 'BUTTON') {
                 loadingBtn.innerText = originalText;

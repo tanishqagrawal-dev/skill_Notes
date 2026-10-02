@@ -35,6 +35,14 @@ window.AIGenerator = {
 
     // Main paper getter
     getPaper: async (subjectId, subjectName, examType, syllabusContext = "", uid = "guest") => {
+        if (typeof gtag === 'function') {
+            gtag('event', 'ai_generate_model_paper', {
+                subject_id: subjectId,
+                subject_name: subjectName,
+                exam_type: examType
+            });
+        }
+
         const { db, collection, addDoc, serverTimestamp } = window.firebaseServices || {};
         
         // 1. Try AI Generation with Unit Filtering

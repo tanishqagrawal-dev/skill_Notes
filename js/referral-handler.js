@@ -343,6 +343,13 @@
                 console.warn('[Referral] Welcome XP award failed (non-critical):', e);
             }
 
+            if (typeof gtag === 'function') {
+                gtag('event', 'referral_converted', {
+                    referral_code: code,
+                    referrer_id: owner.id
+                });
+            }
+
             console.log(`[Referral] ✅ ${visitorEmail} via ${code} → +${REFERRAL_XP}XP to ${owner.name}, +${WELCOME_XP}XP to visitor`);
             clearPending();
             showReferralAwardedToast();

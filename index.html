@@ -24,8 +24,22 @@
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
+        gtag('config', 'G-KSCJTPP875', {
+            page_title: 'Home | SKiL MATRiX',
+            page_path: window.location.pathname
+        });
 
-        gtag('config', 'G-KSCJTPP875');;
+        window.trackSPAView = function(path, title) {
+            const pageTitle = title || document.title;
+            const pagePath = path || (window.location.pathname + window.location.search + window.location.hash);
+            if (typeof gtag === 'function') {
+                gtag('event', 'page_view', {
+                    page_title: pageTitle,
+                    page_location: window.location.origin + pagePath,
+                    page_path: pagePath
+                });
+            }
+        };
     </script>
     <link rel="shortcut icon" href="assets/logo_transparent.png?v=7.0" type="image/png">
     <title>SKiL MATRiX | Free College Notes, PYQs & Smart AI Study Tools</title>

@@ -20,8 +20,27 @@
                 sessionStorage.setItem('viewer_last_active', Date.now());
             }
         });
+
+        // Clean URL: Strip .html from the address bar for a clean, professional look
+        try {
+            if (window.location.pathname.endsWith('.html')) {
+                var cleanPath = window.location.pathname.replace(/\.html$/, '');
+                window.history.replaceState(null, '', cleanPath + window.location.search + window.location.hash);
+            }
+        } catch (e) {}
     </script>
     <link rel="shortcut icon" href="../assets/logo_transparent.png" type="image/png">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KSCJTPP875"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-KSCJTPP875', {
+            page_path: window.location.pathname + window.location.search
+        });
+    </script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
@@ -756,6 +775,20 @@
                     document.querySelector('meta[name="twitter:description"]')?.setAttribute("content", fullDesc);
                 } catch (e) { }
 
+                // Track dynamic note pageview in GA4
+                if (typeof gtag === 'function') {
+                    gtag('event', 'page_view', {
+                        page_title: `${noteData.title} | SKiL MATRiX Viewer`,
+                        page_location: window.location.href,
+                        page_path: window.location.pathname + window.location.search
+                    });
+                    gtag('event', 'notes_view', {
+                        note_id: noteId,
+                        note_title: noteData.title,
+                        subject: noteData.subject || ''
+                    });
+                }
+
                 // Load viewer content
                 let finalUrl = noteData.file_url;
                 window._currentNoteFileUrl = finalUrl;
@@ -835,6 +868,14 @@
                 document.body.removeChild(a);
                 URL.revokeObjectURL(objectUrl);
 
+                if (typeof gtag === 'function') {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    gtag('event', 'notes_download', {
+                        note_id: urlParams.get('id') || 'direct',
+                        filename: filename || 'document.pdf'
+                    });
+                }
+
                 btn.innerHTML = originalHTML;
             } catch (e) {
                 console.error("Forced download failed, falling back to new tab", e);
@@ -861,11 +902,18 @@
                     title: shareTitle,
                     text: shareText,
                     url: url
+                }).then(() => {
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'share', { method: 'native_share', content_type: 'note', item_id: noteId || 'direct' });
+                    }
                 }).catch(console.error);
             } else {
                 navigator.clipboard.writeText(url).then(() => {
                     if (typeof showToast === 'function') showToast("Link copied to clipboard!", "success");
                     else alert("Link copied to clipboard!");
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'share', { method: 'copy_link', content_type: 'note', item_id: noteId || 'direct' });
+                    }
                 });
             }
         };

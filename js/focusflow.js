@@ -232,6 +232,12 @@ let timerState = {
 window.selectStudyTime = function(mins) {
     mins = parseInt(mins);
     if (!mins || mins < 1) return;
+
+    if (typeof gtag === 'function') {
+        gtag('event', 'focus_timer_start', {
+            duration_minutes: mins
+        });
+    }
     
     // Stop any current timer
     clearInterval(timerState.timer);
@@ -439,6 +445,12 @@ function handleSessionEnd() {
         
         // Award XP
         awardStudyXP(timerState.settings.focus || 25);
+
+        if (typeof gtag === 'function') {
+            gtag('event', 'focus_timer_complete', {
+                duration_minutes: timerState.settings.focus || 25
+            });
+        }
         
         switchMode('short');
     } else {

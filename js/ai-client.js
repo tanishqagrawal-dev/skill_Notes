@@ -12,6 +12,12 @@ window.aiClient = {
     },
 
     askDoubt: async (question) => {
+        if (typeof gtag === 'function') {
+            gtag('event', 'ai_doubt_asked', {
+                question_length: (question || '').length
+            });
+        }
+
         // Add user message to history
         window.aiConversationHistory.push({ role: "user", text: question });
 

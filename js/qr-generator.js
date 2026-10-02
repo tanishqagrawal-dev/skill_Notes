@@ -185,6 +185,12 @@ window.initQrGenerator = function() {
                 return;
             }
 
+            if (typeof gtag === 'function') {
+                gtag('event', 'qr_code_generated', {
+                    domain: hostname
+                });
+            }
+
             // Show ultra premium futuristic loader
             qrCanvasContainer.classList.remove('has-qr');
             qrCanvasContainer.innerHTML = '<div class="futuristic-loader"></div>';
@@ -290,6 +296,9 @@ window.initQrGenerator = function() {
         if (qrDownloadBtn) {
             qrDownloadBtn.addEventListener('click', async () => {
                 if (currentQrCode) {
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'qr_code_downloaded');
+                    }
                     currentQrCode.update({ width: 1200, height: 1200, margin: 60 });
                     await currentQrCode.download({ extension: "png", name: "SKiL_MATRiX_QR" });
                     setTimeout(() => currentQrCode.update({ width: 250, height: 250, margin: 20 }), 200);

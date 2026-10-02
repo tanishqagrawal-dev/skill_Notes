@@ -310,6 +310,9 @@ window.renderCollegeStep = function () {
 
 window.selectCollege = function (id, name) {
     selState.college = { id, name };
+    if (typeof gtag === 'function') {
+        gtag('event', 'select_college', { id, name });
+    }
     RoutingSystem.updateURL(selState);
     renderBranchStep();
 };
@@ -335,6 +338,9 @@ window.renderBranchStep = function () {
 
 window.selectBranch = function (id, name) {
     selState.branch = { id, name };
+    if (typeof gtag === 'function') {
+        gtag('event', 'select_branch', { id, name });
+    }
     RoutingSystem.updateURL(selState);
     renderYearStep();
 };
@@ -358,6 +364,9 @@ window.renderYearStep = function () {
 
 window.selectYear = function (year) {
     selState.year = year;
+    if (typeof gtag === 'function') {
+        gtag('event', 'select_year', { year });
+    }
     RoutingSystem.updateURL(selState);
     renderSemesterStep();
 };
@@ -383,6 +392,9 @@ window.renderSemesterStep = function () {
 
 window.selectSemester = function (sem) {
     selState.semester = sem;
+    if (typeof gtag === 'function') {
+        gtag('event', 'select_semester', { sem });
+    }
     RoutingSystem.updateURL(selState);
     renderSubjectStep();
 }
@@ -455,6 +467,9 @@ window.renderSubjectStep = function () {
 
 window.selectSubject = function (id, name) {
     selState.subject = { id, name };
+    if (typeof gtag === 'function') {
+        gtag('event', 'select_subject', { id, name });
+    }
     RoutingSystem.updateURL(selState);
     showNotes();
 };

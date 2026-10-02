@@ -987,6 +987,13 @@ const AttendancePro = {
             if (status === 'present') subject.attended = (subject.attended || 0) + 1;
             if (status === 'absent') subject.missed = (subject.missed || 0) + 1;
             if (status === 'off') subject.off = (subject.off || 0) + 1;
+
+            if (typeof gtag === 'function') {
+                gtag('event', 'attendance_marked', {
+                    subject_name: subject.name,
+                    status: status
+                });
+            }
         }
         this.saveData();
         this.refreshUI();
@@ -1069,6 +1076,12 @@ const AttendancePro = {
             missed,
             off
         });
+
+        if (typeof gtag === 'function') {
+            gtag('event', 'attendance_subject_created', {
+                subject_name: name
+            });
+        }
 
         this.saveData(); this.closeModal(); this.refreshUI();
     },

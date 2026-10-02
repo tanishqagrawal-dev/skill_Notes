@@ -1,8 +1,8 @@
 window.getViewerUrl = function(url, title, id) { if (id) return '../pages/view?id=' + id; if (!url) return '#'; try { return '../pages/view?u=' + btoa(encodeURIComponent(url)) + '&t=' + btoa(encodeURIComponent(title || 'Document')); } catch(e) { return url; } };
-import { globalNotes } from '../data/globalNotes.js?v=mumnggte-ag3i';
-import { renderCodingArena } from './coding-arena.js?v=mumnggte-ag3i';
-import { RoutingSystem } from './routing.js?v=mumnggte-ag3i';
-import { initGlobalAnalytics } from './analytics.js?v=mumnggte-ag3i';
+import { globalNotes } from '../data/globalNotes.js?v=muqygc2b-gux8';
+import { renderCodingArena } from './coding-arena.js?v=muqygc2b-gux8';
+import { RoutingSystem } from './routing.js?v=muqygc2b-gux8';
+import { initGlobalAnalytics } from './analytics.js?v=muqygc2b-gux8';
 
 // Initialize analytics (Supabase & Firebase) so dashboard stats are populated globally
 initGlobalAnalytics();
@@ -601,7 +601,7 @@ function initDynamicColleges() {
     });
 }
 
-import { supabase } from './supabase-config.js?v=mumnggte-ag3i';
+import { supabase } from './supabase-config.js?v=muqygc2b-gux8';
 
 async function initNotesSync() {
     if (isNotesSyncInit) return;
@@ -2382,7 +2382,7 @@ function renderTabContent(tabId) {
                         <div class="sub-contact-section">
                             <div class="sub-contact-hdr"><i class="fas fa-headset"></i> Talk to Our Team</div>
                             <p class="sub-contact-desc">Have a question before upgrading? Our team responds within a few hours.</p>
-                            <a href="contact.html?topic=payment" class="sub-cf-submit" style="display:block; text-align:center; text-decoration:none; margin-top:1.5rem;">Open Support Ticket &rarr;</a>
+                            <a href="contact?topic=payment" onclick="event.preventDefault(); window.location.href=(window.location.pathname.includes('/pages/') ? 'contact?topic=payment' : 'pages/contact?topic=payment');" class="sub-cf-submit" style="display:block; text-align:center; text-decoration:none; margin-top:1.5rem;">Open Support Ticket &rarr;</a>
                         </div>
                     </div>
 
