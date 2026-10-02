@@ -806,46 +806,63 @@
             <!-- Free Plan -->
             <div class="pricing-card-wrapper active-mobile-plan" id="mobile-plan-free" data-aos="zoom-in" data-aos-delay="100">
                 <div class="premium-pricing-card">
-                    <div class="plan-header">
-                        <h3>Free Tier</h3>
-                        <p>Essential access for every student.</p>
+                    <div>
+                        <div class="plan-header">
+                            <h3>Free Tier</h3>
+                            <p>Essential access for every student.</p>
+                        </div>
+                        <div class="price">₹0 <span>/ mo</span></div>
+                        <ul class="plan-features">
+                            <li><i data-lucide="check" class="icon-check"></i> Unlimited Note Views</li>
+                            <li><i data-lucide="check" class="icon-check"></i> Free AI Exam Strategist</li>
+                            <li><i data-lucide="check" class="icon-check"></i> Free AI Study Plan</li>
+                            <li><i data-lucide="check" class="icon-check"></i> Free Coding Arena</li>
+                            <div class="plan-features-more" id="more-features-free">
+                                <li><i data-lucide="zap" class="icon-zap"></i> AI Coach (5/day)</li>
+                                <li><i data-lucide="zap" class="icon-zap"></i> 3 AI Model Papers / mo</li>
+                                <li><i data-lucide="zap" class="icon-zap"></i> 5 AI Summaries / mo</li>
+                                <li class="disabled"><i data-lucide="x" class="icon-x"></i> CodeTantra Solutions</li>
+                            </div>
+                        </ul>
                     </div>
-                    <div class="price">₹0 <span>/ mo</span></div>
-                    <ul class="plan-features">
-                        <li><i data-lucide="check" class="icon-check"></i> Unlimited Note Views</li>
-                        <li><i data-lucide="check" class="icon-check"></i> Free AI Exam Strategist</li>
-                        <li><i data-lucide="check" class="icon-check"></i> Free AI Study Plan</li>
-                        <li><i data-lucide="check" class="icon-check"></i> Free Coding Arena</li>
-                        <li><i data-lucide="zap" class="icon-zap"></i> AI Coach (5/day)</li>
-                        <li><i data-lucide="zap" class="icon-zap"></i> 3 AI Model Papers / mo</li>
-                        <li><i data-lucide="zap" class="icon-zap"></i> 5 AI Summaries / mo</li>
-                        <li class="disabled"><i data-lucide="x" class="icon-x"></i> CodeTantra Solutions</li>
-                    </ul>
-                    <button class="btn btn-ghost btn-full" onclick="window.location.href='pages/dashboard'">Get Started</button>
+                    <div>
+                        <button type="button" class="btn-plan-toggle-more" onclick="togglePlanFeatures(this, event)">
+                            <span>See More</span> <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <button class="btn btn-ghost btn-full" onclick="window.location.href='pages/dashboard'">Get Started</button>
+                    </div>
                 </div>
             </div>
 
             <!-- CodeTantra Plan -->
             <div class="pricing-card-wrapper" id="mobile-plan-codetantra" data-aos="zoom-in" data-aos-delay="150" onclick="window.location.href='pages/dashboard.html?tab=subscription'" style="cursor:pointer;">
                 <div class="premium-pricing-card">
-                    <div class="plan-header">
-                        <h3>CodeTantra <span style="color: var(--secondary)">Hub</span></h3>
-                        <p>Unlock premium lab solutions.</p>
+                    <div>
+                        <div class="plan-header">
+                            <h3>CodeTantra <span style="color: var(--secondary)">Hub</span></h3>
+                            <p>Unlock premium lab solutions.</p>
+                        </div>
+                        <div class="price" id="price-codetantra">₹19 <span>/ 1mo</span>
+                            <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 5px;">or ₹89 / 6mo</div>
+                        </div>
+                        <ul class="plan-features">
+                            <li><i data-lucide="sparkles" class="icon-pro"></i> <strong>Everything in Free</strong></li>
+                            <li><i data-lucide="check" class="icon-check" style="color: var(--secondary)"></i> CodeTantra Solutions</li>
+                            <li><i data-lucide="zap" class="icon-zap"></i> AI Coach (5/day)</li>
+                            <li><i data-lucide="zap" class="icon-zap"></i> 3 AI Model Papers / mo</li>
+                            <div class="plan-features-more" id="more-features-codetantra">
+                                <li><i data-lucide="zap" class="icon-zap"></i> 5 AI Summaries / mo</li>
+                                <li class="disabled"><i data-lucide="x" class="icon-x"></i> Verified Badge</li>
+                                <li class="disabled"><i data-lucide="x" class="icon-x"></i> Ad-free Experience</li>
+                            </div>
+                        </ul>
                     </div>
-                    <div class="price" id="price-codetantra">₹19 <span>/ 1mo</span>
-                        <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 5px;">or ₹89 / 6mo</div>
+                    <div>
+                        <button type="button" class="btn-plan-toggle-more" onclick="togglePlanFeatures(this, event)">
+                            <span>See More</span> <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <button class="btn btn-primary btn-full" onclick="event.stopPropagation(); window.location.href='pages/dashboard.html?tab=subscription'">Subscribe Now</button>
                     </div>
-                    <ul class="plan-features">
-                        <li><i data-lucide="sparkles" class="icon-pro"></i> <strong>Everything in Free</strong></li>
-                        <li><i data-lucide="check" class="icon-check" style="color: var(--secondary)"></i>
-                            CodeTantra Solutions</li>
-                        <li><i data-lucide="zap" class="icon-zap"></i> AI Coach (5/day)</li>
-                        <li><i data-lucide="zap" class="icon-zap"></i> 3 AI Model Papers / mo</li>
-                        <li><i data-lucide="zap" class="icon-zap"></i> 5 AI Summaries / mo</li>
-                        <li class="disabled"><i data-lucide="x" class="icon-x"></i> Verified Badge</li>
-                        <li class="disabled"><i data-lucide="x" class="icon-x"></i> Ad-free Experience</li>
-                    </ul>
-                    <button class="btn btn-primary btn-full" onclick="event.stopPropagation(); window.location.href='pages/dashboard.html?tab=subscription'">Subscribe Now</button>
                 </div>
             </div>
 
@@ -853,31 +870,61 @@
             <div class="pricing-card-wrapper featured" id="mobile-plan-scholar" data-aos="zoom-in" data-aos-delay="200" onclick="window.location.href='pages/dashboard.html?tab=subscription'" style="cursor:pointer;">
                 <div class="premium-pricing-card featured">
                     <div class="popular-badge">MOST POPULAR</div>
-                    <div class="plan-header">
-                        <h3>Premium <span class="gradient-text">Scholar</span></h3>
-                        <p>Detailed insights &amp; powerful AI tools.</p>
+                    <div>
+                        <div class="plan-header">
+                            <h3>Premium <span class="gradient-text">Scholar</span></h3>
+                            <p>Detailed insights &amp; powerful AI tools.</p>
+                        </div>
+                        <div class="price" id="price-pro">₹49 <span>/ 1mo</span>
+                            <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 5px;">or ₹149 / 6mo</div>
+                        </div>
+                        <ul class="plan-features">
+                            <li><i data-lucide="sparkles" class="icon-pro"></i> <strong>Everything in CodeTantra Hub</strong></li>
+                            <li><i data-lucide="check" class="icon-check"></i> Company-Wise Practice (Google, Amazon, Meta)</li>
+                            <li><i data-lucide="check" class="icon-check"></i> Full Optimal Solutions & Code</li>
+                            <li><i data-lucide="check" class="icon-check"></i> Unlimited 24/7 AI Doubt Solver</li>
+                            <div class="plan-features-more" id="more-features-scholar">
+                                <li><i data-lucide="check" class="icon-check"></i> 30 AI Model Papers / mo</li>
+                                <li><i data-lucide="check" class="icon-check"></i> 30 AI Summaries / mo</li>
+                                <li><i data-lucide="shield-check" class="icon-check"></i> Verified "Scholar" Badge</li>
+                                <li><i data-lucide="check" class="icon-check"></i> 100% Ad-Free Interface</li>
+                            </div>
+                        </ul>
                     </div>
-                    <div class="price" id="price-pro">₹49 <span>/ 1mo</span>
-                        <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 5px;">or ₹149 / 6mo</div>
+                    <div>
+                        <button type="button" class="btn-plan-toggle-more" onclick="togglePlanFeatures(this, event)">
+                            <span>See More</span> <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <button class="btn btn-primary btn-full" onclick="event.stopPropagation(); window.location.href='pages/dashboard.html?tab=subscription'">Subscribe Now</button>
                     </div>
-                    <ul class="plan-features">
-                        <li><i data-lucide="sparkles" class="icon-pro"></i> <strong>Everything in
-                                CodeTantra Hub</strong></li>
-                        <li><i data-lucide="check" class="icon-check"></i> Company-Wise Practice (Google, Amazon, Meta)</li>
-                        <li><i data-lucide="check" class="icon-check"></i> Full Optimal Solutions & Code</li>
-                        <li><i data-lucide="check" class="icon-check"></i> Unlimited 24/7 AI Doubt Solver</li>
-                        <li><i data-lucide="check" class="icon-check"></i> 30 AI Model Papers / mo</li>
-                        <li><i data-lucide="check" class="icon-check"></i> 30 AI Summaries / mo</li>
-                        <li><i data-lucide="shield-check" class="icon-check"></i> Verified "Scholar" Badge</li>
-                        <li><i data-lucide="check" class="icon-check"></i> 100% Ad-Free Interface</li>
-                    </ul>
-                    <button class="btn btn-primary btn-full" onclick="event.stopPropagation(); window.location.href='pages/dashboard.html?tab=subscription'">Subscribe Now</button>
                 </div>
             </div>
         </div>
     </section>
 
     <script>
+        function togglePlanFeatures(btn, event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            const card = btn.closest('.premium-pricing-card');
+            if (!card) return;
+            const moreDiv = card.querySelector('.plan-features-more');
+            if (!moreDiv) return;
+
+            const isExpanded = moreDiv.classList.toggle('expanded');
+            const span = btn.querySelector('span');
+            const icon = btn.querySelector('i');
+
+            if (span) span.textContent = isExpanded ? 'See Less' : 'See More';
+            if (icon) icon.className = isExpanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                lucide.createIcons();
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const tabs = document.querySelectorAll('.pricing-tab');
             const plans = {
