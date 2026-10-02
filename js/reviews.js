@@ -646,7 +646,7 @@ class SKiLReviewsEngine {
             });
             if (res.ok) {
                 const data = await res.json();
-                if (Array.isArray(data) && data.length > 0) {
+                if (Array.isArray(data)) {
                     return data;
                 }
             }
@@ -735,10 +735,10 @@ class SKiLReviewsEngine {
     }
 
     /**
-     * Reconcile database reviews with local cache (updates like counts, removes deleted items)
+     * Reconcile database reviews with local cache (authoritative sync from Supabase)
      */
     syncDatabaseReviewsList(dbList) {
-        if (!Array.isArray(dbList) || dbList.length === 0) return;
+        if (!Array.isArray(dbList)) return;
 
         const formattedDbReviews = dbList.map(item => {
             const isUUID = item.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(item.id));
@@ -761,17 +761,18 @@ class SKiLReviewsEngine {
             return !this.deletedSignatures.has(sig) && !this.deletedSignatures.has(String(item.id));
         });
 
-        // Retain pending local submissions (created less than 20s ago)
+        // Retain only genuinely pending local submissions (created less than 20s ago that have not landed in DB yet)
         const now = Date.now();
         const pendingLocal = this.reviews.filter(r => {
-            if (r.id && String(r.id).startsWith('rev_')) {
+            if (r.id && String(r.id).startsWith('rev_') && !r.supabaseId && !r.firestoreId) {
                 const ts = parseInt(String(r.id).replace('rev_', ''), 10);
                 if (!isNaN(ts) && now - ts < 20000) return true;
             }
             return false;
         });
 
-        const combined = [...this.reviews, ...pendingLocal, ...formattedDbReviews];
+        // Database is authoritative: replace cached reviews with live database list + pending
+        const combined = [...pendingLocal, ...formattedDbReviews];
         this.reviews = this.deduplicateReviews(combined);
         localStorage.setItem('skm_user_reviews_cache', JSON.stringify(this.reviews));
         this.renderStats();
@@ -868,14 +869,14 @@ class SKiLReviewsEngine {
     }
 
     async connectLiveDatabase() {
-        // 1. Initial Load via REST API (Instant, guaranteed, fail-safe)
+        // 1. Initial Load via REST API (Instant, guaranteed, authoritative)
         this.fetchSupabaseReviewsREST().then(restData => {
-            if (restData && restData.length > 0) {
+            if (Array.isArray(restData)) {
                 this.syncDatabaseReviewsList(restData);
             }
         });
 
-        // 2. Fetch from Supabase & Subscribe to Real-Time Postgres Changes
+        // 2. Fetch from Supabase SDK & Subscribe to Real-Time Postgres Changes
         try {
             const sb = await this.getSupabaseClient();
             if (sb) {
@@ -885,7 +886,7 @@ class SKiLReviewsEngine {
                     .order('created_at', { ascending: false })
                     .limit(50);
 
-                if (!error && data && data.length > 0) {
+                if (!error && Array.isArray(data)) {
                     this.syncDatabaseReviewsList(data);
                 }
 
@@ -898,6 +899,7 @@ class SKiLReviewsEngine {
                             (payload) => {
                                 if (payload.eventType === 'DELETE') {
                                     this.handleRemoteDelete(payload.old?.id, payload.old);
+                                    this.refreshDatabaseReviews();
                                 } else if (payload.eventType === 'UPDATE') {
                                     this.handleRemoteUpdate(payload.new);
                                 } else if (payload.eventType === 'INSERT') {
@@ -914,60 +916,27 @@ class SKiLReviewsEngine {
             console.warn('Supabase reviews load note:', sbErr);
         }
 
-        // 3. Dual-Sync with Firestore Realtime Listener
-        const tryFirestore = () => {
-            if (window.firebaseServices && window.firebaseServices.db) {
-                try {
-                    const { db, collection, onSnapshot, query, limit } = window.firebaseServices;
-                    const q = query(
-                        collection(db, 'student_reviews'),
-                        limit(50)
-                    );
-                    
-                    onSnapshot(q, (snapshot) => {
-                        const liveReviews = [];
-                        snapshot.forEach(docSnap => {
-                            liveReviews.push({ id: docSnap.id, ...docSnap.data() });
-                        });
-
-                        if (liveReviews.length > 0) {
-                            this.syncDatabaseReviewsList(liveReviews);
-                        }
-
-                        // Handle exact incremental events
-                        if (snapshot.docChanges) {
-                            snapshot.docChanges().forEach((change) => {
-                                if (change.type === 'removed') {
-                                    this.handleRemoteDelete(change.doc.id, change.doc.data());
-                                } else if (change.type === 'modified') {
-                                    this.handleRemoteUpdate({ id: change.doc.id, ...change.doc.data() });
-                                }
-                            });
-                        }
-                    }, (err) => {
-                        console.warn('Firestore live listener note:', err);
-                    });
-                } catch (e) {
-                    console.warn('Firestore listener init note:', e);
-                }
-            } else {
-                setTimeout(tryFirestore, 1200);
+        // 3. Tab focus & visibility change listener (Auto-refresh instantly when returning from Supabase dashboard)
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                this.refreshDatabaseReviews();
             }
-        };
+        });
+        window.addEventListener('focus', () => {
+            this.refreshDatabaseReviews();
+        });
 
-        tryFirestore();
-
-        // 4. Periodic lightweight cloud refresh (every 20s) to guarantee like counts stay identical for all users
+        // 4. Periodic lightweight cloud refresh (every 8s) to guarantee real-time sync with Supabase
         if (!this._pollInterval) {
             this._pollInterval = setInterval(() => {
                 this.refreshDatabaseReviews();
-            }, 20000);
+            }, 8000);
         }
     }
 
     async refreshDatabaseReviews() {
         const restData = await this.fetchSupabaseReviewsREST();
-        if (restData && restData.length > 0) {
+        if (Array.isArray(restData)) {
             this.syncDatabaseReviewsList(restData);
         }
     }
