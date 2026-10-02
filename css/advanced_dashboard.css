@@ -590,6 +590,7 @@ body.light-mode .skeleton {
         margin-top: 0;
         display: -webkit-box;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -1006,6 +1007,7 @@ body.light-mode .skeleton {
     #premium-leaderboard-wrapper .col-user > div:last-child > div:first-child {
         display: -webkit-box;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -1033,9 +1035,6 @@ body.light-mode .skeleton {
     min-width: 0;
 }
 
-#premium-leaderboard-wrapper .col-user > div:last-child > div:first-child {
-    /* Styles handled in media queries */
-}
 
 #premium-leaderboard-wrapper .col-stat {
     font-weight: 600;

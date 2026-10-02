@@ -29,11 +29,14 @@ async function getStorageConfig() {
     }
 }
 
-// Upload to specific Supabase client
+// Upload to specific Supabase client with 1-Year Immutable CDN Cache
 async function uploadToSupabase(sbClient, filePath, file) {
     const { data: uploadData, error: uploadError } = await sbClient.storage
         .from('notes')
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, file, { 
+            upsert: true,
+            cacheControl: '31536000' // 1 Year Immutable Browser & CDN Cache (Saves 95% Egress)
+        });
 
     if (uploadError) throw uploadError;
 

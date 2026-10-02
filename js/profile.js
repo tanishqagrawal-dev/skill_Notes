@@ -1484,7 +1484,8 @@ class ProfileManager {
             .from('avatars')
             .upload(fileName, blob, {
                 contentType: 'image/jpeg',
-                upsert: true
+                upsert: true,
+                cacheControl: '31536000'
             });
 
         if (error) throw error;

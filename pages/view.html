@@ -847,18 +847,42 @@
             `;
         }
 
+        // Transparent Zero-Egress Client Cache Helper
+        async function getCachedNoteBlob(url) {
+            try {
+                if ('caches' in window) {
+                    const cache = await caches.open('skm-notes-pdf-v1');
+                    const cachedResponse = await cache.match(url);
+                    if (cachedResponse) {
+                        return await cachedResponse.blob();
+                    }
+                    const networkResponse = await fetch(url);
+                    if (networkResponse && networkResponse.ok) {
+                        cache.put(url, networkResponse.clone()).catch(() => {});
+                        return await networkResponse.blob();
+                    }
+                }
+            } catch (e) {
+                console.warn("PDF cache bypass note:", e);
+            }
+            return null;
+        }
+
         window.forceDownload = async function (url, filename) {
             try {
                 const btn = document.getElementById('btn-download');
                 const originalHTML = btn.innerHTML;
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Downloading...</span>';
 
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Network response was not ok');
+                // Reuse cached blob directly if available (0 extra Supabase bandwidth)
+                let blob = await getCachedNoteBlob(url);
+                if (!blob) {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    blob = await response.blob();
+                }
 
-                const blob = await response.blob();
                 const objectUrl = URL.createObjectURL(blob);
-
                 const a = document.createElement('a');
                 a.href = objectUrl;
                 a.download = filename || 'document.pdf';
@@ -866,7 +890,7 @@
                 a.click();
 
                 document.body.removeChild(a);
-                URL.revokeObjectURL(objectUrl);
+                setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
 
                 if (typeof gtag === 'function') {
                     const urlParams = new URLSearchParams(window.location.search);
@@ -1215,7 +1239,15 @@
             pageIndicator.style.display = 'inline-flex';
 
             try {
-                const loadingTask = pdfjsLib.getDocument(url);
+                let loadingTask;
+                const cachedBlob = await getCachedNoteBlob(url);
+                if (cachedBlob) {
+                    const arrayBuffer = await cachedBlob.arrayBuffer();
+                    loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                } else {
+                    loadingTask = pdfjsLib.getDocument(url);
+                }
+
                 const pdf = await loadingTask.promise;
                 window._currentPdfDoc = pdf;
 

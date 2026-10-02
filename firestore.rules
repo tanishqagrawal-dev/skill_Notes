@@ -81,6 +81,14 @@ service cloud.firestore {
       allow write: if isSignedIn() && request.auth.uid == userId;
     }
 
+    // --- Student Reviews & Feedback ---
+    match /student_reviews/{reviewId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']);
+      allow delete: if hasRole('admin') || hasRole('superadmin');
+    }
+
     // --- Legacy / Safety ---
     match /college_admins/{collegeId} {
       allow read: if true;

@@ -105,6 +105,7 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="css/main.css?v=11.0">
+    <link rel="stylesheet" href="css/reviews.css?v=6.0">
     <link rel="stylesheet" href="css/lockOverlay.css?v=6.0">
 
     <!-- Trending Notes Showcase Styles -->
@@ -672,156 +673,118 @@
         </div>
     </section>
 
-    <!-- Testimonials Section -->
-    <section id="testimonials" class="testimonials container">
-        <div class="section-header" data-aos="fade-up">
-            <h2 class="section-title">Loved by <span class="gradient-text">Students</span></h2>
-            <p>Real results from real learners</p>
+    <!-- Premium Student Reviews & Ratings Section (Clean Matte Theme) -->
+    <section id="testimonials" class="reviews-section-v2 container">
+        <div class="reviews-header-v2" data-aos="fade-up">
+            <div class="live-pill-badge">
+                <i class="fas fa-check-circle" style="color: var(--rv-accent-green);"></i>
+                <span>Student Feedback</span>
+            </div>
+            <h2 class="reviews-main-title">Real Feedback from <span class="gradient-text">Engineers</span></h2>
+            <p class="reviews-subtitle-v2">
+                Share your semester exam prep, practical labs, or study experience on SKiL MATRiX.
+            </p>
+            <div class="reviews-metrics-ribbon">
+                <div class="ribbon-item">
+                    <span class="ribbon-stars" id="stat-ribbon-stars"><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i></span>
+                    <strong><span id="stat-avg-score">0.0</span>/5.0</strong> Rating
+                </div>
+                <div class="ribbon-item">
+                    <i class="fas fa-users" style="color: var(--rv-accent-blue);"></i>
+                    <strong id="stat-total-voices">0</strong> Reviews
+                </div>
+                <div class="ribbon-item">
+                    <i class="fas fa-shield-alt" style="color: var(--rv-accent-green);"></i>
+                    <strong>100%</strong> Verified Students
+                </div>
+            </div>
         </div>
-        <div class="testimonials-wrapper">
-            <div class="testimonials-track">
-                <!-- Original 5 -->
-                <div class="glass-card testimonial-card">
-                    <p class="testimonial-text">"The AI Doubt Solver explained pointers better than my professor did
-                        in
-                        3 lectures. Cleared my concept in 10 minutes."</p>
-                    <div class="testimonial-footer">
-                        <div class="user-info">
-                            <div class="user-avatar-mini">RS</div>
-                            <div>
-                                <h4>Rahul S.</h4>
-                                <span>CSE, 3rd Year</span>
-                            </div>
-                        </div>
+
+        <!-- CENTERED REVIEW COMPOSER BOX -->
+        <div class="review-box-card-v2" data-aos="fade-up">
+            <div class="rb-top-bar">
+                <div class="rb-title-group">
+                    <i class="fas fa-pen-nib" style="color: var(--rv-primary);"></i>
+                    <div>
+                        <h3 class="rb-heading">Share Your Experience</h3>
+                        <p class="rb-subheading">Rate SKiL MATRiX and share your thoughts with peers</p>
                     </div>
                 </div>
-                <div class="glass-card testimonial-card">
-                    <p class="testimonial-text">"Generated a full model paper for OS one day before my exam. Got
-                        exactly
-                        the
-                        kind of questions that came. Lifesaver."</p>
-                    <div class="testimonial-footer">
-                        <div class="user-info">
-                            <div class="user-avatar-mini">PK</div>
-                            <div>
-                                <h4>Priya K.</h4>
-                                <span>IT, 2nd Year</span>
-                            </div>
+
+                <!-- User Auth Status Bar -->
+                <div class="user-auth-state-bar-v2" id="user-auth-state-bar">
+                    <div class="auth-user-preview-compact">
+                        <div class="auth-user-avatar-initial-compact"><i class="fas fa-user-graduate"></i></div>
+                        <div class="rc-name-col">
+                            <div class="auth-user-name-compact">Student Reviewer</div>
+                            <div class="rc-sub-compact">Sign in for verified badge</div>
                         </div>
+                    </div>
+                    <button type="button" class="btn-google-auth-micro" id="rv-google-login-btn">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                        <span>Sign in</span>
+                    </button>
+                </div>
+            </div>
+
+            <form id="rv-submit-form">
+                <!-- Rating Stars Row (Starts at 0 by default) -->
+                <div class="rb-controls-row">
+                    <div class="rb-star-picker-wrapper">
+                        <span class="rb-label">Your Rating:</span>
+                        <div class="interactive-stars-v2" id="rv-star-container">
+                            <i class="far fa-star interactive-star-v2" data-val="1"></i>
+                            <i class="far fa-star interactive-star-v2" data-val="2"></i>
+                            <i class="far fa-star interactive-star-v2" data-val="3"></i>
+                            <i class="far fa-star interactive-star-v2" data-val="4"></i>
+                            <i class="far fa-star interactive-star-v2" data-val="5"></i>
+                        </div>
+                        <span class="rb-star-badge" id="rv-star-feedback">Tap to rate (1–5 Stars)</span>
                     </div>
                 </div>
-                <div class="glass-card testimonial-card">
-                    <p class="testimonial-text">"Finally a platform that actually understands engineering syllabus.
-                        Notes
-                        are clean, organized, and actually match what's in the exam."</p>
-                    <div class="testimonial-footer">
-                        <div class="user-info">
-                            <div class="user-avatar-mini">AM</div>
-                            <div>
-                                <h4>Arjun M.</h4>
-                                <span>ECE, 4th Year</span>
-                            </div>
-                        </div>
+
+                <!-- Inputs Grid (Name, Branch & Sem) -->
+                <div class="rb-inputs-grid-v2">
+                    <input type="text" id="rv-input-name" class="rb-input-v2" placeholder="Your Name (e.g. Rahul Sharma)">
+                    <input type="text" id="rv-input-branch" class="rb-input-v2" placeholder="Branch & Sem (e.g. CSE 5th Sem)" required>
+                </div>
+
+                <!-- Review Textarea -->
+                <div class="rb-textarea-wrapper">
+                    <textarea id="rv-textarea" class="rb-textarea-v2" placeholder="Share how SKiL MATRiX helped your exam prep, practicals, or daily study..." maxlength="500" required></textarea>
+                    <div class="rb-textarea-footer">
+                        <span class="rb-hint"><i class="fas fa-info-circle"></i> Honest student reviews help engineering peers nationwide.</span>
+                        <span id="rv-char-count">0 / 500</span>
                     </div>
                 </div>
-                <div class="glass-card testimonial-card">
-                    <p class="testimonial-text">"The Bookmark feature is a game changer. I can save all my important
-                        resources and access them instantly before exams. Truly a smart way to study."</p>
-                    <div class="testimonial-footer">
-                        <div class="user-info">
-                            <div class="user-avatar-mini">SR</div>
-                            <div>
-                                <h4>Sneha R.</h4>
-                                <span>EE, 2nd Year</span>
-                            </div>
-                        </div>
-                    </div>
+
+                <button type="submit" id="btn-submit-review-action" class="btn-submit-review-v2">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Submit Review</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- HORIZONTAL SCROLLING REVIEWS TRACK -->
+        <div class="reviews-horizontal-section-v2" data-aos="fade-up">
+            <!-- Header Bar with Review Count & Arrow Navigation -->
+            <div class="reviews-horizontal-header-bar">
+                <div class="reviews-wall-title">
+                    <i class="fas fa-comments" style="color: var(--rv-primary);"></i>
+                    <span>Student Reviews Wall</span>
                 </div>
-                <div class="glass-card testimonial-card">
-                    <p class="testimonial-text">"The CGPA Analyzer helped me realize exactly how much I needed to
-                        score
-                        in my finals to keep my scholarship. It's accurate and very motivating!"</p>
-                    <div class="testimonial-footer">
-                        <div class="user-info">
-                            <div class="user-avatar-mini">VD</div>
-                            <div>
-                                <h4>Vikram D.</h4>
-                                <span>ME, 4th Year</span>
-                            </div>
-                        </div>
-                    </div>
+
+                <div class="carousel-nav-group">
+                    <span class="filter-status-text-v2" id="filter-results-count">0 Reviews</span>
+                    <button type="button" class="btn-carousel-arrow" id="btn-carousel-left" aria-label="Previous Reviews"><i class="fas fa-chevron-left"></i></button>
+                    <button type="button" class="btn-carousel-arrow" id="btn-carousel-right" aria-label="Next Reviews"><i class="fas fa-chevron-right"></i></button>
                 </div>
-                <!-- Cloned 5 for seamless loop -->
-                <div class="glass-card testimonial-card">
-                    <p class="testimonial-text">"The AI Doubt Solver explained pointers better than my professor did
-                        in
-                        3
-                        lectures. Cleared my concept in 10 minutes."</p>
-                    <div class="testimonial-footer">
-                        <div class="user-info">
-                            <div class="user-avatar-mini">RS</div>
-                            <div>
-                                <h4>Rahul S.</h4>
-                                <span>CSE, 3rd Year</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="glass-card testimonial-card">
-                    <p class="testimonial-text">"Generated a full model paper for OS one day before my exam. Got
-                        exactly
-                        the
-                        kind of questions that came. Lifesaver."</p>
-                    <div class="testimonial-footer">
-                        <div class="user-info">
-                            <div class="user-avatar-mini">PK</div>
-                            <div>
-                                <h4>Priya K.</h4>
-                                <span>IT, 2nd Year</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="glass-card testimonial-card">
-                    <p class="testimonial-text">"Finally a platform that actually understands engineering syllabus.
-                        Notes
-                        are clean, organized, and actually match what's in the exam."</p>
-                    <div class="testimonial-footer">
-                        <div class="user-info">
-                            <div class="user-avatar-mini">AM</div>
-                            <div>
-                                <h4>Arjun M.</h4>
-                                <span>ECE, 4th Year</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="glass-card testimonial-card">
-                    <p class="testimonial-text">"The Bookmark feature is a game changer. I can save all my important
-                        resources and access them instantly before exams. Truly a smart way to study."</p>
-                    <div class="testimonial-footer">
-                        <div class="user-info">
-                            <div class="user-avatar-mini">SR</div>
-                            <div>
-                                <h4>Sneha R.</h4>
-                                <span>EE, 2nd Year</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="glass-card testimonial-card">
-                    <p class="testimonial-text">"The CGPA Analyzer helped me realize exactly how much I needed to
-                        score
-                        in my finals to keep my scholarship. It's accurate and very motivating!"</p>
-                    <div class="testimonial-footer">
-                        <div class="user-info">
-                            <div class="user-avatar-mini">VD</div>
-                            <div>
-                                <h4>Vikram D.</h4>
-                                <span>ME, 4th Year</span>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+
+            <!-- Horizontal Cards Track Container -->
+            <div class="reviews-horizontal-track-container" id="reviews-track-container">
+                <div class="reviews-horizontal-track" id="reviews-grid-container">
+                    <!-- Dynamic review cards loaded from database -->
                 </div>
             </div>
         </div>
@@ -1353,6 +1316,7 @@
     </script>
 
     <script type="module" src="js/firebase-config.js?v=6.0"></script>
+    <script type="module" src="js/supabase-config.js?v=6.0"></script>
     <script type="module">
         import { initRealtimeStats } from './js/stats.js?v=6.0';
         initRealtimeStats();
@@ -1361,6 +1325,8 @@
     <script src="js/lockOverlay.js?v=6.0" defer></script>
     <script src="js/founders.js?v=6.0" defer></script>
     <script src="js/footer.js?v=6.0" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/reviews.js?v=6.0" defer></script>
     <script src="js/main.js?v=6.0" defer></script>
     <script>
         /* Theme Sync */
